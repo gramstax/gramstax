@@ -1,0 +1,19 @@
+{
+  "name": "gramstax",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/gramstax/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{workspaceRoot}/packages/gramstax/dist"],
+      "options": {
+        "outputPath": "packages/gramstax/dist",
+        "main": "packages/gramstax/src/index.ts",
+        "tsConfig": "packages/gramstax/tsconfig.json",
+        "assets": []
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "name": "create-gramstax",
+  "version": "0.0.1",
+  "private": false,
+  "description": "CLI tool to quickly create a new Gramstax Telegram bot project with all the best practices",
+  "keywords": [
+    "create-gramstax",
+    "gramstax",
+    "telegram",
+    "bot",
+    "cli",
+    "generator",
+    "scaffold",
+    "telegram-bot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gramstax/gramstax",
+    "directory": "packages/create-gramstax"
+  },
+  "bugs": {
+    "url": "https://github.com/gramstax/gramstax/issues"
+  },
+  "homepage": "https://github.com/gramstax/gramstax",
+  "author": "gramstax",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "bin": {
+    "create-gramstax": "./dist/src/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "commander": "^14.0.2",
+    "enquirer": "^2.4.1",
+    "gramstax": "workspace:*",
+    "logging-pretty": "^3.0.0"
+  }
+}

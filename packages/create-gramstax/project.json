@@ -1,0 +1,31 @@
+{
+  "name": "create-gramstax",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/create-gramstax/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{workspaceRoot}/packages/create-gramstax/dist"],
+      "options": {
+        "outputPath": "packages/create-gramstax/dist",
+        "main": "packages/create-gramstax/src/index.ts",
+        "tsConfig": "packages/create-gramstax/tsconfig.json",
+        "assets": [
+          {
+            "input": "packages/create-gramstax/src",
+            "glob": "templates/*",
+            "output": "./src"
+          },
+          {
+            "input": "packages/create-gramstax/src",
+            "glob": "templates/**/*",
+            "output": "./src"
+          }
+        ]
+      },
+      "dependsOn": ["gramstax:build"]
+    }
+  }
+}
