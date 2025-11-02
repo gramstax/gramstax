@@ -105,7 +105,7 @@ pm2 save
 
 ### PM2 Configuration
 
-The `ecosystem.config.cjs` file contains PM2 configuration:
+The `ecosystem.config.js` file contains PM2 configuration:
 
 - **instances**: Number of instances (default: 1)
 - **exec_mode**: Execution mode (cluster/fork)

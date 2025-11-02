@@ -4,19 +4,19 @@
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
-    "composite": true,
     "rootDir": "src",
-    "module": "ESNext",
+    "module": "Preserve",
     "target": "ESNext",
     "noEmit": false,
     "allowImportingTsExtensions": false,
     "verbatimModuleSyntax": false
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "src/templates"],
-  "references": [
-    {
-      "path": "../gramstax"
-    }
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/templates"
   ]
 }

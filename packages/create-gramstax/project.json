@@ -6,26 +6,11 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{workspaceRoot}/packages/create-gramstax/dist"],
+      "executor": "nx:run-commands",
       "options": {
-        "outputPath": "packages/create-gramstax/dist",
-        "main": "packages/create-gramstax/src/index.ts",
-        "tsConfig": "packages/create-gramstax/tsconfig.json",
-        "assets": [
-          {
-            "input": "packages/create-gramstax/src",
-            "glob": "templates/*",
-            "output": "./src"
-          },
-          {
-            "input": "packages/create-gramstax/src",
-            "glob": "templates/**/*",
-            "output": "./src"
-          }
-        ]
-      },
-      "dependsOn": ["gramstax:build"]
+        "command": "tsup",
+        "cwd": "{workspaceRoot}/packages/create-gramstax"
+      }
     }
   }
 }

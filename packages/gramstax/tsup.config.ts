@@ -1,0 +1,24 @@
+import { defineConfig } from "tsup"
+import { rmdirSync } from "node:fs"
+
+// hard clean
+try {
+  rmdirSync(`./dist`)
+} catch {
+  //
+}
+
+export default defineConfig({
+  outDir: `./dist/src`,
+  entry: [`./src/index.ts`],
+  format: [`cjs`, `esm`],
+  cjsInterop: true,
+  dts: true,
+  clean: true,
+  minify: true,
+  sourcemap: true,
+  keepNames: true,
+  platform: `node`,
+  target: `esnext`,
+  external: [`bun`]
+})
