@@ -70,7 +70,10 @@ export class Gramstax {
       cacheSession: this.cacheSession,
       cacheKeyboard: this.cacheKeyboard,
       templateManager: this.templateManager,
-      temp: { session: {} }
+      temp: {
+        session: {},
+        data: {}
+      }
     })
   }
 

@@ -5,7 +5,7 @@ import { TemplateManager } from "../template"
 import { InlineKeyboard, Keyboard, type Context } from "grammy"
 
 type IData = { name: string; callbackData: (...args: any) => string | any }
-type ITemp = { session: { method?: string; params?: any }; [key: string]: any }
+type ITemp = { session: { method?: string; params?: any }; data: Partial<IData>; [key: string]: any }
 
 export class Ctx extends BaseGeneral {
   public static template?: string // string html
@@ -101,7 +101,7 @@ export class Ctx extends BaseGeneral {
     this.templateManager = params.templateManager
     this.temp = params.temp
     if ((params as any)?.data) {
-      this.data = (params as any).data
+      this.temp.data = (params as any).data
     }
   }
 
