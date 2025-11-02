@@ -353,7 +353,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
     // Task 6: tsconfig.json
     const tsconfigPath = path.join(projectPath, `tsconfig.json`)
-    const tsconfigContent = fs.readFileSync(tsconfigPath, { encoding: `utf8` }).replace(`//{{types}}`, runtime == `bun` ? `bun-types` : ``)
+    const tsconfigContent = fs.readFileSync(tsconfigPath, { encoding: `utf8` }).replace(`//{{types}}`, runtime == `bun` ? `"bun-types"` : ``)
     fs.writeFileSync(tsconfigPath, tsconfigContent, { encoding: `utf8` })
 
     // Task 6: Install dependencies
