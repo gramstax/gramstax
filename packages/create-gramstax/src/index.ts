@@ -1,13 +1,11 @@
 #!/usr/bin/env node
-import * as fs from "fs"
-import * as path from "path"
 import { log } from "./utils/logger"
 import { Create } from "./create"
 import { Command } from "commander"
 
 // Read version from package.json
-const packageJsonPath = path.join(process.cwd(), `package.json`)
-const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`))
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const packageJson = require(`../package.json`)
 const version = packageJson.version || `0.0.0`
 const program = new Command()
 
