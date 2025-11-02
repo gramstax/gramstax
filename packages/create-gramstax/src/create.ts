@@ -17,7 +17,7 @@ type ProjectConfig = {
 export class Create {
   private config: ProjectConfig | undefined
 
-  public constructor(private projectDirectory?: string, private version?: string) {
+  public constructor(private projectDirectory?: string) {
     // Constructor hanya menerima parameter, tidak melakukan execution
   }
 
@@ -262,7 +262,6 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     const setupEslint = config.eslint
 
     // ========== SEMUA PROMPT SELESAI, SEKARANG VALIDASI ==========
-    log.info(`Create-gramstax v${this.version}`)
     log.info(`Project: ${projectName}`)
     log.info(`Location: ${projectPath}`)
     log.info(`Package Manager: ${packageManager}`)

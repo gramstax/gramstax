@@ -4,9 +4,7 @@ import { Create } from "./create"
 import { Command } from "commander"
 
 // Read version from package.json
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const packageJson = require(`../package.json`)
-const version = packageJson.version || `0.0.0`
+const version = `0.0.0`
 const program = new Command()
 
 program
@@ -16,7 +14,7 @@ program
   .argument(`[project-directory]`, `Directory to create the project in`)
   .action(async (projectDirectory?: string) => {
     try {
-      await new Create(projectDirectory, version).createProject()
+      await new Create(projectDirectory).createProject()
     } catch (error) {
       log.error(`Failed to create project: ${String(error)}`)
       process.exit(1)
