@@ -6,7 +6,7 @@ import { Create } from "./create"
 import { Command } from "commander"
 
 // Read version from package.json
-const packageJsonPath = path.join(__dirname, `../package.json`)
+const packageJsonPath = path.join(process.cwd(), `package.json`)
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`))
 const version = packageJson.version || `0.0.0`
 const program = new Command()
