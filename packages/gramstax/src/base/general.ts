@@ -1,4 +1,4 @@
-import LoggingPretty from "logging-pretty"
+import { LoggingPretty } from "logging-pretty"
 
 export abstract class BaseGeneral {
   public static log = new LoggingPretty()
