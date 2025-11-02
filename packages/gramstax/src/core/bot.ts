@@ -1,6 +1,6 @@
 import { Ctx } from "./ctx"
 import { serve } from "bun"
-import { readdirSync } from "node:fs"
+import { existsSync, readdirSync } from "node:fs"
 import { join, parse } from "node:path"
 import { CacheExternal } from "../cache"
 import { LoggingPretty } from "logging-pretty"
@@ -13,12 +13,12 @@ export class Gramstax {
   public templateManager: TemplateManager
   public cacheKeyboard: Map<any, any>
   public cacheSession: CacheExternal
-  public pages = this.pageLoads()
-  public log: LoggingPretty
+  public log: LoggingPretty | undefined
   public bot: Bot
+  public pages = this.pageLoads()
 
   public constructor(params: { token: string; deploy: string; log?: LoggingPretty; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
-    this.log = params.log || new LoggingPretty()
+    this.log = params.log === null ? undefined : params.log === undefined ? new LoggingPretty() : params.log
     this.cacheSession = params.cacheSession || new CacheExternal(`memory`, `session`)
     this.cacheKeyboard = params.cacheKeyboard || new Map()
     this.templateManager = params.templateManager || new TemplateManager({ path: null })
@@ -50,15 +50,15 @@ export class Gramstax {
   }
 
   public onCatch(error: BotError<Context>) {
-    this.log.error(`[Bot.catch]: ${String(error)}`)
+    this.log?.error?.(`[Bot.catch]: ${String(error)}`)
   }
 
   public onStart(botInfo: UserFromGetMe, method: `polling` | `webhook`, data: string | null) {
     const { username } = botInfo
     if (method == `polling`) {
-      this.log.success(`Telegram bot polling started: ${username}`)
+      this.log?.success?.(`Telegram bot polling started: ${username}`)
     } else {
-      this.log.success(`Telegram bot webhook started: ${username} (${data})`)
+      this.log?.success?.(`Telegram bot webhook started: ${username} (${data})`)
     }
   }
 
@@ -179,9 +179,13 @@ export class Gramstax {
   }
 
   public pageLoads() {
-    this.log.info(`Load pages..`)
+    this.log?.info?.(`Load pages..`)
 
     const path = join(process.cwd(), `src`, `pages`)
+    if (!existsSync(path)) {
+      throw new Error(`Folder ${path} is not found, please make it manually`)
+    }
+
     const files = readdirSync(path)
     const initStatic = {} as Record<string, { name: string; func: string }> // { [page.data.name]: { name: Page.data.name, func: routeFunctionName } }
     const initStaticIntent = initStatic // { [intent]: { name: page.data.name, func: routeFunctionName } }
@@ -319,7 +323,7 @@ export class Gramstax {
       this.pageSorts(Page, pages)
     }
 
-    this.log.info(`Finish load pages with total (${Object.keys(pages.all).length})`)
+    this.log?.info?.(`Finish load pages with total (${Object.keys(pages.all).length})`)
     return pages
   }
 
