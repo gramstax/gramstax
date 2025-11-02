@@ -13,9 +13,9 @@ export class Gramstax {
   public templateManager: TemplateManager
   public cacheKeyboard: Map<any, any>
   public cacheSession: CacheExternal
-  public log: LoggingPretty | undefined
+  public log: LoggingPretty | undefined | null
   public bot: Bot
-  public pages = this.pageLoads()
+  public pages: ReturnType<typeof this.pageLoads>
 
   public constructor(params: { token: string; deploy: string; log?: LoggingPretty; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
     this.log = params.log === null ? undefined : params.log === undefined ? new LoggingPretty() : params.log
@@ -37,6 +37,9 @@ export class Gramstax {
     this.bot.on(`message:sticker`, this.onMessageSticker.bind(this)) // Handle global sticker messages
     this.bot.on(`message:location`, this.onMessageLocation.bind(this)) // Handle global location messages
     this.bot.on(`message:contact`, this.onMessageContact.bind(this)) // Handle global contact messages
+
+    // Load pages AFTER templateManager is initialized
+    this.pages = this.pageLoads()
 
     // Graceful shutdown
     process.once(`SIGINT`, () => this.bot.stop())
