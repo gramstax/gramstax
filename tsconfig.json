@@ -33,13 +33,5 @@
   },
   "include": [
     "packages"
-  ],
-  "references": [
-    {
-      "path": "./packages/gramstax"
-    },
-    {
-      "path": "./packages/create-gramstax"
-    }
   ]
 }
