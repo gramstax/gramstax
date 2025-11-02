@@ -1,8 +1,12 @@
 import * as fs from "fs"
 import * as path from "path"
+import { fileURLToPath } from "url"
 import { log } from "./utils/logger"
 import { spawn } from "child_process"
 import enquirer from "enquirer"
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 type Runtime = `bun` | `node`
 type PackageManager = `bun` | `npm` | `pnpm` | `yarn`
