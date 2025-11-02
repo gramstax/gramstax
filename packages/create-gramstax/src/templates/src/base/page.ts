@@ -1,3 +1,3 @@
-import { BasePage } from "gramstax"
+import { CtxCore } from "~/core/ctx"
 
-export abstract class PageBase extends BasePage {}
+export abstract class PageBase extends CtxCore {}

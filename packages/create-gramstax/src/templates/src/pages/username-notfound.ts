@@ -1,5 +1,5 @@
 import { HelpPage } from "./help"
-import { PageBase } from "../base/page"
+import { PageBase } from "~/base/page"
 
 export class UserNameNotFoundPage extends PageBase {
   public kb() {
@@ -11,7 +11,7 @@ export class UserNameNotFoundPage extends PageBase {
 
   public async transition(edit = true) {
     const kb = this.kb()
-    const data = { username: this.ctx.username }
+    const data = { username: this.username }
     if (edit) {
       await this.edit(kb, data)
     } else {

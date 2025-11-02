@@ -1,21 +1,20 @@
 import { Ctx } from "./ctx"
 import { serve } from "bun"
-import { existsSync, readdirSync } from "node:fs"
 import { join, parse } from "node:path"
 import { CacheExternal } from "../cache"
 import { LoggingPretty } from "logging-pretty"
 import { TemplateManager } from "../template"
+import { existsSync, readdirSync } from "node:fs"
 import { Bot, webhookCallback, type BotError, type Context } from "grammy"
 import type { UserFromGetMe } from "grammy/types"
-import type { IPageBase } from "../types/page"
 
 export class Gramstax {
   public templateManager: TemplateManager
   public cacheKeyboard: Map<any, any>
   public cacheSession: CacheExternal
+  public pages: ReturnType<typeof this.pageLoads>
   public log: LoggingPretty | undefined | null
   public bot: Bot
-  public pages: ReturnType<typeof this.pageLoads>
 
   public constructor(params: { token: string; deploy: string; log?: LoggingPretty; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
     this.log = params.log === null ? undefined : params.log === undefined ? new LoggingPretty() : params.log
@@ -66,7 +65,13 @@ export class Gramstax {
   }
 
   public initCtx(ct: Context) {
-    return new Ctx(ct, this.templateManager, this.cacheSession, this.cacheKeyboard)
+    return new Ctx({
+      ct,
+      cacheSession: this.cacheSession,
+      cacheKeyboard: this.cacheKeyboard,
+      templateManager: this.templateManager,
+      temp: { session: {} }
+    })
   }
 
   public async runPolling() {
@@ -113,7 +118,7 @@ export class Gramstax {
     this.onStart(botInfo, `webhook`, webhookUrl)
   }
 
-  public pageCompile(Page: IPageBase, redacted = true) {
+  public pageCompile(Page: typeof Ctx, redacted = true) {
     if (Page?.template !== undefined) {
       this.templateManager.compile(Page.data.name, Page.template)
       if (redacted) {
@@ -124,14 +129,14 @@ export class Gramstax {
     }
   }
 
-  public pageBuildData(Page: IPageBase, filePath: string) {
+  public pageBuildData(Page: typeof Ctx, filePath: string) {
     if (Page?.data === undefined) {
       Page.data = Page.buildData()
     }
     Page.data.name = parse(filePath).name
   }
 
-  public pageSorts(Page: IPageBase, pages: typeof this.pages) {
+  public pageSorts(Page: typeof Ctx, pages: typeof this.pages) {
     const name = Page.data.name
     const proto = Page.prototype
 
@@ -281,7 +286,7 @@ export class Gramstax {
     const makeObject = <const T extends readonly string[], V>(keys: T, val: V): { [K in T[number]]: V } => Object.fromEntries(keys.map((k) => [k, { ...val }])) as { [K in T[number]]: V }
 
     const pages = {
-      all: {} as Record<string, IPageBase>, // (classes) all Page
+      all: {} as Record<string, typeof Ctx>, // (classes) all Page
       dynamic: [] as string[], // (dynamic) all Page function free
       dynamicSpesific: {
         text: initDynamicSpesific,
@@ -311,7 +316,7 @@ export class Gramstax {
       const filePath = join(path, file)
       const module = require(filePath) // eslint-disable-line
       const exports = Object.values(module)
-      const Page = exports[0] as IPageBase // like StartPage. not have default export
+      const Page = exports[0] as typeof Ctx // like StartPage. not have default export
       if (Page === undefined) {
         throw `file ${parse(filePath).name} must have export (not default) class page`
       }
@@ -332,7 +337,7 @@ export class Gramstax {
 
   public async pageRoutes(ctx: Ctx, fromListener: `callback` | keyof typeof this.pages.dynamicSpesific): Promise<any | null> {
     // to be reassigned
-    let Page: IPageBase | undefined
+    let Page: typeof Ctx | undefined
     let res: { name: string; func: string } | undefined
 
     // (static) priority O(1)

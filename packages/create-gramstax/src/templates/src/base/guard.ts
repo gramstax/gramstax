@@ -1,3 +1,3 @@
-import { BaseGuard } from "gramstax"
+import { CtxCore } from "~/core/ctx"
 
-export abstract class GuardBase extends BaseGuard {}
+export abstract class GuardBase extends CtxCore {}

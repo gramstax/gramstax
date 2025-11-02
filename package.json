@@ -7,6 +7,8 @@
     "packages/*"
   ],
   "scripts": {
+    "lint": "eslint '**/*.ts'",
+    "lint:fix": "eslint '**/*.ts' --fix",
     "build": "nx run-many --target=build --all",
     "build:gramstax": "nx build gramstax",
     "build:create-gramstax": "nx build create-gramstax",

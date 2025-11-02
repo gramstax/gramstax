@@ -1,4 +1,4 @@
-import { PageBase } from "../base/page"
+import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
 export class GeneralErrorPage extends PageBase {

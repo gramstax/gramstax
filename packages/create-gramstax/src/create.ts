@@ -348,6 +348,11 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       }
     }
 
+    // Task 6: Rename tsconfig.json
+    const tsconfigPathOld = path.join(projectPath, `tsconfig.json.template`)
+    const tsconfigPathNew = path.join(projectPath, `tsconfig.json`)
+    fs.renameSync(tsconfigPathOld, tsconfigPathNew)
+
     // Task 6: Install dependencies
     log.info(`Installing dependencies..`)
     if (!(await this.installDependencies(projectPath, packageManager))) {
