@@ -93,15 +93,15 @@ export class Ctx extends BaseGeneral {
   public cacheKeyboard: Map<any, any>
   public templateManager: TemplateManager
   public temp: ITemp
-  public constructor(params: { ct: Context; cacheSession: CacheExternal; cacheKeyboard: Map<any, any>; templateManager: TemplateManager; temp: ITemp } & Ctx) {
+  public constructor(params: { ct: Context; cacheSession: CacheExternal; cacheKeyboard: Map<any, any>; templateManager: TemplateManager; temp: ITemp }) {
     super()
     this.ct = params.ct
     this.cacheSession = params.cacheSession
     this.cacheKeyboard = params.cacheKeyboard
     this.templateManager = params.templateManager
     this.temp = params.temp
-    if (params?.data) {
-      this.data = params.data
+    if ((params as any)?.data) {
+      this.data = (params as any).data
     }
   }
 
