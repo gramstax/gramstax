@@ -93,13 +93,16 @@ export class Ctx extends BaseGeneral {
   public cacheKeyboard: Map<any, any>
   public templateManager: TemplateManager
   public temp: ITemp
-  public constructor(params: Ctx | { ct: Context; cacheSession: CacheExternal; cacheKeyboard: Map<any, any>; templateManager: TemplateManager; temp: ITemp }) {
+  public constructor(params: { ct: Context; cacheSession: CacheExternal; cacheKeyboard: Map<any, any>; templateManager: TemplateManager; temp: ITemp } & Ctx) {
     super()
     this.ct = params.ct
     this.cacheSession = params.cacheSession
     this.cacheKeyboard = params.cacheKeyboard
     this.templateManager = params.templateManager
     this.temp = params.temp
+    if (params?.data) {
+      this.data = params.data
+    }
   }
 
   public async broadcast(ids: any[], languageCode: any[], keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: any) {
