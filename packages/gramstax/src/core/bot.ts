@@ -14,7 +14,6 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   public cacheSession: CacheExternal
   public pages: ReturnType<typeof this.pageLoads>
   public log: LoggingPretty | undefined | null
-  public ctx: ICtx
   public bot: IBot
 
   public constructor(params: { token: string; deploy: string; log?: LoggingPretty; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
@@ -22,8 +21,6 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
     this.cacheSession = params.cacheSession || new CacheExternal(`memory`, `session`)
     this.cacheKeyboard = params.cacheKeyboard || new Map()
     this.templateManager = params.templateManager || new TemplateManager({ path: null })
-
-    this.ctx = this.createCtx() as any as ICtx
 
     this.bot = this.createBot(params.token) as any as IBot
     this.bot.catch(this.onCatch)
@@ -71,9 +68,9 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
     return new Bot(token)
   }
 
-  public createCtx() {
+  public createCtx(ct: Context): ICtx {
     return new Ctx({
-      ct: {} as any,
+      ct,
       cacheSession: this.cacheSession,
       cacheKeyboard: this.cacheKeyboard,
       templateManager: this.templateManager,
@@ -81,13 +78,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
         session: {},
         data: {}
       }
-    })
-  }
-
-  public refreshCtx(ct: Context) {
-    this.ctx.ct = ct
-    this.ctx.temp = { session: {}, data: {} }
-    return this.ctx
+    }) as any
   }
 
   public async runPolling() {
@@ -484,7 +475,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   }
 
   public async onMessage(ct: Context, listenerName: string): Promise<void> {
-    const ctx = this.refreshCtx(ct)
+    const ctx = this.createCtx(ct)
     try {
       const before = await this.hookBeforeRoute(ctx, listenerName)
       if (before === false) {
@@ -501,7 +492,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   }
 
   public async onCallbackQueryData(ct: Context): Promise<void> {
-    const ctx = this.refreshCtx(ct)
+    const ctx = this.createCtx(ct)
     try {
       // answer callback query first for fast response
       await ctx.callbackQueryAnswer()
