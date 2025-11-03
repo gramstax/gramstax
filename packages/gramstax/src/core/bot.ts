@@ -8,13 +8,14 @@ import { existsSync, readdirSync } from "node:fs"
 import { Bot, webhookCallback, type BotError, type Context } from "grammy"
 import type { UserFromGetMe } from "grammy/types"
 
-export class Gramstax {
+export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   public templateManager: TemplateManager
   public cacheKeyboard: Map<any, any>
   public cacheSession: CacheExternal
   public pages: ReturnType<typeof this.pageLoads>
   public log: LoggingPretty | undefined | null
-  public bot: Bot
+  public ctx: ICtx
+  public bot: IBot
 
   public constructor(params: { token: string; deploy: string; log?: LoggingPretty; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
     this.log = params.log === null ? undefined : params.log === undefined ? new LoggingPretty() : params.log
@@ -22,7 +23,9 @@ export class Gramstax {
     this.cacheKeyboard = params.cacheKeyboard || new Map()
     this.templateManager = params.templateManager || new TemplateManager({ path: null })
 
-    this.bot = new Bot(params.token)
+    this.ctx = this.createCtx() as any as ICtx
+
+    this.bot = this.createBot(params.token) as any as IBot
     this.bot.catch(this.onCatch)
     this.bot.on(`callback_query:data`, this.onCallbackQueryData.bind(this)) // Handle callback queries from inline keyboards
     this.bot.on(`message:text`, this.onMessageText.bind(this)) // Handle global text messages
@@ -64,9 +67,13 @@ export class Gramstax {
     }
   }
 
-  public initCtx(ct: Context) {
+  public createBot(token: string) {
+    return new Bot(token)
+  }
+
+  public createCtx() {
     return new Ctx({
-      ct,
+      ct: {} as any,
       cacheSession: this.cacheSession,
       cacheKeyboard: this.cacheKeyboard,
       templateManager: this.templateManager,
@@ -75,6 +82,12 @@ export class Gramstax {
         data: {}
       }
     })
+  }
+
+  public refreshCtx(ct: Context) {
+    this.ctx.ct = ct
+    this.ctx.temp = { session: {}, data: {} }
+    return this.ctx
   }
 
   public async runPolling() {
@@ -338,7 +351,7 @@ export class Gramstax {
     return pages
   }
 
-  public async pageRoutes(ctx: Ctx, fromListener: `callback` | keyof typeof this.pages.dynamicSpesific): Promise<any | null> {
+  public async pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof this.pages.dynamicSpesific): Promise<any | null> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: { name: string; func: string } | undefined
@@ -455,23 +468,23 @@ export class Gramstax {
     return null
   }
 
-  public async hookBeforeRoute(ctx: Ctx, listenerName: string) {
+  public async hookBeforeRoute(ctx: ICtx, listenerName: string) {
     // must be override
     return true
   }
 
-  public async hookErrorPage(ctx: Ctx, listenerName: string, error: any, isEdit: boolean) {
+  public async hookErrorPage(ctx: ICtx, listenerName: string, error: any, isEdit: boolean) {
     // must be override
     return
   }
 
-  public async hookErrorInputNotFoundPage(ctx: Ctx) {
+  public async hookErrorInputNotFoundPage(ctx: ICtx) {
     // must be override
     return
   }
 
   public async onMessage(ct: Context, listenerName: string): Promise<void> {
-    const ctx = this.initCtx(ct)
+    const ctx = this.refreshCtx(ct)
     try {
       const before = await this.hookBeforeRoute(ctx, listenerName)
       if (before === false) {
@@ -488,7 +501,7 @@ export class Gramstax {
   }
 
   public async onCallbackQueryData(ct: Context): Promise<void> {
-    const ctx = this.initCtx(ct)
+    const ctx = this.refreshCtx(ct)
     try {
       // answer callback query first for fast response
       await ctx.callbackQueryAnswer()
