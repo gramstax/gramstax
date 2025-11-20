@@ -1,7 +1,7 @@
 import type { Keyboard, Context, InlineKeyboard } from "grammy"
 
 export type IInlineKb = InlineKeyboard
-export type IBottomKb = IBottomKb
+export type IBottomKb = Keyboard
 export type IKb = IBottomKb | IInlineKb
 export type ICt = Context
 export type IOptReply = Parameters<Context[`reply`]>[1]
