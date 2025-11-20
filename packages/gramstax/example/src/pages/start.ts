@@ -1,8 +1,12 @@
 import { CtxCore } from "../core/ctx"
 import { HelpPage } from "./help"
 import { CounterPage } from "./count"
+import { LanguagePage } from "./language"
 import { TestPhotoPage } from "./test-photo"
 import { TestVideoPage } from "./test-video"
+import { TestAudioPage } from "./test-audio"
+import { TestDocumentPage } from "./test-document"
+import { TestAnimationPage } from "./test-animation"
 
 export class StartPage extends CtxCore {
   static data = this.buildData((isFromMedia?: string) => isFromMedia)
@@ -18,7 +22,13 @@ export class StartPage extends CtxCore {
           .text(arr[2], TestPhotoPage.data.callbackData())
           .text(arr[3], TestVideoPage.data.callbackData())
           .row()
-          .text(arr[4], this.data.callbackData())
+          .text(arr[4], TestAudioPage.data.callbackData())
+          .text(arr[5], TestDocumentPage.data.callbackData())
+          .row()
+          .text(arr[6], TestAnimationPage.data.callbackData())
+          .text(arr[7], LanguagePage.data.callbackData())
+          .row()
+          .text(arr[8], this.data.callbackData())
       )
     })
   }
@@ -54,8 +64,8 @@ export class StartPage extends CtxCore {
 
   public static template = `
     <base>
-      <keyboard lang="en" type="inline">Counter, Help, Test Photo, Test Video, Refresh</keyboard>
-      <keyboard lang="id" type="inline">Kounter, Bantuan, Test Photo, Test Video, Segarkan</keyboard>
+      <keyboard lang="en" type="inline">Counter, Help, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Language, Refresh</keyboard>
+      <keyboard lang="id" type="inline">Kounter, Bantuan, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Bahasa, Segarkan</keyboard>
 
       <message lang="en">
         {{time}}

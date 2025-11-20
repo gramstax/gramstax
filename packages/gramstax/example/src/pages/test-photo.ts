@@ -4,11 +4,7 @@ import { StartPage } from "./start"
 export class TestPhotoPage extends CtxCore {
   public kb() {
     return this.buildInlineKeyboard((kb, arr) => {
-      return (
-        kb
-          //
-          .text(arr[0], StartPage.data.callbackData(`3`))
-      )
+      return kb.text(arr[0], StartPage.data.callbackData(`3`))
     })
   }
 
@@ -22,12 +18,12 @@ export class TestPhotoPage extends CtxCore {
       <keyboard lang="en" type="inline">Back</keyboard>
       <keyboard lang="id" type="inline">Kembali</keyboard>
 
-      <media lang="en" type="photo" src="https://damar.sbs/_next/image?url=%2Fprofile.png&w=1920&q=100">
+      <media lang="en" type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
         This is a caption text for media <b>photo</b>
       </media>
 
-      <media lang="id" type="photo" src="https://damar.sbs/_next/image?url=%2Fprofile.png&w=1920&q=100">
-        This is a caption text for media <b>photo</b>
+      <media lang="id" type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
+        Ini adalah caption text untuk media <b>foto</b>
       </media>
     </base>
   `

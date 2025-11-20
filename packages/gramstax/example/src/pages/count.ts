@@ -25,7 +25,7 @@ export class CounterPage extends CtxCore {
 
     let count
     if (execution == `I`) count = `${parseInt(data) + 1}`
-    if (execution == `D`) count = `${data == 0 ? 0 : parseInt(data) - 1}`
+    if (execution == `D`) count = `${parseInt(data) - 1}`
 
     await this.cacheData.set(key, count)
     await this.edit(kb, { count })

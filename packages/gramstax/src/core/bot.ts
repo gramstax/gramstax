@@ -18,6 +18,10 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   public bot: IBot
 
   public constructor(params: { token: string; deploy: string; log?: LoggingPretty; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
+    if (!params?.token || params?.token?.length == 0) {
+      throw new Error(`Token is not valid or empty`)
+    }
+
     this.log = params.log === null ? undefined : params.log === undefined ? new LoggingPretty() : params.log
     this.cacheSession = params.cacheSession || new CacheExternal(`memory`, `session`)
     this.cacheKeyboard = params.cacheKeyboard || new Map()

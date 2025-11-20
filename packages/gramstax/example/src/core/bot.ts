@@ -1,5 +1,6 @@
-import { Gramstax, CacheExternal } from "gramstax"
 import { CtxCore } from "./ctx"
+import { UserGuard } from "../guards/user"
+import { Gramstax, CacheExternal } from "gramstax"
 
 export class BotCore extends Gramstax {
   public cacheData = new CacheExternal(`memory`)
@@ -16,6 +17,14 @@ export class BotCore extends Gramstax {
         data: {}
       }
     })
+  }
+
+  public async hookBeforeRoute(ctx: CtxCore, listenerName: string) {
+    const user = await new UserGuard(ctx).ensureValid()
+    if (user === null) {
+      return false
+    }
+    return true
   }
 
   public async hookErrorPage(ctx: CtxCore, listenerName: string, error: any, isEdit: boolean) {

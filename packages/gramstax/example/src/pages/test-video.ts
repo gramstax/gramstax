@@ -4,11 +4,7 @@ import { StartPage } from "./start"
 export class TestVideoPage extends CtxCore {
   public kb() {
     return this.buildInlineKeyboard((kb, arr) => {
-      return (
-        kb
-          //
-          .text(arr[0], StartPage.data.callbackData(`3`))
-      )
+      return kb.text(arr[0], StartPage.data.callbackData(`3`))
     })
   }
 
@@ -27,7 +23,7 @@ export class TestVideoPage extends CtxCore {
       </media>
 
       <media lang="id" type="video" src="https://www.w3schools.com/html/mov_bbb.mp4">
-        This is a caption text for media <b>video</b>
+        Ini adalah caption text untuk media <b>video</b>
       </media>
     </base>
   `
