@@ -36,9 +36,9 @@ export class HelpPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard lang="en" for="inline">.. Back</keyboard>
-      <keyboard lang="it" for="inline">.. Ritorno</keyboard>
-      <keyboard lang="id" for="inline">.. Kembali</keyboard>
+      <keyboard lang="en" type="inline">.. Back</keyboard>
+      <keyboard lang="it" type="inline">.. Ritorno</keyboard>
+      <keyboard lang="id" type="inline">.. Kembali</keyboard>
 
       <message lang="en">
         <b>Help message</b>

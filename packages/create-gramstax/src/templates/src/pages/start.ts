@@ -37,9 +37,9 @@ export class StartPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard lang="en" for="inline">❓ Help</keyboard>
-      <keyboard lang="it" for="inline">❓ Aiuto</keyboard>
-      <keyboard lang="id" for="inline">❓ Bantuan</keyboard>
+      <keyboard lang="en" type="inline">❓ Help</keyboard>
+      <keyboard lang="it" type="inline">❓ Aiuto</keyboard>
+      <keyboard lang="id" type="inline">❓ Bantuan</keyboard>
 
       <message lang="en">
         <b>Welcome to the bot {{username}}</b>
