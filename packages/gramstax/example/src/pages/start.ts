@@ -7,9 +7,14 @@ import { TestVideoPage } from "./test-video"
 import { TestAudioPage } from "./test-audio"
 import { TestDocumentPage } from "./test-document"
 import { TestAnimationPage } from "./test-animation"
+import { TestVoicePage } from "./test-voice"
+import { TestVideoNotePage } from "./test-video-note"
+import { TestStickerPage } from "./test-sticker"
+import { TestLocationPage } from "./test-location"
+import { TestContactPage } from "./test-contact"
 
 export class StartPage extends CtxCore {
-  static data = this.buildData((isFromMedia?: string) => isFromMedia)
+  static data = this.buildData((conditionNumber?: string) => conditionNumber)
 
   public kb() {
     return this.buildInlineKeyboard((kb, arr) => {
@@ -26,9 +31,16 @@ export class StartPage extends CtxCore {
           .text(arr[5], TestDocumentPage.data.callbackData())
           .row()
           .text(arr[6], TestAnimationPage.data.callbackData())
-          .text(arr[7], LanguagePage.data.callbackData())
+          .text(arr[7], TestVoicePage.data.callbackData())
           .row()
-          .text(arr[8], this.data.callbackData())
+          .text(arr[8], TestVideoNotePage.data.callbackData())
+          .text(arr[9], TestStickerPage.data.callbackData())
+          .row()
+          .text(arr[10], TestLocationPage.data.callbackData())
+          .text(arr[11], TestContactPage.data.callbackData())
+          .row()
+          .text(arr[12], LanguagePage.data.callbackData())
+          .text(arr[13], this.data.callbackData())
       )
     })
   }
@@ -64,8 +76,8 @@ export class StartPage extends CtxCore {
 
   public static template = `
     <base>
-      <keyboard lang="en" type="inline">Counter, Help, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Language, Refresh</keyboard>
-      <keyboard lang="id" type="inline">Kounter, Bantuan, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Bahasa, Segarkan</keyboard>
+      <keyboard lang="en" type="inline">Counter, Help, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Language, Refresh</keyboard>
+      <keyboard lang="id" type="inline">Kounter, Bantuan, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Bahasa, Segarkan</keyboard>
 
       <message lang="en">
         {{time}}

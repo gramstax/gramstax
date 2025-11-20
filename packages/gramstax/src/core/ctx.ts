@@ -1,7 +1,7 @@
 import { setTimeout } from "node:timers/promises"
 import { BaseGeneral } from "../base"
 import { CacheExternal } from "../cache"
-import { TemplateManager } from "../template"
+import { IMediaBlock, TemplateManager } from "../template"
 import { InlineKeyboard, Keyboard, type Context } from "grammy"
 
 type IData = { name: string; callbackData: (...args: any) => string | any }
@@ -132,7 +132,7 @@ export class Ctx extends BaseGeneral {
     })
   }
 
-  public async replyMedia<T extends Parameters<typeof this.ct.editMessageMedia>[0][`type`]>(
+  public async replyMedia<T extends IMediaBlock[`type`]>(
     type: T,
     keyboard?: Keyboard | InlineKeyboard,
     data?: Record<string, any>,
@@ -147,16 +147,31 @@ export class Ctx extends BaseGeneral {
       ? Parameters<typeof this.ct.replyWithDocument>[1]
       : T extends `animation`
       ? Parameters<typeof this.ct.replyWithAnimation>[1]
+      : T extends `voice`
+      ? Parameters<typeof this.ct.replyWithVoice>[1]
+      : T extends `video_note`
+      ? Parameters<typeof this.ct.replyWithVideoNote>[1]
+      : T extends `sticker`
+      ? Parameters<typeof this.ct.replyWithSticker>[1]
+      : T extends `location`
+      ? Parameters<typeof this.ct.replyWithLocation>[2]
+      : T extends `contact`
+      ? Parameters<typeof this.ct.replyWithContact>[2]
       : undefined
   ) {
-    const { src, caption } = this.templateManager.getMedia(this.data.name, baseId, this.languageCode, data)
+    const med = this.templateManager.getMedia(this.data.name, baseId, this.languageCode, data)
     const opt = { parse_mode: `HTML`, reply_markup: keyboard, ...(options as any) }
 
-    if (type == `photo`) return await this.ct.replyWithPhoto(src, { caption, ...opt })
-    if (type == `video`) return await this.ct.replyWithVideo(src, { caption, ...opt })
-    if (type == `audio`) return await this.ct.replyWithAudio(src, { caption, ...opt })
-    if (type == `document`) return await this.ct.replyWithDocument(src, { caption, ...opt })
-    if (type == `animation`) return await this.ct.replyWithAnimation(src, { caption, ...opt })
+    if (type == `photo`) return await this.ct.replyWithPhoto(med.src, { caption: med.caption, ...opt })
+    if (type == `video`) return await this.ct.replyWithVideo(med.src, { caption: med.caption, ...opt })
+    if (type == `audio`) return await this.ct.replyWithAudio(med.src, { caption: med.caption, ...opt })
+    if (type == `document`) return await this.ct.replyWithDocument(med.src, { caption: med.caption, ...opt })
+    if (type == `animation`) return await this.ct.replyWithAnimation(med.src, { caption: med.caption, ...opt })
+    if (type == `voice`) return await this.ct.replyWithVoice(med.src, opt)
+    if (type == `video_note`) return await this.ct.replyWithVideoNote(med.src, opt)
+    if (type == `sticker`) return await this.ct.replyWithSticker(med.src, opt)
+    if (type == `location`) return await this.ct.replyWithLocation(med.latitude, med.longitude, opt)
+    if (type == `contact`) return await this.ct.replyWithContact(med.phone, med.first_name, { vcard: med.vcard, ...opt })
   }
 
   public async replyPhoto(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithPhoto>[1]) {
@@ -179,6 +194,26 @@ export class Ctx extends BaseGeneral {
     return this.replyMedia(`animation`, keyboard, data, baseId, options)
   }
 
+  public async replyVoice(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithVoice>[1]) {
+    return this.replyMedia(`voice`, keyboard, data, baseId, options)
+  }
+
+  public async replyVideoNote(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithVideoNote>[1]) {
+    return this.replyMedia(`video_note`, keyboard, data, baseId, options)
+  }
+
+  public async replySticker(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithSticker>[1]) {
+    return this.replyMedia(`sticker`, keyboard, data, baseId, options)
+  }
+
+  public async replyLocation(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithLocation>[2]) {
+    return this.replyMedia(`location`, keyboard, data, baseId, options)
+  }
+
+  public async replyContact(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithContact>[2]) {
+    return this.replyMedia(`contact`, keyboard, data, baseId, options)
+  }
+
   public async replyAction(type: Parameters<typeof this.ct.replyWithChatAction>[0]) {
     return await this.ct.replyWithChatAction(type)
   }
@@ -196,9 +231,47 @@ export class Ctx extends BaseGeneral {
     }
   }
 
-  public async editMedia(type: Parameters<typeof this.ct.editMessageMedia>[0][`type`], keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options1?: Parameters<typeof this.ct.editMessageMedia>[0], options2?: Parameters<typeof this.ct.editMessageMedia>[1]) {
+  public async editMedia<T extends IMediaBlock[`type`]>(
+    type: T,
+    keyboard?: Keyboard | InlineKeyboard,
+    data?: Record<string, any>,
+    baseId?: string,
+    options1?: T extends `voice`
+      ? Parameters<typeof this.ct.replyWithVoice>[1]
+      : T extends `video_note`
+      ? Parameters<typeof this.ct.replyWithVideoNote>[1]
+      : T extends `sticker`
+      ? Parameters<typeof this.ct.replyWithSticker>[1]
+      : T extends `location`
+      ? Parameters<typeof this.ct.replyWithLocation>[2]
+      : T extends `contact`
+      ? Parameters<typeof this.ct.replyWithContact>[2]
+      : Parameters<typeof this.ct.editMessageMedia>[0],
+    options2?: Parameters<typeof this.ct.editMessageMedia>[1]
+  ) {
     try {
       const { src, caption } = this.templateManager.getMedia(this.data.name, baseId, this.languageCode, data)
+      if (type == `voice`) {
+        await this.delete()
+        return await this.replyVoice(keyboard, data, baseId, options1)
+      }
+      if (type == `video_note`) {
+        await this.delete()
+        return await this.replyVoice(keyboard, data, baseId, options1)
+      }
+      if (type == `sticker`) {
+        await this.delete()
+        return await this.replySticker(keyboard, data, baseId, options1 as any)
+      }
+      if (type == `location`) {
+        await this.delete()
+        return await this.replyLocation(keyboard, data, baseId, options1 as any)
+      }
+      if (type == `contact`) {
+        await this.delete()
+        return await this.replyContact(keyboard, data, baseId, options1 as any)
+      }
+
       return await this.ct.editMessageMedia(
         {
           media: src,
@@ -232,6 +305,26 @@ export class Ctx extends BaseGeneral {
 
   public async editAnimation(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options1?: Parameters<typeof this.ct.editMessageMedia>[0], options2?: Parameters<typeof this.ct.editMessageMedia>[1]) {
     return await this.editMedia(`animation`, keyboard, data, baseId, options1, options2)
+  }
+
+  public async editVoice(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithVoice>[1]) {
+    return await this.editMedia(`voice`, keyboard, data, baseId, options)
+  }
+
+  public async editVideoNote(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithVideoNote>[1]) {
+    return await this.editMedia(`video_note`, keyboard, data, baseId, options)
+  }
+
+  public async editSticker(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithSticker>[1]) {
+    return await this.editMedia(`sticker`, keyboard, data, baseId, options)
+  }
+
+  public async editLocation(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithLocation>[2]) {
+    return await this.editMedia(`location`, keyboard, data, baseId, options)
+  }
+
+  public async editContact(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithContact>[2]) {
+    return await this.editMedia(`contact`, keyboard, data, baseId, options)
   }
 
   public async delete() {
@@ -389,13 +482,13 @@ export class Ctx extends BaseGeneral {
   public async animationCaptionCommand?(): Promise<void>
   public async animationCaptionCommandPayload?(): Promise<void>
   public async animationFree?(): Promise<void>
-  // voiceNote
+  // voice
   public async voiceCaption?(): Promise<void>
   public async voiceCaptionPayload?(): Promise<void>
   public async voiceCaptionCommand?(): Promise<void>
   public async voiceCaptionCommandPayload?(): Promise<void>
   public async voiceFree?(): Promise<void>
-  // videoNote
+  // video_note
   public async videoNoteCaption?(): Promise<void>
   public async videoNoteCaptionPayload?(): Promise<void>
   public async videoNoteCaptionCommand?(): Promise<void>

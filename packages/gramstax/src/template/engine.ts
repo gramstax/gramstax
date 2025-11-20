@@ -1,4 +1,4 @@
-type IMediaBlock = {
+export type IMediaBlock = {
   type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact`
   src?: string
   caption?: string

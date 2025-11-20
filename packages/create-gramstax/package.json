@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/gramstax/gramstax",
+    "url": "git+https://github.com/gramstax/gramstax.git",
     "directory": "packages/create-gramstax"
   },
   "bugs": {
@@ -29,7 +29,7 @@
   "module": "./dist/src/index.mjs",
   "types": "./dist/src/index.d.ts",
   "bin": {
-    "create-gramstax": "./dist/src/index.js"
+    "create-gramstax": "dist/src/index.js"
   },
   "exports": {
     ".": {
