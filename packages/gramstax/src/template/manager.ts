@@ -1,3 +1,4 @@
+import { HelperPage } from "../helpers/page"
 import { TemplateEngine } from "."
 import { readFile, mkdir } from "node:fs/promises"
 import { watch, FSWatcher } from "chokidar"
@@ -6,31 +7,32 @@ import { readdirSync, readFileSync, existsSync, statSync, writeFileSync } from "
 
 /** Template file interface for better type safety */
 type ICompiledTemplate = {
+  media: ReturnType<typeof TemplateEngine.compileMedia>
   message: ReturnType<typeof TemplateEngine.compileMessages>
   keyboard: ReturnType<typeof TemplateEngine.compileKeyboards>
 }
 
 /** Template loading options */
 type ITemplateOptions = {
-  /** Enable file watching for hot reloading (if have templatePath) */
+  /** Base path for template files */
+  path: string[]
+  /** Enable file watching for hot reloading (only work for persistent type) */
   enableWatch?: boolean
-  /** Base path for template files (set null if dont want read template from file) */
-  path?: string | undefined | null
   /** Force language params to this value */
-  forceLanguage?: string | undefined | null
+  forceLanguage?: string
 }
 
 /** Template management system */
 export class TemplateManager {
   public _map = new Map<string, ICompiledTemplate>()
   public _engine = TemplateEngine
-  public _watcher: FSWatcher | null = null
-  public _supportedExtensions = new Set([`.html`])
-  public readonly _path: string | null
-  public readonly _forceLanguage: string | null
-  public readonly _isWatchEnabled: boolean
-  public constructor(options: ITemplateOptions = {}) {
-    const { enableWatch = false, path = null, forceLanguage = null } = options
+  public _watcher: FSWatcher[] = []
+  public _supportedExtensions = new Set([`.html`, `.ts`])
+  public readonly _path: ITemplateOptions[`path`]
+  public readonly _forceLanguage: ITemplateOptions[`forceLanguage`]
+  public readonly _isWatchEnabled: ITemplateOptions[`enableWatch`]
+  public constructor(options: ITemplateOptions) {
+    const { path, enableWatch = false, forceLanguage } = options
 
     this._path = path
     this._forceLanguage = forceLanguage
@@ -42,40 +44,53 @@ export class TemplateManager {
   }
 
   /** Validate and ensure template directory exists. @returns Void */
-  public _validatePath(): void {
+  public _validatePath(): boolean {
     try {
-      if (this._path === null || !existsSync(this._path)) {
-        return
+      if (!this._path || !Array.isArray(this._path)) {
+        throw new Error(`Path must be set as string array`)
       }
 
-      const stats = statSync(this._path)
-      if (!stats.isDirectory()) {
-        throw new Error(`Template path is not a directory: ${this._path}`)
+      for (let index = 0; index < this._path.length; index++) {
+        const it = this._path[index] as string
+        const exists = existsSync(it)
+        if (!exists) {
+          throw new Error(`Template base path is not exists: ${it}`)
+        }
+
+        const stats = statSync(it)
+        if (!stats.isDirectory()) {
+          throw new Error(`Template base path is not a directory: ${it}`)
+        }
       }
+      return true
     } catch (error) {
-      throw new Error(`Failed to validate Template path: ${error}`)
+      throw new Error(`Failed to validate Template base path: ${error}`)
     }
   }
 
   /** Initialize file system watcher for hot reloading. @returns Void */
   public _initializeWatcher(): void {
-    if (this._path === null || !this._isWatchEnabled) {
-      return
+    if (this._isWatchEnabled) {
+      throw new Error(`Watcher already enabled`)
     }
 
-    this._watcher = watch(this._path, {
-      persistent: true,
-      ignoreInitial: true,
-      awaitWriteFinish: {
-        stabilityThreshold: 100,
-        pollInterval: 50
-      }
-    })
+    for (let index = 0; index < this._path.length; index++) {
+      const pt = this._path[index] as string
+      const wc = watch(pt, {
+        persistent: true,
+        ignoreInitial: true,
+        awaitWriteFinish: {
+          stabilityThreshold: 100,
+          pollInterval: 50
+        }
+      })
 
-    this._watcher!.on(`change`, this._handleFileChange.bind(this))
-    this._watcher!.on(`add`, this._handleFileAdd.bind(this))
-    this._watcher!.on(`unlink`, this._handleFileDelete.bind(this))
-    this._watcher!.on(`error`, this._handleWatchError.bind(this))
+      this._watcher[index] = wc as any
+      wc!.on(`change`, this._handleFileChange.bind(this))
+      wc!.on(`add`, this._handleFileAdd.bind(this))
+      wc!.on(`unlink`, this._handleFileDelete.bind(this))
+      wc!.on(`error`, this._handleWatchError.bind(this))
+    }
   }
 
   /** Handle file change events */
@@ -87,16 +102,16 @@ export class TemplateManager {
   }
 
   /** Handle file add events */
-  public async _handleFileAdd(filePath: string): Promise<void> {
-    const fileName = basename(filePath)
+  public async _handleFileAdd(filepath: string): Promise<void> {
+    const fileName = basename(filepath)
     if (this._isValidFile(fileName)) {
       await this._loadFile(fileName, false)
     }
   }
 
   /** Handle file delete events */
-  public _handleFileDelete(filePath: string): void {
-    const fileName = basename(filePath)
+  public _handleFileDelete(filepath: string): void {
+    const fileName = basename(filepath)
     const fileKey = this._getKey(fileName)
     if (this._map.has(fileKey)) {
       this._map.delete(fileKey)
@@ -110,52 +125,94 @@ export class TemplateManager {
 
   /** Load all Template files during initialization */
   public _loadAllFiles(): void {
-    if (this._path === null || !existsSync(this._path)) {
-      return
-    }
-    const files = readdirSync(this._path, { encoding: `utf8` })
-    const validFiles = files.filter((file) => this._isValidFile(file))
-    for (const fileName of validFiles) {
-      this._loadFile(fileName, true)
+    for (let index = 0; index < this._path.length; index++) {
+      const pt = this._path[index] as string
+      const files = readdirSync(pt, `utf8`)
+      const validFiles = files.filter((file) => this._isValidFile(file))
+      for (const fileName of validFiles) {
+        this._loadFile(fileName, true)
+      }
     }
   }
 
   /** Load and compile a single template file */
   public async _loadFile(filename: string, useSync: boolean = true): Promise<void> {
-    if (this._path === null) {
-      return
+    for (let index = 0; index < this._path.length; index++) {
+      const it = this._path[index] as string
+      const path = join(it, filename)
+      const ext = this._getExtension(filename)
+      const key = this._getKey(filename)
+
+      // priority .html because if .html in directory /pages and have .ts file too its will still working
+      if (ext == `.html`) {
+        const raw = useSync ? readFileSync(path, `utf8`) : await readFile(path, `utf8`)
+        this._compile(key, raw)
+      } else if (ext == `.ts`) {
+        const Page = await HelperPage.getPage(path, false)
+        if (Page?.template !== undefined) {
+          this._compile(key, Page.template)
+        }
+        Page.template = undefined
+      } else {
+        throw new Error(`File ${filename} is not support`)
+      }
     }
-    const path = join(this._path, filename)
-    const key = this._getKey(filename)
-    const raw = useSync ? readFileSync(path, { encoding: `utf8` }) : await readFile(path, { encoding: `utf8` })
-    this.compile(key, raw)
+  }
+
+  public _getExtension(filename: string): string {
+    return extname(filename).toLowerCase()
   }
 
   public _isValidFile(filename: string): boolean {
-    const extension = extname(filename).toLowerCase()
-    return this._supportedExtensions.has(extension)
+    return this._supportedExtensions.has(this._getExtension(filename))
   }
 
   public _getKey(filename: string): string {
     return filename.replace(/\.[^/.]+$/, ``)
   }
 
-  public compile(key: string, rawTemplate: string, keepIfExist?: Partial<{ [K in keyof ICompiledTemplate]: boolean }>) {
+  public _compile(key: string, template: string, keepIfExist?: Partial<{ [K in keyof ICompiledTemplate]: boolean }>) {
     const existing = this._map.get(key)
     const compiled = existing || ({} as ICompiledTemplate)
     let updated = false
 
+    if (keepIfExist === undefined || keepIfExist?.media === false || existing?.media === undefined) {
+      compiled.media = TemplateEngine.compileMedia(template)
+      updated = true
+    }
     if (keepIfExist === undefined || keepIfExist?.message === false || existing?.message === undefined) {
-      compiled.message = TemplateEngine.compileMessages(rawTemplate)
+      compiled.message = TemplateEngine.compileMessages(template)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.keyboard === false || existing?.keyboard === undefined) {
-      compiled.keyboard = TemplateEngine.compileKeyboards(rawTemplate)
+      compiled.keyboard = TemplateEngine.compileKeyboards(template)
       updated = true
     }
 
     if (updated) {
       this._map.set(key, compiled)
+    }
+  }
+
+  /**
+   * Get compiled media template
+   * @param key Template identifier (filename without extension)
+   * @param baseId Base id attr from block
+   * @param language Target language code
+   * @param data Template variables
+   * @returns media object
+   */
+  public getMedia(key: string, baseId = `default`, language = `en`, data?: Record<string, any>) {
+    const map = this._map.get(key)
+    const func = map?.media?.[baseId]?.[this._forceLanguage || language]
+    if (!func) {
+      return {} as Record<any, any>
+    }
+
+    try {
+      return func(data)
+    } catch (error) {
+      return {} as any as ReturnType<typeof func>
     }
   }
 
@@ -167,9 +224,9 @@ export class TemplateManager {
    * @param data Template variables
    * @returns Rendered message string
    */
-  public getMessage(key: string, baseId: string = `default`, language: string = `en`, data?: Record<string, any>): string {
-    const template = this._map.get(key)
-    const func = template?.message?.[baseId]?.[this._forceLanguage || language]
+  public getMessage(key: string, baseId = `default`, language = `en`, data?: Record<string, any>): string {
+    const map = this._map.get(key)
+    const func = map?.message?.[baseId]?.[this._forceLanguage || language]
     if (!func) {
       return ``
     }
@@ -189,9 +246,9 @@ export class TemplateManager {
    * @param data Template variables
    * @returns Array of rendered button labels
    */
-  public getKeyboard(key: string, baseId: string = `default`, language: string = `en`, display: `inline` | `default` = `inline`, data?: Record<string, any>): string[] {
-    const template = this._map.get(key)
-    const func = template?.keyboard?.[baseId]?.[this._forceLanguage || language]?.[display]
+  public getKeyboard(key: string, baseId = `default`, language = `en`, type: `inline` | `default` = `inline`, data?: Record<string, any>): string[] {
+    const map = this._map.get(key)
+    const func = map?.keyboard?.[baseId]?.[this._forceLanguage || language]?.[type]
     if (!func) {
       return []
     }
@@ -204,37 +261,26 @@ export class TemplateManager {
   }
 
   /**
-   * Update message template in memory
-   * @param key Template identifier (filename without extension)
-   * @param rawTemplate Raw template string
-   */
-  public setMessage(key: string, rawTemplate: string): void {
-    this.compile(key, rawTemplate, { keyboard: true })
-  }
-
-  /**
-   * Update keyboard template in memory
-   * @param key Template identifier (filename without extension)
-   * @param rawTemplate Raw template string
-   */
-  public setKeyboard(key: string, rawTemplate: string): void {
-    this.compile(key, rawTemplate, { message: true })
-  }
-
-  /**
    * Write template to file and update cache
    * @param filename Target filename (with extension)
-   * @param rawTemplate Template to write
+   * @param template string content to write
    * @returns Promise that resolves when file is written
    */
-  public async write(filename: string, rawTemplate: string): Promise<void> {
-    if (this._path === null) {
-      return
+  public async write(filename: string, template: string): Promise<boolean | null> {
+    if (this._getExtension(filename) != `.html`) {
+      return null
     }
-    const filePath = join(this._path, filename)
-    await mkdir(this._path, { recursive: true })
-    writeFileSync(filePath, rawTemplate, { encoding: `utf8` })
-    await this._loadFile(filename, false)
+
+    for (let index = 0; index < this._path.length; index++) {
+      const filepath = join(this._path[index] as string, filename)
+      const exists = existsSync(filepath)
+      if (exists) {
+        writeFileSync(filepath, template, `utf8`)
+        await this._loadFile(filename, false)
+        return true
+      }
+    }
+    return null
   }
 
   /**
@@ -273,7 +319,9 @@ export class TemplateManager {
    */
   public async destroy(): Promise<void> {
     if (this._watcher) {
-      await this._watcher.close()
+      for (const wt of this._watcher) {
+        await wt.close()
+      }
     }
     this._map.clear()
   }

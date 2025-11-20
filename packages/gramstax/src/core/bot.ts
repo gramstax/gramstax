@@ -7,6 +7,7 @@ import { TemplateManager } from "../template"
 import { existsSync, readdirSync } from "node:fs"
 import { Bot, webhookCallback, type BotError, type Context } from "grammy"
 import type { UserFromGetMe } from "grammy/types"
+import { HelperPage } from "../helpers/page"
 
 export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   public templateManager: TemplateManager
@@ -16,11 +17,15 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   public log: LoggingPretty | undefined | null
   public bot: IBot
 
-  public constructor(params: { token: string; deploy: string; log?: LoggingPretty; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
+  public constructor(params: { token: string; deploy: string; log?: LoggingPretty; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
     this.log = params.log === null ? undefined : params.log === undefined ? new LoggingPretty() : params.log
     this.cacheSession = params.cacheSession || new CacheExternal(`memory`, `session`)
     this.cacheKeyboard = params.cacheKeyboard || new Map()
-    this.templateManager = params.templateManager || new TemplateManager({ path: null })
+    this.templateManager =
+      params.templateManager ||
+      new TemplateManager({
+        path: [join(process.cwd(), `src`, `pages`)]
+      })
 
     this.bot = this.createBot(params.token) as any as IBot
     this.bot.catch(this.onCatch)
@@ -125,17 +130,6 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
     this.onStart(botInfo, `webhook`, webhookUrl)
   }
 
-  public pageCompile(Page: typeof Ctx, redacted = true) {
-    if (Page?.template !== undefined) {
-      this.templateManager.compile(Page.data.name, Page.template)
-      if (redacted) {
-        Page.template = undefined // redacted to reduce memory
-      }
-    } else {
-      Page.template = undefined
-    }
-  }
-
   public pageBuildData(Page: typeof Ctx, filePath: string) {
     if (Page?.data === undefined) {
       Page.data = Page.buildData()
@@ -198,7 +192,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
     const path = join(process.cwd(), `src`, `pages`)
     if (!existsSync(path)) {
-      throw new Error(`Folder ${path} is not found, please make it manually`)
+      throw new Error(`Directory ${path} is not found, please make it manually`)
     }
 
     const files = readdirSync(path)
@@ -321,18 +315,10 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
     for (const file of files) {
       const filePath = join(path, file)
-      const module = require(filePath) // eslint-disable-line
-      const exports = Object.values(module)
-      const Page = exports[0] as typeof Ctx // like StartPage. not have default export
-      if (Page === undefined) {
-        throw `file ${parse(filePath).name} must have export (not default) class page`
-      }
+      const Page = HelperPage.getPageSync(filePath, true)
 
       // create if not exist and set name (without ext) according filePath
       this.pageBuildData(Page, filePath)
-
-      // if the raw template writes directly to the Page class, do a compile
-      this.pageCompile(Page)
 
       // sort route method
       this.pageSorts(Page, pages)

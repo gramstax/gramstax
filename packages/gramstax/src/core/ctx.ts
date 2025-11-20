@@ -132,6 +132,21 @@ export class Ctx extends BaseGeneral {
     })
   }
 
+  public async replyMedia(type: Parameters<typeof this.ct.editMessageMedia>[0][`type`], keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: any) {
+    const { src, caption } = this.templateManager.getMedia(this.data.name, baseId, this.languageCode, data)
+    const opt = { parse_mode: `HTML`, reply_markup: keyboard }
+    if (type == `photo`) return await this.ct.replyWithPhoto(src, { caption, ...opt, ...options })
+    if (type == `video`) return await this.ct.replyWithVideo(src, { caption, ...opt, ...options })
+  }
+
+  public async replyPhoto(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: any) {
+    return this.replyMedia(`photo`, keyboard, data, baseId, options)
+  }
+
+  public async replyVideo(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: any) {
+    return this.replyMedia(`video`, keyboard, data, baseId, options)
+  }
+
   public async replyAction(type: Parameters<typeof this.ct.replyWithChatAction>[0]) {
     return await this.ct.replyWithChatAction(type)
   }
@@ -149,6 +164,31 @@ export class Ctx extends BaseGeneral {
     }
   }
 
+  public async editMedia(type: Parameters<typeof this.ct.editMessageMedia>[0][`type`], keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: any) {
+    try {
+      const { src, caption } = this.templateManager.getMedia(this.data.name, baseId, this.languageCode, data)
+      return await this.ct.editMessageMedia(
+        {
+          media: src,
+          caption,
+          type,
+          parse_mode: `HTML`
+        },
+        { reply_markup: keyboard, ...options }
+      )
+    } catch (error) {
+      await this.reply(keyboard, data, baseId, options)
+    }
+  }
+
+  public async editPhoto(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: any) {
+    return await this.editMedia(`photo`, keyboard, data, baseId, options)
+  }
+
+  public async editVideo(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: any) {
+    return await this.editMedia(`video`, keyboard, data, baseId, options)
+  }
+
   public async delete() {
     return await this.ct.deleteMessage()
   }
@@ -164,7 +204,7 @@ export class Ctx extends BaseGeneral {
   public async sessionSet(method: string, params: any, ...moreRoot: any) {
     try {
       const value = { method, params, ...moreRoot }
-      const result = await this.cacheSession.set(`${this.userid}`, { method, params, ...moreRoot })
+      const result = await this.cacheSession.set(`${this.userid}`, value)
       if (result) {
         this.session = value
       }
