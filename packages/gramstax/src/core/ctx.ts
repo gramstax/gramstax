@@ -1,16 +1,38 @@
 import { setTimeout } from "node:timers/promises"
 import { BaseGeneral } from "../base"
 import { CacheExternal } from "../cache"
+import { InlineKeyboard, Keyboard } from "grammy"
 import { IMediaBlock, TemplateManager } from "../template"
-import { InlineKeyboard, Keyboard, type Context } from "grammy"
+import {
+  ICt,
+  IKb,
+  IData,
+  IOptEdit,
+  IBottomKb,
+  IInlineKb,
+  IOptReply,
+  IOptReplyVoice,
+  IOptReplyVideo,
+  IOptEditMedia1,
+  IOptEditMedia2,
+  IOptReplyAudio,
+  IOptReplyPhoto,
+  IOptReplyContact,
+  IOptReplySticker,
+  ITypeReplyAction,
+  IOptReplyDocument,
+  IOptReplyLocation,
+  IOptReplyAnimation,
+  IOptReplyVideoNote
+} from "../types/ctx"
 
-type IData = { name: string; callbackData: (...args: any) => string | any }
-type ITemp = { session: { method?: string; params?: any }; data: Partial<IData>; [key: string]: any }
+type IPData = { name: string; callbackData: (...args: any) => string | any }
+type ITemp = { session: { method?: string; params?: any }; data: Partial<IPData>; [key: string]: any }
 
 export class Ctx extends BaseGeneral {
   public static template?: string // string html
-  public static data: IData // for external access (**.data). example StartPage.data.callbackData
-  public data = (this as any).constructor.data as IData // for internal access (this.**). example this.data.callbackData
+  public static data: IPData // for external access (**.data). example StartPage.data.callbackData
+  public data = (this as any).constructor.data as IPData // for internal access (this.**). example this.data.callbackData
 
   public get isPremium() {
     return this.ct.from?.is_premium ?? false
@@ -88,12 +110,12 @@ export class Ctx extends BaseGeneral {
     return this.temp.session
   }
 
-  public ct: Context
+  public ct: ICt
   public cacheSession: CacheExternal
   public cacheKeyboard: Map<any, any>
   public templateManager: TemplateManager
   public temp: ITemp
-  public constructor(params: { ct: Context; cacheSession: CacheExternal; cacheKeyboard: Map<any, any>; templateManager: TemplateManager; temp: ITemp }) {
+  public constructor(params: { ct: ICt; cacheSession: CacheExternal; cacheKeyboard: Map<any, any>; templateManager: TemplateManager; temp: ITemp }) {
     super()
     this.ct = params.ct
     this.cacheSession = params.cacheSession
@@ -105,7 +127,7 @@ export class Ctx extends BaseGeneral {
     }
   }
 
-  public async broadcast(ids: any[], languageCode: any[], keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: any) {
+  public async broadcast(ids: any[], languageCode: any[], keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReply) {
     const limitFree = 30
     const msgs = languageCode.map((it) => this.templateManager.getMessage(this.data.name, baseId, it, data)) as any[]
     for (let index = 0; index < ids.length; index++) {
@@ -123,7 +145,7 @@ export class Ctx extends BaseGeneral {
     }
   }
 
-  public async reply(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: any) {
+  public async reply(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReply) {
     const msg = this.templateManager.getMessage(this.data.name, baseId, this.languageCode, data)
     return await this.ct.reply(msg, {
       parse_mode: `HTML`,
@@ -134,29 +156,29 @@ export class Ctx extends BaseGeneral {
 
   public async replyMedia<T extends IMediaBlock[`type`]>(
     type: T,
-    keyboard?: Keyboard | InlineKeyboard,
-    data?: Record<string, any>,
+    keyboard?: IKb,
+    data?: IData,
     baseId?: string,
     options?: T extends `photo`
-      ? Parameters<typeof this.ct.replyWithPhoto>[1]
+      ? IOptReplyPhoto
       : T extends `video`
-      ? Parameters<typeof this.ct.replyWithVideo>[1]
+      ? IOptReplyVideo
       : T extends `audio`
-      ? Parameters<typeof this.ct.replyWithAudio>[1]
+      ? IOptReplyAudio
       : T extends `document`
-      ? Parameters<typeof this.ct.replyWithDocument>[1]
+      ? IOptReplyDocument
       : T extends `animation`
-      ? Parameters<typeof this.ct.replyWithAnimation>[1]
+      ? IOptReplyAnimation
       : T extends `voice`
-      ? Parameters<typeof this.ct.replyWithVoice>[1]
+      ? IOptReplyVoice
       : T extends `video_note`
-      ? Parameters<typeof this.ct.replyWithVideoNote>[1]
+      ? IOptReplyVideoNote
       : T extends `sticker`
-      ? Parameters<typeof this.ct.replyWithSticker>[1]
+      ? IOptReplySticker
       : T extends `location`
-      ? Parameters<typeof this.ct.replyWithLocation>[2]
+      ? IOptReplyLocation
       : T extends `contact`
-      ? Parameters<typeof this.ct.replyWithContact>[2]
+      ? IOptReplyContact
       : undefined
   ) {
     const med = this.templateManager.getMedia(this.data.name, baseId, this.languageCode, data)
@@ -174,51 +196,51 @@ export class Ctx extends BaseGeneral {
     if (type == `contact`) return await this.ct.replyWithContact(med.phone, med.first_name, { vcard: med.vcard, ...opt })
   }
 
-  public async replyPhoto(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithPhoto>[1]) {
+  public async replyPhoto(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyPhoto) {
     return this.replyMedia(`photo`, keyboard, data, baseId, options)
   }
 
-  public async replyVideo(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithVideo>[1]) {
+  public async replyVideo(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyVideo) {
     return this.replyMedia(`video`, keyboard, data, baseId, options)
   }
 
-  public async replyAudio(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithAudio>[1]) {
+  public async replyAudio(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyAudio) {
     return this.replyMedia(`audio`, keyboard, data, baseId, options)
   }
 
-  public async replyDocument(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithDocument>[1]) {
+  public async replyDocument(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyDocument) {
     return this.replyMedia(`document`, keyboard, data, baseId, options)
   }
 
-  public async replyAnimation(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithAnimation>[1]) {
+  public async replyAnimation(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyAnimation) {
     return this.replyMedia(`animation`, keyboard, data, baseId, options)
   }
 
-  public async replyVoice(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithVoice>[1]) {
+  public async replyVoice(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyVoice) {
     return this.replyMedia(`voice`, keyboard, data, baseId, options)
   }
 
-  public async replyVideoNote(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithVideoNote>[1]) {
+  public async replyVideoNote(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyVideoNote) {
     return this.replyMedia(`video_note`, keyboard, data, baseId, options)
   }
 
-  public async replySticker(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithSticker>[1]) {
+  public async replySticker(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplySticker) {
     return this.replyMedia(`sticker`, keyboard, data, baseId, options)
   }
 
-  public async replyLocation(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithLocation>[2]) {
+  public async replyLocation(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyLocation) {
     return this.replyMedia(`location`, keyboard, data, baseId, options)
   }
 
-  public async replyContact(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithContact>[2]) {
+  public async replyContact(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyContact) {
     return this.replyMedia(`contact`, keyboard, data, baseId, options)
   }
 
-  public async replyAction(type: Parameters<typeof this.ct.replyWithChatAction>[0]) {
+  public async replyAction(type: ITypeReplyAction) {
     return await this.ct.replyWithChatAction(type)
   }
 
-  public async edit(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.editMessageText>[1]) {
+  public async edit(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEdit) {
     try {
       const msg = this.templateManager.getMessage(this.data.name, baseId, this.languageCode, data)
       return await this.ct.editMessageText(msg, {
@@ -233,21 +255,22 @@ export class Ctx extends BaseGeneral {
 
   public async editMedia<T extends IMediaBlock[`type`]>(
     type: T,
-    keyboard?: Keyboard | InlineKeyboard,
-    data?: Record<string, any>,
+    keyboard?: IKb,
+    data?: IData,
     baseId?: string,
     options1?: T extends `voice`
-      ? Parameters<typeof this.ct.replyWithVoice>[1]
+      ? IOptReplyVoice
       : T extends `video_note`
-      ? Parameters<typeof this.ct.replyWithVideoNote>[1]
+      ? IOptReplyVideoNote
       : T extends `sticker`
-      ? Parameters<typeof this.ct.replyWithSticker>[1]
+      ? IOptReplySticker
       : T extends `location`
-      ? Parameters<typeof this.ct.replyWithLocation>[2]
+      ? IOptReplyLocation
       : T extends `contact`
-      ? Parameters<typeof this.ct.replyWithContact>[2]
-      : Parameters<typeof this.ct.editMessageMedia>[0],
-    options2?: Parameters<typeof this.ct.editMessageMedia>[1]
+      ? IOptReplyContact
+      : //
+        IOptEditMedia1,
+    options2?: IOptEditMedia2
   ) {
     try {
       const { src, caption } = this.templateManager.getMedia(this.data.name, baseId, this.languageCode, data)
@@ -287,43 +310,43 @@ export class Ctx extends BaseGeneral {
     }
   }
 
-  public async editPhoto(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options1?: Parameters<typeof this.ct.editMessageMedia>[0], options2?: Parameters<typeof this.ct.editMessageMedia>[1]) {
+  public async editPhoto(keyboard?: IKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
     return await this.editMedia(`photo`, keyboard, data, baseId, options1, options2)
   }
 
-  public async editVideo(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options1?: Parameters<typeof this.ct.editMessageMedia>[0], options2?: Parameters<typeof this.ct.editMessageMedia>[1]) {
+  public async editVideo(keyboard?: IKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
     return await this.editMedia(`video`, keyboard, data, baseId, options1, options2)
   }
 
-  public async editAudio(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options1?: Parameters<typeof this.ct.editMessageMedia>[0], options2?: Parameters<typeof this.ct.editMessageMedia>[1]) {
+  public async editAudio(keyboard?: IKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
     return await this.editMedia(`audio`, keyboard, data, baseId, options1, options2)
   }
 
-  public async editDocument(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options1?: Parameters<typeof this.ct.editMessageMedia>[0], options2?: Parameters<typeof this.ct.editMessageMedia>[1]) {
+  public async editDocument(keyboard?: IKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
     return await this.editMedia(`document`, keyboard, data, baseId, options1, options2)
   }
 
-  public async editAnimation(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options1?: Parameters<typeof this.ct.editMessageMedia>[0], options2?: Parameters<typeof this.ct.editMessageMedia>[1]) {
+  public async editAnimation(keyboard?: IKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
     return await this.editMedia(`animation`, keyboard, data, baseId, options1, options2)
   }
 
-  public async editVoice(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithVoice>[1]) {
+  public async editVoice(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
     return await this.editMedia(`voice`, keyboard, data, baseId, options)
   }
 
-  public async editVideoNote(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithVideoNote>[1]) {
+  public async editVideoNote(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
     return await this.editMedia(`video_note`, keyboard, data, baseId, options)
   }
 
-  public async editSticker(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithSticker>[1]) {
+  public async editSticker(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
     return await this.editMedia(`sticker`, keyboard, data, baseId, options)
   }
 
-  public async editLocation(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithLocation>[2]) {
+  public async editLocation(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
     return await this.editMedia(`location`, keyboard, data, baseId, options)
   }
 
-  public async editContact(keyboard?: Keyboard | InlineKeyboard, data?: Record<string, any>, baseId?: string, options?: Parameters<typeof this.ct.replyWithContact>[2]) {
+  public async editContact(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
     return await this.editMedia(`contact`, keyboard, data, baseId, options)
   }
 
@@ -394,10 +417,10 @@ export class Ctx extends BaseGeneral {
 
   // =============== build keyboard
 
-  public buildInlineKeyboard(callback: (kb: InlineKeyboard, arr: any[]) => InlineKeyboard, params?: { baseId?: any; data?: Record<string, any>; cache?: boolean }): InlineKeyboard {
+  public buildInlineKeyboard(callback: (kb: IInlineKb, arr: any[]) => IInlineKb, params?: { baseId?: any; data?: IData; cache?: boolean }): IInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
-      const key = `${tkey}:${this.languageCode}:inline`
+      const key = `${tkey}:${this.languageCode}:i`
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const ikb = new InlineKeyboard()
@@ -414,14 +437,14 @@ export class Ctx extends BaseGeneral {
     return rkb
   }
 
-  public buildKeyboard(callback: (kb: Keyboard, arr: any[]) => Keyboard, params?: { baseId?: any; data?: Record<string, any>; cache?: boolean }): Keyboard {
+  public buildBottomKeyboard(callback: (kb: IBottomKb, arr: any[]) => IBottomKb, params?: { baseId?: any; data?: IData; cache?: boolean }): IBottomKb {
     const tkey = this.data.name
     if (params?.cache === true) {
-      const key = `${tkey}:${this.languageCode}:default`
+      const key = `${tkey}:${this.languageCode}:b`
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const kb = new Keyboard()
-        const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.languageCode, `default`, params?.data)
+        const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.languageCode, `bottom`, params?.data)
         const rkb = callback(kb, arr)
         rkb.resized(true)
         this.cacheKeyboard.set(key, rkb)
@@ -430,7 +453,7 @@ export class Ctx extends BaseGeneral {
       return ckb
     }
     const kb = new Keyboard()
-    const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.languageCode, `default`, params?.data)
+    const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.languageCode, `bottom`, params?.data)
     const rkb = callback(kb, arr)
     rkb.resized()
     return rkb
