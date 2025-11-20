@@ -155,12 +155,12 @@ export class TemplateEngine {
     const result: {
       [lang: string]: {
         inline?: string
-        default?: string
+        bottom?: string
       }
     } = {}
 
     for (const [, lang, typeAttr, rawContent] of template.matchAll(keyboardRegex) as any) {
-      const mode = typeAttr === `default` ? `default` : `inline`
+      const mode = typeAttr === `bottom` ? `bottom` : `inline`
       const cleaned = rawContent.trim()
 
       if (!result[lang]) {
@@ -251,7 +251,7 @@ export class TemplateEngine {
       [baseId: string]: {
         [lang: string]: {
           inline?: (data?: Record<string, any>) => string[]
-          default?: (data?: Record<string, any>) => string[]
+          bottom?: (data?: Record<string, any>) => string[]
         }
       }
     } = {}
@@ -269,7 +269,7 @@ export class TemplateEngine {
 
           const processedLabels = labels.map((label) => this._processVariables(this._processScriptBlocks(label)))
 
-          result[baseId][lang][mode as `inline` | `default`] = this._compileToFunction(processedLabels, true)
+          result[baseId][lang][mode as `inline` | `bottom`] = this._compileToFunction(processedLabels, true)
         }
       }
     }

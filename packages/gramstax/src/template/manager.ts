@@ -246,7 +246,7 @@ export class TemplateManager {
    * @param data Template variables
    * @returns Array of rendered button labels
    */
-  public getKeyboard(key: string, baseId = `default`, language = `en`, type: `inline` | `default` = `inline`, data?: Record<string, any>): string[] {
+  public getKeyboard(key: string, baseId = `default`, language = `en`, type: `inline` | `bottom` = `inline`, data?: Record<string, any>): string[] {
     const map = this._map.get(key)
     const func = map?.keyboard?.[baseId]?.[this._forceLanguage || language]?.[type]
     if (!func) {
