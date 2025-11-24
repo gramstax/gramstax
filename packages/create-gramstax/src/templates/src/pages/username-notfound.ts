@@ -3,7 +3,7 @@ import { PageBase } from "~/base/page"
 
 export class UserNameNotFoundPage extends PageBase {
   public kb() {
-    return this.buildInlineKeyboard((kb, arr) => {
+    return this.inlineKeyboard((kb, arr) => {
       return kb //
         .text(arr[0], HelpPage.data.callbackData())
     })

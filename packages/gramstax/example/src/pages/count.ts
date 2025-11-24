@@ -5,7 +5,7 @@ export class CounterPage extends CtxCore {
   static data = this.buildData((execution?: string) => execution)
 
   public kb() {
-    return this.buildInlineKeyboard((kb, arr) => {
+    return this.inlineKeyboard((kb, arr) => {
       return (
         kb
           //
@@ -38,7 +38,7 @@ export class CounterPage extends CtxCore {
     await this.edit(kb, { count })
   }
 
-  public static template = `
+  public static template = /*jsx*/ `
     <base>
       <keyboard lang="en" type="inline">Increase, Decrease, Back</keyboard>
       <keyboard lang="id" type="inline">Tambah, Kurang, Kembali</keyboard>

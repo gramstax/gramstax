@@ -2,22 +2,22 @@ import { CtxCore } from "../core/ctx"
 import { HelpPage } from "./help"
 import { CounterPage } from "./count"
 import { LanguagePage } from "./language"
+import { TestVoicePage } from "./test-voice"
 import { TestPhotoPage } from "./test-photo"
 import { TestVideoPage } from "./test-video"
 import { TestAudioPage } from "./test-audio"
-import { TestDocumentPage } from "./test-document"
-import { TestAnimationPage } from "./test-animation"
-import { TestVoicePage } from "./test-voice"
-import { TestVideoNotePage } from "./test-video-note"
+import { TestContactPage } from "./test-contact"
 import { TestStickerPage } from "./test-sticker"
 import { TestLocationPage } from "./test-location"
-import { TestContactPage } from "./test-contact"
+import { TestDocumentPage } from "./test-document"
+import { TestAnimationPage } from "./test-animation"
+import { TestVideoNotePage } from "./test-video-note"
 
 export class StartPage extends CtxCore {
   static data = this.buildData((conditionNumber?: string) => conditionNumber)
 
   public kb() {
-    return this.buildInlineKeyboard((kb, arr) => {
+    return this.inlineKeyboard((kb, arr) => {
       return (
         kb
           //
@@ -66,6 +66,10 @@ export class StartPage extends CtxCore {
     await this.internal(1)
   }
 
+  public async textCommandPayload() {
+    await this.internal(1)
+  }
+
   public async callback() {
     await this.internal(2)
   }
@@ -74,7 +78,7 @@ export class StartPage extends CtxCore {
     await this.internal(3)
   }
 
-  public static template = `
+  public static template = /*jsx*/ `
     <base>
       <keyboard lang="en" type="inline">Counter, Help, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Language, Refresh</keyboard>
       <keyboard lang="id" type="inline">Kounter, Bantuan, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Bahasa, Segarkan</keyboard>

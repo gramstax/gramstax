@@ -155,7 +155,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
     const upFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
     const getPureFuncName = (func: string) => func.replace(partPayload, ``).replace(partCommand, ``).replace(partCaption, ``).replace(partFree, ``)
-    const buildSessionMethod = (func: string, name: any) => (proto as any)[`buildSessionMethod${upFirst(func)}`](name)
+    const methodSession = (func: string, name: any) => (proto as any)[`methodSession${upFirst(func)}`](name)
 
     // all
     pages.all[name] = Page
@@ -176,7 +176,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
       // staticSession
       if (pss !== undefined) {
-        pss[buildSessionMethod(func, name)] = value
+        pss[methodSession(func, name)] = value
       }
 
       // dynamicStatic

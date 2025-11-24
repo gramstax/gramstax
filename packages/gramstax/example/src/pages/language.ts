@@ -5,7 +5,7 @@ export class LanguagePage extends CtxCore {
   static data = this.buildData((lang?: string) => lang)
 
   public kb() {
-    return this.buildInlineKeyboard((kb, arr) => {
+    return this.inlineKeyboard((kb, arr) => {
       const languages = arr.slice(0, -1)
       const backButton = arr[arr.length - 1] // Get the back button text
 
@@ -46,7 +46,7 @@ export class LanguagePage extends CtxCore {
     await this.internal()
   }
 
-  public static template = `
+  public static template = /*jsx*/ `
     <base>
       <keyboard lang="en" type="inline">EN, ID, Back</keyboard>
       <keyboard lang="id" type="inline">EN, ID, Kembali</keyboard>

@@ -417,7 +417,7 @@ export class Ctx extends BaseGeneral {
 
   // =============== build keyboard
 
-  public buildInlineKeyboard(callback: (kb: IInlineKb, arr: any[]) => IInlineKb, params?: { baseId?: any; data?: IData; cache?: boolean }): IInlineKb {
+  public inlineKeyboard(callback: (kb: IInlineKb, arr: any[]) => IInlineKb, params?: { baseId?: any; data?: IData; cache?: boolean }): IInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.languageCode}:i`
@@ -437,7 +437,7 @@ export class Ctx extends BaseGeneral {
     return rkb
   }
 
-  public buildBottomKeyboard(callback: (kb: IBottomKb, arr: any[]) => IBottomKb, params?: { baseId?: any; data?: IData; cache?: boolean }): IBottomKb {
+  public bottomKeyboard(callback: (kb: IBottomKb, arr: any[]) => IBottomKb, params?: { baseId?: any; data?: IData; cache?: boolean }): IBottomKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.languageCode}:b`
@@ -533,14 +533,14 @@ export class Ctx extends BaseGeneral {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodCallback(name)
+    return method === undefined ? false : method === this.methodSessionCallback(name)
   }
 
   public validateSessionCallbackPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodCallbackPayload(name)
+    return method === undefined ? false : method === this.methodSessionCallbackPayload(name)
   }
 
   // text
@@ -549,35 +549,35 @@ export class Ctx extends BaseGeneral {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodText(name)
+    return method === undefined ? false : method === this.methodSessionText(name)
   }
 
   public validateSessionTextPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodTextPayload(name)
+    return method === undefined ? false : method === this.methodSessionTextPayload(name)
   }
 
   public validateSessionTextCommand(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodTextCommand(name)
+    return method === undefined ? false : method === this.methodSessionTextCommand(name)
   }
 
   public validateSessionTextCommandPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodTextCommandPayload(name)
+    return method === undefined ? false : method === this.methodSessionTextCommandPayload(name)
   }
 
   public validateSessionTextFree(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodTextFree(name)
+    return method === undefined ? false : method === this.methodSessionTextFree(name)
   }
 
   // photo
@@ -586,35 +586,35 @@ export class Ctx extends BaseGeneral {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodPhotoCaption(name)
+    return method === undefined ? false : method === this.methodSessionPhotoCaption(name)
   }
 
   public validateSessionPhotoCaptionPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodPhotoCaptionPayload(name)
+    return method === undefined ? false : method === this.methodSessionPhotoCaptionPayload(name)
   }
 
   public validateSessionPhotoCaptionCommand(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodPhotoCaptionCommand(name)
+    return method === undefined ? false : method === this.methodSessionPhotoCaptionCommand(name)
   }
 
   public validateSessionPhotoCaptionCommandPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodPhotoCaptionCommandPayload(name)
+    return method === undefined ? false : method === this.methodSessionPhotoCaptionCommandPayload(name)
   }
 
   public validateSessionPhotoFree(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodPhotoFree(name)
+    return method === undefined ? false : method === this.methodSessionPhotoFree(name)
   }
 
   // video
@@ -623,35 +623,35 @@ export class Ctx extends BaseGeneral {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVideoCaption(name)
+    return method === undefined ? false : method === this.methodSessionVideoCaption(name)
   }
 
   public validateSessionVideoCaptionPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVideoCaptionPayload(name)
+    return method === undefined ? false : method === this.methodSessionVideoCaptionPayload(name)
   }
 
   public validateSessionVideoCaptionCommand(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVideoCaptionCommand(name)
+    return method === undefined ? false : method === this.methodSessionVideoCaptionCommand(name)
   }
 
   public validateSessionVideoCaptionCommandPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVideoCaptionCommandPayload(name)
+    return method === undefined ? false : method === this.methodSessionVideoCaptionCommandPayload(name)
   }
 
   public validateSessionVideoFree(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVideoFree(name)
+    return method === undefined ? false : method === this.methodSessionVideoFree(name)
   }
 
   // audio
@@ -660,35 +660,35 @@ export class Ctx extends BaseGeneral {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodAudioCaption(name)
+    return method === undefined ? false : method === this.methodSessionAudioCaption(name)
   }
 
   public validateSessionAudioCaptionPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodAudioCaptionPayload(name)
+    return method === undefined ? false : method === this.methodSessionAudioCaptionPayload(name)
   }
 
   public validateSessionAudioCaptionCommand(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodAudioCaptionCommand(name)
+    return method === undefined ? false : method === this.methodSessionAudioCaptionCommand(name)
   }
 
   public validateSessionAudioCaptionCommandPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodAudioCaptionCommandPayload(name)
+    return method === undefined ? false : method === this.methodSessionAudioCaptionCommandPayload(name)
   }
 
   public validateSessionAudioFree(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodAudioFree(name)
+    return method === undefined ? false : method === this.methodSessionAudioFree(name)
   }
 
   // document
@@ -697,35 +697,35 @@ export class Ctx extends BaseGeneral {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodDocumentCaption(name)
+    return method === undefined ? false : method === this.methodSessionDocumentCaption(name)
   }
 
   public validateSessionDocumentCaptionPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodDocumentCaptionPayload(name)
+    return method === undefined ? false : method === this.methodSessionDocumentCaptionPayload(name)
   }
 
   public validateSessionDocumentCaptionCommand(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodDocumentCaptionCommand(name)
+    return method === undefined ? false : method === this.methodSessionDocumentCaptionCommand(name)
   }
 
   public validateSessionDocumentCaptionCommandPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodDocumentCaptionCommandPayload(name)
+    return method === undefined ? false : method === this.methodSessionDocumentCaptionCommandPayload(name)
   }
 
   public validateSessionDocumentFree(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodDocumentFree(name)
+    return method === undefined ? false : method === this.methodSessionDocumentFree(name)
   }
 
   // animation
@@ -734,35 +734,35 @@ export class Ctx extends BaseGeneral {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodAnimationCaption(name)
+    return method === undefined ? false : method === this.methodSessionAnimationCaption(name)
   }
 
   public validateSessionAnimationCaptionPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodAnimationCaptionPayload(name)
+    return method === undefined ? false : method === this.methodSessionAnimationCaptionPayload(name)
   }
 
   public validateSessionAnimationCaptionCommand(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodAnimationCaptionCommand(name)
+    return method === undefined ? false : method === this.methodSessionAnimationCaptionCommand(name)
   }
 
   public validateSessionAnimationCaptionCommandPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodAnimationCaptionCommandPayload(name)
+    return method === undefined ? false : method === this.methodSessionAnimationCaptionCommandPayload(name)
   }
 
   public validateSessionAnimationFree(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodAnimationFree(name)
+    return method === undefined ? false : method === this.methodSessionAnimationFree(name)
   }
 
   // voice
@@ -771,35 +771,35 @@ export class Ctx extends BaseGeneral {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVoiceCaption(name)
+    return method === undefined ? false : method === this.methodSessionVoiceCaption(name)
   }
 
   public validateSessionVoiceCaptionPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVoiceCaptionPayload(name)
+    return method === undefined ? false : method === this.methodSessionVoiceCaptionPayload(name)
   }
 
   public validateSessionVoiceCaptionCommand(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVoiceCaptionCommand(name)
+    return method === undefined ? false : method === this.methodSessionVoiceCaptionCommand(name)
   }
 
   public validateSessionVoiceCaptionCommandPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVoiceCaptionCommandPayload(name)
+    return method === undefined ? false : method === this.methodSessionVoiceCaptionCommandPayload(name)
   }
 
   public validateSessionVoiceFree(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVoiceFree(name)
+    return method === undefined ? false : method === this.methodSessionVoiceFree(name)
   }
 
   // video note
@@ -808,35 +808,35 @@ export class Ctx extends BaseGeneral {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVideoNoteCaption(name)
+    return method === undefined ? false : method === this.methodSessionVideoNoteCaption(name)
   }
 
   public validateSessionVideoNoteCaptionPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVideoNoteCaptionPayload(name)
+    return method === undefined ? false : method === this.methodSessionVideoNoteCaptionPayload(name)
   }
 
   public validateSessionVideoNoteCaptionCommand(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVideoNoteCaptionCommand(name)
+    return method === undefined ? false : method === this.methodSessionVideoNoteCaptionCommand(name)
   }
 
   public validateSessionVideoNoteCaptionCommandPayload(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVideoNoteCaptionCommandPayload(name)
+    return method === undefined ? false : method === this.methodSessionVideoNoteCaptionCommandPayload(name)
   }
 
   public validateSessionVideoNoteFree(method?: string, name?: string) {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodVideoNoteFree(name)
+    return method === undefined ? false : method === this.methodSessionVideoNoteFree(name)
   }
 
   // sticker
@@ -845,7 +845,7 @@ export class Ctx extends BaseGeneral {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodStickerFree(name)
+    return method === undefined ? false : method === this.methodSessionStickerFree(name)
   }
 
   // location
@@ -854,7 +854,7 @@ export class Ctx extends BaseGeneral {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodLocationFree(name)
+    return method === undefined ? false : method === this.methodSessionLocationFree(name)
   }
 
   // contact
@@ -863,212 +863,212 @@ export class Ctx extends BaseGeneral {
     if (method === undefined) {
       method = this.session.method
     }
-    return method === undefined ? false : method === this.buildSessionMethodContactFree(name)
+    return method === undefined ? false : method === this.methodSessionContactFree(name)
   }
 
   // =============== session set
   // callback
 
   public sessionCallback(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodCallback(name), params)
+    return this.sessionSet(this.methodSessionCallback(name), params)
   }
 
   public sessionCallbackPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodCallbackPayload(name), params)
+    return this.sessionSet(this.methodSessionCallbackPayload(name), params)
   }
 
   // text
 
   public sessionText(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodText(name), params)
+    return this.sessionSet(this.methodSessionText(name), params)
   }
 
   public sessionTextPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodTextPayload(name), params)
+    return this.sessionSet(this.methodSessionTextPayload(name), params)
   }
 
   public sessionTextCommand(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodTextCommand(name), params)
+    return this.sessionSet(this.methodSessionTextCommand(name), params)
   }
 
   public sessionTextCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodTextCommandPayload(name), params)
+    return this.sessionSet(this.methodSessionTextCommandPayload(name), params)
   }
 
   public sessionTextFree(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodTextFree(name), params)
+    return this.sessionSet(this.methodSessionTextFree(name), params)
   }
 
   // photo
 
   public sessionPhotoCaption(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodPhotoCaption(name), params)
+    return this.sessionSet(this.methodSessionPhotoCaption(name), params)
   }
 
   public sessionPhotoCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodPhotoCaptionPayload(name), params)
+    return this.sessionSet(this.methodSessionPhotoCaptionPayload(name), params)
   }
 
   public sessionPhotoCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodPhotoCaptionCommand(name), params)
+    return this.sessionSet(this.methodSessionPhotoCaptionCommand(name), params)
   }
 
   public sessionPhotoCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodPhotoCaptionCommandPayload(name), params)
+    return this.sessionSet(this.methodSessionPhotoCaptionCommandPayload(name), params)
   }
 
   public sessionPhotoFree(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodPhotoFree(name), params)
+    return this.sessionSet(this.methodSessionPhotoFree(name), params)
   }
 
   // video
 
   public sessionVideoCaption(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVideoCaption(name), params)
+    return this.sessionSet(this.methodSessionVideoCaption(name), params)
   }
 
   public sessionVideoCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVideoCaptionPayload(name), params)
+    return this.sessionSet(this.methodSessionVideoCaptionPayload(name), params)
   }
 
   public sessionVideoCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVideoCaptionCommand(name), params)
+    return this.sessionSet(this.methodSessionVideoCaptionCommand(name), params)
   }
 
   public sessionVideoCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVideoCaptionCommandPayload(name), params)
+    return this.sessionSet(this.methodSessionVideoCaptionCommandPayload(name), params)
   }
 
   public sessionVideoFree(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVideoFree(name), params)
+    return this.sessionSet(this.methodSessionVideoFree(name), params)
   }
 
   // audio
 
   public sessionAudioCaption(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodAudioCaption(name), params)
+    return this.sessionSet(this.methodSessionAudioCaption(name), params)
   }
 
   public sessionAudioCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodAudioCaptionPayload(name), params)
+    return this.sessionSet(this.methodSessionAudioCaptionPayload(name), params)
   }
 
   public sessionAudioCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodAudioCaptionCommand(name), params)
+    return this.sessionSet(this.methodSessionAudioCaptionCommand(name), params)
   }
 
   public sessionAudioCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodAudioCaptionCommandPayload(name), params)
+    return this.sessionSet(this.methodSessionAudioCaptionCommandPayload(name), params)
   }
 
   public sessionAudioFree(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodAudioFree(name), params)
+    return this.sessionSet(this.methodSessionAudioFree(name), params)
   }
 
   // document
 
   public sessionDocumentCaption(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodDocumentCaption(name), params)
+    return this.sessionSet(this.methodSessionDocumentCaption(name), params)
   }
 
   public sessionDocumentCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodDocumentCaptionPayload(name), params)
+    return this.sessionSet(this.methodSessionDocumentCaptionPayload(name), params)
   }
 
   public sessionDocumentCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodDocumentCaptionCommand(name), params)
+    return this.sessionSet(this.methodSessionDocumentCaptionCommand(name), params)
   }
 
   public sessionDocumentCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodDocumentCaptionCommandPayload(name), params)
+    return this.sessionSet(this.methodSessionDocumentCaptionCommandPayload(name), params)
   }
 
   public sessionDocumentFree(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodDocumentFree(name), params)
+    return this.sessionSet(this.methodSessionDocumentFree(name), params)
   }
 
   // animation
 
   public sessionAnimationCaption(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodAnimationCaption(name), params)
+    return this.sessionSet(this.methodSessionAnimationCaption(name), params)
   }
 
   public sessionAnimationCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodAnimationCaptionPayload(name), params)
+    return this.sessionSet(this.methodSessionAnimationCaptionPayload(name), params)
   }
 
   public sessionAnimationCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodAnimationCaptionCommand(name), params)
+    return this.sessionSet(this.methodSessionAnimationCaptionCommand(name), params)
   }
 
   public sessionAnimationCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodAnimationCaptionCommandPayload(name), params)
+    return this.sessionSet(this.methodSessionAnimationCaptionCommandPayload(name), params)
   }
 
   public sessionAnimationFree(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodAnimationFree(name), params)
+    return this.sessionSet(this.methodSessionAnimationFree(name), params)
   }
 
   // voice
 
   public sessionVoiceCaption(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVoiceCaption(name), params)
+    return this.sessionSet(this.methodSessionVoiceCaption(name), params)
   }
 
   public sessionVoiceCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVoiceCaptionPayload(name), params)
+    return this.sessionSet(this.methodSessionVoiceCaptionPayload(name), params)
   }
 
   public sessionVoiceCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVoiceCaptionCommand(name), params)
+    return this.sessionSet(this.methodSessionVoiceCaptionCommand(name), params)
   }
 
   public sessionVoiceCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVoiceCaptionCommandPayload(name), params)
+    return this.sessionSet(this.methodSessionVoiceCaptionCommandPayload(name), params)
   }
 
   public sessionVoiceFree(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVoiceFree(name), params)
+    return this.sessionSet(this.methodSessionVoiceFree(name), params)
   }
 
   // video note
 
   public sessionVideoNoteCaption(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVideoNoteCaption(name), params)
+    return this.sessionSet(this.methodSessionVideoNoteCaption(name), params)
   }
 
   public sessionVideoNoteCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVideoNoteCaptionPayload(name), params)
+    return this.sessionSet(this.methodSessionVideoNoteCaptionPayload(name), params)
   }
 
   public sessionVideoNoteCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVideoNoteCaptionCommand(name), params)
+    return this.sessionSet(this.methodSessionVideoNoteCaptionCommand(name), params)
   }
 
   public sessionVideoNoteCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVideoNoteCaptionCommandPayload(name), params)
+    return this.sessionSet(this.methodSessionVideoNoteCaptionCommandPayload(name), params)
   }
 
   public sessionVideoNoteFree(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodVideoNoteFree(name), params)
+    return this.sessionSet(this.methodSessionVideoNoteFree(name), params)
   }
 
   // sticker
 
   public sessionStickerFree(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodStickerFree(name), params)
+    return this.sessionSet(this.methodSessionStickerFree(name), params)
   }
 
   // location
 
   public sessionLocationFree(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodLocationFree(name), params)
+    return this.sessionSet(this.methodSessionLocationFree(name), params)
   }
 
   // contact
 
   public sessionContactFree(params?: any, name?: string) {
-    return this.sessionSet(this.buildSessionMethodContactFree(name), params)
+    return this.sessionSet(this.methodSessionContactFree(name), params)
   }
 
   // =============== session update to set
@@ -1289,189 +1289,189 @@ export class Ctx extends BaseGeneral {
 
   // =============== build session method
 
-  public buildSessionMethod(prefix: string, name: string | undefined) {
+  public methodSession(prefix: string, name: string | undefined) {
     return `${prefix}-${name || this.data.name}`
   }
 
   // callback method
 
-  public buildSessionMethodCallback(name?: string) {
-    return this.buildSessionMethod(`1`, name)
+  public methodSessionCallback(name?: string) {
+    return this.methodSession(`1`, name)
   }
 
-  public buildSessionMethodCallbackPayload(name?: string) {
-    return this.buildSessionMethod(`2`, name)
+  public methodSessionCallbackPayload(name?: string) {
+    return this.methodSession(`2`, name)
   }
 
   // text method
 
-  public buildSessionMethodText(name?: string) {
-    return this.buildSessionMethod(`3`, name)
+  public methodSessionText(name?: string) {
+    return this.methodSession(`3`, name)
   }
 
-  public buildSessionMethodTextPayload(name?: string) {
-    return this.buildSessionMethod(`4`, name)
+  public methodSessionTextPayload(name?: string) {
+    return this.methodSession(`4`, name)
   }
 
-  public buildSessionMethodTextCommand(name?: string) {
-    return this.buildSessionMethod(`5`, name)
+  public methodSessionTextCommand(name?: string) {
+    return this.methodSession(`5`, name)
   }
 
-  public buildSessionMethodTextCommandPayload(name?: string) {
-    return this.buildSessionMethod(`6`, name)
+  public methodSessionTextCommandPayload(name?: string) {
+    return this.methodSession(`6`, name)
   }
 
-  public buildSessionMethodTextFree(name?: string) {
-    return this.buildSessionMethod(`7`, name)
+  public methodSessionTextFree(name?: string) {
+    return this.methodSession(`7`, name)
   }
 
   // photo method
 
-  public buildSessionMethodPhotoCaption(name?: string) {
-    return this.buildSessionMethod(`8`, name)
+  public methodSessionPhotoCaption(name?: string) {
+    return this.methodSession(`8`, name)
   }
 
-  public buildSessionMethodPhotoCaptionPayload(name?: string) {
-    return this.buildSessionMethod(`9`, name)
+  public methodSessionPhotoCaptionPayload(name?: string) {
+    return this.methodSession(`9`, name)
   }
 
-  public buildSessionMethodPhotoCaptionCommand(name?: string) {
-    return this.buildSessionMethod(`10`, name)
+  public methodSessionPhotoCaptionCommand(name?: string) {
+    return this.methodSession(`10`, name)
   }
 
-  public buildSessionMethodPhotoCaptionCommandPayload(name?: string) {
-    return this.buildSessionMethod(`11`, name)
+  public methodSessionPhotoCaptionCommandPayload(name?: string) {
+    return this.methodSession(`11`, name)
   }
 
-  public buildSessionMethodPhotoFree(name?: string) {
-    return this.buildSessionMethod(`12`, name)
+  public methodSessionPhotoFree(name?: string) {
+    return this.methodSession(`12`, name)
   }
 
   // video method
 
-  public buildSessionMethodVideoCaption(name?: string) {
-    return this.buildSessionMethod(`13`, name)
+  public methodSessionVideoCaption(name?: string) {
+    return this.methodSession(`13`, name)
   }
 
-  public buildSessionMethodVideoCaptionPayload(name?: string) {
-    return this.buildSessionMethod(`14`, name)
+  public methodSessionVideoCaptionPayload(name?: string) {
+    return this.methodSession(`14`, name)
   }
 
-  public buildSessionMethodVideoCaptionCommand(name?: string) {
-    return this.buildSessionMethod(`15`, name)
+  public methodSessionVideoCaptionCommand(name?: string) {
+    return this.methodSession(`15`, name)
   }
 
-  public buildSessionMethodVideoCaptionCommandPayload(name?: string) {
-    return this.buildSessionMethod(`16`, name)
+  public methodSessionVideoCaptionCommandPayload(name?: string) {
+    return this.methodSession(`16`, name)
   }
 
-  public buildSessionMethodVideoFree(name?: string) {
-    return this.buildSessionMethod(`17`, name)
+  public methodSessionVideoFree(name?: string) {
+    return this.methodSession(`17`, name)
   }
 
   // audio method
 
-  public buildSessionMethodAudioCaption(name?: string) {
-    return this.buildSessionMethod(`18`, name)
+  public methodSessionAudioCaption(name?: string) {
+    return this.methodSession(`18`, name)
   }
 
-  public buildSessionMethodAudioCaptionPayload(name?: string) {
-    return this.buildSessionMethod(`19`, name)
+  public methodSessionAudioCaptionPayload(name?: string) {
+    return this.methodSession(`19`, name)
   }
 
-  public buildSessionMethodAudioCaptionCommand(name?: string) {
-    return this.buildSessionMethod(`20`, name)
+  public methodSessionAudioCaptionCommand(name?: string) {
+    return this.methodSession(`20`, name)
   }
 
-  public buildSessionMethodAudioCaptionCommandPayload(name?: string) {
-    return this.buildSessionMethod(`21`, name)
+  public methodSessionAudioCaptionCommandPayload(name?: string) {
+    return this.methodSession(`21`, name)
   }
 
-  public buildSessionMethodAudioFree(name?: string) {
-    return this.buildSessionMethod(`22`, name)
+  public methodSessionAudioFree(name?: string) {
+    return this.methodSession(`22`, name)
   }
 
   // document method
 
-  public buildSessionMethodDocumentCaption(name?: string) {
-    return this.buildSessionMethod(`23`, name)
+  public methodSessionDocumentCaption(name?: string) {
+    return this.methodSession(`23`, name)
   }
 
-  public buildSessionMethodDocumentCaptionPayload(name?: string) {
-    return this.buildSessionMethod(`24`, name)
+  public methodSessionDocumentCaptionPayload(name?: string) {
+    return this.methodSession(`24`, name)
   }
 
-  public buildSessionMethodDocumentCaptionCommand(name?: string) {
-    return this.buildSessionMethod(`25`, name)
+  public methodSessionDocumentCaptionCommand(name?: string) {
+    return this.methodSession(`25`, name)
   }
 
-  public buildSessionMethodDocumentCaptionCommandPayload(name?: string) {
-    return this.buildSessionMethod(`26`, name)
+  public methodSessionDocumentCaptionCommandPayload(name?: string) {
+    return this.methodSession(`26`, name)
   }
 
-  public buildSessionMethodDocumentFree(name?: string) {
-    return this.buildSessionMethod(`27`, name)
+  public methodSessionDocumentFree(name?: string) {
+    return this.methodSession(`27`, name)
   }
 
   // animation method
 
-  public buildSessionMethodAnimationCaption(name?: string) {
-    return this.buildSessionMethod(`28`, name)
+  public methodSessionAnimationCaption(name?: string) {
+    return this.methodSession(`28`, name)
   }
-  public buildSessionMethodAnimationCaptionPayload(name?: string) {
-    return this.buildSessionMethod(`29`, name)
+  public methodSessionAnimationCaptionPayload(name?: string) {
+    return this.methodSession(`29`, name)
   }
-  public buildSessionMethodAnimationCaptionCommand(name?: string) {
-    return this.buildSessionMethod(`30`, name)
+  public methodSessionAnimationCaptionCommand(name?: string) {
+    return this.methodSession(`30`, name)
   }
-  public buildSessionMethodAnimationCaptionCommandPayload(name?: string) {
-    return this.buildSessionMethod(`31`, name)
+  public methodSessionAnimationCaptionCommandPayload(name?: string) {
+    return this.methodSession(`31`, name)
   }
-  public buildSessionMethodAnimationFree(name?: string) {
-    return this.buildSessionMethod(`32`, name)
+  public methodSessionAnimationFree(name?: string) {
+    return this.methodSession(`32`, name)
   }
 
   // voice method
 
-  public buildSessionMethodVoiceCaption(name?: string) {
-    return this.buildSessionMethod(`33`, name)
+  public methodSessionVoiceCaption(name?: string) {
+    return this.methodSession(`33`, name)
   }
-  public buildSessionMethodVoiceCaptionPayload(name?: string) {
-    return this.buildSessionMethod(`34`, name)
+  public methodSessionVoiceCaptionPayload(name?: string) {
+    return this.methodSession(`34`, name)
   }
-  public buildSessionMethodVoiceCaptionCommand(name?: string) {
-    return this.buildSessionMethod(`35`, name)
+  public methodSessionVoiceCaptionCommand(name?: string) {
+    return this.methodSession(`35`, name)
   }
-  public buildSessionMethodVoiceCaptionCommandPayload(name?: string) {
-    return this.buildSessionMethod(`36`, name)
+  public methodSessionVoiceCaptionCommandPayload(name?: string) {
+    return this.methodSession(`36`, name)
   }
-  public buildSessionMethodVoiceFree(name?: string) {
-    return this.buildSessionMethod(`37`, name)
+  public methodSessionVoiceFree(name?: string) {
+    return this.methodSession(`37`, name)
   }
 
   // video note method
-  public buildSessionMethodVideoNoteCaption(name?: string) {
-    return this.buildSessionMethod(`38`, name)
+  public methodSessionVideoNoteCaption(name?: string) {
+    return this.methodSession(`38`, name)
   }
-  public buildSessionMethodVideoNoteCaptionPayload(name?: string) {
-    return this.buildSessionMethod(`39`, name)
+  public methodSessionVideoNoteCaptionPayload(name?: string) {
+    return this.methodSession(`39`, name)
   }
-  public buildSessionMethodVideoNoteCaptionCommand(name?: string) {
-    return this.buildSessionMethod(`40`, name)
+  public methodSessionVideoNoteCaptionCommand(name?: string) {
+    return this.methodSession(`40`, name)
   }
-  public buildSessionMethodVideoNoteCaptionCommandPayload(name?: string) {
-    return this.buildSessionMethod(`41`, name)
+  public methodSessionVideoNoteCaptionCommandPayload(name?: string) {
+    return this.methodSession(`41`, name)
   }
-  public buildSessionMethodVideoNoteFree(name?: string) {
-    return this.buildSessionMethod(`42`, name)
+  public methodSessionVideoNoteFree(name?: string) {
+    return this.methodSession(`42`, name)
   }
-  public buildSessionMethodStickerFree(name?: string) {
-    return this.buildSessionMethod(`43`, name) // sticker method
+  public methodSessionStickerFree(name?: string) {
+    return this.methodSession(`43`, name) // sticker method
   }
-  public buildSessionMethodLocationFree(name?: string) {
-    return this.buildSessionMethod(`44`, name) // location method
+  public methodSessionLocationFree(name?: string) {
+    return this.methodSession(`44`, name) // location method
   }
-  public buildSessionMethodContactFree(name?: string) {
-    return this.buildSessionMethod(`45`, name) // contact method
+  public methodSessionContactFree(name?: string) {
+    return this.methodSession(`45`, name) // contact method
   }
 }

@@ -2,4 +2,4 @@
 
 import { RepositoryBase } from "../base/repository"
 
-export class ExampleRepository extends RepositoryBase {}
+export class ExampleRepo extends RepositoryBase {}

@@ -3,7 +3,7 @@ import { StartPage } from "./start"
 
 export class GeneralErrorPage extends PageBase {
   public kb() {
-    return this.buildInlineKeyboard((kb, arr) => {
+    return this.inlineKeyboard((kb, arr) => {
       return kb.text(arr[0], StartPage.data.callbackData())
     })
   }

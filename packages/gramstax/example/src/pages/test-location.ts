@@ -3,17 +3,16 @@ import { StartPage } from "./start"
 
 export class TestLocationPage extends CtxCore {
   public kb() {
-    return this.buildInlineKeyboard((kb, arr) => {
+    return this.inlineKeyboard((kb, arr) => {
       return kb.text(arr[0], StartPage.data.callbackData(`3`))
     })
   }
 
   public async callback() {
-    const kb = this.kb()
-    await this.editLocation(kb)
+    await this.editLocation(this.kb())
   }
 
-  public static template = `
+  public static template = /*jsx*/ `
     <base>
       <keyboard lang="en" type="inline">Back</keyboard>
       <keyboard lang="id" type="inline">Kembali</keyboard>
