@@ -1,5 +1,6 @@
 import { Ctx } from "./ctx"
 import { serve } from "bun"
+import { HelperPage } from "../helpers/page"
 import { join, parse } from "node:path"
 import { CacheExternal } from "../cache"
 import { LoggingPretty } from "logging-pretty"
@@ -7,7 +8,6 @@ import { TemplateManager } from "../template"
 import { existsSync, readdirSync } from "node:fs"
 import { Bot, webhookCallback, type BotError, type Context } from "grammy"
 import type { UserFromGetMe } from "grammy/types"
-import { HelperPage } from "../helpers/page"
 
 export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   public templateManager: TemplateManager
@@ -171,7 +171,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
       const p = ps || psi
       if (p !== undefined) {
         const _name = func.includes(partCommand) ? `/${name}` : name
-        p[proto.buildIntent(_name, func.startsWith(`callback`))] = value
+        p[proto.intent(_name, func.startsWith(`callback`))] = value
       }
 
       // staticSession

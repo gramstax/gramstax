@@ -1278,7 +1278,7 @@ export class Ctx extends BaseGeneral {
 
   // =============== build intent
 
-  public buildIntent(str?: string, fbCallbackData = true) {
+  public intent(str?: string, fbCallbackData = true) {
     if (!str) {
       str = fbCallbackData ? this.data.callbackData() : this.data.name
     }
