@@ -14,15 +14,17 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   public cacheKeyboard: Map<any, any>
   public cacheSession: CacheExternal
   public pages: ReturnType<typeof this.pageLoads>
-  public log: LoggingPretty | undefined | null
+  public log: LoggingPretty | undefined
   public bot: IBot
 
-  public constructor(params: { token: string; deploy: string; log?: LoggingPretty; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
+  public handlerBotUpdate: any
+
+  public constructor(params: { token: string; deploy: string; log?: LoggingPretty | boolean | null; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
     if (!params?.token || params?.token?.length == 0) {
       throw new Error(`Token is not valid or empty`)
     }
 
-    this.log = params.log === null ? undefined : params.log === undefined ? new LoggingPretty() : params.log
+    this.log = params.log === true ? new LoggingPretty() : !params.log ? undefined : params.log
     this.cacheSession = params.cacheSession || new CacheExternal(`memory`, `session`)
     this.cacheKeyboard = params.cacheKeyboard || new Map()
     this.templateManager =
@@ -33,18 +35,21 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
     this.bot = this.createBot(params.token) as any as IBot
     this.bot.catch(this.onCatch)
-    this.bot.on(`callback_query:data`, this.onCallbackQueryData.bind(this)) // Handle callback queries from inline keyboards
-    this.bot.on(`message:text`, this.onMessageText.bind(this)) // Handle global text messages
-    this.bot.on(`message:photo`, this.onMessagePhoto.bind(this)) // Handle global photo messages
-    this.bot.on(`message:video`, this.onMessageVideo.bind(this)) // Handle global video messages
-    this.bot.on(`message:audio`, this.onMessageAudio.bind(this)) // Handle global audio messages
-    this.bot.on(`message:document`, this.onMessageDocument.bind(this)) // Handle global document messages
-    this.bot.on(`message:animation`, this.onMessageAnimation.bind(this)) // Handle global animation messages
-    this.bot.on(`message:voice`, this.onMessageVoice.bind(this)) // Handle global voice messages
-    this.bot.on(`message:video_note`, this.onMessageVideoNote.bind(this)) // Handle global video note messages
-    this.bot.on(`message:sticker`, this.onMessageSticker.bind(this)) // Handle global sticker messages
-    this.bot.on(`message:location`, this.onMessageLocation.bind(this)) // Handle global location messages
-    this.bot.on(`message:contact`, this.onMessageContact.bind(this)) // Handle global contact messages
+    this.registerOnCallbackQueryData() // Handle callback queries from inline keyboards
+    this.registerOnMessageText() // Handle global text messages
+    this.registerOnMessagePhoto() // Handle global photo messages
+    this.registerOnMessageVideo() // Handle global video messages
+    this.registerOnMessageAudio() // Handle global audio messages
+    this.registerOnMessageDocument() // Handle global document messages
+    this.registerOnMessageAnimation() // Handle global animation messages
+    this.registerOnMessageVoice() // Handle global voice messages
+    this.registerOnMessageVideoNote() // Handle global video note messages
+    this.registerOnMessageSticker() // Handle global sticker messages
+    this.registerOnMessageLocation() // Handle global location messages
+    this.registerOnMessageContact() // Handle global contact messages
+
+    // Default for customize (very rarely used)
+    this.handlerBotUpdate = this.bot.handleUpdate
 
     // Load pages AFTER templateManager is initialized
     this.pages = this.pageLoads()
@@ -55,8 +60,10 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
     if (params.deploy.startsWith(`polling`)) {
       this.runPolling()
-    } else if (params.deploy.startsWith(`webhook`)) {
+    } else if (params.deploy.startsWith(`webhook:`)) {
       this.runWebhook(params.deploy.split(`webhook:`)[1] as string)
+    } else if (params.deploy.startsWith(`serverless:`)) {
+      this.runServerless(params.deploy.split(`serverless:`)[1] as string)
     }
   }
 
@@ -64,13 +71,9 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
     this.log?.error?.(`[Bot.catch]: ${String(error)}`)
   }
 
-  public onStart(botInfo: UserFromGetMe, method: `polling` | `webhook`, data: string | null) {
+  public onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
     const { username } = botInfo
-    if (method == `polling`) {
-      this.log?.success?.(`Telegram bot polling started: ${username}`)
-    } else {
-      this.log?.success?.(`Telegram bot webhook started: ${username} (${data})`)
-    }
+    this.log?.success?.(`Telegram bot polling started: ${username} ${method == `webhook` || method == `serverless` ? `(${data})` : ``}`)
   }
 
   public createBot(token: string) {
@@ -101,6 +104,9 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   public async runWebhook(baseUrl: string) {
     const handleUpdate = webhookCallback(this.bot, `bun`)
     const pathWebhook = `/telegram-webhook`
+
+    this.handlerBotUpdate = handleUpdate
+
     serve({
       fetch(req) {
         const { pathname } = new URL(req.url)
@@ -132,6 +138,12 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
     const botInfo = await this.bot.api.getMe()
     this.onStart(botInfo, `webhook`, webhookUrl)
+  }
+
+  public async runServerless(adapter: string) {
+    this.handlerBotUpdate = webhookCallback(this.bot, adapter as any)
+    const botInfo = await this.bot.api.getMe()
+    this.onStart(botInfo, `serverless`, adapter)
   }
 
   public pageBuildData(Page: typeof Ctx, filePath: string) {
@@ -540,5 +552,53 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
   public async onMessageContact(ct: Context): Promise<void> {
     await this.onMessage(ct, `onMessageContact`)
+  }
+
+  public registerOnCallbackQueryData() {
+    this.bot.on(`callback_query:data`, this.onCallbackQueryData.bind(this)) // Handle callback queries from inline keyboards
+  }
+
+  public registerOnMessageText() {
+    this.bot.on(`message:text`, this.onMessageText.bind(this)) // Handle global text messages
+  }
+
+  public registerOnMessagePhoto() {
+    this.bot.on(`message:photo`, this.onMessagePhoto.bind(this)) // Handle global photo messages
+  }
+
+  public registerOnMessageVideo() {
+    this.bot.on(`message:video`, this.onMessageVideo.bind(this)) // Handle global video messages
+  }
+
+  public registerOnMessageAudio() {
+    this.bot.on(`message:audio`, this.onMessageAudio.bind(this)) // Handle global audio messages
+  }
+
+  public registerOnMessageDocument() {
+    this.bot.on(`message:document`, this.onMessageDocument.bind(this)) // Handle global document messages
+  }
+
+  public registerOnMessageAnimation() {
+    this.bot.on(`message:animation`, this.onMessageAnimation.bind(this)) // Handle global animation messages
+  }
+
+  public registerOnMessageVoice() {
+    this.bot.on(`message:voice`, this.onMessageVoice.bind(this)) // Handle global voice messages
+  }
+
+  public registerOnMessageVideoNote() {
+    this.bot.on(`message:video_note`, this.onMessageVideoNote.bind(this)) // Handle global video note messages
+  }
+
+  public registerOnMessageSticker() {
+    this.bot.on(`message:sticker`, this.onMessageSticker.bind(this)) // Handle global sticker messages
+  }
+
+  public registerOnMessageLocation() {
+    this.bot.on(`message:location`, this.onMessageLocation.bind(this)) // Handle global location messages
+  }
+
+  public registerOnMessageContact() {
+    this.bot.on(`message:contact`, this.onMessageContact.bind(this)) // Handle global contact messages
   }
 }
