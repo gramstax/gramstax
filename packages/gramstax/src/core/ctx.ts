@@ -26,13 +26,13 @@ import {
   IOptReplyVideoNote
 } from "../types/ctx"
 
-type IPData = { name: string; callbackData: (...args: any) => string | any }
-type ITemp = { session: { method?: string; params?: any }; data: Partial<IPData>; [key: string]: any }
+type IPageData = { name: string; callbackData: (...args: any) => string | any }
+type ITemp = { session: { method?: string; params?: any }; data: Partial<IPageData>; [key: string]: any }
 
 export class Ctx extends BaseGeneral {
   public static template?: string // string html
-  public static data: IPData // for external access (**.data). example StartPage.data.callbackData
-  public data = (this as any).constructor.data as IPData // for internal access (this.**). example this.data.callbackData
+  public static data: IPageData // for external access (**.data). example StartPage.data.callbackData
+  public data = (this as any).constructor.data as IPageData // for internal access (this.**). example this.data.callbackData
 
   public get isPremium() {
     return this.ct.from?.is_premium ?? false

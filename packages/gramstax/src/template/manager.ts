@@ -250,7 +250,7 @@ export class TemplateManager {
    * @param language Target language code
    * @returns Description string
    */
-  public getDescription(key: string, baseId = `default`, language = `en`, data?: Record<string, any>): string {
+  public getDescription(key: string, baseId = `default`, language = `global`, data?: Record<string, any>): string {
     const map = this._map.get(key)
     const func = map?.description?.[baseId]?.[this._forceLanguage || language]
     if (!func) {
@@ -262,6 +262,15 @@ export class TemplateManager {
     } catch (error) {
       return ``
     }
+  }
+
+  public getDescriptionLanguage(key: string, baseId = `default`) {
+    const map = this._map.get(key)
+    const obj = map?.description?.[baseId]
+    if (!obj) {
+      return Object.keys(obj as any)
+    }
+    return []
   }
 
   /**

@@ -182,7 +182,8 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
       const value = { name, func } as any
       const p = ps || psi
       if (p !== undefined) {
-        const _name = func.includes(partCommand) ? `/${name}` : name
+        const _isCommand = func.includes(partCommand)
+        const _name = _isCommand ? `/${name}` : name
         p[proto.intent(_name, func.startsWith(`callback`))] = value
       }
 
@@ -203,15 +204,32 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
     }
   }
 
+  public async pageSyncDescription(pages: typeof this.pages) {
+    // // for set text commands description to API telegram
+    // const { textCommand } = pages.static
+    // Object.keys(textCommand).forEach(async (key) => {
+    //   const name = textCommand[key]?.name as string
+    //   const baseId = `default`
+    //   this.templateManager.getDescriptionLanguage(name, baseId)?.forEach((lang) => {
+    //     const value = {
+    //       command: name,
+    //       description: this.templateManager.getDescription(name, baseId, lang)
+    //     }
+    //   })
+    // })
+    // const current = await this.bot.api.getMyCommands()
+    // const currentJSON = JSON.stringify(current)
+    // const desiredJSON = JSON.stringify(allCommand)
+    // if (currentJSON === desiredJSON) {
+    //   return
+    // }
+    // await this.bot.api.setMyCommands(allCommand, { scope: { type: `default` } })
+    // this.log?.info?.(`Finish sync textCommand description with total (${allCommand.length})`)
+  }
+
   public pageLoads() {
     this.log?.info?.(`Load pages..`)
 
-    const path = join(process.cwd(), `src`, `pages`)
-    if (!existsSync(path)) {
-      throw new Error(`Directory ${path} is not found, please make it manually`)
-    }
-
-    const files = readdirSync(path)
     const initStatic = {} as Record<string, { name: string; func: string }> // { [page.data.name]: { name: Page.data.name, func: routeFunctionName } }
     const initStaticIntent = initStatic // { [intent]: { name: page.data.name, func: routeFunctionName } }
     const initStaticSession = initStatic // { [session.method]: { name: page.data.name, func: routeFunctionName } }
@@ -303,7 +321,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
     const makeObject = <const T extends readonly string[], V>(keys: T, val: V): { [K in T[number]]: V } => Object.fromEntries(keys.map((k) => [k, { ...val }])) as { [K in T[number]]: V }
 
     const pages = {
-      all: {} as Record<string, typeof Ctx>, // (classes) all Page
+      all: {} as Record<string, typeof Ctx>, // { [page.data.name]: classes }. (classes) all Page
       dynamic: [] as string[], // (dynamic) all Page function free
       dynamicSpesific: {
         text: initDynamicSpesific,
@@ -329,18 +347,14 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
       lenListFuncStaticSession: listFuncStaticSession.length
     }
 
-    for (const file of files) {
-      const filePath = join(path, file)
-      const Page = HelperPage.getPageSync(filePath, true)
-
-      // create if not exist and set name (without ext) according filePath
-      this.pageBuildData(Page, filePath)
-
-      // sort route method
-      this.pageSorts(Page, pages)
-    }
+    HelperPage.getPagesSync(undefined, true).forEach(({ path, page }) => {
+      this.pageBuildData(page, path) // create if not exist and set name (without ext) according filePath
+      this.pageSorts(page, pages) // sort route method
+    })
 
     this.log?.info?.(`Finish load pages with total (${Object.keys(pages.all).length})`)
+
+    this.pageSyncDescription(pages)
     return pages
   }
 
