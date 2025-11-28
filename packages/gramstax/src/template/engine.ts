@@ -150,6 +150,24 @@ export class TemplateEngine {
     return result
   }
 
+  public static _processDescriptionBlocks(template: string) {
+    const descriptionRegex = /<description\s+lang="([^"]+)"\s*>([\s\S]*?)<\/description>/gi
+    const result: {
+      [lang: string]: string
+    } = {}
+
+    for (const [, lang, rawContent] of template.matchAll(descriptionRegex) as any) {
+      const cleaned = rawContent
+        .replace(/^[\t ]+/gm, ``)
+        .replace(/^\n+/, ``)
+        .replace(/\n+$/, ``)
+        .trim()
+
+      result[lang] = cleaned
+    }
+    return result
+  }
+
   public static _processKeyboardBlocks(template: string) {
     const keyboardRegex = /<keyboard\b[^>]*\blang="([^"]*)"[^>]*?(?:\stype="([^"]*)")?[^>]*>([\s\S]*?)<\/keyboard>/gi
     const result: {
@@ -239,6 +257,26 @@ export class TemplateEngine {
       for (const [lang, content] of Object.entries(messages)) {
         const processed = this._processVariables(this._processScriptBlocks(content))
         result[baseId][lang] = this._compileToFunction(processed, false)
+      }
+    }
+
+    return result
+  }
+
+  public static compileDescription(template: string) {
+    const baseBlocks = this._processBaseBlocks(template)
+    const result: {
+      [baseId: string]: {
+        [lang: string]: (data?: Record<string, any>) => string
+      }
+    } = {}
+
+    for (const [baseId, baseContent] of Object.entries(baseBlocks)) {
+      const descriptions = this._processDescriptionBlocks(baseContent)
+      result[baseId] = {}
+
+      for (const [lang, content] of Object.entries(descriptions)) {
+        result[baseId][lang] = this._compileToFunction(content, false)
       }
     }
 

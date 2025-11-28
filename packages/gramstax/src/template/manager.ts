@@ -10,6 +10,7 @@ type ICompiledTemplate = {
   media: ReturnType<typeof TemplateEngine.compileMedia>
   message: ReturnType<typeof TemplateEngine.compileMessages>
   keyboard: ReturnType<typeof TemplateEngine.compileKeyboards>
+  description: ReturnType<typeof TemplateEngine.compileDescription>
 }
 
 /** Template loading options */
@@ -188,6 +189,10 @@ export class TemplateManager {
       compiled.keyboard = TemplateEngine.compileKeyboards(template)
       updated = true
     }
+    if (keepIfExist === undefined || keepIfExist?.description === false || existing?.description === undefined) {
+      compiled.description = TemplateEngine.compileDescription(template)
+      updated = true
+    }
 
     if (updated) {
       this._map.set(key, compiled)
@@ -227,6 +232,27 @@ export class TemplateManager {
   public getMessage(key: string, baseId = `default`, language = `en`, data?: Record<string, any>): string {
     const map = this._map.get(key)
     const func = map?.message?.[baseId]?.[this._forceLanguage || language]
+    if (!func) {
+      return ``
+    }
+
+    try {
+      return func(data)
+    } catch (error) {
+      return ``
+    }
+  }
+
+  /**
+   * Get compiled description template
+   * @param key Template identifier (filename without extension)
+   * @param baseId Base id attr from block
+   * @param language Target language code
+   * @returns Description string
+   */
+  public getDescription(key: string, baseId = `default`, language = `en`, data?: Record<string, any>): string {
+    const map = this._map.get(key)
+    const func = map?.description?.[baseId]?.[this._forceLanguage || language]
     if (!func) {
       return ``
     }
@@ -281,14 +307,6 @@ export class TemplateManager {
       }
     }
     return null
-  }
-
-  /**
-   * Get list of available template
-   * @returns Array of template names
-   */
-  public getAvailable(): string[] {
-    return Array.from(this._map.keys())
   }
 
   /**
