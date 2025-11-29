@@ -244,15 +244,15 @@ export class TemplateManager {
   }
 
   /**
-   * Get compiled description template
    * @param key Template identifier (filename without extension)
    * @param baseId Base id attr from block
    * @param language Target language code
+   * @param scope Scope of the command
    * @returns Description string
    */
-  public getDescription(key: string, baseId = `default`, language = `default`, data?: Record<string, any>): string {
+  public getDescription(key: string, baseId = `default`, language = `default`, scope = `default`, data?: Record<string, any>): string {
     const map = this._map.get(key)
-    const func = map?.description?.[baseId]?.[this._forceLanguage || language]
+    const func = map?.description?.[baseId]?.[scope]?.[this._forceLanguage || language]
     if (!func) {
       return ``
     }
@@ -264,11 +264,20 @@ export class TemplateManager {
     }
   }
 
-  public getDescriptionLanguage(key: string, baseId = `default`) {
+  public getDescriptionLanguage(key: string, baseId = `default`, scope = `default`) {
+    const map = this._map.get(key)
+    const obj = map?.description?.[baseId]?.[scope]
+    if (obj) {
+      return Object.keys(obj)
+    }
+    return []
+  }
+
+  public getDescriptionScopes(key: string, baseId = `default`) {
     const map = this._map.get(key)
     const obj = map?.description?.[baseId]
-    if (!obj) {
-      return Object.keys(obj as any)
+    if (obj) {
+      return Object.keys(obj)
     }
     return []
   }

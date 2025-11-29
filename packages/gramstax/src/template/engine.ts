@@ -151,19 +151,24 @@ export class TemplateEngine {
   }
 
   public static _processDescriptionBlocks(template: string) {
-    const descriptionRegex = /<description\s+lang="([^"]+)"\s*>([\s\S]*?)<\/description>/gi
+    const descriptionRegex = /<description\b[^>]*\blang="([^"]*)"[^>]*\bscope="([^"]*)"[^>]*>([\s\S]*?)<\/description>/gi
     const result: {
-      [lang: string]: string
+      [lang: string]: {
+        [scope: string]: string
+      }
     } = {}
 
-    for (const [, lang, rawContent] of template.matchAll(descriptionRegex) as any) {
+    for (const [, lang, scope, rawContent] of template.matchAll(descriptionRegex) as any) {
       const cleaned = rawContent
         .replace(/^[\t ]+/gm, ``)
         .replace(/^\n+/, ``)
         .replace(/\n+$/, ``)
         .trim()
 
-      result[lang] = cleaned
+      if (!result[lang]) {
+        result[lang] = {}
+      }
+      result[lang][scope] = cleaned
     }
     return result
   }
@@ -267,7 +272,9 @@ export class TemplateEngine {
     const baseBlocks = this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
-        [lang: string]: (data?: Record<string, any>) => string
+        [scope: string]: {
+          [lang: string]: (data?: Record<string, any>) => string
+        }
       }
     } = {}
 
@@ -275,8 +282,13 @@ export class TemplateEngine {
       const descriptions = this._processDescriptionBlocks(baseContent)
       result[baseId] = {}
 
-      for (const [lang, content] of Object.entries(descriptions)) {
-        result[baseId][lang] = this._compileToFunction(content, false)
+      for (const [lang, scopes] of Object.entries(descriptions)) {
+        for (const [scope, content] of Object.entries(scopes)) {
+          if (!result[baseId][scope]) {
+            result[baseId][scope] = {}
+          }
+          result[baseId][scope][lang] = this._compileToFunction(content, false)
+        }
       }
     }
 

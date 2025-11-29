@@ -205,26 +205,62 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   }
 
   public async pageSyncDescription(pages: typeof this.pages) {
-    // // for set text commands description to API telegram
-    // const { textCommand } = pages.static
-    // Object.keys(textCommand).forEach(async (key) => {
-    //   const name = textCommand[key]?.name as string
-    //   const baseId = `default`
-    //   this.templateManager.getDescriptionLanguage(name, baseId)?.forEach((lang) => {
-    //     const value = {
-    //       command: name,
-    //       description: this.templateManager.getDescription(name, baseId, lang)
-    //     }
-    //   })
-    // })
-    // const current = await this.bot.api.getMyCommands()
-    // const currentJSON = JSON.stringify(current)
-    // const desiredJSON = JSON.stringify(allCommand)
-    // if (currentJSON === desiredJSON) {
-    //   return
-    // }
-    // await this.bot.api.setMyCommands(allCommand, { scope: { type: `default` } })
-    // this.log?.info?.(`Finish sync textCommand description with total (${allCommand.length})`)
+    const commandGroups = new Map<string, Map<string, Array<{ command: string; description: string }>>>()
+
+    const addCommand = (name: string, scope: string, lang: string, description: string) => {
+      if (!commandGroups.has(scope)) {
+        commandGroups.set(scope, new Map())
+      }
+      const scopeMap = commandGroups.get(scope)!
+
+      if (!scopeMap.has(lang)) {
+        scopeMap.set(lang, [])
+      }
+      const langList = scopeMap.get(lang)!
+
+      // Avoid duplicates
+      if (!langList.some((cmd) => cmd.command === name)) {
+        langList.push({ command: name, description })
+      }
+    }
+
+    // Iterate textCommand only
+    const allCommands = pages.static.textCommand
+    for (const [, page] of Object.entries(allCommands)) {
+      const name = page.name
+      const scopes = this.templateManager.getDescriptionScopes(name)
+
+      for (const scope of scopes) {
+        const langs = this.templateManager.getDescriptionLanguage(name, `default`, scope)
+        for (const lang of langs) {
+          const desc = this.templateManager.getDescription(name, `default`, lang, scope)
+          if (desc) {
+            addCommand(name, scope, lang, desc)
+          }
+        }
+      }
+    }
+
+    // Sync with Telegram
+    for (const [scopeKey, langMap] of commandGroups) {
+      for (const [lang, commands] of langMap) {
+        const scopeObj = { type: scopeKey } as any
+        const langCode = lang === `default` ? undefined : lang
+
+        try {
+          const current = await this.bot.api.getMyCommands({ scope: scopeObj, language_code: langCode as any })
+          const currentJSON = JSON.stringify(current.map((c) => ({ command: c.command, description: c.description })).sort((a, b) => a.command.localeCompare(b.command)))
+          const desiredJSON = JSON.stringify(commands.sort((a, b) => a.command.localeCompare(b.command)))
+
+          if (currentJSON !== desiredJSON) {
+            await this.bot.api.setMyCommands(commands, { scope: scopeObj, language_code: langCode as any })
+            this.log?.info?.(`Synced descriptions for scope: ${scopeKey},${langCode ? ` lang: ${langCode}` : ``} (Total: ${commands.length})`)
+          }
+        } catch (error) {
+          this.log?.error?.(`Failed to sync descriptions for scope: ${scopeKey},${langCode ? ` lang: ${langCode}` : ``}. ${String(error)}`)
+        }
+      }
+    }
   }
 
   public pageLoads() {
