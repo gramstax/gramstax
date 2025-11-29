@@ -1,6 +1,6 @@
 {
   "name": "gramstax",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "private": false,
   "description": "A powerful Telegram bot framework with page-based routing and template system",
   "keywords": [
@@ -37,16 +37,16 @@
   ],
   "devDependencies": {
     "@types/bun": "latest",
-    "tsup": "^8.5.0"
+    "tsup": "^8.5.1"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@keyv/redis": "^5.1.3",
+    "@keyv/redis": "^5.1.4",
     "chokidar": "^4.0.3",
-    "grammy": "^1.38.3",
-    "keyv": "^5.5.3",
+    "grammy": "^1.38.4",
+    "keyv": "^5.5.4",
     "logging-pretty": "^3.0.0"
   }
 }
