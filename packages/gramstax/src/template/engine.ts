@@ -67,7 +67,7 @@ export class TemplateEngine {
   }
 
   public static _processMediaBlocks(template: string) {
-    const mediaRegex = /<media\s+([^>]+)>([\s\S]*?)<\/media>/gi
+    const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
     const result: { [lang: string]: IMediaBlock } = {}
 
     for (const match of template.matchAll(mediaRegex) as any) {
@@ -78,8 +78,10 @@ export class TemplateEngine {
       const attrs: { [key: string]: string } = {}
       const attrRegex = /(\w+)="([^"]*)"/g
 
-      for (const attrMatch of attributesStr.matchAll(attrRegex) as any) {
-        attrs[attrMatch[1]] = attrMatch[2]
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex) as any) {
+          attrs[attrMatch[1]] = attrMatch[2]
+        }
       }
 
       // Make sure have lang attribute
@@ -129,13 +131,22 @@ export class TemplateEngine {
   }
 
   public static _processMessageBlocks(template: string) {
-    const messageRegex = /<message(?:\s+lang="([^"]*)")?[^>]*>([\s\S]*?)<\/message>/gi
+    const messageRegex = /<message(?:\s+([^>]*))?>([\s\S]*?)<\/message>/gi
     const result: {
       [lang: string]: string
     } = {}
 
-    for (const [, langAttr, rawContent] of template.matchAll(messageRegex) as any) {
-      const lang = langAttr || `default`
+    for (const [, attributesStr, rawContent] of template.matchAll(messageRegex) as any) {
+      const attrs: { [key: string]: string } = {}
+      const attrRegex = /(\w+)="([^"]*)"/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex) as any) {
+          attrs[attrMatch[1]] = attrMatch[2]
+        }
+      }
+
+      const lang = attrs.lang || `default`
       const cleaned = rawContent
         .replace(/^[\t ]+/gm, ``)
         .replace(/^\n+/, ``)
@@ -148,16 +159,25 @@ export class TemplateEngine {
   }
 
   public static _processDescriptionBlocks(template: string) {
-    const descriptionRegex = /<description(?:\s+lang="([^"]*)")?(?:\s+scope="([^"]*)")?[^>]*>([\s\S]*?)<\/description>/gi
+    const descriptionRegex = /<description(?:\s+([^>]*))?>([\s\S]*?)<\/description>/gi
     const result: {
       [lang: string]: {
         [scope: string]: string
       }
     } = {}
 
-    for (const [, langAttr, scopeAttr, rawContent] of template.matchAll(descriptionRegex) as any) {
-      const lang = langAttr || `default`
-      const scope = scopeAttr || `default`
+    for (const [, attributesStr, rawContent] of template.matchAll(descriptionRegex) as any) {
+      const attrs: { [key: string]: string } = {}
+      const attrRegex = /(\w+)="([^"]*)"/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex) as any) {
+          attrs[attrMatch[1]] = attrMatch[2]
+        }
+      }
+
+      const lang = attrs.lang || `default`
+      const scope = attrs.scope || `default`
       const cleaned = rawContent
         .replace(/^[\t ]+/gm, ``)
         .replace(/^\n+/, ``)
@@ -173,7 +193,7 @@ export class TemplateEngine {
   }
 
   public static _processKeyboardBlocks(template: string) {
-    const keyboardRegex = /<keyboard(?:\s+lang="([^"]*)")?[^>]*?(?:\stype="([^"]*)")?[^>]*>([\s\S]*?)<\/keyboard>/gi
+    const keyboardRegex = /<keyboard(?:\s+([^>]*))?>([\s\S]*?)<\/keyboard>/gi
     const result: {
       [lang: string]: {
         inline?: string
@@ -181,9 +201,18 @@ export class TemplateEngine {
       }
     } = {}
 
-    for (const [, langAttr, typeAttr, rawContent] of template.matchAll(keyboardRegex) as any) {
-      const lang = langAttr || `default`
-      const mode = typeAttr === `bottom` ? `bottom` : `inline`
+    for (const [, attributesStr, rawContent] of template.matchAll(keyboardRegex) as any) {
+      const attrs: { [key: string]: string } = {}
+      const attrRegex = /(\w+)="([^"]*)"/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex) as any) {
+          attrs[attrMatch[1]] = attrMatch[2]
+        }
+      }
+
+      const lang = attrs.lang || `default`
+      const mode = attrs.type === `bottom` ? `bottom` : `inline`
       const cleaned = rawContent.trim()
 
       if (!result[lang]) {
