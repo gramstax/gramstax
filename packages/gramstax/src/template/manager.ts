@@ -19,8 +19,6 @@ type ITemplateOptions = {
   path: string[]
   /** Enable file watching for hot reloading (only work for persistent type) */
   enableWatch?: boolean
-  /** Force language params to this value */
-  forceLanguage?: string
 }
 
 /** Template management system */
@@ -30,13 +28,11 @@ export class TemplateManager {
   public _watcher: FSWatcher[] = []
   public _supportedExtensions = new Set([`.html`, `.ts`])
   public readonly _path: ITemplateOptions[`path`]
-  public readonly _forceLanguage: ITemplateOptions[`forceLanguage`]
   public readonly _isWatchEnabled: ITemplateOptions[`enableWatch`]
   public constructor(options: ITemplateOptions) {
-    const { path, enableWatch = false, forceLanguage } = options
+    const { path, enableWatch = false } = options
 
     this._path = path
-    this._forceLanguage = forceLanguage
     this._isWatchEnabled = enableWatch
 
     this._validatePath()
@@ -207,9 +203,10 @@ export class TemplateManager {
    * @param data Template variables
    * @returns media object
    */
-  public getMedia(key: string, baseId = `default`, language = `en`, data?: Record<string, any>) {
+  public getMedia(key: string, baseId = `default`, language = `default`, data?: Record<string, any>) {
     const map = this._map.get(key)
-    const func = map?.media?.[baseId]?.[this._forceLanguage || language]
+    const one = map?.media?.[baseId]
+    const func = one?.[language] || one?.[`default`]
     if (!func) {
       return {} as Record<any, any>
     }
@@ -229,9 +226,10 @@ export class TemplateManager {
    * @param data Template variables
    * @returns Rendered message string
    */
-  public getMessage(key: string, baseId = `default`, language = `en`, data?: Record<string, any>): string {
+  public getMessage(key: string, baseId = `default`, language = `default`, data?: Record<string, any>): string {
     const map = this._map.get(key)
-    const func = map?.message?.[baseId]?.[this._forceLanguage || language]
+    const one = map?.message?.[baseId]
+    const func = one?.[language] || one?.[`default`]
     if (!func) {
       return ``
     }
@@ -252,7 +250,8 @@ export class TemplateManager {
    */
   public getDescription(key: string, baseId = `default`, language = `default`, scope = `default`, data?: Record<string, any>): string {
     const map = this._map.get(key)
-    const func = map?.description?.[baseId]?.[scope]?.[this._forceLanguage || language]
+    const one = map?.description?.[baseId]?.[scope]
+    const func = one?.[language] || one?.[`default`]
     if (!func) {
       return ``
     }
@@ -290,9 +289,10 @@ export class TemplateManager {
    * @param data Template variables
    * @returns Array of rendered button labels
    */
-  public getKeyboard(key: string, baseId = `default`, language = `en`, type: `inline` | `bottom` = `inline`, data?: Record<string, any>): string[] {
+  public getKeyboard(key: string, baseId = `default`, language = `default`, type: `inline` | `bottom` = `inline`, data?: Record<string, any>): string[] {
     const map = this._map.get(key)
-    const func = map?.keyboard?.[baseId]?.[this._forceLanguage || language]?.[type]
+    const one = map?.keyboard?.[baseId]
+    const func = one?.[language]?.[type] || one?.[`default`]?.[type]
     if (!func) {
       return []
     }

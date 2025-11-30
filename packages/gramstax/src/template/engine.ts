@@ -83,11 +83,7 @@ export class TemplateEngine {
       }
 
       // Make sure have lang attribute
-      if (!attrs.lang) {
-        continue
-      }
-
-      const lang = attrs.lang
+      const lang = attrs.lang || `default`
       const type = attrs.type
 
       // Clean caption/content
@@ -133,12 +129,13 @@ export class TemplateEngine {
   }
 
   public static _processMessageBlocks(template: string) {
-    const messageRegex = /<message\s+lang="([^"]+)"\s*>([\s\S]*?)<\/message>/gi
+    const messageRegex = /<message(?:\s+lang="([^"]*)")?[^>]*>([\s\S]*?)<\/message>/gi
     const result: {
       [lang: string]: string
     } = {}
 
-    for (const [, lang, rawContent] of template.matchAll(messageRegex) as any) {
+    for (const [, langAttr, rawContent] of template.matchAll(messageRegex) as any) {
+      const lang = langAttr || `default`
       const cleaned = rawContent
         .replace(/^[\t ]+/gm, ``)
         .replace(/^\n+/, ``)
@@ -151,14 +148,16 @@ export class TemplateEngine {
   }
 
   public static _processDescriptionBlocks(template: string) {
-    const descriptionRegex = /<description\b[^>]*\blang="([^"]*)"[^>]*\bscope="([^"]*)"[^>]*>([\s\S]*?)<\/description>/gi
+    const descriptionRegex = /<description(?:\s+lang="([^"]*)")?(?:\s+scope="([^"]*)")?[^>]*>([\s\S]*?)<\/description>/gi
     const result: {
       [lang: string]: {
         [scope: string]: string
       }
     } = {}
 
-    for (const [, lang, scope, rawContent] of template.matchAll(descriptionRegex) as any) {
+    for (const [, langAttr, scopeAttr, rawContent] of template.matchAll(descriptionRegex) as any) {
+      const lang = langAttr || `default`
+      const scope = scopeAttr || `default`
       const cleaned = rawContent
         .replace(/^[\t ]+/gm, ``)
         .replace(/^\n+/, ``)
@@ -174,7 +173,7 @@ export class TemplateEngine {
   }
 
   public static _processKeyboardBlocks(template: string) {
-    const keyboardRegex = /<keyboard\b[^>]*\blang="([^"]*)"[^>]*?(?:\stype="([^"]*)")?[^>]*>([\s\S]*?)<\/keyboard>/gi
+    const keyboardRegex = /<keyboard(?:\s+lang="([^"]*)")?[^>]*?(?:\stype="([^"]*)")?[^>]*>([\s\S]*?)<\/keyboard>/gi
     const result: {
       [lang: string]: {
         inline?: string
@@ -182,7 +181,8 @@ export class TemplateEngine {
       }
     } = {}
 
-    for (const [, lang, typeAttr, rawContent] of template.matchAll(keyboardRegex) as any) {
+    for (const [, langAttr, typeAttr, rawContent] of template.matchAll(keyboardRegex) as any) {
+      const lang = langAttr || `default`
       const mode = typeAttr === `bottom` ? `bottom` : `inline`
       const cleaned = rawContent.trim()
 
