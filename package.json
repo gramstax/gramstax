@@ -15,6 +15,9 @@
     "publish:gramstax": "cd packages/gramstax && npm publish",
     "publish:create-gramstax": "cd packages/create-gramstax && npm publish",
     "publish:all": "bun run build && bun run publish:gramstax && bun run publish:create-gramstax",
+    "install:gramstax": "cd packages/gramstax && bun install",
+    "install:create-gramstax": "cd packages/create-gramstax && bun install",
+    "install:all": "bun run install:gramstax && bun run install:create-gramstax",
     "version:patch": "npm version patch --workspaces",
     "version:minor": "npm version minor --workspaces",
     "version:major": "npm version major --workspaces"
