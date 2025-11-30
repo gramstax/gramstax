@@ -42,7 +42,6 @@
   },
   "dependencies": {
     "gramstax": "latest",
-    "grammy": "^1.38.3",
     "logging-pretty": "^3.0.0"
   },
   "peerDependencies": {

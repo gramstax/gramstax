@@ -21,9 +21,14 @@ export class UserNameNotFoundPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
+      <keyboard type="inline">.. Home</keyboard>
       <keyboard lang="en" type="inline">.. Home</keyboard>
       <keyboard lang="es" type="inline">.. Inicio</keyboard>
       <keyboard lang="id" type="inline">.. Beranda</keyboard>
+
+      <message>
+        Please set the username first before using the bot.
+      </message>
 
       <message lang="en">
         Please set the username first before using the bot.

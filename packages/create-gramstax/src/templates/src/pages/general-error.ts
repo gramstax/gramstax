@@ -22,9 +22,17 @@ export class GeneralErrorPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
+      <keyboard type="inline">.. Home</keyboard>
       <keyboard lang="en" type="inline">.. Home</keyboard>
       <keyboard lang="es" type="inline">.. Inicio</keyboard>
       <keyboard lang="id" type="inline">.. Beranda</keyboard>
+
+      <message>
+        <b>❌ Error</b>
+
+        An unexpected error occurred.
+        Please try again later.
+      </message>
 
       <message lang="en">
         <b>❌ Error</b>
