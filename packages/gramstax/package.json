@@ -1,6 +1,6 @@
 {
   "name": "gramstax",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "private": false,
   "description": "A powerful Telegram bot framework with page-based routing and template system",
   "keywords": [
