@@ -240,7 +240,7 @@ export class Ctx extends BaseGeneral {
     return await this.ct.replyWithChatAction(type)
   }
 
-  public async edit(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEdit) {
+  public async edit(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEdit, fallbackReply = true) {
     try {
       const msg = this.templateManager.getMessage(this.data.name, baseId, this.languageCode, data)
       return await this.ct.editMessageText(msg, {
@@ -249,7 +249,11 @@ export class Ctx extends BaseGeneral {
         ...(options as any)
       })
     } catch (error) {
-      await this.reply(keyboard, data, baseId, options)
+      if (fallbackReply) {
+        await this.reply(keyboard, data, baseId, options)
+      } else {
+        throw error
+      }
     }
   }
 
@@ -270,7 +274,8 @@ export class Ctx extends BaseGeneral {
       ? IOptReplyContact
       : //
         IOptEditMedia1,
-    options2?: IOptEditMedia2
+    options2?: IOptEditMedia2,
+    fallbackReply = true
   ) {
     try {
       const { src, caption } = this.templateManager.getMedia(this.data.name, baseId, this.languageCode, data)
@@ -306,7 +311,11 @@ export class Ctx extends BaseGeneral {
         { reply_markup: keyboard, ...(options2 as any) }
       )
     } catch (error) {
-      await this.reply(keyboard, data, baseId, options2)
+      if (fallbackReply === true) {
+        await this.reply(keyboard, data, baseId, options2)
+      } else {
+        throw error
+      }
     }
   }
 
