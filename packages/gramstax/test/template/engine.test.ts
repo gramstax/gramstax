@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test"
-import { TemplateEngine } from "../src/template/engine"
+import { TemplateEngine } from "../../src/template/engine"
 
 describe(`TemplateEngine`, () => {
   describe(`_processMessageBlocks`, () => {
