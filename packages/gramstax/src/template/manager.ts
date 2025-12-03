@@ -67,7 +67,9 @@ export class TemplateManager {
 
   /** Initialize file system watcher for hot reloading. @returns Void */
   public _initializeWatcher(): void {
-    if (this._isWatchEnabled) {
+    if (!this._isWatchEnabled) return
+
+    if (this._watcher.length > 0) {
       throw new Error(`Watcher already enabled`)
     }
 
