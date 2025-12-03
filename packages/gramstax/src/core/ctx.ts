@@ -122,9 +122,6 @@ export class Ctx extends BaseGeneral {
     this.cacheKeyboard = params.cacheKeyboard
     this.templateManager = params.templateManager
     this.temp = params.temp
-    if ((params as any)?.data) {
-      this.temp.data = (params as any).data
-    }
   }
 
   public async broadcast(ids: any[], languageCode: any[], keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReply) {
