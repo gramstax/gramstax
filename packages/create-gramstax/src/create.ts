@@ -41,50 +41,56 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
   }
 
   private getPackageManagerCommands(packageManager: PackageManager) {
+    const _start = `pm2:start`
+    const _stop = `pm2:stop`
+    const _restart = `pm2:restart`
+    const _delete = `pm2:delete`
+    const _logs = `pm2:logs`
+    const _monit = `pm2:monit`
     const commands = {
       bun: {
         install: `bun install`,
         dev: `bun dev`,
         start: `bun start`,
-        "pm2:start": `bun run pm2:start`,
-        "pm2:stop": `bun run pm2:stop`,
-        "pm2:restart": `bun run pm2:restart`,
-        "pm2:delete": `bun run pm2:delete`,
-        "pm2:logs": `bun run pm2:logs`,
-        "pm2:monit": `bun run pm2:monit`
+        "pm2:start": `bun run ${_start}`,
+        "pm2:stop": `bun run ${_stop}`,
+        "pm2:restart": `bun run ${_restart}`,
+        "pm2:delete": `bun run ${_delete}`,
+        "pm2:logs": `bun run ${_logs}`,
+        "pm2:monit": `bun run ${_monit}`
       },
       npm: {
         install: `npm install`,
         dev: `npm run dev`,
         start: `npm start`,
-        "pm2:start": `npm run pm2:start`,
-        "pm2:stop": `npm run pm2:stop`,
-        "pm2:restart": `npm run pm2:restart`,
-        "pm2:delete": `npm run pm2:delete`,
-        "pm2:logs": `npm run pm2:logs`,
-        "pm2:monit": `npm run pm2:monit`
+        "pm2:start": `npm run ${_start}`,
+        "pm2:stop": `npm run ${_stop}`,
+        "pm2:restart": `npm run ${_restart}`,
+        "pm2:delete": `npm run ${_delete}`,
+        "pm2:logs": `npm run ${_logs}`,
+        "pm2:monit": `npm run ${_monit}`
       },
       pnpm: {
         install: `pnpm install`,
         dev: `pnpm dev`,
         start: `pnpm start`,
-        "pm2:start": `pnpm pm2:start`,
-        "pm2:stop": `pnpm pm2:stop`,
-        "pm2:restart": `pnpm pm2:restart`,
-        "pm2:delete": `pnpm pm2:delete`,
-        "pm2:logs": `pnpm pm2:logs`,
-        "pm2:monit": `pnpm pm2:monit`
+        "pm2:start": `pnpm ${_start}`,
+        "pm2:stop": `pnpm ${_stop}`,
+        "pm2:restart": `pnpm ${_restart}`,
+        "pm2:delete": `pnpm ${_delete}`,
+        "pm2:logs": `pnpm ${_logs}`,
+        "pm2:monit": `pnpm ${_monit}`
       },
       yarn: {
         install: `yarn install`,
         dev: `yarn dev`,
         start: `yarn start`,
-        "pm2:start": `yarn pm2:start`,
-        "pm2:stop": `yarn pm2:stop`,
-        "pm2:restart": `yarn pm2:restart`,
-        "pm2:delete": `yarn pm2:delete`,
-        "pm2:logs": `yarn pm2:logs`,
-        "pm2:monit": `yarn pm2:monit`
+        "pm2:start": `yarn ${_start}`,
+        "pm2:stop": `yarn ${_stop}`,
+        "pm2:restart": `yarn ${_restart}`,
+        "pm2:delete": `yarn ${_delete}`,
+        "pm2:logs": `yarn ${_logs}`,
+        "pm2:monit": `yarn ${_monit}`
       }
     }
     return commands[packageManager]
