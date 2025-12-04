@@ -34,26 +34,32 @@ export class Ctx extends BaseGeneral {
   public static data: IPageData // for external access (**.data). example StartPage.data.callbackData
   public data = (this as any).constructor.data as IPageData // for internal access (this.**). example this.data.callbackData
 
-  public get isPremium() {
+  public get userIsPremium() {
     return this.ct.from?.is_premium ?? false
   }
-  public get isBot() {
+  public get userIsBot() {
     return this.ct.from?.is_bot ?? false
   }
-  public get userid() {
+  public get userId() {
     return this.ct.from?.id as number
   }
-  public get username() {
+  public get userName() {
     return this.ct.from?.username as string
   }
-  public get fullname() {
+  public get userFullName() {
     return `${this.ct.from?.first_name || ``}${this.ct.from?.last_name || ``}`
   }
-  public get firstname() {
+  public get userFirstName() {
     return this.ct.from?.first_name as string
   }
-  public get lastname() {
+  public get userLastName() {
     return this.ct.from?.last_name as string
+  }
+  public get userLanguage() {
+    return this.ct.from?.language_code as string
+  }
+  public set userLanguage(v: any) {
+    ;(this as any).ct.from.language_code = v
   }
   public get msgText() {
     return this.ct.message?.text as string
@@ -97,12 +103,6 @@ export class Ctx extends BaseGeneral {
   public get callbackDataParts() {
     return this.callbackDataPayload && this.callbackDataPayload.indexOf(`+`) != -1 ? (this.callbackDataPayload.split(`+`) as any[]) : ([] as any[])
   }
-  public get languageCode() {
-    return this.ct.from?.language_code as string
-  }
-  public set languageCode(v: any) {
-    ;(this as any).ct.from.language_code = v
-  }
   public set session(v: any) {
     this.temp.session = v
   }
@@ -143,7 +143,7 @@ export class Ctx extends BaseGeneral {
   }
 
   public async reply(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReply) {
-    const msg = this.templateManager.getMessage(this.data.name, baseId, this.languageCode, data)
+    const msg = this.templateManager.getMessage(this.data.name, baseId, this.userLanguage, data)
     return await this.ct.reply(msg, {
       parse_mode: `HTML`,
       reply_markup: keyboard,
@@ -178,7 +178,7 @@ export class Ctx extends BaseGeneral {
       ? IOptReplyContact
       : undefined
   ) {
-    const med = this.templateManager.getMedia(this.data.name, baseId, this.languageCode, data)
+    const med = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
     const opt = { parse_mode: `HTML`, reply_markup: keyboard, ...(options as any) }
 
     if (type == `photo`) return await this.ct.replyWithPhoto(med.src, { caption: med.caption, ...opt })
@@ -239,7 +239,7 @@ export class Ctx extends BaseGeneral {
 
   public async edit(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEdit, fallbackReply = true) {
     try {
-      const msg = this.templateManager.getMessage(this.data.name, baseId, this.languageCode, data)
+      const msg = this.templateManager.getMessage(this.data.name, baseId, this.userLanguage, data)
       return await this.ct.editMessageText(msg, {
         parse_mode: `HTML`,
         reply_markup: keyboard,
@@ -275,7 +275,7 @@ export class Ctx extends BaseGeneral {
     fallbackReply = true
   ) {
     try {
-      const { src, caption } = this.templateManager.getMedia(this.data.name, baseId, this.languageCode, data)
+      const { src, caption } = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
       if (type == `voice`) {
         await this.delete()
         return await this.replyVoice(keyboard, data, baseId, options1)
@@ -371,7 +371,7 @@ export class Ctx extends BaseGeneral {
   public async sessionSet(method: string, params: any, moreRoot?: Record<any, any>) {
     try {
       const value = { method, params, ...moreRoot }
-      const result = await this.cacheSession.set(`${this.userid}`, value)
+      const result = await this.cacheSession.set(`${this.userId}`, value)
       if (result) {
         this.session = value
       }
@@ -383,7 +383,7 @@ export class Ctx extends BaseGeneral {
 
   public async sessionGet(): Promise<{ method: string; params: any; [moreRoot: string]: any } | null> {
     try {
-      const result = await this.cacheSession.get(`${this.userid}`)
+      const result = await this.cacheSession.get(`${this.userId}`)
       if (result) {
         this.session = result
       }
@@ -395,7 +395,7 @@ export class Ctx extends BaseGeneral {
 
   public async sessionClear() {
     try {
-      const result = await this.cacheSession.delete(`${this.userid}`)
+      const result = await this.cacheSession.delete(`${this.userId}`)
       if (result) {
         this.session = {}
       }
@@ -426,11 +426,11 @@ export class Ctx extends BaseGeneral {
   public inlineKeyboard(callback: (kb: IInlineKb, arr: any[]) => IInlineKb, params?: { baseId?: any; data?: IData; cache?: boolean }): IInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
-      const key = `${tkey}:${this.languageCode}:i`
+      const key = `${tkey}:${this.userLanguage}:i`
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const ikb = new InlineKeyboard()
-        const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.languageCode, `inline`, params?.data)
+        const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.userLanguage, `inline`, params?.data)
         const rkb = callback(ikb, arr)
         this.cacheKeyboard.set(key, rkb)
         return rkb
@@ -438,7 +438,7 @@ export class Ctx extends BaseGeneral {
       return ckb
     }
     const ikb = new InlineKeyboard()
-    const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.languageCode, `inline`, params?.data)
+    const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.userLanguage, `inline`, params?.data)
     const rkb = callback(ikb, arr)
     return rkb
   }
@@ -446,11 +446,11 @@ export class Ctx extends BaseGeneral {
   public bottomKeyboard(callback: (kb: IBottomKb, arr: any[]) => IBottomKb, params?: { baseId?: any; data?: IData; cache?: boolean }): IBottomKb {
     const tkey = this.data.name
     if (params?.cache === true) {
-      const key = `${tkey}:${this.languageCode}:b`
+      const key = `${tkey}:${this.userLanguage}:b`
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const kb = new Keyboard()
-        const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.languageCode, `bottom`, params?.data)
+        const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.userLanguage, `bottom`, params?.data)
         const rkb = callback(kb, arr)
         rkb.resized(true)
         this.cacheKeyboard.set(key, rkb)
@@ -459,7 +459,7 @@ export class Ctx extends BaseGeneral {
       return ckb
     }
     const kb = new Keyboard()
-    const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.languageCode, `bottom`, params?.data)
+    const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.userLanguage, `bottom`, params?.data)
     const rkb = callback(kb, arr)
     rkb.resized()
     return rkb
@@ -468,7 +468,6 @@ export class Ctx extends BaseGeneral {
   // =============== most common used function
   public async transition?(...args: any): Promise<void>
   public async internal?(...args: any): Promise<void>
-  public async notify?(...args: any): Promise<void>
 
   // =============== route function
   // callback
