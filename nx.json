@@ -20,13 +20,47 @@
       "cache": true
     },
     "lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json", "{workspaceRoot}/.eslintignore"],
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore"
+      ],
       "cache": true
     },
     "test": {
       "inputs": ["default", "^production"],
       "cache": true
     }
+  },
+  "release": {
+    "projects": ["packages/*"],
+    "version": {
+      "generatorOptions": {
+        "packageRoot": "packages/{projectName}",
+        "currentVersionResolver": "git-tag",
+        "specifierSource": "prompt"
+      }
+    },
+    "changelog": {
+      "workspaceChangelog": {
+        "createRelease": false,
+        "file": "CHANGELOG.md",
+        "renderOptions": {
+          "authors": false
+        }
+      },
+      "projectChangelogs": {
+        "createRelease": false,
+        "file": "CHANGELOG.md"
+      }
+    },
+    "git": {
+      "commit": true,
+      "tag": true,
+      "commitMessage": "chore: bump version to {version}",
+      "stageChanges": true
+    },
+    "releaseTagPattern": "v{version}"
   },
   "plugins": [
     {

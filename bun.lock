@@ -21,14 +21,13 @@
     },
     "packages/create-gramstax": {
       "name": "create-gramstax",
-      "version": "0.0.25",
+      "version": "0.0.27",
       "bin": {
         "create-gramstax": "dist/src/index.js",
       },
       "dependencies": {
         "commander": "^14.0.2",
         "enquirer": "^2.4.1",
-        "gramstax": "latest",
         "logging-pretty": "^3.0.0",
       },
       "devDependencies": {
@@ -41,7 +40,7 @@
     },
     "packages/gramstax": {
       "name": "gramstax",
-      "version": "0.0.25",
+      "version": "0.0.27",
       "dependencies": {
         "@keyv/redis": "^5.1.4",
         "chokidar": "^4.0.3",
@@ -1110,8 +1109,6 @@
     "babel-plugin-polyfill-corejs2/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
     "cosmiconfig/yaml": ["yaml@1.10.2", "", {}, "sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg=="],
-
-    "create-gramstax/gramstax": ["gramstax@0.0.25", "", { "dependencies": { "@keyv/redis": "^5.1.4", "chokidar": "^4.0.3", "grammy": "^1.38.4", "keyv": "^5.5.4", "logging-pretty": "^3.0.0" }, "peerDependencies": { "typescript": "^5.9.3" } }, "sha512-6ChwWXHhUhb9Ea3Dh7bYDZCw1v1JvDbzmpX4t0IUREzm1uxy2ELD1fKD8RO/y87fsYkvQcftndQ6s29qEjBpsg=="],
 
     "eslint/@eslint/core": ["@eslint/core@0.16.0", "", { "dependencies": { "@types/json-schema": "^7.0.15" } }, "sha512-nmC8/totwobIiFcGkDza3GIKfAw1+hLiYVrh3I1nIomQ8PEr5cxg34jnkmGawul/ep52wGRAcyeDCNtWKSOj4Q=="],
 

@@ -33,6 +33,7 @@
   },
   "include": [
     "packages",
-    "test/test.ts"
+    "test/test.ts",
+    "example"
   ]
 }

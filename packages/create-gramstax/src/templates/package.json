@@ -41,11 +41,11 @@
     "pm2:monit": "pm2 monit"
   },
   "dependencies": {
-    "gramstax": "latest",
-    "logging-pretty": "^3.0.0"
+    "logging-pretty": "^3.0.0",
+    "gramstax": "latest"
   },
   "peerDependencies": {
-    "typescript": "latest"
+    "typescript": "5.9.3"
   },
   "devDependencies": {
     "@types/bun": "latest",
