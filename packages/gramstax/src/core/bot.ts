@@ -5,9 +5,10 @@ import { join, parse } from "node:path"
 import { CacheExternal } from "../cache"
 import { LoggingPretty } from "logging-pretty"
 import { TemplateManager } from "../template"
-import { existsSync, readdirSync } from "node:fs"
 import { Bot, webhookCallback, type BotError, type Context } from "grammy"
 import type { UserFromGetMe } from "grammy/types"
+
+type IDeploy = `polling` | `webhook:http://${string}` | `webhook:https://${string}` | `serverless:${string}`
 
 export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   public templateManager: TemplateManager
@@ -19,7 +20,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
   public handlerBotUpdate: any
 
-  public constructor(params: { token: string; deploy: string; log?: LoggingPretty | boolean | null; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
+  public constructor(params: { token: string; deploy: IDeploy; log?: LoggingPretty | boolean | null; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
     if (!params?.token || params?.token?.length == 0) {
       throw new Error(`Token is not valid or empty`)
     }
