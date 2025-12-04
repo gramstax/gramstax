@@ -1,0 +1,10 @@
+{
+  "name": "gramstax-example",
+  "private": false,
+  "scripts": {
+    "start": "bun ./src/index.ts"
+  },
+  "dependencies": {
+    "gramstax": "workspace:*"
+  }
+}

@@ -14,8 +14,13 @@ export class TestAnimationPage extends CtxCore {
 
   public static template = /*jsx*/ `
     <base>
+      <keyboard type="inline">Back</keyboard>
       <keyboard lang="en" type="inline">Back</keyboard>
       <keyboard lang="id" type="inline">Kembali</keyboard>
+
+      <media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
+        This is a caption text for media <b>animation</b>
+      </media>
 
       <media lang="en" type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
         This is a caption text for media <b>animation</b>

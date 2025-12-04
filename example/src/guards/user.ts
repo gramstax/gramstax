@@ -4,9 +4,9 @@ export class UserGuard extends CtxCore {
   public async ensureValid() {
     try {
       // override language_code
-      const lang = await this.cacheData.get(`${this.userid}:language`)
+      const lang = await this.cacheData.get(`${this.userId}:language`)
       if (lang) {
-        this.languageCode = lang
+        this.userLanguage = lang
       }
 
       return true

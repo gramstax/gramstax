@@ -14,7 +14,7 @@ import { TestAnimationPage } from "./test-animation"
 import { TestVideoNotePage } from "./test-video-note"
 
 export class StartPage extends CtxCore {
-  static data = this.buildData((conditionNumber?: string) => conditionNumber)
+  public static data = this.buildData((conditionNumber?: string) => conditionNumber)
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
@@ -48,7 +48,7 @@ export class StartPage extends CtxCore {
   public async internal(condition = 1) {
     const kb = this.kb()
     const da = {
-      first_name: this.firstname,
+      first_name: this.userFirstName,
       time: new Date().toString()
     }
 
@@ -80,8 +80,17 @@ export class StartPage extends CtxCore {
 
   public static template = /*jsx*/ `
     <base>
+      <keyboard type="inline">Counter, Help, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Language, Refresh</keyboard>
       <keyboard lang="en" type="inline">Counter, Help, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Language, Refresh</keyboard>
       <keyboard lang="id" type="inline">Kounter, Bantuan, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Bahasa, Segarkan</keyboard>
+
+      <message>
+        {{time}}
+
+        Hi {{first_name}}, welcome to bot.
+
+        This is test gramstax
+      </message>
 
       <message lang="en">
         {{time}}

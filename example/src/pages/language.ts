@@ -2,7 +2,7 @@ import { CtxCore } from "../core/ctx"
 import { StartPage } from "./start"
 
 export class LanguagePage extends CtxCore {
-  static data = this.buildData((lang?: string) => lang)
+  public static data = this.buildData((lang?: string) => lang)
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
@@ -10,7 +10,7 @@ export class LanguagePage extends CtxCore {
       const backButton = arr[arr.length - 1] // Get the back button text
 
       // Get current user language for comparison
-      const currentLang = this.languageCode?.toLowerCase()
+      const currentLang = this.userLanguage?.toLowerCase()
 
       // Add language buttons in rows of 3
       for (let i = 0; i < languages.length; i += 3) {
@@ -30,8 +30,7 @@ export class LanguagePage extends CtxCore {
   }
 
   public async internal() {
-    const kb = this.kb()
-    await this.edit(kb)
+    await this.edit(this.kb())
   }
 
   public async callback() {
@@ -41,23 +40,20 @@ export class LanguagePage extends CtxCore {
   public async callbackPayload() {
     const language = this.callbackDataPayload.toLowerCase()
 
-    await this.cacheData.set(`${this.userid}:language`, language)
-    this.languageCode = language
+    await this.cacheData.set(`${this.userId}:language`, language)
+    this.userLanguage = language
     await this.internal()
   }
 
   public static template = /*jsx*/ `
     <base>
+      <keyboard type="inline">EN, ID, Back</keyboard>
       <keyboard lang="en" type="inline">EN, ID, Back</keyboard>
       <keyboard lang="id" type="inline">EN, ID, Kembali</keyboard>
 
-      <message lang="en">
-        Select language below
-      </message>
-
-      <message lang="id">
-        Pilih bahasa di bawah
-      </message>
+      <message>Choose language below</message>
+      <message lang="en">Choose language below</message>
+      <message lang="id">Pilih bahasa di bawah</message>
     </base>
   `
 }

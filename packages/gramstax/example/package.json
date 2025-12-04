@@ -1,7 +1,0 @@
-{
-  "name": "gramstax-test",
-  "private": false,
-  "scripts": {
-    "start": "bun ./src/index.ts"
-  }
-}

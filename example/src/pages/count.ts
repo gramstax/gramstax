@@ -2,7 +2,7 @@ import { CtxCore } from "../core/ctx"
 import { StartPage } from "./start"
 
 export class CounterPage extends CtxCore {
-  static data = this.buildData((execution?: string) => execution)
+  public static data = this.buildData((execution?: string) => execution)
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
@@ -20,7 +20,7 @@ export class CounterPage extends CtxCore {
   public async callbackPayload() {
     const execution = this.callbackDataPayload
     const kb = this.kb()
-    const key = `${this.userid}`
+    const key = `${this.userId}`
     const data = (await this.cacheData.get(key)) || 0
 
     let count
@@ -33,15 +33,20 @@ export class CounterPage extends CtxCore {
 
   public async callback() {
     const kb = this.kb()
-    const key = `${this.userid}`
+    const key = `${this.userId}`
     const count = (await this.cacheData.get(key)) || 0
     await this.edit(kb, { count })
   }
 
   public static template = /*jsx*/ `
     <base>
+      <keyboard type="inline">Increase, Decrease, Back</keyboard>
       <keyboard lang="en" type="inline">Increase, Decrease, Back</keyboard>
       <keyboard lang="id" type="inline">Tambah, Kurang, Kembali</keyboard>
+
+      <message>
+        Count: {{count}}
+      </message>
 
       <message lang="en">
         Count: {{count}}

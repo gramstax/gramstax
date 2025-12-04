@@ -14,9 +14,11 @@ export class TestVoicePage extends CtxCore {
 
   public static template = /*jsx*/ `
     <base>
+      <keyboard type="inline">Back</keyboard>
       <keyboard lang="en" type="inline">Back</keyboard>
       <keyboard lang="id" type="inline">Kembali</keyboard>
 
+      <media type="voice" src="https://www.w3schools.com/html/horse.ogg"></media>
       <media lang="en" type="voice" src="https://www.w3schools.com/html/horse.ogg"></media>
       <media lang="id" type="voice" src="https://www.w3schools.com/html/horse.ogg"></media>
     </base>
