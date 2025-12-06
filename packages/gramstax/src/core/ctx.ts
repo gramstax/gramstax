@@ -26,7 +26,7 @@ import {
   IOptReplyVideoNote
 } from "../types/ctx"
 
-type IPageData = { name: string; callbackData: (...args: any) => string | any }
+type IPageData = { name: string; callbackData: (...args: any) => string }
 type ITemp = { session: { method?: string; params?: any }; data: Partial<IPageData>; [key: string]: any }
 
 export class Ctx extends BaseGeneral {
