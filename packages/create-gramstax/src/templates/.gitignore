@@ -18,12 +18,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# PM2
-.pm2/
-pids/
-*.pid
-*.seed
-
 # IDE
 .vscode/
 .idea/

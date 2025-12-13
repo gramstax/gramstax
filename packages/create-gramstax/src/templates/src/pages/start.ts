@@ -5,13 +5,13 @@ export class StartPage extends PageBase {
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
       return kb //
-        .text(arr[0], HelpPage.data.callbackData())
+        .text(arr[0]!, HelpPage.data.callbackData())
     })
   }
 
   public async internal(edit = true) {
     const kb = this.kb()
-    const data = { username: this.username }
+    const data = { userName: this.userName }
     if (edit) {
       await this.edit(kb, data)
     } else {
@@ -43,25 +43,25 @@ export class StartPage extends PageBase {
       <keyboard lang="id" type="inline">❓ Bantuan</keyboard>
 
       <message>
-        <b>Welcome to the bot {{username}}</b>
+        <b>Welcome to the bot {{userName}}</b>
 
         <b>❓ Help</b> - View help
       </message>
 
       <message lang="en">
-        <b>Welcome to the bot {{username}}</b>
+        <b>Welcome to the bot {{userName}}</b>
 
         <b>❓ Help</b> - View help
       </message>
 
       <message lang="it">
-        <b>Benvenuto nel Bot di {{username}}</b>
+        <b>Benvenuto nel Bot di {{userName}}</b>
 
         <b>❓ Aiuto</b> - Ottieni assistenza e informazioni
       </message>
 
       <message lang="id">
-        <b>Selamat datang di bot {{username}}</b>
+        <b>Selamat datang di bot {{userName}}</b>
 
         <b>❓ Bantuan</b> - Lihat bantuan
       </message>

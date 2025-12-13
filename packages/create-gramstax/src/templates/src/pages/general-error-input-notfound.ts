@@ -4,7 +4,7 @@ import { StartPage } from "./start"
 export class GeneralErrorInputNotFoundPage extends PageBase {
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
-      return kb.text(arr[0], StartPage.data.callbackData())
+      return kb.text(arr[0]!, StartPage.data.callbackData())
     })
   }
 
@@ -19,21 +19,10 @@ export class GeneralErrorInputNotFoundPage extends PageBase {
       <keyboard lang="it" type="inline">.. Casa</keyboard>
       <keyboard lang="id" type="inline">.. Beranda</keyboard>
 
-      <message>
-        <b>❌ Not Found</b>
-      </message>
-
-      <message lang="en">
-        <b>❌ Not Found</b>
-      </message>
-
-      <message lang="it">
-        <b>❌ Non Trovato</b>
-      </message>
-
-      <message lang="id">
-        <b>❌ Tidak Ditemukan</b>
-      </message>
+      <message><b>❌ Not Found</b></message>
+      <message lang="en"><b>❌ Not Found</b></message>
+      <message lang="it"><b>❌ Non Trovato</b></message>
+      <message lang="id"><b>❌ Tidak Ditemukan</b></message>
     </base>
   `
 }

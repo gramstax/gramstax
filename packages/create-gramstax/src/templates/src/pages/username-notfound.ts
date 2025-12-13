@@ -5,17 +5,16 @@ export class UserNameNotFoundPage extends PageBase {
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
       return kb //
-        .text(arr[0], HelpPage.data.callbackData())
+        .text(arr[0]!, HelpPage.data.callbackData())
     })
   }
 
   public async transition(edit = true) {
     const kb = this.kb()
-    const data = { username: this.username }
     if (edit) {
-      await this.edit(kb, data)
+      await this.edit(kb)
     } else {
-      await this.reply(kb, data)
+      await this.reply(kb)
     }
   }
 

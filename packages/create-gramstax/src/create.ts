@@ -41,56 +41,26 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
   }
 
   private getPackageManagerCommands(packageManager: PackageManager) {
-    const _start = `pm2:start`
-    const _stop = `pm2:stop`
-    const _restart = `pm2:restart`
-    const _delete = `pm2:delete`
-    const _logs = `pm2:logs`
-    const _monit = `pm2:monit`
     const commands = {
       bun: {
         install: `bun install`,
         dev: `bun dev`,
-        start: `bun start`,
-        "pm2:start": `bun run ${_start}`,
-        "pm2:stop": `bun run ${_stop}`,
-        "pm2:restart": `bun run ${_restart}`,
-        "pm2:delete": `bun run ${_delete}`,
-        "pm2:logs": `bun run ${_logs}`,
-        "pm2:monit": `bun run ${_monit}`
+        start: `bun start`
       },
       npm: {
         install: `npm install`,
         dev: `npm run dev`,
-        start: `npm start`,
-        "pm2:start": `npm run ${_start}`,
-        "pm2:stop": `npm run ${_stop}`,
-        "pm2:restart": `npm run ${_restart}`,
-        "pm2:delete": `npm run ${_delete}`,
-        "pm2:logs": `npm run ${_logs}`,
-        "pm2:monit": `npm run ${_monit}`
+        start: `npm start`
       },
       pnpm: {
         install: `pnpm install`,
         dev: `pnpm dev`,
-        start: `pnpm start`,
-        "pm2:start": `pnpm ${_start}`,
-        "pm2:stop": `pnpm ${_stop}`,
-        "pm2:restart": `pnpm ${_restart}`,
-        "pm2:delete": `pnpm ${_delete}`,
-        "pm2:logs": `pnpm ${_logs}`,
-        "pm2:monit": `pnpm ${_monit}`
+        start: `pnpm start`
       },
       yarn: {
         install: `yarn install`,
         dev: `yarn dev`,
-        start: `yarn start`,
-        "pm2:start": `yarn ${_start}`,
-        "pm2:stop": `yarn ${_stop}`,
-        "pm2:restart": `yarn ${_restart}`,
-        "pm2:delete": `yarn ${_delete}`,
-        "pm2:logs": `yarn ${_logs}`,
-        "pm2:monit": `yarn ${_monit}`
+        start: `yarn start`
       }
     }
     return commands[packageManager]
@@ -210,7 +180,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
   }
 
   private async installDependencies(projectPath: string, packageManager: PackageManager): Promise<boolean> {
-    return await new Promise((resolve, reject) => {
+    return await new Promise((resolve) => {
       const installCommand = packageManager
       const installArgs = [`install`]
       const installProcess = spawn(installCommand, installArgs, {
@@ -324,13 +294,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       projectName,
       installCmd: commands.install,
       runDevCmd: commands.dev,
-      runStartCmd: commands.start,
-      runPm2StartCmd: commands[`pm2:start`],
-      runPm2StopCmd: commands[`pm2:stop`],
-      runPm2RestartCmd: commands[`pm2:restart`],
-      runPm2DeleteCmd: commands[`pm2:delete`],
-      runPm2LogsCmd: commands[`pm2:logs`],
-      runPm2MonitCmd: commands[`pm2:monit`]
+      runStartCmd: commands.start
     }
 
     this.copyDirectorySync(templatesPath, projectPath, variables)
@@ -372,17 +336,16 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     // Task 7: Setup ESLint if requested
     if (setupEslint) {
       log.info(`Setting up ESLint..`)
-      await this.setupEslintConfig(projectPath, packageManager)
+      await this.setupEslintConfig(projectPath)
     }
 
     // Final success message
     log.info(`Project created successfully!`)
     log.info(`Next steps: ${config.projectPath !== process.cwd() ? `cd ${projectName} && ` : ` `}${commands.install} && ${commands.dev}`)
-    log.info(`For production: ${commands[`pm2:start`]}`)
     log.info(`Done..`)
   }
 
-  private async setupEslintConfig(projectPath: string, packageManager: PackageManager): Promise<void> {
+  private async setupEslintConfig(projectPath: string): Promise<void> {
     return new Promise((resolve) => {
       const initProcess = spawn(`npm`, [`init`, `@eslint/config@latest`], {
         cwd: projectPath,

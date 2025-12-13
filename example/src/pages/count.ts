@@ -1,18 +1,18 @@
-import { CtxCore } from "../core/ctx"
+import { PageBase } from "../base/page"
 import { StartPage } from "./start"
 
-export class CounterPage extends CtxCore {
-  public static data = this.buildData((execution?: string) => execution)
+export class CounterPage extends PageBase {
+  public static data = this.buildData((exe: string = ``) => exe)
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
       return (
         kb
           //
-          .text(arr[0], this.data.callbackData(`I`))
-          .text(arr[1], this.data.callbackData(`D`))
+          .text(arr[0]!, this.data.callbackData(`I`))
+          .text(arr[1]!, this.data.callbackData(`D`))
           .row()
-          .text(arr[2], StartPage.data.callbackData())
+          .text(arr[2]!, StartPage.data.callbackData())
       )
     })
   }
@@ -21,7 +21,7 @@ export class CounterPage extends CtxCore {
     const execution = this.callbackDataPayload
     const kb = this.kb()
     const key = `${this.userId}`
-    const data = (await this.cacheData.get(key)) || 0
+    const data = ((await this.cacheData.get(key)) as string) || `0`
 
     let count
     if (execution == `I`) count = `${parseInt(data) + 1}`
@@ -34,7 +34,8 @@ export class CounterPage extends CtxCore {
   public async callback() {
     const kb = this.kb()
     const key = `${this.userId}`
-    const count = (await this.cacheData.get(key)) || 0
+    const count = (await this.cacheData.get(key)) || `0`
+
     await this.edit(kb, { count })
   }
 

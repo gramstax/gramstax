@@ -1,8 +1,8 @@
 import { setTimeout } from "node:timers/promises"
-import { BaseGeneral } from "../base"
-import { CacheExternal } from "../cache"
+import { BaseGeneral } from "~/base"
+import { CacheExternal } from "~/cache"
 import { InlineKeyboard, Keyboard } from "grammy"
-import { IMediaBlock, TemplateManager } from "../template"
+import { IMediaBlock, TemplateManager } from "~/template"
 import {
   ICt,
   IKb,
@@ -26,13 +26,13 @@ import {
   IOptReplyVideoNote
 } from "../types/ctx"
 
-type IPageData = { name: string; callbackData: (...args: any) => string }
+type IPageData = { name: string; callbackData: (...args: string[]) => string }
 type ITemp = { session: { method?: string; params?: any }; data: Partial<IPageData>; [key: string]: any }
 
 export class Ctx extends BaseGeneral {
   public static template?: string // string html
   public static data: IPageData // for external access (**.data). example StartPage.data.callbackData
-  public data = (this as any).constructor.data as IPageData // for internal access (this.**). example this.data.callbackData
+  public data = (this.constructor as Record<any, any>).data as IPageData // for internal access (this.**). example this.data.callbackData
 
   public get userIsPremium() {
     return this.ct.from?.is_premium ?? false
@@ -58,8 +58,8 @@ export class Ctx extends BaseGeneral {
   public get userLanguage() {
     return this.ct.from?.language_code as string
   }
-  public set userLanguage(v: any) {
-    ;(this as any).ct.from.language_code = v
+  public set userLanguage(v: string) {
+    this.ct.from!.language_code = v
   }
   public get msgText() {
     return this.ct.message?.text as string
@@ -68,7 +68,7 @@ export class Ctx extends BaseGeneral {
     return this.msgText && this.msgText.indexOf(` `) != -1 ? (this.msgText.split(` `)[0] as string) : ``
   }
   public get msgTextPayloads() {
-    return this.msgText && this.msgText.indexOf(` `) != -1 ? (this.msgText.split(` `).slice(1) as any[]) : ([] as any[])
+    return this.msgText && this.msgText.indexOf(` `) != -1 ? this.msgText.split(` `).slice(1) : ([] as string[])
   }
   public get msgTextPayload() {
     return this.msgTextPayloads[0] as string
@@ -95,15 +95,15 @@ export class Ctx extends BaseGeneral {
     return this.callbackData && this.callbackData.indexOf(`:`) != -1 ? (this.callbackData.split(`:`)[0] as string) : ``
   }
   public get callbackDataPayloads() {
-    return this.callbackData && this.callbackData.indexOf(`:`) != -1 ? (this.callbackData.split(`:`).slice(1) as any[]) : ([] as any[])
+    return this.callbackData && this.callbackData.indexOf(`:`) != -1 ? this.callbackData.split(`:`).slice(1) : ([] as string[])
   }
   public get callbackDataPayload() {
     return this.callbackDataPayloads?.[0] as string
   }
   public get callbackDataParts() {
-    return this.callbackDataPayload && this.callbackDataPayload.indexOf(`+`) != -1 ? (this.callbackDataPayload.split(`+`) as any[]) : ([] as any[])
+    return this.callbackDataPayload && this.callbackDataPayload.indexOf(`+`) != -1 ? this.callbackDataPayload.split(`+`) : ([] as string[])
   }
-  public set session(v: any) {
+  public set session(v: ITemp[`session`]) {
     this.temp.session = v
   }
   public get session() {
@@ -124,20 +124,26 @@ export class Ctx extends BaseGeneral {
     this.temp = params.temp
   }
 
-  public async broadcast(ids: any[], languageCode: any[], keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReply) {
-    const limitFree = 30
-    const msgs = languageCode.map((it) => this.templateManager.getMessage(this.data.name, baseId, it, data)) as any[]
-    for (let index = 0; index < ids.length; index++) {
-      const id = ids[index]
-      const msg = msgs[index]
-      await this.ct.api.sendMessage(id, msg, {
-        parse_mode: `HTML`,
-        reply_markup: keyboard,
-        ...options
-      })
+  public async broadcast(ids: number[], languageCode: string[], keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReply, throwError = false) {
+    try {
+      const limitFree = 30
+      const msgs = languageCode.map((it) => this.templateManager.getMessage(this.data.name, baseId, it, data))
+      for (let index = 0; index < ids.length; index++) {
+        const id = ids[index]
+        const msg = msgs[index]
+        await this.ct.api.sendMessage(id!, msg!, {
+          parse_mode: `HTML`,
+          reply_markup: keyboard,
+          ...options
+        })
 
-      if (index + 1 == limitFree) {
-        await setTimeout(1200)
+        if (index + 1 == limitFree) {
+          await setTimeout(1200)
+        }
+      }
+    } catch (err) {
+      if (throwError) {
+        throw err
       }
     }
   }
@@ -179,18 +185,18 @@ export class Ctx extends BaseGeneral {
       : undefined
   ) {
     const med = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
-    const opt = { parse_mode: `HTML`, reply_markup: keyboard, ...(options as any) }
+    const opt = { parse_mode: `HTML`, reply_markup: keyboard, ...options } as Record<any, any>
 
-    if (type == `photo`) return await this.ct.replyWithPhoto(med.src, { caption: med.caption, ...opt })
-    if (type == `video`) return await this.ct.replyWithVideo(med.src, { caption: med.caption, ...opt })
-    if (type == `audio`) return await this.ct.replyWithAudio(med.src, { caption: med.caption, ...opt })
-    if (type == `document`) return await this.ct.replyWithDocument(med.src, { caption: med.caption, ...opt })
-    if (type == `animation`) return await this.ct.replyWithAnimation(med.src, { caption: med.caption, ...opt })
-    if (type == `voice`) return await this.ct.replyWithVoice(med.src, opt)
-    if (type == `video_note`) return await this.ct.replyWithVideoNote(med.src, opt)
-    if (type == `sticker`) return await this.ct.replyWithSticker(med.src, opt)
-    if (type == `location`) return await this.ct.replyWithLocation(med.latitude, med.longitude, opt)
-    if (type == `contact`) return await this.ct.replyWithContact(med.phone, med.first_name, { vcard: med.vcard, ...opt })
+    if (type == `photo`) return await this.ct.replyWithPhoto(med.src!, { caption: med.caption!, ...opt })
+    if (type == `video`) return await this.ct.replyWithVideo(med.src!, { caption: med.caption!, ...opt })
+    if (type == `audio`) return await this.ct.replyWithAudio(med.src!, { caption: med.caption!, ...opt })
+    if (type == `document`) return await this.ct.replyWithDocument(med.src!, { caption: med.caption!, ...opt })
+    if (type == `animation`) return await this.ct.replyWithAnimation(med.src!, { caption: med.caption!, ...opt })
+    if (type == `voice`) return await this.ct.replyWithVoice(med.src!, opt)
+    if (type == `video_note`) return await this.ct.replyWithVideoNote(med.src!, opt)
+    if (type == `sticker`) return await this.ct.replyWithSticker(med.src!, opt)
+    if (type == `location`) return await this.ct.replyWithLocation(parseInt(med.latitude!), parseInt(med.longitude!), opt)
+    if (type == `contact`) return await this.ct.replyWithContact(med.phone!, med.first_name!, { vcard: med.vcard!, ...opt })
   }
 
   public async replyPhoto(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyPhoto) {
@@ -237,17 +243,17 @@ export class Ctx extends BaseGeneral {
     return await this.ct.replyWithChatAction(type)
   }
 
-  public async edit(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEdit, fallbackReply = true) {
+  public async edit(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEdit, fallbackReply = true) {
     try {
       const msg = this.templateManager.getMessage(this.data.name, baseId, this.userLanguage, data)
       return await this.ct.editMessageText(msg, {
         parse_mode: `HTML`,
-        reply_markup: keyboard,
-        ...(options as any)
+        reply_markup: keyboardInline,
+        ...options
       })
     } catch (error) {
       if (fallbackReply) {
-        await this.reply(keyboard, data, baseId, options)
+        await this.reply(keyboardInline, data, baseId, options)
       } else {
         throw error
       }
@@ -256,7 +262,7 @@ export class Ctx extends BaseGeneral {
 
   public async editMedia<T extends IMediaBlock[`type`]>(
     type: T,
-    keyboard?: IKb,
+    keyboardInline?: IInlineKb,
     data?: IData,
     baseId?: string,
     options1?: T extends `voice`
@@ -278,89 +284,89 @@ export class Ctx extends BaseGeneral {
       const { src, caption } = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
       if (type == `voice`) {
         await this.delete()
-        return await this.replyVoice(keyboard, data, baseId, options1)
+        return await this.replyVoice(keyboardInline, data, baseId, options1)
       }
       if (type == `video_note`) {
         await this.delete()
-        return await this.replyVoice(keyboard, data, baseId, options1)
+        return await this.replyVoice(keyboardInline, data, baseId, options1)
       }
       if (type == `sticker`) {
         await this.delete()
-        return await this.replySticker(keyboard, data, baseId, options1 as any)
+        return await this.replySticker(keyboardInline, data, baseId, options1 as Record<any, any>)
       }
       if (type == `location`) {
         await this.delete()
-        return await this.replyLocation(keyboard, data, baseId, options1 as any)
+        return await this.replyLocation(keyboardInline, data, baseId, options1 as Record<any, any>)
       }
       if (type == `contact`) {
         await this.delete()
-        return await this.replyContact(keyboard, data, baseId, options1 as any)
+        return await this.replyContact(keyboardInline, data, baseId, options1 as Record<any, any>)
       }
 
       return await this.ct.editMessageMedia(
         {
-          media: src,
+          media: src!,
           caption,
           type,
           parse_mode: `HTML`,
-          ...(options1 as any)
+          ...options1
         },
-        { reply_markup: keyboard, ...(options2 as any) }
+        { reply_markup: keyboardInline, ...options2 }
       )
     } catch (error) {
       if (fallbackReply === true) {
-        await this.reply(keyboard, data, baseId, options2)
+        await this.reply(keyboardInline, data, baseId, options2)
       } else {
         throw error
       }
     }
   }
 
-  public async editPhoto(keyboard?: IKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
-    return await this.editMedia(`photo`, keyboard, data, baseId, options1, options2)
+  public async editPhoto(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
+    return await this.editMedia(`photo`, keyboardInline, data, baseId, options1, options2)
   }
 
-  public async editVideo(keyboard?: IKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
-    return await this.editMedia(`video`, keyboard, data, baseId, options1, options2)
+  public async editVideo(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
+    return await this.editMedia(`video`, keyboardInline, data, baseId, options1, options2)
   }
 
-  public async editAudio(keyboard?: IKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
-    return await this.editMedia(`audio`, keyboard, data, baseId, options1, options2)
+  public async editAudio(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
+    return await this.editMedia(`audio`, keyboardInline, data, baseId, options1, options2)
   }
 
-  public async editDocument(keyboard?: IKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
-    return await this.editMedia(`document`, keyboard, data, baseId, options1, options2)
+  public async editDocument(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
+    return await this.editMedia(`document`, keyboardInline, data, baseId, options1, options2)
   }
 
-  public async editAnimation(keyboard?: IKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
-    return await this.editMedia(`animation`, keyboard, data, baseId, options1, options2)
+  public async editAnimation(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
+    return await this.editMedia(`animation`, keyboardInline, data, baseId, options1, options2)
   }
 
-  public async editVoice(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
-    return await this.editMedia(`voice`, keyboard, data, baseId, options)
+  public async editVoice(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
+    return await this.editMedia(`voice`, keyboardInline, data, baseId, options)
   }
 
-  public async editVideoNote(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
-    return await this.editMedia(`video_note`, keyboard, data, baseId, options)
+  public async editVideoNote(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
+    return await this.editMedia(`video_note`, keyboardInline, data, baseId, options)
   }
 
-  public async editSticker(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
-    return await this.editMedia(`sticker`, keyboard, data, baseId, options)
+  public async editSticker(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
+    return await this.editMedia(`sticker`, keyboardInline, data, baseId, options)
   }
 
-  public async editLocation(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
-    return await this.editMedia(`location`, keyboard, data, baseId, options)
+  public async editLocation(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
+    return await this.editMedia(`location`, keyboardInline, data, baseId, options)
   }
 
-  public async editContact(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
-    return await this.editMedia(`contact`, keyboard, data, baseId, options)
+  public async editContact(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
+    return await this.editMedia(`contact`, keyboardInline, data, baseId, options)
   }
 
   public async delete() {
     return await this.ct.deleteMessage()
   }
 
-  public async callbackQueryAnswer(options?: any) {
+  public async callbackQueryAnswer(options?: Parameters<typeof this.ct.answerCallbackQuery>[0]) {
     try {
       return await this.ct.answerCallbackQuery(options)
     } catch {
@@ -407,13 +413,13 @@ export class Ctx extends BaseGeneral {
 
   // =============== build data
 
-  public static buildData<C extends ((...args: any[]) => any) | undefined = undefined>(callback?: C) {
+  public static buildData<C extends ((...args: string[]) => any) | undefined = undefined>(callback?: C) {
     return {
       name: ``,
       callbackData: callback
         ? function (this: { name: string }, ...args: Parameters<Exclude<C, undefined>>): ReturnType<Exclude<C, undefined>> {
             const params = callback(...args)
-            return `${this.name}${params === undefined ? `` : `:${params}`}` as any
+            return `${this.name}${params == `` || params === undefined ? `` : `:${params}`}` as any
           }
         : function (this: { name: string }) {
             return this?.name
@@ -423,7 +429,7 @@ export class Ctx extends BaseGeneral {
 
   // =============== build keyboard
 
-  public inlineKeyboard(callback: (kb: IInlineKb, arr: any[]) => IInlineKb, params?: { baseId?: any; data?: IData; cache?: boolean }): IInlineKb {
+  public inlineKeyboard(callback: (kb: IInlineKb, arr: string[]) => IInlineKb, params?: { baseId?: string; data?: IData; cache?: boolean }): IInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:i`
@@ -443,7 +449,7 @@ export class Ctx extends BaseGeneral {
     return rkb
   }
 
-  public bottomKeyboard(callback: (kb: IBottomKb, arr: any[]) => IBottomKb, params?: { baseId?: any; data?: IData; cache?: boolean }): IBottomKb {
+  public bottomKeyboard(callback: (kb: IBottomKb, arr: string[]) => IBottomKb, params?: { baseId?: string; data?: IData; cache?: boolean }): IBottomKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:b`
@@ -1281,15 +1287,14 @@ export class Ctx extends BaseGeneral {
     return this.sessionContactFree({ ...this.session.params, ...paramsAdd }, name)
   }
 
-  // =============== build intent
-
-  public intent(str?: string, fbCallbackData = true) {
+  public intent(str?: string, isCallbackData = true) {
+    // for get intent from page name or callbackData
     if (!str) {
-      str = fbCallbackData ? this.data.callbackData() : this.data.name
+      str = isCallbackData ? this.data.callbackData() : this.data.name
     }
 
-    const tag = fbCallbackData ? `:` : ` `
-    return str?.indexOf?.(tag) != -1 ? (str?.split?.(tag)?.[0] as string) : str
+    const tag = isCallbackData ? `:` : ` `
+    return str.indexOf(tag) != -1 ? (str.split(tag)[0] as string) : str
   }
 
   // =============== build session method

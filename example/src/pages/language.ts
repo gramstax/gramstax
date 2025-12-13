@@ -1,13 +1,13 @@
-import { CtxCore } from "../core/ctx"
+import { PageBase } from "../base/page"
 import { StartPage } from "./start"
 
-export class LanguagePage extends CtxCore {
-  public static data = this.buildData((lang?: string) => lang)
+export class LanguagePage extends PageBase {
+  public static data = this.buildData((lang: string = ``) => lang)
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
       const languages = arr.slice(0, -1)
-      const backButton = arr[arr.length - 1] // Get the back button text
+      const backButton = arr[arr.length - 1]! // Get the back button text
 
       // Get current user language for comparison
       const currentLang = this.userLanguage?.toLowerCase()
@@ -40,8 +40,9 @@ export class LanguagePage extends CtxCore {
   public async callbackPayload() {
     const language = this.callbackDataPayload.toLowerCase()
 
-    await this.cacheData.set(`${this.userId}:language`, language)
+    await this.cacheData.set(`${this.userId}:lang`, language)
     this.userLanguage = language
+
     await this.internal()
   }
 

@@ -5,7 +5,7 @@ import { UserNameNotFoundPage } from "../pages/username-notfound"
 export class UserGuard extends GuardBase {
   public async ensureValid(isEdit: boolean) {
     try {
-      if (!this.username || this.username.length == 0) {
+      if (!this.userName || this.userName.length == 0) {
         await new UserNameNotFoundPage(this).transition(isEdit)
         return null
       }

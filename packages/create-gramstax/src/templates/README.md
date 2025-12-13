@@ -100,7 +100,6 @@ pm2 save
 ### Environment Variables
 
 - `BOT_TOKEN` - Your Telegram bot token (required)
-- `NODE_ENV` - Environment mode (development/production)
 - `CACHE_SESSION` - Cache type configuration (optional)
 
 ### PM2 Configuration

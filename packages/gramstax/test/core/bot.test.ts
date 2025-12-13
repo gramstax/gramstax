@@ -9,7 +9,7 @@ const TEST_DIR = join(process.cwd(), `packages/gramstax/test/bot_views`)
 
 // Mock Gramstax to override pageLoads
 class TestGramstax extends Gramstax {
-  pageLoads() {
+  override pageLoads() {
     // Return page structure matching our test templates
     return {
       static: {
@@ -42,7 +42,7 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
 
     const bot = new TestGramstax({
       token: `dummy_token`,
-      deploy: `test`,
+      deploy: `polling`,
       templateManager: realTm,
       log: false
     })
@@ -50,8 +50,8 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
     // Mock grammy bot api
     bot.bot = {
       api: {
-        getMyCommands: mock(async () => []),
-        setMyCommands: mock(async () => true)
+        getMyCommands: mock(() => []),
+        setMyCommands: mock(() => true)
       }
     } as any
 
@@ -74,9 +74,9 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
     const { bot } = createBot()
 
     // Mock current commands (empty)
-    const getMyCommands = bot.bot.api.getMyCommands as any
-    const setMyCommands = bot.bot.api.setMyCommands as any
-    getMyCommands.mockResolvedValue([])
+    const getMyCommands = bot.bot.api.getMyCommands as any as Record<any, (...args: any) => any>
+    const setMyCommands = bot.bot.api.setMyCommands
+    getMyCommands.mockResolvedValue?.([])
 
     await bot.pageSyncDescription(bot.pages)
 
@@ -106,12 +106,12 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
     )
 
     const { bot } = createBot()
-    const setMyCommands = bot.bot.api.setMyCommands as any
-    const getMyCommands = bot.bot.api.getMyCommands as any
+    const setMyCommands = bot.bot.api.setMyCommands as any as Record<any, any>
+    const getMyCommands = bot.bot.api.getMyCommands as any as Record<any, (...args: any) => any>
 
     // Mock remote to match local template
-    getMyCommands.mockImplementation(async (args: any) => {
-      if (args.scope.type === `default` && args.language_code === undefined) {
+    getMyCommands.mockImplementation?.((args: Record<any, Record<any, any>>) => {
+      if (args?.scope?.type === `default` && args?.language_code === undefined) {
         return [{ command: `cmd1`, description: `Match Me` }]
       }
       return []
@@ -146,7 +146,7 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
     const { bot } = createBot()
 
     // Mock pages to include both commands
-    ;(bot as any).pageLoads = () => ({
+    bot.pageLoads = () => ({
       static: {
         textCommand: {
           cmd1: { name: `cmd1` },
@@ -157,9 +157,9 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
     })
     bot.pages = bot.pageLoads()
 
-    const setMyCommands = bot.bot.api.setMyCommands as any
-    const getMyCommands = bot.bot.api.getMyCommands as any
-    getMyCommands.mockResolvedValue([])
+    const setMyCommands = bot.bot.api.setMyCommands as any as Record<any, any>
+    const getMyCommands = bot.bot.api.getMyCommands as any as Record<any, (...args: any) => any>
+    getMyCommands.mockResolvedValue?.([])
 
     await bot.pageSyncDescription(bot.pages)
 

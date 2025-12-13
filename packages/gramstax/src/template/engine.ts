@@ -44,7 +44,7 @@ export class TemplateEngine {
   }
 
   public static _processScriptBlocks(template: string) {
-    return template.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, (_, rawCode) => {
+    return template.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, (_, rawCode: string) => {
       const innerCode = rawCode.trim()
       if (!innerCode) return ``
 
@@ -57,7 +57,7 @@ export class TemplateEngine {
   }
 
   public static _processDivBlocks(template: string) {
-    return template.replace(/<div>([\s\S]*?)<\/div>/gi, (_, inner) => {
+    return template.replace(/<div>([\s\S]*?)<\/div>/gi, (_, inner: string) => {
       const cleaned = inner
         .replace(/^[\t ]+/gm, ``)
         .replace(/^\n+/, ``)
@@ -70,7 +70,7 @@ export class TemplateEngine {
     const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
     const result: { [lang: string]: IMediaBlock } = {}
 
-    for (const match of template.matchAll(mediaRegex) as any) {
+    for (const match of template.matchAll(mediaRegex)) {
       const attributesStr = match[1]
       const rawContent = match[2]
 
@@ -79,8 +79,8 @@ export class TemplateEngine {
       const attrRegex = /(\w+)="([^"]*)"/g
 
       if (attributesStr) {
-        for (const attrMatch of attributesStr.matchAll(attrRegex) as any) {
-          attrs[attrMatch[1]] = attrMatch[2]
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2]!
         }
       }
 
@@ -89,14 +89,14 @@ export class TemplateEngine {
       const type = attrs.type
 
       // Clean caption/content
-      const caption = rawContent
+      const caption = rawContent!
         .replace(/^[\t ]+/gm, ``)
         .replace(/^\n+/, ``)
         .replace(/\n+$/, ``)
         .trim()
 
       // Build media block based on type
-      const mediaBlock: any = { type }
+      const mediaBlock = { type } as Record<any, any>
 
       // Media with file src (photo, video, audio, document, animation, voice, video_note, sticker)
       if (attrs.src) {
@@ -124,7 +124,7 @@ export class TemplateEngine {
         if (caption) mediaBlock.caption = caption // Contact can gave caption for additional text
       }
 
-      result[lang] = mediaBlock
+      result[lang] = mediaBlock as any
     }
 
     return result
@@ -136,18 +136,18 @@ export class TemplateEngine {
       [lang: string]: string
     } = {}
 
-    for (const [, attributesStr, rawContent] of template.matchAll(messageRegex) as any) {
+    for (const [, attributesStr, rawContent] of template.matchAll(messageRegex)) {
       const attrs: { [key: string]: string } = {}
       const attrRegex = /(\w+)="([^"]*)"/g
 
       if (attributesStr) {
-        for (const attrMatch of attributesStr.matchAll(attrRegex) as any) {
-          attrs[attrMatch[1]] = attrMatch[2]
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2]!
         }
       }
 
       const lang = attrs.lang || `default`
-      const cleaned = rawContent
+      const cleaned = rawContent!
         .replace(/^[\t ]+/gm, ``)
         .replace(/^\n+/, ``)
         .replace(/\n+$/, ``)
@@ -166,19 +166,19 @@ export class TemplateEngine {
       }
     } = {}
 
-    for (const [, attributesStr, rawContent] of template.matchAll(descriptionRegex) as any) {
+    for (const [, attributesStr, rawContent] of template.matchAll(descriptionRegex)) {
       const attrs: { [key: string]: string } = {}
       const attrRegex = /(\w+)="([^"]*)"/g
 
       if (attributesStr) {
-        for (const attrMatch of attributesStr.matchAll(attrRegex) as any) {
-          attrs[attrMatch[1]] = attrMatch[2]
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2]!
         }
       }
 
       const lang = attrs.lang || `default`
       const scope = attrs.scope || `default`
-      const cleaned = rawContent
+      const cleaned = rawContent!
         .replace(/^[\t ]+/gm, ``)
         .replace(/^\n+/, ``)
         .replace(/\n+$/, ``)
@@ -201,19 +201,19 @@ export class TemplateEngine {
       }
     } = {}
 
-    for (const [, attributesStr, rawContent] of template.matchAll(keyboardRegex) as any) {
+    for (const [, attributesStr, rawContent] of template.matchAll(keyboardRegex)) {
       const attrs: { [key: string]: string } = {}
       const attrRegex = /(\w+)="([^"]*)"/g
 
       if (attributesStr) {
-        for (const attrMatch of attributesStr.matchAll(attrRegex) as any) {
-          attrs[attrMatch[1]] = attrMatch[2]
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2]!
         }
       }
 
       const lang = attrs.lang || `default`
       const mode = attrs.type === `bottom` ? `bottom` : `inline`
-      const cleaned = rawContent.trim()
+      const cleaned = rawContent!.trim()
 
       if (!result[lang]) {
         result[lang] = {}

@@ -1,9 +1,9 @@
 import { isMainThread } from "bun"
 
 export class MainThread {
-  constructor(mainFunc: () => any) {
+  constructor(wrapCode: () => any) {
     if (isMainThread === true) {
-      mainFunc()
+      wrapCode()
     }
   }
 }

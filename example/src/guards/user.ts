@@ -1,17 +1,18 @@
-import { CtxCore } from "../core/ctx"
+import { GuardBase } from "../base/guard"
+import { GeneralErrorPage } from "../pages/general-error"
 
-export class UserGuard extends CtxCore {
+export class UserGuard extends GuardBase {
   public async ensureValid() {
     try {
       // override language_code
-      const lang = await this.cacheData.get(`${this.userId}:language`)
+      const lang = await this.cacheData.get(`${this.userId}:lang`)
       if (lang) {
         this.userLanguage = lang
       }
 
       return true
     } catch (err) {
-      console.log(`call error page (location:UserGuard): ${String(err)}`)
+      await new GeneralErrorPage(this).transition(this.constructor.name, `ensureValid`, err, true)
       return null
     }
   }

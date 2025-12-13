@@ -1,10 +1,10 @@
-import { CtxCore } from "../core/ctx"
+import { PageBase } from "../base/page"
 import { StartPage } from "./start"
 
-export class HelpPage extends CtxCore {
+export class HelpPage extends PageBase {
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
-      return kb.text(arr[0], StartPage.data.callbackData())
+      return kb.text(arr[0]!, StartPage.data.callbackData())
     })
   }
 

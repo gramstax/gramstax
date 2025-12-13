@@ -1,26 +1,24 @@
 import { Ctx } from "./ctx"
 import { serve } from "bun"
-import { HelperPage } from "../helpers/page"
 import { join, parse } from "node:path"
-import { CacheExternal } from "../cache"
+import { PageManager } from "~/page/manager"
+import { CacheExternal } from "~/cache"
 import { LoggingPretty } from "logging-pretty"
 import { TemplateManager } from "../template"
 import { Bot, webhookCallback, type BotError, type Context } from "grammy"
 import type { UserFromGetMe } from "grammy/types"
 
-type IDeploy = `polling` | `webhook:http://${string}` | `webhook:https://${string}` | `serverless:${string}`
-
-export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
+export class Gramstax<ICtx extends Ctx = Ctx> {
   public templateManager: TemplateManager
   public cacheKeyboard: Map<any, any>
   public cacheSession: CacheExternal
   public pages: ReturnType<typeof this.pageLoads>
   public log: LoggingPretty | undefined
-  public bot: IBot
+  public bot: Bot
 
   public handlerBotUpdate: any
 
-  public constructor(params: { token: string; deploy: IDeploy; log?: LoggingPretty | boolean | null; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
+  public constructor(params: { token: string; deploy: string; log?: LoggingPretty | boolean | null; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
     if (!params?.token || params?.token?.length == 0) {
       throw new Error(`Token is not valid or empty`)
     }
@@ -34,7 +32,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
         path: [join(process.cwd(), `src`, `pages`)]
       })
 
-    this.bot = this.createBot(params.token) as any as IBot
+    this.bot = this.createBot(params.token)
     this.bot.catch(this.onCatch)
     this.registerOnCallbackQueryData() // Handle callback queries from inline keyboards
     this.registerOnMessageText() // Handle global text messages
@@ -65,11 +63,15 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
       this.runWebhook(params.deploy.split(`webhook:`)[1] as string)
     } else if (params.deploy.startsWith(`serverless:`)) {
       this.runServerless(params.deploy.split(`serverless:`)[1] as string)
+    } else if (params.deploy.startsWith(`test`)) {
+      // nothing, for test unit internal area
+    } else {
+      throw new Error(`Params deploy is not valid, expected: polling, webhook:<public-url>, serverless:<your-adapter>`)
     }
   }
 
   public onCatch(error: BotError<Context>) {
-    this.log?.error?.(`[Bot.catch]: ${String(error)}`)
+    this.log?.error?.(`[Bot.catch]: ${JSON.stringify(error, null, 2)}`)
   }
 
   public onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
@@ -94,67 +96,61 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
     }) as any
   }
 
-  public async runPolling() {
+  public runPolling(): void {
     this.bot.start({
-      onStart: async (botInfo) => {
+      onStart: (botInfo) => {
         this.onStart(botInfo, `polling`, null)
       }
     })
   }
 
-  public async runWebhook(baseUrl: string) {
+  public async runWebhook(fullUrl: string): Promise<void> {
     const handleUpdate = webhookCallback(this.bot, `bun`)
-    const pathWebhook = `/telegram-webhook`
-
     this.handlerBotUpdate = handleUpdate
+
+    const pathUrl = new URL(fullUrl).pathname
 
     serve({
       fetch(req) {
         const { pathname } = new URL(req.url)
-        if (pathname === pathWebhook) {
-          if (req.method === `POST`) {
-            return handleUpdate(req as any)
-          }
-          return new Response(`OK`, { status: 200 })
+        if (req.method == `POST` && pathname == pathUrl) {
+          return handleUpdate(req)
         }
 
-        if (pathname === `/` && req.method === `GET`) {
+        if (req.method == `GET` && pathname == `/`) {
           const timestamp = new Date().toISOString()
-          return new Response(JSON.stringify({ timestamp }), {
+          return new Response(JSON.stringify({ status: `OK`, timestamp }), {
             status: 200,
             headers: { "Content-Type": `application/json` }
           })
         }
-
-        // Jika tidak cocok
         return new Response(`Not found`, { status: 404 })
       }
     })
 
     const data = await this.bot.api.getWebhookInfo()
-    const webhookUrl = baseUrl.endsWith(`/`) ? baseUrl.slice(0, -1) + pathWebhook : baseUrl + pathWebhook
-    if (data.url != webhookUrl) {
-      await this.bot.api.setWebhook(webhookUrl)
+    if (data.url != fullUrl) {
+      await this.bot.api.setWebhook(fullUrl)
     }
 
     const botInfo = await this.bot.api.getMe()
-    this.onStart(botInfo, `webhook`, webhookUrl)
+    this.onStart(botInfo, `webhook`, fullUrl)
   }
 
-  public async runServerless(adapter: string) {
+  public async runServerless(adapter: string): Promise<void> {
     this.handlerBotUpdate = webhookCallback(this.bot, adapter as any)
     const botInfo = await this.bot.api.getMe()
     this.onStart(botInfo, `serverless`, adapter)
   }
 
-  public pageBuildData(Page: typeof Ctx, filePath: string) {
+  public pageBuildData(Page: typeof Ctx, filePath: string): void {
     if (Page?.data === undefined) {
-      Page.data = Page.buildData()
+      Page.data = Page.buildData() as any
     }
     Page.data.name = parse(filePath).name
   }
 
-  public pageSorts(Page: typeof Ctx, pages: typeof this.pages) {
+  public pageSorts(Page: typeof Ctx, pages: typeof this.pages): void {
     const name = Page.data.name
     const proto = Page.prototype
 
@@ -168,7 +164,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
     const upFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
     const getPureFuncName = (func: string) => func.replace(partPayload, ``).replace(partCommand, ``).replace(partCaption, ``).replace(partFree, ``)
-    const methodSession = (func: string, name: any) => (proto as any)[`methodSession${upFirst(func)}`](name)
+    const methodSession = (func: string, name: any) => (proto as any as Record<any, (...args: any) => string>)[`methodSession${upFirst(func)}`]?.(name)
 
     // all
     pages.all[name] = Page
@@ -180,7 +176,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
       const psi = pages.staticIntent[func as keyof typeof pages.staticIntent]
       const pss = pages.staticSession[func as keyof typeof pages.staticSession]
 
-      const value = { name, func } as any
+      const value = { name, func }
       const p = ps || psi
       if (p !== undefined) {
         const _isCommand = func.includes(partCommand)
@@ -190,7 +186,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
       // staticSession
       if (pss !== undefined) {
-        pss[methodSession(func, name)] = value
+        pss[methodSession(func, name)!] = value
       }
 
       // dynamicStatic
@@ -205,7 +201,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
     }
   }
 
-  public async pageSyncDescription(pages: typeof this.pages) {
+  public async pageSyncDescription(pages: typeof this.pages): Promise<void> {
     // 1. Collect all unique (scope, language) pairs
     const targets = new Map<string, Set<string>>() // scope -> Set<language>
 
@@ -382,23 +378,22 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
       lenListFuncStaticSession: listFuncStaticSession.length
     }
 
-    HelperPage.getPagesSync(undefined, true).forEach(({ path, page }) => {
+    PageManager.getFileManySync(undefined, true).forEach(({ path, page }) => {
       this.pageBuildData(page, path) // create if not exist and set name (without ext) according filePath
       this.pageSorts(page, pages) // sort route method
     })
 
     this.log?.info?.(`Finish load pages with total (${Object.keys(pages.all).length})`)
 
-    this.pageSyncDescription(pages)
     return pages
   }
 
-  public async pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof this.pages.dynamicSpesific): Promise<any | null> {
+  public async pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof this.pages.dynamicSpesific): Promise<any> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: { name: string; func: string } | undefined
 
-    // (static) priority O(1)
+    // 1. (static) O(1)
     if (Page === undefined) {
       const cd = ctx.callbackData
       const mt = ctx.msgText
@@ -418,7 +413,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
       }
     }
 
-    // (staticSession) x = method; O(x)
+    // 2. (staticSession) x = method; O(x)
     if (Page === undefined) {
       const session = await ctx.sessionGet()
       if (session) {
@@ -439,7 +434,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
       }
     }
 
-    // (staticIntent) x = startsWith; O(x)
+    // 3. (staticIntent) x = startsWith; O(x)
     if (Page === undefined) {
       const cdi = ctx.callbackDataIntent
       const mti = ctx.msgTextIntent
@@ -461,13 +456,13 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
     // run
     if (Page !== undefined && res !== undefined) {
-      const initPage = new Page(ctx)
-      const initRoute = await initPage[res.func as keyof typeof initPage]?.()
+      const initPage = new Page(ctx) as any as Record<any, () => any>
+      const initRoute = await initPage[res.func]!()
       return initRoute
     }
 
-    // (dynamicSpesific) O(n)
-    const arrFree = this.pages.dynamicSpesific[fromListener as keyof typeof this.pages.dynamicSpesific] || []
+    // 4. (dynamicSpesific) O(n)
+    const arrFree = this.pages.dynamicSpesific[fromListener as `animation`] || []
     for (let index = 0; index < arrFree.length; index++) {
       const value = arrFree[index]
       if (value === undefined) {
@@ -479,15 +474,14 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
         continue
       }
 
-      const initPage = new Page(ctx)
-      const initRoute = await initPage[value.name as keyof typeof initPage]?.()
-      // const initRoute = await initPage.route(value.name)
+      const initPage = new Page(ctx) as any as Record<any, () => any>
+      const initRoute = await initPage[value.name]?.()
       if (initRoute !== null) {
         return initRoute // stop when return not null
       }
     }
 
-    // (dynamic) O(n)
+    // 5. (dynamic) O(n)
     for (let index = 0; index < this.pages.dynamic.length; index++) {
       const value = this.pages.dynamic[index]
       if (value === undefined) {
@@ -501,7 +495,6 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
 
       const initPage = new Page(ctx)
       const initRoute = await initPage.free?.()
-      // const initRoute = await initPage.route(`free`)
       if (initRoute !== null) {
         return initRoute // stop when return not null
       }
@@ -510,22 +503,29 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
     return null
   }
 
-  public async hookBeforeRoute(ctx: ICtx, listenerName: string) {
+  public async hookBeforeRoute(ctx: ICtx, listenerName: string): Promise<boolean> {
     // must be override
-    return true
+    if (ctx || listenerName) {
+      return true
+    }
+    return false
   }
 
-  public async hookErrorPage(ctx: ICtx, listenerName: string, error: any, isEdit: boolean) {
+  public async hookErrorPage(ctx: ICtx, listenerName: string, error: any, isEdit: boolean): Promise<void> {
     // must be override
-    return
+    if (ctx || listenerName || error || isEdit) {
+      return
+    }
   }
 
-  public async hookErrorInputNotFoundPage(ctx: ICtx) {
+  public async hookErrorInputNotFoundPage(ctx: ICtx): Promise<void> {
     // must be override
-    return
+    if (ctx) {
+      return
+    }
   }
 
-  public async onMessage(ct: Context, listenerName: string): Promise<void> {
+  public async onMessage(ct: Context, listenerName: keyof typeof this.pages.dynamicSpesific): Promise<void> {
     const ctx = this.createCtx(ct)
     try {
       const before = await this.hookBeforeRoute(ctx, listenerName)
@@ -533,7 +533,7 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
         return
       }
 
-      const route = await this.pageRoutes(ctx, listenerName as any)
+      const route = await this.pageRoutes(ctx, listenerName)
       if (route === null) {
         await this.hookErrorInputNotFoundPage(ctx)
       }
@@ -560,47 +560,47 @@ export class Gramstax<ICtx extends Ctx = Ctx, IBot extends Bot = Bot> {
   }
 
   public async onMessageText(ct: Context): Promise<void> {
-    await this.onMessage(ct, `onMessageText`)
+    await this.onMessage(ct, `text`)
   }
 
   public async onMessagePhoto(ct: Context): Promise<void> {
-    await this.onMessage(ct, `onMessagePhoto`)
+    await this.onMessage(ct, `photo`)
   }
 
   public async onMessageVideo(ct: Context): Promise<void> {
-    await this.onMessage(ct, `onMessageVideo`)
+    await this.onMessage(ct, `video`)
   }
 
   public async onMessageAudio(ct: Context): Promise<void> {
-    await this.onMessage(ct, `onMessageAudio`)
+    await this.onMessage(ct, `audio`)
   }
 
   public async onMessageDocument(ct: Context): Promise<void> {
-    await this.onMessage(ct, `onMessageDocument`)
+    await this.onMessage(ct, `document`)
   }
 
   public async onMessageAnimation(ct: Context): Promise<void> {
-    await this.onMessage(ct, `onMessageAnimation`)
+    await this.onMessage(ct, `animation`)
   }
 
   public async onMessageVoice(ct: Context): Promise<void> {
-    await this.onMessage(ct, `onMessageVoice`)
+    await this.onMessage(ct, `voice`)
   }
 
   public async onMessageVideoNote(ct: Context): Promise<void> {
-    await this.onMessage(ct, `onMessageVideoNote`)
+    await this.onMessage(ct, `videoNote`)
   }
 
   public async onMessageSticker(ct: Context): Promise<void> {
-    await this.onMessage(ct, `onMessageSticker`)
+    await this.onMessage(ct, `sticker`)
   }
 
   public async onMessageLocation(ct: Context): Promise<void> {
-    await this.onMessage(ct, `onMessageLocation`)
+    await this.onMessage(ct, `location`)
   }
 
   public async onMessageContact(ct: Context): Promise<void> {
-    await this.onMessage(ct, `onMessageContact`)
+    await this.onMessage(ct, `contact`)
   }
 
   public registerOnCallbackQueryData() {

@@ -4,11 +4,11 @@ import { StartPage } from "./start"
 export class GeneralErrorPage extends PageBase {
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
-      return kb.text(arr[0], StartPage.data.callbackData())
+      return kb.text(arr[0]!, StartPage.data.callbackData())
     })
   }
 
-  public async transition(constructorName: string, funcName: string, error: any, isUpdate = true) {
+  public async transition(constructorName: string, funcName: string, error: unknown, isUpdate = true) {
     this.logError(error, constructorName, funcName)
     await this.sessionClear()
 

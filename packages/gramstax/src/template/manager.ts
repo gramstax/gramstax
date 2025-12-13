@@ -1,6 +1,6 @@
-import { HelperPage } from "../helpers/page"
+import { readFile } from "node:fs/promises"
+import { PageManager } from "~/page/manager"
 import { TemplateEngine } from "."
-import { readFile, mkdir } from "node:fs/promises"
 import { watch, FSWatcher } from "chokidar"
 import { basename, join, extname } from "node:path"
 import { readdirSync, readFileSync, existsSync, statSync, writeFileSync } from "node:fs"
@@ -17,7 +17,7 @@ type ICompiledTemplate = {
 type ITemplateOptions = {
   /** Base path for template files */
   path: string[]
-  /** Enable file watching for hot reloading (only work for persistent type) */
+  /** Enable file watching for hot reloading for value template only */
   enableWatch?: boolean
 }
 
@@ -61,7 +61,7 @@ export class TemplateManager {
       }
       return true
     } catch (error) {
-      throw new Error(`Failed to validate Template base path: ${error}`)
+      throw new Error(`Failed to validate Template base path: ${String(error)}`)
     }
   }
 
@@ -84,11 +84,11 @@ export class TemplateManager {
         }
       })
 
-      this._watcher[index] = wc as any
-      wc!.on(`change`, this._handleFileChange.bind(this))
-      wc!.on(`add`, this._handleFileAdd.bind(this))
-      wc!.on(`unlink`, this._handleFileDelete.bind(this))
-      wc!.on(`error`, this._handleWatchError.bind(this))
+      this._watcher[index] = wc
+      wc.on(`change`, this._handleFileChange.bind(this))
+      wc.on(`add`, this._handleFileAdd.bind(this))
+      wc.on(`unlink`, this._handleFileDelete.bind(this))
+      wc.on(`error`, this._handleWatchError.bind(this))
     }
   }
 
@@ -119,17 +119,19 @@ export class TemplateManager {
 
   /** Handle watcher errors */
   public _handleWatchError(error: any): void {
-    // you can overrides
+    if (error) {
+      // you can overrides
+    }
   }
 
   /** Load all Template files during initialization */
-  public _loadAllFiles(): void {
+  public async _loadAllFiles(): Promise<void> {
     for (let index = 0; index < this._path.length; index++) {
       const pt = this._path[index] as string
       const files = readdirSync(pt, `utf8`)
       const validFiles = files.filter((file) => this._isValidFile(file))
       for (const fileName of validFiles) {
-        this._loadFile(fileName, true)
+        await this._loadFile(fileName, true)
       }
     }
   }
@@ -147,7 +149,7 @@ export class TemplateManager {
         const raw = useSync ? readFileSync(path, `utf8`) : await readFile(path, `utf8`)
         this._compile(key, raw)
       } else if (ext == `.ts`) {
-        const Page = await HelperPage.getPage(path, false)
+        const Page = await PageManager.getFile(path, false)
         if (Page?.template !== undefined) {
           this._compile(key, Page.template)
         }
@@ -205,18 +207,19 @@ export class TemplateManager {
    * @param data Template variables
    * @returns media object
    */
-  public getMedia(key: string, baseId = `default`, language = `default`, data?: Record<string, any>) {
+  public getMedia(key: string, baseId = `default`, language = `default`, data?: Record<string, any>): ReturnType<ICompiledTemplate[`media`][`default`][`default`]> {
     const map = this._map.get(key)
     const one = map?.media?.[baseId]
     const func = one?.[language] || one?.[`default`]
-    if (!func) {
-      return {} as Record<any, any>
-    }
 
     try {
+      if (!func) {
+        throw new Error(`Media function not found, please check your template`)
+      }
+
       return func(data)
-    } catch (error) {
-      return {} as any as ReturnType<typeof func>
+    } catch {
+      return {} as any
     }
   }
 
@@ -229,16 +232,16 @@ export class TemplateManager {
    * @returns Rendered message string
    */
   public getMessage(key: string, baseId = `default`, language = `default`, data?: Record<string, any>): string {
-    const map = this._map.get(key)
-    const one = map?.message?.[baseId]
-    const func = one?.[language] || one?.[`default`]
-    if (!func) {
-      return ``
-    }
-
     try {
+      const map = this._map.get(key)
+      const one = map?.message?.[baseId]
+      const func = one?.[language] || one?.[`default`]
+      if (!func) {
+        throw ``
+      }
+
       return func(data)
-    } catch (error) {
+    } catch {
       return ``
     }
   }
@@ -251,36 +254,46 @@ export class TemplateManager {
    * @returns Description string
    */
   public getDescription(key: string, baseId = `default`, language = `default`, scope = `default`, data?: Record<string, any>): string {
-    const map = this._map.get(key)
-    const one = map?.description?.[baseId]?.[scope]
-    const func = one?.[language] || one?.[`default`]
-    if (!func) {
-      return ``
-    }
-
     try {
+      const map = this._map.get(key)
+      const one = map?.description?.[baseId]?.[scope]
+      const func = one?.[language] || one?.[`default`]
+      if (!func) {
+        throw ``
+      }
+
       return func(data)
-    } catch (error) {
+    } catch {
       return ``
     }
   }
 
-  public getDescriptionLanguage(key: string, baseId = `default`, scope = `default`) {
-    const map = this._map.get(key)
-    const obj = map?.description?.[baseId]?.[scope]
-    if (obj) {
-      return Object.keys(obj)
+  public getDescriptionLanguage(key: string, baseId = `default`, scope = `default`): string[] {
+    try {
+      const map = this._map.get(key)
+      const obj = map?.description?.[baseId]?.[scope]
+      if (obj) {
+        return Object.keys(obj)
+      }
+
+      return []
+    } catch {
+      return []
     }
-    return []
   }
 
-  public getDescriptionScopes(key: string, baseId = `default`) {
-    const map = this._map.get(key)
-    const obj = map?.description?.[baseId]
-    if (obj) {
-      return Object.keys(obj)
+  public getDescriptionScopes(key: string, baseId = `default`): string[] {
+    try {
+      const map = this._map.get(key)
+      const obj = map?.description?.[baseId]
+      if (obj) {
+        return Object.keys(obj)
+      }
+
+      return []
+    } catch {
+      return []
     }
-    return []
   }
 
   /**
@@ -292,16 +305,16 @@ export class TemplateManager {
    * @returns Array of rendered button labels
    */
   public getKeyboard(key: string, baseId = `default`, language = `default`, type: `inline` | `bottom` = `inline`, data?: Record<string, any>): string[] {
-    const map = this._map.get(key)
-    const one = map?.keyboard?.[baseId]
-    const func = one?.[language]?.[type] || one?.[`default`]?.[type]
-    if (!func) {
-      return []
-    }
-
     try {
+      const map = this._map.get(key)
+      const one = map?.keyboard?.[baseId]
+      const func = one?.[language]?.[type] || one?.[`default`]?.[type]
+      if (!func) {
+        throw []
+      }
+
       return func(data)
-    } catch (error) {
+    } catch {
       return []
     }
   }
@@ -336,19 +349,6 @@ export class TemplateManager {
    */
   public has(key: string): boolean {
     return this._map.has(key)
-  }
-
-  /**
-   * Get cache statistics
-   * @returns Object with cache information
-   */
-  public getCacheStats(): { templateCount: number; totalSize: number } {
-    return {
-      templateCount: this._map.size,
-      totalSize: JSON.stringify(this._map.entries().toArray(), (_, value) => {
-        return typeof value === `function` ? value.toString() : value
-      }).length
-    }
   }
 
   /**

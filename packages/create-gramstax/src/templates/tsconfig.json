@@ -5,6 +5,9 @@
     "paths": {
       "~/*": [
         "./src/*"
+      ],
+      "gramstax": [
+        "../../../gramstax/src/index.ts"
       ]
     },
     // Environment setup & latest features

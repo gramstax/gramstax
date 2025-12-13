@@ -1,7 +1,9 @@
-import { CtxCore } from "../core/ctx"
 import { HelpPage } from "./help"
+import { PageBase } from "../base/page"
 import { CounterPage } from "./count"
 import { LanguagePage } from "./language"
+import { InputTextPage } from "./input-text"
+import { TestErrorPage } from "./test-error"
 import { TestVoicePage } from "./test-voice"
 import { TestPhotoPage } from "./test-photo"
 import { TestVideoPage } from "./test-video"
@@ -12,35 +14,41 @@ import { TestLocationPage } from "./test-location"
 import { TestDocumentPage } from "./test-document"
 import { TestAnimationPage } from "./test-animation"
 import { TestVideoNotePage } from "./test-video-note"
+import { TestErrorInputPage } from "./test-error-input"
 
-export class StartPage extends CtxCore {
-  public static data = this.buildData((conditionNumber?: string) => conditionNumber)
+export class StartPage extends PageBase {
+  public static data = this.buildData((con: string = ``) => con)
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
       return (
         kb
           //
-          .text(arr[0], CounterPage.data.callbackData())
-          .text(arr[1], HelpPage.data.callbackData())
+          .text(arr[0]!, CounterPage.data.callbackData())
+          .text(arr[1]!, HelpPage.data.callbackData())
           .row()
-          .text(arr[2], TestPhotoPage.data.callbackData())
-          .text(arr[3], TestVideoPage.data.callbackData())
+          .text(arr[2]!, LanguagePage.data.callbackData())
+          .text(arr[3]!, TestPhotoPage.data.callbackData())
           .row()
-          .text(arr[4], TestAudioPage.data.callbackData())
-          .text(arr[5], TestDocumentPage.data.callbackData())
+          .text(arr[4]!, TestVideoPage.data.callbackData())
+          .text(arr[5]!, TestAudioPage.data.callbackData())
           .row()
-          .text(arr[6], TestAnimationPage.data.callbackData())
-          .text(arr[7], TestVoicePage.data.callbackData())
+          .text(arr[6]!, TestDocumentPage.data.callbackData())
+          .text(arr[7]!, TestAnimationPage.data.callbackData())
           .row()
-          .text(arr[8], TestVideoNotePage.data.callbackData())
-          .text(arr[9], TestStickerPage.data.callbackData())
+          .text(arr[8]!, TestVoicePage.data.callbackData())
+          .text(arr[9]!, TestVideoNotePage.data.callbackData())
           .row()
-          .text(arr[10], TestLocationPage.data.callbackData())
-          .text(arr[11], TestContactPage.data.callbackData())
+          .text(arr[10]!, TestStickerPage.data.callbackData())
+          .text(arr[11]!, TestLocationPage.data.callbackData())
           .row()
-          .text(arr[12], LanguagePage.data.callbackData())
-          .text(arr[13], this.data.callbackData())
+          .text(arr[12]!, TestContactPage.data.callbackData())
+          .text(arr[13]!, TestErrorPage.data.callbackData())
+          .row()
+          .text(arr[14]!, TestErrorInputPage.data.callbackData())
+          .text(arr[15]!, InputTextPage.data.callbackData())
+          .row()
+          .text(arr[16]!, this.data.callbackData())
       )
     })
   }
@@ -48,10 +56,11 @@ export class StartPage extends CtxCore {
   public async internal(condition = 1) {
     const kb = this.kb()
     const da = {
-      first_name: this.userFirstName,
+      firstName: this.userFirstName,
       time: new Date().toString()
     }
 
+    await this.sessionClear()
     if (condition == 1) {
       await this.reply(kb, da)
     } else if (condition == 2) {
@@ -62,32 +71,46 @@ export class StartPage extends CtxCore {
     }
   }
 
+  // public async text() {
+  //   console.log(`ini text di page: start`)
+  //   await Promise.resolve()
+  // }
+
+  // public async textFree() {
+  //   console.log(`ini textFree di page: start`)
+  //   await Promise.resolve()
+  // }
+
   public async textCommand() {
+    console.log(`textCommand: ${this.msgText}`)
     await this.internal(1)
   }
 
   public async textCommandPayload() {
+    console.log(`textCommandPayload: ${this.msgText}`)
     await this.internal(1)
   }
 
   public async callback() {
+    console.log(`callback: ${this.msgText}`)
     await this.internal(2)
   }
 
   public async callbackPayload() {
+    console.log(`callbackPayload: ${this.msgText}`)
     await this.internal(3)
   }
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">Counter, Help, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Language, Refresh</keyboard>
-      <keyboard lang="en" type="inline">Counter, Help, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Language, Refresh</keyboard>
-      <keyboard lang="id" type="inline">Kounter, Bantuan, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Bahasa, Segarkan</keyboard>
+      <keyboard type="inline">Counter, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Refresh</keyboard>
+      <keyboard lang="en" type="inline">Counter, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Refresh</keyboard>
+      <keyboard lang="id" type="inline">Kounter, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Test SalahI, Masukkan Teks, Segarkan</keyboard>
 
       <message>
         {{time}}
 
-        Hi {{first_name}}, welcome to bot.
+        Hi {{firstName}}, welcome to bot.
 
         This is test gramstax
       </message>
@@ -95,7 +118,7 @@ export class StartPage extends CtxCore {
       <message lang="en">
         {{time}}
 
-        Hi {{first_name}}, welcome to bot.
+        Hi {{firstName}}, welcome to bot.
 
         This is test gramstax
       </message>
@@ -103,7 +126,7 @@ export class StartPage extends CtxCore {
       <message lang="id">
         {{time}}
 
-        Hi {{first_name}}, selamat datang di bot
+        Hi {{firstName}}, selamat datang di bot
 
         Ini adalah test gramstax
       </message>

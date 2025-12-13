@@ -5,7 +5,7 @@ export class HelpPage extends PageBase {
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
       return kb //
-        .text(arr[0], StartPage.data.callbackData())
+        .text(arr[0]!, StartPage.data.callbackData())
     })
   }
 
