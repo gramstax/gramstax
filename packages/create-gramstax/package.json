@@ -2,6 +2,10 @@
   "name": "create-gramstax",
   "version": "0.0.27",
   "private": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "description": "CLI tool to quickly create a new Gramstax Telegram bot project with all the best practices",
   "keywords": [
     "create-gramstax",
