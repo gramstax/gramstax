@@ -159,39 +159,39 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const partCaption = `Caption`
     const partFree = `Free`
 
-    const pd = pages.dynamic
-    const pds = pages.dynamicSpesific
+    const pd = pages.routeDynamic
+    const pds = pages.routeDynamicSpesific
 
     const upFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
-    const getPureFuncName = (func: string) => func.replace(partPayload, ``).replace(partCommand, ``).replace(partCaption, ``).replace(partFree, ``)
+    const getPureRouteName = (func: string) => func.replace(partPayload, ``).replace(partCommand, ``).replace(partCaption, ``).replace(partFree, ``)
     const methodSession = (func: string, name: any) => (proto as any as Record<any, (...args: any) => string>)[`methodSession${upFirst(func)}`]?.(name)
 
     // all
     pages.all[name] = Page
 
-    for (let index = 0; index < pages.lenListFuncStaticSession; index++) {
-      const func = pages.listFuncStaticSession[index] as string
+    for (let index = 0; index < pages.lenListRouteStaticSession; index++) {
+      const routeName = pages.listRouteStaticSession[index] as string
 
-      const ps = pages.static[func as keyof typeof pages.static]
-      const psi = pages.staticIntent[func as keyof typeof pages.staticIntent]
-      const pss = pages.staticSession[func as keyof typeof pages.staticSession]
+      const ps = pages.routeStatic[routeName as keyof typeof pages.routeStatic]
+      const psi = pages.routeStaticIntent[routeName as keyof typeof pages.routeStaticIntent]
+      const pss = pages.routeStaticSession[routeName as keyof typeof pages.routeStaticSession]
 
-      const value = { name, func }
+      const value = { name, routeName }
       const p = ps || psi
       if (p !== undefined) {
-        const _isCommand = func.includes(partCommand)
+        const _isCommand = routeName.includes(partCommand)
         const _name = _isCommand ? `/${name}` : name
-        p[proto.intent(_name, func.startsWith(`callback`))] = value
+        p[proto.intent(_name, routeName.startsWith(`callback`))] = value
       }
 
       // staticSession
       if (pss !== undefined) {
-        pss[methodSession(func, name)!] = value
+        pss[methodSession(routeName, name)!] = value
       }
 
-      // dynamicStatic
-      if (func.toLowerCase().endsWith(`free`)) {
-        pds[getPureFuncName(func) as keyof typeof pds].push(value)
+      // dynamicSpesific
+      if (routeName.toLowerCase().endsWith(`free`)) {
+        pds[getPureRouteName(routeName) as keyof typeof pds].push(value)
       }
     }
 
@@ -205,7 +205,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // 1. Collect all unique (scope, language) pairs
     const targets = new Map<string, Set<string>>() // scope -> Set<language>
 
-    const allCommands = pages.static.textCommand
+    const allCommands = pages.routeStatic.textCommand
     for (const [, page] of Object.entries(allCommands)) {
       const name = page.name
       const scopes = this.templateManager.getDescriptionScopes(name)
@@ -261,12 +261,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   public pageLoads() {
     this.log?.info?.(`Load pages..`)
 
-    const initStatic = {} as Record<string, { name: string; func: string }> // { [page.data.name]: { name: Page.data.name, func: routeFunctionName } }
-    const initStaticIntent = initStatic // { [intent]: { name: page.data.name, func: routeFunctionName } }
-    const initStaticSession = initStatic // { [session.method]: { name: page.data.name, func: routeFunctionName } }
-    const initDynamicSpesific = [] as { name: string; func: string }[] //
-
-    const listFuncStatic = [
+    const listRouteStatic = [
       // callback
       `callback`,
       // text
@@ -294,7 +289,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `videoNoteCaption`,
       `videoNoteCaptionCommand`
     ] as const
-    const listFuncStaticIntent = [
+    const listRouteStaticIntent = [
       // callback
       `callbackPayload`,
       // text
@@ -322,9 +317,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `videoNoteCaptionPayload`,
       `videoNoteCaptionCommandPayload`
     ] as const
-    const listFuncStaticSession = [
-      ...listFuncStatic,
-      ...listFuncStaticIntent,
+
+    const listRouteStaticSession = [
+      ...listRouteStatic,
+      ...listRouteStaticIntent,
       // text
       `textFree`,
       // photo
@@ -349,33 +345,34 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `contactFree`
     ] as const
 
-    const makeObject = <const T extends readonly string[], V>(keys: T, val: V): { [K in T[number]]: V } => Object.fromEntries(keys.map((k) => [k, { ...val }])) as { [K in T[number]]: V }
+    const makeObject = <const T extends readonly string[], V extends () => any>(keys: T, val: V): { [K in T[number]]: ReturnType<V> } => Object.fromEntries(keys.map((k) => [k, val()])) as { [K in T[number]]: ReturnType<V> }
+    const initDynamicSpesific = () => [] as { name: string; routeName: string }[] // [0]{name: Page.data.name, routeName: routeFunctionName}
 
     const pages = {
-      all: {} as Record<string, typeof Ctx>, // { [page.data.name]: classes }. (classes) all Page
-      dynamic: [] as string[], // (dynamic) all Page function free
-      dynamicSpesific: {
-        text: initDynamicSpesific,
-        photo: initDynamicSpesific,
-        video: initDynamicSpesific,
-        audio: initDynamicSpesific,
-        document: initDynamicSpesific,
-        animation: initDynamicSpesific,
-        voice: initDynamicSpesific,
-        videoNote: initDynamicSpesific,
-        sticker: initDynamicSpesific,
-        location: initDynamicSpesific,
-        contact: initDynamicSpesific
+      all: {} as Record<string, typeof Ctx>, // [page.data.name]: Classes Page
+      routeDynamic: [] as string[], // [Page]{ free: (...) => ... }
+      routeDynamicSpesific: {
+        text: initDynamicSpesific(), // text: []{name: Page.data.name, routeName:routeFunctionName}
+        photo: initDynamicSpesific(), // photo: []{name: Page.data.name, routeName:routeFunctionName}
+        video: initDynamicSpesific(), // video: []{name: Page.data.name, routeName:routeFunctionName}
+        audio: initDynamicSpesific(), // audio: []{name: Page.data.name, routeName:routeFunctionName}
+        document: initDynamicSpesific(), // document: []{name: Page.data.name, routeName:routeFunctionName}
+        animation: initDynamicSpesific(), // animation: []{name: Page.data.name, routeName:routeFunctionName}
+        voice: initDynamicSpesific(), // voice: []{name: Page.data.name, routeName:routeFunctionName}
+        videoNote: initDynamicSpesific(), // videoNote: []{name: Page.data.name, routeName:routeFunctionName}
+        sticker: initDynamicSpesific(), // sticker: []{name: Page.data.name, routeName:routeFunctionName}
+        location: initDynamicSpesific(), // location: []{name: Page.data.name, routeName:routeFunctionName}
+        contact: initDynamicSpesific() // contact: []{name: Page.data.name, routeName:routeFunctionName}
       },
-      static: makeObject(listFuncStatic, initStatic),
-      staticIntent: makeObject(listFuncStaticIntent, initStaticIntent),
-      staticSession: makeObject(listFuncStaticSession, initStaticSession),
-      listFuncStatic,
-      listFuncStaticIntent,
-      listFuncStaticSession,
-      lenListFuncStatic: listFuncStatic.length,
-      lenListFuncStaticIntent: listFuncStaticIntent.length,
-      lenListFuncStaticSession: listFuncStaticSession.length
+      routeStatic: makeObject(listRouteStatic, () => ({} as Record<string, { name: string; routeName: string }>)), // [page.data.name]: {name: Page.data.name, routeName: routeFunctionName}
+      routeStaticIntent: makeObject(listRouteStaticIntent, () => ({} as Record<string, { name: string; routeName: string }>)), // [intent]: {name: Page.data.name, routeName: routeFunctionName}
+      routeStaticSession: makeObject(listRouteStaticSession, () => ({} as Record<string, { name: string; routeName: string }>)), // [session.method]: {name: Page.data.name, routeName: routeFunctionName}
+      listRouteStatic,
+      listRouteStaticIntent,
+      listRouteStaticSession,
+      lenListRouteStatic: listRouteStatic.length,
+      lenListRouteStaticIntent: listRouteStaticIntent.length,
+      lenListRouteStaticSession: listRouteStaticSession.length
     }
 
     PageManager.getFileManySync(undefined, true).forEach(({ path, page }) => {
@@ -388,21 +385,29 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     return pages
   }
 
-  public async pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof this.pages.dynamicSpesific): Promise<any> {
+  public async pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof this.pages.routeDynamicSpesific): Promise<any> {
     // to be reassigned
     let Page: typeof Ctx | undefined
-    let res: { name: string; func: string } | undefined
+    let res: { name: string; routeName: string } | undefined
 
-    // 1. (static) O(1)
+    /**
+     * id = 1
+     * type = static
+     * algoritme = O(1)
+     * example = animationCaption, callback, textCommand
+     */
     if (Page === undefined) {
       const cd = ctx.callbackData
       const mt = ctx.msgText
       const mc = ctx.msgCaption
-      const ps = this.pages.static
+      const pStatic = this.pages.routeStatic
 
-      for (let index = 0; index < this.pages.lenListFuncStatic; index++) {
-        const funcName = this.pages.listFuncStatic[index] as `animationCaption`
-        res = ps[funcName][cd || mt || mc]
+      for (let index = 0; index < this.pages.lenListRouteStatic; index++) {
+        const routeName = this.pages.listRouteStatic[index] as `animationCaption`
+        if (routeName.startsWith(fromListener)) {
+          res = pStatic[routeName][cd || mt || mc]
+        }
+
         if (res) {
           break
         }
@@ -413,16 +418,24 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
     }
 
-    // 2. (staticSession) x = method; O(x)
+    /**
+     * id = 2
+     * type = staticSession
+     * algoritme = x = session method; O(x)
+     * example = animationCaption, callback, textCommand
+     */
     if (Page === undefined) {
       const session = await ctx.sessionGet()
       if (session) {
         const mtd = session.method
-        const pss = this.pages.staticSession
+        const pStaticSession = this.pages.routeStaticSession
 
-        for (let index = 0; index < this.pages.lenListFuncStaticSession; index++) {
-          const funcName = this.pages.listFuncStaticSession[index] as `animationCaption`
-          res = pss[funcName][mtd]
+        for (let index = 0; index < this.pages.lenListRouteStaticSession; index++) {
+          const routeName = this.pages.listRouteStaticSession[index] as `animationCaption`
+          if (routeName.startsWith(fromListener)) {
+            res = pStaticSession[routeName][mtd]
+          }
+
           if (res) {
             break
           }
@@ -434,16 +447,24 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
     }
 
-    // 3. (staticIntent) x = startsWith; O(x)
+    /**
+     * id = 3
+     * type = staticIntent
+     * algoritme = x = startsWith; O(x)
+     * example = animationCaptionCommandPayload, callbackCommandPayload, textCommandPayload
+     */
     if (Page === undefined) {
       const cdi = ctx.callbackDataIntent
       const mti = ctx.msgTextIntent
       const mci = ctx.msgCaptionIntent
-      const psi = this.pages.staticIntent
+      const pStaticIntent = this.pages.routeStaticIntent
 
-      for (let index = 0; index < this.pages.lenListFuncStaticIntent; index++) {
-        const funcName = this.pages.listFuncStaticIntent[index] as `animationCaptionCommandPayload`
-        res = psi[funcName][cdi || mti || mci]
+      for (let index = 0; index < this.pages.lenListRouteStaticIntent; index++) {
+        const routeName = this.pages.listRouteStaticIntent[index] as `animationCaptionCommandPayload`
+        if (routeName.startsWith(fromListener)) {
+          res = pStaticIntent[routeName][cdi || mti || mci]
+        }
+
         if (res) {
           break
         }
@@ -456,40 +477,66 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     // run
     if (Page !== undefined && res !== undefined) {
-      const initPage = new Page(ctx) as any as Record<any, () => any>
-      const initRoute = await initPage[res.func]!()
+      // check first is have route function or not for best performance. if not have return undefined
+      if (!Page.prototype[res.routeName as keyof typeof Page.prototype]) {
+        return
+      }
+
+      const initPage = new Page(ctx) as any
+      const initRoute = await initPage[res.routeName]?.()
       return initRoute
     }
 
-    // 4. (dynamicSpesific) O(n)
-    const arrFree = this.pages.dynamicSpesific[fromListener as `animation`] || []
+    /**
+     * id = 4
+     * type = dynamicSpesific
+     * algoritme = O(n)
+     * example = animationFree, textFree
+     */
+    const arrFree = this.pages.routeDynamicSpesific[fromListener as `animation`] || []
     for (let index = 0; index < arrFree.length; index++) {
       const value = arrFree[index]
       if (value === undefined) {
         continue
       }
 
-      const Page = this.pages.all[value.func]
+      const Page = this.pages.all[value.name]
       if (Page === undefined) {
         continue
       }
 
-      const initPage = new Page(ctx) as any as Record<any, () => any>
-      const initRoute = await initPage[value.name]?.()
+      // check first is have route function or not for best performance. if not continue
+      if (!Page.prototype[value.routeName as keyof typeof Page.prototype]) {
+        continue
+      }
+
+      const initPage = new Page(ctx) as any
+      const initRoute = await initPage[value.routeName]?.()
       if (initRoute !== null) {
         return initRoute // stop when return not null
       }
     }
 
-    // 5. (dynamic) O(n)
-    for (let index = 0; index < this.pages.dynamic.length; index++) {
-      const value = this.pages.dynamic[index]
-      if (value === undefined) {
+    /**
+     * id = 5
+     * type = dynamic
+     * algoritme = O(n)
+     * example = free
+     * note = global fallback (only 1 route function can init)
+     */
+    for (let index = 0; index < this.pages.routeDynamic.length; index++) {
+      const name = this.pages.routeDynamic[index]
+      if (name === undefined) {
         continue
       }
 
-      const Page = this.pages.all[value]
+      const Page = this.pages.all[name]
       if (Page === undefined) {
+        continue
+      }
+
+      // check first is have route function or not for best performance. if not continue
+      if (!Page.prototype.free) {
         continue
       }
 
@@ -525,7 +572,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
-  public async onMessage(ct: Context, listenerName: keyof typeof this.pages.dynamicSpesific): Promise<void> {
+  public async onMessage(ct: Context, listenerName: keyof typeof this.pages.routeDynamicSpesific): Promise<void> {
     const ctx = this.createCtx(ct)
     try {
       const before = await this.hookBeforeRoute(ctx, listenerName)
@@ -533,8 +580,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         return
       }
 
-      const route = await this.pageRoutes(ctx, listenerName)
-      if (route === null) {
+      const routeResult = await this.pageRoutes(ctx, listenerName)
+      if (routeResult === null) {
         await this.hookErrorInputNotFoundPage(ctx)
       }
     } catch (error) {
