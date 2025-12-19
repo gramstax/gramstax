@@ -71,33 +71,27 @@ export class StartPage extends PageBase {
     }
   }
 
-  // public async text() {
-  //   console.log(`ini text di page: start`)
-  //   await Promise.resolve()
-  // }
+  public async text() {
+    await this.internal(1)
+  }
 
-  // public async textFree() {
-  //   console.log(`ini textFree di page: start`)
-  //   await Promise.resolve()
-  // }
+  public async textPayload() {
+    await this.internal(1)
+  }
 
   public async textCommand() {
-    console.log(`textCommand: ${this.msgText}`)
     await this.internal(1)
   }
 
   public async textCommandPayload() {
-    console.log(`textCommandPayload: ${this.msgText}`)
     await this.internal(1)
   }
 
   public async callback() {
-    console.log(`callback: ${this.msgText}`)
     await this.internal(2)
   }
 
   public async callbackPayload() {
-    console.log(`callbackPayload: ${this.msgText}`)
     await this.internal(3)
   }
 
