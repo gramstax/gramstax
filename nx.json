@@ -41,13 +41,13 @@
       "manifestRootsToUpdate": ["packages/{projectName}"],
       "currentVersionResolver": "git-tag",
       "specifierSource": "conventional-commits",
-      "fallbackCurrentVersionResolver": "disk",
-      "git": {
-        "commit": true,
-        "tag": true,
-        "commitMessage": "chore: bump version to {version}",
-        "stageChanges": true
-      }
+      "fallbackCurrentVersionResolver": "disk"
+    },
+    "git": {
+      "commit": true,
+      "tag": true,
+      "commitMessage": "chore: bump version to {version}",
+      "stageChanges": true
     },
     "changelog": {
       "automaticFromRef": true,
