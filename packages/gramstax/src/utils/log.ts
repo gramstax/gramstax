@@ -1,8 +1,8 @@
 import LoggingPretty from "logging-pretty"
 
 export class LoggingUtils extends LoggingPretty {
-  public constructor() {
-    super()
+  public constructor(options?: ConstructorParameters<typeof LoggingPretty>[0]) {
+    super(options)
   }
 
   public errorMake(error: any, constructorOrName?: any, funcName?: string) {
