@@ -1,4 +1,4 @@
-import { CtxCore } from "~/core/ctx"
+import { CtxCore } from "~/core"
 
 export abstract class GuardBase extends CtxCore {
   public constructor(ctx: CtxCore) {

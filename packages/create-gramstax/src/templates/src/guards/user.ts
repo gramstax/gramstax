@@ -1,6 +1,6 @@
-import { GuardBase } from "~/base/guard"
-import { GeneralErrorPage } from "../pages/general-error"
-import { UserNameNotFoundPage } from "../pages/username-notfound"
+import { GuardBase } from "~/base"
+import { GeneralErrorPage } from "~/pages/general-error"
+import { UserNameNotFoundPage } from "~/pages/username-notfound"
 
 export class UserGuard extends GuardBase {
   public async ensureValid(isEdit: boolean) {

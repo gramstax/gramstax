@@ -1,7 +1,7 @@
 import { Gramstax } from "gramstax"
-import { UserGuard } from "../guards/user"
-import { GeneralErrorPage } from "../pages/general-error"
-import { GeneralErrorInputNotFoundPage } from "../pages/general-error-input-notfound"
+import { UserGuard } from "~/guards"
+import { GeneralErrorPage } from "~/pages/general-error"
+import { GeneralErrorInputNotFoundPage } from "~/pages/general-error-input-notfound"
 import type { CtxCore } from "./ctx"
 
 export class BotCore extends Gramstax {

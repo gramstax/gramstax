@@ -1,11 +1,10 @@
-import { PageBase } from "~/base/page"
+import { PageBase } from "~/base"
 import { StartPage } from "./start"
 
 export class HelpPage extends PageBase {
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
-      return kb //
-        .text(arr[0]!, StartPage.data.callbackData())
+      return kb.text(arr[0]!, StartPage.data.callbackData())
     })
   }
 
@@ -41,21 +40,10 @@ export class HelpPage extends PageBase {
       <keyboard lang="it" type="inline">.. Ritorno</keyboard>
       <keyboard lang="id" type="inline">.. Kembali</keyboard>
 
-      <message>
-        <b>Help message</b>
-      </message>
-
-      <message lang="en">
-        <b>Help message</b>
-      </message>
-
-      <message lang="it">
-        <b>Ordina aiuto</b>
-      </message>
-
-      <message lang="id">
-        <b>Pesan bantuan</b>
-      </message>
+      <message><b>Help message</b></message>
+      <message lang="en"><b>Help message</b></message>
+      <message lang="it"><b>Ordina aiuto</b></message>
+      <message lang="id"><b>Pesan bantuan</b></message>
     </base>
   `
 }

@@ -1,3 +1,3 @@
-import { RepositoryBase } from "../base/repository"
+import { RepositoryBase } from "~/base"
 
 export class ExampleRepo extends RepositoryBase {}

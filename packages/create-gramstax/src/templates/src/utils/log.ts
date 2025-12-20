@@ -1,3 +1,2 @@
-import { LoggingPretty } from "logging-pretty"
-
-export const log = new LoggingPretty()
+import { log } from "gramstax"
+export { log }

@@ -1,3 +1,3 @@
-import { CtxCore } from "~/core/ctx"
+import { CtxCore } from "~/core"
 
 export abstract class PageBase extends CtxCore {}

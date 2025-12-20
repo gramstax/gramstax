@@ -1,11 +1,10 @@
 import { HelpPage } from "./help"
-import { PageBase } from "~/base/page"
+import { PageBase } from "~/base"
 
 export class UserNameNotFoundPage extends PageBase {
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
-      return kb //
-        .text(arr[0]!, HelpPage.data.callbackData())
+      return kb.text(arr[0]!, HelpPage.data.callbackData())
     })
   }
 
@@ -25,21 +24,10 @@ export class UserNameNotFoundPage extends PageBase {
       <keyboard lang="es" type="inline">.. Inicio</keyboard>
       <keyboard lang="id" type="inline">.. Beranda</keyboard>
 
-      <message>
-        Please set the username first before using the bot.
-      </message>
-
-      <message lang="en">
-        Please set the username first before using the bot.
-      </message>
-
-      <message lang="it">
-        Prima di utilizzare il bot, imposta prima il nome utente.
-      </message>
-
-      <message lang="id">
-        Tolong set username dulu sebelum memakai bot
-      </message>
+      <message>Please set the username first before using the bot.</message>
+      <message lang="en">Please set the username first before using the bot.</message>
+      <message lang="it">Prima di utilizzare il bot, imposta prima il nome utente.</message>
+      <message lang="id">Tolong set username dulu sebelum memakai bot</message>
     </base>
   `
 }

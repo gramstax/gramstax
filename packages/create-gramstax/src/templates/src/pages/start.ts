@@ -1,11 +1,10 @@
 import { HelpPage } from "./help"
-import { PageBase } from "~/base/page"
+import { PageBase } from "~/base"
 
 export class StartPage extends PageBase {
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
-      return kb //
-        .text(arr[0]!, HelpPage.data.callbackData())
+      return kb.text(arr[0]!, HelpPage.data.callbackData())
     })
   }
 
