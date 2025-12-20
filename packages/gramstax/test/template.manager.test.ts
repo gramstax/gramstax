@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test"
-import { TemplateManager } from "../../src/template/manager"
 import { mkdir, rm, writeFile } from "node:fs/promises"
-import { join } from "node:path"
+import { TemplateManager } from "~/template/manager"
 import { existsSync } from "node:fs"
+import { join } from "node:path"
 
 // Use a directory inside the test folder as requested
 const TEST_DIR = join(process.cwd(), `packages/gramstax/test/views`)

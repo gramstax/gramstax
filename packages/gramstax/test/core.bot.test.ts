@@ -1,9 +1,9 @@
 import { describe, it, expect, mock, beforeEach, afterEach } from "bun:test"
-import { Gramstax } from "../../src/core/bot"
-import { TemplateManager } from "../../src/template/manager"
 import { mkdir, rm, writeFile } from "node:fs/promises"
-import { join } from "node:path"
+import { TemplateManager } from "~/template/manager"
 import { existsSync } from "node:fs"
+import { Gramstax } from "~/core/bot"
+import { join } from "node:path"
 
 const TEST_DIR = join(process.cwd(), `packages/gramstax/test/bot_views`)
 
