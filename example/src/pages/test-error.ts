@@ -1,4 +1,4 @@
-import { PageBase } from "../base/page"
+import { PageBase } from "~/base"
 
 export class TestErrorPage extends PageBase {
   public async callback() {

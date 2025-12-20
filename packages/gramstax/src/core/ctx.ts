@@ -23,7 +23,7 @@ import type {
   IOptReplyLocation,
   IOptReplyAnimation,
   IOptReplyVideoNote
-} from "../types/ctx"
+} from "~/types/ctx"
 
 type IPageData = { name: string; callbackData: (...args: string[]) => string }
 type ITemp = { session: { method?: string; params?: any }; data: Partial<IPageData>; [key: string]: any }

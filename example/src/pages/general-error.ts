@@ -1,5 +1,5 @@
-import { log } from "../utils/log"
-import { PageBase } from "../base/page"
+import { log } from "~/utils"
+import { PageBase } from "~/base"
 import { StartPage } from "./start"
 
 export class GeneralErrorPage extends PageBase {

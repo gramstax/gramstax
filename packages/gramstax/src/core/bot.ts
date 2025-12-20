@@ -4,7 +4,7 @@ import { join, parse } from "node:path"
 import { PageManager } from "~/page/manager"
 import { CacheExternal } from "~/cache"
 import { LoggingPretty } from "logging-pretty"
-import { TemplateManager } from "../template"
+import { TemplateManager } from "~/template"
 import { Bot, webhookCallback, type BotError, type Context } from "grammy"
 import type { UserFromGetMe } from "grammy/types"
 
