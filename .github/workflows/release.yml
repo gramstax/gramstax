@@ -43,11 +43,47 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Dry Run Release (with NPM OIDC)
-        run: bun run dry-run
+        run: npm run dry-run
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release (with NPM OIDC)
-        run: bun run release
+        run: npm run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Revert Release on Failure
+        if: failure()
+        run: |
+          echo "Workflow failed. Checking state..."
+
+          # Get the tag that was just created
+          TAG=$(git describe --tags --abbrev=0)
+          VERSION=${TAG#v}
+          PACKAGE_NAME="gramstax"
+
+          echo "Checking if $PACKAGE_NAME@$VERSION exists on NPM..."
+
+          if npm view "$PACKAGE_NAME@$VERSION" version > /dev/null 2>&1; then
+            echo "⚠️ Package $PACKAGE_NAME@$VERSION ALREADY EXISTS on NPM."
+            echo "Publishing succeeded but workflow failed elsewhere (e.g. GitHub Release)."
+            echo "SKIPPING REVERT to prevent inconsistent state (orphaned NPM package)."
+            echo "Please manually check the failure."
+            exit 1
+          else
+            echo "Package not found on NPM. Proceeding with full rollback..."
+            
+            echo "Reverting tag: $TAG"
+            
+            # Delete release from GitHub
+            gh release delete $TAG --yes || echo "Release not found on GitHub"
+            
+            # Delete tag remotely
+            git push origin :refs/tags/$TAG || echo "Remote tag not found"
+            
+            # Reset to previous commit and force push to revert the version bump
+            git reset --hard HEAD~1
+            git push origin main --force
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
