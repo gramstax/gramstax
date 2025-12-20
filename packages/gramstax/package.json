@@ -4,7 +4,7 @@
   "private": false,
   "publishConfig": {
     "access": "public",
-    "provenance": true
+    "provenance": false
   },
   "description": "A powerful Telegram bot framework with page-based routing and template system",
   "keywords": [
