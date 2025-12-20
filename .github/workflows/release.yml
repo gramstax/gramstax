@@ -18,6 +18,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Node (for NPM OIDC)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          registry-url: "https://registry.npmjs.org"
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -28,7 +34,7 @@ jobs:
 
       - name: Verify Code
         run: |
-          bun run lint
+          bun run ci:test
           bun run build:all
 
       - name: Initialize Git User
@@ -36,7 +42,12 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Release
-        run: bunx nx release --yes
+      - name: Dry Run Release (with NPM OIDC)
+        run: bun run dry-run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release (with NPM OIDC)
+        run: bun run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
