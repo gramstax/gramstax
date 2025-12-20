@@ -1,9 +1,8 @@
 import { setTimeout } from "node:timers/promises"
-import { BaseGeneral } from "~/base"
 import { CacheExternal } from "~/cache"
 import { InlineKeyboard, Keyboard } from "grammy"
 import { IMediaBlock, TemplateManager } from "~/template"
-import {
+import type {
   ICt,
   IKb,
   IData,
@@ -29,7 +28,7 @@ import {
 type IPageData = { name: string; callbackData: (...args: string[]) => string }
 type ITemp = { session: { method?: string; params?: any }; data: Partial<IPageData>; [key: string]: any }
 
-export class Ctx extends BaseGeneral {
+export class Ctx {
   public static template?: string // string html
   public static data: IPageData // for external access (**.data). example StartPage.data.callbackData
   public data = (this.constructor as Record<any, any>).data as IPageData // for internal access (this.**). example this.data.callbackData
@@ -47,7 +46,7 @@ export class Ctx extends BaseGeneral {
     return this.ct.from?.username as string
   }
   public get userFullName() {
-    return `${this.ct.from?.first_name || ``}${this.ct.from?.last_name || ``}`
+    return `${this.ct.from?.first_name}${this.ct.from?.last_name}`
   }
   public get userFirstName() {
     return this.ct.from?.first_name as string
@@ -116,7 +115,6 @@ export class Ctx extends BaseGeneral {
   public templateManager: TemplateManager
   public temp: ITemp
   public constructor(params: { ct: ICt; cacheSession: CacheExternal; cacheKeyboard: Map<any, any>; templateManager: TemplateManager; temp: ITemp }) {
-    super()
     this.ct = params.ct
     this.cacheSession = params.cacheSession
     this.cacheKeyboard = params.cacheKeyboard
