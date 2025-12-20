@@ -1,5 +1,5 @@
-import { GuardBase } from "../base/guard"
-import { GeneralErrorPage } from "../pages/general-error"
+import { GuardBase } from "~/base"
+import { GeneralErrorPage } from "~/pages/general-error"
 
 export class UserGuard extends GuardBase {
   public async ensureValid() {
