@@ -8,9 +8,10 @@
       ]
     },
     "outDir": "dist",
+    "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "rootDir": "src",
+    "rootDir": ".",
     "module": "Preserve",
     "target": "ESNext",
     "noEmit": false,
@@ -18,7 +19,8 @@
     "verbatimModuleSyntax": false
   },
   "include": [
-    "src"
+    "src",
+    "test"
   ],
   "exclude": [
     "node_modules",

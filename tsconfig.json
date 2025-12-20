@@ -6,6 +6,7 @@
         "packages/gramstax/src/index.ts"
       ]
     },
+    "composite": true, // Must be enable when use "references"
     // Environment setup & latest features
     "lib": [
       "ESNext"
@@ -31,9 +32,16 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "include": [
-    "packages",
-    "test/test.ts",
-    "example"
-  ]
+  "references": [
+    {
+      "path": "./example"
+    },
+    {
+      "path": "./packages/gramstax"
+    },
+    {
+      "path": "./packages/create-gramstax"
+    }
+  ],
+  "include": []
 }

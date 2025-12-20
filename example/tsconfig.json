@@ -9,7 +9,10 @@
       "gramstax": [
         "../packages/gramstax/src/index.ts"
       ]
-    }
+    },
+    "composite": true,
+    "noEmit": false,
+    "allowImportingTsExtensions": false
   },
   "include": [
     "src"
