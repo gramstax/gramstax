@@ -20,5 +20,6 @@ export default defineConfig({
   keepNames: true,
   platform: `node`,
   target: `esnext`,
-  external: [`bun`]
+  external: [`bun`],
+  tsconfig: `./tsconfig.build.json`
 })

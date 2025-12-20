@@ -22,6 +22,7 @@ export default defineConfig({
   target: `esnext`,
   external: [`bun`, `src/templates`],
   shims: true,
+  tsconfig: `./tsconfig.build.json`,
   onSuccess() {
     const read = (path: string) => readFileSync(path, `utf-8`)
     const readJson = (path: string) => JSON.parse(read(path)) as Record<any, any>

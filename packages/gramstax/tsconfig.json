@@ -19,8 +19,8 @@
     "verbatimModuleSyntax": false
   },
   "include": [
-    "src",
-    "test"
+    "src/**/*",
+    "test/**/*"
   ],
   "exclude": [
     "node_modules",

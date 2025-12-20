@@ -43,5 +43,5 @@
       "path": "./packages/create-gramstax"
     }
   ],
-  "include": []
+  "files": []
 }
