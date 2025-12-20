@@ -17,6 +17,9 @@
     "scaffold",
     "telegram-bot"
   ],
+  "scripts": {
+    "nx-release-publish": "npm publish --access public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gramstax/gramstax.git",
