@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { log } from "./utils/logger"
+import { log } from "./utils/log"
 import { Create } from "./create"
 import { Command } from "commander"
 

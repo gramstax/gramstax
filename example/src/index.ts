@@ -1,6 +1,6 @@
 import { env } from "./env"
-import { BotCore } from "./core/bot"
-import { MainThread } from "./thread/main"
+import { BotCore } from "./core"
+import { MainThread } from "./thread"
 
 new MainThread(() => {
   new BotCore({
