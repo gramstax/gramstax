@@ -62,7 +62,7 @@ jobs:
           VERSION=${TAG#v}
           PACKAGE_NAME="gramstax"
 
-          echo "Checking if $PACKAGE_NAME@$VERSION exists on NPM.."
+          echo "Checking if $PACKAGE_NAME@$VERSION exists on NPM..."
 
           if npm view "$PACKAGE_NAME@$VERSION" version > /dev/null 2>&1; then
             echo "⚠️ Package $PACKAGE_NAME@$VERSION ALREADY EXISTS on NPM."
