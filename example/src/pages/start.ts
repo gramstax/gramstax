@@ -97,6 +97,9 @@ export class StartPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
+      <description>Default description command start</description>
+      <description lang="en">[EN] Description command start</description>
+      <description lang="id">[ID] Deskripsi perintah start</description>      
       <keyboard type="inline">Counter, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Refresh</keyboard>
       <keyboard lang="en" type="inline">Counter, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Refresh</keyboard>
       <keyboard lang="id" type="inline">Kounter, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Test SalahI, Masukkan Teks, Segarkan</keyboard>
