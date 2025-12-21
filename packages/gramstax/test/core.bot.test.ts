@@ -78,7 +78,7 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
     const setMyCommands = bot.bot.api.setMyCommands
     getMyCommands.mockResolvedValue?.([])
 
-    await bot.pageSyncDescription(bot.pages)
+    await bot.executeSyncTagDescription(bot.pages)
 
     expect(getMyCommands).toHaveBeenCalled()
 
@@ -117,7 +117,7 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
       return []
     })
 
-    await bot.pageSyncDescription(bot.pages)
+    await bot.executeSyncTagDescription(bot.pages)
 
     expect(setMyCommands).not.toHaveBeenCalled()
   })
@@ -161,7 +161,7 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
     const getMyCommands = bot.bot.api.getMyCommands as any as Record<any, (...args: any) => any>
     getMyCommands.mockResolvedValue?.([])
 
-    await bot.pageSyncDescription(bot.pages)
+    await bot.executeSyncTagDescription(bot.pages)
 
     // Expect ES sync to include BOTH cmd1 (ES) and cmd2 (Default fallback)
     expect(setMyCommands).toHaveBeenCalledWith(
