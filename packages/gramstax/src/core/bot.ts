@@ -74,7 +74,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.log?.error?.(`[Bot.catch]: ${JSON.stringify(error, null, 2)}`)
   }
 
-  public onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
+  public async onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
+    await this.executeSyncTagDescription(this.pages)
+
     const { username } = botInfo
     this.log?.success?.(`Telegram bot polling started: ${username} ${method == `webhook` || method == `serverless` ? `(${data})` : ``}`)
   }
@@ -134,13 +136,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
 
     const botInfo = await this.bot.api.getMe()
-    this.onStart(botInfo, `webhook`, fullUrl)
+    await this.onStart(botInfo, `webhook`, fullUrl)
   }
 
   public async runServerless(adapter: string): Promise<void> {
     this.handlerBotUpdate = webhookCallback(this.bot, adapter as any)
     const botInfo = await this.bot.api.getMe()
-    this.onStart(botInfo, `serverless`, adapter)
+    await this.onStart(botInfo, `serverless`, adapter)
   }
 
   public pageBuildData(Page: typeof Ctx, filePath: string): void {
@@ -201,11 +203,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
-  public async pageSyncDescription(pages: typeof this.pages): Promise<void> {
+  public async executeSyncTagDescription(pages: typeof this.pages) {
     // 1. Collect all unique (scope, language) pairs
     const targets = new Map<string, Set<string>>() // scope -> Set<language>
-
     const allCommands = pages.routeStatic.textCommand
+
     for (const [, page] of Object.entries(allCommands)) {
       const name = page.name
       const scopes = this.templateManager.getDescriptionScopes(name)
@@ -214,6 +216,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         if (!targets.has(scope)) {
           targets.set(scope, new Set())
         }
+
         const langs = this.templateManager.getDescriptionLanguage(name, `default`, scope)
         for (const lang of langs) {
           targets.get(scope)!.add(lang)
@@ -225,23 +228,22 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     for (const [scope, langs] of targets) {
       for (const lang of langs) {
         const commands: Array<{ command: string; description: string }> = []
-
         for (const [, page] of Object.entries(allCommands)) {
           const name = page.name
           // Use getDescription which handles fallback logic
           const desc = this.templateManager.getDescription(name, `default`, lang, scope)
-
           if (desc) {
             commands.push({ command: name, description: desc })
           }
         }
 
-        if (commands.length === 0) continue
+        if (commands.length === 0) {
+          continue
+        }
 
         // 3. Sync with Telegram
         const scopeObj = { type: scope } as any
         const langCode = lang === `default` ? undefined : lang
-
         try {
           const current = await this.bot.api.getMyCommands({ scope: scopeObj, language_code: langCode as any })
           const currentJSON = JSON.stringify(current.map((c) => ({ command: c.command, description: c.description })).sort((a, b) => a.command.localeCompare(b.command)))
@@ -249,10 +251,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
           if (currentJSON !== desiredJSON) {
             await this.bot.api.setMyCommands(commands, { scope: scopeObj, language_code: langCode as any })
-            this.log?.info?.(`Synced descriptions for scope: ${scope},${langCode ? ` lang: ${langCode}` : ``} (Total: ${commands.length})`)
+            this.log?.info?.(`Synced descriptions for scope: ${scope},${langCode ? ` lang: ${langCode},` : ``} total (${commands.length})`)
           }
         } catch (error) {
-          this.log?.error?.(`Failed to sync descriptions for scope: ${scope},${langCode ? ` lang: ${langCode}` : ``}. ${String(error)}`)
+          this.log?.error?.(`Failed to sync descriptions for scope: ${scope},${langCode ? ` lang: ${langCode},` : ``} error: ${String(error)}`)
         }
       }
     }
@@ -381,7 +383,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     })
 
     this.log?.info?.(`Finish load pages with total (${Object.keys(pages.all).length})`)
-
     return pages
   }
 
