@@ -12,12 +12,12 @@ class TestGramstax extends Gramstax {
   override pageLoads() {
     // Return page structure matching our test templates
     return {
-      static: {
+      routeStatic: {
         textCommand: {
           cmd1: { name: `cmd1` }
         }
       },
-      dynamic: []
+      routeDynamic: []
     } as any
   }
 }
@@ -41,7 +41,7 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
     const realTm = new TemplateManager({ path: [TEST_DIR] })
 
     const bot = new TestGramstax({
-      token: `dummy_token`,
+      token: `test`,
       deploy: `polling`,
       templateManager: realTm,
       log: false
@@ -146,15 +146,16 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
     const { bot } = createBot()
 
     // Mock pages to include both commands
-    bot.pageLoads = () => ({
-      static: {
-        textCommand: {
-          cmd1: { name: `cmd1` },
-          cmd2: { name: `cmd2` }
-        }
-      },
-      dynamic: []
-    })
+    bot.pageLoads = () =>
+      ({
+        routeStatic: {
+          textCommand: {
+            cmd1: { name: `cmd1` },
+            cmd2: { name: `cmd2` }
+          }
+        },
+        routeDynamic: []
+      } as any)
     bot.pages = bot.pageLoads()
 
     const setMyCommands = bot.bot.api.setMyCommands as any as Record<any, any>
