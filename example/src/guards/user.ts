@@ -1,4 +1,4 @@
-import { GuardBase } from "~/base"
+import { GuardBase } from "~/base/guard"
 import { GeneralErrorPage } from "~/pages/general-error"
 
 export class UserGuard extends GuardBase {

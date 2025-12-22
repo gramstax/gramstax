@@ -1,7 +1,8 @@
 import { setTimeout } from "node:timers/promises"
-import { CacheExternal } from "~/cache"
+import { CacheExternal } from "~/cache/external"
 import { InlineKeyboard, Keyboard } from "grammy"
-import { IMediaBlock, TemplateManager } from "~/template"
+import { TemplateManager } from "~/template/manager"
+import type { IMediaBlock } from "~/template/engine"
 import type {
   ICt,
   IKb,

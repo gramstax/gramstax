@@ -1,5 +1,5 @@
-import { log } from "~/utils"
-import { PageBase } from "~/base"
+import { logUt } from "~/utils/log"
+import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
 export class GeneralErrorPage extends PageBase {
@@ -10,7 +10,7 @@ export class GeneralErrorPage extends PageBase {
   }
 
   public async transition(constructorName: string, funcName: string, error: any, isUpdate = true) {
-    log.errorMake(error, constructorName, funcName)
+    logUt.errorMake(error, constructorName, funcName)
     await this.sessionClear()
 
     const kb = this.kb()

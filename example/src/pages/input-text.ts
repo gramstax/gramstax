@@ -1,4 +1,4 @@
-import { PageBase } from "~/base"
+import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
 export class InputTextPage extends PageBase {
@@ -52,17 +52,9 @@ export class InputTextPage extends PageBase {
       <keyboard lang="en" type="inline">Cancel</keyboard>
       <keyboard lang="id" type="inline">Batal</keyboard>
 
-      <message>
-        Please input text you want view
-      </message>
-
-      <message lang="en">
-        Please input text you want view
-      </message>
-
-      <message lang="id">
-        Tolong masukan text yang ingin anda liat
-      </message>
+      <message>Please input text you want view</message>
+      <message lang="en">Please input text you want view</message>
+      <message lang="id">Tolong masukan text yang ingin anda liat</message>
     </base>
   `
 }

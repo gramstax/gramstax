@@ -1,1 +1,1 @@
-export abstract class RepositoryBase {}
+export abstract class RepoBase {}

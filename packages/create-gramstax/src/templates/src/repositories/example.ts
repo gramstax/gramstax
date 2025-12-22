@@ -1,3 +1,3 @@
-import { RepositoryBase } from "~/base"
+import { RepoBase } from "~/base/repository"
 
-export class ExampleRepo extends RepositoryBase {}
+export class ExampleRepo extends RepoBase {}

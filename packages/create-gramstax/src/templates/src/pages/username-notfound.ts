@@ -1,5 +1,5 @@
 import { HelpPage } from "./help"
-import { PageBase } from "~/base"
+import { PageBase } from "~/base/page"
 
 export class UserNameNotFoundPage extends PageBase {
   public kb() {

@@ -1,5 +1,5 @@
 import { HelpPage } from "./help"
-import { PageBase } from "~/base"
+import { PageBase } from "~/base/page"
 import { CounterPage } from "./count"
 import { LanguagePage } from "./language"
 import { InputTextPage } from "./input-text"

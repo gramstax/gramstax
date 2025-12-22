@@ -1,4 +1,4 @@
-import { GuardBase } from "~/base"
+import { GuardBase } from "~/base/guard"
 import { GeneralErrorPage } from "~/pages/general-error"
 import { UserNameNotFoundPage } from "~/pages/username-notfound"
 

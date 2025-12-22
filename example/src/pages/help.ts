@@ -1,4 +1,4 @@
-import { PageBase } from "~/base"
+import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
 export class HelpPage extends PageBase {

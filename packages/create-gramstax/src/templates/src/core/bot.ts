@@ -1,5 +1,5 @@
 import { Gramstax } from "gramstax"
-import { UserGuard } from "~/guards"
+import { UserGuard } from "~/guards/user"
 import { GeneralErrorPage } from "~/pages/general-error"
 import { GeneralErrorInputNotFoundPage } from "~/pages/general-error-input-notfound"
 import type { CtxCore } from "./ctx"

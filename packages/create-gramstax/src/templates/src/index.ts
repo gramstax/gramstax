@@ -1,15 +1,15 @@
 import { env } from "./env"
-import { log } from "./utils/log"
+import { logUt } from "./utils/log"
 import { BotCore } from "./core/bot"
 import { MainThread } from "./threads/main"
-import { CacheExternal } from "gramstax"
+import { ExternalCache } from "./cache/external"
 
 new MainThread(() => {
-  log.success(`Bot started..`)
+  logUt.success(`Bot started..`)
 
   new BotCore({
     token: env.BOT_TOKEN,
     deploy: env.BOT_DEPLOY,
-    cacheSession: new CacheExternal(env.CACHE_SESSION, `session`, 24 * 60 * 60 * 1000)
+    cacheSession: new ExternalCache(env.CACHE_SESSION, `session`, 24 * 60 * 60 * 1000)
   })
 })

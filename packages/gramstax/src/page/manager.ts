@@ -1,6 +1,6 @@
 import { join } from "node:path"
 import { existsSync, readdirSync } from "node:fs"
-import type { Ctx } from "~/core"
+import type { Ctx } from "~/core/ctx"
 
 export class PageManager {
   public static _getFile(mod: Record<any, any>, path: string, redactedTemplate = true, positionModule = 0) {
