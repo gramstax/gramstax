@@ -67,7 +67,7 @@ export class TemplateEngine {
   }
 
   public static _processExec(template: string) {
-    return template.replace(/{~\s*([\s\S]*?)\s*~}/g, (_, code) => `\${${code}}`)
+    return template.replace(/{~\s*([\s\S]*?)\s*~}/g, (_, code) => `\${(() => { try { return ${code} } catch(e) { try { with(data || {}) { return ${code} } } catch(ee) { return '' } } })()}`)
   }
 
   public static _processMapBlocks(template: string) {
@@ -304,19 +304,21 @@ export class TemplateEngine {
       result[baseId] = {}
 
       for (const [lang, mediaBlock] of Object.entries(mediaBlocks)) {
-        // Process caption if have (support variables and script blocks)
-        if (mediaBlock.caption) {
-          const processed = this._processVariables(this._processExec(this._processMapBlocks(this._processScriptBlocks(mediaBlock.caption))))
-          const captionFunction = this._compileToFunction(processed, false)
+        const compiledProps: Record<string, (data?: Record<string, any>) => string> = {}
 
-          // Create a function that returns a MediaBlock with the compiled caption.
-          result[baseId][lang] = (data?: Record<string, any>) => ({
-            ...mediaBlock,
-            caption: captionFunction(data)
-          })
-        } else {
-          // If caption not found, return mediaBlock as-is
-          result[baseId][lang] = () => mediaBlock
+        for (const [key, value] of Object.entries(mediaBlock)) {
+          if (key === `type` || typeof value !== `string`) continue
+
+          const processed = this._processVariables(this._processExec(this._processMapBlocks(this._processScriptBlocks(value))))
+          compiledProps[key] = this._compileToFunction(processed, false)
+        }
+
+        result[baseId][lang] = (data?: Record<string, any>) => {
+          const resolvedBlock = { ...mediaBlock } as any
+          for (const [key, fn] of Object.entries(compiledProps)) {
+            resolvedBlock[key] = fn(data)
+          }
+          return resolvedBlock
         }
       }
     }
