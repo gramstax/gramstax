@@ -1,3 +1,4 @@
+import { MapPage } from "./map"
 import { HelpPage } from "./help"
 import { PageBase } from "~/base/page"
 import { CounterPage } from "./count"
@@ -48,7 +49,9 @@ export class StartPage extends PageBase {
           .text(arr[14]!, TestErrorInputPage.data.callbackData())
           .text(arr[15]!, InputTextPage.data.callbackData())
           .row()
-          .text(arr[16]!, this.data.callbackData())
+          .text(arr[16]!, MapPage.data.callbackData())
+          .row()
+          .text(arr[17]!, this.data.callbackData())
       )
     })
   }
@@ -100,9 +103,9 @@ export class StartPage extends PageBase {
       <description>Default description command start</description>
       <description lang="en">[EN] Description command start</description>
       <description lang="id">[ID] Deskripsi perintah start</description>      
-      <keyboard type="inline">Counter, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Refresh</keyboard>
-      <keyboard lang="en" type="inline">Counter, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Refresh</keyboard>
-      <keyboard lang="id" type="inline">Kounter, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Test SalahI, Masukkan Teks, Segarkan</keyboard>
+      <keyboard type="inline">Counter, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Map Data, Refresh</keyboard>
+      <keyboard lang="en" type="inline">Counter, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Map Data, Refresh</keyboard>
+      <keyboard lang="id" type="inline">Kounter, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Test SalahI, Masukkan Teks, Peta Data, Segarkan</keyboard>
 
       <message>
         {{time}}
