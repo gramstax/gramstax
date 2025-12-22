@@ -75,7 +75,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   public async onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
-    await this.executeSyncTagDescription(this.pages)
+    await this.executeSyncBlocksDescription(this.pages)
 
     const { username } = botInfo
     this.log?.success?.(`Telegram bot polling started: ${username} ${method == `webhook` || method == `serverless` ? `(${data})` : ``}`)
@@ -203,7 +203,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
-  public async executeSyncTagDescription(pages: typeof this.pages) {
+  public async executeSyncBlocksDescription(pages: typeof this.pages) {
     // 1. Collect all unique (scope, language) pairs
     const targets = new Map<string, Set<string>>() // scope -> Set<language>
     const allCommands = pages.routeStatic.textCommand
