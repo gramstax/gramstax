@@ -74,4 +74,120 @@ describe(`TemplateEngine`, () => {
       expect(result?.default?.inline).toBe(`Button`)
     })
   })
+
+  describe(`_processMapBlocks`, () => {
+    it(`should iterate over a list with default as="e" index="i"`, () => {
+      const template = `<map from="users">{{i}}. {{e.name}}</map>`
+      const processed = TemplateEngine._processMapBlocks(template)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {
+        users: [{ name: `Alice` }, { name: `Bob` }]
+      }
+      expect(fn(data)).toBe(`0. Alice\n1. Bob`)
+    })
+
+    it(`should support custom as and index attributes`, () => {
+      const template = `<map from="users" as="user" index="idx">{{idx}}. {{user.name}}</map>`
+      const processed = TemplateEngine._processMapBlocks(template)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {
+        users: [{ name: `Alice` }, { name: `Bob` }]
+      }
+      expect(fn(data)).toBe(`0. Alice\n1. Bob`)
+    })
+
+    it(`should support custom join separator`, () => {
+      const template = `<map from="tags" as="tag" join=", ">{{tag}}</map>`
+      const processed = TemplateEngine._processMapBlocks(template)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {
+        tags: [`red`, `green`, `blue`]
+      }
+      expect(fn(data)).toBe(`red, green, blue`)
+    })
+
+    it(`should support nested properties and global variables`, () => {
+      const template = `<map from="items">{{e.id}}: {{globalPrefix}}-{{e.value}}</map>`
+      let processed = TemplateEngine._processMapBlocks(template)
+      processed = TemplateEngine._processExec(processed)
+      processed = TemplateEngine._processVariables(processed)
+
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {
+        items: [
+          { id: 1, value: `A` },
+          { id: 2, value: `B` }
+        ],
+        globalPrefix: `G`
+      }
+      expect(fn(data)).toBe(`1: G-A\n2: G-B`)
+    })
+
+    it(`should handle empty list`, () => {
+      const template = `List:\n<map from="emptyList">{{e}}</map>`
+      const processed = TemplateEngine._processMapBlocks(template)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = { emptyList: [] }
+      expect(fn(data)).toBe(`List:\n`)
+    })
+  })
+
+  describe(`_processExec`, () => {
+    it(`should execute inline javascript`, () => {
+      const template = `Result: {~ 1 + 2 ~}`
+      const processed = TemplateEngine._processExec(template)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+      expect(fn()).toBe(`Result: 3`)
+    })
+
+    it(`should execute without spaces {~1+2~}`, () => {
+      const template = `Result: {~1+2~}`
+      const processed = TemplateEngine._processExec(template)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+      expect(fn()).toBe(`Result: 3`)
+    })
+
+    it(`should work inside map block`, () => {
+      const template = `<map from="nums">{~ e * 2 ~}</map>`
+      let processed = TemplateEngine._processMapBlocks(template)
+      processed = TemplateEngine._processExec(processed)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = { nums: [1, 2, 3] }
+      expect(fn(data)).toBe(`2\n4\n6`)
+    })
+
+    it(`should support index math inside map`, () => {
+      const template = `<map from="nums">{~ i + 1 ~}. {{e}}</map>`
+      let processed = TemplateEngine._processMapBlocks(template)
+      processed = TemplateEngine._processExec(processed)
+
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = { nums: [`a`, `b`] }
+      expect(fn(data)).toBe(`1. a\n2. b`)
+    })
+  })
+
+  describe(`Integration in compileMessages`, () => {
+    it(`should compile messages with map and exec`, () => {
+      const template = `
+        <base id="list">
+          <message>
+            <map from="users" join=", ">{~ i + 1 ~}. {{e.name}}</map>
+          </message>
+        </base>
+      `
+      const compiled = TemplateEngine.compileMessages(template)
+      const fn = compiled[`list`]![`default`]
+
+      const data = { users: [{ name: `X` }, { name: `Y` }] }
+      expect(fn!(data).trim()).toBe(`1. X, 2. Y`)
+    })
+  })
 })
