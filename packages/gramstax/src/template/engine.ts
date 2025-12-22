@@ -66,6 +66,53 @@ export class TemplateEngine {
     })
   }
 
+  public static _processExec(template: string) {
+    return template.replace(/{~\s*([\s\S]*?)\s*~}/g, (_, code) => `\${${code}}`)
+  }
+
+  public static _processMapBlocks(template: string) {
+    const mapRegex = /<map(?:\s+([^>]*))?>([\s\S]*?)<\/map>/gi
+    return template.replace(mapRegex, (_, attributesStr, rawContent) => {
+      const attrs: { [key: string]: string } = {}
+      const attrRegex = /(\w+)="([^"]*)"/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2]!
+        }
+      }
+
+      const from = attrs.from
+      if (!from) return ``
+
+      const as = attrs.as || `e`
+      const index = attrs.index || `i`
+      const join = attrs.join ?? `\\n`
+
+      let content = rawContent
+        .replace(/^[\t ]+/gm, ``)
+        .replace(/^\n+/, ``)
+        .replace(/\n+$/, ``)
+        .replace(/`/g, `\\\``) // escape backticks
+
+      // Handle local variables {{as...}} and {{index}}
+      content = content.replace(/\{\{([\w.]+)\}\}/g, (match: string, inner: string) => {
+        if (inner === as || inner.startsWith(`${as}.`)) {
+          return `\${${inner}}`
+        }
+        if (inner === index) {
+          return `\${${index}}`
+        }
+        return match
+      })
+
+      // We need to escape the join string for the JS code
+      const safeJoin = join.replace(/"/g, `\\"`)
+
+      return `\${(data && data["${from}"] || []).map((${as}, ${index}) => \`${content}\`).join("${safeJoin}")}`
+    })
+  }
+
   public static _processMediaBlocks(template: string) {
     const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
     const result: { [lang: string]: IMediaBlock } = {}
@@ -259,7 +306,7 @@ export class TemplateEngine {
       for (const [lang, mediaBlock] of Object.entries(mediaBlocks)) {
         // Process caption if have (support variables and script blocks)
         if (mediaBlock.caption) {
-          const processed = this._processVariables(this._processScriptBlocks(mediaBlock.caption))
+          const processed = this._processVariables(this._processExec(this._processMapBlocks(this._processScriptBlocks(mediaBlock.caption))))
           const captionFunction = this._compileToFunction(processed, false)
 
           // Create a function that returns a MediaBlock with the compiled caption.
@@ -289,7 +336,7 @@ export class TemplateEngine {
       result[baseId] = {}
 
       for (const [lang, content] of Object.entries(messages)) {
-        const processed = this._processVariables(this._processScriptBlocks(content))
+        const processed = this._processVariables(this._processExec(this._processMapBlocks(this._processScriptBlocks(content))))
         result[baseId][lang] = this._compileToFunction(processed, false)
       }
     }
@@ -316,7 +363,8 @@ export class TemplateEngine {
           if (!result[baseId][scope]) {
             result[baseId][scope] = {}
           }
-          result[baseId][scope][lang] = this._compileToFunction(content, false)
+          const processed = this._processVariables(this._processExec(this._processMapBlocks(this._processScriptBlocks(content))))
+          result[baseId][scope][lang] = this._compileToFunction(processed, false)
         }
       }
     }
@@ -346,7 +394,7 @@ export class TemplateEngine {
           // Seperates label, handle escaped comma
           const labels = content.split(/(?<!\\),\s*/).map((label: string) => label.replace(/\\,/g, `,`).trim())
 
-          const processedLabels = labels.map((label) => this._processVariables(this._processScriptBlocks(label)))
+          const processedLabels = labels.map((label) => this._processVariables(this._processExec(this._processMapBlocks(this._processScriptBlocks(label)))))
 
           result[baseId][lang][mode as `inline` | `bottom`] = this._compileToFunction(processedLabels, true)
         }
