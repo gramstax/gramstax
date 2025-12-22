@@ -174,6 +174,54 @@ describe(`TemplateEngine`, () => {
     })
   })
 
+  describe(`compileMedia`, () => {
+    it(`should compile dynamic attributes in media blocks`, () => {
+      const template = `
+        <base id="profile">
+          <media type="photo" src="{{avatar}}">Name: {{name}}</media>
+        </base>
+      `
+      const compiled = TemplateEngine.compileMedia(template)
+      const data = { avatar: `http://alice.png`, name: `Alice` }
+      const media = compiled.profile!.default!(data)
+
+      expect(media.type).toBe(`photo`)
+      expect(media.src).toBe(`http://alice.png`)
+      expect(media.caption).toBe(`Name: Alice`)
+    })
+
+    it(`should support expressions in coordinates`, () => {
+      const template = `
+        <base id="loc">
+          <media type="location" latitude="{~ lat + 1 ~}" longitude="{{lng}}"></media>
+        </base>
+      `
+      const compiled = TemplateEngine.compileMedia(template)
+      const data = { lat: 10, lng: `20` }
+      const media = compiled.loc!.default!(data)
+
+      expect(media.latitude).toBe(`11`)
+      expect(media.longitude).toBe(`20`)
+    })
+
+    it(`should prioritize local variables for both {{...}} and {~ ... ~} syntax`, () => {
+      // Test {{e}}
+      const template1 = `<map from="arr">{{e}}</map>`
+      const fn1 = TemplateEngine._compileToFunction(TemplateEngine._processVariables(TemplateEngine._processMapBlocks(template1)), false)
+
+      // Test {~ e ~}
+      const template2 = `<map from="arr">{~ e ~}</map>`
+      const fn2 = TemplateEngine._compileToFunction(TemplateEngine._processExec(TemplateEngine._processMapBlocks(template2)), false)
+
+      const data = {
+        arr: [`local`],
+        e: `global`
+      }
+      expect(fn1(data)).toBe(`local`)
+      expect(fn2(data)).toBe(`local`)
+    })
+  })
+
   describe(`Integration in compileMessages`, () => {
     it(`should compile messages with map and exec`, () => {
       const template = `
