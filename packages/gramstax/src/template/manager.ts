@@ -1,9 +1,8 @@
-import { readFile } from "node:fs/promises"
-import { PageManager } from "~/page/manager"
-import { TemplateEngine } from "./engine"
-import { watch, FSWatcher } from "chokidar"
 import { basename, join, extname } from "node:path"
 import { readdirSync, readFileSync, existsSync, statSync, writeFileSync } from "node:fs"
+import { watch, FSWatcher } from "chokidar"
+import { PageManager } from "~/page/manager"
+import { TemplateEngine } from "./engine"
 
 /** Template file interface for better type safety */
 type ICompiledTemplate = {
@@ -19,6 +18,8 @@ type ITemplateOptions = {
   path: string[]
   /** Enable file watching for hot reloading for value template only */
   enableWatch?: boolean
+  /** Chokidar watch options */
+  watchOptions?: any
 }
 
 /** Template management system */
@@ -36,7 +37,7 @@ export class TemplateManager {
     this._isWatchEnabled = enableWatch
 
     this._validatePath()
-    this._initializeWatcher()
+    this._initializeWatcher(options.watchOptions)
     this._loadAllFiles()
   }
 
@@ -66,7 +67,7 @@ export class TemplateManager {
   }
 
   /** Initialize file system watcher for hot reloading. @returns Void */
-  public _initializeWatcher(): void {
+  public _initializeWatcher(options?: any): void {
     if (!this._isWatchEnabled) return
 
     if (this._watcher.length > 0) {
@@ -81,7 +82,8 @@ export class TemplateManager {
         awaitWriteFinish: {
           stabilityThreshold: 100,
           pollInterval: 50
-        }
+        },
+        ...options
       })
 
       this._watcher[index] = wc
@@ -93,18 +95,18 @@ export class TemplateManager {
   }
 
   /** Handle file change events */
-  public async _handleFileChange(filepath: string): Promise<void> {
+  public _handleFileChange(filepath: string): void {
     const filename = basename(filepath)
     if (this._isValidFile(filename)) {
-      await this._loadFile(filename, false)
+      this._loadFile(filename)
     }
   }
 
   /** Handle file add events */
-  public async _handleFileAdd(filepath: string): Promise<void> {
+  public _handleFileAdd(filepath: string): void {
     const fileName = basename(filepath)
     if (this._isValidFile(fileName)) {
-      await this._loadFile(fileName, false)
+      this._loadFile(fileName)
     }
   }
 
@@ -125,19 +127,19 @@ export class TemplateManager {
   }
 
   /** Load all Template files during initialization */
-  public async _loadAllFiles(): Promise<void> {
+  public _loadAllFiles(): void {
     for (let index = 0; index < this._path.length; index++) {
       const pt = this._path[index] as string
       const files = readdirSync(pt, `utf8`)
       const validFiles = files.filter((file) => this._isValidFile(file))
       for (const fileName of validFiles) {
-        await this._loadFile(fileName, true)
+        this._loadFile(fileName)
       }
     }
   }
 
   /** Load and compile a single template file */
-  public async _loadFile(filename: string, useSync: boolean = true): Promise<void> {
+  public _loadFile(filename: string): void {
     for (let index = 0; index < this._path.length; index++) {
       const it = this._path[index] as string
       const path = join(it, filename)
@@ -146,10 +148,10 @@ export class TemplateManager {
 
       // priority .html because if .html in directory /pages and have .ts file too its will still working
       if (ext == `.html`) {
-        const raw = useSync ? readFileSync(path, `utf8`) : await readFile(path, `utf8`)
+        const raw = readFileSync(path, `utf8`)
         this._compile(key, raw)
       } else if (ext == `.ts`) {
-        const Page = await PageManager.getFile(path, false)
+        const Page = PageManager.getFileSync(path, false)
         if (Page?.template !== undefined) {
           this._compile(key, Page.template)
         }
@@ -335,7 +337,7 @@ export class TemplateManager {
       const exists = existsSync(filepath)
       if (exists) {
         writeFileSync(filepath, template, `utf8`)
-        await this._loadFile(filename, false)
+        this._loadFile(filename)
         return true
       }
     }
