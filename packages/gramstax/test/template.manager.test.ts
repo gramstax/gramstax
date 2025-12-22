@@ -113,7 +113,11 @@ describe(`TemplateManager`, () => {
 
     it(`should update template on file change`, async () => {
       await writeFile(join(TEST_DIR, `watch_test.html`), `<base><message>Initial</message></base>`)
-      const manager = new TemplateManager({ path: [TEST_DIR], enableWatch: true })
+      const manager = new TemplateManager({
+        path: [TEST_DIR],
+        enableWatch: true,
+        watchOptions: { usePolling: true }
+      })
 
       // Wait for watcher to initialize
       await wait(100)
@@ -127,7 +131,11 @@ describe(`TemplateManager`, () => {
     })
 
     it(`should load new template on file add`, async () => {
-      const manager = new TemplateManager({ path: [TEST_DIR], enableWatch: true })
+      const manager = new TemplateManager({
+        path: [TEST_DIR],
+        enableWatch: true,
+        watchOptions: { usePolling: true }
+      })
       await wait(100)
 
       await writeFile(join(TEST_DIR, `new_file.html`), `<base><message>New</message></base>`)
@@ -140,7 +148,11 @@ describe(`TemplateManager`, () => {
 
     it(`should remove template on file delete`, async () => {
       await writeFile(join(TEST_DIR, `delete_test.html`), `<base><message>Delete Me</message></base>`)
-      const manager = new TemplateManager({ path: [TEST_DIR], enableWatch: true })
+      const manager = new TemplateManager({
+        path: [TEST_DIR],
+        enableWatch: true,
+        watchOptions: { usePolling: true }
+      })
       await wait(100)
 
       expect(manager.has(`delete_test`)).toBe(true)
