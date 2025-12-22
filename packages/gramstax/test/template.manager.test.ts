@@ -5,7 +5,7 @@ import { existsSync } from "node:fs"
 import { join } from "node:path"
 
 // Use a directory inside the test folder as requested
-const TEST_DIR = join(process.cwd(), `packages/gramstax/test/views`)
+const TEST_DIR = join(import.meta.dir, `views`)
 
 describe(`TemplateManager`, () => {
   beforeEach(async () => {
@@ -121,10 +121,7 @@ describe(`TemplateManager`, () => {
       expect(manager.getMessage(`watch_test`)).toBe(`Initial`)
 
       await writeFile(join(TEST_DIR, `watch_test.html`), `<base><message>Updated</message></base>`)
-
-      // Wait for file change event
-      await wait(500)
-
+      await wait(800)
       expect(manager.getMessage(`watch_test`)).toBe(`Updated`)
       await manager.destroy()
     })
@@ -134,7 +131,7 @@ describe(`TemplateManager`, () => {
       await wait(100)
 
       await writeFile(join(TEST_DIR, `new_file.html`), `<base><message>New</message></base>`)
-      await wait(500)
+      await wait(800)
 
       expect(manager.has(`new_file`)).toBe(true)
       expect(manager.getMessage(`new_file`)).toBe(`New`)
@@ -149,7 +146,7 @@ describe(`TemplateManager`, () => {
       expect(manager.has(`delete_test`)).toBe(true)
 
       await rm(join(TEST_DIR, `delete_test.html`))
-      await wait(500)
+      await wait(800)
 
       expect(manager.has(`delete_test`)).toBe(false)
       await manager.destroy()

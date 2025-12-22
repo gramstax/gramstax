@@ -5,7 +5,7 @@ import { existsSync } from "node:fs"
 import { Gramstax } from "~/core/bot"
 import { join } from "node:path"
 
-const TEST_DIR = join(process.cwd(), `packages/gramstax/test/bot_views`)
+const TEST_DIR = join(import.meta.dir, `bot_views`)
 
 // Mock Gramstax to override pageLoads
 class TestGramstax extends Gramstax {
@@ -22,7 +22,7 @@ class TestGramstax extends Gramstax {
   }
 }
 
-describe(`Gramstax.pageSyncDescription (Integration)`, () => {
+describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
   beforeEach(async () => {
     if (existsSync(TEST_DIR)) {
       await rm(TEST_DIR, { recursive: true, force: true })
@@ -42,7 +42,7 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
 
     const bot = new TestGramstax({
       token: `test`,
-      deploy: `polling`,
+      deploy: `test`,
       templateManager: realTm,
       log: false
     })
@@ -78,7 +78,7 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
     const setMyCommands = bot.bot.api.setMyCommands
     getMyCommands.mockResolvedValue?.([])
 
-    await bot.executeSyncTagDescription(bot.pages)
+    await bot.executeSyncBlocksDescription(bot.pages)
 
     expect(getMyCommands).toHaveBeenCalled()
 
@@ -117,7 +117,7 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
       return []
     })
 
-    await bot.executeSyncTagDescription(bot.pages)
+    await bot.executeSyncBlocksDescription(bot.pages)
 
     expect(setMyCommands).not.toHaveBeenCalled()
   })
@@ -162,7 +162,7 @@ describe(`Gramstax.pageSyncDescription (Integration)`, () => {
     const getMyCommands = bot.bot.api.getMyCommands as any as Record<any, (...args: any) => any>
     getMyCommands.mockResolvedValue?.([])
 
-    await bot.executeSyncTagDescription(bot.pages)
+    await bot.executeSyncBlocksDescription(bot.pages)
 
     // Expect ES sync to include BOTH cmd1 (ES) and cmd2 (Default fallback)
     expect(setMyCommands).toHaveBeenCalledWith(

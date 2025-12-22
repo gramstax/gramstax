@@ -7,11 +7,12 @@
     "packages/*"
   ],
   "scripts": {
+    "test": "bun test",
+    "lint": "eslint .",
+    "lint:fix": "eslint '**/*.ts' --fix",
     "build:all": "nx run-many -t build --parallel=1",
     "build:gramstax": "nx build gramstax",
     "build:create-gramstax": "nx build create-gramstax",
-    "lint": "eslint .",
-    "lint:fix": "eslint '**/*.ts' --fix",
     "version": "nx release version",
     "version:patch": "nx release version patch",
     "version:minor": "nx release version minor",
@@ -27,7 +28,7 @@
     "dry-run:patch": "nx release patch --dry-run",
     "dry-run:minor": "nx release minor --dry-run",
     "dry-run:major": "nx release major --dry-run",
-    "ci:test": "bun run lint && tsc --noEmit",
+    "ci:test": "bun run lint && tsc --noEmit && bun run test",
     "ci:check": "tsc --noEmit"
   },
   "devDependencies": {
