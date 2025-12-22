@@ -43,12 +43,12 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Dry Run Release (with NPM OIDC)
-        run: npm run dry-run
+        run: bun run dry-run
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release (with NPM OIDC)
-        run: npm run release
+        run: bun run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
