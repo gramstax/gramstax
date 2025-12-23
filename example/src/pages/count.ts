@@ -47,6 +47,8 @@ export class CounterPage extends PageBase {
 
       <message>
         Count: {{count}}
+
+        This is test for dynamic condition with case counter
       </message>
 
       <message lang="en">
