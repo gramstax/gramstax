@@ -15,6 +15,7 @@
     "allowImportingTsExtensions": false
   },
   "include": [
-    "src"
+    "src",
+    "../packages/gramstax/src/index.ts"
   ]
 }

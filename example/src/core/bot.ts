@@ -1,11 +1,12 @@
 import { CtxCore } from "./ctx"
+import { Gramstax } from "gramstax"
 import { UserGuard } from "~/guards/user"
+import { ExternalCache } from "~/cache/external"
 import { GeneralErrorPage } from "~/pages/general-error"
-import { Gramstax, CacheExternal } from "gramstax"
 import { GeneralErrorInputNotFoundPage } from "~/pages/general-error-input-notfound"
 
 export class BotCore extends Gramstax {
-  public cacheData = new CacheExternal(`memory`)
+  public cacheData = new ExternalCache(`memory`)
 
   public createCtx(ct: Parameters<Gramstax[`createCtx`]>[0]) {
     return new CtxCore({
