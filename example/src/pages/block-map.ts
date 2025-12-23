@@ -1,7 +1,7 @@
 import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
-export class MapPage extends PageBase {
+export class BlockMapPage extends PageBase {
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
       return kb //
@@ -30,7 +30,7 @@ export class MapPage extends PageBase {
       <message>
         <b>Mapping data directly in template</b>
 
-        <map from="arr" join="\\n\\n">
+        <map src="arr" join="\\n\\n">
           Position: {~i+1~}
           Number: {{e.number}}
           Status: {{status}}
@@ -40,7 +40,7 @@ export class MapPage extends PageBase {
       <message lang="en">
         <b>Mapping data directly in template</b>
 
-        <map from="arr" join="\\n\\n">
+        <map src="arr" join="\\n\\n">
           Position: {~i+1~}
           Number: {{e.number}}
           Status: {{status}}
@@ -50,7 +50,7 @@ export class MapPage extends PageBase {
       <message lang="id">
         <b>Pemetaan data langsung di template</b>
 
-        <map from="arr" join="\\n\\n">
+        <map src="arr" join="\\n\\n">
           Posisi: {~i+1~}
           Nomor: {{e.number}}
           Status: {{status}}
