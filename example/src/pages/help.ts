@@ -14,12 +14,9 @@ export class HelpPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">Back</keyboard>
-      <keyboard lang="en" type="inline">Back</keyboard>
-      <keyboard lang="id" type="inline">Kembali</keyboard>
+      <import src="start" base="ikb-back" />
 
       <message>Help content page</message>
-      <message lang="en">Help content page</message>
       <message lang="id">Bantuan konten halaman</message>
     </base>
   `

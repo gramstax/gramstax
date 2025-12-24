@@ -24,20 +24,9 @@ export class BlockMapPage extends PageBase {
   public static template = /*jsx*/ `
     <base>
       <keyboard type="inline">Refresh, Back</keyboard>
-      <keyboard lang="en" type="inline">Refresh, Back</keyboard>
       <keyboard lang="id" type="inline">Segarkan, Kembali</keyboard>
 
       <message>
-        <b>Mapping data directly in template</b>
-
-        <map src="arr" join="\\n\\n">
-          Position: {~i+1~}
-          Number: {{e.number}}
-          Status: {{status}}
-        </map>
-      </message>
-
-      <message lang="en">
         <b>Mapping data directly in template</b>
 
         <map src="arr" join="\\n\\n">

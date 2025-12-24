@@ -14,15 +14,9 @@ export class TestAudioPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">Back</keyboard>
-      <keyboard lang="en" type="inline">Back</keyboard>
-      <keyboard lang="id" type="inline">Kembali</keyboard>
+      <import src="start" base="ikb-back" />
 
       <media type="audio" src="https://www.w3schools.com/html/horse.ogg">
-        This is a caption text for media <b>audio</b>
-      </media>
-
-      <media lang="en" type="audio" src="https://www.w3schools.com/html/horse.ogg">
         This is a caption text for media <b>audio</b>
       </media>
 

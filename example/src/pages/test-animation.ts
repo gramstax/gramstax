@@ -27,21 +27,16 @@ export class TestAnimationPage extends PageBase {
       const data = {
         src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
       }
-      await this.editAnimation(this.kb(true), data, `dynamicAttr`)
+      await this.editAnimation(this.kb(true), data, `dynamic-attribute`)
     }
   }
 
   public static template = /*jsx*/ `
     <base>
       <keyboard type="inline">Dynamic Attribute, Static Attribute, Back</keyboard>
-      <keyboard lang="en" type="inline">Dynamic Attribute, Static Attribute, Back</keyboard>
       <keyboard lang="id" type="inline">Dynamic Attribute, Static Attribute, Kembali</keyboard>
 
       <media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
-        This is a caption text for media <b>animation</b>
-      </media>
-
-      <media lang="en" type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
         This is a caption text for media <b>animation</b>
       </media>
 
@@ -50,14 +45,8 @@ export class TestAnimationPage extends PageBase {
       </media>
     </base>
 
-    <base id="dynamicAttr">
+    <base id="dynamic-attribute">
       <media type="animation" src="{{src}}">
-        Supports dynamic variables and exec in attribute, except attribute lang and type. only applies to &lt;media&gt; blocks
-
-        This is a caption text for media <b>animation</b>
-      </media>
-
-      <media lang="en" type="animation" src="{{src}}">
         Supports dynamic variables and exec in attribute, except attribute lang and type. only applies to &lt;media&gt; blocks
 
         This is a caption text for media <b>animation</b>

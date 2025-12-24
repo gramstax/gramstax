@@ -25,16 +25,9 @@ export class InputTextPage extends PageBase {
   public static template = /*jsx*/ `
     <base id="result">  
       <keyboard type="inline">Home</keyboard>
-      <keyboard lang="en" type="inline">Home</keyboard>
       <keyboard lang="id" type="inline">Rumah</keyboard>
 
       <message>
-        Result: {{res}}
-
-        Please input other text to see difference result
-      </message>
-
-      <message lang="en">
         Result: {{res}}
 
         Please input other text to see difference result
@@ -49,11 +42,9 @@ export class InputTextPage extends PageBase {
 
     <base>
       <keyboard type="inline">Cancel</keyboard>
-      <keyboard lang="en" type="inline">Cancel</keyboard>
       <keyboard lang="id" type="inline">Batal</keyboard>
 
       <message>Please input text you want view</message>
-      <message lang="en">Please input text you want view</message>
       <message lang="id">Tolong masukan text yang ingin anda liat</message>
     </base>
   `

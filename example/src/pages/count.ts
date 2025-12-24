@@ -6,14 +6,11 @@ export class CounterPage extends PageBase {
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
-      return (
-        kb
-          //
-          .text(arr[0]!, this.data.callbackData(`I`))
-          .text(arr[1]!, this.data.callbackData(`D`))
-          .row()
-          .text(arr[2]!, StartPage.data.callbackData())
-      )
+      return kb //
+        .text(arr[0]!, this.data.callbackData(`I`))
+        .text(arr[1]!, this.data.callbackData(`D`))
+        .row()
+        .text(arr[2]!, StartPage.data.callbackData())
     })
   }
 
@@ -42,16 +39,9 @@ export class CounterPage extends PageBase {
   public static template = /*jsx*/ `
     <base>
       <keyboard type="inline">Increase, Decrease, Back</keyboard>
-      <keyboard lang="en" type="inline">Increase, Decrease, Back</keyboard>
       <keyboard lang="id" type="inline">Tambah, Kurang, Kembali</keyboard>
 
       <message>
-        Count: {{count}}
-
-        This is test for dynamic condition with case counter
-      </message>
-
-      <message lang="en">
         Count: {{count}}
 
         This is test for dynamic condition with case counter

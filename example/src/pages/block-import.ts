@@ -9,13 +9,14 @@ export class BlockImportPage extends PageBase {
   }
 
   public async callback() {
-    await this.edit(this.kb())
+    await this.edit(this.kb(), {
+      number: Math.random()
+    })
   }
 
   public static template = /*jsx*/ `
     <base>
-      <import src="start" base="ikb-back" block="keyboard" section="all" />
-      <import src="start" base="msg-block-import" block="message" section="all" />
+      <import src="start" base="for-block-import" />
     </base>
   `
 }

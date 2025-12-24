@@ -14,12 +14,9 @@ export class TestLocationPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">Back</keyboard>
-      <keyboard lang="en" type="inline">Back</keyboard>
-      <keyboard lang="id" type="inline">Kembali</keyboard>
+      <import src="start" base="ikb-back" />
 
       <media type="location" latitude="51.50735" longitude="-0.12776"></media>
-      <media lang="en" type="location" latitude="51.50735" longitude="-0.12776"></media>
       <media lang="id" type="location" latitude="-7.257471" longitude="112.752088"></media>
     </base>
   `

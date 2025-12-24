@@ -14,15 +14,9 @@ export class TestPhotoPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">Back</keyboard>
-      <keyboard lang="en" type="inline">Back</keyboard>
-      <keyboard lang="id" type="inline">Kembali</keyboard>
+      <import src="start" base="ikb-back" />
 
       <media type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
-        This is a caption text for media <b>photo</b>
-      </media>
-
-      <media lang="en" type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
         This is a caption text for media <b>photo</b>
       </media>
 

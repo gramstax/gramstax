@@ -14,12 +14,9 @@ export class TestVideoNotePage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">Back</keyboard>
-      <keyboard lang="en" type="inline">Back</keyboard>
-      <keyboard lang="id" type="inline">Kembali</keyboard>
+      <import src="start" base="ikb-back" />
 
       <media type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4"></media>
-      <media lang="en" type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4"></media>
       <media lang="id" type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4"></media>
     </base>
   `

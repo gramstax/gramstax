@@ -14,12 +14,9 @@ export class TestVoicePage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">Back</keyboard>
-      <keyboard lang="en" type="inline">Back</keyboard>
-      <keyboard lang="id" type="inline">Kembali</keyboard>
+      <import src="start" base="ikb-back" />
 
       <media type="voice" src="https://www.w3schools.com/html/horse.ogg"></media>
-      <media lang="en" type="voice" src="https://www.w3schools.com/html/horse.ogg"></media>
       <media lang="id" type="voice" src="https://www.w3schools.com/html/horse.ogg"></media>
     </base>
   `

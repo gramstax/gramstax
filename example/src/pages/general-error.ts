@@ -24,8 +24,6 @@ export class GeneralErrorPage extends PageBase {
   public static template = /*jsx*/ `
     <base>
       <keyboard type="inline">.. Home</keyboard>
-      <keyboard lang="en" type="inline">.. Home</keyboard>
-      <keyboard lang="es" type="inline">.. Inicio</keyboard>
       <keyboard lang="id" type="inline">.. Beranda</keyboard>
 
       <message>
@@ -33,20 +31,6 @@ export class GeneralErrorPage extends PageBase {
 
         An unexpected error occurred.
         Please try again later.
-      </message>
-
-      <message lang="en">
-        <b>❌ Error</b>
-
-        An unexpected error occurred.
-        Please try again later.
-      </message>
-
-      <message lang="it">
-        <b>❌ Errore</b>
-
-        Si è verificato un errore imprevisto.
-        Riprova più tardi.
       </message>
 
       <message lang="id">

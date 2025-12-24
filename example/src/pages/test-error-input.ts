@@ -19,20 +19,10 @@ export class TestErrorInputPage extends PageBase {
   public static template = /*jsx*/ `
     <base>
       <keyboard type="inline">Cancel</keyboard>
-      <keyboard lang="en" type="inline">Cancel</keyboard>
       <keyboard lang="id" type="inline">Batal</keyboard>
 
-      <message>
-        Please input text (will error because not have session)
-      </message>
-
-      <message lang="en">
-        Please input text (will error because not have session)
-      </message>
-
-      <message lang="id">
-        Tolong masukan text (akan menerima kesalahan karena tidak ada sesi)
-      </message>
+      <message>Please input text (will error because not have session)</message>
+      <message lang="id">Tolong masukan text (akan menerima kesalahan karena tidak ada sesi)</message>
     </base>
   `
 }

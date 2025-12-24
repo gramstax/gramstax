@@ -103,14 +103,23 @@ export class StartPage extends PageBase {
   public static template = /*jsx*/ `
     <base id="ikb-back">
       <keyboard type="inline">Back</keyboard>
-      <keyboard lang="en" type="inline">Back</keyboard>
       <keyboard lang="id" type="inline">Kembali</keyboard>
     </base>
 
-    <base id="msg-block-import">
-      <message>This message and keyboard import from start.ts for block-import.ts</message>
-      <message lang="en">This message and keyboard import from start.ts for block-import.ts</message>
-      <message lang="id">Pesan ini dan keyboard di import dari start.ts untuk block-import.ts</message>
+    <base id="for-block-import">
+      <keyboard type="inline">Back</keyboard>
+      <keyboard lang="id" type="inline">Kembali</keyboard>
+
+      <message>
+        This message and keyboard import from start.ts for file block-import.ts
+
+        Random: {{number}}
+      </message>
+      <message lang="id">
+        Pesan ini dan keyboard di import dari start.ts untuk file block-import.ts
+
+        Acak: {{number}}
+      </message>
     </base>
 
     <base>
@@ -118,18 +127,9 @@ export class StartPage extends PageBase {
       <description lang="en">[EN] Description command start</description>
       <description lang="id">[ID] Deskripsi perintah start</description>      
       <keyboard type="inline">Counter, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Block Map, Block Import, Refresh</keyboard>
-      <keyboard lang="en" type="inline">Counter, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Block Map, Block Import, Refresh</keyboard>
       <keyboard lang="id" type="inline">Kounter, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Test SalahI, Masukkan Teks, Blok Map, Blok Import, Segarkan</keyboard>
 
       <message>
-        {{time}}
-
-        Hi {{firstName}}, welcome to bot.
-
-        This is test gramstax
-      </message>
-
-      <message lang="en">
         {{time}}
 
         Hi {{firstName}}, welcome to bot.
