@@ -22,32 +22,29 @@ export class StartPage extends PageBase {
     await this.internal(true)
   }
 
-  public async text() {
-    await this.internal(false)
-  }
-
   public async textCommand() {
     await this.internal(false)
   }
 
-  public async textCommandPayload() {
-    await this.internal(false)
-  }
-
   public static template = /*jsx*/ `
+    <base id="ikb-home">
+      <keyboard type="inline">.. Home</keyboard>
+      <keyboard lang="it" type="inline">.. Casa</keyboard>
+      <keyboard lang="id" type="inline">.. Beranda</keyboard>
+    </base>
+
+    <base id="ikb-back">
+      <keyboard type="inline">.. Back</keyboard>
+      <keyboard lang="it" type="inline">.. Ritorno</keyboard>
+      <keyboard lang="id" type="inline">.. Kembali</keyboard>
+    </base>
+
     <base>
       <keyboard type="inline">❓ Help</keyboard>
-      <keyboard lang="en" type="inline">❓ Help</keyboard>
       <keyboard lang="it" type="inline">❓ Aiuto</keyboard>
       <keyboard lang="id" type="inline">❓ Bantuan</keyboard>
 
       <message>
-        <b>Welcome to the bot {{userName}}</b>
-
-        <b>❓ Help</b> - View help
-      </message>
-
-      <message lang="en">
         <b>Welcome to the bot {{userName}}</b>
 
         <b>❓ Help</b> - View help

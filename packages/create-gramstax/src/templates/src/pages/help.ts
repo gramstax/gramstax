@@ -21,27 +21,15 @@ export class HelpPage extends PageBase {
     await this.internal(true)
   }
 
-  public async text() {
-    await this.internal(false)
-  }
-
   public async textCommand() {
-    await this.internal(false)
-  }
-
-  public async textCommandPayload() {
     await this.internal(false)
   }
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">.. Back</keyboard>
-      <keyboard lang="en" type="inline">.. Back</keyboard>
-      <keyboard lang="it" type="inline">.. Ritorno</keyboard>
-      <keyboard lang="id" type="inline">.. Kembali</keyboard>
+      <import src="start" base="ikb-back" />
 
       <message><b>Help message</b></message>
-      <message lang="en"><b>Help message</b></message>
       <message lang="it"><b>Ordina aiuto</b></message>
       <message lang="id"><b>Pesan bantuan</b></message>
     </base>
