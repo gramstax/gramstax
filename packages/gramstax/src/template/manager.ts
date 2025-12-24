@@ -166,6 +166,47 @@ export class TemplateManager {
     return extname(filename).toLowerCase()
   }
 
+  public _readTemplateFile(filename: string): string | null {
+    for (const importPath of this._path) {
+      // 1. Check if filename has extension
+      const ext = extname(filename).toLowerCase()
+      if (ext) {
+        // If has extension, just try to read it directly
+        const fullPath = join(importPath, filename)
+        if (existsSync(fullPath) && statSync(fullPath).isFile()) {
+          if (ext === `.html`) {
+            return readFileSync(fullPath, `utf8`)
+          } else if (ext === `.ts`) {
+            try {
+              const Page = PageManager.getFileSync(fullPath, false)
+              return Page?.template ?? null
+            } catch {
+              return null
+            }
+          }
+        }
+        continue
+      }
+
+      // 2. If no extension, try .ts then .html
+      const tsPath = join(importPath, `${filename}.ts`)
+      if (existsSync(tsPath) && statSync(tsPath).isFile()) {
+        try {
+          const Page = PageManager.getFileSync(tsPath, false)
+          return Page?.template ?? null
+        } catch {
+          // If failed to load TS, continue to check HTML
+        }
+      }
+
+      const htmlPath = join(importPath, `${filename}.html`)
+      if (existsSync(htmlPath) && statSync(htmlPath).isFile()) {
+        return readFileSync(htmlPath, `utf8`)
+      }
+    }
+    return null
+  }
+
   public _isValidFile(filename: string): boolean {
     return this._supportedExtensions.has(this._getExtension(filename))
   }
@@ -179,20 +220,23 @@ export class TemplateManager {
     const compiled = existing || ({} as ICompiledTemplate)
     let updated = false
 
+    // Process Imports using callback
+    const processedTemplate = TemplateEngine.processImportBlocks(template, (src) => this._readTemplateFile(src))
+
     if (keepIfExist === undefined || keepIfExist?.media === false || existing?.media === undefined) {
-      compiled.media = TemplateEngine.compileMedia(template)
+      compiled.media = TemplateEngine.compileMedia(processedTemplate)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.message === false || existing?.message === undefined) {
-      compiled.message = TemplateEngine.compileMessages(template)
+      compiled.message = TemplateEngine.compileMessages(processedTemplate)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.keyboard === false || existing?.keyboard === undefined) {
-      compiled.keyboard = TemplateEngine.compileKeyboards(template)
+      compiled.keyboard = TemplateEngine.compileKeyboards(processedTemplate)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.description === false || existing?.description === undefined) {
-      compiled.description = TemplateEngine.compileDescription(template)
+      compiled.description = TemplateEngine.compileDescription(processedTemplate)
       updated = true
     }
 

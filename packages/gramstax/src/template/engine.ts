@@ -82,11 +82,9 @@ export class TemplateEngine {
         }
       }
 
-      const from = attrs.from
-      if (!from) return ``
+      const src = attrs.src
+      if (!src) return ``
 
-      const as = attrs.as || `e`
-      const index = attrs.index || `i`
       const join = attrs.join ?? `\\n`
 
       let content = rawContent
@@ -95,13 +93,13 @@ export class TemplateEngine {
         .replace(/\n+$/, ``)
         .replace(/`/g, `\\\``) // escape backticks
 
-      // Handle local variables {{as...}} and {{index}}
+      // Handle local variables {{e...}} and {{i}}
       content = content.replace(/\{\{([\w.]+)\}\}/g, (match: string, inner: string) => {
-        if (inner === as || inner.startsWith(`${as}.`)) {
+        if (inner === `e` || inner.startsWith(`e.`)) {
           return `\${${inner}}`
         }
-        if (inner === index) {
-          return `\${${index}}`
+        if (inner === `i`) {
+          return `\${i}`
         }
         return match
       })
@@ -109,7 +107,7 @@ export class TemplateEngine {
       // We need to escape the join string for the JS code
       const safeJoin = join.replace(/"/g, `\\"`)
 
-      return `\${(data && data["${from}"] || []).map((${as}, ${index}) => \`${content}\`).join("${safeJoin}")}`
+      return `\${(data && data["${src}"] || []).map((e, i) => \`${content}\`).join("${safeJoin}")}`
     })
   }
 
@@ -401,6 +399,168 @@ export class TemplateEngine {
           result[baseId][lang][mode as `inline` | `bottom`] = this._compileToFunction(processedLabels, true)
         }
       }
+    }
+
+    return result
+  }
+
+  public static _extractBlock(content: string, blocks?: string | string[], baseId: string = `default`, section: `all` | `value` = `all`) {
+    // 1. Extract Base Block
+    const baseRegex = /<base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/base>/g
+    let baseContent = content
+    let foundBase = false
+
+    // Try to find specific base
+    for (const match of content.matchAll(baseRegex)) {
+      const id = match[2] ?? `default`
+      if (id === baseId) {
+        baseContent = match[3] ?? ``
+        foundBase = true
+        break
+      }
+    }
+
+    // If base not found
+    if (!foundBase) {
+      const hasAnyBase = /<base\b/.test(content)
+      if (baseId === `default` && !hasAnyBase) {
+        // use whole content as base
+      } else {
+        return `` // Specific base not found
+      }
+    }
+
+    // 2. Handle blocks parameter
+    if (blocks) {
+      // If blocks is "all", extract all known block types
+      if (blocks === `all`) {
+        // Return the entire base content (all blocks)
+        if (section === `value`) {
+          return baseContent
+        }
+        return baseContent
+      }
+
+      // Convert to array if string
+      const blockList = Array.isArray(blocks) ? blocks : [blocks]
+      const allBlockMatches: Array<{ start: number; content: string; innerContent: string }> = []
+
+      for (const block of blockList) {
+        // Capture optional leading whitespace to correctly identify the block's base indentation level
+        const blockRegex = new RegExp(`([ \\t]*)<${block}(?:\\s+([^>]*))?>([\\s\\S]*?)<\\/${block}>`, `gi`)
+        for (const match of baseContent.matchAll(blockRegex)) {
+          allBlockMatches.push({
+            start: match.index!,
+            content: match[0],
+            innerContent: match[3] ?? `` // Group 3 because group 1 is indentation and group 2 is attributes
+          })
+        }
+      }
+
+      // Sort by position to maintain original order in the document
+      allBlockMatches.sort((a, b) => a.start - b.start)
+
+      const processResult = (content: string) => {
+        const lines = content.split(`\n`)
+        if (lines.length <= 1) return content.trim()
+
+        // Find common indentation among all non-empty lines
+        const nonEmptyLines = lines.filter((line) => line.trim().length > 0)
+        if (nonEmptyLines.length === 0) return ``
+
+        const minIndent = nonEmptyLines.reduce((min: number, line: string) => {
+          const match = line.match(/^([ \t]*)/)
+          const indent = match ? match[1]!.length : 0
+          return indent < min ? indent : min
+        }, Infinity)
+
+        return lines
+          .map((line) => (line.length >= minIndent ? line.slice(minIndent) : line.trimStart()))
+          .join(`\n`)
+          .trim()
+      }
+
+      if (section === `all`) {
+        const result = allBlockMatches.map((m) => processResult(m.content)).join(`\n`)
+        return result
+      } else {
+        const result = allBlockMatches.map((m) => processResult(m.innerContent)).join(`\n`)
+        return result
+      }
+    }
+
+    // 3. If no blocks specified, return base content based on section
+    if (section === `value`) {
+      // Return only the inner content, preserving structure
+      return baseContent
+    }
+
+    // section === `all` - return with base wrapper
+    return baseContent
+  }
+
+  public static _processImportBlocks(template: string) {
+    const importRegex = /([ \t]*)<import(?:\s+([^>]*))?\/?>/gi
+    const imports: Array<{ src: string; blocks?: string | string[]; base: string; section: `all` | `value`; indent: string }> = []
+    const processed = template.replace(importRegex, (_, indent, attributesStr) => {
+      const attrs: { [key: string]: string } = {}
+      const attrRegex = /(\w+)="([^"]*)"/g
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2]!
+        }
+      }
+
+      const src = attrs.src
+      if (!src) return `` // 'src' is required
+
+      // Parse blocks attribute: "all" | "block1,block2" | "block1, block2" | single block
+      let blocks: string | string[] | undefined
+      if (attrs.block) {
+        if (attrs.block === `all`) {
+          blocks = `all`
+        } else if (attrs.block.includes(`,`)) {
+          // Split by comma and trim each value to support both "a,b" and "a, b"
+          blocks = attrs.block
+            .split(`,`)
+            .map((b) => b.trim())
+            .filter((b) => b)
+        } else {
+          blocks = attrs.block
+        }
+      }
+
+      const importInfo = {
+        src,
+        blocks,
+        base: attrs.base || `default`,
+        section: (attrs.section as `all` | `value`) || `all`,
+        indent: indent || ``
+      }
+
+      imports.push(importInfo)
+      return `${indent}__IMPORT_${imports.length - 1}__`
+    })
+
+    return { processed, imports }
+  }
+
+  public static processImportBlocks(template: string, resolver: (src: string) => string | null): string {
+    const { processed, imports } = this._processImportBlocks(template)
+
+    let result = processed
+    for (let i = 0; i < imports.length; i++) {
+      const importInfo = imports[i]!
+      const content = resolver(importInfo.src)
+      const resolved = content ? this._extractBlock(content, importInfo.blocks, importInfo.base, importInfo.section) : ``
+
+      // Apply indentation to all lines except the first (which already has indentation from the placeholder)
+      const indentedResolved = resolved
+        .split(`\n`)
+        .map((line, index) => (index === 0 ? line : importInfo.indent + line))
+        .join(`\n`)
+
+      result = result.replace(`__IMPORT_${i}__`, indentedResolved)
     }
 
     return result
