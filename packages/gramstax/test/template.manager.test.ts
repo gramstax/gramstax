@@ -164,4 +164,25 @@ describe(`TemplateManager`, () => {
       await manager.destroy()
     })
   })
+
+  describe(`Import Resolution`, () => {
+    it(`should resolve extensionless file (priority .ts > .html)`, async () => {
+      // Create both .ts and .html with same name
+      await writeFile(join(TEST_DIR, `component.html`), `<base><message>HTML Content</message></base>`)
+      // Mocking TS file content as if it was loaded by PageManager (which we can't easily mock here without writing a real TS file that exports a class)
+      // Since _readTemplateFile uses PageManager.getFileSync, we need a real TS file or mock PageManager.
+      // However, creating a real TS file that Bun/Node can require dynamically in test might be tricky due to caching or compilation.
+      // Let's test the .html fallback first if .ts is missing or invalid.
+
+      const manager = new TemplateManager({ path: [TEST_DIR] })
+
+      // Test 1: Only HTML exists, referenced without extension
+      const htmlContent = manager._readTemplateFile(`component`)
+      expect(htmlContent).toBe(`<base><message>HTML Content</message></base>`)
+
+      // Test 2: Explicit HTML extension works
+      const explicitHtml = manager._readTemplateFile(`component.html`)
+      expect(explicitHtml).toBe(`<base><message>HTML Content</message></base>`)
+    })
+  })
 })

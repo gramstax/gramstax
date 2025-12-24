@@ -76,19 +76,8 @@ describe(`TemplateEngine`, () => {
   })
 
   describe(`_processMapBlocks`, () => {
-    it(`should iterate over a list with default as="e" index="i"`, () => {
-      const template = `<map from="users">{{i}}. {{e.name}}</map>`
-      const processed = TemplateEngine._processMapBlocks(template)
-      const fn = TemplateEngine._compileToFunction(processed, false)
-
-      const data = {
-        users: [{ name: `Alice` }, { name: `Bob` }]
-      }
-      expect(fn(data)).toBe(`0. Alice\n1. Bob`)
-    })
-
-    it(`should support custom as and index attributes`, () => {
-      const template = `<map from="users" as="user" index="idx">{{idx}}. {{user.name}}</map>`
+    it(`should iterate over a list with e and i`, () => {
+      const template = `<map src="users">{{i}}. {{e.name}}</map>`
       const processed = TemplateEngine._processMapBlocks(template)
       const fn = TemplateEngine._compileToFunction(processed, false)
 
@@ -99,7 +88,7 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should support custom join separator`, () => {
-      const template = `<map from="tags" as="tag" join=", ">{{tag}}</map>`
+      const template = `<map src="tags" join=", ">{{e}}</map>`
       const processed = TemplateEngine._processMapBlocks(template)
       const fn = TemplateEngine._compileToFunction(processed, false)
 
@@ -110,7 +99,7 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should support nested properties and global variables`, () => {
-      const template = `<map from="items">{{e.id}}: {{globalPrefix}}-{{e.value}}</map>`
+      const template = `<map src="items">{{e.id}}: {{globalPrefix}}-{{e.value}}</map>`
       let processed = TemplateEngine._processMapBlocks(template)
       processed = TemplateEngine._processExec(processed)
       processed = TemplateEngine._processVariables(processed)
@@ -128,7 +117,7 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should handle empty list`, () => {
-      const template = `List:\n<map from="emptyList">{{e}}</map>`
+      const template = `List:\n<map src="emptyList">{{e}}</map>`
       const processed = TemplateEngine._processMapBlocks(template)
       const fn = TemplateEngine._compileToFunction(processed, false)
 
@@ -153,7 +142,7 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should work inside map block`, () => {
-      const template = `<map from="nums">{~ e * 2 ~}</map>`
+      const template = `<map src="nums">{~ e * 2 ~}</map>`
       let processed = TemplateEngine._processMapBlocks(template)
       processed = TemplateEngine._processExec(processed)
       const fn = TemplateEngine._compileToFunction(processed, false)
@@ -163,7 +152,7 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should support index math inside map`, () => {
-      const template = `<map from="nums">{~ i + 1 ~}. {{e}}</map>`
+      const template = `<map src="nums">{~ i + 1 ~}. {{e}}</map>`
       let processed = TemplateEngine._processMapBlocks(template)
       processed = TemplateEngine._processExec(processed)
 
@@ -206,11 +195,11 @@ describe(`TemplateEngine`, () => {
 
     it(`should prioritize local variables for both {{...}} and {~ ... ~} syntax`, () => {
       // Test {{e}}
-      const template1 = `<map from="arr">{{e}}</map>`
+      const template1 = `<map src="arr">{{e}}</map>`
       const fn1 = TemplateEngine._compileToFunction(TemplateEngine._processVariables(TemplateEngine._processMapBlocks(template1)), false)
 
       // Test {~ e ~}
-      const template2 = `<map from="arr">{~ e ~}</map>`
+      const template2 = `<map src="arr">{~ e ~}</map>`
       const fn2 = TemplateEngine._compileToFunction(TemplateEngine._processExec(TemplateEngine._processMapBlocks(template2)), false)
 
       const data = {
@@ -227,7 +216,7 @@ describe(`TemplateEngine`, () => {
       const template = `
         <base id="list">
           <message>
-            <map from="users" join=", ">{~ i + 1 ~}. {{e.name}}</map>
+            <map src="users" join=", ">{~ i + 1 ~}. {{e.name}}</map>
           </message>
         </base>
       `
@@ -236,6 +225,137 @@ describe(`TemplateEngine`, () => {
 
       const data = { users: [{ name: `X` }, { name: `Y` }] }
       expect(fn!(data).trim()).toBe(`1. X, 2. Y`)
+    })
+  })
+  describe(`_extractBlock`, () => {
+    it(`should extract default base content`, () => {
+      const content = `<base>Content</base>`
+      expect(TemplateEngine._extractBlock(content)).toBe(`Content`)
+    })
+
+    it(`should extract named base content`, () => {
+      const content = `<base id="other">Other</base><base id="main">Main</base>`
+      expect(TemplateEngine._extractBlock(content, undefined, `main`)).toBe(`Main`)
+    })
+
+    it(`should return empty if base not found`, () => {
+      const content = `<base id="other">Other</base>`
+      expect(TemplateEngine._extractBlock(content, undefined, `main`)).toBe(``)
+    })
+
+    it(`should extract specific block`, () => {
+      const content = `<base><message>Msg</message><media>Med</media></base>`
+      expect(TemplateEngine._extractBlock(content, `message`)).toBe(`<message>Msg</message>`)
+    })
+
+    it(`should return inner content if section is value`, () => {
+      const content = `<base><message>Msg</message></base>`
+      expect(TemplateEngine._extractBlock(content, `message`, `default`, `value`)).toBe(`Msg`)
+    })
+
+    // New tests for multi-block support
+    it(`should extract all blocks when blocks="all"`, () => {
+      const content = `<base><message>Msg</message><keyboard>Btn</keyboard></base>`
+      const result = TemplateEngine._extractBlock(content, `all`)
+      expect(result).toContain(`<message>Msg</message>`)
+      expect(result).toContain(`<keyboard>Btn</keyboard>`)
+    })
+
+    it(`should extract multiple specific blocks with array`, () => {
+      const content = `<base><message>Msg</message><keyboard>Btn</keyboard><media>Med</media></base>`
+      const result = TemplateEngine._extractBlock(content, [`message`, `keyboard`])
+      expect(result).toContain(`<message>Msg</message>`)
+      expect(result).toContain(`<keyboard>Btn</keyboard>`)
+      expect(result).not.toContain(`<media>Med</media>`)
+    })
+
+    it(`should handle multi-block with section="value"`, () => {
+      const content = `<base><message>Msg</message><keyboard>Btn</keyboard></base>`
+      const result = TemplateEngine._extractBlock(content, [`message`, `keyboard`], `default`, `value`)
+      expect(result).toContain(`Msg`)
+      expect(result).toContain(`Btn`)
+    })
+  })
+
+  describe(`_parseImportBlocks`, () => {
+    it(`should extract import info and return placeholders`, () => {
+      const template = `Start <import src="file" /> End`
+      const result = TemplateEngine._processImportBlocks(template)
+      expect(result.processed).toBe(`Start __IMPORT_0__ End`)
+      expect(result.imports.length).toBe(1)
+      expect(result.imports[0]?.src).toBe(`file`)
+    })
+
+    it(`should parse all attributes correctly`, () => {
+      const template = `<import src="file" block="message" base="main" section="value" />`
+      const result = TemplateEngine._processImportBlocks(template)
+      expect(result.imports[0]).toEqual({
+        src: `file`,
+        blocks: `message`,
+        base: `main`,
+        section: `value`,
+        indent: ``
+      })
+    })
+
+    it(`should handle multiple imports`, () => {
+      const template = `<import src="A" /><import src="B" />`
+      const result = TemplateEngine._processImportBlocks(template)
+      expect(result.processed).toBe(`__IMPORT_0____IMPORT_1__`)
+      expect(result.imports.length).toBe(2)
+      expect(result.imports[0]?.src).toBe(`A`)
+      expect(result.imports[1]?.src).toBe(`B`)
+    })
+
+    // New tests for multi-block parsing
+    it(`should parse block="all" as string "all"`, () => {
+      const template = `<import src="file" block="all" />`
+      const result = TemplateEngine._processImportBlocks(template)
+      expect(result.imports[0]?.blocks).toBe(`all`)
+    })
+
+    it(`should parse comma-separated blocks without spaces`, () => {
+      const template = `<import src="file" block="keyboard,message" />`
+      const result = TemplateEngine._processImportBlocks(template)
+      expect(result.imports[0]?.blocks).toEqual([`keyboard`, `message`])
+    })
+
+    it(`should parse comma-separated blocks with spaces`, () => {
+      const template = `<import src="file" block="keyboard, message" />`
+      const result = TemplateEngine._processImportBlocks(template)
+      expect(result.imports[0]?.blocks).toEqual([`keyboard`, `message`])
+    })
+
+    it(`should parse comma-separated blocks with mixed spaces`, () => {
+      const template = `<import src="file" block="keyboard,  message, media" />`
+      const result = TemplateEngine._processImportBlocks(template)
+      expect(result.imports[0]?.blocks).toEqual([`keyboard`, `message`, `media`])
+    })
+  })
+
+  describe(`processImports`, () => {
+    it(`should resolve imports using file resolver callback`, () => {
+      const template = `Start <import src="header" /> End`
+      const fileResolver = (src: string) => (src === `header` ? `<message>Hello</message>` : null)
+      const result = TemplateEngine.processImportBlocks(template, fileResolver)
+      expect(result).toBe(`Start <message>Hello</message> End`)
+    })
+
+    it(`should resolve imports with block="all"`, () => {
+      const template = `<import src="shared" block="all" />`
+      const fileResolver = (src: string) => (src === `shared` ? `<base><message>Msg</message><keyboard>Btn</keyboard></base>` : null)
+      const result = TemplateEngine.processImportBlocks(template, fileResolver)
+      expect(result).toContain(`<message>Msg</message>`)
+      expect(result).toContain(`<keyboard>Btn</keyboard>`)
+    })
+
+    it(`should resolve imports with multi-block`, () => {
+      const template = `<import src="shared" block="keyboard,message" />`
+      const fileResolver = (src: string) => (src === `shared` ? `<base><message>Msg</message><keyboard>Btn</keyboard><media>Med</media></base>` : null)
+      const result = TemplateEngine.processImportBlocks(template, fileResolver)
+      expect(result).toContain(`<message>Msg</message>`)
+      expect(result).toContain(`<keyboard>Btn</keyboard>`)
+      expect(result).not.toContain(`<media>Med</media>`)
     })
   })
 })
