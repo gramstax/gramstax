@@ -1,11 +1,10 @@
 import { env } from "./env"
 import { BotCore } from "./core/bot"
-import { MainThread } from "./thread/main"
+import { IncrementJob } from "./jobs/increment"
 
-new MainThread(() => {
-  new BotCore({
-    deploy: env.TELEGRAM_BOT_DEPLOY,
-    token: env.TELEGRAM_BOT_TOKEN,
-    log: true
-  })
+IncrementJob.launch([5000]) // 5s
+new BotCore({
+  deploy: env.TELEGRAM_BOT_DEPLOY,
+  token: env.TELEGRAM_BOT_TOKEN,
+  log: true
 })

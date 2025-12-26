@@ -44,13 +44,13 @@ export class CounterPage extends PageBase {
       <message>
         Count: {{count}}
 
-        This is test for dynamic condition with case counter
+        This is test for dynamic condition case counter with cache
       </message>
 
       <message lang="id">
         Jumlah: {{count}}
 
-        Ini adalah test kondisi dinamis dengan kasus kounter
+        Ini adalah test kondisi dinamis kasus kounter dengan cache
       </message>
     </base>
   `

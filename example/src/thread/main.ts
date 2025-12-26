@@ -1,9 +1,4 @@
-import { isMainThread } from "bun"
+// import { join } from "node:path"
+import { ThreadMain } from "gramstax"
 
-export class MainThread {
-  public constructor(wrapCode: () => any) {
-    if (isMainThread) {
-      wrapCode()
-    }
-  }
-}
+export class MainThread extends ThreadMain {}
