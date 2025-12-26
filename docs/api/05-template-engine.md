@@ -35,15 +35,16 @@ Defines the text content for a message.
 
 #### `<keyboard>`
 
-Defines the keyboard buttons for a message. Buttons are separated by commas.
+Defines the keyboard buttons for a message. Buttons are separated by commas. Use `\\,` to include a literal comma in a button label.
 
 - **Attributes:**
   - `lang`: (Optional) The language code. Defaults to `default`.
   - `type`: (Optional) `inline` (default) or `bottom`.
 - **Example:**
   ```html
-  <keyboard type="inline"> Help, Settings </keyboard>
+  <keyboard type="inline"> Yes\\, Create, × Cancel </keyboard>
   ```
+  **Result:** `["Yes, Create", "× Cancel"]`
 
 ### Advanced Blocks
 
@@ -72,7 +73,7 @@ Iterates over an array to generate dynamic content.
 
 - **Attributes:**
   - `src`: (Required) The key in the data object containing the array.
-  - `join`: (Optional) The string to join the results. Defaults to `\\n`.
+  - `join`: (Optional) The string to join the results. Defaults to `\n`.
 - **Variables:**
   - `{{e}}`: Current element.
   - `{{i}}`: Current index.
@@ -89,9 +90,12 @@ Imports content from another template file.
   - `src`: (Required) Path to the imported template.
   - `block`: (Optional) Specific blocks to extract (e.g., `message`, `keyboard`). Use `all` to import everything.
   - `base`: (Optional) The base ID to extract from. Defaults to `default`.
-  - `lang`: (Optional) Specific language to extract. If not provided, all matching blocks are imported.
+  - `lang`: (Optional) Specific language to extract. If `lang="default"`, it matches blocks with `lang="default"` OR blocks with no `lang` attribute.
   - `section`: (Optional) `all` (wrapper + content) or `value` (content only). Defaults to `all`.
-- **Important:** Imports are processed recursively before compilation (up to a maximum depth of 10). If an `<import>` tag is placed inside a `<base>`, its content will be compiled as part of that base. Use `lang` to import only specific language blocks from a multi-language template.
+- **Important:**
+  - Imports are processed **recursively** before compilation (up to a maximum depth of 10).
+  - If an `<import>` tag is placed inside a `<base>`, its content will be compiled as part of that base.
+  - Use `lang` to import only specific language blocks from a multi-language template.
 
 ### Logic and Variables
 
@@ -193,18 +197,18 @@ Imports content from another template file.
 
 ### `_processKeyboardBlocks(template)`
 
-- **Description:** Parses `<keyboard>` tags.
+- **Description:** Parses `<keyboard>` tags. Buttons inside are identified by commas (supports escaped commas `\,`).
 - **Params:**
   - `template`: `[string]` - The raw template string.
 - **Returns:** `Record<string, object>` - Map of lang -> keyboard modes.
-- **Example:** `const kbs = TemplateEngine._processKeyboardBlocks("<keyboard>Btn</keyboard>");`
+- **Example:** `const kbs = TemplateEngine._processKeyboardBlocks("<keyboard>Btn 1, Btn 2</keyboard>");`
 
 ### `_compileToFunction(template, isArray)`
 
 - **Description:** Compiles a processed string into an executable JavaScript function.
 - **Params:**
   - `template`: `[string | string[]]` - processed template string/array.
-  - `isArray`: `[boolean]` - If true the function returns an array.
+  - `isArray`: `[boolean]` - If true the function returns an array (used for keyboards).
 - **Returns:** `Function` - `(data) => string | string[]`
 - **Example:** `const fn = TemplateEngine._compileToFunction("Hello ${data.name}", false);`
 
@@ -240,7 +244,7 @@ Imports content from another template file.
 - **Returns:** `object` - Compiled functions map.
 - **Example:** `const kbFns = TemplateEngine.compileKeyboards(raw);`
 
-### `_extractBlock(content, blocks?, baseId?, section?)`
+### `_extractBlock(content, blocks?, baseId?, section?, lang?)`
 
 - **Description:** internal utility to extract specific blocks/bases from import content.
 - **Params:**
@@ -248,8 +252,9 @@ Imports content from another template file.
   - `blocks`: `[string | string[]]` - Block names to extract.
   - `baseId`: `[string]` - Base ID.
   - `section`: `["all" | "value"]` - Extraction mode.
+  - `lang`: `[string]` - (Optional) Language to filter by.
 - **Returns:** `string`
-- **Example:** `const block = TemplateEngine._extractBlock(src, "message");`
+- **Example:** `const block = TemplateEngine._extractBlock(src, "keyboard", "default", "value", "id");`
 
 ### `_processImportBlocks(template)`
 
@@ -257,13 +262,14 @@ Imports content from another template file.
 - **Params:**
   - `template`: `[string]` - Raw template.
 - **Returns:** `object` - Processed template with placeholders and import metadata.
-- **Example:** `const { processed, imports } = TemplateEngine._processImportBlocks(src);`
+- **Example:** `const { processed, imports } = TemplateEngine._processImportBlocks(template);`
 
-### `processImportBlocks(template, resolver)`
+### `processImportBlocks(template, resolver, depth?)`
 
 - **Description:** Resolves and inlines `<import src="...">` tags recursively.
 - **Params:**
   - `template`: `[string]` - Raw template string.
   - `resolver`: `[(src: string) => string | null]` - Function that returns the content of the imported file.
+  - `depth`: `[number]` - (Optional) Current recursion depth. Max 10.
 - **Returns:** `string` - Template with imports inlined.
-- **Example:** `const full = TemplateEngine.processImportBlocks(src, (path) => readFileSync(path));`
+- **Example:** `const full = TemplateEngine.processImportBlocks(template, resolver);`
