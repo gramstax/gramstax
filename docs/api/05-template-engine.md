@@ -3,6 +3,104 @@
 - **Type:** Class (Static)
 - **Description:** Static utility class for parsing and compiling custom HTML-like templates.
 
+## Template Syntax
+
+Gramstax templates use an HTML-like syntax for defining bot content. Templates are organized into blocks, which are processed and compiled into JavaScript functions.
+
+### Core Blocks
+
+#### `<base>`
+
+Used to group related content under a specific identifier.
+
+- **Attributes:**
+  - `id`: (Optional) The identifier for this base. Defaults to `default`.
+- **Example:**
+  ```html
+  <base id="welcome">
+    <message>Welcome to the bot!</message>
+  </base>
+  ```
+
+#### `<message>`
+
+Defines the text content for a message.
+
+- **Attributes:**
+  - `lang`: (Optional) The language code. Defaults to `default`.
+- **Example:**
+  ```html
+  <message lang="en">Hello!</message> <message lang="id">Halo!</message>
+  ```
+
+#### `<keyboard>`
+
+Defines the keyboard buttons for a message. Buttons are separated by commas.
+
+- **Attributes:**
+  - `lang`: (Optional) The language code. Defaults to `default`.
+  - `type`: (Optional) `inline` (default) or `bottom`.
+- **Example:**
+  ```html
+  <keyboard type="inline"> Help, Settings </keyboard>
+  ```
+
+### Advanced Blocks
+
+#### `<media>`
+
+Defines media attachments (photo, video, audio, etc.).
+
+- **Attributes:**
+  - `type`: (Required) The media type: `photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, `sticker`, `location`, `contact`.
+  - `src`: (Required for file-based types) URL or file ID.
+  - `lang`: (Optional) The language code. Defaults to `default`.
+- **Type-Specific Attributes:**
+  - **location**:
+    - `latitude`: (Required) Latitude of the location.
+    - `longitude`: (Required) Longitude of the location.
+  - **contact**:
+    - `phone`: (Required) Contact's phone number.
+    - `first_name`: (Required) Contact's first name.
+    - `last_name`: (Optional) Contact's last name.
+    - `vcard`: (Optional) Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard).
+- **Inner Content:** Used as the caption (not supported for `video_note` and `sticker`).
+
+#### `<map>`
+
+Iterates over an array to generate dynamic content.
+
+- **Attributes:**
+  - `src`: (Required) The key in the data object containing the array.
+  - `join`: (Optional) The string to join the results. Defaults to `\\n`.
+- **Variables:**
+  - `{{e}}`: Current element.
+  - `{{i}}`: Current index.
+- **Example:**
+  ```html
+  <map src="users" join=", ">{{e.name}}</map>
+  ```
+
+#### `<import>`
+
+Imports content from another template file.
+
+- **Attributes:**
+  - `src`: (Required) Path to the imported template.
+  - `block`: (Optional) Specific blocks to extract (e.g., `message`, `keyboard`). Use `all` to import everything.
+  - `base`: (Optional) The base ID to extract from. Defaults to `default`.
+  - `lang`: (Optional) Specific language to extract. If not provided, all matching blocks are imported.
+  - `section`: (Optional) `all` (wrapper + content) or `value` (content only). Defaults to `all`.
+- **Important:** Imports are processed before compilation. If an `<import>` tag is placed inside a `<base>`, its content will be compiled as part of that base. Use `lang` to import only specific language blocks from a multi-language template.
+
+### Logic and Variables
+
+- `{{var}}`: Short-hand for variable interpolation.
+- `{~ js_code ~}`: Executes JavaScript and returns the result.
+- `<script>`: Executes arbitrary JavaScript logic during processing.
+- `<space />`: Structural helper removed during compilation.
+- `<div>`: Structural helper; content is kept but the tag is removed.
+
 ## Methods
 
 ### `_escape(str)`
