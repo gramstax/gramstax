@@ -221,7 +221,19 @@ export class TemplateManager {
     let updated = false
 
     // Process Imports using callback
-    const processedTemplate = TemplateEngine.processImportBlocks(template, (src) => this._readTemplateFile(src))
+    const cache = new Map<string, string | null>()
+    const processedTemplate = TemplateEngine.processImportBlocks(template, (src) => {
+      const valueCache = cache.get(src)
+      if (!valueCache) {
+        const value = this._readTemplateFile(src)
+        cache.set(src, value)
+        return value
+      }
+      return valueCache
+    })
+
+    // clear simple cache
+    cache.clear()
 
     if (keepIfExist === undefined || keepIfExist?.media === false || existing?.media === undefined) {
       compiled.media = TemplateEngine.compileMedia(processedTemplate)
