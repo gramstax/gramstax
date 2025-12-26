@@ -73,6 +73,13 @@ describe(`TemplateEngine`, () => {
       expect(result.default).toBeDefined()
       expect(result?.default?.inline).toBe(`Button`)
     })
+
+    it(`should parse comma-separated buttons`, () => {
+      const template = `<keyboard>test, 1, 666, 27</keyboard>`
+      const result = TemplateEngine._processKeyboardBlocks(template)
+      const labels = result.default?.inline?.split(/(?<!\\),\s*/).map((l: string) => l.trim())
+      expect(labels).toEqual([`test`, `1`, `666`, `27`])
+    })
   })
 
   describe(`_processMapBlocks`, () => {
@@ -370,6 +377,31 @@ describe(`TemplateEngine`, () => {
       expect(result).toContain(`<message>Msg</message>`)
       expect(result).toContain(`<keyboard>Btn</keyboard>`)
       expect(result).not.toContain(`<media>Med</media>`)
+    })
+
+    it(`should resolve imports recursively`, () => {
+      const template = `<import src="A" />`
+      const fileResolver = (src: string) => {
+        if (src === `A`) return `<import src="B" />`
+        if (src === `B`) return `Resolved B`
+        return null
+      }
+      const result = TemplateEngine.processImportBlocks(template, fileResolver)
+      expect(result.trim()).toBe(`Resolved B`)
+    })
+
+    it(`should prevent infinite recursion`, () => {
+      const template = `<import src="loop" />`
+      const fileResolver = (src: string) => (src === `loop` ? `<import src="loop" />` : null)
+      const result = TemplateEngine.processImportBlocks(template, fileResolver)
+      expect(result.trim()).toBe(``)
+    })
+
+    it(`should filter imports by lang`, () => {
+      const template = `<import src="shared" block="message" lang="id" section="value" />`
+      const fileResolver = (src: string) => (src === `shared` ? `<base><message lang="en">En</message><message lang="id">Id</message></base>` : null)
+      const result = TemplateEngine.processImportBlocks(template, fileResolver)
+      expect(result).toBe(`Id`)
     })
   })
 })
