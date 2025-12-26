@@ -454,7 +454,10 @@ export class TemplateEngine {
             const attrRegex = /lang="([^"]*)"/i
             const langMatch = attributesStr?.match(attrRegex)
             const blockLang = langMatch ? langMatch[1] : undefined
-            if (blockLang !== lang) continue
+
+            // Fix: lang="default" should match blocks with no lang attribute (undefined)
+            const effectiveBlockLang = blockLang || `default`
+            if (effectiveBlockLang !== lang) continue
           }
 
           allBlockMatches.push({
@@ -565,12 +568,12 @@ export class TemplateEngine {
       const content = resolver(importInfo.src)
       let resolved = content ? this._extractBlock(content, importInfo.blocks, importInfo.base, importInfo.section, importInfo.lang) : ``
 
-      // Recursive process
+      // Recursive process: resolve imports within the resolved content
       if (resolved && resolved.includes(`<import`)) {
         resolved = this.processImportBlocks(resolved, resolver, depth + 1)
       }
 
-      // Apply indentation to all lines except the first (which already has indentation from the placeholder)
+      // Apply indentation to all lines except the first
       const indentedResolved = resolved
         .split(`\n`)
         .map((line, index) => (index === 0 ? line : importInfo.indent + line))
