@@ -1,3 +1,3 @@
 import { ThreadExport } from "gramstax"
 
-export { ThreadExport as ExportThread }
+export class ExportThread extends ThreadExport {}

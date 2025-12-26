@@ -1,3 +1,3 @@
 import { CacheExternal } from "gramstax"
 
-export const ExternalCache = CacheExternal
+export class ExternalCache extends CacheExternal {}
