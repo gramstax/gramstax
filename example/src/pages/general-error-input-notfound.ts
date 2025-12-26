@@ -14,8 +14,7 @@ export class GeneralErrorInputNotFoundPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">.. Home</keyboard>
-      <keyboard lang="id" type="inline">.. Beranda</keyboard>
+      <import src="start" base="ikb-home" />
 
       <message><b>❌ Not Found</b></message>
       <message lang="id"><b>❌ Tidak Ditemukan</b></message>

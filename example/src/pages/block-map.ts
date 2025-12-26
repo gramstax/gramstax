@@ -7,7 +7,7 @@ export class BlockMapPage extends PageBase {
       return kb //
         .text(arr[0]!, this.data.callbackData())
         .row()
-        .text(arr[0]!, StartPage.data.callbackData())
+        .text(arr[1]!, StartPage.data.callbackData())
     })
   }
 
@@ -23,8 +23,7 @@ export class BlockMapPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">Refresh, Back</keyboard>
-      <keyboard lang="id" type="inline">Segarkan, Kembali</keyboard>
+      <import src="start" base="ikb-refresh-back" />
 
       <message>
         <b>Mapping data directly in template</b>

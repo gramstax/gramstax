@@ -101,14 +101,34 @@ export class StartPage extends PageBase {
   }
 
   public static template = /*jsx*/ `
+    <base id="ikb-home">
+      <keyboard type="inline">.. Home</keyboard>
+      <keyboard lang="id" type="inline">.. Beranda</keyboard>
+    </base>
+
+    <base id="ikb-cancel">
+      <keyboard type="inline">Cancel</keyboard>
+      <keyboard lang="id" type="inline">Batal</keyboard>
+    </base>
+
     <base id="ikb-back">
       <keyboard type="inline">Back</keyboard>
       <keyboard lang="id" type="inline">Kembali</keyboard>
     </base>
 
+    <base id="ikb-refresh-back">
+      <keyboard type="inline">
+        Refresh, 
+        <import src="start" base="ikb-back" lang="default" block="keyboard" section="value" />
+      </keyboard>
+      <keyboard lang="id" type="inline">
+        Segarkan, 
+        <import src="start" base="ikb-back" lang="id" block="keyboard" section="value" />
+      </keyboard>
+    </base>
+
     <base id="for-block-import">
-      <keyboard type="inline">Back</keyboard>
-      <keyboard lang="id" type="inline">Kembali</keyboard>
+      <import src="start" base="ikb-back" />
 
       <message>
         This message and keyboard import from start.ts for file block-import.ts

@@ -38,8 +38,16 @@ export class CounterPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">Increase, Decrease, Back</keyboard>
-      <keyboard lang="id" type="inline">Tambah, Kurang, Kembali</keyboard>
+      <keyboard type="inline">
+        Increase, 
+        Decrease, 
+        <import src="start" base="ikb-back" lang="default" block="keyboard" section="value" />
+      </keyboard>
+      <keyboard lang="id" type="inline">
+        Tambah, 
+        Kurang, 
+        <import src="start" base="ikb-back" lang="id" block="keyboard" section="value" />
+      </keyboard>
 
       <message>
         Count: {{count}}

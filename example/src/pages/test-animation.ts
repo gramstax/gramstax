@@ -33,8 +33,16 @@ export class TestAnimationPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">Dynamic Attribute, Static Attribute, Back</keyboard>
-      <keyboard lang="id" type="inline">Dynamic Attribute, Static Attribute, Kembali</keyboard>
+      <keyboard type="inline">
+        Dynamic Attribute, 
+        Static Attribute, 
+        <import src="start" base="ikb-back" lang="default" block="keyboard" section="value" />
+      </keyboard>
+      <keyboard lang="id" type="inline">
+        Dynamic Attribute, 
+        Static Attribute, 
+        <import src="start" base="ikb-back" lang="id" block="keyboard" section="value" />
+      </keyboard>
 
       <media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
         This is a caption text for media <b>animation</b>

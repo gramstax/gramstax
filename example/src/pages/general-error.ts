@@ -11,8 +11,8 @@ export class GeneralErrorPage extends PageBase {
 
   public async transition(constructorName: string, funcName: string, error: any, isUpdate = true) {
     logUt.errorMake(error, constructorName, funcName)
-    await this.sessionClear()
 
+    await this.sessionClear()
     const kb = this.kb()
     if (isUpdate === true) {
       await this.edit(kb)
@@ -23,8 +23,7 @@ export class GeneralErrorPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">.. Home</keyboard>
-      <keyboard lang="id" type="inline">.. Beranda</keyboard>
+      <import src="start" base="ikb-home" />
 
       <message>
         <b>❌ Error</b>

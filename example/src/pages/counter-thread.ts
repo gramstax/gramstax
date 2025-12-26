@@ -26,8 +26,7 @@ export class CounterThreadPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">Refresh, Back</keyboard>
-      <keyboard lang="id" type="inline">Segarkan, Kembali</keyboard>
+      <import src="start" base="ikb-refresh-back" />
 
       <message>
         Counter: {{count}}
