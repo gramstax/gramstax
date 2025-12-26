@@ -14,7 +14,7 @@ export class ThreadExport {
     const uniqueArg = `for-${path}`
 
     // check if we are in sub thread
-    if (ThreadSub.prototype.argv[2] === uniqueArg) {
+    if (process.argv[2] === uniqueArg) {
       new CSub()
       return {} as any
     }
