@@ -275,6 +275,14 @@ describe(`TemplateEngine`, () => {
       expect(result).toContain(`Msg`)
       expect(result).toContain(`Btn`)
     })
+
+    it(`should filter blocks by lang if specified`, () => {
+      const content = `<base><message lang="en">En</message><message lang="id">Id</message></base>`
+      const result = TemplateEngine._extractBlock(content, `message`, `default`, `value`, `en`)
+      expect(result).toBe(`En`)
+      const resultId = TemplateEngine._extractBlock(content, `message`, `default`, `value`, `id`)
+      expect(resultId).toBe(`Id`)
+    })
   })
 
   describe(`_parseImportBlocks`, () => {
@@ -305,6 +313,12 @@ describe(`TemplateEngine`, () => {
       expect(result.imports.length).toBe(2)
       expect(result.imports[0]?.src).toBe(`A`)
       expect(result.imports[1]?.src).toBe(`B`)
+    })
+
+    it(`should parse lang attribute correctly`, () => {
+      const template = `<import src="file" lang="en" />`
+      const result = TemplateEngine._processImportBlocks(template)
+      expect(result.imports[0]?.lang).toBe(`en`)
     })
 
     // New tests for multi-block parsing

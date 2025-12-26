@@ -404,7 +404,7 @@ export class TemplateEngine {
     return result
   }
 
-  public static _extractBlock(content: string, blocks?: string | string[], baseId: string = `default`, section: `all` | `value` = `all`) {
+  public static _extractBlock(content: string, blocks?: string | string[], baseId: string = `default`, section: `all` | `value` = `all`, lang?: string) {
     // 1. Extract Base Block
     const baseRegex = /<base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/base>/g
     let baseContent = content
@@ -449,6 +449,14 @@ export class TemplateEngine {
         // Capture optional leading whitespace to correctly identify the block's base indentation level
         const blockRegex = new RegExp(`([ \\t]*)<${block}(?:\\s+([^>]*))?>([\\s\\S]*?)<\\/${block}>`, `gi`)
         for (const match of baseContent.matchAll(blockRegex)) {
+          const attributesStr = match[2]
+          if (lang) {
+            const attrRegex = /lang="([^"]*)"/i
+            const langMatch = attributesStr?.match(attrRegex)
+            const blockLang = langMatch ? langMatch[1] : undefined
+            if (blockLang !== lang) continue
+          }
+
           allBlockMatches.push({
             start: match.index!,
             content: match[0],
@@ -501,7 +509,7 @@ export class TemplateEngine {
 
   public static _processImportBlocks(template: string) {
     const importRegex = /([ \t]*)<import(?:\s+([^>]*))?\/?>/gi
-    const imports: Array<{ src: string; blocks?: string | string[]; base: string; section: `all` | `value`; indent: string }> = []
+    const imports: Array<{ src: string; blocks?: string | string[]; base: string; lang?: string; section: `all` | `value`; indent: string }> = []
     const processed = template.replace(importRegex, (_, indent, attributesStr) => {
       const attrs: { [key: string]: string } = {}
       const attrRegex = /(\w+)="([^"]*)"/g
@@ -534,6 +542,7 @@ export class TemplateEngine {
         src,
         blocks,
         base: attrs.base || `default`,
+        lang: attrs.lang, // Support lang attribute
         section: (attrs.section as `all` | `value`) || `all`,
         indent: indent || ``
       }
@@ -552,7 +561,7 @@ export class TemplateEngine {
     for (let i = 0; i < imports.length; i++) {
       const importInfo = imports[i]!
       const content = resolver(importInfo.src)
-      const resolved = content ? this._extractBlock(content, importInfo.blocks, importInfo.base, importInfo.section) : ``
+      const resolved = content ? this._extractBlock(content, importInfo.blocks, importInfo.base, importInfo.section, importInfo.lang) : ``
 
       // Apply indentation to all lines except the first (which already has indentation from the placeholder)
       const indentedResolved = resolved
