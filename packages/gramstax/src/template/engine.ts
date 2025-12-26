@@ -554,14 +554,21 @@ export class TemplateEngine {
     return { processed, imports }
   }
 
-  public static processImportBlocks(template: string, resolver: (src: string) => string | null): string {
+  public static processImportBlocks(template: string, resolver: (src: string) => string | null, depth = 0): string {
+    if (depth > 10) return `` // recursive limit
+
     const { processed, imports } = this._processImportBlocks(template)
 
     let result = processed
     for (let i = 0; i < imports.length; i++) {
       const importInfo = imports[i]!
       const content = resolver(importInfo.src)
-      const resolved = content ? this._extractBlock(content, importInfo.blocks, importInfo.base, importInfo.section, importInfo.lang) : ``
+      let resolved = content ? this._extractBlock(content, importInfo.blocks, importInfo.base, importInfo.section, importInfo.lang) : ``
+
+      // Recursive process
+      if (resolved && resolved.includes(`<import`)) {
+        resolved = this.processImportBlocks(resolved, resolver, depth + 1)
+      }
 
       // Apply indentation to all lines except the first (which already has indentation from the placeholder)
       const indentedResolved = resolved

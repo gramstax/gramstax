@@ -91,7 +91,7 @@ Imports content from another template file.
   - `base`: (Optional) The base ID to extract from. Defaults to `default`.
   - `lang`: (Optional) Specific language to extract. If not provided, all matching blocks are imported.
   - `section`: (Optional) `all` (wrapper + content) or `value` (content only). Defaults to `all`.
-- **Important:** Imports are processed before compilation. If an `<import>` tag is placed inside a `<base>`, its content will be compiled as part of that base. Use `lang` to import only specific language blocks from a multi-language template.
+- **Important:** Imports are processed recursively before compilation (up to a maximum depth of 10). If an `<import>` tag is placed inside a `<base>`, its content will be compiled as part of that base. Use `lang` to import only specific language blocks from a multi-language template.
 
 ### Logic and Variables
 
