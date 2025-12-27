@@ -13,5 +13,7 @@ This directory contains the detailed API documentation for the **Gramstax** fram
 - **[07-utils-log.md](07-utils-log.md)**: Documentation for `LoggingUtils`, the enhanced logging utility.
 - **[08-thread-main.md](08-thread-main.md)**: Documentation for `ThreadMain`, worker lifecycle manager.
 - **[09-thread-sub.md](09-thread-sub.md)**: Documentation for `ThreadSub`, worker thread base class.
-- **[10-thread-main-pool.md](10-thread-main-pool.md)**: Documentation for `ThreadMainPool`, multi-thread manager.
+- [10-thread-main-pool.md](10-thread-main-pool.md)\*\*: Documentation for `ThreadMainPool`, multi-thread manager.
 - **[11-thread-export.md](11-thread-export.md)**: Documentation for `ThreadExport`, the unified thread initialization helper.
+- **[12-components.md](12-components.md)**: Documentation for the Components structure and `ComponentKeyboard`.
+- **[13-data.md](13-data.md)**: Documentation for the Data structure and `DataKeyboard`.

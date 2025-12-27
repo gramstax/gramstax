@@ -12,11 +12,14 @@ my-bot/
 │   ├── base/
 │   │   ├── page.ts              # PageBase extends CtxCore
 │   │   └── guard.ts             # GuardBase extends CtxCore
-│   ├── cache/
-│   │   └── external.ts          # ExternalCache extends CacheExternal
+│   ├── components/              # Reusable UI components
+│   │   └── keyboard.ts
+│   ├── data/                    # Localized strings for components
+│   │   └── keyboard.ts
 │   ├── core/
 │   │   ├── bot.ts               # BotCore extends Gramstax
-│   │   └── ctx.ts               # CtxCore extends Ctx
+│   │   ├── ctx.ts               # CtxCore extends Ctx
+│   │   └── external.ts          # ExternalCache extends CacheExternal
 │   ├── guards/
 │   │   └── user.ts
 │   ├── pages/                   # Auto-discovered
@@ -77,9 +80,13 @@ export class CtxCore extends Ctx {
 ### src/base/page.ts
 
 ```typescript
+import { KeyboardComponent } from "~/components/keyboard";
 import { CtxCore } from "~/core/ctx";
 
-export abstract class PageBase extends CtxCore {}
+export abstract class PageBase extends CtxCore {
+  public static KbCom = KeyboardComponent;
+  public static KbData = KeyboardComponent.data;
+}
 ```
 
 ---

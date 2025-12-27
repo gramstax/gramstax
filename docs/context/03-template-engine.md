@@ -8,6 +8,7 @@
 
 - [Block Types](#block-types)
 - [Variable Syntax](#variable-syntax)
+- [Logic Blocks `<switch>`](#logic-blocks-switch)
 - [Multi-language](#multi-language)
 - [HTML Formatting](#html-formatting)
 
@@ -119,6 +120,30 @@ Iterate arrays.
 | `join`    | `""`     | Separator   |
 
 **Variables:** `e` = current item, `i` = index
+
+---
+
+### switch
+
+Conditional logic based on equality.
+
+```html
+<switch value="role">
+  <case is="admin, owner">👑 Admin</case>
+  <case is="user">👤 User</case>
+  <default>👥 Guest</default>
+</switch>
+```
+
+| Attribute | Required | Description              |
+| --------- | -------- | ------------------------ |
+| `value`   | Yes      | Key in the `data` object |
+
+**Rules:**
+
+- `<case is="...">`: Single or comma-separated values.
+- `<default>`: Optional fallback.
+- **Limitation:** Nesting `<switch>` tags within the same file is **not supported**. Use `<import>` for nested logic.
 
 ---
 

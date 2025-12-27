@@ -82,16 +82,19 @@ export class StartPage extends Ctx {
 3. **Define `static template`** with `<base>` wrapper
 4. **Match `arr[index]`** to button order in template
 5. **Use `edit()`** for callbacks, **`reply()`** for commands
-6. **Clear session** after multi-step flows
+6. **Prefer Components** for standard buttons (e.g., `${this.KbCom.back()}`)
+7. **Use `<switch>`** for simple state-based rendering in templates
+8. **Clear session** after multi-step flows
 
 ---
 
 ## Cross-Reference Guide
 
-| Topic           | Primary Doc                                         | Also See                                          |
-| --------------- | --------------------------------------------------- | ------------------------------------------------- |
-| Page structure  | [02-ctx-class](./02-ctx-class.md)                   | [06-project-structure](./06-project-structure.md) |
-| Route handlers  | [04-routing-system](./04-routing-system.md)         | [02-ctx-class](./02-ctx-class.md)                 |
-| Template syntax | [03-template-engine](./03-template-engine.md)       | -                                                 |
-| Session flow    | [05-session-management](./05-session-management.md) | [04-routing-system](./04-routing-system.md)       |
-| Working code    | [07-examples](./07-examples.md)                     | All docs                                          |
+| Topic           | Primary Doc                                         | Also See                                    |
+| --------------- | --------------------------------------------------- | ------------------------------------------- |
+| Page structure  | [06-project-structure](./06-project-structure.md)   | [02-ctx-class](./02-ctx-class.md)           |
+| Route handlers  | [04-routing-system](./04-routing-system.md)         | [02-ctx-class](./02-ctx-class.md)           |
+| Template syntax | [03-template-engine](./03-template-engine.md)       | -                                           |
+| Components/Data | [06-project-structure](./06-project-structure.md)   | [Docs API: 12 & 13](../api/README.md)       |
+| Session flow    | [05-session-management](./05-session-management.md) | [04-routing-system](./04-routing-system.md) |
+| Working code    | [07-examples](./07-examples.md)                     | All docs                                    |
