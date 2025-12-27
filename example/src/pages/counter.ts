@@ -1,3 +1,4 @@
+import { KbCom } from "~/components/keyboard"
 import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
@@ -38,23 +39,13 @@ export class CounterPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">
-        Increase, 
-        Decrease, 
-        <import src="start" base="ikb-back" lang="default" block="keyboard" section="value" />
-      </keyboard>
-      <keyboard lang="id" type="inline">
-        Tambah, 
-        Kurang, 
-        <import src="start" base="ikb-back" lang="id" block="keyboard" section="value" />
-      </keyboard>
-
+      <keyboard type="inline">Increase, Decrease, ${KbCom.back()}</keyboard>
+      <keyboard lang="id" type="inline">Tambah, Kurang, ${KbCom.back()}</keyboard>
       <message>
         Count: {{count}}
 
         This is test for dynamic condition case counter with cache
       </message>
-
       <message lang="id">
         Jumlah: {{count}}
 
