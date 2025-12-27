@@ -23,22 +23,20 @@ export class GeneralErrorPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <import src="start" base="ikb-home" />
-
+      ${this.KbCom.home()}
+      
       <message>
         <b>❌ Error</b>
 
         An unexpected error occurred.
         Please try again later.
       </message>
-
       <message lang="it">
         <b>❌ Errore</b>
 
         Si è verificato un errore imprevisto.
         Riprova più tardi.
       </message>
-
       <message lang="id">
         <b>❌ Kesalahan</b>
 

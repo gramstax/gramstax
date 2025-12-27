@@ -19,7 +19,7 @@ export class UserNameNotFoundPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <import src="start" base="ikb-home" />
+      ${this.KbCom.home()}
 
       <message>Please set the username first before using the bot.</message>
       <message lang="it">Prima di utilizzare il bot, imposta prima il nome utente.</message>

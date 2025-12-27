@@ -27,35 +27,24 @@ export class StartPage extends PageBase {
   }
 
   public static template = /*jsx*/ `
-    <base id="ikb-home">
-      <keyboard type="inline">.. Home</keyboard>
-      <keyboard lang="it" type="inline">.. Casa</keyboard>
-      <keyboard lang="id" type="inline">.. Beranda</keyboard>
-    </base>
-
-    <base id="ikb-back">
-      <keyboard type="inline">.. Back</keyboard>
-      <keyboard lang="it" type="inline">.. Ritorno</keyboard>
-      <keyboard lang="id" type="inline">.. Kembali</keyboard>
+    <base id="with-import-and-you-can-use-components">
+      <keyboard>❓ Help</keyboard>
+      <keyboard lang="it">❓ Aiuto</keyboard>
+      <keyboard lang="id">❓ Bantuan</keyboard>
     </base>
 
     <base>
-      <keyboard type="inline">❓ Help</keyboard>
-      <keyboard lang="it" type="inline">❓ Aiuto</keyboard>
-      <keyboard lang="id" type="inline">❓ Bantuan</keyboard>
-
+      <import src="start" base="with-import-and-you-can-use-components" />
       <message>
         <b>Welcome to the bot {{userName}}</b>
 
         <b>❓ Help</b> - View help
       </message>
-
       <message lang="it">
         <b>Benvenuto nel Bot di {{userName}}</b>
 
         <b>❓ Aiuto</b> - Ottieni assistenza e informazioni
       </message>
-
       <message lang="id">
         <b>Selamat datang di bot {{userName}}</b>
 

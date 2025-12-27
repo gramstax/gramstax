@@ -1,3 +1,7 @@
+import { KeyboardComponent } from "~/components/keyboard"
 import { CtxCore } from "~/core/ctx"
 
-export abstract class PageBase extends CtxCore {}
+export abstract class PageBase extends CtxCore {
+  public static KbCom = KeyboardComponent
+  public static KbData = this.KbCom.data
+}
