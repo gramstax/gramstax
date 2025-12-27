@@ -289,15 +289,15 @@ export class TemplateEngine {
     }
   }
 
-  public static compileMedia(template: string) {
-    const baseBlocks = this._processBaseBlocks(template)
+  public static compileMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
+    const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
         [lang: string]: (data?: Record<string, any>) => IMediaBlock
       }
     } = {}
 
-    for (const [baseId, baseContent] of Object.entries(baseBlocks)) {
+    for (const [baseId, baseContent] of Object.entries(bases)) {
       const mediaBlocks = this._processMediaBlocks(baseContent)
       result[baseId] = {}
 
@@ -323,15 +323,15 @@ export class TemplateEngine {
     return result
   }
 
-  public static compileMessages(template: string) {
-    const baseBlocks = this._processBaseBlocks(template)
+  public static compileMessages(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
+    const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
         [lang: string]: (data?: Record<string, any>) => string
       }
     } = {}
 
-    for (const [baseId, baseContent] of Object.entries(baseBlocks)) {
+    for (const [baseId, baseContent] of Object.entries(bases)) {
       const messages = this._processMessageBlocks(baseContent)
       result[baseId] = {}
 
@@ -344,8 +344,8 @@ export class TemplateEngine {
     return result
   }
 
-  public static compileDescription(template: string) {
-    const baseBlocks = this._processBaseBlocks(template)
+  public static compileDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
+    const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
         [scope: string]: {
@@ -354,7 +354,7 @@ export class TemplateEngine {
       }
     } = {}
 
-    for (const [baseId, baseContent] of Object.entries(baseBlocks)) {
+    for (const [baseId, baseContent] of Object.entries(bases)) {
       const descriptions = this._processDescriptionBlocks(baseContent)
       result[baseId] = {}
 
@@ -372,8 +372,8 @@ export class TemplateEngine {
     return result
   }
 
-  public static compileKeyboards(template: string) {
-    const baseBlocks = this._processBaseBlocks(template)
+  public static compileKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
+    const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
         [lang: string]: {
@@ -383,7 +383,7 @@ export class TemplateEngine {
       }
     } = {}
 
-    for (const [baseId, baseContent] of Object.entries(baseBlocks)) {
+    for (const [baseId, baseContent] of Object.entries(bases)) {
       const keyboards = this._processKeyboardBlocks(baseContent)
       result[baseId] = {}
 
@@ -557,7 +557,7 @@ export class TemplateEngine {
     return { processed, imports }
   }
 
-  public static processImportBlocks(template: string, resolver: (src: string) => string | null, depth = 0): string {
+  public static processImportBlocks(template: string, resolver: (src: string) => string | null, depth = 0, importCache?: Map<string, string>): string {
     if (depth > 10) return `` // recursive limit
 
     const { processed, imports } = this._processImportBlocks(template)
@@ -565,12 +565,25 @@ export class TemplateEngine {
     let result = processed
     for (let i = 0; i < imports.length; i++) {
       const importInfo = imports[i]!
-      const content = resolver(importInfo.src)
-      let resolved = content ? this._extractBlock(content, importInfo.blocks, importInfo.base, importInfo.section, importInfo.lang) : ``
 
-      // Recursive process: resolve imports within the resolved content
-      if (resolved && resolved.includes(`<import`)) {
-        resolved = this.processImportBlocks(resolved, resolver, depth + 1)
+      // Unique key for cache: src|base|lang|section|blocks
+      const cacheKey = `${importInfo.src}|${importInfo.base}|${importInfo.lang || ``}|${importInfo.section}|${Array.isArray(importInfo.blocks) ? importInfo.blocks.join(`,`) : importInfo.blocks || ``}`
+
+      let resolved: string
+      if (importCache && importCache.has(cacheKey)) {
+        resolved = importCache.get(cacheKey)!
+      } else {
+        const content = resolver(importInfo.src)
+        resolved = content ? this._extractBlock(content, importInfo.blocks, importInfo.base, importInfo.section, importInfo.lang) : ``
+
+        // Recursive process: resolve imports within the resolved content
+        if (resolved && resolved.includes(`<import`)) {
+          resolved = this.processImportBlocks(resolved, resolver, depth + 1, importCache)
+        }
+
+        if (importCache) {
+          importCache.set(cacheKey, resolved)
+        }
       }
 
       // Apply indentation to all lines except the first

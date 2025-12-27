@@ -126,19 +126,51 @@ export class TemplateManager {
     }
   }
 
-  /** Load all Template files during initialization */
+  /** Load all Template files during initialization with batch optimization */
   public _loadAllFiles(): void {
+    const rawTemplates = new Map<string, string>()
+    const pagesToCleanup: any[] = []
+
+    // 1. Collect all raw templates (from all paths)
     for (let index = 0; index < this._path.length; index++) {
       const pt = this._path[index] as string
       const files = readdirSync(pt, `utf8`)
       const validFiles = files.filter((file) => this._isValidFile(file))
+
       for (const fileName of validFiles) {
-        this._loadFile(fileName)
+        const path = join(pt, fileName)
+        const ext = this._getExtension(fileName)
+        const key = this._getKey(fileName)
+
+        if (ext === `.html`) {
+          rawTemplates.set(key, readFileSync(path, `utf8`))
+        } else if (ext === `.ts`) {
+          const Page = PageManager.getFileSync(path, false)
+          if (Page?.template !== undefined) {
+            rawTemplates.set(key, Page.template)
+            pagesToCleanup.push(Page)
+          }
+        }
       }
+    }
+
+    // 2. Shared cache for imports across all pages in this batch
+    const importCache = new Map<string, string>()
+
+    // 3. Compile all collected templates
+    for (const [key, template] of rawTemplates.entries()) {
+      this._compile(key, template, undefined, importCache, rawTemplates)
+    }
+
+    // 4. Memory Cleanup: clear raw templates and set Page.template to undefined
+    rawTemplates.clear()
+    importCache.clear()
+    for (const Page of pagesToCleanup) {
+      Page.template = undefined
     }
   }
 
-  /** Load and compile a single template file */
+  /** Load and compile a single template file (used by watcher) */
   public _loadFile(filename: string): void {
     for (let index = 0; index < this._path.length; index++) {
       const it = this._path[index] as string
@@ -146,7 +178,6 @@ export class TemplateManager {
       const ext = this._getExtension(filename)
       const key = this._getKey(filename)
 
-      // priority .html because if .html in directory /pages and have .ts file too its will still working
       if (ext == `.html`) {
         const raw = readFileSync(path, `utf8`)
         this._compile(key, raw)
@@ -154,8 +185,8 @@ export class TemplateManager {
         const Page = PageManager.getFileSync(path, false)
         if (Page?.template !== undefined) {
           this._compile(key, Page.template)
+          Page.template = undefined // Cleanup single file as well
         }
-        Page.template = undefined
       } else {
         throw new Error(`File ${filename} is not support`)
       }
@@ -215,40 +246,43 @@ export class TemplateManager {
     return filename.replace(/\.[^/.]+$/, ``)
   }
 
-  public _compile(key: string, template: string, keepIfExist?: Partial<{ [K in keyof ICompiledTemplate]: boolean }>) {
+  public _compile(key: string, template: string, keepIfExist?: Partial<{ [K in keyof ICompiledTemplate]: boolean }>, importCache?: Map<string, string>, rawCache?: Map<string, string>) {
     const existing = this._map.get(key)
     const compiled = existing || ({} as ICompiledTemplate)
     let updated = false
 
-    // Process Imports using callback
-    const cache = new Map<string, string | null>()
-    const processedTemplate = TemplateEngine.processImportBlocks(template, (src) => {
-      const valueCache = cache.get(src)
-      if (!valueCache) {
-        const value = this._readTemplateFile(src)
-        cache.set(src, value)
-        return value
-      }
-      return valueCache
-    })
+    // Process Imports
+    const processedTemplate = TemplateEngine.processImportBlocks(
+      template,
+      (src) => {
+        // 1. Check rawCache (for batch loading)
+        if (rawCache && rawCache.has(src)) {
+          return rawCache.get(src)!
+        }
+        // 2. Fallback to disk
+        return this._readTemplateFile(src)
+      },
+      0,
+      importCache
+    )
 
-    // clear simple cache
-    cache.clear()
+    // Memoize base blocks to avoid redundant regex parsing
+    const baseBlocks = TemplateEngine._processBaseBlocks(processedTemplate)
 
     if (keepIfExist === undefined || keepIfExist?.media === false || existing?.media === undefined) {
-      compiled.media = TemplateEngine.compileMedia(processedTemplate)
+      compiled.media = TemplateEngine.compileMedia(processedTemplate, baseBlocks)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.message === false || existing?.message === undefined) {
-      compiled.message = TemplateEngine.compileMessages(processedTemplate)
+      compiled.message = TemplateEngine.compileMessages(processedTemplate, baseBlocks)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.keyboard === false || existing?.keyboard === undefined) {
-      compiled.keyboard = TemplateEngine.compileKeyboards(processedTemplate)
+      compiled.keyboard = TemplateEngine.compileKeyboards(processedTemplate, baseBlocks)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.description === false || existing?.description === undefined) {
-      compiled.description = TemplateEngine.compileDescription(processedTemplate)
+      compiled.description = TemplateEngine.compileDescription(processedTemplate, baseBlocks)
       updated = true
     }
 
