@@ -9,6 +9,7 @@ import { TestVoicePage } from "./test-voice"
 import { TestPhotoPage } from "./test-photo"
 import { TestVideoPage } from "./test-video"
 import { TestAudioPage } from "./test-audio"
+import { BlockSwitchPage } from "./block-switch"
 import { BlockImportPage } from "./block-import"
 import { TestContactPage } from "./test-contact"
 import { TestStickerPage } from "./test-sticker"
@@ -53,8 +54,9 @@ export class StartPage extends PageBase {
         .text(arr[17]!, BlockMapPage.data.callbackData())
         .row()
         .text(arr[18]!, BlockImportPage.data.callbackData())
+        .text(arr[19]!, BlockSwitchPage.data.callbackData())
         .row()
-        .text(arr[19]!, this.data.callbackData())
+        .text(arr[20]!, this.data.callbackData())
     })
   }
 
@@ -123,8 +125,8 @@ export class StartPage extends PageBase {
       <description>Default description command start</description>
       <description lang="en">[EN] Description command start</description>
       <description lang="id">[ID] Deskripsi perintah start</description>
-      <keyboard>Counter, Counter Thread, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Block Map, Block Import, Refresh</keyboard>
-      <keyboard lang="id">Kounter, Kounter Thread, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Test SalahI, Masukkan Teks, Blok Map, Blok Import, Segarkan</keyboard>
+      <keyboard>Counter, Counter Thread, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Block Map, Block Import, Block Switch, Refresh</keyboard>
+      <keyboard lang="id">Kounter, Kounter Thread, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Test SalahI, Masukkan Teks, Blok Map, Blok Import, Blok Switch, Segarkan</keyboard>
       <message>
         {{time}}
 
