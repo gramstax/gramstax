@@ -66,6 +66,49 @@ export class TemplateEngine {
     })
   }
 
+  public static _processSwitchBlocks(template: string) {
+    const switchRegex = /<switch\b(?:\s+value="([^"]+)")?>([\s\S]*?)<\/switch>/gi
+    return template.replace(switchRegex, (_, valueKey, innerContent) => {
+      if (!valueKey) return ``
+
+      let casesJs = ``
+      const caseRegex = /<case\b(?:\s+is="([^"]+)")?>([\s\S]*?)<\/case>/gi
+      const defaultRegex = /<default>([\s\S]*?)<\/default>/gi
+
+      let match
+      while ((match = caseRegex.exec(innerContent)) !== null) {
+        const values = (match[1] || ``).split(`,`).map((v) => v.trim())
+        const content = (match[2] || ``)
+          .replace(/^[\t ]+/gm, ``)
+          .replace(/^\n+/, ``)
+          .replace(/\n+$/, ``)
+          .trim()
+          .replace(/`/g, `\\\``)
+
+        values.forEach((v) => {
+          casesJs += `case "${v}": `
+        })
+        casesJs += `return \`${content}\`; `
+      }
+
+      // Reset regex index for safety if needed, though we only call once per switch
+      const defaultMatch = defaultRegex.exec(innerContent)
+      if (defaultMatch) {
+        const content = (defaultMatch[1] || ``)
+          .replace(/^[\t ]+/gm, ``)
+          .replace(/^\n+/, ``)
+          .replace(/\n+$/, ``)
+          .trim()
+          .replace(/`/g, `\\\``)
+        casesJs += `default: return \`${content}\`; `
+      } else {
+        casesJs += `default: return ''; `
+      }
+
+      return `\${(() => { switch((data && data["${valueKey}"])) { ${casesJs} } })()}`
+    })
+  }
+
   public static _processExec(template: string) {
     return template.replace(/{~\s*([\s\S]*?)\s*~}/g, (_, code) => `\${(() => { try { return ${code} } catch(e) { try { with(data || {}) { return ${code} } } catch(ee) { return '' } } })()}`)
   }
@@ -307,7 +350,7 @@ export class TemplateEngine {
         for (const [key, value] of Object.entries(mediaBlock)) {
           if (key === `type` || typeof value !== `string`) continue
 
-          const processed = this._processVariables(this._processExec(this._processMapBlocks(this._processScriptBlocks(value))))
+          const processed = this._processVariables(this._processExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(value)))))
           compiledProps[key] = this._compileToFunction(processed, false)
         }
 
@@ -336,7 +379,7 @@ export class TemplateEngine {
       result[baseId] = {}
 
       for (const [lang, content] of Object.entries(messages)) {
-        const processed = this._processVariables(this._processExec(this._processMapBlocks(this._processScriptBlocks(content))))
+        const processed = this._processVariables(this._processExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(content)))))
         result[baseId][lang] = this._compileToFunction(processed, false)
       }
     }
@@ -363,7 +406,7 @@ export class TemplateEngine {
           if (!result[baseId][scope]) {
             result[baseId][scope] = {}
           }
-          const processed = this._processVariables(this._processExec(this._processMapBlocks(this._processScriptBlocks(content))))
+          const processed = this._processVariables(this._processExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(content)))))
           result[baseId][scope][lang] = this._compileToFunction(processed, false)
         }
       }
@@ -394,7 +437,7 @@ export class TemplateEngine {
           // Seperates label, handle escaped comma
           const labels = content.split(/(?<!\\),\s*/).map((label: string) => label.replace(/\\,/g, `,`).trim())
 
-          const processedLabels = labels.map((label) => this._processVariables(this._processExec(this._processMapBlocks(this._processScriptBlocks(label)))))
+          const processedLabels = labels.map((label) => this._processVariables(this._processExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(label))))))
 
           result[baseId][lang][mode as `inline` | `bottom`] = this._compileToFunction(processedLabels, true)
         }
