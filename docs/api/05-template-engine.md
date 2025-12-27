@@ -77,10 +77,34 @@ Iterates over an array to generate dynamic content.
 - **Variables:**
   - `{{e}}`: Current element.
   - `{{i}}`: Current index.
-- **Example:**
   ```html
   <map src="users" join=", ">{{e.name}}</map>
   ```
+
+#### `<switch>`
+
+Conditionally renders content based on a value from the `data` object.
+
+- **Attributes:**
+  - `value`: (Required) The key in the data object to check.
+- **Child Blocks:**
+  - `<case>`:
+    - `is`: (Required) The value to match. Supports multiple comma-separated values (e.g., `is="admin, mod"`).
+  - `<default>`: (Optional) Content to render if no cases match.
+- **Example:**
+
+  ```html
+  <switch value="role">
+    <case is="admin, owner"> 👑 Administrator </case>
+    <case is="user"> 👤 Member </case>
+    <default> 👥 Guest </default>
+  </switch>
+  ```
+
+- **Important:**
+  - Standard top-level blocks like `<message>`, `<keyboard>`, `<media>`, and `<description>` are **not supported** inside `<case>` or `<default>`.
+  - The `value` and `is` attributes are treated as literal keys or strings. Advanced logical comparisons (e.g., `>`, `<`, `&&`) are not supported.
+  - Nesting `<switch>` tags within the same file is **not supported**. For nested logic, use the `<import>` tag to call another template that contains a `<switch>`.
 
 #### `<import>`
 
@@ -162,6 +186,14 @@ Imports content from another template file.
   - `template`: `[string]` - The raw template string.
 - **Returns:** `string` - Template with execution logic.
 - **Example:** `TemplateEngine._processExec("{~ if(true) 'yes' ~}");`
+
+### `_processSwitchBlocks(template)`
+
+- **Description:** Transpiles `<switch>`, `<case>`, and `<default>` tags into native JS `switch` statements.
+- **Params:**
+  - `template`: `[string]` - The raw template string.
+- **Returns:** `string` - Transpiled template.
+- **Example:** `TemplateEngine._processSwitchBlocks('<switch value="role">...</switch>');`
 
 ### `_processMapBlocks(template)`
 
