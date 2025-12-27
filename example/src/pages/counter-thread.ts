@@ -26,15 +26,13 @@ export class CounterThreadPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <import src="start" base="ikb-refresh-back" />
-
+      ${this.KbCom.refreshBack()}
       <message>
         Counter: {{count}}
         Timestamp: {{timestamp}}
 
         That value count is from increment jobs thread
       </message>
-
       <message lang="id">
         Kounter: {{count}}
         Waktu Stamp: {{timestamp}}

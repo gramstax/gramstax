@@ -4,7 +4,10 @@ import { StartPage } from "./start"
 export class BlockImportPage extends PageBase {
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
-      return kb.text(arr[0]!, StartPage.data.callbackData())
+      return kb //
+        .text(arr[0]!, this.data.callbackData())
+        .row()
+        .text(arr[1]!, StartPage.data.callbackData())
     })
   }
 

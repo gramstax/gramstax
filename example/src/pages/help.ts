@@ -14,8 +14,7 @@ export class HelpPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <import src="start" base="ikb-back" />
-
+      ${this.KbCom.back()}
       <message>Help content page</message>
       <message lang="id">Bantuan konten halaman</message>
     </base>

@@ -23,27 +23,24 @@ export class InputTextPage extends PageBase {
   }
 
   public static template = /*jsx*/ `
-    <base id="result">  
-      <import src="start" base="ikb-home" />
+    <base>
+      ${this.KbCom.cancel()}
+      <message>Please input text you want view</message>
+      <message lang="id">Tolong masukan text yang ingin anda liat</message>
+    </base>
 
+    <base id="result">
+      ${this.KbCom.home()}
       <message>
         Result: {{res}}
 
         Please input other text to see difference result
       </message>
-
       <message lang="id">
         Hasil: {{res}}
 
         Tolong masukan text lain untuk lihat hasil yang berbeda
       </message>
-    </base>
-
-    <base>
-      <import src="start" base="ikb-cancel" />
-
-      <message>Please input text you want view</message>
-      <message lang="id">Tolong masukan text yang ingin anda liat</message>
     </base>
   `
 }

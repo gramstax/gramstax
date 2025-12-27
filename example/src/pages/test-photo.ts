@@ -1,3 +1,4 @@
+import { KeyboardComponent } from "~/components/keyboard"
 import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
@@ -14,15 +15,9 @@ export class TestPhotoPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <import src="start" base="ikb-back" />
-
-      <media type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
-        This is a caption text for media <b>photo</b>
-      </media>
-
-      <media lang="id" type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
-        Ini adalah caption text untuk media <b>foto</b>
-      </media>
+      ${KeyboardComponent.back()}
+      <media type="photo" src="https://www.w3schools.com/html/img_girl.jpg">Caption text for media <b>photo</b></media>
+      <media lang="id" type="photo" src="https://www.w3schools.com/html/img_girl.jpg">Kaption text untuk media <b>foto</b></media>
     </base>
   `
 }

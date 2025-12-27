@@ -1,4 +1,4 @@
-import { logUt } from "~/utils/log"
+import { log } from "gramstax"
 import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
@@ -10,7 +10,7 @@ export class GeneralErrorPage extends PageBase {
   }
 
   public async transition(constructorName: string, funcName: string, error: any, isUpdate = true) {
-    logUt.errorMake(error, constructorName, funcName)
+    log.errorMake(error, constructorName, funcName)
 
     await this.sessionClear()
     const kb = this.kb()
@@ -23,15 +23,13 @@ export class GeneralErrorPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <import src="start" base="ikb-home" />
-
+      ${this.KbCom.home()}
       <message>
         <b>❌ Error</b>
 
         An unexpected error occurred.
         Please try again later.
       </message>
-
       <message lang="id">
         <b>❌ Kesalahan</b>
 

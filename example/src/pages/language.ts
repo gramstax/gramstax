@@ -48,8 +48,8 @@ export class LanguagePage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">EN, ID, Back</keyboard>
-      <keyboard lang="id" type="inline">EN, ID, Kembali</keyboard>
+      <keyboard>EN, ID, ${this.KbData.back(`default`)}</keyboard>
+      <keyboard lang="id">EN, ID, ${this.KbData.back(`id`)}</keyboard>
 
       <message>Choose language below</message>
       <message lang="id">Pilih bahasa di bawah</message>

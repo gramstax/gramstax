@@ -1,3 +1,4 @@
+import { KeyboardComponent } from "~/components/keyboard"
 import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
@@ -14,8 +15,7 @@ export class TestLocationPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <import src="start" base="ikb-back" />
-
+      ${KeyboardComponent.back()}
       <media type="location" latitude="51.50735" longitude="-0.12776"></media>
       <media lang="id" type="location" latitude="-7.257471" longitude="112.752088"></media>
     </base>

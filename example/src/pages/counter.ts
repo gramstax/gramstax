@@ -1,4 +1,3 @@
-import { KbCom } from "~/components/keyboard"
 import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
@@ -39,8 +38,8 @@ export class CounterPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">Increase, Decrease, ${KbCom.back()}</keyboard>
-      <keyboard lang="id" type="inline">Tambah, Kurang, ${KbCom.back()}</keyboard>
+      <keyboard>Increase, Decrease, ${this.KbCom.back()}</keyboard>
+      <keyboard lang="id">Tambah, Kurang, ${this.KbCom.back()}</keyboard>
       <message>
         Count: {{count}}
 

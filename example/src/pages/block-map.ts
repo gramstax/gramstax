@@ -23,8 +23,7 @@ export class BlockMapPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <import src="start" base="ikb-refresh-back" />
-
+      ${this.KbCom.refreshBack()}
       <message>
         <b>Mapping data directly in template</b>
 
@@ -34,7 +33,6 @@ export class BlockMapPage extends PageBase {
           Status: {{status}}
         </map>
       </message>
-
       <message lang="id">
         <b>Pemetaan data langsung di template</b>
 

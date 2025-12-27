@@ -1,5 +1,6 @@
 import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
+import { KeyboardComponent } from "~/components/keyboard"
 
 export class TestVideoNotePage extends PageBase {
   public kb() {
@@ -14,8 +15,7 @@ export class TestVideoNotePage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <import src="start" base="ikb-back" />
-
+      ${KeyboardComponent.back()}
       <media type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4"></media>
       <media lang="id" type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4"></media>
     </base>

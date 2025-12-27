@@ -1,9 +1,6 @@
-import { logUt } from "~/utils/log"
-import { SubThread } from "~/thread/sub"
-import { MainThread } from "~/thread/main"
-import { ExportThread } from "~/thread/export"
+import { log, ThreadMain, ThreadSub, ThreadExport } from "gramstax"
 
-export class IncrementCoreJob extends SubThread {
+export class IncrementCoreJob extends ThreadSub {
   public count = 0
   public constructor() {
     super()
@@ -11,7 +8,7 @@ export class IncrementCoreJob extends SubThread {
     const ms = process.argv[3] as any
     setInterval(() => {
       this.count += 1
-      logUt.debug(`(${this.id}) [SubThread:IncrementJob] count: ${this.count}`)
+      log.debug(`(${this.id}) [SubThread:IncrementJob] count: ${this.count}`)
     }, ms)
   }
 
@@ -20,10 +17,10 @@ export class IncrementCoreJob extends SubThread {
   }
 }
 
-export const IncrementJob = ExportThread.init({
+export const IncrementJob = ThreadExport.init({
   path: __filename,
   CSub: IncrementCoreJob,
-  CMain: MainThread,
+  CMain: ThreadMain,
   wrap: (main) => ({
     getCount: async () => await main.sendRequest(`getCount`, [])
   })

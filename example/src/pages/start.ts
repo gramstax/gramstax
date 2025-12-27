@@ -20,7 +20,7 @@ import { TestVideoNotePage } from "./test-video-note"
 import { TestErrorInputPage } from "./test-error-input"
 
 export class StartPage extends PageBase {
-  public static data = this.buildData((con: string = ``) => con)
+  public static data = this.buildData((rdm: string = ``) => rdm)
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
@@ -101,54 +101,30 @@ export class StartPage extends PageBase {
   }
 
   public static template = /*jsx*/ `
-    <base id="ikb-home">
-      <keyboard type="inline">.. Home</keyboard>
-      <keyboard lang="id" type="inline">.. Beranda</keyboard>
-    </base>
-
-    <base id="ikb-cancel">
-      <keyboard type="inline">Cancel</keyboard>
-      <keyboard lang="id" type="inline">Batal</keyboard>
-    </base>
-
-    <base id="ikb-back">
-      <keyboard type="inline">Back</keyboard>
-      <keyboard lang="id" type="inline">Kembali</keyboard>
-    </base>
-
-    <base id="ikb-refresh-back">
-      <keyboard type="inline">
-        Refresh, 
-        <import src="start" base="ikb-back" lang="default" block="keyboard" section="value" />
-      </keyboard>
-      <keyboard lang="id" type="inline">
-        Segarkan, 
-        <import src="start" base="ikb-back" lang="id" block="keyboard" section="value" />
-      </keyboard>
+    <base id="kb-for-block-import">
+      ${this.KbCom.refreshBack()}
     </base>
 
     <base id="for-block-import">
-      <import src="start" base="ikb-back" />
-
+      <import src="start" base="kb-for-block-import" />
       <message>
-        This message and keyboard import from start.ts for file block-import.ts
+        This message and keyboard import from start.ts for file block-import.ts use block import
 
         Random: {{number}}
       </message>
       <message lang="id">
-        Pesan ini dan keyboard di import dari start.ts untuk file block-import.ts
+        Pesan ini dan keyboard di import dari start.ts untuk file block-import.ts menggunakan block import
 
         Acak: {{number}}
       </message>
     </base>
-
+    
     <base>
       <description>Default description command start</description>
       <description lang="en">[EN] Description command start</description>
-      <description lang="id">[ID] Deskripsi perintah start</description>      
-      <keyboard type="inline">Counter, Counter Thread, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Block Map, Block Import, Refresh</keyboard>
-      <keyboard lang="id" type="inline">Kounter, Kounter Thread, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Test SalahI, Masukkan Teks, Blok Map, Blok Import, Segarkan</keyboard>
-
+      <description lang="id">[ID] Deskripsi perintah start</description>
+      <keyboard>Counter, Counter Thread, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Block Map, Block Import, Refresh</keyboard>
+      <keyboard lang="id">Kounter, Kounter Thread, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Test SalahI, Masukkan Teks, Blok Map, Blok Import, Segarkan</keyboard>
       <message>
         {{time}}
 
@@ -156,7 +132,6 @@ export class StartPage extends PageBase {
 
         This is test gramstax
       </message>
-
       <message lang="id">
         {{time}}
 

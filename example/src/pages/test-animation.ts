@@ -33,33 +33,17 @@ export class TestAnimationPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard type="inline">
-        Dynamic Attribute, 
-        Static Attribute, 
-        <import src="start" base="ikb-back" lang="default" block="keyboard" section="value" />
-      </keyboard>
-      <keyboard lang="id" type="inline">
-        Dynamic Attribute, 
-        Static Attribute, 
-        <import src="start" base="ikb-back" lang="id" block="keyboard" section="value" />
-      </keyboard>
-
-      <media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
-        This is a caption text for media <b>animation</b>
-      </media>
-
-      <media lang="id" type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
-        Ini adalah caption text untuk media <b>animasi</b>
-      </media>
+      <keyboard>Dynamic Attr, Static Attr, ${this.KbData.back(`default`)}</keyboard>
+      <keyboard lang="id">Dynamic Attr, Static Attr, ${this.KbData.back(`id`)}</keyboard>
+      <media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">Caption text for media <b>animation</b></media>
+      <media lang="id" type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">Kaption text untuk media <b>animasi</b></media>
     </base>
-
     <base id="dynamic-attribute">
       <media type="animation" src="{{src}}">
         Supports dynamic variables and exec in attribute, except attribute lang and type. only applies to &lt;media&gt; blocks
 
         This is a caption text for media <b>animation</b>
       </media>
-
       <media lang="id" type="animation" src="{{src}}">
         Mendukung semua variables dan exec di attribute, kecuali attribute lang dan type. hanya berlaku untuk blok &lt;media&gt;
 

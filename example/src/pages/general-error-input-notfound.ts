@@ -1,6 +1,5 @@
 import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
-import { KbCom } from "~/components/keyboard"
 
 export class GeneralErrorInputNotFoundPage extends PageBase {
   public kb() {
@@ -15,7 +14,7 @@ export class GeneralErrorInputNotFoundPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      ${KbCom.home()}
+      ${this.KbCom.home()}
       <message><b>❌ Not Found</b></message>
       <message lang="id"><b>❌ Tidak Ditemukan</b></message>
     </base>

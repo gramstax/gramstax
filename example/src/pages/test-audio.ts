@@ -14,15 +14,9 @@ export class TestAudioPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <import src="start" base="ikb-back" />
-
-      <media type="audio" src="https://www.w3schools.com/html/horse.ogg">
-        This is a caption text for media <b>audio</b>
-      </media>
-
-      <media lang="id" type="audio" src="https://www.w3schools.com/html/horse.ogg">
-        Ini adalah caption text untuk media <b>suara</b>
-      </media>
+      ${this.KbCom.back()}
+      <media type="audio" src="https://www.w3schools.com/html/horse.ogg">Caption text for media <b>audio</b></media>
+      <media lang="id" type="audio" src="https://www.w3schools.com/html/horse.ogg">Kaption text untuk media <b>suara</b></media>
     </base>
   `
 }
