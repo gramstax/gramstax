@@ -377,9 +377,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       lenListRouteStaticSession: listRouteStaticSession.length
     }
 
-    PageManager.getFileManySync(undefined, true).forEach(({ path, page }) => {
+    PageManager.getFileManySync(undefined).forEach(({ path, page }) => {
       this.pageBuildData(page, path) // create if not exist and set name (without ext) according filePath
       this.pageSorts(page, pages) // sort route method
+      page.template = undefined // delete template for efficient memory
     })
 
     this.log?.info?.(`Finish load pages with total (${Object.keys(pages.all).length})`)
