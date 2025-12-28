@@ -145,7 +145,7 @@ export class TemplateManager {
         if (ext === `.html`) {
           rawTemplates.set(key, readFileSync(path, `utf8`))
         } else if (ext === `.ts`) {
-          const Page = PageManager.getFileSync(path, false)
+          const Page = PageManager.getFileSync(path)
           if (Page?.template !== undefined) {
             rawTemplates.set(key, Page.template)
             pagesToCleanup.push(Page)
@@ -182,7 +182,7 @@ export class TemplateManager {
         const raw = readFileSync(path, `utf8`)
         this._compile(key, raw)
       } else if (ext == `.ts`) {
-        const Page = PageManager.getFileSync(path, false)
+        const Page = PageManager.getFileSync(path)
         if (Page?.template !== undefined) {
           this._compile(key, Page.template)
           Page.template = undefined // Cleanup single file as well
@@ -209,7 +209,7 @@ export class TemplateManager {
             return readFileSync(fullPath, `utf8`)
           } else if (ext === `.ts`) {
             try {
-              const Page = PageManager.getFileSync(fullPath, false)
+              const Page = PageManager.getFileSync(fullPath)
               return Page?.template ?? null
             } catch {
               return null
@@ -223,7 +223,7 @@ export class TemplateManager {
       const tsPath = join(importPath, `${filename}.ts`)
       if (existsSync(tsPath) && statSync(tsPath).isFile()) {
         try {
-          const Page = PageManager.getFileSync(tsPath, false)
+          const Page = PageManager.getFileSync(tsPath)
           return Page?.template ?? null
         } catch {
           // If failed to load TS, continue to check HTML
