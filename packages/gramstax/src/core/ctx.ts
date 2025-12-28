@@ -47,7 +47,7 @@ export class Ctx {
     return this.ct.from?.username as string
   }
   public get userFullName() {
-    return `${this.ct.from?.first_name}${this.ct.from?.last_name}`
+    return `${this.ct.from?.first_name} ${this.ct.from?.last_name || ``}`
   }
   public get userFirstName() {
     return this.ct.from?.first_name as string
