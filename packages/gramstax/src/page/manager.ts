@@ -23,7 +23,8 @@ export class PageManager {
     if (!path) {
       path = this.getFilePath()
     }
-    const mod = require(path) as Record<any, any> // eslint-disable-line
+    const mod: any = require(path) // eslint-disable-line
+    delete require.cache[require.resolve(path)] // delete for memory free
     return this._getFile(mod, path, redactedTemplate, positionModule)
   }
 
