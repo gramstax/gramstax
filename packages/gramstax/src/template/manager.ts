@@ -27,6 +27,7 @@ export class TemplateManager {
   public _map = new Map<string, ICompiledTemplate>()
   public _engine = TemplateEngine
   public _watcher: FSWatcher[] = []
+  public _pageManager = PageManager
   public _supportedExtensions = new Set([`.html`, `.ts`])
   public readonly _path: ITemplateOptions[`path`]
   public readonly _isWatchEnabled: ITemplateOptions[`enableWatch`]

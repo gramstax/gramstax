@@ -49,4 +49,20 @@ export class PageManager {
       }
     })
   }
+
+  public static clearCacheRequire(path?: string) {
+    if (!path) {
+      path = this.getFilePath()
+    }
+    if (!existsSync(path)) {
+      throw new Error(`Directory ${path} is not found, please make it manually`)
+    }
+
+    const files = readdirSync(path)
+    files.forEach((file) => {
+      const pathFile = join(path, file)
+      delete require.cache[require.resolve(pathFile)]
+    })
+    return true
+  }
 }
