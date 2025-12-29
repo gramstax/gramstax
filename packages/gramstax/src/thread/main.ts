@@ -1,17 +1,18 @@
-import { isMainThread } from "bun"
+import { Worker, isMainThread } from "node:worker_threads"
 
 export class ThreadMain {
   public map = new Map<number, (value: any) => any>()
   public sub: Worker
-  public id: number
+  public pid = process.pid
+  public subId: number
   public constructor(public path: string, public argv?: any[]) {
     if (!isMainThread) {
       throw new Error(`Is not main thread`)
     }
 
     this.sub = new Worker(path, { argv })
-    this.id = this.sub.threadId
-    this.sub.onmessage = async ({ data }) => {
+    this.subId = this.sub.threadId
+    this.sub.on(`message`, async (data) => {
       const { id, method, params, result } = data
       if (method !== undefined) {
         // Handle request from sub
@@ -30,7 +31,7 @@ export class ThreadMain {
           this.map.delete(id)
         }
       }
-    }
+    })
   }
 
   public createId() {
@@ -54,17 +55,5 @@ export class ThreadMain {
 
   public kill() {
     this.sub.terminate()
-  }
-
-  public async clone(argv?: any[]) {
-    // for run sub thread with position linear 1, 2, 3, ...
-    await new Promise((resolve) => {
-      setInterval(() => {
-        if (this.id) {
-          resolve(this.id)
-        }
-      }, 100)
-    })
-    return new ThreadMain(this.path, argv)
   }
 }

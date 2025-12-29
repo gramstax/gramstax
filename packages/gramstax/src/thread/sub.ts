@@ -1,18 +1,17 @@
-import { isMainThread } from "bun"
-
-declare const self: Worker
+import { parentPort, threadId, isMainThread } from "node:worker_threads"
 
 export class ThreadSub {
   public map = new Map<number, (value: any) => any>()
   public argv = process.argv
-  public id = process.pid
+  public id = threadId
+  public pid = process.pid
   public threadIsMain = isMainThread
   public constructor() {
     if (this.threadIsMain) {
       throw new Error(`Is not sub thread`)
     }
 
-    self.onmessage = async ({ data }) => {
+    parentPort!.on(`message`, async (data) => {
       const { id, method, params, result } = data
       if (method !== undefined) {
         // request from main
@@ -35,7 +34,7 @@ export class ThreadSub {
           this.map.delete(id)
         }
       }
-    }
+    })
   }
 
   public createId() {
@@ -43,7 +42,7 @@ export class ThreadSub {
   }
 
   public send(payload: any) {
-    self.postMessage(payload)
+    parentPort!.postMessage(payload)
   }
 
   public async sendRequest(method: string, params: any, wait = true) {
@@ -55,9 +54,5 @@ export class ThreadSub {
       this.map.set(id, resolve)
       this.send({ id, method, params })
     })
-  }
-
-  public kill() {
-    self.terminate()
   }
 }

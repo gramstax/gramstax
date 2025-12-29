@@ -6,32 +6,32 @@ export class ThreadMainPool {
   public constructor(instance: (Promise<ThreadMain> | ThreadMain)[]) {
     instance.forEach(async (it) => {
       const itw = await it
-      this.thread[itw.id] = itw
+      this.thread[itw.subId] = itw
       this.threadCount += 1
     })
   }
 
   public add(instance: ThreadMain) {
-    this.thread[instance.id] = instance
+    this.thread[instance.subId] = instance
     this.threadCount += 1
   }
 
-  public getInstance(id: number) {
-    return this.thread[id]
+  public getInstance(subId: number) {
+    return this.thread[subId]
   }
 
   public killAll() {
-    return Object.values(this.thread).map(({ id }) => {
-      return this.kill(id)
+    return Object.values(this.thread).map(({ subId }) => {
+      return this.kill(subId)
     })
   }
 
-  public kill(id: number) {
-    const ins = this.thread[id]
+  public kill(subId: number) {
+    const ins = this.thread[subId]
     ins?.kill()
-    delete this.thread[id]
+    delete this.thread[subId]
     this.threadCount -= 1
-    return ins?.id
+    return ins?.subId
   }
 
   public async broadcastRequest(method: string, params: any) {
@@ -42,7 +42,7 @@ export class ThreadMainPool {
     )
   }
 
-  public async sendRequest(id: number, method: string, params: any, wait = true) {
-    return await this.thread[id]?.sendRequest(method, params, wait)
+  public async sendRequest(subId: number, method: string, params: any, wait = true) {
+    return await this.thread[subId]?.sendRequest(method, params, wait)
   }
 }
