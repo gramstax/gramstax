@@ -23,7 +23,7 @@ export class GeneralErrorPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      ${this.KbCom.home()}
+      ${this.kbc.home()}
       
       <message>
         <b>❌ Error</b>
