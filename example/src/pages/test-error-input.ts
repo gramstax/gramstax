@@ -18,7 +18,7 @@ export class TestErrorInputPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      ${this.KbCom.cancel()}
+      ${this.kbc.cancel()}
       <message>Please input text (will error because not have session)</message>
       <message lang="id">Tolong masukan text (akan menerima kesalahan karena tidak ada sesi)</message>
     </base>

@@ -23,7 +23,7 @@ export class BlockMapPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      ${this.KbCom.refreshBack()}
+      ${this.kbc.refreshBack()}
       <message>
         <b>Mapping data directly in template</b>
 

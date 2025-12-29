@@ -2,7 +2,7 @@ import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
 export class LanguagePage extends PageBase {
-  public static data = this.buildData((lang: string = ``) => lang)
+  public static data = this.buildData((lang?: string) => lang)
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
@@ -48,8 +48,8 @@ export class LanguagePage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard>EN, ID, ${this.KbData.back(`default`)}</keyboard>
-      <keyboard lang="id">EN, ID, ${this.KbData.back(`id`)}</keyboard>
+      <keyboard>EN, ID, ${this.kbd.back(`default`)}</keyboard>
+      <keyboard lang="id">EN, ID, ${this.kbd.back(`id`)}</keyboard>
 
       <message>Choose language below</message>
       <message lang="id">Pilih bahasa di bawah</message>

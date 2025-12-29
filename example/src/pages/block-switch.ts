@@ -2,7 +2,8 @@ import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
 export class BlockSwitchPage extends PageBase {
-  public static data = this.buildData((status: string = ``) => status)
+  public static data = this.buildData((status?: string) => status)
+  
   public kb(status: string) {
     return this.inlineKeyboard(
       (kb, arr) => {
@@ -34,14 +35,14 @@ export class BlockSwitchPage extends PageBase {
           <case is="1">Off</case>
           <default>On</default>
         </switch>,
-        ${this.KbData.back(`default`)}
+        ${this.kbd.back(`default`)}
       </keyboard>
       <keyboard lang="id">
         <switch value="status">
           <case is="1">Mati</case>
           <default>Nyala</default>
         </switch>,
-        ${this.KbData.back(`id`)}
+        ${this.kbd.back(`id`)}
       </keyboard>
 
       <message>

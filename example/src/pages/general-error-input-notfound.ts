@@ -14,7 +14,7 @@ export class GeneralErrorInputNotFoundPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      ${this.KbCom.home()}
+      ${this.kbc.home()}
       <message><b>❌ Not Found</b></message>
       <message lang="id"><b>❌ Tidak Ditemukan</b></message>
     </base>

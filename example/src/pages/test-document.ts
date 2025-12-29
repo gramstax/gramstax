@@ -14,7 +14,7 @@ export class TestDocumentPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      ${this.KbCom.back()}
+      ${this.kbc.back()}
       <media type="document" src="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf">Caption text for media <b>document</b></media>
       <media lang="id" type="document" src="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf">Caption text untuk media <b>dokumen</b></media>
     </base>

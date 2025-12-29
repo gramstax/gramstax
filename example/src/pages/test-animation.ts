@@ -2,7 +2,7 @@ import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
 export class TestAnimationPage extends PageBase {
-  public static data = this.buildData((swc: string = ``) => swc)
+  public static data = this.buildData((swc?: string) => swc)
 
   public kb(isDynamic = false) {
     return this.inlineKeyboard((kb, arr) => {
@@ -33,11 +33,12 @@ export class TestAnimationPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard>Dynamic Attr, Static Attr, ${this.KbData.back(`default`)}</keyboard>
-      <keyboard lang="id">Dynamic Attr, Static Attr, ${this.KbData.back(`id`)}</keyboard>
+      <keyboard>Dynamic Attr, Static Attr, ${this.kbd.back(`default`)}</keyboard>
+      <keyboard lang="id">Dynamic Attr, Static Attr, ${this.kbd.back(`id`)}</keyboard>
       <media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">Caption text for media <b>animation</b></media>
       <media lang="id" type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">Kaption text untuk media <b>animasi</b></media>
     </base>
+    
     <base id="dynamic-attribute">
       <media type="animation" src="{{src}}">
         Supports dynamic variables and exec in attribute, except attribute lang and type. only applies to &lt;media&gt; blocks

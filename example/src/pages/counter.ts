@@ -2,7 +2,7 @@ import { PageBase } from "~/base/page"
 import { StartPage } from "./start"
 
 export class CounterPage extends PageBase {
-  public static data = this.buildData((exe: string = ``) => exe)
+  public static data = this.buildData((exe?: string) => exe)
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
@@ -38,8 +38,8 @@ export class CounterPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      <keyboard>Increase, Decrease, ${this.KbCom.back()}</keyboard>
-      <keyboard lang="id">Tambah, Kurang, ${this.KbCom.back()}</keyboard>
+      <keyboard>Increase, Decrease, ${this.kbc.back()}</keyboard>
+      <keyboard lang="id">Tambah, Kurang, ${this.kbc.back()}</keyboard>
       <message>
         Count: {{count}}
 

@@ -3,7 +3,7 @@ import { StartPage } from "./start"
 import { IncrementJob } from "~/jobs/increment"
 
 export class CounterThreadPage extends PageBase {
-  public static data = this.buildData((exe: string = ``) => exe)
+  public static data = this.buildData((exe?: string) => exe)
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
@@ -26,7 +26,7 @@ export class CounterThreadPage extends PageBase {
 
   public static template = /*jsx*/ `
     <base>
-      ${this.KbCom.refreshBack()}
+      ${this.kbc.refreshBack()}
       <message>
         Counter: {{count}}
         Timestamp: {{timestamp}}

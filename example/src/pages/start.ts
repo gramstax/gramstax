@@ -1,5 +1,6 @@
 import { HelpPage } from "./help"
 import { PageBase } from "~/base/page"
+import { KbbePage } from "./kbbe"
 import { CounterPage } from "./counter"
 import { LanguagePage } from "./language"
 import { BlockMapPage } from "./block-map"
@@ -21,7 +22,7 @@ import { TestVideoNotePage } from "./test-video-note"
 import { TestErrorInputPage } from "./test-error-input"
 
 export class StartPage extends PageBase {
-  public static data = this.buildData((rdm: string = ``) => rdm)
+  public static data = this.buildData((rdm?: string) => rdm)
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
@@ -56,10 +57,10 @@ export class StartPage extends PageBase {
         .text(arr[18]!, BlockImportPage.data.callbackData())
         .text(arr[19]!, BlockSwitchPage.data.callbackData())
         .row()
-        .text(arr[20]!, this.data.callbackData())
+        .text(arr[20]!, KbbePage.data.callbackData())
+        .text(arr[21]!, this.data.callbackData())
     })
   }
-
   public async internal(condition = 1) {
     const kb = this.kb()
     const da = {
@@ -77,36 +78,31 @@ export class StartPage extends PageBase {
       await this.reply(kb, da)
     }
   }
-
+  public async transition() {
+    await this.internal(1)
+  }
   public async text() {
     await this.internal(1)
   }
-
   public async textPayload() {
     await this.internal(1)
   }
-
   public async textCommand() {
     await this.internal(1)
   }
-
   public async textCommandPayload() {
     await this.internal(1)
   }
-
   public async callback() {
     await this.internal(2)
   }
-
   public async callbackPayload() {
     await this.internal(3)
   }
-
   public static template = /*jsx*/ `
     <base id="kb-for-block-import">
-      ${this.KbCom.refreshBack()}
+      ${this.kbc.refreshBack()}
     </base>
-
     <base id="for-block-import">
       <import src="start" base="kb-for-block-import" />
       <message>
@@ -120,13 +116,12 @@ export class StartPage extends PageBase {
         Acak: {{number}}
       </message>
     </base>
-    
     <base>
       <description>Default description command start</description>
       <description lang="en">[EN] Description command start</description>
       <description lang="id">[ID] Deskripsi perintah start</description>
-      <keyboard>Counter, Counter Thread, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Block Map, Block Import, Block Switch, Refresh</keyboard>
-      <keyboard lang="id">Kounter, Kounter Thread, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Test SalahI, Masukkan Teks, Blok Map, Blok Import, Blok Switch, Segarkan</keyboard>
+      <keyboard>Counter, Counter Thread, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Block Map, Block Import, Block Switch, Kbbe, Refresh</keyboard>
+      <keyboard lang="id">Kounter, Kounter Thread, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Test SalahI, Masukkan Teks, Blok Map, Blok Import, Blok Switch, Kbbe, Segarkan</keyboard>
       <message>
         {{time}}
 

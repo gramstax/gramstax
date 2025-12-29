@@ -8,7 +8,7 @@ export class IncrementCoreJob extends ThreadSub {
     const ms = process.argv[3] as any
     setInterval(() => {
       this.count += 1
-      log.debug(`(${this.id}) [SubThread:IncrementJob] count: ${this.count}`)
+      log.debug(`(${this.pid}:${this.id}) [SubThread:IncrementJob] count: ${this.count}`)
     }, ms)
   }
 

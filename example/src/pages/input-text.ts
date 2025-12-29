@@ -16,21 +16,21 @@ export class InputTextPage extends PageBase {
     await this.edit(this.kb())
   }
 
-  public async textFree() {
-    const baseId = `result`
-    const data = { res: this.msgText }
-    await this.reply(this.kb(baseId), data, baseId)
-  }
+  // public async textFree() {
+  //   const baseId = `result`
+  //   const data = { res: this.msgText }
+  //   await this.reply(this.kb(baseId), data, baseId)
+  // }
 
   public static template = /*jsx*/ `
     <base>
-      ${this.KbCom.cancel()}
+      ${this.kbc.cancel()}
       <message>Please input text you want view</message>
       <message lang="id">Tolong masukan text yang ingin anda liat</message>
     </base>
 
     <base id="result">
-      ${this.KbCom.home()}
+      ${this.kbc.home()}
       <message>
         Result: {{res}}
 
