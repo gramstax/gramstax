@@ -1,4 +1,4 @@
-import LoggingPretty from "logging-pretty"
+import { LoggingPretty } from "logging-pretty"
 
 export class LoggingUtils extends LoggingPretty {
   public constructor(options?: ConstructorParameters<typeof LoggingPretty>[0]) {
