@@ -64,7 +64,7 @@ public async textFree() {
 
 ```typescript
 export class WalletCreatePage extends Ctx {
-  public static data = this.buildData((isCancel: string = ``) => isCancel);
+  public static data = this.buildData((isCancel?: string) => isCancel);
 
   public kb(baseId?: string) {
     return this.inlineKeyboard(

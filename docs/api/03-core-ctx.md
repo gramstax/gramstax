@@ -91,12 +91,6 @@
 - **Description:** The text content of the message.
 - **Example:** `if (ctx.msgText === "/start") ...`
 
-### `msgTextIntent`
-
-- **Type:** `string`
-- **Description:** The first word of the message text (e.g., command).
-- **Example:** `if (ctx.msgTextIntent === "/cmd") ...`
-
 ### `msgTextPayloads`
 
 - **Type:** `string[]`
@@ -114,12 +108,6 @@
 - **Type:** `string`
 - **Description:** The caption of a media message.
 - **Example:** `if (ctx.msgCaption) ...`
-
-### `msgCaptionIntent`
-
-- **Type:** `string`
-- **Description:** The first word of the caption.
-- **Example:** `const cmd = ctx.msgCaptionIntent;`
 
 ### `msgPhoto`
 
@@ -144,12 +132,6 @@
 - **Type:** `string`
 - **Description:** The data from a callback query.
 - **Example:** `const data = ctx.callbackData;`
-
-### `callbackDataIntent`
-
-- **Type:** `string`
-- **Description:** The intent part of the callback data (before `:`).
-- **Example:** `if (ctx.callbackDataIntent === "menu") ...`
 
 ### `callbackDataPayloads`
 

@@ -25,7 +25,7 @@ public static data = this.buildData()
 // Usage: PageName.data.callbackData() → "page-name"
 
 // Optional payload
-public static data = this.buildData((x: string = ``) => x)
+public static data = this.buildData((x?: string) => x)
 // Usage: PageName.data.callbackData() → "page-name"
 // Usage: PageName.data.callbackData("val") → "page-name:val"
 
@@ -73,7 +73,6 @@ public static template = /*jsx*/ `
 | Property          | Type       | Description       |
 | ----------------- | ---------- | ----------------- |
 | `msgText`         | `string`   | Full text         |
-| `msgTextIntent`   | `string`   | First word        |
 | `msgTextPayload`  | `string`   | Second word       |
 | `msgTextPayloads` | `string[]` | Words after first |
 
@@ -82,7 +81,6 @@ public static template = /*jsx*/ `
 | Property               | Type       | Description          |
 | ---------------------- | ---------- | -------------------- |
 | `callbackData`         | `string`   | Full data            |
-| `callbackDataIntent`   | `string`   | Before `:`           |
 | `callbackDataPayload`  | `string`   | First after `:`      |
 | `callbackDataPayloads` | `string[]` | All after `:`        |
 | `callbackDataParts`    | `string[]` | Payload split by `+` |

@@ -100,7 +100,7 @@ import { PageBase } from "~/base/page";
 import { StartPage } from "./start";
 
 export class MyPage extends PageBase {
-  public static data = this.buildData((payload: string = ``) => payload);
+  public static data = this.buildData((payload?: string) => payload);
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {

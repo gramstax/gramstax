@@ -51,7 +51,7 @@ export class StartPage extends Ctx {
 ```typescript
 // File: counter.ts
 export class CounterPage extends Ctx {
-  public static data = this.buildData((action: string = ``) => action);
+  public static data = this.buildData((action?: string) => action);
 
   // Triggered by: "counter:I" or "counter:D"
   public async callbackPayload() {
@@ -118,7 +118,7 @@ this.data.callbackData("x", "y"); // "page-name:x+y"
 
 ```typescript
 // "counter:I"
-this.callbackDataIntent; // "counter"
+this.intent(this.callbackData, `colon`, 1); // "counter"
 this.callbackDataPayload; // "I"
 
 // "page:a:b"
@@ -143,7 +143,7 @@ page-name payload    → textPayload()
 
 ```typescript
 // "/search hello world"
-this.msgTextIntent; // "/search"
+this.intent(this.msgText, `space`, 1); // "/search"
 this.msgTextPayload; // "hello"
 this.msgTextPayloads; // ["hello", "world"]
 ```

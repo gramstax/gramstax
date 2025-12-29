@@ -75,7 +75,7 @@ import { PageBase } from "~/base/page";
 import { StartPage } from "./start";
 
 export class CounterPage extends PageBase {
-  public static data = this.buildData((action: string = ``) => action);
+  public static data = this.buildData((action?: string) => action);
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
@@ -123,7 +123,7 @@ import { PageBase } from "~/base/page";
 import { StartPage } from "./start";
 
 export class LanguagePage extends PageBase {
-  public static data = this.buildData((lang: string = ``) => lang);
+  public static data = this.buildData((lang?: string) => lang);
 
   public kb() {
     return this.inlineKeyboard((kb, arr) => {
