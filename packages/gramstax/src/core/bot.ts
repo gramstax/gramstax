@@ -1,5 +1,4 @@
 import { Ctx } from "./ctx"
-import { serve } from "bun"
 import { join, parse } from "node:path"
 import { PageManager } from "~/page/manager"
 import { CacheExternal } from "~/cache/external"
@@ -57,6 +56,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     process.once(`SIGINT`, () => this.bot.stop())
     process.once(`SIGTERM`, () => this.bot.stop())
 
+    this.hookBeforeStart()
     if (params.deploy.startsWith(`polling`)) {
       this.runPolling()
     } else if (params.deploy.startsWith(`webhook:`)) {
@@ -74,11 +74,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.log?.error?.(`[Bot.catch]: ${JSON.stringify(error, null, 2)}`)
   }
 
+  public hookBeforeStart() {}
+  public hookAfterStart() {}
   public async onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
     await this.executeSyncBlocksDescription(this.pages)
 
     const { username } = botInfo
     this.log?.success?.(`Telegram bot polling started: ${username} ${method == `webhook` || method == `serverless` ? `(${data})` : ``}`)
+    this.hookAfterStart()
   }
 
   public createBot(token: string) {
@@ -107,11 +110,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   public async runWebhook(fullUrl: string): Promise<void> {
+    const { serve } = await import(`bun`) // <==== import in this because this package support node/bun (default use bun)
     const handleUpdate = webhookCallback(this.bot, `bun`)
     this.handlerBotUpdate = handleUpdate
 
     const pathUrl = new URL(fullUrl).pathname
-
     serve({
       fetch(req) {
         const { pathname } = new URL(req.url)
@@ -174,6 +177,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     for (let index = 0; index < pages.lenListRouteStaticSession; index++) {
       const routeName = pages.listRouteStaticSession[index] as string
 
+      // Check if the method exists on the page
+      if (typeof (proto as any)[routeName] !== `function`) {
+        continue
+      }
+
       const ps = pages.routeStatic[routeName as keyof typeof pages.routeStatic]
       const psi = pages.routeStaticIntent[routeName as keyof typeof pages.routeStaticIntent]
       const pss = pages.routeStaticSession[routeName as keyof typeof pages.routeStaticSession]
@@ -182,8 +190,24 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const p = ps || psi
       if (p !== undefined) {
         const _isCommand = routeName.includes(partCommand)
-        const _name = _isCommand ? `/${name}` : name
-        p[proto.intent(_name, routeName.startsWith(`callback`))] = value
+        const _isCallback = routeName.includes(`callback`)
+        const _isText = routeName.startsWith(`text`)
+
+        let _name: string | undefined
+        if (_isCommand) {
+          const cmd = Page.data.textCommand || Page.data.name
+          _name = cmd ? `/${cmd}` : undefined
+        } else if (_isCallback) {
+          _name = Page.data.name
+        } else if (_isText) {
+          _name = Page.data.text || Page.data.name
+        } else {
+          _name = Page.data.name
+        }
+
+        if (_name) {
+          p[_name] = value
+        }
       }
 
       // staticSession
@@ -353,21 +377,22 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const pages = {
       all: {} as Record<string, typeof Ctx>, // [page.data.name]: Classes Page
       routeDynamic: [] as string[], // [Page]{ free: (...) => ... }
+      // <method>: Array<{name: Page.data.name, routeName:routeFunctionName}>
       routeDynamicSpesific: {
-        text: initDynamicSpesific(), // text: []{name: Page.data.name, routeName:routeFunctionName}
-        photo: initDynamicSpesific(), // photo: []{name: Page.data.name, routeName:routeFunctionName}
-        video: initDynamicSpesific(), // video: []{name: Page.data.name, routeName:routeFunctionName}
-        audio: initDynamicSpesific(), // audio: []{name: Page.data.name, routeName:routeFunctionName}
-        document: initDynamicSpesific(), // document: []{name: Page.data.name, routeName:routeFunctionName}
-        animation: initDynamicSpesific(), // animation: []{name: Page.data.name, routeName:routeFunctionName}
-        voice: initDynamicSpesific(), // voice: []{name: Page.data.name, routeName:routeFunctionName}
-        videoNote: initDynamicSpesific(), // videoNote: []{name: Page.data.name, routeName:routeFunctionName}
-        sticker: initDynamicSpesific(), // sticker: []{name: Page.data.name, routeName:routeFunctionName}
-        location: initDynamicSpesific(), // location: []{name: Page.data.name, routeName:routeFunctionName}
-        contact: initDynamicSpesific() // contact: []{name: Page.data.name, routeName:routeFunctionName}
+        text: initDynamicSpesific(),
+        photo: initDynamicSpesific(),
+        video: initDynamicSpesific(),
+        audio: initDynamicSpesific(),
+        document: initDynamicSpesific(),
+        animation: initDynamicSpesific(),
+        voice: initDynamicSpesific(),
+        videoNote: initDynamicSpesific(),
+        sticker: initDynamicSpesific(),
+        location: initDynamicSpesific(),
+        contact: initDynamicSpesific()
       },
       routeStatic: makeObject(listRouteStatic, () => ({} as Record<string, { name: string; routeName: string }>)), // [page.data.name]: {name: Page.data.name, routeName: routeFunctionName}
-      routeStaticIntent: makeObject(listRouteStaticIntent, () => ({} as Record<string, { name: string; routeName: string }>)), // [intent]: {name: Page.data.name, routeName: routeFunctionName}
+      routeStaticIntent: makeObject(listRouteStaticIntent, () => ({} as Record<string, { name: string; routeName: string }>)), // [routeName]: {name: Page.data.name, routeName: routeFunctionName}
       routeStaticSession: makeObject(listRouteStaticSession, () => ({} as Record<string, { name: string; routeName: string }>)), // [session.method]: {name: Page.data.name, routeName: routeFunctionName}
       listRouteStatic,
       listRouteStaticIntent,
@@ -410,9 +435,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           res = pStatic[routeName][cd || mt || mc]
         }
 
-        if (res) {
-          break
-        }
+        if (res) break
       }
 
       if (res !== undefined) {
@@ -438,9 +461,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
             res = pStaticSession[routeName][mtd]
           }
 
-          if (res) {
-            break
-          }
+          if (res) break
         }
 
         if (res !== undefined) {
@@ -456,19 +477,25 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * example = animationCaptionCommandPayload, callbackCommandPayload, textCommandPayload
      */
     if (Page === undefined) {
-      const cdi = ctx.callbackDataIntent
-      const mti = ctx.msgTextIntent
-      const mci = ctx.msgCaptionIntent
       const pStaticIntent = this.pages.routeStaticIntent
+      const isCallback = fromListener === `callback`
+      const data = isCallback ? ctx.callbackData : ctx.msgText || ctx.msgCaption
 
-      for (let index = 0; index < this.pages.lenListRouteStaticIntent; index++) {
-        const routeName = this.pages.listRouteStaticIntent[index] as `animationCaptionCommandPayload`
-        if (routeName.startsWith(fromListener)) {
-          res = pStaticIntent[routeName][cdi || mti || mci]
-        }
+      if (data) {
+        for (let index = 0; index < this.pages.lenListRouteStaticIntent; index++) {
+          const routeName = this.pages.listRouteStaticIntent[index] as `textPayload`
+          if (routeName.startsWith(fromListener)) {
+            const bucket = pStaticIntent[routeName]
+            // check intent length 1
+            res = bucket[ctx.intent(data, isCallback ? `colon` : `space`, 1)]
 
-        if (res) {
-          break
+            // check intent length 2 (for space overrides)
+            if (!res && !isCallback) {
+              res = bucket[ctx.intent(data, `space`, 2)]
+            }
+          }
+
+          if (res) break
         }
       }
 
@@ -611,91 +638,69 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   public async onMessageText(ct: Context): Promise<void> {
     await this.onMessage(ct, `text`)
   }
-
   public async onMessagePhoto(ct: Context): Promise<void> {
     await this.onMessage(ct, `photo`)
   }
-
   public async onMessageVideo(ct: Context): Promise<void> {
     await this.onMessage(ct, `video`)
   }
-
   public async onMessageAudio(ct: Context): Promise<void> {
     await this.onMessage(ct, `audio`)
   }
-
   public async onMessageDocument(ct: Context): Promise<void> {
     await this.onMessage(ct, `document`)
   }
-
   public async onMessageAnimation(ct: Context): Promise<void> {
     await this.onMessage(ct, `animation`)
   }
-
   public async onMessageVoice(ct: Context): Promise<void> {
     await this.onMessage(ct, `voice`)
   }
-
   public async onMessageVideoNote(ct: Context): Promise<void> {
     await this.onMessage(ct, `videoNote`)
   }
-
   public async onMessageSticker(ct: Context): Promise<void> {
     await this.onMessage(ct, `sticker`)
   }
-
   public async onMessageLocation(ct: Context): Promise<void> {
     await this.onMessage(ct, `location`)
   }
-
   public async onMessageContact(ct: Context): Promise<void> {
     await this.onMessage(ct, `contact`)
   }
-
   public registerOnCallbackQueryData() {
     this.bot.on(`callback_query:data`, this.onCallbackQueryData.bind(this)) // Handle callback queries from inline keyboards
   }
-
   public registerOnMessageText() {
     this.bot.on(`message:text`, this.onMessageText.bind(this)) // Handle global text messages
   }
-
   public registerOnMessagePhoto() {
     this.bot.on(`message:photo`, this.onMessagePhoto.bind(this)) // Handle global photo messages
   }
-
   public registerOnMessageVideo() {
     this.bot.on(`message:video`, this.onMessageVideo.bind(this)) // Handle global video messages
   }
-
   public registerOnMessageAudio() {
     this.bot.on(`message:audio`, this.onMessageAudio.bind(this)) // Handle global audio messages
   }
-
   public registerOnMessageDocument() {
     this.bot.on(`message:document`, this.onMessageDocument.bind(this)) // Handle global document messages
   }
-
   public registerOnMessageAnimation() {
     this.bot.on(`message:animation`, this.onMessageAnimation.bind(this)) // Handle global animation messages
   }
-
   public registerOnMessageVoice() {
     this.bot.on(`message:voice`, this.onMessageVoice.bind(this)) // Handle global voice messages
   }
-
   public registerOnMessageVideoNote() {
     this.bot.on(`message:video_note`, this.onMessageVideoNote.bind(this)) // Handle global video note messages
   }
-
   public registerOnMessageSticker() {
     this.bot.on(`message:sticker`, this.onMessageSticker.bind(this)) // Handle global sticker messages
   }
-
   public registerOnMessageLocation() {
     this.bot.on(`message:location`, this.onMessageLocation.bind(this)) // Handle global location messages
   }
-
   public registerOnMessageContact() {
     this.bot.on(`message:contact`, this.onMessageContact.bind(this)) // Handle global contact messages
   }
