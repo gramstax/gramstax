@@ -34,7 +34,10 @@
   },
   "references": [
     {
-      "path": "./example"
+      "path": "./example/complex"
+    },
+    {
+      "path": "./example/helloworld"
     },
     {
       "path": "./packages/gramstax"

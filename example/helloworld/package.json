@@ -1,5 +1,5 @@
 {
-  "name": "gramstax-example",
+  "name": "example-helloworld",
   "private": false,
   "scripts": {
     "start": "bun ./src/index.ts",

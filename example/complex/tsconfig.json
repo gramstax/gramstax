@@ -1,13 +1,13 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "~/*": [
-        "src/*"
+        "./src/*"
       ],
       "gramstax": [
-        "../packages/gramstax/src/index.ts"
+        "../../packages/gramstax/src/index.ts"
       ]
     },
     "composite": true,
@@ -16,6 +16,6 @@
   },
   "include": [
     "src",
-    "../packages/gramstax/src/index.ts"
+    "../../packages/gramstax/src/index.ts"
   ]
 }
