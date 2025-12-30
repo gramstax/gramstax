@@ -7,6 +7,8 @@ import { TemplateManager } from "~/template/manager"
 import { Bot, webhookCallback, type BotError, type Context } from "grammy"
 import type { UserFromGetMe } from "grammy/types"
 
+import { version } from "../../package.json"
+
 export class Gramstax<ICtx extends Ctx = Ctx> {
   public templateManager: TemplateManager
   public cacheKeyboard: Map<any, any>
@@ -23,6 +25,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
 
     this.log = params.log === true ? new LoggingPretty() : !params.log ? undefined : params.log
+    this.log?.info?.(`Gramstax v${version}`)
+
     this.cacheSession = params.cacheSession || new CacheExternal(`memory`, `session`)
     this.cacheKeyboard = params.cacheKeyboard || new Map()
     this.templateManager =
