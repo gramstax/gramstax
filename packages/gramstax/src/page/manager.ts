@@ -1,6 +1,7 @@
 import { join } from "node:path"
 import { existsSync, readdirSync } from "node:fs"
 import type { Ctx } from "~/core/ctx"
+import { createRequire } from "node:module"
 
 export class PageManager {
   public static _getFile(mod: Record<any, any>, path: string, positionModule = 0) {
@@ -20,8 +21,9 @@ export class PageManager {
     if (!path) {
       path = this.getFilePath()
     }
-    const mod: any = require(path) // eslint-disable-line
-    return this._getFile(mod, path, positionModule)
+    const mod = createRequire(path) as any
+    const def = mod(path)
+    return this._getFile(def, path, positionModule)
   }
 
   public static async getFile(path?: string, positionModule = 0) {

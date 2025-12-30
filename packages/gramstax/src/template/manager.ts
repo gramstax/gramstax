@@ -28,7 +28,7 @@ export class TemplateManager {
   public _engine = TemplateEngine
   public _watcher: FSWatcher[] = []
   public _pageManager = PageManager
-  public _supportedExtensions = new Set([`.html`, `.ts`])
+  public _supportedExtensions = new Set([`.html`, `.ts`, `.js`])
   public readonly _path: ITemplateOptions[`path`]
   public readonly _isWatchEnabled: ITemplateOptions[`enableWatch`]
   public constructor(options: ITemplateOptions) {
@@ -145,7 +145,7 @@ export class TemplateManager {
 
         if (ext === `.html`) {
           rawTemplates.set(key, readFileSync(path, `utf8`))
-        } else if (ext === `.ts`) {
+        } else if (ext === `.ts` || ext === `.js`) {
           const Page = PageManager.getFileSync(path)
           if (Page?.template !== undefined) {
             rawTemplates.set(key, Page.template)
@@ -182,7 +182,7 @@ export class TemplateManager {
       if (ext == `.html`) {
         const raw = readFileSync(path, `utf8`)
         this._compile(key, raw)
-      } else if (ext == `.ts`) {
+      } else if (ext == `.ts` || ext == `.js`) {
         const Page = PageManager.getFileSync(path)
         if (Page?.template !== undefined) {
           this._compile(key, Page.template)
@@ -208,7 +208,7 @@ export class TemplateManager {
         if (existsSync(fullPath) && statSync(fullPath).isFile()) {
           if (ext === `.html`) {
             return readFileSync(fullPath, `utf8`)
-          } else if (ext === `.ts`) {
+          } else if (ext === `.ts` || ext === `.js`) {
             try {
               const Page = PageManager.getFileSync(fullPath)
               return Page?.template ?? null
@@ -220,14 +220,22 @@ export class TemplateManager {
         continue
       }
 
-      // 2. If no extension, try .ts then .html
+      // 2. If no extension, try .ts / .js then .html
       const tsPath = join(importPath, `${filename}.ts`)
+      const jsPath = join(importPath, `${filename}.js`)
       if (existsSync(tsPath) && statSync(tsPath).isFile()) {
         try {
           const Page = PageManager.getFileSync(tsPath)
           return Page?.template ?? null
         } catch {
           // If failed to load TS, continue to check HTML
+        }
+      } else if (existsSync(jsPath) && statSync(jsPath).isFile()) {
+        try {
+          const Page = PageManager.getFileSync(tsPath)
+          return Page?.template ?? null
+        } catch {
+          // If failed to load JS, continue to check HTML
         }
       }
 
