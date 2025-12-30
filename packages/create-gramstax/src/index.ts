@@ -3,14 +3,13 @@ import { log } from "./utils/log"
 import { Create } from "./create"
 import { Command } from "commander"
 
-// Read version from package.json
-const version = `0.0.0`
+declare const __PKG_VERSION__: string
 const program = new Command()
 
 program
   .name(`create-gramstax`)
   .description(`CLI to create a new Gramstax Telegram bot project`)
-  .version(version)
+  .version(__PKG_VERSION__)
   .argument(`[project-directory]`, `Directory to create the project in`)
   .action(async (projectDirectory?: string) => {
     try {
