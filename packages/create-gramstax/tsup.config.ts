@@ -1,5 +1,5 @@
 import { defineConfig } from "tsup"
-import { version } from "./package.json"
+
 import { cpSync, readFileSync, rmdirSync, writeFileSync } from "node:fs"
 
 // hard clean
@@ -55,6 +55,6 @@ export default defineConfig({
     return undefined as any
   },
   define: {
-    __PKG_VERSION__: JSON.stringify(version)
+    // __PKG_VERSION__: JSON.stringify(version)
   }
 })

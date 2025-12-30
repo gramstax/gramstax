@@ -1,5 +1,7 @@
 import { Ctx } from "./ctx"
-import { join, parse } from "node:path"
+import { join, parse, dirname } from "node:path"
+import { readFileSync } from "node:fs"
+import { fileURLToPath } from "node:url"
 import { PageManager } from "~/page/manager"
 import { CacheExternal } from "~/cache/external"
 import { LoggingPretty } from "logging-pretty"
@@ -7,7 +9,9 @@ import { TemplateManager } from "~/template/manager"
 import { Bot, webhookCallback, type BotError, type Context } from "grammy"
 import type { UserFromGetMe } from "grammy/types"
 
-declare const __PKG_VERSION__: string
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.json`), `utf-8`)).version as string
 
 export class Gramstax<ICtx extends Ctx = Ctx> {
   public templateManager: TemplateManager

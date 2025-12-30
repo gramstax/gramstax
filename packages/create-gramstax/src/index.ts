@@ -2,8 +2,13 @@
 import { log } from "./utils/log"
 import { Create } from "./create"
 import { Command } from "commander"
+import { readFileSync } from "node:fs"
+import { join, dirname } from "node:path"
+import { fileURLToPath } from "node:url"
 
-declare const __PKG_VERSION__: string
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.json`), `utf-8`)).version as string
 const program = new Command()
 
 program

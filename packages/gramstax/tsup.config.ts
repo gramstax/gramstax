@@ -1,6 +1,5 @@
 import { defineConfig } from "tsup"
 import { rmdirSync } from "node:fs"
-import { version } from "./package.json"
 
 // hard clean
 try {
@@ -24,6 +23,7 @@ export default defineConfig({
   external: [`bun`],
   tsconfig: `./tsconfig.build.json`,
   define: {
-    __PKG_VERSION__: JSON.stringify(version)
-  }
+    // __PKG_VERSION__: JSON.stringify(version)
+  },
+  shims: true
 })
