@@ -64,7 +64,7 @@ export class Ctx {
     return this.ct.message?.text as string
   }
   public get msgTextPayloads() {
-    return this.payloads(this.msgText, `space`, this.data._positionPayloadText)
+    return this.payloads(this.msgText, `space`, this.data?._positionPayloadText)
   }
   public get msgTextPayload() {
     return this.msgTextPayloads[0] as string
