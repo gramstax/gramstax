@@ -1,6 +1,6 @@
-import { log, ThreadMain, ThreadSub, ThreadExport } from "gramstax"
+import { log, WorkerThreadExport, WorkerThreadInit } from "gramstax"
 
-export class IncrementCoreJob extends ThreadSub {
+export class IncrementCoreJob extends WorkerThreadInit {
   public count = 0
   public constructor() {
     super()
@@ -8,7 +8,7 @@ export class IncrementCoreJob extends ThreadSub {
     const ms = process.argv[3] as any
     setInterval(() => {
       this.count += 1
-      log.debug(`(${this.pid}:${this.id}) [SubThread:IncrementJob] count: ${this.count}`)
+      log.debug(`(${this.pid}:${this.id}) [IncrementCoreJob] count: ${this.count}`)
     }, ms)
   }
 
@@ -17,11 +17,4 @@ export class IncrementCoreJob extends ThreadSub {
   }
 }
 
-export const IncrementJob = ThreadExport.init({
-  path: __filename,
-  CSub: IncrementCoreJob,
-  CMain: ThreadMain,
-  wrap: (main) => ({
-    getCount: async () => await main.sendRequest(`getCount`, [])
-  })
-})
+export const IncrementJob = WorkerThreadExport.init({ path: __filename, WTInit: IncrementCoreJob })
