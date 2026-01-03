@@ -1,6 +1,6 @@
-import { WorkerThreadInit } from "../../../../packages/gramstax/src/worker-thread/init"
-import { WorkerThreadExport } from "../../../../packages/gramstax/src/worker-thread/export"
-import { fileURLToPath } from "url"
+import {WorkerThreadInit} from "../../../../packages/gramstax/src/worker-thread/init"
+import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-thread/export"
+import {fileURLToPath} from "url"
 
 export class WorkerServer extends WorkerThreadInit {
   public static gatewayPath = `gateway-main`

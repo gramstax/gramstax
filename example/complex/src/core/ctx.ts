@@ -1,9 +1,9 @@
-import { Ctx, type CacheExternal } from "gramstax"
+import {Ctx, type CacheExternal} from "gramstax"
 
 export class CtxCore extends Ctx {
-  public cacheData: CacheExternal
-  public constructor(params: ConstructorParameters<typeof Ctx>[0] & { cacheData: CacheExternal }) {
-    super({ ...params })
+  cacheData: CacheExternal
+  constructor(params: ConstructorParameters<typeof Ctx>[0] & {cacheData: CacheExternal}) {
+    super({...params})
     this.cacheData = params.cacheData
   }
 }

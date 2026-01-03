@@ -1,12 +1,12 @@
-import { LoggingPretty } from "logging-pretty"
+import {LoggingPretty} from "logging-pretty"
 
 export class LoggingUtils extends LoggingPretty {
-  public constructor(options?: ConstructorParameters<typeof LoggingPretty>[0]) {
+  constructor(options?: ConstructorParameters<typeof LoggingPretty>[0]) {
     super(options)
   }
 
-  public errorMake(error: any, constructorOrName?: any, funcName?: string) {
-    this.error(`[${constructorOrName?.name || constructorOrName}:${funcName}] ${String(error)}`)
+  errorMake(error: any, constructorName?: any, funcName?: string) {
+    this.error(`[${constructorName ? `${constructorName}:${funcName}` : funcName}] ${String(error)}`)
   }
 }
 

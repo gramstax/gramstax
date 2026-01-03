@@ -1,10 +1,10 @@
-import { PageBase } from "~/base/page"
-import { StartPage } from "./start"
+import {PageBase} from "~/base/page"
+import {StartPage} from "./start"
 
 export class BlockSwitchPage extends PageBase {
-  public static data = this.buildData((status?: string) => status)
-  
-  public kb(status: string) {
+  static data = this.buildData((status?: string) => status)
+
+  kb(status: string) {
     return this.inlineKeyboard(
       (kb, arr) => {
         return kb //
@@ -12,23 +12,23 @@ export class BlockSwitchPage extends PageBase {
           .row()
           .text(arr[1]!, StartPage.data.callbackData())
       },
-      { data: { status } }
+      {data: {status}}
     )
   }
 
-  public async internal(status: string) {
-    await this.edit(this.kb(status), { status })
+  async internal(status: string) {
+    await this.edit(this.kb(status), {status})
   }
 
-  public async callback() {
+  async callback() {
     await this.internal(`0`)
   }
 
-  public async callbackPayload() {
+  async callbackPayload() {
     await this.internal(this.callbackDataPayload)
   }
 
-  public static template = /*jsx*/ `
+  static template = /*jsx*/ `
     <base>
       <keyboard>
         <switch value="status">

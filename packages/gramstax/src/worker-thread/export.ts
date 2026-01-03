@@ -1,5 +1,5 @@
-import { WorkerThreadLaunch } from "./launch"
-import { WorkerThreadInit } from "./init"
+import {WorkerThreadLaunch} from "./launch"
+import {WorkerThreadInit} from "./init"
 
 export type WorkerThreadExportOpt<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap> = {
   path: string
@@ -17,7 +17,7 @@ export type WorkerThreadAsyncMethods<T> = {
 }
 
 export class WorkerThreadExport {
-  public static gateway<TWorker extends WorkerThreadInit>(path: string): WorkerThreadGatewayProxy<TWorker> & { new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker> } {
+  static gateway<TWorker extends WorkerThreadInit>(path: string): WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>} {
     const proxy: any = new Proxy({} as any, {
       get(_, prop) {
         if (typeof prop !== `string` || prop === `then`) return undefined
@@ -51,16 +51,16 @@ export class WorkerThreadExport {
     return ctor as any
   }
 
-  public static init<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap = Record<any, any>>(
+  static init<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap = Record<any, any>>(
     options: WorkerThreadExportOpt<TWorker, TMain, TWrap>
-  ): TWrap & WorkerThreadAsyncMethods<TWorker> & { launchWorker: (argv?: any[]) => Promise<TMain>; gateway: (path: string) => WorkerThreadGatewayProxy<TWorker> & { new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker> } } {
-    const { WTInit, WTLaunch = WorkerThreadLaunch as any, path, wrap } = options
+  ): TWrap & WorkerThreadAsyncMethods<TWorker> & {launchWorker: (argv?: any[]) => Promise<TMain>; gateway: (path: string) => WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>}} {
+    const {WTInit, WTLaunch = WorkerThreadLaunch as any, path, wrap} = options
     const uniqueArg = `for-${path}`
 
     // check if we are in worker thread
     if (process.argv[2] === uniqueArg) {
       new WTInit()
-      return { gateway: (p: string) => WorkerThreadExport.gateway<TWorker>(p) } as any
+      return {gateway: (p: string) => WorkerThreadExport.gateway<TWorker>(p)} as any
     }
 
     // below is area main thread

@@ -1,53 +1,53 @@
-import { parentPort, threadId, isMainThread } from "node:worker_threads"
-import { WorkerThreadRpc } from "./rpc"
-import { WorkerThreadGatewayServer } from "./gateway-server"
-import { WorkerThreadGatewayClient } from "./gateway-client"
+import {parentPort, threadId, isMainThread} from "node:worker_threads"
+import {WorkerThreadRpc} from "./rpc"
+import {WorkerThreadGatewayServer} from "./gateway-server"
+import {WorkerThreadGatewayClient} from "./gateway-client"
 
 export class WorkerThreadInit {
-  public argv = process.argv
-  public id = threadId
-  public pid = process.pid
-  public rpc: WorkerThreadRpc = {} as any
-  public parentPort = parentPort
-  public gatewayServer?: WorkerThreadGatewayServer
-  public gatewayClients = new Map<string, WorkerThreadGatewayClient>()
-  public gatewayClientLatest?: WorkerThreadGatewayClient
+  argv = process.argv
+  id = threadId
+  pid = process.pid
+  rpc: WorkerThreadRpc = {} as any
+  parentPort = parentPort
+  gatewayServer?: WorkerThreadGatewayServer
+  gatewayClients = new Map<string, WorkerThreadGatewayClient>()
+  gatewayClientLatest?: WorkerThreadGatewayClient
 
-  public get gatewayClient() {
+  get gatewayClient() {
     return this.gatewayClientLatest
   }
 
-  public static isMainThread = isMainThread
+  static isMainThread = isMainThread
 
-  public constructor() {
+  constructor() {
     this.init()
     this.rpc = new WorkerThreadRpc(this.send.bind(this), this)
-    this.send({ method: `mtdReady` })
+    this.send({method: `mtdReady`})
   }
 
-  public init() {
+  init() {
     this.parentPort?.on(`message`, (data) => this.handleOnMessage(data))
   }
 
-  public handleOnMessage(data: any) {
+  handleOnMessage(data: any) {
     this.rpc.make(data)
   }
 
-  public send(payload: any) {
+  send(payload: any) {
     this.parentPort?.postMessage(payload)
   }
 
-  public request(method: string, params: any, _wait = true, _others?: any) {
+  request(method: string, params: any, _wait = true, _others?: any) {
     return this.rpc.makeRequest(method, params, _wait, _others)
   }
 
-  public async createGatewayServer(path: string, methods: any = {}) {
+  async createGatewayServer(path: string, methods: any = {}) {
     this.gatewayServer = new WorkerThreadGatewayServer()
     await this.gatewayServer.start(path, methods)
     return true
   }
 
-  public async createGatewayClient(path: string) {
+  async createGatewayClient(path: string) {
     const client = new WorkerThreadGatewayClient()
     await client.connect(path)
     this.gatewayClients.set(path, client)

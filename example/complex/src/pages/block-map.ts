@@ -1,8 +1,8 @@
-import { PageBase } from "~/base/page"
-import { StartPage } from "./start"
+import {PageBase} from "~/base/page"
+import {StartPage} from "./start"
 
 export class BlockMapPage extends PageBase {
-  public kb() {
+  kb() {
     return this.inlineKeyboard((kb, arr) => {
       return kb //
         .text(arr[0]!, this.data.callbackData())
@@ -11,9 +11,9 @@ export class BlockMapPage extends PageBase {
     })
   }
 
-  public async callback() {
+  async callback() {
     const data = {
-      arr: Array.from({ length: Math.floor(Math.random() * 4) + 3 }, () => ({ number: Math.random() })),
+      arr: Array.from({length: Math.floor(Math.random() * 4) + 3}, () => ({number: Math.random()})),
       status: 1,
       e: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`,
       i: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`
@@ -21,7 +21,7 @@ export class BlockMapPage extends PageBase {
     await this.edit(this.kb(), data)
   }
 
-  public static template = /*jsx*/ `
+  static template = /*jsx*/ `
     <base>
       ${this.kbc.refreshBack()}
       <message>

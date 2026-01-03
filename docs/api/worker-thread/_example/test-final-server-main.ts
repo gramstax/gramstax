@@ -1,6 +1,6 @@
-import { WorkerThreadInit } from "../../../../packages/gramstax/src/worker-thread/init"
-import { WorkerThreadExport } from "../../../../packages/gramstax/src/worker-thread/export"
-import { fileURLToPath } from "url"
+import {WorkerThreadInit} from "../../../../packages/gramstax/src/worker-thread/init"
+import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-thread/export"
+import {fileURLToPath} from "url"
 
 export class ServerMain extends WorkerThreadInit {
   public static gatewayPath = `gateway-final`
@@ -19,5 +19,5 @@ export class ServerMain extends WorkerThreadInit {
   }
 }
 
-export const ServerMainExp = WorkerThreadExport.init({ path: fileURLToPath(import.meta.url), WTInit: ServerMain })
+export const ServerMainExp = WorkerThreadExport.init({path: fileURLToPath(import.meta.url), WTInit: ServerMain})
 export const ServerMainGateway = ServerMainExp.gateway(ServerMain.gatewayPath)

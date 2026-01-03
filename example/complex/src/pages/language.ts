@@ -1,10 +1,10 @@
-import { PageBase } from "~/base/page"
-import { StartPage } from "./start"
+import {PageBase} from "~/base/page"
+import {StartPage} from "./start"
 
 export class LanguagePage extends PageBase {
-  public static data = this.buildData((lang?: string) => lang)
+  static data = this.buildData((lang?: string) => lang)
 
-  public kb() {
+  kb() {
     return this.inlineKeyboard((kb, arr) => {
       const languages = arr.slice(0, -1)
       const backButton = arr[arr.length - 1]! // Get the back button text
@@ -29,15 +29,15 @@ export class LanguagePage extends PageBase {
     })
   }
 
-  public async internal() {
+  async internal() {
     await this.edit(this.kb())
   }
 
-  public async callback() {
+  async callback() {
     await this.internal()
   }
 
-  public async callbackPayload() {
+  async callbackPayload() {
     const language = this.callbackDataPayload.toLowerCase()
 
     await this.cacheData.set(`${this.userId}:lang`, language)
@@ -46,7 +46,7 @@ export class LanguagePage extends PageBase {
     await this.internal()
   }
 
-  public static template = /*jsx*/ `
+  static template = /*jsx*/ `
     <base>
       <keyboard>EN, ID, ${this.kbd.back(`default`)}</keyboard>
       <keyboard lang="id">EN, ID, ${this.kbd.back(`id`)}</keyboard>

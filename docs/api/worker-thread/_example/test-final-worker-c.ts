@@ -1,7 +1,7 @@
-import { WorkerThreadInit } from "../../../../packages/gramstax/src/worker-thread/init"
-import { WorkerThreadExport } from "../../../../packages/gramstax/src/worker-thread/export"
-import { fileURLToPath } from "url"
-import { ServerMainGateway } from "./test-final-server-main"
+import {WorkerThreadInit} from "../../../../packages/gramstax/src/worker-thread/init"
+import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-thread/export"
+import {fileURLToPath} from "url"
+import {ServerMainGateway} from "./test-final-server-main"
 
 class WorkerC extends WorkerThreadInit {
   public constructor() {
@@ -22,4 +22,4 @@ class WorkerC extends WorkerThreadInit {
   }
 }
 
-export const WorkerCExp = WorkerThreadExport.init({ path: fileURLToPath(import.meta.url), WTInit: WorkerC })
+export const WorkerCExp = WorkerThreadExport.init({path: fileURLToPath(import.meta.url), WTInit: WorkerC})

@@ -1,29 +1,29 @@
-import { Ctx } from "./ctx"
-import { join, parse, dirname } from "node:path"
-import { readFileSync } from "node:fs"
-import { fileURLToPath } from "node:url"
-import { PageManager } from "~/page/manager"
-import { CacheExternal } from "~/cache/external"
-import { LoggingPretty } from "logging-pretty"
-import { TemplateManager } from "~/template/manager"
-import { Bot, webhookCallback, type BotError, type Context } from "grammy"
-import type { UserFromGetMe } from "grammy/types"
+import {Ctx} from "./ctx"
+import {join, parse, dirname} from "node:path"
+import {readFileSync} from "node:fs"
+import {fileURLToPath} from "node:url"
+import {PageManager} from "~/page/manager"
+import {CacheExternal} from "~/cache/external"
+import {LoggingPretty} from "logging-pretty"
+import {TemplateManager} from "~/template/manager"
+import {Bot, webhookCallback, type BotError, type Context} from "grammy"
+import type {UserFromGetMe} from "grammy/types"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.json`), `utf-8`)).version as string
 
 export class Gramstax<ICtx extends Ctx = Ctx> {
-  public templateManager: TemplateManager
-  public cacheKeyboard: Map<any, any>
-  public cacheSession: CacheExternal
-  public pages: ReturnType<typeof this.pageLoads>
-  public log: LoggingPretty | undefined
-  public bot: Bot
+  templateManager: TemplateManager
+  cacheKeyboard: Map<any, any>
+  cacheSession: CacheExternal
+  pages: ReturnType<typeof this.pageLoads>
+  log: LoggingPretty | undefined
+  bot: Bot
 
-  public handlerBotUpdate: any
+  handlerBotUpdate: any
 
-  public constructor(params: { token: string; deploy: string; log?: LoggingPretty | boolean | null; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
+  constructor(params: { token: string; deploy: string; log?: LoggingPretty | boolean | null; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
     if (!params?.token || params?.token?.length == 0) {
       throw new Error(`Token is not valid or empty`)
     }
@@ -78,25 +78,25 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
-  public onCatch(error: BotError<Context>) {
+  onCatch(error: BotError<Context>) {
     this.log?.error?.(`[Bot.catch]: ${JSON.stringify(error, null, 2)}`)
   }
 
-  public hookBeforeStart() {}
-  public hookAfterStart() {}
-  public async onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
+  hookBeforeStart() {}
+  hookAfterStart() {}
+  async onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
     await this.executeSyncBlocksDescription(this.pages)
 
-    const { username } = botInfo
+    const {username} = botInfo
     this.log?.success?.(`Telegram bot polling started: ${username} ${method == `webhook` || method == `serverless` ? `(${data})` : ``}`)
     this.hookAfterStart()
   }
 
-  public createBot(token: string) {
+  createBot(token: string) {
     return new Bot(token)
   }
 
-  public createCtx(ct: Context): ICtx {
+  createCtx(ct: Context): ICtx {
     return new Ctx({
       ct,
       cacheSession: this.cacheSession,
@@ -109,7 +109,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }) as any
   }
 
-  public runPolling(): void {
+  runPolling(): void {
     this.bot.start({
       onStart: (botInfo) => {
         this.onStart(botInfo, `polling`, null)
@@ -117,27 +117,27 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     })
   }
 
-  public async runWebhook(fullUrl: string): Promise<void> {
-    const { serve } = await import(`bun`) // <==== import in this because this package support node/bun (default use bun)
+  async runWebhook(fullUrl: string): Promise<void> {
+    const {serve} = await import(`bun`) // <==== import in this because this package support node/bun (default use bun)
     const handleUpdate = webhookCallback(this.bot, `bun`)
     this.handlerBotUpdate = handleUpdate
 
     const pathUrl = new URL(fullUrl).pathname
     serve({
       fetch(req) {
-        const { pathname } = new URL(req.url)
+        const {pathname} = new URL(req.url)
         if (req.method == `POST` && pathname == pathUrl) {
           return handleUpdate(req)
         }
 
         if (req.method == `GET` && pathname == `/`) {
           const timestamp = new Date().toISOString()
-          return new Response(JSON.stringify({ status: `OK`, timestamp }), {
+          return new Response(JSON.stringify({status: `OK`, timestamp}), {
             status: 200,
-            headers: { "Content-Type": `application/json` }
+            headers: {"Content-Type": `application/json`}
           })
         }
-        return new Response(`Not found`, { status: 404 })
+        return new Response(`Not found`, {status: 404})
       }
     })
 
@@ -150,20 +150,20 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     await this.onStart(botInfo, `webhook`, fullUrl)
   }
 
-  public async runServerless(adapter: string): Promise<void> {
+  async runServerless(adapter: string): Promise<void> {
     this.handlerBotUpdate = webhookCallback(this.bot, adapter as any)
     const botInfo = await this.bot.api.getMe()
     await this.onStart(botInfo, `serverless`, adapter)
   }
 
-  public pageBuildData(Page: typeof Ctx, filePath: string): void {
+  pageBuildData(Page: typeof Ctx, filePath: string): void {
     if (Page?.data === undefined) {
       Page.data = Page.buildData() as any
     }
     Page.data.name = parse(filePath).name
   }
 
-  public pageSorts(Page: typeof Ctx, pages: typeof this.pages): void {
+  pageSorts(Page: typeof Ctx, pages: typeof this.pages): void {
     const name = Page.data.name
     const proto = Page.prototype
 
@@ -194,7 +194,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const psi = pages.routeStaticIntent[routeName as keyof typeof pages.routeStaticIntent]
       const pss = pages.routeStaticSession[routeName as keyof typeof pages.routeStaticSession]
 
-      const value = { name, routeName }
+      const value = {name, routeName}
       const p = ps || psi
       if (p !== undefined) {
         const _isCommand = routeName.includes(partCommand)
@@ -235,7 +235,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
-  public async executeSyncBlocksDescription(pages: typeof this.pages) {
+  async executeSyncBlocksDescription(pages: typeof this.pages) {
     // 1. Collect all unique (scope, language) pairs
     const targets = new Map<string, Set<string>>() // scope -> Set<language>
     const allCommands = pages.routeStatic.textCommand
@@ -265,7 +265,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           // Use getDescription which handles fallback logic
           const desc = this.templateManager.getDescription(name, `default`, lang, scope)
           if (desc) {
-            commands.push({ command: name, description: desc })
+            commands.push({command: name, description: desc})
           }
         }
 
@@ -274,15 +274,15 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         }
 
         // 3. Sync with Telegram
-        const scopeObj = { type: scope } as any
+        const scopeObj = {type: scope} as any
         const langCode = lang === `default` ? undefined : lang
         try {
-          const current = await this.bot.api.getMyCommands({ scope: scopeObj, language_code: langCode as any })
-          const currentJSON = JSON.stringify(current.map((c) => ({ command: c.command, description: c.description })).sort((a, b) => a.command.localeCompare(b.command)))
+          const current = await this.bot.api.getMyCommands({scope: scopeObj, language_code: langCode as any})
+          const currentJSON = JSON.stringify(current.map((c) => ({command: c.command, description: c.description})).sort((a, b) => a.command.localeCompare(b.command)))
           const desiredJSON = JSON.stringify(commands.sort((a, b) => a.command.localeCompare(b.command)))
 
           if (currentJSON !== desiredJSON) {
-            await this.bot.api.setMyCommands(commands, { scope: scopeObj, language_code: langCode as any })
+            await this.bot.api.setMyCommands(commands, {scope: scopeObj, language_code: langCode as any})
             this.log?.info?.(`Synced descriptions for scope: ${scope},${langCode ? ` lang: ${langCode},` : ``} total (${commands.length})`)
           }
         } catch (error) {
@@ -292,7 +292,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
-  public pageLoads() {
+  pageLoads() {
     this.log?.info?.(`Load pages..`)
 
     const listRouteStatic = [
@@ -410,7 +410,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       lenListRouteStaticSession: listRouteStaticSession.length
     }
 
-    PageManager.getFileManySync(undefined).forEach(({ path, page }) => {
+    PageManager.getFileManySync(undefined).forEach(({path, page}) => {
       this.pageBuildData(page, path) // create if not exist and set name (without ext) according filePath
       this.pageSorts(page, pages) // sort route method
       page.template = undefined // delete template for efficient memory
@@ -420,7 +420,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     return pages
   }
 
-  public async pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof this.pages.routeDynamicSpesific): Promise<any> {
+  async pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof this.pages.routeDynamicSpesific): Promise<any> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: { name: string; routeName: string } | undefined
@@ -587,7 +587,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     return null
   }
 
-  public async hookBeforeRoute(ctx: ICtx, listenerName: string): Promise<boolean> {
+  async hookBeforeRoute(ctx: ICtx, listenerName: string): Promise<boolean> {
     // must be override
     if (ctx || listenerName) {
       return true
@@ -595,21 +595,21 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     return false
   }
 
-  public async hookErrorPage(ctx: ICtx, listenerName: string, error: any, isEdit: boolean): Promise<void> {
+  async hookErrorPage(ctx: ICtx, listenerName: string, error: any, isEdit: boolean): Promise<void> {
     // must be override
     if (ctx || listenerName || error || isEdit) {
       return
     }
   }
 
-  public async hookErrorInputNotFoundPage(ctx: ICtx): Promise<void> {
+  async hookErrorInputNotFoundPage(ctx: ICtx): Promise<void> {
     // must be override
     if (ctx) {
       return
     }
   }
 
-  public async onMessage(ct: Context, listenerName: keyof typeof this.pages.routeDynamicSpesific): Promise<void> {
+  async onMessage(ct: Context, listenerName: keyof typeof this.pages.routeDynamicSpesific): Promise<void> {
     const ctx = this.createCtx(ct)
     try {
       const before = await this.hookBeforeRoute(ctx, listenerName)
@@ -626,7 +626,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
-  public async onCallbackQueryData(ct: Context): Promise<void> {
+  async onCallbackQueryData(ct: Context): Promise<void> {
     const ctx = this.createCtx(ct)
     try {
       // answer callback query first for fast response
@@ -643,73 +643,73 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
-  public async onMessageText(ct: Context): Promise<void> {
+  async onMessageText(ct: Context): Promise<void> {
     await this.onMessage(ct, `text`)
   }
-  public async onMessagePhoto(ct: Context): Promise<void> {
+  async onMessagePhoto(ct: Context): Promise<void> {
     await this.onMessage(ct, `photo`)
   }
-  public async onMessageVideo(ct: Context): Promise<void> {
+  async onMessageVideo(ct: Context): Promise<void> {
     await this.onMessage(ct, `video`)
   }
-  public async onMessageAudio(ct: Context): Promise<void> {
+  async onMessageAudio(ct: Context): Promise<void> {
     await this.onMessage(ct, `audio`)
   }
-  public async onMessageDocument(ct: Context): Promise<void> {
+  async onMessageDocument(ct: Context): Promise<void> {
     await this.onMessage(ct, `document`)
   }
-  public async onMessageAnimation(ct: Context): Promise<void> {
+  async onMessageAnimation(ct: Context): Promise<void> {
     await this.onMessage(ct, `animation`)
   }
-  public async onMessageVoice(ct: Context): Promise<void> {
+  async onMessageVoice(ct: Context): Promise<void> {
     await this.onMessage(ct, `voice`)
   }
-  public async onMessageVideoNote(ct: Context): Promise<void> {
+  async onMessageVideoNote(ct: Context): Promise<void> {
     await this.onMessage(ct, `videoNote`)
   }
-  public async onMessageSticker(ct: Context): Promise<void> {
+  async onMessageSticker(ct: Context): Promise<void> {
     await this.onMessage(ct, `sticker`)
   }
-  public async onMessageLocation(ct: Context): Promise<void> {
+  async onMessageLocation(ct: Context): Promise<void> {
     await this.onMessage(ct, `location`)
   }
-  public async onMessageContact(ct: Context): Promise<void> {
+  async onMessageContact(ct: Context): Promise<void> {
     await this.onMessage(ct, `contact`)
   }
-  public registerOnCallbackQueryData() {
+  registerOnCallbackQueryData() {
     this.bot.on(`callback_query:data`, this.onCallbackQueryData.bind(this)) // Handle callback queries from inline keyboards
   }
-  public registerOnMessageText() {
+  registerOnMessageText() {
     this.bot.on(`message:text`, this.onMessageText.bind(this)) // Handle global text messages
   }
-  public registerOnMessagePhoto() {
+  registerOnMessagePhoto() {
     this.bot.on(`message:photo`, this.onMessagePhoto.bind(this)) // Handle global photo messages
   }
-  public registerOnMessageVideo() {
+  registerOnMessageVideo() {
     this.bot.on(`message:video`, this.onMessageVideo.bind(this)) // Handle global video messages
   }
-  public registerOnMessageAudio() {
+  registerOnMessageAudio() {
     this.bot.on(`message:audio`, this.onMessageAudio.bind(this)) // Handle global audio messages
   }
-  public registerOnMessageDocument() {
+  registerOnMessageDocument() {
     this.bot.on(`message:document`, this.onMessageDocument.bind(this)) // Handle global document messages
   }
-  public registerOnMessageAnimation() {
+  registerOnMessageAnimation() {
     this.bot.on(`message:animation`, this.onMessageAnimation.bind(this)) // Handle global animation messages
   }
-  public registerOnMessageVoice() {
+  registerOnMessageVoice() {
     this.bot.on(`message:voice`, this.onMessageVoice.bind(this)) // Handle global voice messages
   }
-  public registerOnMessageVideoNote() {
+  registerOnMessageVideoNote() {
     this.bot.on(`message:video_note`, this.onMessageVideoNote.bind(this)) // Handle global video note messages
   }
-  public registerOnMessageSticker() {
+  registerOnMessageSticker() {
     this.bot.on(`message:sticker`, this.onMessageSticker.bind(this)) // Handle global sticker messages
   }
-  public registerOnMessageLocation() {
+  registerOnMessageLocation() {
     this.bot.on(`message:location`, this.onMessageLocation.bind(this)) // Handle global location messages
   }
-  public registerOnMessageContact() {
+  registerOnMessageContact() {
     this.bot.on(`message:contact`, this.onMessageContact.bind(this)) // Handle global contact messages
   }
 }

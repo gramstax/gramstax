@@ -1,7 +1,7 @@
-import { ServerMainExp } from "./test-final-server-main"
-import { WorkerAExp } from "./test-final-worker-a"
-import { WorkerBExp } from "./test-final-worker-b"
-import { WorkerCExp } from "./test-final-worker-c"
+import {ServerMainExp} from "./test-final-server-main"
+import {WorkerAExp} from "./test-final-worker-a"
+import {WorkerBExp} from "./test-final-worker-b"
+import {WorkerCExp} from "./test-final-worker-c"
 
 async function run() {
   console.log(`--- STARTING FINAL 1-SERVER / 3-CLIENTS TEST ---`)

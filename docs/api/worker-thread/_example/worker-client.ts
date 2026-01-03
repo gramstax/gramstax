@@ -1,7 +1,7 @@
-import { WorkerThreadInit } from "../../../../packages/gramstax/src/worker-thread/init"
-import { WorkerThreadExport } from "../../../../packages/gramstax/src/worker-thread/export"
-import { fileURLToPath } from "url"
-import { WorkerServerGateway } from "./worker-server"
+import {WorkerThreadInit} from "../../../../packages/gramstax/src/worker-thread/init"
+import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-thread/export"
+import {fileURLToPath} from "url"
+import {WorkerServerGateway} from "./worker-server"
 
 class WorkerClient extends WorkerThreadInit {
   private name: string = `Unknown`

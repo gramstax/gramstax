@@ -1,8 +1,8 @@
 import * as fs from "fs"
 import * as path from "path"
-import { fileURLToPath } from "url"
-import { log } from "./utils/log"
-import { spawn } from "child_process"
+import {fileURLToPath} from "url"
+import {log} from "./utils/log"
+import {spawn} from "child_process"
 import enquirer from "enquirer"
 
 const __filename = fileURLToPath(import.meta.url)
@@ -21,11 +21,11 @@ type ProjectConfig = {
 export class Create {
   private config: ProjectConfig | undefined
 
-  public constructor(private projectDirectory?: string) {
+  constructor(private projectDirectory?: string) {
     // Constructor hanya menerima parameter, tidak melakukan execution
   }
 
-  public printBanner() {
+  printBanner() {
     const banner = `
  $$$$$$\\                                               $$\\                         
 $$  __$$\\                                              $$ |                        
@@ -72,11 +72,11 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
   private copyDirectorySync(source: string, destination: string, variables: Record<string, string> = {}) {
     // Create destination directory if it doesn't exist
     if (!fs.existsSync(destination)) {
-      fs.mkdirSync(destination, { recursive: true })
+      fs.mkdirSync(destination, {recursive: true})
     }
 
     // Read all items in source directory
-    const items = fs.readdirSync(source, { withFileTypes: true })
+    const items = fs.readdirSync(source, {withFileTypes: true})
 
     for (const item of items) {
       const sourcePath = path.join(source, item.name)
@@ -138,10 +138,10 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       name: `packageManager`,
       message: `Which package manager would you like to use?`,
       choices: [
-        { name: `bun`, message: `Bun (recommended)`, value: `bun` },
-        { name: `npm`, message: `npm`, value: `npm` },
-        { name: `pnpm`, message: `pnpm`, value: `pnpm` },
-        { name: `yarn`, message: `Yarn`, value: `yarn` }
+        {name: `bun`, message: `Bun (recommended)`, value: `bun`},
+        {name: `npm`, message: `npm`, value: `npm`},
+        {name: `pnpm`, message: `pnpm`, value: `pnpm`},
+        {name: `yarn`, message: `Yarn`, value: `yarn`}
       ],
       initial: 0
     })
@@ -152,8 +152,8 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       name: `runtime`,
       message: `Which runtime would you like to use?`,
       choices: [
-        { name: `bun`, message: `Bun (recommended)`, value: `bun` },
-        { name: `node`, message: `Node.js`, value: `node` }
+        {name: `bun`, message: `Bun (recommended)`, value: `bun`},
+        {name: `node`, message: `Node.js`, value: `node`}
       ],
       initial: 0
     })
@@ -277,12 +277,12 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
    * Step 2: Execute project generation based on gathered config
    */
   private async executeProjectGeneration(config: ProjectConfig): Promise<void> {
-    const { projectName, projectPath, packageManager, runtime, setupEslint } = config
+    const {projectName, projectPath, packageManager, runtime, setupEslint} = config
 
     // Task 1: Create project directory
     log.info(`Creating project directory..`)
     if (!fs.existsSync(projectPath)) {
-      fs.mkdirSync(projectPath, { recursive: true })
+      fs.mkdirSync(projectPath, {recursive: true})
     }
 
     // Task 2: Copy template files
@@ -301,7 +301,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
     // Task 3: Create logs directory
     log.info(`Creating logs directory..`)
-    fs.mkdirSync(path.join(projectPath, `logs`), { recursive: true })
+    fs.mkdirSync(path.join(projectPath, `logs`), {recursive: true})
     fs.writeFileSync(path.join(projectPath, `logs/.gitkeep`), ``)
 
     // Task 4: Create .env.example
@@ -323,8 +323,8 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
     // Task 6: tsconfig.json
     const tsconfigPath = path.join(projectPath, `tsconfig.json`)
-    const tsconfigContent = fs.readFileSync(tsconfigPath, { encoding: `utf8` }).replace(`//{{types}}`, runtime == `bun` ? `"bun-types"` : ``)
-    fs.writeFileSync(tsconfigPath, tsconfigContent, { encoding: `utf8` })
+    const tsconfigContent = fs.readFileSync(tsconfigPath, {encoding: `utf8`}).replace(`//{{types}}`, runtime == `bun` ? `"bun-types"` : ``)
+    fs.writeFileSync(tsconfigPath, tsconfigContent, {encoding: `utf8`})
 
     // Task 6: Install dependencies
     log.info(`Installing dependencies..`)
@@ -371,9 +371,9 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
   }
 
   /**
-   * Main public method: Prompt first, then execute
+   * Main method: Prompt first, then execute
    */
-  public async createProject() {
+  async createProject() {
     try {
       // Step 1: Gather all configuration through prompts
       this.config = await this.gatherProjectConfig()

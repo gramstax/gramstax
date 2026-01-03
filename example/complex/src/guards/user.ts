@@ -1,8 +1,8 @@
-import { GuardBase } from "~/base/guard"
-import { GeneralErrorPage } from "~/pages/general-error"
+import {GuardBase} from "~/base/guard"
+import {GeneralErrorPage} from "~/pages/general-error"
 
 export class UserGuard extends GuardBase {
-  public async ensureValid() {
+  async ensureValid() {
     try {
       // override language_code
       const lang = await this.cacheData.get(`${this.userId}:lang`)
@@ -12,7 +12,7 @@ export class UserGuard extends GuardBase {
 
       return true
     } catch (err) {
-      await new GeneralErrorPage(this).transition(this.constructor.name, `ensureValid`, err, true)
+      await new GeneralErrorPage(this).transition(`ensureValid`, err, true)
       return null
     }
   }

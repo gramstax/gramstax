@@ -1,10 +1,10 @@
-import { PageBase } from "~/base/page"
-import { StartPage } from "./start"
+import {PageBase} from "~/base/page"
+import {StartPage} from "./start"
 
 export class TestAnimationPage extends PageBase {
-  public static data = this.buildData((swc?: string) => swc)
+  static data = this.buildData((swc?: string) => swc)
 
-  public kb(isDynamic = false) {
+  kb(isDynamic = false) {
     return this.inlineKeyboard((kb, arr) => {
       return kb //
         .text(isDynamic ? arr[1] : arr[0]!, this.data.callbackData(isDynamic ? `static` : `dynamic`))
@@ -13,11 +13,11 @@ export class TestAnimationPage extends PageBase {
     })
   }
 
-  public async callback() {
+  async callback() {
     await this.editAnimation(this.kb())
   }
 
-  public async callbackPayload() {
+  async callbackPayload() {
     const swc = this.callbackDataPayload
     if (swc == `static`) {
       return await this.callback()
@@ -31,7 +31,7 @@ export class TestAnimationPage extends PageBase {
     }
   }
 
-  public static template = /*jsx*/ `
+  static template = /*jsx*/ `
     <base>
       <keyboard>Dynamic Attr, Static Attr, ${this.kbd.back(`default`)}</keyboard>
       <keyboard lang="id">Dynamic Attr, Static Attr, ${this.kbd.back(`id`)}</keyboard>

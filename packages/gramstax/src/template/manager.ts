@@ -1,8 +1,8 @@
-import { basename, join, extname } from "node:path"
-import { readdirSync, readFileSync, existsSync, statSync, writeFileSync } from "node:fs"
-import { watch, FSWatcher } from "chokidar"
-import { PageManager } from "~/page/manager"
-import { TemplateEngine } from "./engine"
+import {basename, join, extname} from "node:path"
+import {readdirSync, readFileSync, existsSync, statSync, writeFileSync} from "node:fs"
+import {watch, FSWatcher} from "chokidar"
+import {PageManager} from "~/page/manager"
+import {TemplateEngine} from "./engine"
 
 /** Template file interface for better type safety */
 type ICompiledTemplate = {
@@ -24,15 +24,15 @@ type ITemplateOptions = {
 
 /** Template management system */
 export class TemplateManager {
-  public _map = new Map<string, ICompiledTemplate>()
-  public _engine = TemplateEngine
-  public _watcher: FSWatcher[] = []
-  public _pageManager = PageManager
-  public _supportedExtensions = new Set([`.html`, `.ts`, `.js`])
-  public readonly _path: ITemplateOptions[`path`]
-  public readonly _isWatchEnabled: ITemplateOptions[`enableWatch`]
-  public constructor(options: ITemplateOptions) {
-    const { path, enableWatch = false } = options
+  _map = new Map<string, ICompiledTemplate>()
+  _engine = TemplateEngine
+  _watcher: FSWatcher[] = []
+  _pageManager = PageManager
+  _supportedExtensions = new Set([`.html`, `.ts`, `.js`])
+  readonly _path: ITemplateOptions[`path`]
+  readonly _isWatchEnabled: ITemplateOptions[`enableWatch`]
+  constructor(options: ITemplateOptions) {
+    const {path, enableWatch = false} = options
 
     this._path = path
     this._isWatchEnabled = enableWatch
@@ -43,7 +43,7 @@ export class TemplateManager {
   }
 
   /** Validate and ensure template directory exists. @returns Void */
-  public _validatePath(): boolean {
+  _validatePath(): boolean {
     try {
       if (!this._path || !Array.isArray(this._path)) {
         throw new Error(`Path must be set as string array`)
@@ -68,7 +68,7 @@ export class TemplateManager {
   }
 
   /** Initialize file system watcher for hot reloading. @returns Void */
-  public _initializeWatcher(options?: any): void {
+  _initializeWatcher(options?: any): void {
     if (!this._isWatchEnabled) return
 
     if (this._watcher.length > 0) {
@@ -96,7 +96,7 @@ export class TemplateManager {
   }
 
   /** Handle file change events */
-  public _handleFileChange(filepath: string): void {
+  _handleFileChange(filepath: string): void {
     const filename = basename(filepath)
     if (this._isValidFile(filename)) {
       this._loadFile(filename)
@@ -104,7 +104,7 @@ export class TemplateManager {
   }
 
   /** Handle file add events */
-  public _handleFileAdd(filepath: string): void {
+  _handleFileAdd(filepath: string): void {
     const fileName = basename(filepath)
     if (this._isValidFile(fileName)) {
       this._loadFile(fileName)
@@ -112,7 +112,7 @@ export class TemplateManager {
   }
 
   /** Handle file delete events */
-  public _handleFileDelete(filepath: string): void {
+  _handleFileDelete(filepath: string): void {
     const fileName = basename(filepath)
     const fileKey = this._getKey(fileName)
     if (this._map.has(fileKey)) {
@@ -121,14 +121,14 @@ export class TemplateManager {
   }
 
   /** Handle watcher errors */
-  public _handleWatchError(error: any): void {
+  _handleWatchError(error: any): void {
     if (error) {
       // you can overrides
     }
   }
 
   /** Load all Template files during initialization with batch optimization */
-  public _loadAllFiles(): void {
+  _loadAllFiles(): void {
     const rawTemplates = new Map<string, string>()
     const pagesToCleanup: any[] = []
 
@@ -172,7 +172,7 @@ export class TemplateManager {
   }
 
   /** Load and compile a single template file (used by watcher) */
-  public _loadFile(filename: string): void {
+  _loadFile(filename: string): void {
     for (let index = 0; index < this._path.length; index++) {
       const it = this._path[index] as string
       const path = join(it, filename)
@@ -194,11 +194,11 @@ export class TemplateManager {
     }
   }
 
-  public _getExtension(filename: string): string {
+  _getExtension(filename: string): string {
     return extname(filename).toLowerCase()
   }
 
-  public _readTemplateFile(filename: string): string | null {
+  _readTemplateFile(filename: string): string | null {
     for (const importPath of this._path) {
       // 1. Check if filename has extension
       const ext = extname(filename).toLowerCase()
@@ -247,15 +247,15 @@ export class TemplateManager {
     return null
   }
 
-  public _isValidFile(filename: string): boolean {
+  _isValidFile(filename: string): boolean {
     return this._supportedExtensions.has(this._getExtension(filename))
   }
 
-  public _getKey(filename: string): string {
+  _getKey(filename: string): string {
     return filename.replace(/\.[^/.]+$/, ``)
   }
 
-  public _compile(key: string, template: string, keepIfExist?: Partial<{ [K in keyof ICompiledTemplate]: boolean }>, importCache?: Map<string, string>, rawCache?: Map<string, string>) {
+  _compile(key: string, template: string, keepIfExist?: Partial<{[K in keyof ICompiledTemplate]: boolean}>, importCache?: Map<string, string>, rawCache?: Map<string, string>) {
     const existing = this._map.get(key)
     const compiled = existing || ({} as ICompiledTemplate)
     let updated = false
@@ -308,7 +308,7 @@ export class TemplateManager {
    * @param data Template variables
    * @returns media object
    */
-  public getMedia(key: string, baseId = `default`, language = `default`, data?: Record<string, any>): ReturnType<ICompiledTemplate[`media`][`default`][`default`]> {
+  getMedia(key: string, baseId = `default`, language = `default`, data?: Record<string, any>): ReturnType<ICompiledTemplate[`media`][`default`][`default`]> {
     const map = this._map.get(key)
     const one = map?.media?.[baseId]
     const func = one?.[language] || one?.[`default`]
@@ -332,7 +332,7 @@ export class TemplateManager {
    * @param data Template variables
    * @returns Rendered message string
    */
-  public getMessage(key: string, baseId = `default`, language = `default`, data?: Record<string, any>): string {
+  getMessage(key: string, baseId = `default`, language = `default`, data?: Record<string, any>): string {
     try {
       const map = this._map.get(key)
       const one = map?.message?.[baseId]
@@ -354,7 +354,7 @@ export class TemplateManager {
    * @param scope Scope of the command
    * @returns Description string
    */
-  public getDescription(key: string, baseId = `default`, language = `default`, scope = `default`, data?: Record<string, any>): string {
+  getDescription(key: string, baseId = `default`, language = `default`, scope = `default`, data?: Record<string, any>): string {
     try {
       const map = this._map.get(key)
       const one = map?.description?.[baseId]?.[scope]
@@ -369,7 +369,7 @@ export class TemplateManager {
     }
   }
 
-  public getDescriptionLanguage(key: string, baseId = `default`, scope = `default`): string[] {
+  getDescriptionLanguage(key: string, baseId = `default`, scope = `default`): string[] {
     try {
       const map = this._map.get(key)
       const obj = map?.description?.[baseId]?.[scope]
@@ -383,7 +383,7 @@ export class TemplateManager {
     }
   }
 
-  public getDescriptionScopes(key: string, baseId = `default`): string[] {
+  getDescriptionScopes(key: string, baseId = `default`): string[] {
     try {
       const map = this._map.get(key)
       const obj = map?.description?.[baseId]
@@ -405,7 +405,7 @@ export class TemplateManager {
    * @param data Template variables
    * @returns Array of rendered button labels
    */
-  public getKeyboard(key: string, baseId = `default`, language = `default`, type: `inline` | `bottom` = `inline`, data?: Record<string, any>): string[] {
+  getKeyboard(key: string, baseId = `default`, language = `default`, type: `inline` | `bottom` = `inline`, data?: Record<string, any>): string[] {
     try {
       const map = this._map.get(key)
       const one = map?.keyboard?.[baseId]
@@ -426,7 +426,7 @@ export class TemplateManager {
    * @param template string content to write
    * @returns Promise that resolves when file is written
    */
-  public async write(filename: string, template: string): Promise<boolean | null> {
+  async write(filename: string, template: string): Promise<boolean | null> {
     if (this._getExtension(filename) != `.html`) {
       return null
     }
@@ -448,7 +448,7 @@ export class TemplateManager {
    * @param key Template identifier
    * @returns True if template exists
    */
-  public has(key: string): boolean {
+  has(key: string): boolean {
     return this._map.has(key)
   }
 
@@ -456,7 +456,7 @@ export class TemplateManager {
    * Cleanup resources and close watchers
    * @returns Promise void
    */
-  public async destroy(): Promise<void> {
+  async destroy(): Promise<void> {
     if (this._watcher) {
       for (const wt of this._watcher) {
         await wt.close()

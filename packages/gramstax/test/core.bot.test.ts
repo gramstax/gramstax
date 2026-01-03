@@ -1,9 +1,9 @@
-import { describe, it, expect, mock, beforeEach, afterEach } from "bun:test"
-import { mkdir, rm, writeFile } from "node:fs/promises"
-import { TemplateManager } from "~/template/manager"
-import { existsSync } from "node:fs"
-import { Gramstax } from "~/core/bot"
-import { join } from "node:path"
+import {describe, it, expect, mock, beforeEach, afterEach} from "bun:test"
+import {mkdir, rm, writeFile} from "node:fs/promises"
+import {TemplateManager} from "~/template/manager"
+import {existsSync} from "node:fs"
+import {Gramstax} from "~/core/bot"
+import {join} from "node:path"
 
 const TEST_DIR = join(import.meta.dir, `bot_views`)
 
@@ -14,7 +14,7 @@ class TestGramstax extends Gramstax {
     return {
       routeStatic: {
         textCommand: {
-          cmd1: { name: `cmd1` }
+          cmd1: {name: `cmd1`}
         }
       },
       routeDynamic: []
@@ -25,20 +25,20 @@ class TestGramstax extends Gramstax {
 describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
   beforeEach(async () => {
     if (existsSync(TEST_DIR)) {
-      await rm(TEST_DIR, { recursive: true, force: true })
+      await rm(TEST_DIR, {recursive: true, force: true})
     }
-    await mkdir(TEST_DIR, { recursive: true })
+    await mkdir(TEST_DIR, {recursive: true})
   })
 
   afterEach(async () => {
     if (existsSync(TEST_DIR)) {
-      await rm(TEST_DIR, { recursive: true, force: true })
+      await rm(TEST_DIR, {recursive: true, force: true})
     }
   })
 
   const createBot = () => {
     // Use real TemplateManager with test directory
-    const realTm = new TemplateManager({ path: [TEST_DIR] })
+    const realTm = new TemplateManager({path: [TEST_DIR]})
 
     const bot = new TestGramstax({
       token: `test`,
@@ -55,7 +55,7 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
       }
     } as any
 
-    return { bot, realTm }
+    return {bot, realTm}
   }
 
   it(`should sync commands from template file`, async () => {
@@ -71,7 +71,7 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
     `
     )
 
-    const { bot } = createBot()
+    const {bot} = createBot()
 
     // Mock current commands (empty)
     const getMyCommands = bot.bot.api.getMyCommands as any as Record<any, (...args: any) => any>
@@ -85,14 +85,14 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
     // Verify setMyCommands calls based on file content
 
     // 1. Default scope, Default lang (mapped to undefined)
-    expect(setMyCommands).toHaveBeenCalledWith([{ command: `cmd1`, description: `Default Description` }], { scope: { type: `default` }, language_code: undefined })
+    expect(setMyCommands).toHaveBeenCalledWith([{command: `cmd1`, description: `Default Description`}], {scope: {type: `default`}, language_code: undefined})
 
     // 2. Default scope, ES lang
-    expect(setMyCommands).toHaveBeenCalledWith([{ command: `cmd1`, description: `Descripción en Español` }], { scope: { type: `default` }, language_code: `es` })
+    expect(setMyCommands).toHaveBeenCalledWith([{command: `cmd1`, description: `Descripción en Español`}], {scope: {type: `default`}, language_code: `es`})
 
     // 3. Private scope, Default lang (mapped to undefined)
     // Note: If no lang specified on <description scope="private">, it defaults to "default" lang
-    expect(setMyCommands).toHaveBeenCalledWith([{ command: `cmd1`, description: `Private Description` }], { scope: { type: `private` }, language_code: undefined })
+    expect(setMyCommands).toHaveBeenCalledWith([{command: `cmd1`, description: `Private Description`}], {scope: {type: `private`}, language_code: undefined})
   })
 
   it(`should skip sync if template matches remote`, async () => {
@@ -105,14 +105,14 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
     `
     )
 
-    const { bot } = createBot()
+    const {bot} = createBot()
     const setMyCommands = bot.bot.api.setMyCommands as any as Record<any, any>
     const getMyCommands = bot.bot.api.getMyCommands as any as Record<any, (...args: any) => any>
 
     // Mock remote to match local template
     getMyCommands.mockImplementation?.((args: Record<any, Record<any, any>>) => {
       if (args?.scope?.type === `default` && args?.language_code === undefined) {
-        return [{ command: `cmd1`, description: `Match Me` }]
+        return [{command: `cmd1`, description: `Match Me`}]
       }
       return []
     })
@@ -143,15 +143,15 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
     `
     )
 
-    const { bot } = createBot()
+    const {bot} = createBot()
 
     // Mock pages to include both commands
     bot.pageLoads = () =>
       ({
         routeStatic: {
           textCommand: {
-            cmd1: { name: `cmd1` },
-            cmd2: { name: `cmd2` }
+            cmd1: {name: `cmd1`},
+            cmd2: {name: `cmd2`}
           }
         },
         routeDynamic: []
@@ -167,10 +167,10 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
     // Expect ES sync to include BOTH cmd1 (ES) and cmd2 (Default fallback)
     expect(setMyCommands).toHaveBeenCalledWith(
       expect.arrayContaining([
-        { command: `cmd1`, description: `Cmd1 ES` },
-        { command: `cmd2`, description: `Cmd2 Default` }
+        {command: `cmd1`, description: `Cmd1 ES`},
+        {command: `cmd2`, description: `Cmd2 Default`}
       ]),
-      { scope: { type: `default` }, language_code: `es` }
+      {scope: {type: `default`}, language_code: `es`}
     )
   })
 })

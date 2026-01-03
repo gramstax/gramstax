@@ -1,6 +1,6 @@
-import { defineConfig } from "tsup"
+import {defineConfig} from "tsup"
 
-import { cpSync, readFileSync, rmdirSync, writeFileSync } from "node:fs"
+import {cpSync, readFileSync, rmdirSync, writeFileSync} from "node:fs"
 
 // hard clean
 try {
@@ -29,7 +29,7 @@ export default defineConfig({
     const readJson = (path: string) => JSON.parse(read(path)) as Record<any, any>
 
     // copy templates to dist/templates
-    cpSync(`./src/templates`, `./dist/src/templates`, { recursive: true })
+    cpSync(`./src/templates`, `./dist/src/templates`, {recursive: true})
 
     // path dist/templates
     const pathDistPackageJson = `./dist/src/templates/package.json`

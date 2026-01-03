@@ -1,16 +1,16 @@
-import { HelpPage } from "./help"
-import { PageBase } from "~/base/page"
+import {HelpPage} from "./help"
+import {PageBase} from "~/base/page"
 
 export class StartPage extends PageBase {
-  public kb() {
+  kb() {
     return this.inlineKeyboard((kb, arr) => {
       return kb.text(arr[0]!, HelpPage.data.callbackData())
     })
   }
 
-  public async internal(edit = true) {
+  async internal(edit = true) {
     const kb = this.kb()
-    const data = { userName: this.userName }
+    const data = {userName: this.userName}
     if (edit) {
       await this.edit(kb, data)
     } else {
@@ -18,21 +18,20 @@ export class StartPage extends PageBase {
     }
   }
 
-  public async callback() {
+  async callback() {
     await this.internal(true)
   }
 
-  public async textCommand() {
+  async textCommand() {
     await this.internal(false)
   }
 
-  public static template = /*jsx*/ `
+  static template = /*jsx*/ `
     <base id="with-import-and-you-can-use-components">
       <keyboard>❓ Help</keyboard>
       <keyboard lang="it">❓ Aiuto</keyboard>
       <keyboard lang="id">❓ Bantuan</keyboard>
     </base>
-
     <base>
       <import src="start" base="with-import-and-you-can-use-components" />
       <message>

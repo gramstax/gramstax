@@ -1,7 +1,7 @@
-import { DataKeyboard } from "gramstax"
+import {DataKeyboard} from "gramstax"
 
 export class KeyboardData extends DataKeyboard {
-  public static home(lang?: string) {
+  static home(lang?: string) {
     return this._build(lang, false, {
       default: `Home`,
       it: `Casa`,
@@ -9,7 +9,7 @@ export class KeyboardData extends DataKeyboard {
     })
   }
 
-  public static back(lang?: string) {
+  static back(lang?: string) {
     return this._build(lang, false, {
       default: `.. Back`,
       it: `.. Ritorno`,

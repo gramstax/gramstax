@@ -1,2 +1,2 @@
-import { log } from "gramstax"
-export { log as logUt }
+import {log} from "gramstax"
+export {log as logUt}

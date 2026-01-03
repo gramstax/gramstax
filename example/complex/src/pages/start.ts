@@ -1,30 +1,30 @@
-import { HelpPage } from "./help"
-import { PageBase } from "~/base/page"
-import { KbbePage } from "./kbbe"
-import { CounterPage } from "./counter"
-import { LanguagePage } from "./language"
-import { BlockMapPage } from "./block-map"
-import { InputTextPage } from "./input-text"
-import { TestErrorPage } from "./test-error"
-import { TestVoicePage } from "./test-voice"
-import { TestPhotoPage } from "./test-photo"
-import { TestVideoPage } from "./test-video"
-import { TestAudioPage } from "./test-audio"
-import { BlockSwitchPage } from "./block-switch"
-import { BlockImportPage } from "./block-import"
-import { TestContactPage } from "./test-contact"
-import { TestStickerPage } from "./test-sticker"
-import { TestLocationPage } from "./test-location"
-import { TestDocumentPage } from "./test-document"
-import { CounterThreadPage } from "./counter-thread"
-import { TestAnimationPage } from "./test-animation"
-import { TestVideoNotePage } from "./test-video-note"
-import { TestErrorInputPage } from "./test-error-input"
+import {HelpPage} from "./help"
+import {PageBase} from "~/base/page"
+import {KbbePage} from "./kbbe"
+import {CounterPage} from "./counter"
+import {LanguagePage} from "./language"
+import {BlockMapPage} from "./block-map"
+import {InputTextPage} from "./input-text"
+import {TestErrorPage} from "./test-error"
+import {TestVoicePage} from "./test-voice"
+import {TestPhotoPage} from "./test-photo"
+import {TestVideoPage} from "./test-video"
+import {TestAudioPage} from "./test-audio"
+import {BlockSwitchPage} from "./block-switch"
+import {BlockImportPage} from "./block-import"
+import {TestContactPage} from "./test-contact"
+import {TestStickerPage} from "./test-sticker"
+import {TestLocationPage} from "./test-location"
+import {TestDocumentPage} from "./test-document"
+import {CounterThreadPage} from "./counter-thread"
+import {TestAnimationPage} from "./test-animation"
+import {TestVideoNotePage} from "./test-video-note"
+import {TestErrorInputPage} from "./test-error-input"
 
 export class StartPage extends PageBase {
-  public static data = this.buildData((rdm?: string) => rdm)
+  static data = this.buildData((rdm?: string) => rdm)
 
-  public kb() {
+  kb() {
     return this.inlineKeyboard((kb, arr) => {
       return kb //
         .text(arr[0]!, CounterPage.data.callbackData())
@@ -61,7 +61,7 @@ export class StartPage extends PageBase {
         .text(arr[21]!, this.data.callbackData())
     })
   }
-  public async internal(condition = 1) {
+  async internal(condition = 1) {
     const kb = this.kb()
     const da = {
       firstName: this.userFirstName,
@@ -78,28 +78,28 @@ export class StartPage extends PageBase {
       await this.reply(kb, da)
     }
   }
-  public async transition() {
+  async transition() {
     await this.internal(1)
   }
-  public async text() {
+  async text() {
     await this.internal(1)
   }
-  public async textPayload() {
+  async textPayload() {
     await this.internal(1)
   }
-  public async textCommand() {
+  async textCommand() {
     await this.internal(1)
   }
-  public async textCommandPayload() {
+  async textCommandPayload() {
     await this.internal(1)
   }
-  public async callback() {
+  async callback() {
     await this.internal(2)
   }
-  public async callbackPayload() {
+  async callbackPayload() {
     await this.internal(3)
   }
-  public static template = /*jsx*/ `
+  static template = /*jsx*/ `
     <base id="kb-for-block-import">
       ${this.kbc.refreshBack()}
     </base>

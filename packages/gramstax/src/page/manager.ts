@@ -1,10 +1,10 @@
-import { join } from "node:path"
-import { existsSync, readdirSync } from "node:fs"
-import type { Ctx } from "~/core/ctx"
-import { createRequire } from "node:module"
+import {join} from "node:path"
+import {existsSync, readdirSync} from "node:fs"
+import type {Ctx} from "~/core/ctx"
+import {createRequire} from "node:module"
 
 export class PageManager {
-  public static _getFile(mod: Record<any, any>, path: string, positionModule = 0) {
+  static _getFile(mod: Record<any, any>, path: string, positionModule = 0) {
     const exp = Object.values(mod)
     const Page = exp[positionModule] as typeof Ctx // like StartPage. not have default export
     if (Page === undefined) {
@@ -13,11 +13,11 @@ export class PageManager {
     return Page
   }
 
-  public static getFilePath() {
+  static getFilePath() {
     return join(process.cwd(), `src`, `pages`)
   }
 
-  public static getFileSync(path?: string, positionModule = 0) {
+  static getFileSync(path?: string, positionModule = 0) {
     if (!path) {
       path = this.getFilePath()
     }
@@ -26,7 +26,7 @@ export class PageManager {
     return this._getFile(def, path, positionModule)
   }
 
-  public static async getFile(path?: string, positionModule = 0) {
+  static async getFile(path?: string, positionModule = 0) {
     if (!path) {
       path = this.getFilePath()
     }
@@ -34,7 +34,7 @@ export class PageManager {
     return this._getFile(mod, path, positionModule)
   }
 
-  public static getFileManySync(path?: string, positionModule = 0) {
+  static getFileManySync(path?: string, positionModule = 0) {
     if (!path) {
       path = this.getFilePath()
     }
@@ -52,7 +52,7 @@ export class PageManager {
     })
   }
 
-  public static clearCacheRequire(path?: string) {
+  static clearCacheRequire(path?: string) {
     if (!path) {
       path = this.getFilePath()
     }

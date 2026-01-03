@@ -1,4 +1,4 @@
-import { Gramstax, log } from "gramstax"
+import {Gramstax, log} from "gramstax"
 
 log.info(`Started..`)
 new Gramstax({

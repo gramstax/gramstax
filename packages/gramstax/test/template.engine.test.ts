@@ -1,24 +1,24 @@
-import { describe, it, expect } from "bun:test"
-import { TemplateEngine } from "~/template/engine"
+import {describe, it, expect} from "bun:test"
+import {TemplateEngine} from "~/template/engine"
 
 describe(`TemplateEngine`, () => {
   describe(`_processMessageBlocks`, () => {
     it(`should parse message with explicit lang`, () => {
       const template = `<message lang="en">Hello</message>`
       const result = TemplateEngine._processMessageBlocks(template)
-      expect(result).toEqual({ en: `Hello` })
+      expect(result).toEqual({en: `Hello`})
     })
 
     it(`should parse message with default lang (missing attr lang)`, () => {
       const template = `<message>Hello</message>`
       const result = TemplateEngine._processMessageBlocks(template)
-      expect(result).toEqual({ default: `Hello` })
+      expect(result).toEqual({default: `Hello`})
     })
 
     it(`should parse message with mixed attributes`, () => {
       const template = `<message id="1" lang="es">Hola</message>`
       const result = TemplateEngine._processMessageBlocks(template)
-      expect(result).toEqual({ es: `Hola` })
+      expect(result).toEqual({es: `Hola`})
     })
   })
 
@@ -26,19 +26,19 @@ describe(`TemplateEngine`, () => {
     it(`should parse description with explicit lang and scope`, () => {
       const template = `<description lang="en" scope="private">Desc</description>`
       const result = TemplateEngine._processDescriptionBlocks(template)
-      expect(result).toEqual({ en: { private: `Desc` } })
+      expect(result).toEqual({en: {private: `Desc`}})
     })
 
     it(`should parse description with default lang and scope`, () => {
       const template = `<description>Desc</description>`
       const result = TemplateEngine._processDescriptionBlocks(template)
-      expect(result).toEqual({ default: { default: `Desc` } })
+      expect(result).toEqual({default: {default: `Desc`}})
     })
 
     it(`should parse description with mixed attributes`, () => {
       const template = `<description scope="group" lang="id">Deskripsi</description>`
       const result = TemplateEngine._processDescriptionBlocks(template)
-      expect(result).toEqual({ id: { group: `Deskripsi` } })
+      expect(result).toEqual({id: {group: `Deskripsi`}})
     })
   })
 
@@ -89,7 +89,7 @@ describe(`TemplateEngine`, () => {
       const fn = TemplateEngine._compileToFunction(processed, false)
 
       const data = {
-        users: [{ name: `Alice` }, { name: `Bob` }]
+        users: [{name: `Alice`}, {name: `Bob`}]
       }
       expect(fn(data)).toBe(`0. Alice\n1. Bob`)
     })
@@ -115,8 +115,8 @@ describe(`TemplateEngine`, () => {
 
       const data = {
         items: [
-          { id: 1, value: `A` },
-          { id: 2, value: `B` }
+          {id: 1, value: `A`},
+          {id: 2, value: `B`}
         ],
         globalPrefix: `G`
       }
@@ -128,7 +128,7 @@ describe(`TemplateEngine`, () => {
       const processed = TemplateEngine._processMapBlocks(template)
       const fn = TemplateEngine._compileToFunction(processed, false)
 
-      const data = { emptyList: [] }
+      const data = {emptyList: []}
       expect(fn(data)).toBe(`List:\n`)
     })
   })
@@ -154,7 +154,7 @@ describe(`TemplateEngine`, () => {
       processed = TemplateEngine._processExec(processed)
       const fn = TemplateEngine._compileToFunction(processed, false)
 
-      const data = { nums: [1, 2, 3] }
+      const data = {nums: [1, 2, 3]}
       expect(fn(data)).toBe(`2\n4\n6`)
     })
 
@@ -165,7 +165,7 @@ describe(`TemplateEngine`, () => {
 
       const fn = TemplateEngine._compileToFunction(processed, false)
 
-      const data = { nums: [`a`, `b`] }
+      const data = {nums: [`a`, `b`]}
       expect(fn(data)).toBe(`1. a\n2. b`)
     })
   })
@@ -178,7 +178,7 @@ describe(`TemplateEngine`, () => {
         </base>
       `
       const compiled = TemplateEngine.compileMedia(template)
-      const data = { avatar: `http://alice.png`, name: `Alice` }
+      const data = {avatar: `http://alice.png`, name: `Alice`}
       const media = compiled.profile!.default!(data)
 
       expect(media.type).toBe(`photo`)
@@ -193,7 +193,7 @@ describe(`TemplateEngine`, () => {
         </base>
       `
       const compiled = TemplateEngine.compileMedia(template)
-      const data = { lat: 10, lng: `20` }
+      const data = {lat: 10, lng: `20`}
       const media = compiled.loc!.default!(data)
 
       expect(media.latitude).toBe(`11`)
@@ -230,7 +230,7 @@ describe(`TemplateEngine`, () => {
       const compiled = TemplateEngine.compileMessages(template)
       const fn = compiled[`list`]![`default`]
 
-      const data = { users: [{ name: `X` }, { name: `Y` }] }
+      const data = {users: [{name: `X`}, {name: `Y`}]}
       expect(fn!(data).trim()).toBe(`1. X, 2. Y`)
     })
   })

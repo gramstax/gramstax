@@ -1,14 +1,14 @@
-import { PageBase } from "~/base/page"
-import { StartPage } from "./start"
+import {PageBase} from "~/base/page"
+import {StartPage} from "./start"
 
 export class HelpPage extends PageBase {
-  public kb() {
+  kb() {
     return this.inlineKeyboard((kb, arr) => {
       return kb.text(arr[0]!, StartPage.data.callbackData())
     })
   }
 
-  public async internal(edit = true) {
+  async internal(edit = true) {
     const kb = this.kb()
     if (edit) {
       await this.edit(kb)
@@ -17,15 +17,15 @@ export class HelpPage extends PageBase {
     }
   }
 
-  public async callback() {
+  async callback() {
     await this.internal(true)
   }
 
-  public async textCommand() {
+  async textCommand() {
     await this.internal(false)
   }
 
-  public static template = /*jsx*/ `
+  static template = /*jsx*/ `
     <base>
       ${this.kbc.back()}
       <message><b>Help message</b></message>

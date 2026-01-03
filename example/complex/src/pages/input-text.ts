@@ -1,34 +1,33 @@
-import { PageBase } from "~/base/page"
-import { StartPage } from "./start"
+import {PageBase} from "~/base/page"
+import {StartPage} from "./start"
 
 export class InputTextPage extends PageBase {
-  public kb(baseId?: string) {
+  kb(baseId?: string) {
     return this.inlineKeyboard(
       (kb, arr) => {
         return kb.text(arr[0]!, StartPage.data.callbackData())
       },
-      { baseId }
+      {baseId}
     )
   }
 
-  public async callback() {
+  async callback() {
     await this.sessionToTextFree()
     await this.edit(this.kb())
   }
 
-  // public async textFree() {
-  //   const baseId = `result`
-  //   const data = { res: this.msgText }
-  //   await this.reply(this.kb(baseId), data, baseId)
-  // }
+  async textFree() {
+    const baseId = `result`
+    const data = {res: this.msgText}
+    await this.reply(this.kb(baseId), data, baseId)
+  }
 
-  public static template = /*jsx*/ `
+  static template = /*jsx*/ `
     <base>
       ${this.kbc.cancel()}
       <message>Please input text you want view</message>
       <message lang="id">Tolong masukan text yang ingin anda liat</message>
     </base>
-
     <base id="result">
       ${this.kbc.home()}
       <message>

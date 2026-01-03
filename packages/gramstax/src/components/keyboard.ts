@@ -1,8 +1,8 @@
-import { DataKeyboard } from "~/data/keyboard"
+import {DataKeyboard} from "~/data/keyboard"
 
 export class ComponentKeyboard {
-  public static data: typeof DataKeyboard
-  public static _process(obj: any, params: { type?: string; lang?: string; reverse?: boolean }) {
+  static data: typeof DataKeyboard
+  static _process(obj: any, params: { type?: string; lang?: string; reverse?: boolean }) {
     if (!params.type) {
       params.type = `inline`
     }
@@ -23,7 +23,7 @@ export class ComponentKeyboard {
       .join(` `)
   }
 
-  public static _build(key: string, lang?: string, type?: string) {
+  static _build(key: string, lang?: string, type?: string) {
     if (!this.data) {
       throw new Error(`Data not found`)
     }
@@ -31,6 +31,6 @@ export class ComponentKeyboard {
     if (!func) {
       throw new Error(`Function ${key} not found`)
     }
-    return this._process(func.call(this.data, lang), { type, lang })
+    return this._process(func.call(this.data, lang), {type, lang})
   }
 }

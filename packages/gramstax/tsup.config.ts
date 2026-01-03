@@ -1,5 +1,5 @@
-import { defineConfig } from "tsup"
-import { rmdirSync } from "node:fs"
+import {defineConfig} from "tsup"
+import {rmdirSync} from "node:fs"
 
 // hard clean
 try {

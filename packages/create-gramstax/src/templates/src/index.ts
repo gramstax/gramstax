@@ -1,7 +1,7 @@
-import { env } from "./env"
-import { logUt } from "./utils/log"
-import { BotCore } from "./core/bot"
-import { CacheExternal } from "gramstax"
+import {env} from "./env"
+import {logUt} from "./utils/log"
+import {BotCore} from "./core/bot"
+import {CacheExternal} from "gramstax"
 
 logUt.success(`Bot started..`)
 

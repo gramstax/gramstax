@@ -1,4 +1,4 @@
-import type { Keyboard, Context, InlineKeyboard } from "grammy"
+import type {Keyboard, Context, InlineKeyboard} from "grammy"
 
 export type IInlineKb = InlineKeyboard
 export type IBottomKb = Keyboard

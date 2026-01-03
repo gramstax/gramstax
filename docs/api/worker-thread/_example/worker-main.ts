@@ -1,5 +1,5 @@
-import { WorkerServerExp } from "./worker-server"
-import { WorkerClientExp } from "./worker-client"
+import {WorkerServerExp} from "./worker-server"
+import {WorkerClientExp} from "./worker-client"
 
 async function main() {
   console.log(`--- STARTING WORKER THREAD CLUSTER ---`)

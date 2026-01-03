@@ -13,17 +13,17 @@ export type IMediaBlock = {
 }
 
 export class TemplateEngine {
-  public static _escape(str: string): string {
+  static _escape(str: string): string {
     return str
       .replace(/\\/g, `\\\\`) // escape backslash: \ → \\
       .replace(/`/g, `\\\``) // escape backtick: ` → \`
   }
 
-  public static _processVariables(template: string) {
+  static _processVariables(template: string) {
     return template.replace(/\{\{(\w+)\}\}/g, (_, key) => `\${(data && data["${key}"]) ?? ""}`)
   }
 
-  public static _processBaseBlocks(template: string) {
+  static _processBaseBlocks(template: string) {
     const baseRegex = /<base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/base>/g
     const result: {
       [baseId: string]: string
@@ -43,7 +43,7 @@ export class TemplateEngine {
     return result
   }
 
-  public static _processScriptBlocks(template: string) {
+  static _processScriptBlocks(template: string) {
     return template.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, (_, rawCode: string) => {
       const innerCode = rawCode.trim()
       if (!innerCode) return ``
@@ -52,11 +52,11 @@ export class TemplateEngine {
     })
   }
 
-  public static _processSpaceBlocks(template: string) {
+  static _processSpaceBlocks(template: string) {
     return template.replace(/^[ \t]*<space\s*\/>[ \t]*$/gim, ``)
   }
 
-  public static _processDivBlocks(template: string) {
+  static _processDivBlocks(template: string) {
     return template.replace(/<div>([\s\S]*?)<\/div>/gi, (_, inner: string) => {
       const cleaned = inner
         .replace(/^[\t ]+/gm, ``)
@@ -66,7 +66,7 @@ export class TemplateEngine {
     })
   }
 
-  public static _processSwitchBlocks(template: string) {
+  static _processSwitchBlocks(template: string) {
     const switchRegex = /<switch\b(?:\s+value="([^"]+)")?>([\s\S]*?)<\/switch>/gi
     return template.replace(switchRegex, (_, valueKey, innerContent) => {
       if (!valueKey) return ``
@@ -109,14 +109,14 @@ export class TemplateEngine {
     })
   }
 
-  public static _processExec(template: string) {
+  static _processExec(template: string) {
     return template.replace(/{~\s*([\s\S]*?)\s*~}/g, (_, code) => `\${(() => { try { return ${code} } catch(e) { try { with(data || {}) { return ${code} } } catch(ee) { return '' } } })()}`)
   }
 
-  public static _processMapBlocks(template: string) {
+  static _processMapBlocks(template: string) {
     const mapRegex = /<map(?:\s+([^>]*))?>([\s\S]*?)<\/map>/gi
     return template.replace(mapRegex, (_, attributesStr, rawContent) => {
-      const attrs: { [key: string]: string } = {}
+      const attrs: {[key: string]: string} = {}
       const attrRegex = /(\w+)="([^"]*)"/g
 
       if (attributesStr) {
@@ -154,16 +154,16 @@ export class TemplateEngine {
     })
   }
 
-  public static _processMediaBlocks(template: string) {
+  static _processMediaBlocks(template: string) {
     const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
-    const result: { [lang: string]: IMediaBlock } = {}
+    const result: {[lang: string]: IMediaBlock} = {}
 
     for (const match of template.matchAll(mediaRegex)) {
       const attributesStr = match[1]
       const rawContent = match[2]
 
       // Extract all attributes
-      const attrs: { [key: string]: string } = {}
+      const attrs: {[key: string]: string} = {}
       const attrRegex = /(\w+)="([^"]*)"/g
 
       if (attributesStr) {
@@ -184,7 +184,7 @@ export class TemplateEngine {
         .trim()
 
       // Build media block based on type
-      const mediaBlock = { type } as Record<any, any>
+      const mediaBlock = {type} as Record<any, any>
 
       // Media with file src (photo, video, audio, document, animation, voice, video_note, sticker)
       if (attrs.src) {
@@ -218,14 +218,14 @@ export class TemplateEngine {
     return result
   }
 
-  public static _processMessageBlocks(template: string) {
+  static _processMessageBlocks(template: string) {
     const messageRegex = /<message(?:\s+([^>]*))?>([\s\S]*?)<\/message>/gi
     const result: {
       [lang: string]: string
     } = {}
 
     for (const [, attributesStr, rawContent] of template.matchAll(messageRegex)) {
-      const attrs: { [key: string]: string } = {}
+      const attrs: {[key: string]: string} = {}
       const attrRegex = /(\w+)="([^"]*)"/g
 
       if (attributesStr) {
@@ -246,7 +246,7 @@ export class TemplateEngine {
     return result
   }
 
-  public static _processDescriptionBlocks(template: string) {
+  static _processDescriptionBlocks(template: string) {
     const descriptionRegex = /<description(?:\s+([^>]*))?>([\s\S]*?)<\/description>/gi
     const result: {
       [lang: string]: {
@@ -255,7 +255,7 @@ export class TemplateEngine {
     } = {}
 
     for (const [, attributesStr, rawContent] of template.matchAll(descriptionRegex)) {
-      const attrs: { [key: string]: string } = {}
+      const attrs: {[key: string]: string} = {}
       const attrRegex = /(\w+)="([^"]*)"/g
 
       if (attributesStr) {
@@ -280,7 +280,7 @@ export class TemplateEngine {
     return result
   }
 
-  public static _processKeyboardBlocks(template: string) {
+  static _processKeyboardBlocks(template: string) {
     const keyboardRegex = /<keyboard(?:\s+([^>]*))?>([\s\S]*?)<\/keyboard>/gi
     const result: {
       [lang: string]: {
@@ -290,7 +290,7 @@ export class TemplateEngine {
     } = {}
 
     for (const [, attributesStr, rawContent] of template.matchAll(keyboardRegex)) {
-      const attrs: { [key: string]: string } = {}
+      const attrs: {[key: string]: string} = {}
       const attrRegex = /(\w+)="([^"]*)"/g
 
       if (attributesStr) {
@@ -311,7 +311,7 @@ export class TemplateEngine {
     return result
   }
 
-  public static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): T extends true ? (data?: Record<string, any>) => string[] : (data?: Record<string, any>) => string {
+  static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): T extends true ? (data?: Record<string, any>) => string[] : (data?: Record<string, any>) => string {
     let singleOrCombined: string
     if (isArray) {
       const multiTemplate = template as string[]
@@ -332,7 +332,7 @@ export class TemplateEngine {
     }
   }
 
-  public static compileMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
+  static compileMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
@@ -355,7 +355,7 @@ export class TemplateEngine {
         }
 
         result[baseId][lang] = (data?: Record<string, any>) => {
-          const resolvedBlock = { ...mediaBlock } as any
+          const resolvedBlock = {...mediaBlock} as any
           for (const [key, fn] of Object.entries(compiledProps)) {
             resolvedBlock[key] = fn(data)
           }
@@ -366,7 +366,7 @@ export class TemplateEngine {
     return result
   }
 
-  public static compileMessages(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
+  static compileMessages(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
@@ -387,7 +387,7 @@ export class TemplateEngine {
     return result
   }
 
-  public static compileDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
+  static compileDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
@@ -415,7 +415,7 @@ export class TemplateEngine {
     return result
   }
 
-  public static compileKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
+  static compileKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
@@ -447,7 +447,7 @@ export class TemplateEngine {
     return result
   }
 
-  public static _extractBlock(content: string, blocks?: string | string[], baseId: string = `default`, section: `all` | `value` = `all`, lang?: string) {
+  static _extractBlock(content: string, blocks?: string | string[], baseId: string = `default`, section: `all` | `value` = `all`, lang?: string) {
     // 1. Extract Base Block
     const baseRegex = /<base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/base>/g
     let baseContent = content
@@ -486,7 +486,7 @@ export class TemplateEngine {
 
       // Convert to array if string
       const blockList = Array.isArray(blocks) ? blocks : [blocks]
-      const allBlockMatches: Array<{ start: number; content: string; innerContent: string }> = []
+      const allBlockMatches: Array<{start: number; content: string; innerContent: string}> = []
 
       for (const block of blockList) {
         // Capture optional leading whitespace to correctly identify the block's base indentation level
@@ -553,11 +553,11 @@ export class TemplateEngine {
     return baseContent
   }
 
-  public static _processImportBlocks(template: string) {
+  static _processImportBlocks(template: string) {
     const importRegex = /([ \t]*)<import(?:\s+([^>]*))?\/?>/gi
-    const imports: Array<{ src: string; blocks?: string | string[]; base: string; lang?: string; section: `all` | `value`; indent: string }> = []
+    const imports: Array<{src: string; blocks?: string | string[]; base: string; lang?: string; section: `all` | `value`; indent: string}> = []
     const processed = template.replace(importRegex, (_, indent, attributesStr) => {
-      const attrs: { [key: string]: string } = {}
+      const attrs: {[key: string]: string} = {}
       const attrRegex = /(\w+)="([^"]*)"/g
       if (attributesStr) {
         for (const attrMatch of attributesStr.matchAll(attrRegex)) {
@@ -597,13 +597,13 @@ export class TemplateEngine {
       return `${indent}__IMPORT_${imports.length - 1}__`
     })
 
-    return { processed, imports }
+    return {processed, imports}
   }
 
-  public static processImportBlocks(template: string, resolver: (src: string) => string | null, depth = 0, importCache?: Map<string, string>): string {
+  static processImportBlocks(template: string, resolver: (src: string) => string | null, depth = 0, importCache?: Map<string, string>): string {
     if (depth > 10) return `` // recursive limit
 
-    const { processed, imports } = this._processImportBlocks(template)
+    const {processed, imports} = this._processImportBlocks(template)
 
     let result = processed
     for (let i = 0; i < imports.length; i++) {

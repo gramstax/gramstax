@@ -1,8 +1,8 @@
-import { PageBase } from "~/base/page"
-import { StartPage } from "./start"
+import {PageBase} from "~/base/page"
+import {StartPage} from "./start"
 
 export class BlockImportPage extends PageBase {
-  public kb() {
+  kb() {
     return this.inlineKeyboard((kb, arr) => {
       return kb //
         .text(arr[0]!, this.data.callbackData())
@@ -11,13 +11,13 @@ export class BlockImportPage extends PageBase {
     })
   }
 
-  public async callback() {
+  async callback() {
     await this.edit(this.kb(), {
       number: Math.random()
     })
   }
 
-  public static template = /*jsx*/ `
+  static template = /*jsx*/ `
     <base>
       <import src="start" base="for-block-import" />
     </base>

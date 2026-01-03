@@ -1,12 +1,12 @@
-import { Server, type Connection } from "net-ipc"
-import { WorkerThreadRpc } from "./rpc"
+import {Server, type Connection} from "net-ipc"
+import {WorkerThreadRpc} from "./rpc"
 
 export class WorkerThreadGatewayServer {
-  public server = new Server()
-  public rpc = new Map<string, WorkerThreadRpc>()
-  public methods: any = {}
+  server = new Server()
+  rpc = new Map<string, WorkerThreadRpc>()
+  methods: any = {}
 
-  public constructor() {
+  constructor() {
     this.server.on(`connect`, (connection: Connection) => {
       const rpc = new WorkerThreadRpc((data) => {
         return connection.send(data)
@@ -31,7 +31,7 @@ export class WorkerThreadGatewayServer {
     })
   }
 
-  public async start(path: string, methods: any = {}) {
+  async start(path: string, methods: any = {}) {
     this.methods = methods
     this.server.options.path = path
     const p = new Promise((resolve) => {

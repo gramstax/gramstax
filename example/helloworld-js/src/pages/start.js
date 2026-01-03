@@ -1,4 +1,4 @@
-import { Ctx } from "gramstax"
+import {Ctx} from "gramstax"
 
 export class StartPage extends Ctx {
   kb() {
@@ -9,7 +9,7 @@ export class StartPage extends Ctx {
 
   async internal(edit = true) {
     const kb = this.kb()
-    const data = { time: new Date().toString() }
+    const data = {time: new Date().toString()}
     if (edit) {
       await this.edit(kb, data)
     } else {

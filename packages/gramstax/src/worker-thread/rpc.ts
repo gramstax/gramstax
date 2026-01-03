@@ -1,13 +1,13 @@
-export type IMapRpc = Map<any, { reject: (error: any) => any; resolve: (result: any) => any }>
+export type IMapRpc = Map<any, {reject: (error: any) => any; resolve: (result: any) => any}>
 
 export class WorkerThreadRpc {
-  public map = new Map() as IMapRpc
-  public constructor(public send: (data: any) => any, public register: Record<any, any>) {}
+  map = new Map() as IMapRpc
+  constructor(public send: (data: any) => any, public register: Record<any, any>) {}
 
-  public async make(data: any) {
+  async make(data: any) {
     const map = this.map
     const send = this.send
-    const { id, method, params, result, error } = data
+    const {id, method, params, result, error} = data
 
     if (method !== undefined) {
       // Handle request
@@ -18,11 +18,11 @@ export class WorkerThreadRpc {
         }
 
         const res = await func.apply(this.register, params)
-        send({ id, result: res })
+        send({id, result: res})
       } catch (err: any) {
         send({
           id,
-          error: err instanceof Error ? { message: err.message, stack: err.stack, name: err.name } : err
+          error: err instanceof Error ? {message: err.message, stack: err.stack, name: err.name} : err
         })
       }
     } else if (result !== undefined) {
@@ -42,19 +42,19 @@ export class WorkerThreadRpc {
     }
   }
 
-  public makeId() {
+  makeId() {
     return Math.random()
   }
 
-  public makeRequest(method: string, params: any, _wait = true, _others?: Record<string, any>): Promise<any> {
+  makeRequest(method: string, params: any, _wait = true, _others?: Record<string, any>): Promise<any> {
     const id = this.makeId()
-    const pld = { id, method, params, ..._others }
+    const pld = {id, method, params, ..._others}
     if (!_wait) {
       return this.send(pld)
     }
 
     return new Promise((resolve, reject) => {
-      this.map.set(id, { resolve, reject })
+      this.map.set(id, {resolve, reject})
       this.send(pld)
     })
   }

@@ -1,4 +1,4 @@
-import { Keyv } from "keyv"
+import {Keyv} from "keyv"
 import KeyvRedis from "@keyv/redis"
 
 type IMore = Omit<Required<ConstructorParameters<typeof Keyv>>[0], `store` | `namespace` | `ttl`> & { forceStore?: any }
@@ -10,6 +10,6 @@ export class CacheExternal extends Keyv {
     if (url === `memory`) store = new Map()
     if (more?.forceStore) store = more.forceStore
 
-    super({ store, namespace, ttl })
+    super({store, namespace, ttl})
   }
 }

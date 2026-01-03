@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach } from "bun:test"
-import { mkdir, rm, writeFile } from "node:fs/promises"
-import { TemplateManager } from "~/template/manager"
-import { existsSync } from "node:fs"
-import { join } from "node:path"
+import {describe, it, expect, beforeEach, afterEach} from "bun:test"
+import {mkdir, rm, writeFile} from "node:fs/promises"
+import {TemplateManager} from "~/template/manager"
+import {existsSync} from "node:fs"
+import {join} from "node:path"
 
 // Use a directory inside the test folder as requested
 const TEST_DIR = join(import.meta.dir, `views`)
@@ -10,29 +10,29 @@ const TEST_DIR = join(import.meta.dir, `views`)
 describe(`TemplateManager`, () => {
   beforeEach(async () => {
     if (existsSync(TEST_DIR)) {
-      await rm(TEST_DIR, { recursive: true, force: true })
+      await rm(TEST_DIR, {recursive: true, force: true})
     }
-    await mkdir(TEST_DIR, { recursive: true })
+    await mkdir(TEST_DIR, {recursive: true})
   })
 
   afterEach(async () => {
     if (existsSync(TEST_DIR)) {
-      await rm(TEST_DIR, { recursive: true, force: true })
+      await rm(TEST_DIR, {recursive: true, force: true})
     }
   })
 
   describe(`Initialization`, () => {
     it(`should throw error if path is invalid`, () => {
-      expect(() => new TemplateManager({ path: null as any })).toThrow()
+      expect(() => new TemplateManager({path: null as any})).toThrow()
     })
 
     it(`should throw error if path does not exist`, () => {
-      expect(() => new TemplateManager({ path: [`./non-existent`] })).toThrow()
+      expect(() => new TemplateManager({path: [`./non-existent`]})).toThrow()
     })
 
     it(`should load existing templates`, async () => {
       await writeFile(join(TEST_DIR, `test.html`), `<base><message>Hello</message></base>`)
-      const manager = new TemplateManager({ path: [TEST_DIR] })
+      const manager = new TemplateManager({path: [TEST_DIR]})
       expect(manager.has(`test`)).toBe(true)
     })
   })
@@ -59,7 +59,7 @@ describe(`TemplateManager`, () => {
         </base>
       `
       )
-      manager = new TemplateManager({ path: [TEST_DIR] })
+      manager = new TemplateManager({path: [TEST_DIR]})
     })
 
     it(`should get message with fallback`, () => {
@@ -94,7 +94,7 @@ describe(`TemplateManager`, () => {
 
   describe(`File Operations`, () => {
     it(`should write and reload template`, async () => {
-      const manager = new TemplateManager({ path: [TEST_DIR] })
+      const manager = new TemplateManager({path: [TEST_DIR]})
       await writeFile(join(TEST_DIR, `write_test.html`), `<base><message>Initial</message></base>`)
 
       await manager._loadFile(`write_test.html`)
@@ -116,7 +116,7 @@ describe(`TemplateManager`, () => {
       const manager = new TemplateManager({
         path: [TEST_DIR],
         enableWatch: true,
-        watchOptions: { usePolling: true }
+        watchOptions: {usePolling: true}
       })
 
       // Wait for watcher to initialize
@@ -134,7 +134,7 @@ describe(`TemplateManager`, () => {
       const manager = new TemplateManager({
         path: [TEST_DIR],
         enableWatch: true,
-        watchOptions: { usePolling: true }
+        watchOptions: {usePolling: true}
       })
       await wait(100)
 
@@ -151,7 +151,7 @@ describe(`TemplateManager`, () => {
       const manager = new TemplateManager({
         path: [TEST_DIR],
         enableWatch: true,
-        watchOptions: { usePolling: true }
+        watchOptions: {usePolling: true}
       })
       await wait(100)
 
@@ -174,7 +174,7 @@ describe(`TemplateManager`, () => {
       // However, creating a real TS file that Bun/Node can require dynamically in test might be tricky due to caching or compilation.
       // Let's test the .html fallback first if .ts is missing or invalid.
 
-      const manager = new TemplateManager({ path: [TEST_DIR] })
+      const manager = new TemplateManager({path: [TEST_DIR]})
 
       // Test 1: Only HTML exists, referenced without extension
       const htmlContent = manager._readTemplateFile(`component`)

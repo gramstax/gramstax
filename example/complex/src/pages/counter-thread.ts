@@ -1,11 +1,11 @@
-import { PageBase } from "~/base/page"
-import { StartPage } from "./start"
-import { IncrementJob } from "~/jobs/increment"
+import {PageBase} from "~/base/page"
+import {StartPage} from "./start"
+import {IncrementJob} from "~/jobs/increment"
 
 export class CounterThreadPage extends PageBase {
-  public static data = this.buildData((exe?: string) => exe)
+  static data = this.buildData((exe?: string) => exe)
 
-  public kb() {
+  kb() {
     return this.inlineKeyboard((kb, arr) => {
       return kb //
         .text(arr[0]!, this.data.callbackData(`1`))
@@ -14,17 +14,17 @@ export class CounterThreadPage extends PageBase {
     })
   }
 
-  public async callback() {
+  async callback() {
     const kb = this.kb()
     const count = await IncrementJob.getCount()
-    await this.edit(kb, { count, timestamp: new Date().getTime() })
+    await this.edit(kb, {count, timestamp: new Date().getTime()})
   }
 
-  public async callbackPayload() {
+  async callbackPayload() {
     await this.callback()
   }
 
-  public static template = /*jsx*/ `
+  static template = /*jsx*/ `
     <base>
       ${this.kbc.refreshBack()}
       <message>

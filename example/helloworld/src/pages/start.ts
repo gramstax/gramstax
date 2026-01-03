@@ -1,15 +1,15 @@
-import { Ctx } from "gramstax"
+import {Ctx} from "gramstax"
 
 export class StartPage extends Ctx {
-  public kb() {
+  kb() {
     return this.inlineKeyboard((kb, arr) => {
       return kb.text(arr[0]!, this.data.callbackData())
     })
   }
 
-  public async internal(edit = true) {
+  async internal(edit = true) {
     const kb = this.kb()
-    const data = { time: new Date().toString() }
+    const data = {time: new Date().toString()}
     if (edit) {
       await this.edit(kb, data)
     } else {
@@ -17,15 +17,15 @@ export class StartPage extends Ctx {
     }
   }
 
-  public async textCommand() {
+  async textCommand() {
     await this.internal(false)
   }
 
-  public async callback() {
+  async callback() {
     await this.internal(true)
   }
 
-  public static template = /*jsx*/ `
+  static template = /*jsx*/ `
     <base>
       <keyboard>Refresh</keyboard>
       <message>

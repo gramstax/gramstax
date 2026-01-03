@@ -1,14 +1,14 @@
-import { CtxCore } from "./ctx"
-import { Gramstax } from "gramstax"
-import { UserGuard } from "~/guards/user"
-import { CacheExternal } from "gramstax"
-import { GeneralErrorPage } from "~/pages/general-error"
-import { GeneralErrorInputNotFoundPage } from "~/pages/general-error-input-notfound"
+import {CtxCore} from "./ctx"
+import {Gramstax} from "gramstax"
+import {UserGuard} from "~/guards/user"
+import {CacheExternal} from "gramstax"
+import {GeneralErrorPage} from "~/pages/general-error"
+import {GeneralErrorInputNotFoundPage} from "~/pages/general-error-input-notfound"
 
 export class BotCore extends Gramstax {
-  public cacheData = new CacheExternal(`memory`)
+  cacheData = new CacheExternal(`memory`)
 
-  public createCtx(ct: Parameters<Gramstax[`createCtx`]>[0]) {
+  createCtx(ct: Parameters<Gramstax[`createCtx`]>[0]) {
     return new CtxCore({
       ct,
       cacheData: this.cacheData,
@@ -22,7 +22,7 @@ export class BotCore extends Gramstax {
     })
   }
 
-  public async hookBeforeRoute(ctx: CtxCore) {
+  async hookBeforeRoute(ctx: CtxCore) {
     const user = await new UserGuard(ctx).ensureValid()
     if (user === null) {
       return false
@@ -30,11 +30,11 @@ export class BotCore extends Gramstax {
     return true
   }
 
-  public async hookErrorPage(ctx: CtxCore, listenerName: string, error: any, isEdit: boolean) {
-    await new GeneralErrorPage(ctx).transition(listenerName, `hookErrorPage`, error, isEdit)
+  async hookErrorPage(ctx: CtxCore, listenerName: string, error: any, isEdit: boolean) {
+    await new GeneralErrorPage(ctx).transition(`${listenerName}:hookErrorPage`, error, isEdit)
   }
 
-  public async hookErrorInputNotFoundPage(ctx: CtxCore) {
+  async hookErrorInputNotFoundPage(ctx: CtxCore) {
     await new GeneralErrorInputNotFoundPage(ctx).transition()
   }
 }

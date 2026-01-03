@@ -1,16 +1,22 @@
-import { log } from "gramstax"
-import { PageBase } from "~/base/page"
-import { StartPage } from "./start"
+import {log} from "gramstax"
+import {PageBase} from "~/base/page"
+import {StartPage} from "./start"
 
 export class GeneralErrorPage extends PageBase {
-  public kb() {
+  constructorName?: string
+  constructor(p: any) {
+    super(p)
+    this.constructorName = p?.constructor?.name
+  }
+
+  kb() {
     return this.inlineKeyboard((kb, arr) => {
       return kb.text(arr[0]!, StartPage.data.callbackData())
     })
   }
 
-  public async transition(constructorName: string, funcName: string, error: any, isUpdate = true) {
-    log.errorMake(error, constructorName, funcName)
+  async transition(funcName: string, error: any, isUpdate = true) {
+    log.errorMake(error, this.constructorName, funcName)
 
     await this.sessionClear()
     const kb = this.kb()
@@ -21,7 +27,7 @@ export class GeneralErrorPage extends PageBase {
     }
   }
 
-  public static template = /*jsx*/ `
+  static template = /*jsx*/ `
     <base>
       ${this.kbc.home()}
       <message>
