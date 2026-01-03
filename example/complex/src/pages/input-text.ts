@@ -1,7 +1,12 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
+import {SessionGuard} from "~/guards/session"
 
 export class InputTextPage extends PageBase {
+  static data = this.buildData({
+    textCommand: `input_text`
+  })
+
   kb(baseId?: string) {
     return this.inlineKeyboard(
       (kb, arr) => {
@@ -16,7 +21,25 @@ export class InputTextPage extends PageBase {
     await this.edit(this.kb())
   }
 
+  async textCommand() {
+    await this.sessionToTextFree()
+    await this.reply(this.kb())
+  }
+
   async textFree() {
+    const params = await new SessionGuard(this).ensureTextFree()
+    if (params === null) {
+      /**
+       * Return "null" if you want the bot to continue to check for suitable route for the
+       * "dynamicSpecific" and "dynamic" type with the route suffix "Free" or "free" (without session), for example: textFree, animationFree, free.
+       *
+       * Return "undefined"/void if you want the bot to stop checking for "dynamicSpecific" and "dynamic" route types.
+       *
+       * Returning undefined/void indicates the success of this rule. There are only two returns allowed for all routes: null and undefined / void.
+       */
+      return null
+    }
+
     const baseId = `result`
     const data = {res: this.msgText}
     await this.reply(this.kb(baseId), data, baseId)

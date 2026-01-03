@@ -9,7 +9,6 @@ export class UserGuard extends GuardBase {
         await new UserNameNotFoundPage(this).transition(isEdit)
         return null
       }
-
       return {status: true}
     } catch (err) {
       await new GeneralErrorPage(this).transition(`ensureValid`, err, isEdit)

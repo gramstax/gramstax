@@ -12,9 +12,10 @@ export class TestErrorInputPage extends PageBase {
     await this.edit(this.kb())
   }
 
-  async textFree() {
-    // will not call this function because there is no session and will give an error automatically thrown to GeneralErrorInputNotFoundPage
-  }
+  // async textFree() {
+  //   console.log(`helloworld`)
+  //   // will not call this function because there is no session and will give an error automatically thrown to GeneralErrorInputNotFoundPage
+  // }
 
   static template = /*jsx*/ `
     <base>
