@@ -23,7 +23,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
   handlerBotUpdate: any
 
-  constructor(params: { token: string; deploy: string; log?: LoggingPretty | boolean | null; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager }) {
+  constructor(params: {token: string; deploy: string; log?: LoggingPretty | boolean | null; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager}) {
     if (!params?.token || params?.token?.length == 0) {
       throw new Error(`Token is not valid or empty`)
     }
@@ -259,7 +259,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // 2. Build command lists for each (scope, language) pair
     for (const [scope, langs] of targets) {
       for (const lang of langs) {
-        const commands: Array<{ command: string; description: string }> = []
+        const commands: Array<{command: string; description: string}> = []
         for (const [, page] of Object.entries(allCommands)) {
           const name = page.name
           // Use getDescription which handles fallback logic
@@ -351,7 +351,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `videoNoteCaptionPayload`,
       `videoNoteCaptionCommandPayload`
     ] as const
-
     const listRouteStaticSession = [
       ...listRouteStatic,
       ...listRouteStaticIntent,
@@ -379,8 +378,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `contactFree`
     ] as const
 
-    const makeObject = <const T extends readonly string[], V extends () => any>(keys: T, val: V): { [K in T[number]]: ReturnType<V> } => Object.fromEntries(keys.map((k) => [k, val()])) as { [K in T[number]]: ReturnType<V> }
-    const initDynamicSpesific = () => [] as { name: string; routeName: string }[] // [0]{name: Page.data.name, routeName: routeFunctionName}
+    const makeObject = <const T extends readonly string[], V extends () => any>(keys: T, val: V): {[K in T[number]]: ReturnType<V>} => Object.fromEntries(keys.map((k) => [k, val()])) as {[K in T[number]]: ReturnType<V>}
+    const initDynamicSpesific = () => [] as {name: string; routeName: string}[] // [0]{name: Page.data.name, routeName: routeFunctionName}
 
     const pages = {
       all: {} as Record<string, typeof Ctx>, // [page.data.name]: Classes Page
@@ -399,9 +398,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         location: initDynamicSpesific(),
         contact: initDynamicSpesific()
       },
-      routeStatic: makeObject(listRouteStatic, () => ({} as Record<string, { name: string; routeName: string }>)), // [page.data.name]: {name: Page.data.name, routeName: routeFunctionName}
-      routeStaticIntent: makeObject(listRouteStaticIntent, () => ({} as Record<string, { name: string; routeName: string }>)), // [routeName]: {name: Page.data.name, routeName: routeFunctionName}
-      routeStaticSession: makeObject(listRouteStaticSession, () => ({} as Record<string, { name: string; routeName: string }>)), // [session.method]: {name: Page.data.name, routeName: routeFunctionName}
+      routeStatic: makeObject(listRouteStatic, () => ({} as Record<string, {name: string; routeName: string}>)), // [page.data.name]: {name: Page.data.name, routeName: routeFunctionName}
+      routeStaticIntent: makeObject(listRouteStaticIntent, () => ({} as Record<string, {name: string; routeName: string}>)), // [routeName]: {name: Page.data.name, routeName: routeFunctionName}
+      routeStaticSession: makeObject(listRouteStaticSession, () => ({} as Record<string, {name: string; routeName: string}>)), // [session.method]: {name: Page.data.name, routeName: routeFunctionName}
       listRouteStatic,
       listRouteStaticIntent,
       listRouteStaticSession,
@@ -423,13 +422,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   async pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof this.pages.routeDynamicSpesific): Promise<any> {
     // to be reassigned
     let Page: typeof Ctx | undefined
-    let res: { name: string; routeName: string } | undefined
+    let res: {name: string; routeName: string} | undefined
 
     /**
      * id = 1
      * type = static
      * algoritme = O(1)
      * example = animationCaption, callback, textCommand
+     * description = route only intent, example "/start", "start", "take-photo-live-in-indonesia"
      */
     if (Page === undefined) {
       const cd = ctx.callbackData
@@ -456,6 +456,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * type = staticSession
      * algoritme = x = session method; O(x)
      * example = animationCaption, callback, textCommand
+     * description = all route function but if have session only
      */
     if (Page === undefined) {
       const session = await ctx.sessionGet()
@@ -483,26 +484,31 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * type = staticIntent
      * algoritme = x = startsWith; O(x)
      * example = animationCaptionCommandPayload, callbackCommandPayload, textCommandPayload
+     * description = route with intent and payloads, example "/start helloworld", "start helloworld", "/add item1", "/add item1 item2"
+     *               "callback:123", "callback:123:kkk"
      */
     if (Page === undefined) {
       const pStaticIntent = this.pages.routeStaticIntent
       const isCallback = fromListener === `callback`
+      const seperatorMethod = isCallback ? `colon` : `space`
       const data = isCallback ? ctx.callbackData : ctx.msgText || ctx.msgCaption
+      const havePayloads = ctx.havePayloads(data, seperatorMethod)
 
-      if (data) {
+      if (data && havePayloads) {
         for (let index = 0; index < this.pages.lenListRouteStaticIntent; index++) {
           const routeName = this.pages.listRouteStaticIntent[index] as `textPayload`
-          if (routeName.startsWith(fromListener)) {
-            const bucket = pStaticIntent[routeName]
-            // check intent length 1
-            res = bucket[ctx.intent(data, isCallback ? `colon` : `space`, 1)]
-
-            // check intent length 2 (for space overrides)
-            if (!res && !isCallback) {
-              res = bucket[ctx.intent(data, `space`, 2)]
-            }
+          if (!routeName.startsWith(fromListener)) {
+            continue
           }
 
+          const bucket = pStaticIntent[routeName]
+          // check intent length 1
+          res = bucket[ctx.getIntent(data, seperatorMethod, 1)]
+
+          // check intent length 2 (for space overrides)
+          if (!res && !isCallback) {
+            res = bucket[ctx.getIntent(data, `space`, 2)]
+          }
           if (res) break
         }
       }
@@ -529,6 +535,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * type = dynamicSpesific
      * algoritme = O(n)
      * example = animationFree, textFree
+     * description = route with suffix free, can be call without session. example "textFree", "animationFree"
+     *               if have that route in class page you must be add validate session in first line
+     *               example: if (!this.validateSessionTextFree()) { return null }
+     *               note: returning null will continue to next loop or fallback to level 5 (dynamic)
      */
     const arrFree = this.pages.routeDynamicSpesific[fromListener as `animation`] || []
     for (let index = 0; index < arrFree.length; index++) {
@@ -559,7 +569,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * type = dynamic
      * algoritme = O(n)
      * example = free
-     * note = global fallback (only 1 route function can init)
+     * description = route with name "free", this a global fallback (only 1 route "free" in 1 project) if all case before not match
+     *               note: returning null will finish the loop and trigger hookErrorInputNotFoundPage
      */
     for (let index = 0; index < this.pages.routeDynamic.length; index++) {
       const name = this.pages.routeDynamic[index]

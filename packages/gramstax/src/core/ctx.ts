@@ -26,8 +26,8 @@ import type {
   IOptReplyVideoNote
 } from "~/types/ctx"
 
-type IPageData<T extends any[] = any[]> = { name: string; callbackData: (...args: T) => string; text: string; textCommand: string; _positionPayloadText: number }
-type ITemp = { session: { method?: string; params?: any }; data: Partial<IPageData<any>>; [key: string]: any }
+type IPageData<T extends any[] = any[]> = {name: string; callbackData: (...args: T) => string; text: string; textCommand: string; _positionPayloadText: number}
+type ITemp = {session: {method?: string; params?: any}; data: Partial<IPageData<any>>; [key: string]: any}
 
 export class Ctx {
   static template?: string // string html
@@ -64,7 +64,7 @@ export class Ctx {
     return this.ct.message?.text as string
   }
   get msgTextPayloads() {
-    return this.payloads(this.msgText, `space`, this.data?._positionPayloadText || this.temp?.data?._positionPayloadText)
+    return this.getPayloads(this.msgText, `space`, this.data?._positionPayloadText || this.temp?.data?._positionPayloadText)
   }
   get msgTextPayload() {
     return this.msgTextPayloads[0] as string
@@ -73,7 +73,7 @@ export class Ctx {
     return this.ct.message?.caption as string
   }
   get msgCaptionPayloads() {
-    return this.payloads(this.msgCaption, `space`)
+    return this.getPayloads(this.msgCaption, `space`)
   }
   get msgCaptionPayload() {
     return this.msgCaptionPayloads[0] as string
@@ -91,7 +91,7 @@ export class Ctx {
     return this.ct.callbackQuery?.data as string
   }
   get callbackDataPayloads() {
-    return this.payloads(this.callbackData, `colon`)
+    return this.getPayloads(this.callbackData, `colon`)
   }
   get callbackDataPayload() {
     return this.callbackDataPayloads?.[0] as string
@@ -110,7 +110,7 @@ export class Ctx {
   cacheKeyboard: Map<any, any>
   templateManager: TemplateManager
   temp: ITemp
-  constructor(params: { ct: ICt; cacheSession: CacheExternal; cacheKeyboard: Map<any, any>; templateManager: TemplateManager; temp: ITemp }) {
+  constructor(params: {ct: ICt; cacheSession: CacheExternal; cacheKeyboard: Map<any, any>; templateManager: TemplateManager; temp: ITemp}) {
     this.ct = params.ct
     this.cacheSession = params.cacheSession
     this.cacheKeyboard = params.cacheKeyboard
@@ -352,7 +352,7 @@ export class Ctx {
       return null
     }
   }
-  async sessionGet(): Promise<{ method: string; params: any; [moreRoot: string]: any } | null> {
+  async sessionGet(): Promise<{method: string; params: any; [moreRoot: string]: any} | null> {
     try {
       const result = await this.cacheSession.get(`${this.userId}`)
       if (result) this.session = result
@@ -372,8 +372,8 @@ export class Ctx {
   }
   // =============== build data
   static buildData<C extends (...args: any[]) => any>(callback: C): IPageData<Parameters<C>>
-  static buildData<C extends (...args: any[]) => any>(options: { callbackData: C; text?: string; textCommand?: string }): IPageData<Parameters<C>>
-  static buildData(options: { text?: string; textCommand?: string }): IPageData<[]>
+  static buildData<C extends (...args: any[]) => any>(options: {callbackData: C; text?: string; textCommand?: string}): IPageData<Parameters<C>>
+  static buildData(options: {text?: string; textCommand?: string}): IPageData<[]>
   static buildData(): IPageData<[]>
   static buildData(params?: any): IPageData<any> {
     const isFunc = typeof params === `function`
@@ -384,13 +384,13 @@ export class Ctx {
       name: ``,
       text: options.text,
       textCommand: options.textCommand,
-      _positionPayloadText: options.text ? options.text.split(this.prototype.seperatorTag(`space`)).length : (undefined as any),
+      _positionPayloadText: options.text ? options.text.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any),
       callbackData: callback
-        ? function (this: { name: string }, ...args: any[]): string {
+        ? function (this: {name: string}, ...args: any[]): string {
             const params = callback(...args)
             return `${this.name}${params == `` || params === undefined ? `` : `:${params}`}`
           }
-        : function (this: { name: string }) {
+        : function (this: {name: string}) {
             return this?.name
           }
     }
@@ -398,7 +398,7 @@ export class Ctx {
   }
 
   // =============== build keyboard
-  inlineKeyboard(callback: (kb: IInlineKb, arr: string[]) => IInlineKb, params?: { baseId?: string; data?: IData; cache?: boolean }): IInlineKb {
+  inlineKeyboard(callback: (kb: IInlineKb, arr: string[]) => IInlineKb, params?: {baseId?: string; data?: IData; cache?: boolean}): IInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:i`
@@ -417,7 +417,7 @@ export class Ctx {
     const rkb = callback(ikb, arr)
     return rkb
   }
-  bottomKeyboard(callback: (kb: IBottomKb, arr: string[]) => IBottomKb, params?: { baseId?: string; data?: IData; cache?: boolean }): IBottomKb {
+  bottomKeyboard(callback: (kb: IBottomKb, arr: string[]) => IBottomKb, params?: {baseId?: string; data?: IData; cache?: boolean}): IBottomKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:b`
@@ -439,83 +439,86 @@ export class Ctx {
     return rkb
   }
   // =============== manipulation string
-  seperatorTag(mtd: `space` | `colon` = `space`) {
+  getSeperatorTag(mtd: `space` | `colon` = `space`) {
     return mtd == `space` ? ` ` : `:`
   }
-  payloads(str = ``, mtd: Parameters<typeof this.seperatorTag>[0], positionStart: number = 1) {
-    const tag = this.seperatorTag(mtd)
+  havePayloads(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0]) {
+    return str.includes(this.getSeperatorTag(mtd))
+  }
+  getPayloads(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], positionStart: number = 1) {
     if (!str) return []
+    const tag = this.getSeperatorTag(mtd)
     return str.split(tag).slice(positionStart)
   }
-  intent(str = ``, mtd: Parameters<typeof this.seperatorTag>[0], positionEnd: number = 1) {
-    const tag = this.seperatorTag(mtd)
+  getIntent(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], positionEnd: number = 1) {
     if (!str) return ``
+    const tag = this.getSeperatorTag(mtd)
     const spl = str.split(tag)
     return positionEnd == 1 ? (spl[0] as string) : spl.slice(0, positionEnd).join(tag)
   }
   // =============== most common used function
-  async transition?(...args: any): Promise<void>
-  async internal?(...args: any): Promise<void>
+  async transition?(...args: any): Promise<any>
+  async internal?(...args: any): Promise<any>
   // =============== route function
   // callback
-  async callback?(): Promise<void> // example: start
-  async callbackPayload?(): Promise<void> // example: start:{DYNAMIC}
+  async callback?(): Promise<void | null> // example: start
+  async callbackPayload?(): Promise<void | null> // example: start:{DYNAMIC}
   // text
-  async text?(): Promise<void> // example: start
-  async textPayload?(): Promise<void> // example: start {...DYNAMIC}
-  async textCommand?(): Promise<void> // example: /start
-  async textCommandPayload?(): Promise<void> // example: /start {...DYNAMIC}
-  async textFree?(): Promise<void> // example (for session): {...DYNAMIC}
+  async text?(): Promise<void | null> // example: start
+  async textPayload?(): Promise<void | null> // example: start {...DYNAMIC}
+  async textCommand?(): Promise<void | null> // example: /start
+  async textCommandPayload?(): Promise<void | null> // example: /start {...DYNAMIC}
+  async textFree?(): Promise<void | null> // example (for session): {...DYNAMIC}
   // photo
-  async photoCaption?(): Promise<void>
-  async photoCaptionPayload?(): Promise<void>
-  async photoCaptionCommand?(): Promise<void>
-  async photoCaptionCommandPayload?(): Promise<void>
-  async photoFree?(): Promise<void>
+  async photoCaption?(): Promise<void | null>
+  async photoCaptionPayload?(): Promise<void | null>
+  async photoCaptionCommand?(): Promise<void | null>
+  async photoCaptionCommandPayload?(): Promise<void | null>
+  async photoFree?(): Promise<void | null>
   // video
-  async videoCaption?(): Promise<void>
-  async videoCaptionPayload?(): Promise<void>
-  async videoCaptionCommand?(): Promise<void>
-  async videoCaptionCommandPayload?(): Promise<void>
-  async videoFree?(): Promise<void>
+  async videoCaption?(): Promise<void | null>
+  async videoCaptionPayload?(): Promise<void | null>
+  async videoCaptionCommand?(): Promise<void | null>
+  async videoCaptionCommandPayload?(): Promise<void | null>
+  async videoFree?(): Promise<void | null>
   // audio
-  async audioCaption?(): Promise<void>
-  async audioCaptionPayload?(): Promise<void>
-  async audioCaptionCommand?(): Promise<void>
-  async audioCaptionCommandPayload?(): Promise<void>
-  async audioFree?(): Promise<void>
+  async audioCaption?(): Promise<void | null>
+  async audioCaptionPayload?(): Promise<void | null>
+  async audioCaptionCommand?(): Promise<void | null>
+  async audioCaptionCommandPayload?(): Promise<void | null>
+  async audioFree?(): Promise<void | null>
   // document
-  async documentCaption?(): Promise<void>
-  async documentCaptionPayload?(): Promise<void>
-  async documentCaptionCommand?(): Promise<void>
-  async documentCaptionCommandPayload?(): Promise<void>
-  async documentFree?(): Promise<void>
+  async documentCaption?(): Promise<void | null>
+  async documentCaptionPayload?(): Promise<void | null>
+  async documentCaptionCommand?(): Promise<void | null>
+  async documentCaptionCommandPayload?(): Promise<void | null>
+  async documentFree?(): Promise<void | null>
   // animation
-  async animationCaption?(): Promise<void>
-  async animationCaptionPayload?(): Promise<void>
-  async animationCaptionCommand?(): Promise<void>
-  async animationCaptionCommandPayload?(): Promise<void>
-  async animationFree?(): Promise<void>
+  async animationCaption?(): Promise<void | null>
+  async animationCaptionPayload?(): Promise<void | null>
+  async animationCaptionCommand?(): Promise<void | null>
+  async animationCaptionCommandPayload?(): Promise<void | null>
+  async animationFree?(): Promise<void | null>
   // voice
-  async voiceCaption?(): Promise<void>
-  async voiceCaptionPayload?(): Promise<void>
-  async voiceCaptionCommand?(): Promise<void>
-  async voiceCaptionCommandPayload?(): Promise<void>
-  async voiceFree?(): Promise<void>
+  async voiceCaption?(): Promise<void | null>
+  async voiceCaptionPayload?(): Promise<void | null>
+  async voiceCaptionCommand?(): Promise<void | null>
+  async voiceCaptionCommandPayload?(): Promise<void | null>
+  async voiceFree?(): Promise<void | null>
   // video_note
-  async videoNoteCaption?(): Promise<void>
-  async videoNoteCaptionPayload?(): Promise<void>
-  async videoNoteCaptionCommand?(): Promise<void>
-  async videoNoteCaptionCommandPayload?(): Promise<void>
-  async videoNoteFree?(): Promise<void>
+  async videoNoteCaption?(): Promise<void | null>
+  async videoNoteCaptionPayload?(): Promise<void | null>
+  async videoNoteCaptionCommand?(): Promise<void | null>
+  async videoNoteCaptionCommandPayload?(): Promise<void | null>
+  async videoNoteFree?(): Promise<void | null>
   // sticker
-  async stickerFree?(): Promise<void>
+  async stickerFree?(): Promise<void | null>
   // location
-  async locationFree?(): Promise<void>
+  async locationFree?(): Promise<void | null>
   // contact
-  async contactFree?(): Promise<void>
+  async contactFree?(): Promise<void | null>
   // all
-  async free?(): Promise<void>
+  async free?(): Promise<void | null>
   // =============== session validate
   // callback
   validateSessionCallback(method?: string, name?: string) {
