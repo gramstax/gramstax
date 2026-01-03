@@ -22,6 +22,10 @@ console.log(rpc.map.size);
 
 The function used to transmit data (requests or responses).
 
+| parameter | type | required | default | description      |
+| --------- | ---- | -------- | ------- | ---------------- |
+| data      | any  | yes      | -       | raw payload data |
+
 - **type: (data: any) => any**
 
 ```ts
