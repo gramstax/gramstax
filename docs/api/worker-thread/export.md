@@ -1,81 +1,143 @@
-# Export
+# WorkerThreadExport
 
-The `WorkerThreadExport` class is the primary entry point for exporting worker thread functionality and managing inter-worker communication. It provides methods for initializing worker exports and creating typed gateway proxies.
+The `WorkerThreadExport` class acts as the main entry point for creating, wrapping, and managing worker threads. It provides static methods to initialize worker configurations and create gateway proxies for inter-thread communication.
 
-## Methods
+&nbsp;
 
-### init
+## Usage Example
 
-Initializes a worker thread export. This method handles both main-thread and worker-thread logic based on the environment.
+### 1. Define the Worker (server.ts)
 
-| parameter | type                              | required | default | description                          |
-| --------- | --------------------------------- | -------- | ------- | ------------------------------------ |
-| options   | [Export Options](#export-options) | yes      | -       | Configuration options for the export |
-
-#### Export Options
-
-| parameter | type                                         | required | default              | description                                                             |
-| --------- | -------------------------------------------- | -------- | -------------------- | ----------------------------------------------------------------------- |
-| path      | string                                       | yes      | -                    | Absolute path to the worker file (use `fileURLToPath(import.meta.url)`) |
-| WTInit    | [WorkerThreadInit](./docs-init.md) class     | yes      | -                    | The class implementation for the worker                                 |
-| WTLaunch  | [WorkerThreadLaunch](./docs-launch.md) class | no       | `WorkerThreadLaunch` | Custom launcher class                                                   |
-| wrap      | function                                     | no       | -                    | Optional manual RPC wrapper                                             |
-
-```typescript
-import { WorkerThreadExport } from "gramstax";
+```ts
+import { WorkerThreadInit, WorkerThreadExport } from "gramstax";
 import { fileURLToPath } from "url";
 
-export const MyWorkerExp = WorkerThreadExport.init({
+class Core extends WorkerThreadInit {
+  static gatewayPath = `server`;
+
+  constructor() {
+    super();
+    console.log(`[worker:server] Worker has been launch.`);
+  }
+
+  mtdHello(from: string) {
+    console.log(`[worker:server] Received greeting from: ${from}`);
+    return `Hello ${from}, I am worker server!`;
+  }
+
+  async mtdStart() {
+    // Running server with gatewayPath
+    await this.createGatewayServer(Core.gatewayPath, this);
+    console.log(
+      `[worker:server] Server gateway '${Core.gatewayPath}' is active.`
+    );
+    return true;
+  }
+}
+
+// Export the initialized worker configuration for main thread (worker <---> main)
+export const ServerService = WorkerThreadExport.init({
   path: fileURLToPath(import.meta.url),
-  WTInit: MyWorkerClass,
+  WTInit: Core,
 });
 
-// Main thread usage:
-// const instance = await MyWorkerExp.launchWorker();
-// await MyWorkerExp.someMethod();
+// Export a Gateway for other workers to use (worker <---> worker)
+export const ServerGatewayService = ServerService.gateway(Core.gatewayPath);
+```
+
+### 2. Other Worker Usage (client.ts)
+
+```ts
+import { WorkerThreadInit, WorkerThreadExport } from "gramstax";
+import { ServerGatewayService } from "./server";
+
+class Core extends WorkerThreadInit {
+  async interact() {
+    // Call method on ServerService (worker) via Gateway
+    // Note: 'this' (current worker instance) is passed as the first argument
+    const res = await ServerGatewayService.mtdHello(this, "Client");
+    console.log(res);
+  }
+}
+
+export const ClientService = WorkerThreadExport.init({
+  path: fileURLToPath(import.meta.url),
+  WTInit: Core,
+});
+```
+
+### 3. Main Thread Control (main.ts)
+
+```ts
+import { ServerService } from "./server";
+import { ClientService } from "./client";
+
+async function main() {
+  // Launch the worker
+  await ServerService.launchWorker(["arg1", "arg2"]);
+  await ServerService.mtdStart();
+
+  await ClientService.launchWorker(["arg1", "arg2"]);
+  await ClientService.interact();
+
+  const response = await ServerService.mtdHello("main thread");
+  console.log(response);
+}
 ```
 
 &nbsp;
 
-### gateway
+## WorkerThreadExport Methods
 
-Creates a type-safe gateway client proxy for inter-worker communication.
+### .init(options)
 
-| parameter | type   | required | default | description                                |
-| --------- | ------ | -------- | ------- | ------------------------------------------ |
-| path      | string | yes      | -       | The name/path of the target gateway server |
+Initializes a worker thread configuration. This is the primary method to define your worker module.
 
-```typescript
-// Define the gateway proxy
-export const MyGateway = MyWorkerExp.gateway("my-service");
+| parameter | type                                            | required | default | description                                               |
+| --------- | ----------------------------------------------- | -------- | ------- | --------------------------------------------------------- |
+| options   | [WorkerThreadExportOpt](#workerthreadexportopt) | yes      | -       | Configuration options including path and class definition |
 
-// Inside another worker:
-// Usage 1: Static-like
-const result = await MyGateway.hello(this, "World");
+- **returns: Proxy<[WorkerThreadLaunch](launch.md) & TWrap & AsyncMethods<TWorker>>**
 
-// Usage 2: Constructor-based
-const myService = new MyGateway(this);
-await myService.hello("World");
+```ts
+const MyWorker = WorkerThreadExport.init({
+  path: fileURLToPath(import.meta.url),
+  WTInit: Core,
+});
+```
+
+### .gateway(path)
+
+Creates a gateway proxy from an initialized export. This proxy allows other workers to call methods on this worker.
+
+| parameter | type   | required | default | description                                      |
+| --------- | ------ | -------- | ------- | ------------------------------------------------ |
+| path      | string | yes      | -       | The unique path identifier for the target worker |
+
+- **returns: Proxy<AsyncMethods<TWorker>>**
+
+```ts
+const MyWorkerGateway = MyWorker.gateway("/path/to/worker");
 ```
 
 &nbsp;
 
-## Returned Object Properties
+## WorkerThreadExportOpt
 
-Building on the results of `init`, the returned object includes all methods from the worker class (proxied as async) plus:
+Configuration object for `WorkerThreadExport.init`.
 
-### launchWorker
+| parameter | type     | required | default                         | description                                                                      |
+| --------- | -------- | -------- | ------------------------------- | -------------------------------------------------------------------------------- |
+| path      | string   | yes      | -                               | The absolute path to the worker file                                             |
+| WTInit    | class    | yes      | -                               | The class extending [WorkerThreadInit](init.md) that defines worker logic        |
+| WTLaunch  | class    | no       | [WorkerThreadLaunch](launch.md) | A custom class extending [WorkerThreadLaunch](launch.md) for main thread control |
+| wrap      | function | no       | -                               | A function to wrap the main thread instance, allowing for custom behavior        |
 
-Launches the worker thread and awaits its readiness.
-
-| parameter | type  | required | default | description                           |
-| --------- | ----- | -------- | ------- | ------------------------------------- |
-| argv      | any[] | no       | []      | Arguments passed to the worker thread |
-
-### gateway
-
-A helper method to create a gateway proxy specifically for this worker's type.
-
-| parameter | type   | required | default | description           |
-| --------- | ------ | -------- | ------- | --------------------- |
-| path      | string | yes      | -       | The gateway path name |
+```ts
+const options = {
+  path: fileURLToPath(import.meta.url),
+  WTInit: Core,
+  WTLaunch: WorkerThreadLaunch,
+  wrap: (main) => ({ customMethod: () => main.send("custom") }),
+};
+```

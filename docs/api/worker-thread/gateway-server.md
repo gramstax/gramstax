@@ -1,29 +1,65 @@
-# Gateway Server
+# WorkerThreadGatewayServer
 
-The `WorkerThreadGatewayServer` manages an IPC server using `net-ipc`. It allows other workers to connect and call exported methods via gateway clients.
+The `WorkerThreadGatewayServer` class creates a server that exposes specific methods to other worker threads via IPC.
 
-## Methods
+&nbsp;
 
-### start
+## WorkerThreadGatewayServer Properties
 
-Starts the IPC server and awaits its readiness.
+### .server
 
-| parameter | type   | required | default | description                                  |
-| --------- | ------ | -------- | ------- | -------------------------------------------- |
-| path      | string | yes      | -       | Unique path for the IPC socket               |
-| methods   | any    | no       | {}      | Object containing methods exposed to clients |
+The underlying `net-ipc` Server instance.
 
-```typescript
-const server = new WorkerThreadGatewayServer();
-await server.start("my-gateway", {
-  hello: (name) => `Hello ${name}!`,
-});
+- **type: [Server](https://www.npmjs.com/package/net-ipc)**
+
+```ts
+console.log(server.server);
+```
+
+### .rpc
+
+A map of connected client IDs to their respective `WorkerThreadRpc` instances.
+
+- **type: Map<string, [WorkerThreadRpc](rpc.md)>**
+
+```ts
+console.log(server.rpc.size);
+```
+
+### .methods
+
+The object containing the methods exposed to clients.
+
+- **type: any**
+
+```ts
+console.log(server.methods);
 ```
 
 &nbsp;
 
-## Behavior
+## WorkerThreadGatewayServer Methods
 
-- **Ready Event**: The `start()` method is asynchronous and only resolves when the underlying `net-ipc` server emits the `ready` event.
-- **Request Handling**: Incoming requests are routed to the `methods` object provided during `start`.
-- **Response Management**: Method return values (including Promises) are automatically serialized and sent back to the requesting client.
+### .start(path, methods)
+
+Starts the server on the specified path and exposes the provided methods.
+
+| parameter | type   | required | default | description                                    |
+| --------- | ------ | -------- | ------- | ---------------------------------------------- |
+| path      | string | yes      | -       | The Unix socket path to listen on              |
+| methods   | any    | no       | {}      | An object containing the methods to be exposed |
+
+- **returns: Promise<[WorkerThreadGatewayServer](gateway-server.md)>**
+
+```ts
+// Usually called within WorkerThreadInit subclass
+class Core extends WorkerThreadInit {
+  static gatewayPath = `<...>`;
+  public constructor() {
+    super();
+  }
+  async mtdStart() {
+    await this.createGatewayServer(Core.gatewayPath, this);
+  }
+}
+```

@@ -3,15 +3,14 @@ import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-threa
 import {fileURLToPath} from "url"
 import {ServerMainGateway} from "./test-final-server-main"
 
-class WorkerA extends WorkerThreadInit {
-  public constructor() {
+class Core extends WorkerThreadInit {
+  constructor() {
     super()
     this.autoRun()
   }
 
-  private async autoRun() {
+  async autoRun() {
     console.log(`[Worker-A] Starting autoRun...`)
-
     try {
       console.log(`[Worker-A] Connecting to gateway-final...`)
       const res = await ServerMainGateway.mtdHello(this, `Worker-A`)
@@ -22,4 +21,4 @@ class WorkerA extends WorkerThreadInit {
   }
 }
 
-export const WorkerAExp = WorkerThreadExport.init({path: fileURLToPath(import.meta.url), WTInit: WorkerA})
+export const WorkerA = WorkerThreadExport.init({path: fileURLToPath(import.meta.url), WTInit: Core})

@@ -1,49 +1,74 @@
-# RPC
+# WorkerThreadRpc
 
-The `WorkerThreadRpc` class is an internal utility that manages the request-response cycle between threads. It handles message serialization, unique ID generation, and promise management for asynchronous calls.
+The `WorkerThreadRpc` class implements the Remote Procedure Call mechanism used by both workers and the main thread to exchange messages and execute methods asynchronously.
 
-## Properties
-
-| property | type     | description                                                                  |
-| -------- | -------- | ---------------------------------------------------------------------------- |
-| map      | Map      | Stores pending requests (by ID) and their associated resolve/reject handlers |
-| send     | function | The low-level transport function used to post messages                       |
-| register | object   | The object instance containing the methods that can be called remotely       |
+_Note: This is a low-level underlying class automatically handled by `WorkerThreadInit` and `WorkerThreadLaunch`._
 
 &nbsp;
 
-## Methods
+## WorkerThreadRpc Properties
 
-### make
+### .map
 
-Processes an incoming message. This can be either a new request (with a `method`) or a response to a previous request (with a `result` or `error`).
+A map storing pending requests, keyed by their request ID.
 
-| parameter | type   | description             |
-| --------- | ------ | ----------------------- |
-| data      | object | The raw message payload |
+- **type: Map<any, { resolve: Function, reject: Function }>**
 
-### makeRequest
-
-Initiates an RPC call to the other thread.
-
-| parameter | type    | required | default | description                                                           |
-| --------- | ------- | -------- | ------- | --------------------------------------------------------------------- |
-| method    | string  | yes      | -       | Name of the method to invoke                                          |
-| params    | any     | yes      | -       | Arguments to pass to the method                                       |
-| \_wait    | boolean | no       | true    | If false, the method returns immediately without waiting for a result |
-
-```typescript
-const result = await rpc.makeRequest("add", [1, 2]);
+```ts
+console.log(rpc.map.size);
 ```
 
-### makeId
+### .send
 
-Generates a unique ID for each new request to ensure responses can be matched back to their callers.
+The function used to transmit data (requests or responses).
+
+- **type: (data: any) => any**
+
+```ts
+rpc.send({ method: "ping" });
+```
 
 &nbsp;
 
-## Internals
+## WorkerThreadRpc Methods
 
-- **Request Structure**: `{ id, method, params, ...others }`
-- **Response Structure**: `{ id, result }` or `{ id, error }`
-- **Error Handling**: Error objects are serialized with their `message`, `stack`, and `name` to ensure they can be re-constituted in the caller's thread.
+### .make(data)
+
+Processes an incoming message (Request, Result, or Error).
+
+| parameter | type | required | default | description          |
+| --------- | ---- | -------- | ------- | -------------------- |
+| data      | any  | yes      | -       | The incoming message |
+
+- **returns: Promise\<void\>**
+
+```ts
+on("message", (msg) => rpc.make(msg));
+```
+
+### .makeId()
+
+Generates a random unique identifier for requests.
+
+- **returns: number**
+
+```ts
+const id = rpc.makeId();
+```
+
+### .makeRequest(method, params, \_wait, \_others)
+
+Initiates an RPC call.
+
+| parameter | type    | required | default | description                    |
+| --------- | ------- | -------- | ------- | ------------------------------ |
+| method    | string  | yes      | -       | The method name to call        |
+| params    | any     | no       | -       | Arguments for the method       |
+| \_wait    | boolean | no       | true    | Whether to wait for a response |
+| \_others  | any     | no       | -       | Additional options/metadata    |
+
+- **returns: Promise\<any\>**
+
+```ts
+await rpc.makeRequest("method", []);
+```

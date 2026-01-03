@@ -1,51 +1,118 @@
-# Launch
+# WorkerThreadLaunch
 
-The `WorkerThreadLaunch` class represents a worker thread instance in the host thread. It handles the creation of the `Worker` instance, manages its lifecycle, and provides an RPC interface for communication.
-
-## Properties
-
-| property | type                             | description                          |
-| -------- | -------------------------------- | ------------------------------------ |
-| thread   | Worker                           | The Node.js Worker instance          |
-| threadId | number                           | The unique ID assigned to the thread |
-| rpc      | [WorkerThreadRpc](./docs-rpc.md) | The RPC handler instance             |
+The `WorkerThreadLaunch` class runs on the main thread and manages a single worker thread instance. It handles spawning, termination, and RPC communication with the worker.
 
 &nbsp;
 
-## Methods
+## Usage Example
 
-### ready
+```ts
+import { MyWorkerExp } from "./worker";
 
-Returns a Promise that resolves when the worker thread signals it is ready (emits `mtdReady`).
+// launchWorker returns a Proxy that wraps WorkerThreadLaunch
+const launchInstance = await MyWorkerExp.launchWorker([]);
 
-### kill
+// You can use WorkerThreadLaunch methods on it
+await launchInstance.ready();
+launchInstance.kill();
+```
+
+&nbsp;
+
+## WorkerThreadLaunch Properties
+
+### .pid
+
+The process ID of the current (main) process.
+
+- **type: number**
+
+```ts
+console.log(launch.pid);
+```
+
+### .threadId
+
+The ID of the spawned worker thread.
+
+- **type: number**
+
+```ts
+console.log(launch.threadId);
+```
+
+### .thread
+
+The native Node.js `Worker` instance.
+
+- **type: [Worker](https://nodejs.org/api/worker_threads.html#class-worker)**
+
+```ts
+launch.thread.postMessage("hello");
+```
+
+### .rpc
+
+The RPC handler for this worker connection.
+
+- **type: [WorkerThreadRpc](rpc.md)**
+
+```ts
+launch.rpc.makeRequest("method", []);
+```
+
+&nbsp;
+
+## WorkerThreadLaunch Methods
+
+### .ready()
+
+Returns a promise that resolves when the worker has signaled it is ready (usually after `super()` in the worker class).
+
+- **returns: Promise\<void\>**
+
+```ts
+await launch.ready();
+```
+
+### .kill()
 
 Terminates the worker thread immediately.
 
-### request
+- **returns: void**
 
-Makes a manual RPC request to the worker thread.
+```ts
+launch.kill();
+```
 
-| parameter | type   | required | default | description                       |
-| --------- | ------ | -------- | ------- | --------------------------------- |
-| method    | string | yes      | -       | Method name to call in the worker |
-| params    | any    | yes      | -       | Arguments for the call            |
+### .send(payload)
 
-### send
+Sends a raw payload to the worker thread.
 
-Sends a raw message to the worker thread.
+| parameter | type | required | default | description      |
+| --------- | ---- | -------- | ------- | ---------------- |
+| payload   | any  | yes      | -       | The data to send |
 
-| parameter | type | required | default | description                |
-| --------- | ---- | -------- | ------- | -------------------------- |
-| payload   | any  | yes      | -       | Data to post to the worker |
+- **returns: void**
 
-&nbsp;
+```ts
+launch.send({ type: "ping" });
+```
 
-## Usage
+### .request(method, params, \_wait, \_others)
 
-Typically, you don't instantiate this manually. Instead, use the `launchWorker` method returned by `WorkerThreadExport.init`.
+Sends an RPC request to the worker thread.
 
-```typescript
-const instance = await MyWorkerExp.launchWorker();
-// instance is a WorkerThreadLaunch or its extension
+| parameter | type    | required | default | description                             |
+| --------- | ------- | -------- | ------- | --------------------------------------- |
+| method    | string  | yes      | -       | The method name to invoke on the worker |
+| params    | any     | no       | -       | Arguments for the method                |
+| \_wait    | boolean | no       | true    | Whether to wait for a response          |
+| \_others  | any     | no       | -       | Additional options/metadata             |
+
+- **returns: Promise\<any\>**
+
+```ts
+// Indirectly used when you call methods on the Export object
+const result = await MyWorkerExp.mtdDoWork(123);
 ```

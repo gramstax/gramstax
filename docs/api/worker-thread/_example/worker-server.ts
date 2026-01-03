@@ -2,27 +2,23 @@ import {WorkerThreadInit} from "../../../../packages/gramstax/src/worker-thread/
 import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-thread/export"
 import {fileURLToPath} from "url"
 
-export class WorkerServer extends WorkerThreadInit {
-  public static gatewayPath = `gateway-main`
+export class Core extends WorkerThreadInit {
+  static gatewayPath = `gateway-main`
 
-  public constructor() {
+  constructor() {
     super()
-    console.log(`[Worker-Server] Gateway '${WorkerServer.gatewayPath}' is active.`)
+    console.log(`[Worker-Server] Gateway '${Core.gatewayPath}' is active.`)
   }
 
-  public mtdHello(from: string) {
+  mtdHello(from: string) {
     console.log(`[Worker-Server] Received greeting from: ${from}`)
     return `Hello ${from}, I am Worker-Server!`
   }
 
-  public async mtdStart() {
-    return await this.createGatewayServer(WorkerServer.gatewayPath, this)
+  async mtdStart() {
+    return await this.createGatewayServer(Core.gatewayPath, this)
   }
 }
 
-export const WorkerServerExp = WorkerThreadExport.init({
-  path: fileURLToPath(import.meta.url),
-  WTInit: WorkerServer
-})
-
-export const WorkerServerGateway = WorkerServerExp.gateway(WorkerServer.gatewayPath)
+export const WorkerServer = WorkerThreadExport.init({path: fileURLToPath(import.meta.url), WTInit: Core})
+export const WorkerServerGateway = WorkerServer.gateway(Core.gatewayPath)

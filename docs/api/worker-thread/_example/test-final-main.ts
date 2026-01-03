@@ -1,20 +1,20 @@
-import {ServerMainExp} from "./test-final-server-main"
-import {WorkerAExp} from "./test-final-worker-a"
-import {WorkerBExp} from "./test-final-worker-b"
-import {WorkerCExp} from "./test-final-worker-c"
+import {ServerMain} from "./test-final-server-main"
+import {WorkerA} from "./test-final-worker-a"
+import {WorkerB} from "./test-final-worker-b"
+import {WorkerC} from "./test-final-worker-c"
 
 async function run() {
   console.log(`--- STARTING FINAL 1-SERVER / 3-CLIENTS TEST ---`)
 
   // Launch Server
-  await ServerMainExp.launchWorker([`Server`])
-  await ServerMainExp.mtdStart()
-  await ServerMainExp.mtdHello(`From Main Thread`)
+  await ServerMain.launchWorker([`Server`])
+  await ServerMain.mtdStart()
+  await ServerMain.mtdHello(`From Main Thread`)
 
   // Launch Clients
-  await WorkerAExp.launchWorker([`A`])
-  await WorkerBExp.launchWorker([`B`])
-  await WorkerCExp.launchWorker([`C`])
+  await WorkerA.launchWorker([`A`])
+  await WorkerB.launchWorker([`B`])
+  await WorkerC.launchWorker([`C`])
 
   console.log(`All workers launched. Interaction is autonomous.`)
 
