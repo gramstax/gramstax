@@ -161,10 +161,10 @@ const config = await this.request("mtdGetConfig", []);
 
 Creates and starts a gateway server for this worker. This is usually wrapped in a method like `mtdStart`.
 
-| parameter | type   | required | default | description              |
-| --------- | ------ | -------- | ------- | ------------------------ |
-| path      | string | yes      | -       | The socket path          |
-| methods   | any    | no       | {}      | Map of methods to expose |
+| parameter | type   | required | default | description                                      |
+| --------- | ------ | -------- | ------- | ------------------------------------------------ |
+| path      | string | yes      | -       | The socket path                                  |
+| methods   | any    | no       | {}      | Map of methods to expose, use "this" recommended |
 
 - **returns: Promise\<boolean\>**
 

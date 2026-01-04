@@ -93,9 +93,12 @@ async function main() {
 
 Initializes a worker thread configuration. This is the primary method to define your worker module.
 
-| parameter | type                                            | required | default | description                                               |
-| --------- | ----------------------------------------------- | -------- | ------- | --------------------------------------------------------- |
-| options   | [WorkerThreadExportOpt](#workerthreadexportopt) | yes      | -       | Configuration options including path and class definition |
+| parameter | type     | required | default                         | description                                                                      |
+| --------- | -------- | -------- | ------------------------------- | -------------------------------------------------------------------------------- |
+| path      | string   | yes      | -                               | The absolute path to the worker file                                             |
+| WTInit    | class    | yes      | -                               | The class extending [WorkerThreadInit](init.md) that defines worker logic        |
+| WTLaunch  | class    | no       | [WorkerThreadLaunch](launch.md) | A custom class extending [WorkerThreadLaunch](launch.md) for main thread control |
+| wrap      | function | no       | -                               | A function to wrap the main thread instance, allowing for custom behavior        |
 
 - **returns: Proxy<[WorkerThreadLaunch](launch.md) & TWrap & AsyncMethods<TWorker>>**
 
@@ -103,6 +106,8 @@ Initializes a worker thread configuration. This is the primary method to define 
 const MyWorker = WorkerThreadExport.init({
   path: fileURLToPath(import.meta.url),
   WTInit: Core,
+  WTLaunch: WorkerThreadLaunch,
+  wrap: (main) => ({ customMethod: () => main.send("custom") }),
 });
 ```
 
@@ -121,23 +126,3 @@ const MyWorkerGateway = MyWorker.gateway("/path/to/worker");
 ```
 
 &nbsp;
-
-## WorkerThreadExportOpt
-
-Configuration object for `WorkerThreadExport.init`.
-
-| parameter | type     | required | default                         | description                                                                      |
-| --------- | -------- | -------- | ------------------------------- | -------------------------------------------------------------------------------- |
-| path      | string   | yes      | -                               | The absolute path to the worker file                                             |
-| WTInit    | class    | yes      | -                               | The class extending [WorkerThreadInit](init.md) that defines worker logic        |
-| WTLaunch  | class    | no       | [WorkerThreadLaunch](launch.md) | A custom class extending [WorkerThreadLaunch](launch.md) for main thread control |
-| wrap      | function | no       | -                               | A function to wrap the main thread instance, allowing for custom behavior        |
-
-```ts
-const options = {
-  path: fileURLToPath(import.meta.url),
-  WTInit: Core,
-  WTLaunch: WorkerThreadLaunch,
-  wrap: (main) => ({ customMethod: () => main.send("custom") }),
-};
-```
