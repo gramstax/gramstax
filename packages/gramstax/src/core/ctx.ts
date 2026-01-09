@@ -27,7 +27,7 @@ import type {
 } from "~/types/ctx"
 
 type IPageData<T extends any[] = any[]> = {name: string; callbackData: (...args: T) => string; text: string; textCommand: string; _positionPayloadText: number}
-type ITemp = {session: {method?: string; params?: any}; data: Partial<IPageData<any>>; [key: string]: any}
+type ITemp = {isAnswer: boolean; session: {method?: string; params?: any}; data: Partial<IPageData<any>>; [key: string]: any}
 
 export class Ctx {
   static template?: string // string html
@@ -120,6 +120,7 @@ export class Ctx {
 
   async broadcast(ids: number[], languageCode: string[], keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReply, throwError = false) {
     try {
+      this.temp.isAnswer = true
       const limitFree = 30
       const msgs = languageCode.map((it) => this.templateManager.getMessage(this.data.name, baseId, it, data))
       for (let index = 0; index < ids.length; index++) {
@@ -142,6 +143,7 @@ export class Ctx {
     }
   }
   async reply(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReply) {
+    this.temp.isAnswer = true
     const msg = this.templateManager.getMessage(this.data.name, baseId, this.userLanguage, data)
     return await this.ct.reply(msg, {
       parse_mode: `HTML`,
@@ -176,6 +178,7 @@ export class Ctx {
       ? IOptReplyContact
       : undefined
   ) {
+    this.temp.isAnswer = true
     const med = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
     const opt = {parse_mode: `HTML`, reply_markup: keyboard, ...options} as Record<any, any>
 
@@ -225,6 +228,7 @@ export class Ctx {
   }
   async edit(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEdit, fallbackReply = true) {
     try {
+      this.temp.isAnswer = true
       const msg = this.templateManager.getMessage(this.data.name, baseId, this.userLanguage, data)
       return await this.ct.editMessageText(msg, {
         parse_mode: `HTML`,
@@ -260,6 +264,7 @@ export class Ctx {
     fallbackReply = true
   ) {
     try {
+      this.temp.isAnswer = true
       const {src, caption} = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
       if (type == `voice`) {
         await this.delete()
@@ -335,6 +340,7 @@ export class Ctx {
   }
   async callbackQueryAnswer(options?: Parameters<typeof this.ct.answerCallbackQuery>[0]) {
     try {
+      this.temp.isAnswer = true
       return await this.ct.answerCallbackQuery(options)
     } catch {
       return null
@@ -457,8 +463,8 @@ export class Ctx {
     return positionEnd == 1 ? (spl[0] as string) : spl.slice(0, positionEnd).join(tag)
   }
   // =============== most common used function
-  async transition?(...args: any): Promise<any>
-  async internal?(...args: any): Promise<any>
+  async to?(...args: any): Promise<any> // for transition page
+  async core?(...args: any): Promise<any> // for process core logic
   // =============== route function
   // callback
   async callback?(): Promise<void | null> // example: start
@@ -519,6 +525,7 @@ export class Ctx {
   async contactFree?(): Promise<void | null>
   // all
   async free?(): Promise<void | null>
+
   // =============== session validate
   // callback
   validateSessionCallback(method?: string, name?: string) {

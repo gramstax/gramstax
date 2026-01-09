@@ -103,6 +103,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       cacheKeyboard: this.cacheKeyboard,
       templateManager: this.templateManager,
       temp: {
+        isAnswer: false,
         session: {},
         data: {}
       }
@@ -536,9 +537,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * algoritme = O(n)
      * example = animationFree, textFree
      * description = route with suffix free, can be call without session. example "textFree", "animationFree"
-     *               if have that route in class page you must be add validate session in first line
+     *               if have that route in class page you must be add validate session in first line (if use session before)
      *               example: if (!this.validateSessionTextFree()) { return null }
-     *               note: returning null will continue to next loop or fallback to level 5 (dynamic)
      */
     const arrFree = this.pages.routeDynamicSpesific[fromListener as `animation`] || []
     for (let index = 0; index < arrFree.length; index++) {
@@ -553,14 +553,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       // check first is have route function or not for best performance. if not continue
-      if (!Page.prototype[value.routeName as keyof typeof Page.prototype]) {
-        continue
-      }
-
-      const initPage = new Page(ctx) as any
-      const initRoute = await initPage[value.routeName]?.()
-      if (initRoute !== null) {
-        return initRoute // stop when return not null
+      if (typeof Page.prototype[value.routeName as keyof typeof Page.prototype] == `function`) {
+        const initPage = new Page(ctx) as any
+        await initPage[value.routeName]()
       }
     }
 
@@ -569,8 +564,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * type = dynamic
      * algoritme = O(n)
      * example = free
-     * description = route with name "free", this a global fallback (only 1 route "free" in 1 project) if all case before not match
-     *               note: returning null will finish the loop and trigger hookErrorInputNotFoundPage
+     * description = route with name "free", if all case before not match
      */
     for (let index = 0; index < this.pages.routeDynamic.length; index++) {
       const name = this.pages.routeDynamic[index]
@@ -584,18 +578,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       // check first is have route function or not for best performance. if not continue
-      if (!Page.prototype.free) {
-        continue
-      }
-
-      const initPage = new Page(ctx)
-      const initRoute = await initPage.free?.()
-      if (initRoute !== null) {
-        return initRoute // stop when return not null
+      if (typeof Page.prototype.free == `function`) {
+        const initPage = new Page(ctx)
+        await initPage.free!()
       }
     }
 
-    return null
+    // returning null if "isAnswer" false. will trigger hookErrorInputNotFoundPage
+    if (ctx.temp.isAnswer === false) {
+      return null
+    }
   }
 
   async hookBeforeRoute(ctx: ICtx, listenerName: string): Promise<boolean> {
