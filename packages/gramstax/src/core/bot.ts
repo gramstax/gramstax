@@ -528,7 +528,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
       const initPage = new Page(ctx) as any
       const initRoute = await initPage[res.routeName]?.()
-      return initRoute
+      return ctx.temp.isAnswer === true ? initRoute : null
     }
 
     /**
