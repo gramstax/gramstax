@@ -2,8 +2,7 @@ import {CtxCore} from "./ctx"
 import {Gramstax} from "gramstax"
 import {UserGuard} from "~/guards/user"
 import {CacheExternal} from "gramstax"
-import {GeneralErrorPage} from "~/pages/general-error"
-import {GeneralErrorInputNotFoundPage} from "~/pages/general-error-input-notfound"
+import {GeneralStatusPage} from "~/pages/general-status"
 
 export class BotCore extends Gramstax {
   cacheData = new CacheExternal(`memory`)
@@ -16,6 +15,7 @@ export class BotCore extends Gramstax {
       cacheKeyboard: this.cacheKeyboard,
       templateManager: this.templateManager,
       temp: {
+        isAnswer: false,
         session: {},
         data: {}
       }
@@ -31,10 +31,10 @@ export class BotCore extends Gramstax {
   }
 
   async hookErrorPage(ctx: CtxCore, listenerName: string, error: any, isEdit: boolean) {
-    await new GeneralErrorPage(ctx).transition(`${listenerName}:hookErrorPage`, error, isEdit)
+    await new GeneralStatusPage(ctx).toError(`${listenerName}:hookErrorPage`, error, isEdit)
   }
 
   async hookErrorInputNotFoundPage(ctx: CtxCore) {
-    await new GeneralErrorInputNotFoundPage(ctx).transition()
+    await new GeneralStatusPage(ctx).toErrorInputNotFound()
   }
 }

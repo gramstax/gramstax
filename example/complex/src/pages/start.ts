@@ -19,7 +19,7 @@ import {TestDocumentPage} from "./test-document"
 import {CounterThreadPage} from "./counter-thread"
 import {TestAnimationPage} from "./test-animation"
 import {TestVideoNotePage} from "./test-video-note"
-import {TestErrorInputPage} from "./test-error-input"
+import {InputText2Page} from "./input-text-2"
 
 export class StartPage extends PageBase {
   static data = this.buildData((rdm?: string) => rdm)
@@ -49,7 +49,7 @@ export class StartPage extends PageBase {
         .text(arr[13]!, TestContactPage.data.callbackData())
         .row()
         .text(arr[14]!, TestErrorPage.data.callbackData())
-        .text(arr[15]!, TestErrorInputPage.data.callbackData())
+        .text(arr[15]!, InputText2Page.data.callbackData())
         .row()
         .text(arr[16]!, InputTextPage.data.callbackData())
         .text(arr[17]!, BlockMapPage.data.callbackData())
@@ -78,7 +78,7 @@ export class StartPage extends PageBase {
       await this.reply(kb, da)
     }
   }
-  async transition() {
+  async toError() {
     await this.internal(1)
   }
   async text() {
@@ -120,8 +120,8 @@ export class StartPage extends PageBase {
       <description>Default description command start</description>
       <description lang="en">[EN] Description command start</description>
       <description lang="id">[ID] Deskripsi perintah start</description>
-      <keyboard>Counter, Counter Thread, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Test ErrorI, Input Text, Block Map, Block Import, Block Switch, Kbbe, Refresh</keyboard>
-      <keyboard lang="id">Kounter, Kounter Thread, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Test SalahI, Masukkan Teks, Blok Map, Blok Import, Blok Switch, Kbbe, Segarkan</keyboard>
+      <keyboard>Counter, Counter Thread, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Input Text2, Input Text, Block Map, Block Import, Block Switch, Kbbe, Refresh</keyboard>
+      <keyboard lang="id">Kounter, Kounter Thread, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Masukkan Teks2, Masukkan Teks, Blok Map, Blok Import, Blok Switch, Kbbe, Segarkan</keyboard>
       <message>
         {{time}}
 

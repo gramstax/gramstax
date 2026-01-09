@@ -29,14 +29,6 @@ export class InputTextPage extends PageBase {
   async textFree() {
     const params = await new SessionGuard(this).ensureTextFree()
     if (params === null) {
-      /**
-       * Return "null" if you want the bot to continue to check for suitable route for the
-       * "dynamicSpecific" and "dynamic" type with the route suffix "Free" or "free" (without session), for example: textFree, animationFree, free.
-       *
-       * Return "undefined"/void if you want the bot to stop checking for "dynamicSpecific" and "dynamic" route types.
-       *
-       * Returning undefined/void indicates the success of this rule. There are only two returns allowed for all routes: null and undefined / void.
-       */
       return null
     }
 

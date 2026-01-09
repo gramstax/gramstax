@@ -1,7 +1,12 @@
 import {GuardBase} from "~/base/guard"
-import {GeneralErrorPage} from "~/pages/general-error"
+import {GeneralStatusPage} from "~/pages/general-status"
 
 export class UserGuard extends GuardBase {
+  async _catch(err: any, func: any) {
+    await new GeneralStatusPage(this).toError(func, err, true)
+    return null
+  }
+
   async ensureValid() {
     try {
       // override language_code
@@ -12,8 +17,7 @@ export class UserGuard extends GuardBase {
 
       return true
     } catch (err) {
-      await new GeneralErrorPage(this).transition(`ensureValid`, err, true)
-      return null
+      return await this._catch(err, `ensureValid`)
     }
   }
 }

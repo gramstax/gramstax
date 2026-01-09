@@ -2,7 +2,7 @@ import {log} from "gramstax"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-export class GeneralErrorPage extends PageBase {
+export class GeneralStatusPage extends PageBase {
   constructorName?: string
   constructor(p: any) {
     super(p)
@@ -15,21 +15,29 @@ export class GeneralErrorPage extends PageBase {
     })
   }
 
-  async transition(funcName: string, error: any, isUpdate = true) {
+  async toError(funcName: string, error: any, isUpdate = true) {
     log.errorMake(error, this.constructorName, funcName)
 
     await this.sessionClear()
     const kb = this.kb()
+    const id = `error`
     if (isUpdate === true) {
-      await this.edit(kb)
+      await this.edit(kb, {}, id)
     } else {
-      await this.reply(kb)
+      await this.reply(kb, {}, id)
     }
+  }
+
+  async toErrorInputNotFound() {
+    await this.reply(this.kb(), {}, `error-input-notfound`)
   }
 
   static template = /*jsx*/ `
     <base>
       ${this.kbc.home()}
+    </base>
+
+    <base id="error">
       <message>
         <b>❌ Error</b>
 
@@ -41,6 +49,15 @@ export class GeneralErrorPage extends PageBase {
 
         Terjadi kesalahan yang tidak diharapkan.
         Silakan coba lagi nanti.
+      </message>
+    </base>
+
+    <base id="error-input-notfound">
+      <message>
+        <b>❌ Not Found</b>
+      </message>
+      <message lang="id">
+        <b>❌ Tidak Ditemukan</b>
       </message>
     </base>
   `

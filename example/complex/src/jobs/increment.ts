@@ -1,6 +1,6 @@
 import {log, WorkerThreadExport, WorkerThreadInit} from "gramstax"
 
-export class IncrementCoreJob extends WorkerThreadInit {
+export class Core extends WorkerThreadInit {
   count = 0
   constructor() {
     super()
@@ -17,4 +17,4 @@ export class IncrementCoreJob extends WorkerThreadInit {
   }
 }
 
-export const IncrementJob = WorkerThreadExport.init({path: __filename, WTInit: IncrementCoreJob})
+export const IncrementJob = WorkerThreadExport.init({path: __filename, WTInit: Core})
