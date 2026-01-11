@@ -456,6 +456,57 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     /**
      * id = 1
+     * type = staticSession
+     * algoritme = x = session method; O(x)
+     * example = animationCaption, callback, textCommand
+     * description = all route function but if have session only
+     */
+    if (Page === undefined) {
+      const session = await ctx.sessionGet()
+      if (session) {
+        const mtd = session.method
+        const pStaticSession = this.pages.routeStaticSession
+
+        // Get entity for cross-checking with other routes
+        const cd = ctx.callbackData
+        const mt = ctx.msgText
+        const mc = ctx.msgCaption
+        const entity = cd || mt || mc
+        const isCallback = fromListener === `callback`
+        const separatorMethod = isCallback ? `colon` : `space`
+        const intent = entity && ctx.havePayloads(entity, separatorMethod) ? ctx.getIntent(entity, separatorMethod, 1) : undefined
+        const intent2 = !isCallback && entity ? ctx.getIntent(entity, `space`, 2) : undefined
+
+        for (let index = 0; index < this.pages.lenListRouteStaticSession; index++) {
+          const routeName = this.pages.listRouteStaticSession[index] as `animationCaption`
+          if (routeName.startsWith(fromListener)) {
+            // O(1) check: skip session-based routing if entity has its own route
+            if (entity) {
+              // Check in routeStatic (direct O(1) lookup)
+              if ((this.pages.routeStatic as any)[routeName]?.[entity]) {
+                continue
+              }
+              // Check in routeStaticIntent (direct O(1) lookup)
+              const intentBucket = (this.pages.routeStaticIntent as any)[routeName]
+              if (intentBucket && ((intent && intentBucket[intent]) || (intent2 && intentBucket[intent2]))) {
+                continue
+              }
+            }
+
+            res = pStaticSession[routeName][mtd]
+          }
+
+          if (res) break
+        }
+
+        if (res !== undefined) {
+          Page = this.pages.all[res.name]
+        }
+      }
+    }
+
+    /**
+     * id = 2
      * type = static
      * algoritme = O(1)
      * example = animationCaption, callback, textCommand
@@ -478,40 +529,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
       if (res !== undefined) {
         Page = this.pages.all[res.name]
-      }
-    }
-
-    /**
-     * id = 2
-     * type = staticSession
-     * algoritme = x = session method; O(x)
-     * example = animationCaption, callback, textCommand
-     * description = all route function but if have session only
-     */
-    if (Page === undefined) {
-      const session = await ctx.sessionGet()
-      if (session) {
-        const mtd = session.method
-        const pStaticSession = this.pages.routeStaticSession
-
-        for (let index = 0; index < this.pages.lenListRouteStaticSession; index++) {
-          const routeName = this.pages.listRouteStaticSession[index] as `animationCaption`
-          if (routeName.startsWith(fromListener)) {
-            res = pStaticSession[routeName][mtd]
-            // this is still not true so far,
-            // because if the route type is payload it will follow the session method reference,
-            // for example if the session method is "2-wallet-detail" and
-            // when click the button with callback data "wallet-repeat-input"
-            // then it will direct to "wallet-detail" not "wallet-repeat-input"
-            // because here there is no check for the entity itself such as callbackData, msgText, msgCaption
-          }
-
-          if (res) break
-        }
-
-        if (res !== undefined) {
-          Page = this.pages.all[res.name]
-        }
       }
     }
 
