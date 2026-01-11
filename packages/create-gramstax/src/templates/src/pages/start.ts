@@ -3,8 +3,8 @@ import {PageBase} from "~/base/page"
 
 export class StartPage extends PageBase {
   kb() {
-    return this.inlineKeyboard((kb, arr) => {
-      return kb.text(arr[0]!, HelpPage.data.callbackData())
+    return this.ikb((k, a) => {
+      return k.text(a[0]!, HelpPage.data.callbackData())
     })
   }
 

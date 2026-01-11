@@ -3,8 +3,8 @@ import {StartPage} from "./start"
 
 export class GeneralErrorInputNotFoundPage extends PageBase {
   kb() {
-    return this.inlineKeyboard((kb, arr) => {
-      return kb.text(arr[0]!, StartPage.data.callbackData())
+    return this.ikb((k, a) => {
+      return k.text(a[0]!, StartPage.data.callbackData())
     })
   }
 

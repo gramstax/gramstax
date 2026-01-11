@@ -109,7 +109,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
   }
 
   private async promptForProjectName(): Promise<string> {
-    const response = await enquirer.prompt<{ projectName: string }>({
+    const response = await enquirer.prompt<{projectName: string}>({
       type: `input`,
       name: `projectName`,
       message: `What is your project named?`,
@@ -129,7 +129,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     return response.projectName
   }
 
-  private async promptForConfiguration(): Promise<{ packageManager: PackageManager; runtime: Runtime; eslint: boolean }> {
+  private async promptForConfiguration(): Promise<{packageManager: PackageManager; runtime: Runtime; eslint: boolean}> {
     const questions: any[] = []
 
     // Package manager selection
@@ -335,8 +335,31 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
     // Task 7: Setup ESLint if requested
     if (setupEslint) {
-      log.info(`Setting up ESLint..`)
-      await this.setupEslintConfig(projectPath)
+      log.info(`Installing ESLint dependencies..`)
+
+      const installCmd = packageManager
+      const installArgs = packageManager === `yarn` ? [`add`, `-D`] : [`install`, `-D`]
+      installArgs.push(`eslint`, `@eslint/js`, `globals`, `typescript-eslint`)
+
+      await new Promise<void>((resolve) => {
+        const installProcess = spawn(installCmd, installArgs, {
+          cwd: projectPath,
+          stdio: `inherit`,
+          shell: true
+        })
+
+        installProcess.on(`close`, () => resolve())
+        installProcess.on(`error`, (err) => {
+          log.fail(`Failed to install ESLint dependencies: ${err.message}`)
+          resolve()
+        })
+      })
+    } else {
+      // Remove eslint config if not requested
+      const eslintPath = path.join(projectPath, `eslint.config.ts`)
+      if (fs.existsSync(eslintPath)) {
+        fs.unlinkSync(eslintPath)
+      }
     }
 
     // Final success message
@@ -345,34 +368,10 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     log.info(`Done..`)
   }
 
-  private async setupEslintConfig(projectPath: string): Promise<void> {
-    return new Promise((resolve) => {
-      const initProcess = spawn(`npm`, [`init`, `@eslint/config@latest`], {
-        cwd: projectPath,
-        stdio: `inherit`,
-        shell: true
-      })
-
-      initProcess.on(`close`, (code) => {
-        if (code === 0) {
-          resolve()
-        } else {
-          log.fail(`ESLint setup failed. You can set it up later with: npm init @eslint/config`)
-          resolve()
-        }
-      })
-
-      initProcess.on(`error`, (error) => {
-        log.fail(`ESLint setup failed: ${error.message}`)
-        log.info(`You can set it up later with: npm init @eslint/config`)
-        resolve()
-      })
-    })
-  }
-
   /**
    * Main method: Prompt first, then execute
    */
+
   async createProject() {
     try {
       // Step 1: Gather all configuration through prompts

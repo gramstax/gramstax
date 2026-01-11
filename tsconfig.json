@@ -46,5 +46,8 @@
       "path": "./packages/create-gramstax"
     }
   ],
-  "files": []
+  "files": [],
+  "include": [
+    "eslint.config.ts"
+  ]
 }
