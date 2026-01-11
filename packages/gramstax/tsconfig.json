@@ -19,6 +19,7 @@
     "verbatimModuleSyntax": false
   },
   "include": [
+    "*.ts",
     "src/**/*",
     "test/**/*",
     "package.json"

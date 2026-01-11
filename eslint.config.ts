@@ -17,10 +17,6 @@ export default defineConfig([
         ...globals.node,
         Bun: true, // ⬅️ Accept syntax Bun
         Worker: true // ⬅️ Accept syntax Worker
-      },
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname
       }
     },
     rules: {
