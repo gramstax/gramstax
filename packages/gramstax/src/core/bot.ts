@@ -186,6 +186,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       Page.data = Page.buildData() as any
     }
     Page.data.name = parse(filePath).name
+    if (Page.data._callbackData.length == 0) {
+      Page.data._callbackData = Page.data.name
+    }
   }
 
   pageSorts(Page: typeof Ctx, pages: typeof this.pages, indexPage: number): void {
