@@ -5,22 +5,19 @@ export class KbbePage extends PageBase {
     text: `📚 Kbbe:` // <===== overrides "text" data route, default (kbbe)
   })
 
-  kb(count?: number, removeKb?: boolean) {
+  kb(count?: number) {
     const params = {data: {first: this.data.text}}
     return this.bottomKeyboard((kb, arr) => {
       kb.text(count === undefined ? `${arr[0]!} 0` : `${arr[0]} ${count + 1}`)
         .row()
         .text(arr[1]!)
         .oneTime()
-      if (removeKb) {
-        kb.removeKeyboard()
-      }
       return kb
     }, params)
   }
 
-  async internal(count?: number, removeKb?: boolean) {
-    await this.reply(this.kb(count, removeKb))
+  async internal(count?: number) {
+    await this.reply(this.kb(count))
   }
 
   async callback() {
@@ -40,8 +37,13 @@ export class KbbePage extends PageBase {
   }
 
   async textCommandPayload() {
-    if (this.msgTextPayload == `reset`) {
+    const pld = this.msgTextCommandPayload
+    console.log({pld})
+    if (pld == `reset`) {
       await this.internal()
+    }
+    if (pld == `delete`) {
+      await this.reply(undefined, undefined, undefined, {reply_markup: {remove_keyboard: true}})
     }
   }
 

@@ -6,5 +6,8 @@ await IncrementJob.launchWorker([5000]) // 5s
 new BotCore({
   deploy: env.TELEGRAM_BOT_DEPLOY,
   token: env.TELEGRAM_BOT_TOKEN,
-  log: true
+  log: true,
+  optionsPage: {
+    shortCallbackData: true
+  }
 })
