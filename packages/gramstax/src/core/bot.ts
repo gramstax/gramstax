@@ -498,6 +498,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           const routeName = this.pages.listRouteStaticSession[index] as `animationCaption`
           if (routeName.startsWith(fromListener)) {
             res = pStaticSession[routeName][mtd]
+            // this is still not true so far,
+            // because if the route type is payload it will follow the session method reference,
+            // for example if the session method is "2-wallet-detail" and
+            // when click the button with callback data "wallet-repeat-input"
+            // then it will direct to "wallet-detail" not "wallet-repeat-input"
+            // because here there is no check for the entity itself such as callbackData, msgText, msgCaption
           }
 
           if (res) break

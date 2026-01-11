@@ -1,0 +1,34 @@
+import {PageBase} from "~/base/page"
+import {StartPage} from "./start"
+
+export class ZOnePage extends PageBase {
+  static data = this.buildData({
+    textCommand: `z_one`,
+    callbackData: (confirm: string) => confirm
+  })
+
+  kb() {
+    return this.inlineKeyboard((kb, arr) => {
+      return kb //
+        .text(arr[0]!, this.data.callbackData(`1`))
+        .text(arr[1]!, StartPage.data.callbackData(`asumsi-wallet`))
+    })
+  }
+
+  async textCommand() {
+    await this.sessionToCallbackPayload({from: `to`})
+    await this.reply(this.kb())
+  }
+
+  async callbackPayload() {
+    const pld = this.callbackDataPayload
+    console.log(`callbackPayload: ${pld}`)
+  }
+
+  static template = /*jsx*/ `
+    <base>
+      <keyboard>Yes, Repeat</keyboard>
+      <message>Z One Message</message>
+    </base>
+  `
+}

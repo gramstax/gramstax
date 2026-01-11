@@ -1,6 +1,5 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
-import {KeyboardComponent} from "~/components/keyboard"
 
 export class TestVideoNotePage extends PageBase {
   kb() {
@@ -15,7 +14,7 @@ export class TestVideoNotePage extends PageBase {
 
   static template = /*jsx*/ `
     <base>
-      ${KeyboardComponent.back()}
+      ${this.kbc.back()}
       <media type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4"></media>
       <media lang="id" type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4"></media>
     </base>
