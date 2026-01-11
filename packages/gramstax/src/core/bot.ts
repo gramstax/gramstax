@@ -1,5 +1,5 @@
 import {Ctx} from "./ctx"
-import {join, parse, dirname} from "node:path"
+import {join, dirname, parse} from "node:path"
 import {readFileSync} from "node:fs"
 import {fileURLToPath} from "node:url"
 import {PageManager} from "~/page/manager"
@@ -9,8 +9,14 @@ import {TemplateManager} from "~/template/manager"
 import {Bot, webhookCallback, type BotError, type Context} from "grammy"
 import type {UserFromGetMe} from "grammy/types"
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const ___filename = (() => {
+  try {
+    return __filename
+  } catch {
+    return fileURLToPath(import.meta.url)
+  }
+})()
+const __dirname = dirname(___filename)
 const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.json`), `utf-8`)).version as string
 
 export class Gramstax<ICtx extends Ctx = Ctx> {
@@ -18,14 +24,32 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   cacheKeyboard: Map<any, any>
   cacheSession: CacheExternal
   pages: ReturnType<typeof this.pageLoads>
+  optionsPage = {
+    shortCallbackData: false
+  }
   log: LoggingPretty | undefined
   bot: Bot
 
   handlerBotUpdate: any
 
-  constructor(params: {token: string; deploy: string; log?: LoggingPretty | boolean | null; cacheData?: CacheExternal; cacheSession?: CacheExternal; cacheKeyboard?: Map<any, any>; templateManager?: TemplateManager}) {
+  constructor(params: {
+    token: string
+    deploy: string
+    log?: LoggingPretty | boolean | null
+    cacheData?: CacheExternal
+    cacheSession?: CacheExternal
+    cacheKeyboard?: Map<any, any>
+    templateManager?: TemplateManager
+    optionsPage?: {
+      shortCallbackData?: boolean
+    }
+  }) {
     if (!params?.token || params?.token?.length == 0) {
       throw new Error(`Token is not valid or empty`)
+    }
+
+    if (typeof params.optionsPage?.shortCallbackData == `boolean`) {
+      this.optionsPage.shortCallbackData = params.optionsPage.shortCallbackData
     }
 
     this.log = params.log === true ? new LoggingPretty() : !params.log ? undefined : params.log
@@ -164,7 +188,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     Page.data.name = parse(filePath).name
   }
 
-  pageSorts(Page: typeof Ctx, pages: typeof this.pages): void {
+  pageSorts(Page: typeof Ctx, pages: typeof this.pages, indexPage: number): void {
     const name = Page.data.name
     const proto = Page.prototype
 
@@ -202,20 +226,25 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const _isCallback = routeName.includes(`callback`)
         const _isText = routeName.startsWith(`text`)
 
-        let _name: string | undefined
+        let key: string | undefined
         if (_isCommand) {
-          const cmd = Page.data.textCommand || Page.data.name
-          _name = cmd ? `/${cmd}` : undefined
+          const _key = Page.data.textCommand || Page.data.name
+          key = _key ? `/${_key}` : undefined
         } else if (_isCallback) {
-          _name = Page.data.name
+          let _key = Page.data._callbackData || Page.data.name
+          if (this.optionsPage.shortCallbackData === true) {
+            _key = String(indexPage)
+            Page.data._callbackData = _key
+          }
+          key = _key
         } else if (_isText) {
-          _name = Page.data.text || Page.data.name
+          key = Page.data.text || Page.data.name
         } else {
-          _name = Page.data.name
+          key = Page.data.name
         }
 
-        if (_name) {
-          p[_name] = value
+        if (key) {
+          p[key] = value
         }
       }
 
@@ -410,9 +439,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       lenListRouteStaticSession: listRouteStaticSession.length
     }
 
-    PageManager.getFileManySync(undefined).forEach(({path, page}) => {
+    PageManager.getFileManySync(undefined).forEach(({path, page}, index) => {
       this.pageBuildData(page, path) // create if not exist and set name (without ext) according filePath
-      this.pageSorts(page, pages) // sort route method
+      this.pageSorts(page, pages, index) // sort route method
       page.template = undefined // delete template for efficient memory
     })
 

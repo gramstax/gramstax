@@ -26,7 +26,7 @@ import type {
   IOptReplyVideoNote
 } from "~/types/ctx"
 
-type IPageData<T extends any[] = any[]> = {name: string; callbackData: (...args: T) => string; text: string; textCommand: string; _positionPayloadText: number}
+type IPageData<T extends any[] = any[]> = {name: string; callbackData: (...args: T) => string; text: string; textCommand: string; _positionPayloadText: number; _callbackData: string}
 type ITemp = {isAnswer: boolean; session: {method?: string; params?: any}; data: Partial<IPageData<any>>; [key: string]: any}
 
 export class Ctx {
@@ -69,6 +69,12 @@ export class Ctx {
   get msgTextPayload() {
     return this.msgTextPayloads[0] as string
   }
+  get msgTextCommandPayloads() {
+    return this.getPayloads(this.msgText, `space`)
+  }
+  get msgTextCommandPayload() {
+    return this.msgTextCommandPayloads[0] as string
+  }
   get msgCaption() {
     return this.ct.message?.caption as string
   }
@@ -77,6 +83,12 @@ export class Ctx {
   }
   get msgCaptionPayload() {
     return this.msgCaptionPayloads[0] as string
+  }
+  get msgCaptionCommandPayloads() {
+    return this.getPayloads(this.msgCaption, `space`)
+  }
+  get msgCaptionCommandPayload() {
+    return this.msgCaptionCommandPayloads[0] as string
   }
   get msgPhoto() {
     return this.ct.message?.photo
@@ -390,15 +402,16 @@ export class Ctx {
       name: ``,
       text: options.text,
       textCommand: options.textCommand,
-      _positionPayloadText: options.text ? options.text.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any),
       callbackData: callback
-        ? function (this: {name: string}, ...args: any[]): string {
+        ? function (this: {_callbackData: string}, ...args: any[]): string {
             const params = callback(...args)
-            return `${this.name}${params == `` || params === undefined ? `` : `:${params}`}`
+            return `${this._callbackData}${params == `` || params === undefined ? `` : `:${params}`}`
           }
-        : function (this: {name: string}) {
-            return this?.name
-          }
+        : function (this: {_callbackData: string}) {
+            return this?._callbackData
+          },
+      _callbackData: ``,
+      _positionPayloadText: options.text ? options.text.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any)
     }
     return data
   }
