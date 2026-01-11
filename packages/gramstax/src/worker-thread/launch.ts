@@ -27,6 +27,9 @@ export class WorkerThreadLaunch {
     this.thread = new Worker(this.path, {argv: this.argv.length == 0 && this.argv[0] === undefined ? undefined : this.argv})
     this.threadId = this.thread.threadId
     this.thread.on(`message`, (data) => this.handleOnMessage(data))
+    this.thread.on(`exit`, () => this.kill())
+    process.once(`SIGINT`, () => this.kill())
+    process.once(`SIGTERM`, () => this.kill())
   }
 
   async handleOnMessage(data: any) {
