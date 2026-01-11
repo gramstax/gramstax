@@ -1,118 +1,180 @@
 # WorkerThreadLaunch
 
-The `WorkerThreadLaunch` class runs on the main thread and manages a single worker thread instance. It handles spawning, termination, and RPC communication with the worker.
+The `WorkerThreadLaunch` class manages worker thread lifecycle from the main thread. It handles spawning, communication, and termination of worker threads.
+
+> **AI Notes (non-normative / for parsing):**
+>
+> - **Scope:** This document describes the `WorkerThreadLaunch` class for managing workers from main thread.
+> - **Graceful shutdown:** Automatically registers SIGINT/SIGTERM handlers to terminate workers.
+> - **Ready signaling:** Uses promise-based ready detection.
 
 &nbsp;
 
-## Usage Example
+## Constructor
 
-```ts
-import { MyWorkerExp } from "./worker";
+### `new WorkerThreadLaunch(path, argv)`
 
-// launchWorker returns a Proxy that wraps WorkerThreadLaunch
-const launchInstance = await MyWorkerExp.launchWorker([]);
+| parameter | type   | required | description                 | ai_notes                                       |
+| --------- | ------ | -------- | --------------------------- | ---------------------------------------------- |
+| path      | string | yes      | Path to the worker file     | **Must be:** valid JavaScript/TypeScript file. |
+| argv      | any[]  | yes      | Arguments to pass to worker | **Accessible:** via `process.argv` in worker.  |
 
-// You can use WorkerThreadLaunch methods on it
-await launchInstance.ready();
-launchInstance.kill();
+```typescript
+import { WorkerThreadLaunch } from "gramstax";
+
+const worker = new WorkerThreadLaunch("./worker.ts", ["arg1", "arg2"]);
+await worker.ready();
 ```
 
 &nbsp;
 
-## WorkerThreadLaunch Properties
+## Static Properties
 
-### .pid
+### `.isMainThread`
 
-The process ID of the current (main) process.
+Check if currently running in the main thread.
+
+- **type: boolean**
+- **ai_notes:** Re-exported from `node:worker_threads`.
+
+&nbsp;
+
+## Instance Properties
+
+### `.pid`
+
+The main process ID.
 
 - **type: number**
 
-```ts
-console.log(launch.pid);
-```
+### `.thread`
 
-### .threadId
+The underlying Node.js Worker instance.
 
-The ID of the spawned worker thread.
+- **type: Worker**
+- **ai_notes:** From `node:worker_threads`.
+
+### `.threadId`
+
+The worker thread ID.
 
 - **type: number**
 
-```ts
-console.log(launch.threadId);
-```
+### `.rpc`
 
-### .thread
+RPC handler for method invocations.
 
-The native Node.js `Worker` instance.
+- **type: WorkerThreadRpc**
 
-- **type: [Worker](https://nodejs.org/api/worker_threads.html#class-worker)**
+### `.path`
 
-```ts
-launch.thread.postMessage("hello");
-```
+Path to the worker file.
 
-### .rpc
+- **type: string**
 
-The RPC handler for this worker connection.
+### `.argv`
 
-- **type: [WorkerThreadRpc](rpc.md)**
+Arguments passed to the worker.
 
-```ts
-launch.rpc.makeRequest("method", []);
-```
+- **type: any[]**
 
 &nbsp;
 
-## WorkerThreadLaunch Methods
+## Methods
 
-### .ready()
+### `.ready()`
 
-Returns a promise that resolves when the worker has signaled it is ready (usually after `super()` in the worker class).
+Wait for the worker to signal it's ready.
 
 - **returns: Promise\<void\>**
+- **ai_notes:** Resolves when worker calls `super()` in `WorkerThreadInit`.
 
-```ts
-await launch.ready();
+```typescript
+const worker = new WorkerThreadLaunch("./worker.ts", []);
+await worker.ready();
+console.log("Worker is ready");
 ```
 
-### .kill()
+### `.send(payload)`
 
-Terminates the worker thread immediately.
+Send a message to the worker thread.
+
+| parameter | type | required | description  |
+| --------- | ---- | -------- | ------------ |
+| payload   | any  | yes      | Data to send |
 
 - **returns: void**
 
-```ts
-launch.kill();
+```typescript
+worker.send({ action: "process", data: [1, 2, 3] });
 ```
 
-### .send(payload)
+### `.request(method, params, wait?, others?)`
 
-Sends a raw payload to the worker thread.
+Make an RPC request to the worker thread.
 
-| parameter | type | required | default | description      |
-| --------- | ---- | -------- | ------- | ---------------- |
-| payload   | any  | yes      | -       | The data to send |
-
-- **returns: void**
-
-```ts
-launch.send({ type: "ping" });
-```
-
-### .request(method, params, \_wait, \_others)
-
-Sends an RPC request to the worker thread.
-
-| parameter | type    | required | default | description                             |
-| --------- | ------- | -------- | ------- | --------------------------------------- |
-| method    | string  | yes      | -       | The method name to invoke on the worker |
-| params    | any     | no       | -       | Arguments for the method                |
-| \_wait    | boolean | no       | true    | Whether to wait for a response          |
-| \_others  | any     | no       | -       | Additional options/metadata             |
+| parameter | type    | required | default | description                   | ai_notes                               |
+| --------- | ------- | -------- | ------- | ----------------------------- | -------------------------------------- |
+| method    | string  | yes      | -       | Method name to call in worker | **Must exist:** on WorkerThreadInit.   |
+| params    | any     | yes      | -       | Method parameters             | **Passed as:** array to worker method. |
+| wait      | boolean | no       | `true`  | Wait for response             | **If false:** fire-and-forget.         |
+| others    | object  | no       | -       | Additional RPC data           |                                        |
 
 - **returns: Promise\<any\>**
 
-```ts
-// Indirectly used when you call methods on the Export object
-const result = await MyWorkerExp.mtdDoWork(123);
+```typescript
+const result = await worker.request("processData", [[1, 2, 3]]);
+console.log("Result:", result);
+```
+
+### `.kill()`
+
+Terminate the worker thread immediately.
+
+- **returns: void**
+- **ai_notes:** Calls `thread.terminate()`.
+
+```typescript
+worker.kill();
+```
+
+&nbsp;
+
+## Graceful Shutdown
+
+`WorkerThreadLaunch` automatically handles graceful shutdown:
+
+- Listens for `SIGINT` and `SIGTERM` signals
+- Terminates the worker thread on process exit
+- Cleans up on worker thread exit
+
+```typescript
+// Worker will be automatically terminated when:
+// - Process receives SIGINT (Ctrl+C)
+// - Process receives SIGTERM
+// - Worker exits normally or crashes
+```
+
+&nbsp;
+
+## Complete Example
+
+```typescript
+import { WorkerThreadLaunch } from "gramstax";
+
+async function main() {
+  // Launch worker
+  const worker = new WorkerThreadLaunch("./jobs/processor.ts", ["config.json"]);
+  await worker.ready();
+  console.log(`Worker ${worker.threadId} is ready`);
+
+  // Make requests
+  const result = await worker.request("process", [{ data: "test" }]);
+  console.log("Result:", result);
+
+  // Later: manual termination
+  worker.kill();
+}
+
+main();
 ```

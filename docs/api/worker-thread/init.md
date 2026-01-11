@@ -1,188 +1,205 @@
 # WorkerThreadInit
 
-The `WorkerThreadInit` class serves as the base class for implementation on the worker thread side. It handles initialization, communication with the parent process, and gateway management.
+The `WorkerThreadInit` class is the base class for worker thread implementations. It handles communication with the main thread and provides RPC functionality.
+
+> **AI Notes (non-normative / for parsing):**
+>
+> - **Scope:** This document describes the `WorkerThreadInit` base class for worker threads.
+> - **Usage:** Extend this class when defining worker thread behavior.
+> - **Communication:** Uses `parentPort` for messaging with main thread.
 
 &nbsp;
 
-## Usage Example
+## Constructor
 
-```ts
+### `new WorkerThreadInit()`
+
+Initializes the worker thread, sets up message handling, and signals readiness to the main thread.
+
+```typescript
 import { WorkerThreadInit } from "gramstax";
-import { OtherWorkerGateway } from "./other-worker";
 
 class MyWorker extends WorkerThreadInit {
   constructor() {
-    super();
-    // Your initialization logic
-    this.run();
-  }
-
-  // Will hidden in RPC/Gateway
-  private _compute() {
-    return Math.random();
-  }
-
-  async run() {
-    // Calling another worker
-    // Pass 'this' as the first argument to gateway methods
-    const result = await OtherWorkerGateway.mtdSomeMethod(this, ["args"]);
-  }
-
-  // Method exposed to RPC/Gateway
-  async mtdMyMethod() {
-    return this._compute();
+    super(); // Required - signals ready to main thread
+    // Your initialization code
   }
 }
 ```
 
 &nbsp;
 
-## WorkerThreadInit Properties
+## Static Properties
 
-### .id
+### `.isMainThread`
 
-The thread identifier.
+Check if currently running in the main thread.
 
-- **type: number**
+- **type: boolean**
+- **ai_notes:** Re-exported from `node:worker_threads`.
 
-```ts
-console.log(this.id);
-```
-
-### .pid
-
-The process identifier.
-
-- **type: number**
-
-```ts
-console.log(this.pid);
-```
-
-### .parentPort
-
-The `MessagePort` used to communicate with the main thread.
-
-- **type: [MessagePort](https://nodejs.org/api/worker_threads.html#class-messageport) | null**
-
-```ts
-this.parentPort?.postMessage("Hello Parent");
-```
-
-### .rpc
-
-The RPC handler for communicating with the main thread.
-
-- **type: [WorkerThreadRpc](rpc.md)**
-
-```ts
-this.rpc.makeRequest("someMethod", []);
-```
-
-### .gatewayServer
-
-The active gateway server instance, if any.
-
-- **type: [WorkerThreadGatewayServer](gateway-server.md) | undefined**
-
-```ts
-if (this.gatewayServer) {
-  /* ... */
+```typescript
+if (WorkerThreadInit.isMainThread) {
+  console.log("Running in main thread");
+} else {
+  console.log("Running in worker thread");
 }
 ```
 
-### .gatewayClients
+&nbsp;
 
-A map of connected gateway clients, keyed by path.
+## Instance Properties
 
-- **type: Map<string, [WorkerThreadGatewayClient](gateway-client.md)>**
+### `.argv`
 
-```ts
-const client = this.gatewayClients.get("/tmp/other.sock");
-```
+Command line arguments passed to the worker.
 
-### .gatewayClientLatest
+- **type: string[]**
+- **ai_notes:** Same as `process.argv`. Custom args start at index 3.
+
+### `.id`
+
+The worker thread ID.
+
+- **type: number**
+- **ai_notes:** From `node:worker_threads` `threadId`.
+
+### `.pid`
+
+The process ID.
+
+- **type: number**
+- **ai_notes:** Same as `process.pid`.
+
+### `.rpc`
+
+RPC handler for method invocations.
+
+- **type: WorkerThreadRpc**
+
+### `.parentPort`
+
+Reference to the parent port for messaging.
+
+- **type: MessagePort | null**
+- **ai_notes:** From `node:worker_threads`.
+
+### `.gatewayServer`
+
+Gateway server instance if created.
+
+- **type: WorkerThreadGatewayServer | undefined**
+
+### `.gatewayClients`
+
+Map of gateway clients for inter-worker communication.
+
+- **type: Map\<string, WorkerThreadGatewayClient\>**
+
+### `.gatewayClient`
 
 The most recently created gateway client.
 
-- **type: [WorkerThreadGatewayClient](gateway-client.md) | undefined**
+- **type: WorkerThreadGatewayClient | undefined**
 
-```ts
-console.log(this.gatewayClientLatest);
+&nbsp;
+
+## Methods
+
+### `.send(payload)`
+
+Send a message to the main thread.
+
+| parameter | type | required | description  |
+| --------- | ---- | -------- | ------------ |
+| payload   | any  | yes      | Data to send |
+
+- **returns: void**
+
+```typescript
+this.send({ status: "processing", progress: 50 });
+```
+
+### `.request(method, params, wait?, others?)`
+
+Make an RPC request to the main thread.
+
+| parameter | type    | required | default | description         |
+| --------- | ------- | -------- | ------- | ------------------- |
+| method    | string  | yes      | -       | Method name to call |
+| params    | any     | yes      | -       | Method parameters   |
+| wait      | boolean | no       | `true`  | Wait for response   |
+| others    | object  | no       | -       | Additional RPC data |
+
+- **returns: Promise\<any\>**
+
+```typescript
+const result = await this.request("getConfig", ["key"]);
+```
+
+### `.createGatewayServer(path, methods?)`
+
+Create a gateway server for inter-worker communication.
+
+| parameter | type   | required | default | description       |
+| --------- | ------ | -------- | ------- | ----------------- |
+| path      | string | yes      | -       | Unix socket path  |
+| methods   | object | no       | `{}`    | Methods to expose |
+
+- **returns: Promise\<boolean\>**
+
+```typescript
+await this.createGatewayServer("/tmp/my-worker.sock", {
+  ping: () => "pong",
+});
+```
+
+### `.createGatewayClient(path)`
+
+Create a gateway client to connect to another worker.
+
+| parameter | type   | required | description                 |
+| --------- | ------ | -------- | --------------------------- |
+| path      | string | yes      | Unix socket path to connect |
+
+- **returns: Promise\<WorkerThreadGatewayClient\>**
+
+```typescript
+const client = await this.createGatewayClient("/tmp/other-worker.sock");
+const result = await client.request("ping", []);
 ```
 
 &nbsp;
 
-## WorkerThreadInit Methods
+## Complete Example
 
-### .init()
+```typescript
+import { WorkerThreadInit, WorkerThreadExport, log } from "gramstax";
 
-Initializes the worker configuration. This is called automatically by the constructor (via `super()`) and sets up the message listener on `parentPort`.
+class MyWorker extends WorkerThreadInit {
+  private data: Map<string, any> = new Map();
 
-- **returns: void**
+  constructor() {
+    super();
+    log.info(`Worker ${this.id} started with PID ${this.pid}`);
+  }
 
-```ts
-// Called internally
-this.init();
-```
+  set(key: string, value: any) {
+    this.data.set(key, value);
+    return true;
+  }
 
-### .send(payload)
+  get(key: string) {
+    return this.data.get(key);
+  }
 
-Sends a raw payload to the main thread without await response.
+  getAll() {
+    return Object.fromEntries(this.data);
+  }
+}
 
-| parameter | type | required | default | description      |
-| --------- | ---- | -------- | ------- | ---------------- |
-| payload   | any  | yes      | -       | The data to send |
-
-- **returns: void**
-
-```ts
-this.send({ status: "alive" });
-```
-
-### .request(method, params, \_wait, \_others)
-
-Sends an RPC request to the main thread.
-
-| parameter | type    | required | default | description                                |
-| --------- | ------- | -------- | ------- | ------------------------------------------ |
-| method    | string  | yes      | -       | The method name to call on the main thread |
-| params    | any     | no       | -       | Arguments for the method                   |
-| \_wait    | boolean | no       | true    | Whether to wait for a response             |
-| \_others  | any     | no       | -       | Additional options/metadata                |
-
-- **returns: Promise\<any\>**
-
-```ts
-const config = await this.request("mtdGetConfig", []);
-```
-
-### .createGatewayServer(path, methods)
-
-Creates and starts a gateway server for this worker. This is usually wrapped in a method like `mtdStart`.
-
-| parameter | type   | required | default | description                                      |
-| --------- | ------ | -------- | ------- | ------------------------------------------------ |
-| path      | string | yes      | -       | The socket path                                  |
-| methods   | any    | no       | {}      | Map of methods to expose, use "this" recommended |
-
-- **returns: Promise\<boolean\>**
-
-```ts
-// usually passed 'this' as methods to expose all class methods
-await this.createGatewayServer("/tmp/worker-1", this);
-```
-
-### .createGatewayClient(path)
-
-Creates and connects a gateway client to another worker. _Note: You typically use the typed Gateway proxy exported by `WorkerThreadExport` instead of this manually._
-
-| parameter | type   | required | default | description                          |
-| --------- | ------ | -------- | ------- | ------------------------------------ |
-| path      | string | yes      | -       | The socket path of the target worker |
-
-- **returns: Promise<[WorkerThreadGatewayClient](gateway-client.md)>**
-
-```ts
-const client = await this.createGatewayClient("/tmp/worker-2");
+export const MyJob = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: MyWorker,
+});
 ```

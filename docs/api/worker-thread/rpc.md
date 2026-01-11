@@ -1,78 +1,180 @@
 # WorkerThreadRpc
 
-The `WorkerThreadRpc` class implements the Remote Procedure Call mechanism used by both workers and the main thread to exchange messages and execute methods asynchronously.
+The `WorkerThreadRpc` class handles JSON-RPC style communication between threads.
 
-_Note: This is a low-level underlying class automatically handled by `WorkerThreadInit` and `WorkerThreadLaunch`._
+> **AI Notes (non-normative / for parsing):**
+>
+> - **Scope:** This document describes the `WorkerThreadRpc` class for RPC handling.
+> - **Protocol:** Uses simple JSON-RPC style messages with `id`, `method`, `params`, `result`, `error`.
+> - **Internal:** Typically used internally by `WorkerThreadInit` and `WorkerThreadLaunch`.
 
 &nbsp;
 
-## WorkerThreadRpc Properties
+## Constructor
 
-### .map
+### `new WorkerThreadRpc(send, register)`
 
-A map storing pending requests, keyed by their request ID.
+| parameter | type     | required | description                  |
+| --------- | -------- | -------- | ---------------------------- |
+| send      | function | yes      | Function to send data        |
+| register  | object   | yes      | Object with callable methods |
 
-- **type: Map<any, { resolve: Function, reject: Function }>**
+```typescript
+import { WorkerThreadRpc } from "gramstax";
 
-```ts
-console.log(rpc.map.size);
+const rpc = new WorkerThreadRpc((data) => postMessage(data), {
+  add: (a: number, b: number) => a + b,
+  multiply: (a: number, b: number) => a * b,
+});
 ```
 
-### .send
+&nbsp;
 
-The function used to transmit data (requests or responses).
+## Properties
 
-| parameter | type | required | default | description      |
-| --------- | ---- | -------- | ------- | ---------------- |
-| data      | any  | yes      | -       | raw payload data |
+### `.map`
+
+Map of pending requests by ID.
+
+- **type: Map\<any, { resolve, reject }\>**
+- **ai_notes:** Stores promise handlers for pending requests.
+
+### `.send`
+
+Function used to send messages.
 
 - **type: (data: any) => any**
 
-```ts
-rpc.send({ method: "ping" });
+### `.register`
+
+Object containing registered methods.
+
+- **type: Record\<string, Function\>**
+
+&nbsp;
+
+## Methods
+
+### `.make(data)`
+
+Process an incoming RPC message.
+
+| parameter | type   | required | description        |
+| --------- | ------ | -------- | ------------------ |
+| data      | object | yes      | RPC message object |
+
+- **returns: Promise\<void\>**
+- **ai_notes:** Handles requests, results, and errors.
+
+**Message Types:**
+
+1. **Request:** `{ id, method, params }` - Calls registered method and sends result/error back.
+2. **Result:** `{ id, result }` - Resolves pending request promise.
+3. **Error:** `{ id, error }` - Rejects pending request promise.
+
+```typescript
+// Handle incoming message
+worker.on("message", (data) => {
+  rpc.make(data);
+});
+```
+
+### `.makeId()`
+
+Generate a unique request ID.
+
+- **returns: number**
+- **ai_notes:** Uses `Math.random()`.
+
+```typescript
+const id = rpc.makeId();
+```
+
+### `.makeRequest(method, params, wait?, others?)`
+
+Create and send an RPC request.
+
+| parameter | type    | required | default | description                |
+| --------- | ------- | -------- | ------- | -------------------------- |
+| method    | string  | yes      | -       | Method name to call        |
+| params    | any     | yes      | -       | Method parameters          |
+| wait      | boolean | no       | `true`  | Wait for response          |
+| others    | object  | no       | -       | Additional data to include |
+
+- **returns: Promise\<any\>**
+- **ai_notes:** If `wait=false`, returns result of `send()` directly.
+
+```typescript
+// Wait for response
+const result = await rpc.makeRequest("add", [1, 2]);
+console.log(result); // 3
+
+// Fire and forget
+rpc.makeRequest("log", ["message"], false);
 ```
 
 &nbsp;
 
-## WorkerThreadRpc Methods
+## Message Protocol
 
-### .make(data)
+### Request Message
 
-Processes an incoming message (Request, Result, or Error).
-
-| parameter | type | required | default | description          |
-| --------- | ---- | -------- | ------- | -------------------- |
-| data      | any  | yes      | -       | The incoming message |
-
-- **returns: Promise\<void\>**
-
-```ts
-on("message", (msg) => rpc.make(msg));
+```typescript
+{
+  id: number,      // Unique request ID
+  method: string,  // Method name to call
+  params: any      // Parameters to pass
+}
 ```
 
-### .makeId()
+### Result Message
 
-Generates a random unique identifier for requests.
-
-- **returns: number**
-
-```ts
-const id = rpc.makeId();
+```typescript
+{
+  id: number,      // Request ID
+  result: any      // Return value
+}
 ```
 
-### .makeRequest(method, params, \_wait, \_others)
+### Error Message
 
-Initiates an RPC call.
+```typescript
+{
+  id: number,
+  error: {
+    message: string,
+    stack?: string,
+    name: string
+  }
+}
+```
 
-| parameter | type    | required | default | description                    |
-| --------- | ------- | -------- | ------- | ------------------------------ |
-| method    | string  | yes      | -       | The method name to call        |
-| params    | any     | no       | -       | Arguments for the method       |
-| \_wait    | boolean | no       | true    | Whether to wait for a response |
-| \_others  | any     | no       | -       | Additional options/metadata    |
+&nbsp;
 
-- **returns: Promise\<any\>**
+## Complete Example
 
-```ts
-await rpc.makeRequest("method", []);
+```typescript
+import { WorkerThreadRpc } from "gramstax";
+
+// Define methods
+const methods = {
+  async processData(data: number[]) {
+    return data.reduce((a, b) => a + b, 0);
+  },
+
+  getInfo() {
+    return { pid: process.pid, time: Date.now() };
+  },
+};
+
+// Create RPC handler
+const rpc = new WorkerThreadRpc(
+  (data) => parentPort.postMessage(data),
+  methods
+);
+
+// Handle incoming messages
+parentPort.on("message", (data) => {
+  rpc.make(data);
+});
 ```

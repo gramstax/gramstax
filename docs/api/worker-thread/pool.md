@@ -1,145 +1,190 @@
 # WorkerThreadPool
 
-The `WorkerThreadPool` class manages a collection of `WorkerThreadLaunch` instances, allowing for bulk operations like broadcasting requests or managing multiple workers via a single interface.
+The `WorkerThreadPool` class manages multiple worker thread instances, providing pooled access and broadcast functionality.
+
+> **AI Notes (non-normative / for parsing):**
+>
+> - **Scope:** This document describes the `WorkerThreadPool` class for managing multiple workers.
+> - **Thread registry:** Uses `Map` with `threadId` as key.
+> - **Broadcast:** Supports sending requests to all workers.
 
 &nbsp;
 
-## Usage Example
+## Constructor
 
-```ts
-import { WorkerThreadPool } from "gramstax";
-import { MyWorkerExp } from "./worker";
+### `new WorkerThreadPool(instances)`
 
-const w1 = await MyWorkerExp.launchWorker();
-const w2 = await MyWorkerExp.launchWorker();
-const pool = new WorkerThreadPool([w1, w2]);
+| parameter | type                 | required | description              |
+| --------- | -------------------- | -------- | ------------------------ |
+| instances | WorkerThreadLaunch[] | yes      | Initial worker instances |
 
-await pool.broadcastRequest("mtdHello", ["World"]);
+```typescript
+import { WorkerThreadPool, WorkerThreadLaunch } from "gramstax";
+
+const worker1 = new WorkerThreadLaunch("./worker.ts", ["1"]);
+const worker2 = new WorkerThreadLaunch("./worker.ts", ["2"]);
+await Promise.all([worker1.ready(), worker2.ready()]);
+
+const pool = new WorkerThreadPool([worker1, worker2]);
 ```
 
 &nbsp;
 
-## WorkerThreadPool Properties
+## Properties
 
-### .thread
+### `.thread`
 
-A Map storing the worker instances, keyed by their `threadId`.
+Map of all worker instances by thread ID.
 
-- **type: Map<number, [WorkerThreadLaunch](launch.md)>**
+- **type: Map\<number, WorkerThreadLaunch\>**
 
-```ts
-console.log(pool.thread.size);
-```
+### `.threadCount`
 
-### .threadCount
-
-The number of workers currently in the pool.
+Current number of workers in the pool.
 
 - **type: number**
 
-```ts
-console.log(pool.threadCount);
+&nbsp;
+
+## Methods
+
+### `.add(instance)`
+
+Add a single worker to the pool.
+
+| parameter | type               | required | description   |
+| --------- | ------------------ | -------- | ------------- |
+| instance  | WorkerThreadLaunch | yes      | Worker to add |
+
+- **returns: void**
+
+```typescript
+const newWorker = new WorkerThreadLaunch("./worker.ts", ["3"]);
+await newWorker.ready();
+pool.add(newWorker);
+```
+
+### `.addMany(instances)`
+
+Add multiple workers to the pool.
+
+| parameter | type                 | required | description    |
+| --------- | -------------------- | -------- | -------------- |
+| instances | WorkerThreadLaunch[] | yes      | Workers to add |
+
+- **returns: void**
+
+```typescript
+pool.addMany([worker4, worker5]);
+```
+
+### `.getInstance(threadId)`
+
+Get a specific worker by thread ID.
+
+| parameter | type   | required | description      |
+| --------- | ------ | -------- | ---------------- |
+| threadId  | number | yes      | Worker thread ID |
+
+- **returns: WorkerThreadLaunch | undefined**
+
+```typescript
+const worker = pool.getInstance(123);
+if (worker) {
+  await worker.request("process", [data]);
+}
+```
+
+### `.kill(threadId)`
+
+Kill and remove a specific worker from the pool.
+
+| parameter | type   | required | description      |
+| --------- | ------ | -------- | ---------------- |
+| threadId  | number | yes      | Worker thread ID |
+
+- **returns: number | undefined** - The killed worker's threadId.
+
+```typescript
+const killedId = pool.kill(123);
+console.log(`Killed worker ${killedId}`);
+```
+
+### `.killAll()`
+
+Kill and remove all workers from the pool.
+
+- **returns: void**
+
+```typescript
+pool.killAll();
+console.log(`All workers terminated`);
+```
+
+### `.request(threadId, method, params, wait?, others?)`
+
+Send a request to a specific worker.
+
+| parameter | type    | required | default | description             |
+| --------- | ------- | -------- | ------- | ----------------------- |
+| threadId  | number  | yes      | -       | Target worker thread ID |
+| method    | string  | yes      | -       | Method name to call     |
+| params    | any     | yes      | -       | Method parameters       |
+| wait      | boolean | no       | `true`  | Wait for response       |
+| others    | object  | no       | -       | Additional RPC data     |
+
+- **returns: Promise\<any\>**
+
+```typescript
+const result = await pool.request(123, "process", [data]);
+```
+
+### `.broadcastRequest(method, params)`
+
+Send a request to all workers and collect results.
+
+| parameter | type   | required | description         |
+| --------- | ------ | -------- | ------------------- |
+| method    | string | yes      | Method name to call |
+| params    | any    | yes      | Method parameters   |
+
+- **returns: Promise\<any[]\>** - Array of results from all workers.
+
+```typescript
+const results = await pool.broadcastRequest("getStatus", []);
+console.log("All statuses:", results);
 ```
 
 &nbsp;
 
-## WorkerThreadPool Methods
+## Complete Example
 
-### .add(instance)
+```typescript
+import { WorkerThreadPool, WorkerThreadLaunch } from "gramstax";
 
-Adds a single worker instance to the pool.
+async function main() {
+  // Create worker pool
+  const workers = await Promise.all(
+    [1, 2, 3, 4].map(async (i) => {
+      const w = new WorkerThreadLaunch("./processor.ts", [String(i)]);
+      await w.ready();
+      return w;
+    })
+  );
 
-| parameter | type                            | required | default | description                |
-| --------- | ------------------------------- | -------- | ------- | -------------------------- |
-| instance  | [WorkerThreadLaunch](launch.md) | yes      | -       | The worker instance to add |
+  const pool = new WorkerThreadPool(workers);
+  console.log(`Pool has ${pool.threadCount} workers`);
 
-- **returns: void**
+  // Broadcast to all workers
+  const statuses = await pool.broadcastRequest("getStatus", []);
+  console.log("Worker statuses:", statuses);
 
-```ts
-pool.add(workerInstance);
-```
+  // Request from specific worker
+  const result = await pool.request(workers[0].threadId, "process", [data]);
 
-### .addMany(instances)
+  // Cleanup
+  pool.killAll();
+}
 
-Adds multiple worker instances to the pool.
-
-| parameter | type                              | required | default | description               |
-| --------- | --------------------------------- | -------- | ------- | ------------------------- |
-| instances | [WorkerThreadLaunch](launch.md)[] | yes      | -       | Array of worker instances |
-
-- **returns: void**
-
-```ts
-pool.addMany([w1, w2]);
-```
-
-### .getInstance(threadId)
-
-Retrieves a worker instance by its thread ID.
-
-| parameter | type   | required | default | description          |
-| --------- | ------ | -------- | ------- | -------------------- |
-| threadId  | number | yes      | -       | The ID of the thread |
-
-- **returns: [WorkerThreadLaunch](launch.md) | undefined**
-
-```ts
-const worker = pool.getInstance(1);
-```
-
-### .kill(threadId)
-
-Terminates a specific worker and removes it from the pool.
-
-| parameter | type   | required | default | description          |
-| --------- | ------ | -------- | ------- | -------------------- |
-| threadId  | number | yes      | -       | The ID of the thread |
-
-- **returns: number | undefined**
-
-```ts
-pool.kill(1);
-```
-
-### .killAll()
-
-Terminates all workers in the pool.
-
-- **returns: void**
-
-```ts
-pool.killAll();
-```
-
-### .broadcastRequest(method, params)
-
-Sends an RPC request to all workers in the pool and awaits all responses.
-
-| parameter | type   | required | default | description               |
-| --------- | ------ | -------- | ------- | ------------------------- |
-| method    | string | yes      | -       | The method name to invoke |
-| params    | any    | no       | -       | Arguments for the method  |
-
-- **returns: Promise\<any[]\>**
-
-```ts
-await pool.broadcastRequest("mtdPing", []);
-```
-
-### .request(threadId, method, params, \_wait, \_others)
-
-Sends an RPC request to a specific worker in the pool.
-
-| parameter | type    | required | default | description                    |
-| --------- | ------- | -------- | ------- | ------------------------------ |
-| threadId  | number  | yes      | -       | The ID of the target thread    |
-| method    | string  | yes      | -       | The method name to invoke      |
-| params    | any     | no       | -       | Arguments for the method       |
-| \_wait    | boolean | no       | true    | Whether to wait for a response |
-| \_others  | any     | no       | -       | Additional options             |
-
-- **returns: Promise\<any\>**
-
-```ts
-await pool.request(1, "mtdWork", []);
+main();
 ```

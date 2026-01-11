@@ -1,64 +1,105 @@
 # WorkerThreadGatewayClient
 
-The `WorkerThreadGatewayClient` class manages the client-side connection to a `WorkerThreadGatewayServer` via `net-ipc`.
+The `WorkerThreadGatewayClient` class provides IPC client functionality for inter-worker communication using Unix domain sockets.
 
-_Note: This is an internal class used by the Gateway Proxy. You typically do not interact with it directly._
+> **AI Notes (non-normative / for parsing):**
+>
+> - **Scope:** This document describes the `WorkerThreadGatewayClient` for IPC.
+> - **Transport:** Uses `net-ipc` library for Unix domain socket communication.
+> - **Usage:** Created via `WorkerThreadInit.createGatewayClient()`.
 
 &nbsp;
 
-## WorkerThreadGatewayClient Properties
+## Constructor
 
-### .client
+### `new WorkerThreadGatewayClient()`
 
-The underlying `net-ipc` Client instance used for communication.
+Creates a new gateway client instance. Typically not called directly; use `WorkerThreadInit.createGatewayClient()`.
 
-- **type: [Client](https://www.npmjs.com/package/net-ipc)**
+```typescript
+import { WorkerThreadGatewayClient } from "gramstax";
 
-```ts
-console.log(client.client);
-```
-
-### .rpc
-
-The `WorkerThreadRpc` instance handling the request/response cycle.
-
-- **type: [WorkerThreadRpc](rpc.md)**
-
-```ts
-console.log(client.rpc);
+const client = new WorkerThreadGatewayClient();
+await client.connect("/tmp/my-server.sock");
 ```
 
 &nbsp;
 
-## WorkerThreadGatewayClient Methods
+## Properties
 
-### .connect(path)
+### `.client`
 
-Establishes a connection to the specified socket path.
+The underlying `net-ipc` Client instance.
 
-| parameter | type   | required | default | description                                      |
-| --------- | ------ | -------- | ------- | ------------------------------------------------ |
-| path      | string | yes      | -       | The Unix socket path or identifier to connect to |
+- **type: Client**
 
-- **returns: Promise<[WorkerThreadGatewayClient](gateway-client.md)>**
+### `.rpc`
 
-```ts
-await client.connect("/tmp/socket");
+RPC handler for messaging.
+
+- **type: WorkerThreadRpc**
+
+&nbsp;
+
+## Methods
+
+### `.connect(path)`
+
+Connect to a gateway server.
+
+| parameter | type   | required | description      |
+| --------- | ------ | -------- | ---------------- |
+| path      | string | yes      | Unix socket path |
+
+- **returns: Promise\<WorkerThreadGatewayClient\>**
+- **ai_notes:** Resolves when connection is ready.
+
+```typescript
+await client.connect("/tmp/worker-server.sock");
+console.log("Connected to gateway server");
 ```
 
-### .request(method, params, \_wait, \_others)
+### `.request(method, params, wait?, others?)`
 
-Sends a remote procedure call to the connected gateway.
+Make an RPC request to the server.
 
-| parameter | type    | required | default | description                                          |
-| --------- | ------- | -------- | ------- | ---------------------------------------------------- |
-| method    | string  | yes      | -       | The name of the method to invoke on the server       |
-| params    | any     | no       | -       | Arguments to pass to the method                      |
-| \_wait    | boolean | no       | true    | Whether to await the response or fire-and-forget     |
-| \_others  | any     | no       | -       | Additional metadata to send with the request payload |
+| parameter | type    | required | default | description           |
+| --------- | ------- | -------- | ------- | --------------------- |
+| method    | string  | yes      | -       | Server method to call |
+| params    | any     | yes      | -       | Method parameters     |
+| wait      | boolean | no       | `true`  | Wait for response     |
+| others    | object  | no       | -       | Additional RPC data   |
 
 - **returns: Promise\<any\>**
 
-```ts
-await client.request("mtdHello", ["world"]);
+```typescript
+const result = await client.request("ping", []);
+console.log("Server responded:", result);
+```
+
+&nbsp;
+
+## Complete Example
+
+```typescript
+import { WorkerThreadInit, WorkerThreadExport } from "gramstax";
+
+class MyWorker extends WorkerThreadInit {
+  async connectToServer() {
+    // Create gateway client
+    const client = await this.createGatewayClient("/tmp/server.sock");
+
+    // Make requests
+    const pong = await client.request("ping", []);
+    console.log("Received:", pong);
+
+    const data = await client.request("getData", ["key1"]);
+    console.log("Data:", data);
+  }
+}
+
+export const MyJob = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: MyWorker,
+});
 ```
