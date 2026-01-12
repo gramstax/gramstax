@@ -25,7 +25,9 @@ HTML-like template string for the page.
 - **type: string | undefined**
 
 ```typescript
-class MyPage extends Ctx {
+import { PageBase } from "~/base/page";
+
+class MyPage extends PageBase {
   static template = `
     <base>
       <keyboard>Button 1, Button 2</keyboard>
@@ -57,17 +59,20 @@ Create page data configuration.
 - **ai_notes:** Metadata used for routing.
 
 ```typescript
-class MyPage extends Ctx {
-  // Simple - uses page name as callback data
+import { PageBase } from "~/base/page";
+
+class MyPage extends PageBase {
+  // Simple data (dont create like below because its already create in background)
   static data = this.buildData();
 
-  // With payload function
+  // With payload function for callback data
   static data = this.buildData((id: string) => id);
 
-  // Custom callback data
+  // Custom data
   static data = this.buildData({
-    callbackData: (action: string) => `custom-${action}`,
-    textCommand: "mycommand",
+    callbackData: (action: string) => action,
+    textCommand: "mycommand", // overrides trigger route function textCommand
+    text: "hi", // overrides trigger route function text
   });
 }
 ```
@@ -479,7 +484,7 @@ export class MyPage extends PageBase {
       <message>Hello {{name}}, please choose:</message>
     </base>
     <base id="confirmed">
-      <message>Confirmed!</message>
+      <message>You click button confirmed!</message>
     </base>
   `;
 }

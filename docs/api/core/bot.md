@@ -195,10 +195,16 @@ Called when page throws an error.
 | isEdit       | boolean | Was it an edit action | True when edit handler path.        |
 
 ```typescript
+import { GeneralStatusPage } from "~/pages/general-status";
+
 class MyBot extends Gramstax {
   async hookErrorPage(ctx, listenerName, error, isEdit) {
     console.error(`Error in ${listenerName}:`, error);
-    await ctx.reply(undefined, { message: "An error occurred" });
+    await new GeneralStatusPage(ctx).toError(
+      `${listenerName}:hookErrorPage`,
+      error,
+      isEdit
+    );
   }
 }
 ```
@@ -208,9 +214,11 @@ class MyBot extends Gramstax {
 Called when no matching route found.
 
 ```typescript
+import { GeneralStatusPage } from "~/pages/general-status";
+
 class MyBot extends Gramstax {
   async hookErrorInputNotFoundPage(ctx) {
-    await ctx.reply(undefined, { message: "Unknown command" });
+    await new GeneralStatusPage(ctx).toErrorInputNotFound();
   }
 }
 ```
@@ -234,7 +242,7 @@ Routes are matched in this order:
 ```typescript
 import { Gramstax, Ctx, CacheExternal } from "gramstax";
 
-class MyBot extends Gramstax<Ctx> {
+class MyBot extends Gramstax {
   hookBeforeStart() {
     this.log?.info("Initializing...");
   }
@@ -250,8 +258,11 @@ class MyBot extends Gramstax<Ctx> {
   }
 
   async hookErrorPage(ctx: Ctx, listenerName: string, error: any) {
-    this.log?.error(`Error: ${error.message}`);
-    await ctx.reply(undefined, { message: "Sorry, something went wrong." });
+    await new GeneralStatusPage(ctx).toError(
+      `${listenerName}:hookErrorPage`,
+      error,
+      isEdit
+    );
   }
 }
 
