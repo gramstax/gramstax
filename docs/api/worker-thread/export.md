@@ -124,7 +124,7 @@ const current = await CounterJob.getCount();
 // jobs/counter.ts
 import { WorkerThreadExport, WorkerThreadInit, log } from "gramstax";
 
-class Core extends WorkerThreadInit {
+class MyWorker extends WorkerThreadInit {
   count = 0;
 
   constructor() {
@@ -143,7 +143,7 @@ class Core extends WorkerThreadInit {
 
 export const CounterJob = WorkerThreadExport.init({
   path: __filename,
-  WTInit: Core,
+  WTInit: MyWorker,
 });
 
 // index.ts

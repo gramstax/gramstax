@@ -1,9 +1,8 @@
 import {WorkerThreadInit} from "../../../../packages/gramstax/src/worker-thread/init"
 import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-thread/export"
-import {fileURLToPath} from "url"
 import {WorkerServerGateway} from "./worker-server"
 
-class Core extends WorkerThreadInit {
+class Worker extends WorkerThreadInit {
   private name: string = `Unknown`
 
   constructor() {
@@ -24,4 +23,4 @@ class Core extends WorkerThreadInit {
   }
 }
 
-export const WorkerClient = WorkerThreadExport.init({path: fileURLToPath(import.meta.url), WTInit: Core})
+export const WorkerClient = WorkerThreadExport.init({path: __filename, WTInit: Worker})
