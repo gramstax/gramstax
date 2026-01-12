@@ -368,24 +368,24 @@ Create inline keyboard using builder pattern.
 - **returns: InlineKeyboard**
 
 ```typescript
-const kb = this.ikb((kb, arr) => {
-  return kb //
-    .text(arr[0], "action1")
-    .text(arr[1], "action2")
+const kb = this.ikb((k, a) => {
+  return k //
+    .text(a[0]!, "action1")
+    .text(a[1]!, "action2")
     .row()
-    .text(arr[2], "action3");
+    .text(a[2]!, "action3");
 });
 ```
 
 ### `.bkb(builder) or .bottomKeyboard(builder)`
 
 ```typescript
-const kb = this.bkb((kb, arr) => {
-  return kb //
-    .text(arr[0])
-    .text(arr[1])
+const kb = this.bkb((k, a) => {
+  return k //
+    .text(a[0]!)
+    .text(a[1]!)
     .row()
-    .text(arr[2])
+    .text(a[2])
     .oneTime();
 });
 ```
