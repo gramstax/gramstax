@@ -17,7 +17,7 @@ export class UserNameNotFoundPage extends PageBase {
     }
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       ${this.kbc.home()}
       <message>Please set the username first before using the bot.</message>

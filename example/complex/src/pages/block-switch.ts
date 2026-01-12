@@ -28,7 +28,7 @@ export class BlockSwitchPage extends PageBase {
     await this.internal(this.callbackDataPayload)
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       <keyboard>
         <switch value="status">

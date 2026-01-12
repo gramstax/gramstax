@@ -99,7 +99,7 @@ export class StartPage extends PageBase {
   async callbackPayload() {
     await this.internal(3)
   }
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base id="kb-for-block-import">
       ${this.kbc.refreshBack()}
     </base>

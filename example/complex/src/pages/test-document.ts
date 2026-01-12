@@ -12,7 +12,7 @@ export class TestDocumentPage extends PageBase {
     await this.editDocument(this.kb())
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       ${this.kbc.back()}
       <media type="document" src="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf">Caption text for media <b>document</b></media>

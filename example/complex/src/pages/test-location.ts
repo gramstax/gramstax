@@ -12,7 +12,7 @@ export class TestLocationPage extends PageBase {
     await this.editLocation(this.kb())
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       ${this.kbc.back()}
       <media type="location" latitude="51.50735" longitude="-0.12776"></media>

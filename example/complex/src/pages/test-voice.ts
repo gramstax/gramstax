@@ -12,7 +12,7 @@ export class TestVoicePage extends PageBase {
     await this.editVoice(this.kb())
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       ${this.kbc.back()}
       <media type="voice" src="https://www.w3schools.com/html/horse.ogg"></media>

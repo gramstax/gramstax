@@ -12,7 +12,7 @@ export class HelpPage extends PageBase {
     await this.edit(this.kb())
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       ${this.kbc.back()}
       <message>Help content page</message>

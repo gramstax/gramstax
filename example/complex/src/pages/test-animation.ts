@@ -31,7 +31,7 @@ export class TestAnimationPage extends PageBase {
     }
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       <keyboard>Dynamic Attr, Static Attr, ${this.kbd.back(`default`)}</keyboard>
       <keyboard lang="id">Dynamic Attr, Static Attr, ${this.kbd.back(`id`)}</keyboard>

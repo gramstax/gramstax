@@ -36,7 +36,7 @@ export class CounterPage extends PageBase {
     await this.edit(kb, {count})
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       <keyboard>Increase, Decrease, ${this.kbd.back(`default`)}</keyboard>
       <keyboard lang="id">Tambah, Kurang, ${this.kbd.back(`id`)}</keyboard>

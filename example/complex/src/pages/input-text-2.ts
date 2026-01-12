@@ -26,7 +26,7 @@ export class InputText2Page extends PageBase {
     await this.reply(this.kb(baseId), data, baseId)
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       ${this.kbc.cancel()}
       <message>Please input text you want view</message>

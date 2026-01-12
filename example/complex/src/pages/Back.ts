@@ -6,7 +6,7 @@ export class BackPage extends PageBase {
     await new StartPage(this).toError()
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base></base>
   `
 }

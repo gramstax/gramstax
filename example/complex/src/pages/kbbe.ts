@@ -47,7 +47,7 @@ export class KbbePage extends PageBase {
     }
   }
 
-  static template = /*jsx*/ `    
+  static template = /*html*/ `    
     <base>
       <keyboard type="bottom">{{first}}, ${this.kbd.back(`default`)}</keyboard>
       <keyboard lang="id" type="bottom">{{first}}, ${this.kbd.back(`id`)}</keyboard>

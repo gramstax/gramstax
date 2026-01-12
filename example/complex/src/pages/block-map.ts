@@ -21,7 +21,7 @@ export class BlockMapPage extends PageBase {
     await this.edit(this.kb(), data)
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       ${this.kbc.refreshBack()}
       <message>

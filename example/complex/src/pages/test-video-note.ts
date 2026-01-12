@@ -12,7 +12,7 @@ export class TestVideoNotePage extends PageBase {
     await this.editVideoNote(this.kb())
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       ${this.kbc.back()}
       <media type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4"></media>

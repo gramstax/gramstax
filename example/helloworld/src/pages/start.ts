@@ -25,7 +25,7 @@ export class StartPage extends Ctx {
     await this.internal(true)
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       <keyboard>Refresh</keyboard>
       <message>

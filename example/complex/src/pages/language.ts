@@ -46,7 +46,7 @@ export class LanguagePage extends PageBase {
     await this.internal()
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       <keyboard>EN, ID, ${this.kbd.back(`default`)}</keyboard>
       <keyboard lang="id">EN, ID, ${this.kbd.back(`id`)}</keyboard>

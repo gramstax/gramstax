@@ -25,7 +25,7 @@ export class ZOnePage extends PageBase {
     console.log(`callbackPayload: ${pld}`)
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       <keyboard>Yes, Repeat</keyboard>
       <message>Z One Message</message>

@@ -26,7 +26,7 @@ export class StartPage extends PageBase {
     await this.internal(false)
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base id="with-import-and-you-can-use-components">
       <keyboard>❓ Help</keyboard>
       <keyboard lang="it">❓ Aiuto</keyboard>

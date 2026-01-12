@@ -24,7 +24,7 @@ export class CounterThreadPage extends PageBase {
     await this.callback()
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       ${this.kbc.refreshBack()}
       <message>

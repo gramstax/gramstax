@@ -12,7 +12,7 @@ export class TestAudioPage extends PageBase {
     await this.editAudio(this.kb())
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       ${this.kbc.back()}
       <media type="audio" src="https://www.w3schools.com/html/horse.ogg">Caption text for media <b>audio</b></media>
