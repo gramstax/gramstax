@@ -648,7 +648,7 @@ Create inline keyboard using builder pattern.
 
 ```typescript
 const kb = this.inlineKeyboard((kb, arr) => {
-  return kb
+  return kb //
     .text(arr[0], "action1")
     .text(arr[1], "action2")
     .row()
@@ -656,9 +656,26 @@ const kb = this.inlineKeyboard((kb, arr) => {
 });
 ```
 
-#### `.bottomKeyboard(builder)`
+#### `.bkb(builder) or .bottomKeyboard(builder)`
 
-Create reply keyboard (bottom keyboard).
+Create reply keyboard using builder pattern.
+
+| parameter | type     | required | description      |
+| --------- | -------- | -------- | ---------------- |
+| builder   | function | yes      | Builder callback |
+
+- **returns: BottomKeyboard**
+
+```typescript
+const kb = this.bkb((kb, arr) => {
+  return kb //
+    .text(arr[0])
+    .text(arr[1])
+    .row()
+    .text(arr[2])
+    .oneTime();
+});
+```
 
 #### `.transition(PageClass, method?, data?)`
 

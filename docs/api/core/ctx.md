@@ -357,7 +357,7 @@ Answer callback query (show toast).
 | text      | string | no       | Toast text     |
 | options   | object | no       | Answer options |
 
-### `.inlineKeyboard(builder)`
+### `.ikb(builder) or .inlineKeyboard(builder)`
 
 Create inline keyboard using builder pattern.
 
@@ -368,8 +368,8 @@ Create inline keyboard using builder pattern.
 - **returns: InlineKeyboard**
 
 ```typescript
-const kb = this.inlineKeyboard((kb, arr) => {
-  return kb
+const kb = this.ikb((kb, arr) => {
+  return kb //
     .text(arr[0], "action1")
     .text(arr[1], "action2")
     .row()
@@ -377,7 +377,18 @@ const kb = this.inlineKeyboard((kb, arr) => {
 });
 ```
 
-### `.bottomKeyboard(builder)`
+### `.bkb(builder) or .bottomKeyboard(builder)`
+
+```typescript
+const kb = this.bkb((kb, arr) => {
+  return kb //
+    .text(arr[0])
+    .text(arr[1])
+    .row()
+    .text(arr[2])
+    .oneTime();
+});
+```
 
 Create reply keyboard (bottom keyboard).
 
