@@ -104,18 +104,18 @@ Extend `DataKeyboard` to define reusable keyboard configurations:
 import { DataKeyboard } from "gramstax";
 
 export class KeyboardData extends DataKeyboard {
-  static backNext() {
-    return {
+  static backNext(lang?: string) {
+    return this._build(lang, false, {
       en: "Back, Next",
       id: "Kembali, Lanjut",
-    };
+    });
   }
 
-  static confirmCancel() {
-    return {
+  static confirmCancel(lang?: string) {
+    return this._build(lang, false, {
       en: "Confirm, Cancel",
       id: "Konfirmasi, Batal",
-    };
+    });
   }
 }
 ```
