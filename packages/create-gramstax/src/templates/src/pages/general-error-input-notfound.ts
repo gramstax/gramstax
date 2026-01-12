@@ -17,7 +17,7 @@ export class GeneralErrorInputNotFoundPage extends PageBase {
     }
   }
 
-  static template = /*html*/ `
+  static template = `
     <base>
       ${this.kbc.home()}
       <message>

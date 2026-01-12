@@ -1,6 +1,6 @@
 import {HelpPage} from "./help"
 import {PageBase} from "~/base/page"
-import {KbbePage} from "./kbbe"
+import {KeyboardBottomPage} from "./keyboard-bottom"
 import {CounterPage} from "./counter"
 import {LanguagePage} from "./language"
 import {BlockMapPage} from "./block-map"
@@ -57,7 +57,7 @@ export class StartPage extends PageBase {
         .text(a[18]!, BlockImportPage.data.callbackData())
         .text(a[19]!, BlockSwitchPage.data.callbackData())
         .row()
-        .text(a[20]!, KbbePage.data.callbackData())
+        .text(a[20]!, KeyboardBottomPage.data.callbackData())
         .text(a[21]!, this.data.callbackData())
     })
   }
@@ -99,7 +99,7 @@ export class StartPage extends PageBase {
   async callbackPayload() {
     await this.internal(3)
   }
-  static template = /*html*/ `
+  static template = `
     <base id="kb-for-block-import">
       ${this.kbc.refreshBack()}
     </base>
@@ -120,8 +120,8 @@ export class StartPage extends PageBase {
       <description>Default description command start</description>
       <description lang="en">[EN] Description command start</description>
       <description lang="id">[ID] Deskripsi perintah start</description>
-      <keyboard>Counter, Counter Thread, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Input Text2, Input Text, Block Map, Block Import, Block Switch, Kbbe, Refresh</keyboard>
-      <keyboard lang="id">Kounter, Kounter Thread, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Masukkan Teks2, Masukkan Teks, Blok Map, Blok Import, Blok Switch, Kbbe, Segarkan</keyboard>
+      <keyboard>Counter, Counter Thread, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Input Text2, Input Text, Block Map, Block Import, Block Switch, KB Bottom, Refresh</keyboard>
+      <keyboard lang="id">Kounter, Kounter Thread, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Masukkan Teks2, Masukkan Teks, Blok Map, Blok Import, Blok Switch, KB Bottom, Segarkan</keyboard>
       <message>
         {{time}}
 

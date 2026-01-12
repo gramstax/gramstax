@@ -12,7 +12,7 @@ export class TestContactPage extends PageBase {
     await this.editContact(this.kb())
   }
 
-  static template = /*html*/ `
+  static template = `
     <base>
       ${this.kbc.back()}
       <media type="contact" phone="442071234567" first_name="England" last_name="idk" vcard="BEGIN:VCARD\\nVERSION:3.0\\nFN:England\\nTEL;TYPE=COUNTRY,VOICE:+442071234567\\nEND:VCARD"></media>

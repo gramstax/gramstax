@@ -27,7 +27,7 @@ export class GeneralErrorPage extends PageBase {
     }
   }
 
-  static template = /*html*/ `
+  static template = `
     <base>
       ${this.kbc.home()}
       <message>

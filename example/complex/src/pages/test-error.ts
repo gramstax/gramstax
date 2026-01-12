@@ -6,7 +6,7 @@ export class TestErrorPage extends PageBase {
     await Promise.reject(new Error(`error from ${this.data.name}`))
   }
 
-  static template = /*html*/ `
+  static template = `
     <base></base>
   `
 }

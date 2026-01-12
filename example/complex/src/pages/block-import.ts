@@ -17,7 +17,7 @@ export class BlockImportPage extends PageBase {
     })
   }
 
-  static template = /*html*/ `
+  static template = `
     <base>
       <import src="start" base="for-block-import" />
     </base>

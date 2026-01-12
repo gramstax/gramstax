@@ -34,7 +34,7 @@ export class InputTextPage extends PageBase {
     await this.reply(this.kb(baseId), data, baseId)
   }
 
-  static template = /*html*/ `
+  static template = `
     <base>
       ${this.kbc.cancel()}
       <message>Please input text you want view</message>

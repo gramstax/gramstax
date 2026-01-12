@@ -12,7 +12,7 @@ export class TestStickerPage extends PageBase {
     await this.editSticker(this.kb())
   }
 
-  static template = /*html*/ `
+  static template = `
     <base>
       ${this.kbc.back()}
       <media type="sticker" src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzkwMDVreGl2d3o4aTkzNnp4cXprcmNsZDZpdTFnZnpiNjl3MXZrYSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/OODdDyv4DwkNNTpMWS/giphy.gif"></media>

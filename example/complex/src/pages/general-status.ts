@@ -32,7 +32,7 @@ export class GeneralStatusPage extends PageBase {
     await this.reply(this.kb(), {}, `error-input-notfound`)
   }
 
-  static template = /*html*/ `
+  static template = `
     <base>
       ${this.kbc.home()}
     </base>

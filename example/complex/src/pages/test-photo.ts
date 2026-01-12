@@ -12,7 +12,7 @@ export class TestPhotoPage extends PageBase {
     await this.editPhoto(this.kb())
   }
 
-  static template = /*html*/ `
+  static template = `
     <base>
       ${this.kbc.back()}
       <media type="photo" src="https://www.w3schools.com/html/img_girl.jpg">Caption text for media <b>photo</b></media>

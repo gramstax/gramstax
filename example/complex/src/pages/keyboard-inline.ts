@@ -1,13 +1,9 @@
 import {PageBase} from "~/base/page"
 
-export class KbbePage extends PageBase {
-  static data = this.buildData({
-    text: `📚 Kbbe:` // <===== overrides "text" data route, default (kbbe)
-  })
-
+export class KeyboardInlinePage extends PageBase {
   kb(count?: number) {
     const params = {data: {first: this.data.text}}
-    return this.bkb((k, a) => {
+    return this.ikb((k, a) => {
       k.text(count === undefined ? `${a[0]!} 0` : `${a[0]} ${count + 1}`)
         .row()
         .text(a[1]!)
@@ -47,7 +43,7 @@ export class KbbePage extends PageBase {
     }
   }
 
-  static template = /*html*/ `    
+  static template = `
     <base>
       <keyboard type="bottom">{{first}}, ${this.kbd.back(`default`)}</keyboard>
       <keyboard lang="id" type="bottom">{{first}}, ${this.kbd.back(`id`)}</keyboard>
