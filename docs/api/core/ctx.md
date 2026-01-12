@@ -430,21 +430,21 @@ await new HomePage(this).to("callback", { refresh: true });
 
 Define these methods in your page class to handle specific routes:
 
-| Method                         | Trigger                         |
-| ------------------------------ | ------------------------------- |
-| `callback()`                   | Exact callback data match       |
-| `callbackPayload()`            | Callback with payload           |
-| `text()`                       | Exact text match                |
-| `textPayload()`                | Text with payload               |
-| `textCommand()`                | Command match                   |
-| `textCommandPayload()`         | Command with payload            |
-| `textFree()`                   | Any text (with session or not)  |
-| `photoCaption()`               | Exact caption match             |
-| `photoCaptionPayload()`        | Caption with payload            |
-| `photoCaptionCommand()`        | Caption Command match           |
-| `photoCaptionCommandPayload()` | Caption Command with payload    |
-| `photoFree()`                  | Any photo (with session or not) |
-| `free()`                       | Fallback for any unmatched      |
+| Method                         | Trigger                      |
+| ------------------------------ | ---------------------------- |
+| `callback()`                   | Exact callback data match    |
+| `callbackPayload()`            | Callback with payload        |
+| `text()`                       | Exact text match             |
+| `textPayload()`                | Text with payload            |
+| `textCommand()`                | Command match                |
+| `textCommandPayload()`         | Command with payload         |
+| `textFree()`                   | Any text                     |
+| `photoCaption()`               | Exact caption match          |
+| `photoCaptionPayload()`        | Caption with payload         |
+| `photoCaptionCommand()`        | Caption Command match        |
+| `photoCaptionCommandPayload()` | Caption Command with payload |
+| `photoFree()`                  | Any photo                    |
+| `free()`                       | Fallback for any unmatched   |
 
 &nbsp;
 
