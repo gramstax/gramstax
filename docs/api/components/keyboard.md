@@ -103,8 +103,8 @@ ComponentKeyboard._build("backNext", "en", "bottom");
 ```typescript
 import { ComponentKeyboard, DataKeyboard, Ctx } from "gramstax";
 
-// Define keyboard data
-class MyKeyboards extends DataKeyboard {
+// ./data/keyboard.ts
+class KeyboardD extends DataKeyboard {
   static navigation() {
     return {
       en: "Back, Home, Next",
@@ -113,14 +113,26 @@ class MyKeyboards extends DataKeyboard {
   }
 }
 
-// Link to component
-ComponentKeyboard.data = MyKeyboards;
+// ./components/keyboard.ts
+export class KeyboardC extends ComponentKeyboard {
+  static data = KeyboardD;
+  static navigation(lang?: string, type?: string) {
+    return this._build(`navigation`, lang, type);
+  }
+}
 
+// ./base/page.ts
+export class PageBase extends Ctx {
+  static kbc = KeyboardC;
+  static kbd = KeyboardC.data;
+}
+
+// ./pages/my.ts
 // Use in page template
-export class MyPage extends Ctx {
-  static template = /*jsx*/ `
+export class MyPage extends PageBase {
+  static template = /*html*/ `
     <base>
-      ${ComponentKeyboard._build(`navigation`)}
+      ${this.kbc.navigation()}
       <message>Choose an option</message>
     </base>
   `;

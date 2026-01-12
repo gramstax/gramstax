@@ -26,7 +26,7 @@ HTML-like template string for the page.
 
 ```typescript
 class MyPage extends Ctx {
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       <keyboard>Button 1, Button 2</keyboard>
       <message>Hello {{name}}!</message>
@@ -473,7 +473,7 @@ export class MyPage extends PageBase {
     }
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       <keyboard>Confirm, Cancel</keyboard>
       <message>Hello {{name}}, please choose:</message>

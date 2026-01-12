@@ -45,7 +45,7 @@ Templates can come from:
 
 ```typescript
 class MyPage extends Ctx {
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       <message>Hello World</message>
     </base>
@@ -57,7 +57,7 @@ class MyPage extends Ctx {
 
 Create `my-page.tpl` alongside `my-page.ts`:
 
-```jsx
+```html
 <base>
   <message>Hello World</message>
 </base>

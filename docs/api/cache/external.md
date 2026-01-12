@@ -129,8 +129,21 @@ const exists = await cache.has("user:123");
 ```typescript
 import { CacheExternal } from "gramstax";
 
-const cache = new CacheExternal("memory", "session");
-await cache.set("user:123", { name: "Alya" });
-const user = await cache.get("user:123");
+const cache = new CacheExternal(`memory`);
+
+// set data
+const key = `anything:123`;
+await cache.set(key, { name: `Alya` });
+
+// get data
+const user = await cache.get(key);
 console.log(user);
+
+// delete data
+const status = await cache.delete(key);
+console.log(`status delete: ${status}`);
+
+// has data
+const isAvl = await cache.has(key);
+console.log(`data is available: ${isAvl}`);
 ```

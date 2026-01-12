@@ -294,13 +294,13 @@ The `Ctx` class is the context/page base class that provides access to user data
 
 #### `.template`
 
-JSX-like template string for the page.
+HTML-like template string for the page.
 
 - **type: string | undefined**
 
 ```typescript
 class MyPage extends Ctx {
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       <keyboard>Button 1, Button 2</keyboard>
       <message>Hello {{name}}!</message>
@@ -742,7 +742,7 @@ export class MyPage extends Ctx {
     }
   }
 
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       <keyboard>Confirm, Cancel</keyboard>
       <message>Hello {{name}}, please choose:</message>
@@ -876,7 +876,7 @@ The `TemplateEngine` class provides static methods for parsing and compiling JSX
 
 Container for template sections with optional ID and language variants.
 
-```jsx
+```html
 <base id="default">
   <keyboard>Button 1, Button 2</keyboard>
   <message>Hello World</message>
@@ -891,8 +891,9 @@ Container for template sections with optional ID and language variants.
 
 Text content with variable interpolation.
 
-```jsx
+```html
 <message>Hello {{name}}!</message>
+
 <message lang="id">Halo {{name}}!</message>
 ```
 
@@ -900,7 +901,7 @@ Text content with variable interpolation.
 
 Comma-separated button labels.
 
-```jsx
+```html
 <keyboard>Yes, No</keyboard>
 <keyboard type="bottom">Button 1, Button 2</keyboard>
 <keyboard lang="id">Ya, Tidak</keyboard>
@@ -910,7 +911,7 @@ Comma-separated button labels.
 
 Bot command descriptions for Telegram menu.
 
-```jsx
+```html
 <description>Start the bot</description>
 <description lang="id">Mulai bot</description>
 <description scope="chat_administrators">Admin command</description>
@@ -920,7 +921,7 @@ Bot command descriptions for Telegram menu.
 
 Various media types.
 
-```jsx
+```html
 <photo src="path/to/image.jpg">Caption text</photo>
 <video src="path/to/video.mp4">Video caption</video>
 <audio src="path/to/audio.mp3">Audio title</audio>
@@ -939,7 +940,7 @@ Various media types.
 
 Conditional rendering.
 
-```jsx
+```html
 <switch value="{{status}}">
   <case is="active">Active status</case>
   <case is="pending">Pending status</case>
@@ -951,17 +952,15 @@ Conditional rendering.
 
 Loop over arrays.
 
-```jsx
-<map for="item" in="{{items}}">
-  - {{item.name}}: {{item.value}}
-</map>
+```html
+<map for="item" in="{{items}}"> - {{item.name}}: {{item.value}} </map>
 ```
 
 ##### Import Block
 
 Import from another template.
 
-```jsx
+```html
 <import src="other-page" base="kb-section" />
 ```
 
@@ -969,7 +968,7 @@ Import from another template.
 
 Preserve whitespace.
 
-```jsx
+```html
 <space>Line 1 Line 2</space>
 ```
 
@@ -977,7 +976,7 @@ Preserve whitespace.
 
 Text container.
 
-```jsx
+```html
 <div>Content here</div>
 ```
 
@@ -1048,15 +1047,13 @@ Process import blocks recursively.
 
 Variables use double curly braces:
 
-```jsx
-<message>
-  Hello {{ name }}, you have {{ count }} items.
-</message>
+```html
+<message>Hello {{name}}, you have {{count}} items. </message>
 ```
 
 Supports nested properties:
 
-```jsx
+```html
 <message>User: {{user.name}}, Email: {{user.email}}</message>
 ```
 
@@ -1067,7 +1064,7 @@ Supports nested properties:
 ```typescript
 import { TemplateEngine } from "gramstax";
 
-const template = /*jsx*/ `
+const template = /*html*/ `
   <base>
     <keyboard>Back, Next</keyboard>
     <keyboard lang="id">Kembali, Lanjut</keyboard>
@@ -1143,7 +1140,7 @@ Templates can come from:
 
 ```typescript
 class MyPage extends Ctx {
-  static template = /*jsx*/ `
+  static template = /*html*/ `
     <base>
       <message>Hello World</message>
     </base>
@@ -1155,7 +1152,7 @@ class MyPage extends Ctx {
 
 Create `my-page.tpl` alongside `my-page.ts`:
 
-```jsx
+```html
 <base>
   <message>Hello World</message>
 </base>
