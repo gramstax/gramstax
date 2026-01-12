@@ -147,6 +147,7 @@ export const CounterJob = WorkerThreadExport.init({
 });
 
 // index.ts
+// area main thread
 import { CounterJob } from "./jobs/counter";
 
 await CounterJob.launchWorker([1000]);
