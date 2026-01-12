@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # Ctx
 
 The `Ctx` class is the context/page base class that provides access to user data, session management, template rendering, and reply methods.
@@ -6,7 +11,7 @@ The `Ctx` class is the context/page base class that provides access to user data
 >
 > - **Scope:** This document describes the `Ctx` base class for pages.
 > - **Usage:** Extend this class to create page handlers.
-> - **Template:** Define static `template` property for JSX-like templates.
+> - **Template:** Define static `template` property for HTML-like templates.
 > - **Data:** Define static `data` via `buildData()` for routing configuration.
 
 &nbsp;
@@ -15,7 +20,7 @@ The `Ctx` class is the context/page base class that provides access to user data
 
 ### `.template`
 
-JSX-like template string for the page.
+HTML-like template string for the page.
 
 - **type: string | undefined**
 
@@ -44,11 +49,12 @@ Page routing data created by `buildData()`.
 
 Create page data configuration.
 
-| parameter    | type     | required | description                             |
-| ------------ | -------- | -------- | --------------------------------------- |
-| callbackData | function | no       | Function returning callback data string |
+| parameter    | type     | required | description                             | ai_notes                              |
+| ------------ | -------- | -------- | --------------------------------------- | ------------------------------------- |
+| callbackData | function | no       | Function returning callback data string | Overrides default page name when set. |
 
 - **returns: IPageData**
+- **ai_notes:** Metadata used for routing.
 
 ```typescript
 class MyPage extends Ctx {
@@ -201,23 +207,26 @@ Get all parts split by colon.
 Get current session data.
 
 - **returns: Promise\<{ method: string; params: any } | undefined\>**
+- **ai_notes:** Resolves with stored session payload.
 
 ### `.sessionSet(method, params)`
 
 Set session data.
 
-| parameter | type   | required | description        |
-| --------- | ------ | -------- | ------------------ |
-| method    | string | yes      | Session method     |
-| params    | any    | no       | Session parameters |
+| parameter | type   | required | description        | ai_notes                    |
+| --------- | ------ | -------- | ------------------ | --------------------------- |
+| method    | string | yes      | Session method     | Matches route handler name. |
+| params    | any    | no       | Session parameters | Stored in session payload.  |
 
 - **returns: Promise\<boolean\>**
+- **ai_notes:** Resolves with operation result.
 
 ### `.sessionClear()`
 
 Clear current session.
 
 - **returns: Promise\<boolean\>**
+- **ai_notes:** Resolves with operation result.
 
 ### `.sessionCallback(params?, name?)`
 
@@ -247,14 +256,15 @@ Set session for textFree route.
 
 Send a text message reply.
 
-| parameter | type   | required | default     | description         |
-| --------- | ------ | -------- | ----------- | ------------------- |
-| keyboard  | IKb    | no       | -           | Keyboard markup     |
-| data      | object | no       | -           | Template data       |
-| baseId    | string | no       | `"default"` | Template base ID    |
-| options   | object | no       | -           | grammY send options |
+| parameter | type   | required | default   | description         | ai_notes                          |
+| --------- | ------ | -------- | --------- | ------------------- | --------------------------------- |
+| keyboard  | IKb    | no       | -         | Keyboard markup     | From `ikb()` or `bkb()` builders. |
+| data      | object | no       | -         | Template data       | Used for template interpolation.  |
+| baseId    | string | no       | "default" | Template base ID    | Matches `<base id="...">`.        |
+| options   | object | no       | -         | grammY send options | Passed to grammY `reply` options. |
 
 - **returns: Promise\<Message\>**
+- **ai_notes:** Resolves with sent message.
 
 ```typescript
 await this.reply(this.kb(), { name: "John" });
@@ -337,35 +347,38 @@ Edit media to animation.
 Delete the current message.
 
 - **returns: Promise\<boolean\>**
+- **ai_notes:** Resolves with operation result.
 
 ### `.sleep(ms)`
 
 Wait for specified milliseconds.
 
-| parameter | type   | required | description  |
-| --------- | ------ | -------- | ------------ |
-| ms        | number | yes      | Milliseconds |
+| parameter | type   | required | description  | ai_notes             |
+| --------- | ------ | -------- | ------------ | -------------------- |
+| ms        | number | yes      | Milliseconds | Delay before resume. |
 
 - **returns: Promise\<void\>**
+- **ai_notes:** Resolves after delay.
 
 ### `.callbackQueryAnswer(text?, options?)`
 
 Answer callback query (show toast).
 
-| parameter | type   | required | description    |
-| --------- | ------ | -------- | -------------- |
-| text      | string | no       | Toast text     |
-| options   | object | no       | Answer options |
+| parameter | type   | required | description    | ai_notes                         |
+| --------- | ------ | -------- | -------------- | -------------------------------- |
+| text      | string | no       | Toast text     | Shown as notification to user.   |
+| options   | object | no       | Answer options | Passed to grammY answer options. |
 
 ### `.ikb(builder) or .inlineKeyboard(builder)`
 
 Create inline keyboard using builder pattern.
 
-| parameter | type     | required | description      |
-| --------- | -------- | -------- | ---------------- |
-| builder   | function | yes      | Builder callback |
+| parameter | type     | required | description      | ai_notes               |
+| --------- | -------- | -------- | ---------------- | ---------------------- |
+| builder   | function | yes      | Builder callback | Receives (kb, labels). |
 
 - **returns: InlineKeyboard**
+- **ai_notes:** Builder instance for inline buttons.
 
 ```typescript
 const kb = this.ikb((k, a) => {
@@ -392,18 +405,18 @@ const kb = this.bkb((k, a) => {
 
 Create reply keyboard (bottom keyboard).
 
-### `.transition(PageClass, method?, data?)`
+### `.to(PageClass, method?, data?)`
 
 Transition to another page.
 
-| parameter | type   | required | description       |
-| --------- | ------ | -------- | ----------------- |
-| PageClass | class  | yes      | Target page class |
-| method    | string | no       | Method to call    |
-| data      | any    | no       | Data to pass      |
+| parameter | type   | required | description       | ai_notes                         |
+| --------- | ------ | -------- | ----------------- | -------------------------------- |
+| PageClass | class  | yes      | Target page class | Extends `Ctx`.                   |
+| method    | string | no       | Method to call    | Defaults to target route method. |
+| data      | any    | no       | Data to pass      | Payload forwarded to method.     |
 
 ```typescript
-await this.transition(HomePage, "callback", { refresh: true });
+await new HomePage(this).to("callback", { refresh: true });
 ```
 
 &nbsp;
@@ -412,34 +425,38 @@ await this.transition(HomePage, "callback", { refresh: true });
 
 Define these methods in your page class to handle specific routes:
 
-| Method                 | Trigger                         |
-| ---------------------- | ------------------------------- |
-| `callback()`           | Exact callback data match       |
-| `callbackPayload()`    | Callback with payload           |
-| `text()`               | Exact text match                |
-| `textPayload()`        | Text with payload               |
-| `textCommand()`        | Command match                   |
-| `textCommandPayload()` | Command with payload            |
-| `textFree()`           | Any text (with session or not)  |
-| `photoFree()`          | Any photo (with session or not) |
-| `free()`               | Fallback for any unmatched      |
+| Method                         | Trigger                         |
+| ------------------------------ | ------------------------------- |
+| `callback()`                   | Exact callback data match       |
+| `callbackPayload()`            | Callback with payload           |
+| `text()`                       | Exact text match                |
+| `textPayload()`                | Text with payload               |
+| `textCommand()`                | Command match                   |
+| `textCommandPayload()`         | Command with payload            |
+| `textFree()`                   | Any text (with session or not)  |
+| `photoCaption()`               | Exact caption match             |
+| `photoCaptionPayload()`        | Caption with payload            |
+| `photoCaptionCommand()`        | Caption Command match           |
+| `photoCaptionCommandPayload()` | Caption Command with payload    |
+| `photoFree()`                  | Any photo (with session or not) |
+| `free()`                       | Fallback for any unmatched      |
 
 &nbsp;
 
-## Complete Example
+## Usage
 
 ```typescript
-import { Ctx } from "gramstax";
+import { PageBase } from "~/base/page";
 import { OtherPage } from "./other";
 
-export class MyPage extends Ctx {
+export class MyPage extends PageBase {
   static data = this.buildData((action: string) => action);
 
   kb() {
-    return this.inlineKeyboard((kb, arr) => {
-      return kb
-        .text(arr[0], this.data.callbackData("confirm"))
-        .text(arr[1], this.data.callbackData("cancel"));
+    return this.ikb((k, a) => {
+      return k
+        .text(a[0]!, this.data.callbackData("confirm"))
+        .text(a[1]!, this.data.callbackData("cancel"));
     });
   }
 
@@ -449,11 +466,10 @@ export class MyPage extends Ctx {
 
   async callbackPayload() {
     const action = this.callbackDataPayload;
-
     if (action === "confirm") {
-      await this.edit(undefined, { message: "Confirmed!" });
+      await this.edit(undefined, {}, "confirmed");
     } else {
-      await this.transition(OtherPage, "callback");
+      await new OtherPage(this).to("callback");
     }
   }
 
@@ -461,6 +477,9 @@ export class MyPage extends Ctx {
     <base>
       <keyboard>Confirm, Cancel</keyboard>
       <message>Hello {{name}}, please choose:</message>
+    </base>
+    <base id="confirmed">
+      <message>Confirmed!</message>
     </base>
   `;
 }

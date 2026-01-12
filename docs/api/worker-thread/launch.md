@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # WorkerThreadLaunch
 
 The `WorkerThreadLaunch` class manages worker thread lifecycle from the main thread. It handles spawning, communication, and termination of worker threads.
@@ -99,11 +104,12 @@ console.log("Worker is ready");
 
 Send a message to the worker thread.
 
-| parameter | type | required | description  |
-| --------- | ---- | -------- | ------------ |
-| payload   | any  | yes      | Data to send |
+| parameter | type | required | description  | ai_notes               |
+| --------- | ---- | -------- | ------------ | ---------------------- |
+| payload   | any  | yes      | Data to send | Sent to worker thread. |
 
 - **returns: void**
+- **ai_notes:** No return value.
 
 ```typescript
 worker.send({ action: "process", data: [1, 2, 3] });
@@ -113,14 +119,15 @@ worker.send({ action: "process", data: [1, 2, 3] });
 
 Make an RPC request to the worker thread.
 
-| parameter | type    | required | default | description                   | ai_notes                               |
-| --------- | ------- | -------- | ------- | ----------------------------- | -------------------------------------- |
-| method    | string  | yes      | -       | Method name to call in worker | **Must exist:** on WorkerThreadInit.   |
-| params    | any     | yes      | -       | Method parameters             | **Passed as:** array to worker method. |
-| wait      | boolean | no       | `true`  | Wait for response             | **If false:** fire-and-forget.         |
-| others    | object  | no       | -       | Additional RPC data           |                                        |
+| parameter | type    | required | default | description                   | ai_notes                                                  |
+| --------- | ------- | -------- | ------- | ----------------------------- | --------------------------------------------------------- |
+| method    | string  | yes      | -       | Method name to call in worker | Must exist on WorkerThreadInit.                           |
+| params    | any     | yes      | -       | Method parameters             | Passed as array to worker method.                         |
+| wait      | boolean | no       | `true`  | Wait for response             | If false fire-and-forget.                                 |
+| others    | object  | no       | -       | Additional RPC data           | Additional key value aligned position with method, params |
 
 - **returns: Promise\<any\>**
+- **ai_notes:** Resolves with worker response.
 
 ```typescript
 const result = await worker.request("processData", [[1, 2, 3]]);
@@ -157,7 +164,7 @@ worker.kill();
 
 &nbsp;
 
-## Complete Example
+## Usage
 
 ```typescript
 import { WorkerThreadLaunch } from "gramstax";

@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # WorkerThreadGatewayClient
 
 The `WorkerThreadGatewayClient` class provides IPC client functionality for inter-worker communication using Unix domain sockets.
@@ -47,9 +52,9 @@ RPC handler for messaging.
 
 Connect to a gateway server.
 
-| parameter | type   | required | description      |
-| --------- | ------ | -------- | ---------------- |
-| path      | string | yes      | Unix socket path |
+| parameter | type   | required | description      | ai_notes                |
+| --------- | ------ | -------- | ---------------- | ----------------------- |
+| path      | string | yes      | Unix socket path | Matches server gateway. |
 
 - **returns: Promise\<WorkerThreadGatewayClient\>**
 - **ai_notes:** Resolves when connection is ready.
@@ -63,14 +68,15 @@ console.log("Connected to gateway server");
 
 Make an RPC request to the server.
 
-| parameter | type    | required | default | description           |
-| --------- | ------- | -------- | ------- | --------------------- |
-| method    | string  | yes      | -       | Server method to call |
-| params    | any     | yes      | -       | Method parameters     |
-| wait      | boolean | no       | `true`  | Wait for response     |
-| others    | object  | no       | -       | Additional RPC data   |
+| parameter | type    | required | default | description           | ai_notes                   |
+| --------- | ------- | -------- | ------- | --------------------- | -------------------------- |
+| method    | string  | yes      | -       | Server method to call | Targets server RPC method. |
+| params    | any     | yes      | -       | Method parameters     | Sent as positional array.  |
+| wait      | boolean | no       | `true`  | Wait for response     | If false, fire-and-forget. |
+| others    | object  | no       | -       | Additional RPC data   | Merged into RPC payload.   |
 
 - **returns: Promise\<any\>**
+- **ai_notes:** Resolves with server response.
 
 ```typescript
 const result = await client.request("ping", []);
@@ -79,7 +85,7 @@ console.log("Server responded:", result);
 
 &nbsp;
 
-## Complete Example
+## Usage
 
 ```typescript
 import { WorkerThreadInit, WorkerThreadExport } from "gramstax";

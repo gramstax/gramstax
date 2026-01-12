@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # CacheExternal
 
 The `CacheExternal` class extends [Keyv](https://github.com/jaredwray/keyv) to provide a unified caching interface with built-in support for memory and Redis storage.
@@ -16,12 +21,12 @@ The `CacheExternal` class extends [Keyv](https://github.com/jaredwray/keyv) to p
 
 ### `new CacheExternal(url?, namespace?, ttl?, more?)`
 
-| parameter | type   | required | default    | description                          | ai_notes                                                               |
-| --------- | ------ | -------- | ---------- | ------------------------------------ | ---------------------------------------------------------------------- |
-| url       | string | no       | `"memory"` | Storage connection URL               | **Memory mode:** `"memory"`. **Redis mode:** `"redis://..."` format.   |
-| namespace | string | no       | -          | Key namespace prefix                 | **Purpose:** isolate keys by namespace.                                |
-| ttl       | number | no       | -          | Default time-to-live in milliseconds | **Scope:** applies to all keys unless overridden per operation.        |
-| more      | IMore  | no       | -          | Additional Keyv options              | **forceStore:** overrides automatic store selection with custom store. |
+| parameter | type   | required | default    | description                          | ai_notes                                             |
+| --------- | ------ | -------- | ---------- | ------------------------------------ | ---------------------------------------------------- |
+| url       | string | no       | `"memory"` | Storage connection URL               | Memory uses `"memory"`; Redis uses `"redis://..."`.  |
+| namespace | string | no       | -          | Key namespace prefix                 | Isolates keys by namespace.                          |
+| ttl       | number | no       | -          | Default time-to-live in milliseconds | Applies to all keys unless overridden per operation. |
+| more      | IMore  | no       | -          | Additional Keyv options              | `forceStore` overrides automatic store selection.    |
 
 ```typescript
 import { CacheExternal } from "gramstax";
@@ -50,11 +55,12 @@ const cache = new CacheExternal("memory", "myapp", 60000);
 
 Get a value by key.
 
-| parameter | type   | required | description |
-| --------- | ------ | -------- | ----------- |
-| key       | string | yes      | The key     |
+| parameter | type   | required | description | ai_notes      |
+| --------- | ------ | -------- | ----------- | ------------- |
+| key       | string | yes      | The key     | Cache lookup. |
 
 - **returns: Promise\<any\>**
+- **ai_notes:** Resolves with stored value or undefined.
 
 ```typescript
 const value = await cache.get("user:123");
@@ -64,13 +70,14 @@ const value = await cache.get("user:123");
 
 Set a value with optional TTL.
 
-| parameter | type   | required | default | description         |
-| --------- | ------ | -------- | ------- | ------------------- |
-| key       | string | yes      | -       | The key             |
-| value     | any    | yes      | -       | The value to store  |
-| ttl       | number | no       | -       | TTL in milliseconds |
+| parameter | type   | required | default | description         | ai_notes                        |
+| --------- | ------ | -------- | ------- | ------------------- | ------------------------------- |
+| key       | string | yes      | -       | The key             | cache lookup.                   |
+| value     | any    | yes      | -       | The value to store  | Persisted cache payload.        |
+| ttl       | number | no       | -       | TTL in milliseconds | Overrides default TTL when set. |
 
 - **returns: Promise\<boolean\>**
+- **ai_notes:** Resolves with operation result.
 
 ```typescript
 await cache.set("user:123", { name: "John" }, 60000);
@@ -80,11 +87,12 @@ await cache.set("user:123", { name: "John" }, 60000);
 
 Delete a key.
 
-| parameter | type   | required | description |
-| --------- | ------ | -------- | ----------- |
-| key       | string | yes      | The key     |
+| parameter | type   | required | description | ai_notes             |
+| --------- | ------ | -------- | ----------- | -------------------- |
+| key       | string | yes      | The key     | Cache key to remove. |
 
 - **returns: Promise\<boolean\>**
+- **ai_notes:** Resolves with operation result.
 
 ```typescript
 await cache.delete("user:123");
@@ -95,6 +103,7 @@ await cache.delete("user:123");
 Clear all keys in the namespace.
 
 - **returns: Promise\<void\>**
+- **ai_notes:** Resolves when cache is cleared.
 
 ```typescript
 await cache.clear();
@@ -104,12 +113,24 @@ await cache.clear();
 
 Check if a key exists.
 
-| parameter | type   | required | description |
-| --------- | ------ | -------- | ----------- |
-| key       | string | yes      | The key     |
+| parameter | type   | required | description | ai_notes      |
+| --------- | ------ | -------- | ----------- | ------------- |
+| key       | string | yes      | The key     | Cache lookup. |
 
 - **returns: Promise\<boolean\>**
+- **ai_notes:** Resolves with operation result.
 
 ```typescript
 const exists = await cache.has("user:123");
+```
+
+## Usage
+
+```typescript
+import { CacheExternal } from "gramstax";
+
+const cache = new CacheExternal("memory", "session");
+await cache.set("user:123", { name: "Alya" });
+const user = await cache.get("user:123");
+console.log(user);
 ```

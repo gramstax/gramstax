@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # LoggingUtils
 
 The `LoggingUtils` class extends [LoggingPretty](https://www.npmjs.com/package/logging-pretty) to provide enhanced logging functionality.
@@ -31,13 +36,14 @@ const logger = new LoggingUtils();
 
 Log a formatted error message with optional class and function context.
 
-| parameter       | type   | required | default | description            | ai_notes                                      |
-| --------------- | ------ | -------- | ------- | ---------------------- | --------------------------------------------- |
-| error           | any    | yes      | -       | The error to log       | **Stringified:** using `String(error)`.       |
-| constructorName | any    | no       | -       | Class name for context | **Format:** `[ClassName:methodName] error`.   |
-| funcName        | string | no       | -       | Method/function name   | **Format:** `[methodName] error` if no class. |
+| parameter       | type   | required | default | description            | ai_notes                                    |
+| --------------- | ------ | -------- | ------- | ---------------------- | ------------------------------------------- |
+| error           | any    | yes      | -       | The error to log       | Stringified using `String(error)`.          |
+| constructorName | any    | no       | -       | Class name for context | Format is `[ClassName:methodName] error`.   |
+| funcName        | string | no       | -       | Method/function name   | Format is `[methodName] error` if no class. |
 
 - **returns: void**
+- **ai_notes:** Writes formatted log entry.
 
 ```typescript
 const logger = new LoggingUtils();
@@ -79,3 +85,14 @@ All methods from [LoggingPretty](https://www.npmjs.com/package/logging-pretty) a
 - `.warn(message)` - Log warning level message
 - `.error(message)` - Log error level message
 - `.success(message)` - Log success level message
+
+## Usage
+
+```typescript
+import { log, LoggingUtils } from "gramstax";
+
+log.info("Application started");
+
+const logger = new LoggingUtils();
+logger.errorMake(new Error("Oops"), "Worker", "init");
+```

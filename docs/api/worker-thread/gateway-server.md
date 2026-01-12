@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # WorkerThreadGatewayServer
 
 The `WorkerThreadGatewayServer` class provides IPC server functionality for inter-worker communication using Unix domain sockets.
@@ -57,10 +62,10 @@ Methods exposed to clients.
 
 Start the gateway server.
 
-| parameter | type   | required | default | description                  |
-| --------- | ------ | -------- | ------- | ---------------------------- |
-| path      | string | yes      | -       | Unix socket path to bind     |
-| methods   | object | no       | `{}`    | Methods to expose to clients |
+| parameter | type   | required | default | description                  | ai_notes                     |
+| --------- | ------ | -------- | ------- | ---------------------------- | ---------------------------- |
+| path      | string | yes      | -       | Unix socket path to bind     | Gateway path identifier.     |
+| methods   | object | no       | `{}`    | Methods to expose to clients | Called by connected clients. |
 
 - **returns: Promise\<WorkerThreadGatewayServer\>**
 - **ai_notes:** Resolves when server is ready.
@@ -160,4 +165,15 @@ class WorkerB extends WorkerThreadInit {
     console.log("Count from Worker A:", count);
   }
 }
+```
+
+## Usage
+
+```typescript
+import { WorkerThreadGatewayServer } from "gramstax";
+
+const server = new WorkerThreadGatewayServer();
+await server.start("/tmp/data-worker.sock", {
+  ping: () => "pong",
+});
 ```

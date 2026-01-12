@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # DataKeyboard
 
 The `DataKeyboard` class provides static utilities for keyboard data manipulation, specifically for reversing keyboard button order.
@@ -16,11 +21,12 @@ The `DataKeyboard` class provides static utilities for keyboard data manipulatio
 
 Reverse the order of comma-separated button labels.
 
-| parameter | type   | required | description                   | ai_notes                                |
-| --------- | ------ | -------- | ----------------------------- | --------------------------------------- |
-| input     | string | yes      | Comma-separated button labels | **Escaped commas:** `\,` are preserved. |
+| parameter | type   | required | description                   | ai_notes                              |
+| --------- | ------ | -------- | ----------------------------- | ------------------------------------- |
+| input     | string | yes      | Comma-separated button labels | Escaped commas (`\\,`) are preserved. |
 
 - **returns: string**
+- **ai_notes:** Reversed comma-separated labels.
 
 ```typescript
 import { DataKeyboard } from "gramstax";
@@ -39,11 +45,12 @@ const preserved = DataKeyboard._reverse("Option A\\, B, Option C");
 
 Reverse button order for all languages in an object.
 
-| parameter | type   | required | description                                 | ai_notes                                 |
-| --------- | ------ | -------- | ------------------------------------------- | ---------------------------------------- |
-| input     | object | yes      | Object with language keys and button values | **Applied:** `_reverse()` to each value. |
+| parameter | type   | required | description                                 | ai_notes                            |
+| --------- | ------ | -------- | ------------------------------------------- | ----------------------------------- |
+| input     | object | yes      | Object with language keys and button values | Applies `_reverse()` to each value. |
 
 - **returns: object**
+- **ai_notes:** Returns object with reversed labels.
 
 ```typescript
 const reversed = DataKeyboard._reverseObj({
@@ -59,11 +66,11 @@ const reversed = DataKeyboard._reverseObj({
 
 Build keyboard string with optional language selection and reversal.
 
-| parameter | type    | required | description                     | ai_notes                                             |
-| --------- | ------- | -------- | ------------------------------- | ---------------------------------------------------- |
-| lang      | string  | no       | Target language code            | **If provided:** returns only that language's value. |
-| reverse   | boolean | no       | Whether to reverse button order | **If true:** applies `_reverse()` to result.         |
-| obj       | object  | yes      | Object with language keys       | **Structure:** `{ en: "...", id: "...", ... }`.      |
+| parameter | type    | required | description                     | ai_notes                                       |
+| --------- | ------- | -------- | ------------------------------- | ---------------------------------------------- |
+| lang      | string  | no       | Target language code            | If provided, returns only that language value. |
+| reverse   | boolean | no       | Whether to reverse button order | If true, applies `_reverse()` to result.       |
+| obj       | object  | yes      | Object with language keys       | Structure is `{ en: "...", id: "...", ... }`.  |
 
 - **returns: string | object**
 - **ai_notes:** Returns string if `lang` provided, object otherwise.
@@ -89,14 +96,14 @@ DataKeyboard._build(undefined, false, keyboards);
 
 &nbsp;
 
-## Usage Example
+## Usage
 
 Extend `DataKeyboard` to define reusable keyboard configurations:
 
 ```typescript
 import { DataKeyboard } from "gramstax";
 
-export class MyKeyboards extends DataKeyboard {
+export class KeyboardData extends DataKeyboard {
   static backNext() {
     return {
       en: "Back, Next",

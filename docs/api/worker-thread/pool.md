@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # WorkerThreadPool
 
 The `WorkerThreadPool` class manages multiple worker thread instances, providing pooled access and broadcast functionality.
@@ -52,11 +57,12 @@ Current number of workers in the pool.
 
 Add a single worker to the pool.
 
-| parameter | type               | required | description   |
-| --------- | ------------------ | -------- | ------------- |
-| instance  | WorkerThreadLaunch | yes      | Worker to add |
+| parameter | type               | required | description   | ai_notes               |
+| --------- | ------------------ | -------- | ------------- | ---------------------- |
+| instance  | WorkerThreadLaunch | yes      | Worker to add | Registers by threadId. |
 
 - **returns: void**
+- **ai_notes:** No return value.
 
 ```typescript
 const newWorker = new WorkerThreadLaunch("./worker.ts", ["3"]);
@@ -68,11 +74,12 @@ pool.add(newWorker);
 
 Add multiple workers to the pool.
 
-| parameter | type                 | required | description    |
-| --------- | -------------------- | -------- | -------------- |
-| instances | WorkerThreadLaunch[] | yes      | Workers to add |
+| parameter | type                 | required | description    | ai_notes               |
+| --------- | -------------------- | -------- | -------------- | ---------------------- |
+| instances | WorkerThreadLaunch[] | yes      | Workers to add | Registers all workers. |
 
 - **returns: void**
+- **ai_notes:** No return value.
 
 ```typescript
 pool.addMany([worker4, worker5]);
@@ -82,11 +89,12 @@ pool.addMany([worker4, worker5]);
 
 Get a specific worker by thread ID.
 
-| parameter | type   | required | description      |
-| --------- | ------ | -------- | ---------------- |
-| threadId  | number | yes      | Worker thread ID |
+| parameter | type   | required | description      | ai_notes                 |
+| --------- | ------ | -------- | ---------------- | ------------------------ |
+| threadId  | number | yes      | Worker thread ID | Lookup in pool registry. |
 
 - **returns: WorkerThreadLaunch | undefined**
+- **ai_notes:** Worker instance or undefined.
 
 ```typescript
 const worker = pool.getInstance(123);
@@ -99,11 +107,12 @@ if (worker) {
 
 Kill and remove a specific worker from the pool.
 
-| parameter | type   | required | description      |
-| --------- | ------ | -------- | ---------------- |
-| threadId  | number | yes      | Worker thread ID |
+| parameter | type   | required | description      | ai_notes           |
+| --------- | ------ | -------- | ---------------- | ------------------ |
+| threadId  | number | yes      | Worker thread ID | Terminates worker. |
 
 - **returns: number | undefined** - The killed worker's threadId.
+- **ai_notes:** Undefined if worker not found.
 
 ```typescript
 const killedId = pool.kill(123);
@@ -115,6 +124,7 @@ console.log(`Killed worker ${killedId}`);
 Kill and remove all workers from the pool.
 
 - **returns: void**
+- **ai_notes:** No return value.
 
 ```typescript
 pool.killAll();
@@ -125,15 +135,16 @@ console.log(`All workers terminated`);
 
 Send a request to a specific worker.
 
-| parameter | type    | required | default | description             |
-| --------- | ------- | -------- | ------- | ----------------------- |
-| threadId  | number  | yes      | -       | Target worker thread ID |
-| method    | string  | yes      | -       | Method name to call     |
-| params    | any     | yes      | -       | Method parameters       |
-| wait      | boolean | no       | `true`  | Wait for response       |
-| others    | object  | no       | -       | Additional RPC data     |
+| parameter | type    | required | default | description             | ai_notes                   |
+| --------- | ------- | -------- | ------- | ----------------------- | -------------------------- |
+| threadId  | number  | yes      | -       | Target worker thread ID | Lookup in pool registry.   |
+| method    | string  | yes      | -       | Method name to call     | Targets worker RPC method. |
+| params    | any     | yes      | -       | Method parameters       | Sent as positional array.  |
+| wait      | boolean | no       | `true`  | Wait for response       | If false, fire-and-forget. |
+| others    | object  | no       | -       | Additional RPC data     | Merged into RPC payload.   |
 
 - **returns: Promise\<any\>**
+- **ai_notes:** Resolves with worker response.
 
 ```typescript
 const result = await pool.request(123, "process", [data]);
@@ -143,12 +154,13 @@ const result = await pool.request(123, "process", [data]);
 
 Send a request to all workers and collect results.
 
-| parameter | type   | required | description         |
-| --------- | ------ | -------- | ------------------- |
-| method    | string | yes      | Method name to call |
-| params    | any    | yes      | Method parameters   |
+| parameter | type   | required | description         | ai_notes                  |
+| --------- | ------ | -------- | ------------------- | ------------------------- |
+| method    | string | yes      | Method name to call | Invoked on every worker.  |
+| params    | any    | yes      | Method parameters   | Sent as positional array. |
 
 - **returns: Promise\<any[]\>** - Array of results from all workers.
+- **ai_notes:** Order follows worker list.
 
 ```typescript
 const results = await pool.broadcastRequest("getStatus", []);
@@ -157,7 +169,7 @@ console.log("All statuses:", results);
 
 &nbsp;
 
-## Complete Example
+## Usage
 
 ```typescript
 import { WorkerThreadPool, WorkerThreadLaunch } from "gramstax";

@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # WorkerThreadInit
 
 The `WorkerThreadInit` class is the base class for worker thread implementations. It handles communication with the main thread and provides RPC functionality.
@@ -110,11 +115,12 @@ The most recently created gateway client.
 
 Send a message to the main thread.
 
-| parameter | type | required | description  |
-| --------- | ---- | -------- | ------------ |
-| payload   | any  | yes      | Data to send |
+| parameter | type | required | description  | ai_notes                |
+| --------- | ---- | -------- | ------------ | ----------------------- |
+| payload   | any  | yes      | Data to send | Payload to main thread. |
 
 - **returns: void**
+- **ai_notes:** No return value.
 
 ```typescript
 this.send({ status: "processing", progress: 50 });
@@ -124,14 +130,15 @@ this.send({ status: "processing", progress: 50 });
 
 Make an RPC request to the main thread.
 
-| parameter | type    | required | default | description         |
-| --------- | ------- | -------- | ------- | ------------------- |
-| method    | string  | yes      | -       | Method name to call |
-| params    | any     | yes      | -       | Method parameters   |
-| wait      | boolean | no       | `true`  | Wait for response   |
-| others    | object  | no       | -       | Additional RPC data |
+| parameter | type    | required | default | description         | ai_notes                        |
+| --------- | ------- | -------- | ------- | ------------------- | ------------------------------- |
+| method    | string  | yes      | -       | Method name to call | Targets main-thread RPC method. |
+| params    | any     | yes      | -       | Method parameters   | Sent as positional array.       |
+| wait      | boolean | no       | `true`  | Wait for response   | If false, fire-and-forget.      |
+| others    | object  | no       | -       | Additional RPC data | Merged into RPC payload.        |
 
 - **returns: Promise\<any\>**
+- **ai_notes:** Resolves with main-thread response.
 
 ```typescript
 const result = await this.request("getConfig", ["key"]);
@@ -141,12 +148,13 @@ const result = await this.request("getConfig", ["key"]);
 
 Create a gateway server for inter-worker communication.
 
-| parameter | type   | required | default | description       |
-| --------- | ------ | -------- | ------- | ----------------- |
-| path      | string | yes      | -       | Unix socket path  |
-| methods   | object | no       | `{}`    | Methods to expose |
+| parameter | type   | required | default | description       | ai_notes                   |
+| --------- | ------ | -------- | ------- | ----------------- | -------------------------- |
+| path      | string | yes      | -       | Unix socket path  | Gateway identifier.        |
+| methods   | object | no       | `{}`    | Methods to expose | Called by gateway clients. |
 
 - **returns: Promise\<boolean\>**
+- **ai_notes:** Resolves when gateway is ready.
 
 ```typescript
 await this.createGatewayServer("/tmp/my-worker.sock", {
@@ -158,20 +166,22 @@ await this.createGatewayServer("/tmp/my-worker.sock", {
 
 Create a gateway client to connect to another worker.
 
-| parameter | type   | required | description                 |
-| --------- | ------ | -------- | --------------------------- |
-| path      | string | yes      | Unix socket path to connect |
+| parameter | type   | required | description                 | ai_notes                |
+| --------- | ------ | -------- | --------------------------- | ----------------------- |
+| path      | string | yes      | Unix socket path to connect | Matches server gateway. |
 
 - **returns: Promise\<WorkerThreadGatewayClient\>**
+- **ai_notes:** Resolves with connected client.
 
 ```typescript
 const client = await this.createGatewayClient("/tmp/other-worker.sock");
+
 const result = await client.request("ping", []);
 ```
 
 &nbsp;
 
-## Complete Example
+## Usage
 
 ```typescript
 import { WorkerThreadInit, WorkerThreadExport, log } from "gramstax";
@@ -202,4 +212,7 @@ export const MyJob = WorkerThreadExport.init({
   path: __filename,
   WTInit: MyWorker,
 });
+
+// in main thread area
+await MyJob.launchWorker();
 ```

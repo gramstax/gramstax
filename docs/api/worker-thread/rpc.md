@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # WorkerThreadRpc
 
 The `WorkerThreadRpc` class handles JSON-RPC style communication between threads.
@@ -14,10 +19,10 @@ The `WorkerThreadRpc` class handles JSON-RPC style communication between threads
 
 ### `new WorkerThreadRpc(send, register)`
 
-| parameter | type     | required | description                  |
-| --------- | -------- | -------- | ---------------------------- |
-| send      | function | yes      | Function to send data        |
-| register  | object   | yes      | Object with callable methods |
+| parameter | type     | required | description                  | ai_notes                 |
+| --------- | -------- | -------- | ---------------------------- | ------------------------ |
+| send      | function | yes      | Function to send data        | Called with RPC payload. |
+| register  | object   | yes      | Object with callable methods | Exposed RPC method map.  |
 
 ```typescript
 import { WorkerThreadRpc } from "gramstax";
@@ -59,9 +64,9 @@ Object containing registered methods.
 
 Process an incoming RPC message.
 
-| parameter | type   | required | description        |
-| --------- | ------ | -------- | ------------------ |
-| data      | object | yes      | RPC message object |
+| parameter | type   | required | description        | ai_notes                       |
+| --------- | ------ | -------- | ------------------ | ------------------------------ |
+| data      | object | yes      | RPC message object | Shape is request/result/error. |
 
 - **returns: Promise\<void\>**
 - **ai_notes:** Handles requests, results, and errors.
@@ -94,12 +99,12 @@ const id = rpc.makeId();
 
 Create and send an RPC request.
 
-| parameter | type    | required | default | description                |
-| --------- | ------- | -------- | ------- | -------------------------- |
-| method    | string  | yes      | -       | Method name to call        |
-| params    | any     | yes      | -       | Method parameters          |
-| wait      | boolean | no       | `true`  | Wait for response          |
-| others    | object  | no       | -       | Additional data to include |
+| parameter | type    | required | default | description                | ai_notes                       |
+| --------- | ------- | -------- | ------- | -------------------------- | ------------------------------ |
+| method    | string  | yes      | -       | Method name to call        | Targets registered method.     |
+| params    | any     | yes      | -       | Method parameters          | Sent as positional array.      |
+| wait      | boolean | no       | `true`  | Wait for response          | If false, returns send result. |
+| others    | object  | no       | -       | Additional data to include | Merged into RPC payload.       |
 
 - **returns: Promise\<any\>**
 - **ai_notes:** If `wait=false`, returns result of `send()` directly.
@@ -151,7 +156,7 @@ rpc.makeRequest("log", ["message"], false);
 
 &nbsp;
 
-## Complete Example
+## Usage
 
 ```typescript
 import { WorkerThreadRpc } from "gramstax";

@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # WorkerThreadExport
 
 The `WorkerThreadExport` class provides a unified interface for creating and managing worker threads with automatic RPC proxying.
@@ -16,12 +21,12 @@ The `WorkerThreadExport` class provides a unified interface for creating and man
 
 Initialize a worker thread export with automatic environment detection.
 
-| parameter        | type     | required | default              | description              | ai_notes                                                  |
-| ---------------- | -------- | -------- | -------------------- | ------------------------ | --------------------------------------------------------- |
-| options.path     | string   | yes      | -                    | Path to the worker file  | **Typically:** `__filename` for self-referential workers. |
-| options.WTInit   | class    | yes      | -                    | Worker thread init class | **Extends:** `WorkerThreadInit`.                          |
-| options.WTLaunch | class    | no       | `WorkerThreadLaunch` | Main thread launch class | **Extends:** `WorkerThreadLaunch`.                        |
-| options.wrap     | function | no       | -                    | Custom wrapper function  | **Purpose:** add custom methods to returned object.       |
+| parameter        | type     | required | default              | description              | ai_notes                                             |
+| ---------------- | -------- | -------- | -------------------- | ------------------------ | ---------------------------------------------------- |
+| options.path     | string   | yes      | -                    | Path to the worker file  | Typically `__filename` for self-referential workers. |
+| options.WTInit   | class    | yes      | -                    | Worker thread init class | Extends `WorkerThreadInit`.                          |
+| options.WTLaunch | class    | no       | `WorkerThreadLaunch` | Main thread launch class | Extends `WorkerThreadLaunch`.                        |
+| options.wrap     | function | no       | -                    | Custom wrapper function  | Adds custom methods to returned object.              |
 
 - **returns: object** - Proxied object with `launchWorker`, `gateway`, and worker methods.
 - **ai_notes:** In worker thread context, only returns `gateway`. In main thread, returns full proxy.
@@ -54,9 +59,9 @@ export const CounterJob = WorkerThreadExport.init({
 
 Create a typed gateway proxy for inter-worker communication.
 
-| parameter | type   | required | description                    | ai_notes                                          |
-| --------- | ------ | -------- | ------------------------------ | ------------------------------------------------- |
-| path      | string | yes      | Path to the target worker file | **Must match:** the `path` used in target's init. |
+| parameter | type   | required | description                    | ai_notes                       |
+| --------- | ------ | -------- | ------------------------------ | ------------------------------ |
+| path      | string | yes      | Path to the target worker file | Must match target init `path`. |
 
 - **returns: WorkerThreadGatewayProxy & { new(owner): WorkerThreadAsyncMethods }**
 - **ai_notes:** Can be used as static methods or as constructor.
@@ -80,9 +85,9 @@ await client.someMethod(arg1, arg2);
 
 Launch the worker thread from the main thread.
 
-| parameter | type  | required | default | description            | ai_notes                                      |
-| --------- | ----- | -------- | ------- | ---------------------- | --------------------------------------------- |
-| argv      | any[] | no       | `[]`    | Command line arguments | **Accessible:** via `process.argv` in worker. |
+| parameter | type  | required | default | description            | ai_notes                                 |
+| --------- | ----- | -------- | ------- | ---------------------- | ---------------------------------------- |
+| argv      | any[] | no       | `[]`    | Command line arguments | Accessible via `process.argv` in worker. |
 
 - **returns: Promise\<WorkerThreadLaunch\>**
 - **ai_notes:** Resolves when worker signals ready.
@@ -113,7 +118,7 @@ const current = await CounterJob.getCount();
 
 &nbsp;
 
-## Complete Example
+## Usage
 
 ```typescript
 // jobs/counter.ts

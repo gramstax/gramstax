@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # TemplateEngine
 
 The `TemplateEngine` class provides static methods for parsing and compiling JSX-like templates into executable functions.
@@ -129,58 +134,63 @@ Text container.
 
 Compile message blocks from template.
 
-| parameter  | type   | required | description            |
-| ---------- | ------ | -------- | ---------------------- |
-| template   | string | yes      | Raw template string    |
-| baseBlocks | object | no       | Pre-parsed base blocks |
+| parameter  | type   | required | description            | ai_notes                       |
+| ---------- | ------ | -------- | ---------------------- | ------------------------------ |
+| template   | string | yes      | Raw template string    | JSX-like template source.      |
+| baseBlocks | object | no       | Pre-parsed base blocks | Optional reuse of base blocks. |
 
 - **returns: object** - `{ [baseId]: { [lang]: (data) => string } }`
+- **ai_notes:** Compiled message functions by base/lang.
 
 ### `.compileKeyboards(template, baseBlocks?)`
 
 Compile keyboard blocks from template.
 
-| parameter  | type   | required | description            |
-| ---------- | ------ | -------- | ---------------------- |
-| template   | string | yes      | Raw template string    |
-| baseBlocks | object | no       | Pre-parsed base blocks |
+| parameter  | type   | required | description            | ai_notes                       |
+| ---------- | ------ | -------- | ---------------------- | ------------------------------ |
+| template   | string | yes      | Raw template string    | JSX-like template source.      |
+| baseBlocks | object | no       | Pre-parsed base blocks | Optional reuse of base blocks. |
 
 - **returns: object** - `{ [baseId]: { [lang]: { inline, bottom } } }`
+- **ai_notes:** Compiled keyboard builders per base/lang.
 
 ### `.compileMedia(template, baseBlocks?)`
 
 Compile media blocks from template.
 
-| parameter  | type   | required | description            |
-| ---------- | ------ | -------- | ---------------------- |
-| template   | string | yes      | Raw template string    |
-| baseBlocks | object | no       | Pre-parsed base blocks |
+| parameter  | type   | required | description            | ai_notes                       |
+| ---------- | ------ | -------- | ---------------------- | ------------------------------ |
+| template   | string | yes      | Raw template string    | JSX-like template source.      |
+| baseBlocks | object | no       | Pre-parsed base blocks | Optional reuse of base blocks. |
 
 - **returns: object** - `{ [baseId]: { [lang]: (data) => IMediaBlock } }`
+- **ai_notes:** Compiled media builders per base/lang.
 
 ### `.compileDescription(template, baseBlocks?)`
 
 Compile description blocks from template.
 
-| parameter  | type   | required | description            |
-| ---------- | ------ | -------- | ---------------------- |
-| template   | string | yes      | Raw template string    |
-| baseBlocks | object | no       | Pre-parsed base blocks |
+| parameter  | type   | required | description            | ai_notes                       |
+| ---------- | ------ | -------- | ---------------------- | ------------------------------ |
+| template   | string | yes      | Raw template string    | HTML-like template source.     |
+| baseBlocks | object | no       | Pre-parsed base blocks | Optional reuse of base blocks. |
 
 - **returns: object** - `{ [baseId]: { [scope]: { [lang]: (data) => string } } }`
+- **ai_notes:** Compiled description functions by scope.
 
 ### `.processImportBlocks(template, resolver, depth?, importCache?)`
 
 Process import blocks recursively.
 
-| parameter   | type     | required | default | description                 |
-| ----------- | -------- | -------- | ------- | --------------------------- |
-| template    | string   | yes      | -       | Template with imports       |
-| resolver    | function | yes      | -       | Function to resolve imports |
-| depth       | number   | no       | 0       | Current recursion depth     |
-| importCache | Map      | no       | -       | Cache for resolved imports  |
+| parameter   | type     | required | default | description                 | ai_notes                           |
+| ----------- | -------- | -------- | ------- | --------------------------- | ---------------------------------- |
+| template    | string   | yes      | -       | Template with imports       | Contains `<import>` directives.    |
+| resolver    | function | yes      | -       | Function to resolve imports | Returns template content string.   |
+| depth       | number   | no       | 0       | Current recursion depth     | Stops at depth limit.              |
+| importCache | Map      | no       | -       | Cache for resolved imports  | Optional reuse of resolved blocks. |
 
 - **returns: string** - Template with imports resolved.
+- **ai_notes:** Returns template with `<import>` blocks replaced.
 
 &nbsp;
 
@@ -197,12 +207,14 @@ Variables use double curly braces:
 Supports nested properties:
 
 ```jsx
-<message>User: {{user.name}}, Email: {{user.email}}</message>
+<message>
+  User: {{user.name}}, Email: {{user.email}}
+</message>
 ```
 
 &nbsp;
 
-## Complete Example
+## Usage
 
 ```typescript
 import { TemplateEngine } from "gramstax";

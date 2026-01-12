@@ -1,15 +1,16 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # API Documentation
 
 This directory contains the detailed API documentation for the **Gramstax** framework.
 
 The folder structure mirrors `packages/gramstax/src` for easy navigation.
 
-> **Documentation Info**
->
-> - **Last Updated:** Sunday, January 11, 2026 at 20:36:52 PM (UTC+07:00)
-> - **Framework Version:** v0.3.17
-
 &nbsp;
+
 
 ## Index
 

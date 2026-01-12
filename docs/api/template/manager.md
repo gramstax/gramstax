@@ -1,3 +1,8 @@
+> **Documentation Info**
+>
+> - **Last Updated:** Monday, January 12, 2026 at 09:00:00 AM (UTC+07:00)
+> - **Framework Version:** v0.3.17
+
 # TemplateManager
 
 The `TemplateManager` class manages template loading, compilation, caching, and hot-reloading from page files.
@@ -14,11 +19,12 @@ The `TemplateManager` class manages template loading, compilation, caching, and 
 
 ### `new TemplateManager(options)`
 
-| parameter            | type     | required | default | description             | ai_notes                                     |
-| -------------------- | -------- | -------- | ------- | ----------------------- | -------------------------------------------- |
-| options.path         | string[] | yes      | -       | Paths to scan for pages | **Typically:** `["src/pages"]`.              |
-| options.enableWatch  | boolean  | no       | `false` | Enable file watching    | **For development:** auto-reload on changes. |
-| options.watchOptions | object   | no       | -       | Chokidar watch options  | **Passed to:** chokidar watcher.             |
+| parameter           | type     | required | default | description             | ai_notes                                      |
+| ------------------- | -------- | -------- | ------- | ----------------------- | --------------------------------------------- |
+| options.path        | string[] | yes      | -       | Paths to scan for pages | Note: Typically `["src/pages"]`.              |
+| options.enableWatch | boolean  | no       | `false` | Enable file watching    | Note: For development auto-reload on changes. |
+
+| options.watchOptions | object | no | - | Chokidar watch options | **Passed to:** chokidar watcher. |
 
 ```typescript
 import { TemplateManager } from "gramstax";
@@ -65,14 +71,15 @@ Create `my-page.tpl` alongside `my-page.ts`:
 
 Get compiled message string.
 
-| parameter | type   | required | default     | description          |
-| --------- | ------ | -------- | ----------- | -------------------- |
-| key       | string | yes      | -           | Page name (filename) |
-| baseId    | string | no       | `"default"` | Base block ID        |
-| language  | string | no       | `"default"` | Language code        |
-| data      | object | no       | -           | Template variables   |
+| parameter | type   | required | default   | description          | ai_notes                         |
+| --------- | ------ | -------- | --------- | -------------------- | -------------------------------- |
+| key       | string | yes      | -         | Page name (filename) | Template file key.               |
+| baseId    | string | no       | "default" | Base block ID        | Matches `<base id="...">`.       |
+| language  | string | no       | "default" | Language code        | Uses `default` as fallback.      |
+| data      | object | no       | -         | Template variables   | Used for template interpolation. |
 
 - **returns: string**
+- **ai_notes:** Rendered template string.
 
 ```typescript
 const message = tm.getMessage("start", "default", "en", { name: "John" });
@@ -82,15 +89,16 @@ const message = tm.getMessage("start", "default", "en", { name: "John" });
 
 Get compiled keyboard labels.
 
-| parameter | type   | required | default     | description          |
-| --------- | ------ | -------- | ----------- | -------------------- |
-| key       | string | yes      | -           | Page name (filename) |
-| baseId    | string | no       | `"default"` | Base block ID        |
-| language  | string | no       | `"default"` | Language code        |
-| type      | string | no       | `"inline"`  | Keyboard type        |
-| data      | object | no       | -           | Template variables   |
+| parameter | type   | required | default   | description          | ai_notes                        |
+| --------- | ------ | -------- | --------- | -------------------- | ------------------------------- |
+| key       | string | yes      | -         | Page name (filename) | Source template file key.       |
+| baseId    | string | no       | "default" | Base block ID        | Matches `<base id="...">`.      |
+| language  | string | no       | "default" | Language code        | Fallback uses `default`.        |
+| type      | string | no       | "inline"  | Keyboard type        | Values are `inline`, `bottom`.  |
+| data      | object | no       | -         | Template variables   | Used by template interpolation. |
 
 - **returns: string[]**
+- **ai_notes:** Button labels for selected language.
 
 ```typescript
 const buttons = tm.getKeyboard("start", "default", "en", "inline");
@@ -101,14 +109,15 @@ const buttons = tm.getKeyboard("start", "default", "en", "inline");
 
 Get compiled media data.
 
-| parameter | type   | required | default     | description          |
-| --------- | ------ | -------- | ----------- | -------------------- |
-| key       | string | yes      | -           | Page name (filename) |
-| baseId    | string | no       | `"default"` | Base block ID        |
-| language  | string | no       | `"default"` | Language code        |
-| data      | object | no       | -           | Template variables   |
+| parameter | type   | required | default   | description          | ai_notes                         |
+| --------- | ------ | -------- | --------- | -------------------- | -------------------------------- |
+| key       | string | yes      | -         | Page name (filename) | Template file key.               |
+| baseId    | string | no       | "default" | Base block ID        | Matches `<base id="...">`.       |
+| language  | string | no       | "default" | Language code        | Uses `default` as fallback.      |
+| data      | object | no       | -         | Template variables   | Used for template interpolation. |
 
 - **returns: IMediaBlock | undefined**
+- **ai_notes:** Media payload for selected base/lang.
 
 ```typescript
 const media = tm.getMedia("photo-page", "default", "en");
@@ -119,15 +128,16 @@ const media = tm.getMedia("photo-page", "default", "en");
 
 Get command description for Telegram menu.
 
-| parameter | type   | required | default     | description          |
-| --------- | ------ | -------- | ----------- | -------------------- |
-| key       | string | yes      | -           | Page name (filename) |
-| baseId    | string | no       | `"default"` | Base block ID        |
-| language  | string | no       | `"default"` | Language code        |
-| scope     | string | no       | `"default"` | Bot command scope    |
-| data      | object | no       | -           | Template variables   |
+| parameter | type   | required | default   | description          | ai_notes                        |
+| --------- | ------ | -------- | --------- | -------------------- | ------------------------------- |
+| key       | string | yes      | -         | Page name (filename) | Source template file key.       |
+| baseId    | string | no       | "default" | Base block ID        | Matches `<base id="...">`.      |
+| language  | string | no       | "default" | Language code        | Fallback uses `default`.        |
+| scope     | string | no       | "default" | Bot command scope    | Telegram command scope.         |
+| data      | object | no       | -         | Template variables   | Used by template interpolation. |
 
 - **returns: string**
+- **ai_notes:** Rendered description string.
 
 ```typescript
 const desc = tm.getDescription("start", "default", "en");
@@ -139,28 +149,32 @@ const desc = tm.getDescription("start", "default", "en");
 Get available languages for a description.
 
 - **returns: string[]**
+- **ai_notes:** Languages present for scope.
 
 ### `.getDescriptionScopes(key, baseId?)`
 
 Get available scopes for a description.
 
 - **returns: string[]**
+- **ai_notes:** Scope keys for description.
 
 ### `.has(key)`
 
 Check if template exists.
 
-| parameter | type   | required | description |
-| --------- | ------ | -------- | ----------- |
-| key       | string | yes      | Page name   |
+| parameter | type   | required | description | ai_notes               |
+| --------- | ------ | -------- | ----------- | ---------------------- |
+| key       | string | yes      | Page name   | Template cache lookup. |
 
 - **returns: boolean**
+- **ai_notes:** True when template exists.
 
 ### `.destroy()`
 
 Cleanup resources and close watchers.
 
 - **returns: Promise\<void\>**
+- **ai_notes:** Resolves after watchers closed.
 
 &nbsp;
 
@@ -210,7 +224,7 @@ await tm.destroy();
 
 &nbsp;
 
-## Complete Example
+## Usage
 
 ```typescript
 import { TemplateManager, Gramstax } from "gramstax";
