@@ -45,7 +45,7 @@ Templates can come from:
 
 ```typescript
 class MyPage extends Ctx {
-  static template = /*html*/ `
+  static template = `
     <base>
       <message>Hello World</message>
     </base>

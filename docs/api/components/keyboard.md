@@ -130,7 +130,7 @@ export class PageBase extends Ctx {
 // ./pages/my.ts
 // Use in page template
 export class MyPage extends PageBase {
-  static template = /*html*/ `
+  static template = `
     <base>
       ${this.kbc.navigation()}
       <message>Choose an option</message>

@@ -300,7 +300,7 @@ HTML-like template string for the page.
 
 ```typescript
 class MyPage extends Ctx {
-  static template = /*html*/ `
+  static template = `
     <base>
       <keyboard>Button 1, Button 2</keyboard>
       <message>Hello {{name}}!</message>
@@ -742,7 +742,7 @@ export class MyPage extends Ctx {
     }
   }
 
-  static template = /*html*/ `
+  static template = `
     <base>
       <keyboard>Confirm, Cancel</keyboard>
       <message>Hello {{name}}, please choose:</message>
@@ -1064,7 +1064,7 @@ Supports nested properties:
 ```typescript
 import { TemplateEngine } from "gramstax";
 
-const template = /*html*/ `
+const template = `
   <base>
     <keyboard>Back, Next</keyboard>
     <keyboard lang="id">Kembali, Lanjut</keyboard>
@@ -1140,7 +1140,7 @@ Templates can come from:
 
 ```typescript
 class MyPage extends Ctx {
-  static template = /*html*/ `
+  static template = `
     <base>
       <message>Hello World</message>
     </base>

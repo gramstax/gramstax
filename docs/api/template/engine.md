@@ -212,7 +212,7 @@ Supports nested properties:
 ```typescript
 import { TemplateEngine } from "gramstax";
 
-const template = /*html*/ `
+const template = `
   <base>
     <keyboard>Back, Next</keyboard>
     <keyboard lang="id">Kembali, Lanjut</keyboard>
