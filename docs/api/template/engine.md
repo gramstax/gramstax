@@ -5,13 +5,13 @@
 
 # TemplateEngine
 
-The `TemplateEngine` class provides static methods for parsing and compiling JSX-like templates into executable functions.
+The `TemplateEngine` class provides static methods for parsing and compiling HTML-like templates into executable functions.
 
 > **AI Notes (non-normative / for parsing):**
 >
 > - **Scope:** This document describes the `TemplateEngine` static methods for template parsing.
 > - **Internal:** Typically used internally by `TemplateManager`.
-> - **Format:** Parses JSX-like syntax with custom blocks.
+> - **Format:** Parses HTML-like syntax with custom blocks.
 
 &nbsp;
 
@@ -133,7 +133,7 @@ Compile message blocks from template.
 
 | parameter  | type   | required | description            | ai_notes                       |
 | ---------- | ------ | -------- | ---------------------- | ------------------------------ |
-| template   | string | yes      | Raw template string    | JSX-like template source.      |
+| template   | string | yes      | Raw template string    | HTML-like template source.     |
 | baseBlocks | object | no       | Pre-parsed base blocks | Optional reuse of base blocks. |
 
 - **returns: object** - `{ [baseId]: { [lang]: (data) => string } }`
@@ -145,7 +145,7 @@ Compile keyboard blocks from template.
 
 | parameter  | type   | required | description            | ai_notes                       |
 | ---------- | ------ | -------- | ---------------------- | ------------------------------ |
-| template   | string | yes      | Raw template string    | JSX-like template source.      |
+| template   | string | yes      | Raw template string    | HTML-like template source.     |
 | baseBlocks | object | no       | Pre-parsed base blocks | Optional reuse of base blocks. |
 
 - **returns: object** - `{ [baseId]: { [lang]: { inline, bottom } } }`
@@ -157,7 +157,7 @@ Compile media blocks from template.
 
 | parameter  | type   | required | description            | ai_notes                       |
 | ---------- | ------ | -------- | ---------------------- | ------------------------------ |
-| template   | string | yes      | Raw template string    | JSX-like template source.      |
+| template   | string | yes      | Raw template string    | HTML-like template source.     |
 | baseBlocks | object | no       | Pre-parsed base blocks | Optional reuse of base blocks. |
 
 - **returns: object** - `{ [baseId]: { [lang]: (data) => IMediaBlock } }`

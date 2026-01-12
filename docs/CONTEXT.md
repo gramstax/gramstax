@@ -285,7 +285,7 @@ The `Ctx` class is the context/page base class that provides access to user data
 >
 > - **Scope:** This document describes the `Ctx` base class for pages.
 > - **Usage:** Extend this class to create page handlers.
-> - **Template:** Define static `template` property for JSX-like templates.
+> - **Template:** Define static `template` property for HTML-like templates.
 > - **Data:** Define static `data` via `buildData()` for routing configuration.
 
 &nbsp;
@@ -860,13 +860,13 @@ PageManager.clearCacheRequire();
 
 _(Source: docs/api/template/engine.md)_
 
-The `TemplateEngine` class provides static methods for parsing and compiling JSX-like templates into executable functions.
+The `TemplateEngine` class provides static methods for parsing and compiling HTML-like templates into executable functions.
 
 > **AI Notes (non-normative / for parsing):**
 >
 > - **Scope:** This document describes the `TemplateEngine` static methods for template parsing.
 > - **Internal:** Typically used internally by `TemplateManager`.
-> - **Format:** Parses JSX-like syntax with custom blocks.
+> - **Format:** Parses HTML-like syntax with custom blocks.
 
 &nbsp;
 
@@ -1274,7 +1274,7 @@ The `ComponentKeyboard` class provides static methods for generating keyboard te
 
 > **AI Notes (non-normative / for parsing):**
 >
-> - **Scope:** Connects `DataKeyboard` structured data to JSX templates.
+> - **Scope:** Connects `DataKeyboard` structured data to HTML templates.
 > - **Usage:** Use `getTemplate()` methods to inject dynamic keyboards into templates.
 
 &nbsp;

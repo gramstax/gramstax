@@ -11,7 +11,6 @@ The folder structure mirrors `packages/gramstax/src` for easy navigation.
 
 &nbsp;
 
-
 ## Index
 
 ### cache/
@@ -29,7 +28,7 @@ The folder structure mirrors `packages/gramstax/src` for easy navigation.
 
 ### template/
 
-- [engine.md](template/engine.md) - `TemplateEngine` for JSX-like template parsing
+- [engine.md](template/engine.md) - `TemplateEngine` for HTML-like template parsing
 - [manager.md](template/manager.md) - `TemplateManager` for template compilation and hot-reloading
 
 ### utils/

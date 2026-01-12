@@ -2,21 +2,21 @@ import {DataKeyboard} from "~/data/keyboard"
 
 export class ComponentKeyboard {
   static data: typeof DataKeyboard
-  static _process(obj: any, params: { type?: string; lang?: string; reverse?: boolean }) {
+  static _process(obj: any, params: {type?: string; lang?: string; reverse?: boolean}) {
     if (!params.type) {
       params.type = `inline`
     }
 
     if (params.lang) {
       const v = obj[params.lang]
-      return /*jsx*/ `
+      return `
         <keyboard type="${params.type}" lang="${params.lang}">${params.reverse ? this.data._reverse(v) : v}</keyboard>
       `
     }
     return Object.keys(obj)
       .map((lang) => {
         const v = obj[lang]
-        return /*jsx*/ `
+        return `
           <keyboard type="${params.type}" lang="${lang}">${params.reverse ? this.data._reverse(v) : v}</keyboard>
         `
       })
