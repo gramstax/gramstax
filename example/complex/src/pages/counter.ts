@@ -5,12 +5,12 @@ export class CounterPage extends PageBase {
   static data = this.buildData((exe?: string) => exe)
 
   kb() {
-    return this.inlineKeyboard((kb, arr) => {
-      return kb //
-        .text(arr[0]!, this.data.callbackData(`I`))
-        .text(arr[1]!, this.data.callbackData(`D`))
+    return this.ikb((k, a) => {
+      return k //
+        .text(a[0]!, this.data.callbackData(`I`))
+        .text(a[1]!, this.data.callbackData(`D`))
         .row()
-        .text(arr[2]!, StartPage.data.callbackData())
+        .text(a[2]!, StartPage.data.callbackData())
     })
   }
 

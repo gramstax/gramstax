@@ -7,12 +7,12 @@ export class KbbePage extends PageBase {
 
   kb(count?: number) {
     const params = {data: {first: this.data.text}}
-    return this.bottomKeyboard((kb, arr) => {
-      kb.text(count === undefined ? `${arr[0]!} 0` : `${arr[0]} ${count + 1}`)
+    return this.bkb((k, a) => {
+      k.text(count === undefined ? `${a[0]!} 0` : `${a[0]} ${count + 1}`)
         .row()
-        .text(arr[1]!)
+        .text(a[1]!)
         .oneTime()
-      return kb
+      return k
     }, params)
   }
 

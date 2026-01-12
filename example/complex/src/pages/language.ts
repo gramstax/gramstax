@@ -5,9 +5,9 @@ export class LanguagePage extends PageBase {
   static data = this.buildData((lang?: string) => lang)
 
   kb() {
-    return this.inlineKeyboard((kb, arr) => {
-      const languages = arr.slice(0, -1)
-      const backButton = arr[arr.length - 1]! // Get the back button text
+    return this.ikb((k, a) => {
+      const languages = a.slice(0, -1)
+      const backButton = a[a.length - 1]! // Get the back button text
 
       // Get current user language for comparison
       const currentLang = this.userLanguage?.toLowerCase()
@@ -19,13 +19,13 @@ export class LanguagePage extends PageBase {
           const langCode = lang.toLowerCase()
           const isSelected = langCode === currentLang
           const displayText = isSelected ? `+ ${lang}` : lang
-          kb.text(displayText, LanguagePage.data.callbackData(langCode))
+          k.text(displayText, LanguagePage.data.callbackData(langCode))
         })
-        kb.row()
+        k.row()
       }
 
       // Add back button
-      return kb.text(backButton, StartPage.data.callbackData())
+      return k.text(backButton, StartPage.data.callbackData())
     })
   }
 

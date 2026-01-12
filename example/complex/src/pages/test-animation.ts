@@ -5,11 +5,11 @@ export class TestAnimationPage extends PageBase {
   static data = this.buildData((swc?: string) => swc)
 
   kb(isDynamic = false) {
-    return this.inlineKeyboard((kb, arr) => {
-      return kb //
-        .text(isDynamic ? arr[1] : arr[0]!, this.data.callbackData(isDynamic ? `static` : `dynamic`))
+    return this.ikb((k, a) => {
+      return k //
+        .text(isDynamic ? a[1] : a[0]!, this.data.callbackData(isDynamic ? `static` : `dynamic`))
         .row()
-        .text(arr[2]!, StartPage.data.callbackData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the callbackPayload route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
+        .text(a[2]!, StartPage.data.callbackData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the callbackPayload route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
     })
   }
 

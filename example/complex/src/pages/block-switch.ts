@@ -5,12 +5,12 @@ export class BlockSwitchPage extends PageBase {
   static data = this.buildData((status?: string) => status)
 
   kb(status: string) {
-    return this.inlineKeyboard(
-      (kb, arr) => {
-        return kb //
-          .text(arr[0]!, this.data.callbackData(status === `1` ? `0` : `1`))
+    return this.ikb(
+      (k, a) => {
+        return k //
+          .text(a[0]!, this.data.callbackData(status === `1` ? `0` : `1`))
           .row()
-          .text(arr[1]!, StartPage.data.callbackData())
+          .text(a[1]!, StartPage.data.callbackData())
       },
       {data: {status}}
     )

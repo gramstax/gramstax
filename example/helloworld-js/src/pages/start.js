@@ -2,8 +2,8 @@ import {Ctx} from "gramstax"
 
 export class StartPage extends Ctx {
   kb() {
-    return this.inlineKeyboard((kb, arr) => {
-      return kb.text(arr[0], this.data.callbackData())
+    return this.ikb((k, a) => {
+      return k.text(a[0], this.data.callbackData())
     })
   }
 

@@ -334,6 +334,8 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     }
 
     // Task 7: Setup ESLint if requested
+    const befEslint = path.join(projectPath, `eslint.config.ts.template`)
+    const aftEslint = path.join(projectPath, `eslint.config.ts`)
     if (setupEslint) {
       log.info(`Installing ESLint dependencies..`)
 
@@ -354,11 +356,15 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
           resolve()
         })
       })
+
+      // Rename eslint file from template to original
+      if (fs.existsSync(befEslint)) {
+        fs.renameSync(befEslint, aftEslint)
+      }
     } else {
       // Remove eslint config if not requested
-      const eslintPath = path.join(projectPath, `eslint.config.ts`)
-      if (fs.existsSync(eslintPath)) {
-        fs.unlinkSync(eslintPath)
+      if (fs.existsSync(befEslint)) {
+        fs.unlinkSync(befEslint)
       }
     }
 

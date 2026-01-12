@@ -8,10 +8,10 @@ export class ZOnePage extends PageBase {
   })
 
   kb() {
-    return this.inlineKeyboard((kb, arr) => {
-      return kb //
-        .text(arr[0]!, this.data.callbackData(`1`))
-        .text(arr[1]!, StartPage.data.callbackData(`asumsi-wallet`))
+    return this.ikb((k, a) => {
+      return k //
+        .text(a[0]!, this.data.callbackData(`1`))
+        .text(a[1]!, StartPage.data.callbackData(`asumsi-wallet`))
     })
   }
 
