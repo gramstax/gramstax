@@ -28,8 +28,8 @@ Initialize a worker thread export with automatic environment detection.
 | options.WTLaunch | class    | no       | `WorkerThreadLaunch` | Main thread launch class | Extends `WorkerThreadLaunch`.                        |
 | options.wrap     | function | no       | -                    | Custom wrapper function  | Adds custom methods to returned object.              |
 
-- **returns: object** - Proxied object with `launchWorker`, `gateway`, and worker methods.
-- **ai_notes:** In worker thread context, only returns `gateway`. In main thread, returns full proxy.
+- **returns: object** - Proxied object with `launchWorker`, `launchGatewayClient`, and worker methods.
+- **ai_notes:** In worker thread context, only returns `launchGatewayClient`. In main thread, returns full proxy.
 
 ```typescript
 import { WorkerThreadExport, WorkerThreadInit } from "gramstax";
@@ -55,13 +55,13 @@ export const CounterJob = WorkerThreadExport.init({
 
 &nbsp;
 
-### `.gateway(path)`
+### `.launchGatewayClient(serverPath)`
 
-Create a typed gateway proxy for inter-worker communication.
+Create a typed launchGatewayClient proxy for inter-worker communication.
 
-| parameter | type   | required | description                    | ai_notes                       |
-| --------- | ------ | -------- | ------------------------------ | ------------------------------ |
-| path      | string | yes      | Path to the target worker file | Must match target init `path`. |
+| parameter  | type   | required | description                    | ai_notes                       |
+| ---------- | ------ | -------- | ------------------------------ | ------------------------------ |
+| serverPath | string | no       | Path to the target worker file | Must match target init `path`. |
 
 - **returns: WorkerThreadGatewayProxy & { new(owner): WorkerThreadAsyncMethods }**
 - **ai_notes:** Can be used as static methods or as constructor.
@@ -69,7 +69,7 @@ Create a typed gateway proxy for inter-worker communication.
 ```typescript
 // Static usage
 const OtherWorker =
-  WorkerThreadExport.gateway<OtherWorkerClass>("/path/to/other.ts");
+  WorkerThreadExport.launchGatewayClient<OtherWorkerClass>("/path/to/other.ts");
 await OtherWorker.someMethod(this, arg1, arg2);
 
 // Constructor usage
@@ -97,11 +97,11 @@ Launch the worker thread from the main thread.
 await CounterJob.launchWorker([5000]);
 ```
 
-### `.gateway(path)`
+### `.launchGatewayClient(path)`
 
-Get a gateway proxy for inter-worker communication.
+Get a launchGatewayClient proxy for inter-worker communication.
 
-- Same as static `WorkerThreadExport.gateway()`.
+- Same as static `WorkerThreadExport.launchGatewayClient()`.
 
 ### `.[methodName](...args)`
 
@@ -124,7 +124,7 @@ const current = await CounterJob.getCount();
 // jobs/counter.ts
 import { WorkerThreadExport, WorkerThreadInit, log } from "gramstax";
 
-class MyWorker extends WorkerThreadInit {
+class Worker extends WorkerThreadInit {
   count = 0;
 
   constructor() {
@@ -136,23 +136,22 @@ class MyWorker extends WorkerThreadInit {
     }, interval);
   }
 
-  getCount() {
+  mtdGetCount() {
     return this.count;
   }
 }
 
 export const CounterJob = WorkerThreadExport.init({
   path: __filename,
-  WTInit: MyWorker,
+  WTInit: Worker,
 });
 
 // index.ts
 // area main thread
 import { CounterJob } from "./jobs/counter";
 
-await CounterJob.launchWorker([1000]);
+await CounterJob.launchWorker([1000]); // launch worker first
 
-// Later...
-const count = await CounterJob.getCount();
+const count = await CounterJob.mtdGetCount();
 console.log(`Current count: ${count}`);
 ```

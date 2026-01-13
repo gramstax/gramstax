@@ -53,9 +53,9 @@ class MyPage extends Ctx {
 }
 ```
 
-### 2. External .tpl File
+### 2. External .html File
 
-Create `my-page.tpl` alongside `my-page.ts`:
+Create `my-page.html` alongside `my-page.ts`:
 
 ```html
 <base>

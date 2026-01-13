@@ -92,88 +92,55 @@ The underlying `net-ipc` server emits these events:
 
 &nbsp;
 
-## Complete Example
-
-```typescript
-import { WorkerThreadInit, WorkerThreadExport, log } from "gramstax";
-
-class DataWorker extends WorkerThreadInit {
-  private store = new Map<string, any>();
-
-  constructor() {
-    super();
-    this.startServer();
-  }
-
-  async startServer() {
-    await this.createGatewayServer("/tmp/data-worker.sock", {
-      ping: () => "pong",
-
-      get: (key: string) => {
-        return this.store.get(key);
-      },
-
-      set: (key: string, value: any) => {
-        this.store.set(key, value);
-        return true;
-      },
-
-      delete: (key: string) => {
-        return this.store.delete(key);
-      },
-
-      keys: () => {
-        return Array.from(this.store.keys());
-      },
-    });
-
-    log.info("Data worker gateway server started");
-  }
-}
-
-export const DataJob = WorkerThreadExport.init({
-  path: __filename,
-  WTInit: DataWorker,
-});
-```
-
-&nbsp;
-
-## Inter-Worker Communication Example
+## Usage
 
 ```typescript
 // worker-a.ts (Server)
-class WorkerA extends WorkerThreadInit {
+class Worker extends WorkerThreadInit {
+  static gatewayServerPath = "/tmp/worker-a.sock";
   data = { count: 0 };
 
   constructor() {
     super();
-    this.createGatewayServer("/tmp/worker-a.sock", {
-      getCount: () => this.data.count,
-      increment: () => ++this.data.count,
-    });
+  }
+
+  async mtdRunServer() {
+    return await this.createGatewayServer();
+  }
+
+  mtdGetCount() {
+    return this.data.count;
+  }
+
+  mtdIncrement() {
+    return (this.data.count += 1);
   }
 }
 
-// worker-b.ts (Client)
-class WorkerB extends WorkerThreadInit {
-  async connectToA() {
-    const client = await this.createGatewayClient("/tmp/worker-a.sock");
+// for interact between worker to main
+export const WorkerA = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: Worker,
+});
+// for interact between worker to worker
+export const WorkerAGateway = Worker.gatewayServerPath();
 
-    await client.request("increment", []);
-    const count = await client.request("getCount", []);
+// worker-b.ts (Client)
+import { WorkerAGateway } from "./worker-a";
+
+class WorkerB extends WorkerThreadInit {
+  async mtdConnectToA() {
+    const count = await WorkerAGateway.mtdGetCount();
     console.log("Count from Worker A:", count);
   }
 }
-```
 
-## Usage
+// main.ts (Main Thread)
+import { WorkerA } from "./worker-a";
+import { WorkerB } from "./worker-a";
 
-```typescript
-import { WorkerThreadGatewayServer } from "gramstax";
-
-const server = new WorkerThreadGatewayServer();
-await server.start("/tmp/data-worker.sock", {
-  ping: () => "pong",
-});
+await WorkerA.launchWorker(); // launch worker-a
+await WorkerB.launchWorker(); // launch worker-b
+await WorkerA.mtdRunServer(); // run server with trigger in main thread
+await WorkerB.mtdConnectToA(); // run with trigger in main thread
 ```

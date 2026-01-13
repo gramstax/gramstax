@@ -261,12 +261,12 @@ Set session for textFree route.
 
 Send a text message reply.
 
-| parameter | type   | required | default   | description         | ai_notes                          |
-| --------- | ------ | -------- | --------- | ------------------- | --------------------------------- |
-| keyboard  | IKb    | no       | -         | Keyboard markup     | From `ikb()` or `bkb()` builders. |
-| data      | object | no       | -         | Template data       | Used for template interpolation.  |
-| baseId    | string | no       | "default" | Template base ID    | Matches `<base id="...">`.        |
-| options   | object | no       | -         | grammY send options | Passed to grammY `reply` options. |
+| parameter | type    | required | default   | description         | ai_notes                          |
+| --------- | ------- | -------- | --------- | ------------------- | --------------------------------- |
+| keyboard  | IInBoKb | no       | -         | Keyboard markup     | From `ikb()` or `bkb()` builders. |
+| data      | object  | no       | -         | Template data       | Used for template interpolation.  |
+| baseId    | string  | no       | "default" | Template base ID    | Matches `<base id="...">`.        |
+| options   | object  | no       | -         | grammY send options | Passed to grammY `reply` options. |
 
 - **returns: Promise\<Message\>**
 - **ai_notes:** Resolves with sent message.
@@ -374,31 +374,36 @@ Answer callback query (show toast).
 | text      | string | no       | Toast text     | Shown as notification to user.   |
 | options   | object | no       | Answer options | Passed to grammY answer options. |
 
-### `.ikb(builder) or .inlineKeyboard(builder)`
+### `.ikb(builder) or .inlineKeyboard(builder)` and `.bkb(builder) or .bottomKeyboard(builder)`
 
-Create inline keyboard using builder pattern.
+Create using builder pattern.
 
 | parameter | type     | required | description      | ai_notes               |
 | --------- | -------- | -------- | ---------------- | ---------------------- |
 | builder   | function | yes      | Builder callback | Receives (kb, labels). |
 
-- **returns: InlineKeyboard**
-- **ai_notes:** Builder instance for inline buttons.
+parameter builder.
+
+| parameter | type     | required | description        | ai_notes                                                                    |
+| --------- | -------- | -------- | ------------------ | --------------------------------------------------------------------------- |
+| k         | object   | yes      | For build keyboard | init class InlineKeyboard (for inline) or Keyboard (for bottom) from grammY |
+| a         | string[] | yes      | For text keyboard  | each value is obtained from the <keyboard> block with a comma separator     |
+
+- **returns: InlineKeyboard or BottomKeyboard**
+- **ai_notes:** Builder instance for inline buttons and bottom buttons.
 
 ```typescript
-const kb = this.ikb((k, a) => {
+// inline keyboard (will show on below message)
+const ik = this.ikb((k, a) => {
   return k //
     .text(a[0]!, "action1")
     .text(a[1]!, "action2")
     .row()
     .text(a[2]!, "action3");
 });
-```
 
-### `.bkb(builder) or .bottomKeyboard(builder)`
-
-```typescript
-const kb = this.bkb((k, a) => {
+// bottom keyboard (will show on below position keyboard phone)
+const bk = this.bkb((k, a) => {
   return k //
     .text(a[0]!)
     .text(a[1]!)
@@ -408,20 +413,22 @@ const kb = this.bkb((k, a) => {
 });
 ```
 
-Create reply keyboard (bottom keyboard).
-
-### `.to(PageClass, method?, data?)`
+### `.to(data: {})`
 
 Transition to another page.
 
-| parameter | type   | required | description       | ai_notes                         |
-| --------- | ------ | -------- | ----------------- | -------------------------------- |
-| PageClass | class  | yes      | Target page class | Extends `Ctx`.                   |
-| method    | string | no       | Method to call    | Defaults to target route method. |
-| data      | any    | no       | Data to pass      | Payload forwarded to method.     |
+| parameter | type   | required | description  | ai_notes                                                                 |
+| --------- | ------ | -------- | ------------ | ------------------------------------------------------------------------ |
+| data      | object | no       | Data to pass | Provide the data from the previous page to this page that is only needed |
 
 ```typescript
-await new HomePage(this).to("callback", { refresh: true });
+// ./pages/home.ts
+async to(data: {inputName: any}) {
+  await edit(undefined, data)
+}
+
+// ./pages/others.ts
+await new HomePage(this).to({ inputName: `test` });
 ```
 
 &nbsp;
@@ -499,15 +506,18 @@ export class MyPage extends PageBase {
   }
 
   async textCommand() {
+    // will render message and keyboard from base without id
     await this.reply(this.kb(), { name: this.userFirstName });
   }
 
   async callbackPayload() {
     const action = this.callbackDataPayload;
     if (action === "confirm") {
+      // will render message from base id "confirmed"
       await this.edit(undefined, {}, "confirmed");
     } else {
-      await new OtherPage(this).to("callback");
+      // transition to other page
+      await new OtherPage(this).to();
     }
   }
 

@@ -5,6 +5,8 @@
 
 # WorkerThreadRpc
 
+> This is an internal class never used by user.
+
 The `WorkerThreadRpc` class handles JSON-RPC style communication between threads.
 
 > **AI Notes (non-normative / for parsing):**

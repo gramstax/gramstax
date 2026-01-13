@@ -5,6 +5,8 @@
 
 # WorkerThreadLaunch
 
+> This is an internal class never used by user.
+
 The `WorkerThreadLaunch` class manages worker thread lifecycle from the main thread. It handles spawning, communication, and termination of worker threads.
 
 > **AI Notes (non-normative / for parsing):**

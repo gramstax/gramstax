@@ -526,12 +526,12 @@ Set session for textFree route.
 
 Send a text message reply.
 
-| parameter | type   | required | default     | description         |
-| --------- | ------ | -------- | ----------- | ------------------- |
-| keyboard  | IKb    | no       | -           | Keyboard markup     |
-| data      | object | no       | -           | Template data       |
-| baseId    | string | no       | `"default"` | Template base ID    |
-| options   | object | no       | -           | grammY send options |
+| parameter | type    | required | default     | description         |
+| --------- | ------- | -------- | ----------- | ------------------- |
+| keyboard  | IInBoKb | no       | -           | Keyboard markup     |
+| data      | object  | no       | -           | Template data       |
+| baseId    | string  | no       | `"default"` | Template base ID    |
+| options   | object  | no       | -           | grammY send options |
 
 - **returns: Promise\<Message\>**
 
@@ -1513,13 +1513,13 @@ await exportWorker.init({
 await myWorker.rpc.someMethod();
 ```
 
-#### `.gateway(path)`
+#### `.launchGatewayClient(serverPath?)`
 
 Create a typed gateway proxy for inter-worker communication.
 
-| parameter | type   | required | description |
-| --------- | ------ | -------- | ----------- |
-| path      | string | yes      | Socket path |
+| parameter  | type   | required | description |
+| ---------- | ------ | -------- | ----------- |
+| serverPath | string | no       | Socket path |
 
 - **returns: Proxy\<T\>**
 
@@ -1752,7 +1752,7 @@ The `WorkerThreadGatewayClient` class provides IPC communication client between 
 >
 > - **Scope:** Inter-worker communication (Client side).
 > - **Transport:** `net.Socket`.
-> - **Usage:** Use `WorkerThreadExport.gateway()` instead of using this directly.
+> - **Usage:** Use `WorkerThreadExport.launchGatewayClient()` instead of using this directly.
 
 &nbsp;
 

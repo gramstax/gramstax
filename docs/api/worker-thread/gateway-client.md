@@ -88,24 +88,59 @@ console.log("Server responded:", result);
 ## Usage
 
 ```typescript
+// ./worker/server.ts
 import { WorkerThreadInit, WorkerThreadExport } from "gramstax";
 
-class MyWorker extends WorkerThreadInit {
-  async connectToServer() {
-    // Create gateway client
-    const client = await this.createGatewayClient("/tmp/server.sock");
+export class Worker extends WorkerThreadInit {
+  static gatewayServerPath = `gateway-main`;
 
-    // Make requests
-    const pong = await client.request("ping", []);
-    console.log("Received:", pong);
+  constructor() {
+    super();
+  }
 
-    const data = await client.request("getData", ["key1"]);
+  mtdHello(from: string) {
+    console.log(`[Worker-Server] Received greeting from: ${from}`);
+    return `Hello ${from}, I am Worker-Server!`;
+  }
+
+  async mtdStart() {
+    const res = await this.createGatewayServer();
+    console.log(
+      `[Worker-Server] Gateway '${this.gatewayServerPath}' is active.`
+    );
+    return res;
+  }
+}
+
+export const WorkerServer = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: Worker,
+});
+export const WorkerServerGateway = WorkerServer.launchGatewayClient();
+
+// ./worker/client.ts
+import { WorkerThreadInit, WorkerThreadExport } from "gramstax";
+import { WorkerServerGateway } from "./server";
+
+class Worker extends WorkerThreadInit {
+  async mtdTest() {
+    const data = await WorkerServerGateway.mtdHello(`worker client`);
     console.log("Data:", data);
   }
 }
 
-export const MyJob = WorkerThreadExport.init({
+export const WorkerClient = WorkerThreadExport.init({
   path: __filename,
-  WTInit: MyWorker,
+  WTInit: Worker,
 });
+
+// ./main.ts
+import { WorkerServer } from "./worker/server";
+import { WorkerClient } from "./worker/client";
+
+await WorkerServer.launchWorker(); // launch worker server
+await WorkerClient.launchWorker(); // launch worker client
+
+await WorkerServer.mtdStart(); // launch server gateway
+await WorkerClient.mtdTest(); // call mtdHello to WorkerServer in mtdTest from WorkerClient
 ```

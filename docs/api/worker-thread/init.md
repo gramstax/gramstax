@@ -51,6 +51,13 @@ if (WorkerThreadInit.isMainThread) {
 }
 ```
 
+### `.gatewayServerPath`
+
+Path gateway server. (if need server gateway you can overrides)
+
+- **type: string | undefined**
+- **ai_notes:** Overrides if need gateway server`.
+
 &nbsp;
 
 ## Instance Properties
@@ -94,6 +101,12 @@ Reference to the parent port for messaging.
 Gateway server instance if created.
 
 - **type: WorkerThreadGatewayServer | undefined**
+
+### `.gatewayServerPath`
+
+Path gateway server from static .gatewayServerPath.
+
+- **type: string | undefined**
 
 ### `.gatewayClients`
 
@@ -148,34 +161,41 @@ const result = await this.request("getConfig", ["key"]);
 
 Create a gateway server for inter-worker communication.
 
-| parameter | type   | required | default | description       | ai_notes                   |
-| --------- | ------ | -------- | ------- | ----------------- | -------------------------- |
-| path      | string | yes      | -       | Unix socket path  | Gateway identifier.        |
-| methods   | object | no       | `{}`    | Methods to expose | Called by gateway clients. |
+| parameter | type   | required | default                            | description                           | ai_notes                   |
+| --------- | ------ | -------- | ---------------------------------- | ------------------------------------- | -------------------------- |
+| methods   | object | no       | this                               | Methods with value function to expose | Called by gateway clients. |
+| path      | string | no       | this.constructor.gatewayServerPath | Unix socket path                      | Gateway identifier.        |
 
 - **returns: Promise\<boolean\>**
 - **ai_notes:** Resolves when gateway is ready.
 
 ```typescript
-await this.createGatewayServer("/tmp/my-worker.sock", {
-  ping: () => "pong",
-});
+// recomended
+await this.createGatewayServer(); // method will automatic set with default "this" and path will automatic get from "this.gatewayServerPath"
+
+// not recomended
+await this.createGatewayServer(
+  {
+    ping: () => "pong",
+  },
+  "/tmp/my-worker.sock"
+);
 ```
 
-### `.createGatewayClient(path)`
+### `.createGatewayClient(serverPath)`
 
-Create a gateway client to connect to another worker.
+Create a gateway client to connect to another worker. (not recomended, use init "launchGatewayClient" from export directly from source)
 
-| parameter | type   | required | description                 | ai_notes                |
-| --------- | ------ | -------- | --------------------------- | ----------------------- |
-| path      | string | yes      | Unix socket path to connect | Matches server gateway. |
+| parameter  | type   | required | description                 | ai_notes                |
+| ---------- | ------ | -------- | --------------------------- | ----------------------- |
+| serverPath | string | yes      | Unix socket path to connect | Matches server gateway. |
 
 - **returns: Promise\<WorkerThreadGatewayClient\>**
 - **ai_notes:** Resolves with connected client.
 
 ```typescript
+// set path directly
 const client = await this.createGatewayClient("/tmp/other-worker.sock");
-
 const result = await client.request("ping", []);
 ```
 
@@ -184,9 +204,10 @@ const result = await client.request("ping", []);
 ## Usage
 
 ```typescript
+// ./worker/my.ts
 import { WorkerThreadInit, WorkerThreadExport, log } from "gramstax";
 
-class MyWorker extends WorkerThreadInit {
+class Worker extends WorkerThreadInit {
   private data: Map<string, any> = new Map();
 
   constructor() {
@@ -194,25 +215,32 @@ class MyWorker extends WorkerThreadInit {
     log.info(`Worker ${this.id} started with PID ${this.pid}`);
   }
 
-  set(key: string, value: any) {
+  mtdSet(key: string, value: any) {
     this.data.set(key, value);
     return true;
   }
 
-  get(key: string) {
+  mtdGet(key: string) {
     return this.data.get(key);
   }
 
-  getAll() {
+  mtdGetAll() {
     return Object.fromEntries(this.data);
   }
 }
 
-export const MyJob = WorkerThreadExport.init({
+export const MyWorker = WorkerThreadExport.init({
   path: __filename,
-  WTInit: MyWorker,
+  WTInit: Worker,
 });
 
+// main.ts
 // in main thread area
-await MyJob.launchWorker();
+import { MyWorker } from "./worker/my";
+
+await MyWorker.launchWorker(); // launch first (required)
+await MyWorker.mtdSet(`name`, `damar`); // true
+
+const data = await MyWorker.mtdGet(`name`);
+console.log(data); // damar
 ```
