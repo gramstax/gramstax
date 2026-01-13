@@ -14,9 +14,7 @@ export class WorkerThreadInit {
   gatewayClientLatest?: WorkerThreadGatewayClient
 
   static gatewayServerPath?: string
-  static gatewayClientLatestPath?: string
   gatewayServerPath = (this.constructor as any).gatewayServerPath
-  gatewayClientLatestPath = (this.constructor as any).gatewayServerPath
 
   get gatewayClient() {
     return this.gatewayClientLatest
@@ -46,19 +44,25 @@ export class WorkerThreadInit {
     return this.rpc.makeRequest(method, params, _wait, _others)
   }
 
-  async createGatewayServer(path: string, methods: any = {}) {
+  async createGatewayServer(methods?: any, path?: string) {
+    if (!methods) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      methods = this
+    }
+    if (!path) {
+      path = (this.constructor as any).gatewayServerPath
+    }
     this.gatewayServer = new WorkerThreadGatewayServer()
-    await this.gatewayServer.start(path, methods)
+    await this.gatewayServer.start(path!, methods)
     ;(this.constructor as any).gatewayServerPath = path
     return true
   }
 
-  async createGatewayClient(path: string) {
+  async createGatewayClient(serverPath: string) {
     const client = new WorkerThreadGatewayClient()
-    await client.connect(path)
-    this.gatewayClients.set(path, client)
+    await client.connect(serverPath)
+    this.gatewayClients.set(serverPath, client)
     this.gatewayClientLatest = client
-    ;(this.constructor as any).gatewayClientPathLatest = path
     return client
   }
 }
