@@ -1,6 +1,6 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
+> - **Last Updated:** 13/01/2026 22:59:25
 > - **Framework Version:** v0.3.20
 
 # Ctx
@@ -47,13 +47,29 @@ Page routing data created by `buildData()`.
 
 ## Static Methods
 
-### `.buildData(callbackData?)`
+### `.buildData(params?)`
 
-Create page data configuration.
+Create page data configuration. Accepts an optional callback or an options object.
 
-| parameter    | type     | required | description                             | ai_notes                              |
-| ------------ | -------- | -------- | --------------------------------------- | ------------------------------------- |
-| callbackData | function | no       | Function returning callback data string | Overrides default page name when set. |
+**Supported signatures**
+
+- `buildData()`
+- `buildData(callbackDataFn)`
+- `buildData({ callbackData?, text?, textCommand? })`
+
+**Options**
+
+| key          | type     | required | description                                           | ai_notes                                                                                       |
+| ------------ | -------- | -------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| callbackData | function | no       | Function returning callback payload                   | Appends `:<payload>` to the auto-generated callback key;                                       |
+| text         | string   | no       | Overrides trigger value for the `text()` route        | Only a single space is supported (max two words, e.g. `"🏠 Home"`); leave unset unless needed. |
+| textCommand  | string   | no       | Overrides trigger value for the `textCommand()` route | Useful when the default name contains `-`; leave unset unless needed.                          |
+
+**Internal fields (auto-set)**
+
+- `name`: internal page name assigned by the framework.
+- `_callbackData`: internal callback key (may be numeric if `shortCallbackData` is enabled).
+- `_positionPayloadText`: internal payload index for `text` triggers (max 2 when `text` contains one space).
 
 - **returns: IPageData**
 - **ai_notes:** Metadata used for routing.
@@ -62,7 +78,7 @@ Create page data configuration.
 import { PageBase } from "~/base/page";
 
 class MyPage extends PageBase {
-  // Simple data (dont create like below because its already create in background)
+  // Basic usage (auto-generated name and callback key)
   static data = this.buildData();
 
   // With payload function for callback data

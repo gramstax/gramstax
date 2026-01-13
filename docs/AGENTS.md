@@ -51,68 +51,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
-
-# API Documentation
-
-This directory contains API docs for **Gramstax**.
-
-The folder structure mirrors `packages/gramstax/src`.
-
-&nbsp;
-
-## Index
-
-### cache/
-
-- [external.md](cache/external.md) - `CacheExternal` caching adapter
-
-### core/
-
-- [bot.md](core/bot.md) - Main `Gramstax` bot class
-- [ctx.md](core/ctx.md) - `Ctx` context class with session, template, and reply methods
-
-### page/
-
-- [manager.md](page/manager.md) - `PageManager` for dynamic page loading
-
-### template/
-
-- [engine.md](template/engine.md) - `TemplateEngine` for HTML-like template parsing
-- [manager.md](template/manager.md) - `TemplateManager` for template compilation and hot-reloading
-
-### utils/
-
-- [log.md](utils/log.md) - `LoggingUtils` enhanced logging utility
-
-### components/
-
-- [keyboard.md](components/keyboard.md) - `ComponentKeyboard` for keyboard template generation
-
-### data/
-
-- [keyboard.md](data/keyboard.md) - `DataKeyboard` keyboard data helpers
-
-### worker-thread/
-
-- [export.md](worker-thread/export.md) - `WorkerThreadExport` unified thread initialization
-- [init.md](worker-thread/init.md) - `WorkerThreadInit` worker thread base class
-- [launch.md](worker-thread/launch.md) - `WorkerThreadLaunch` worker lifecycle manager
-- [pool.md](worker-thread/pool.md) - `WorkerThreadPool` multi-thread manager
-- [rpc.md](worker-thread/rpc.md) - `WorkerThreadRpc` RPC handler
-- [gateway-client.md](worker-thread/gateway-client.md) - `WorkerThreadGatewayClient` IPC client
-- [gateway-server.md](worker-thread/gateway-server.md) - `WorkerThreadGatewayServer` IPC server
-
-## Cache
-
-### CacheExternal
-
-Source: `docs/api/cache/external.md`
-
-> **Documentation Info**
->
-> - **Last Updated:** 13/01/2025 16:00
+> - **Last Updated:** 13/01/2026 22:59:25
 > - **Framework Version:** v0.3.20
 
 # CacheExternal
@@ -274,291 +213,8 @@ Source: `docs/api/core/bot.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
+> - **Last Updated:** 13/01/2026 22:59:25
 > - **Framework Version:** v0.3.20
-
-# Gramstax
-
-The `Gramstax` class is the main bot framework class that handles initialization, routing, and lifecycle management for Telegram bots.
-
-> **AI Notes (non-normative / for parsing):**
->
-> - **Scope:** This document describes the `Gramstax` main class for bot initialization.
-> - **Extends:** Uses grammY under the hood for Telegram API.
-> - **Deploy modes:** polling, webhook, serverless.
-> - **Routing:** Automatic page-based routing with session support.
-
-&nbsp;
-
-## Constructor
-
-### `new Gramstax(params)`
-
-| parameter                            | type               | required | default     | description                | ai_notes                                                       |
-| ------------------------------------ | ------------------ | -------- | ----------- | -------------------------- | -------------------------------------------------------------- |
-| params.token                         | string             | yes      | -           | Telegram bot token         | Obtained from @BotFather.                                      |
-| params.deploy                        | string             | yes      | -           | Deployment mode            | Values are "polling", "webhook:<url>", "serverless:<adapter>". |
-| params.log                           | LoggingPretty/bool | no       | -           | Logger instance or boolean | If true, creates new LoggingPretty.                            |
-| params.cacheSession                  | CacheExternal      | no       | memory      | Session cache adapter      | Defaults to in-memory cache.                                   |
-| params.cacheKeyboard                 | Map                | no       | `new Map()` | Keyboard cache             | Caches keyboard layouts.                                       |
-| params.templateManager               | TemplateManager    | no       | auto        | Template manager instance  | Defaults to `src/pages` loader.                                |
-| params.optionsPage.shortCallbackData | boolean            | no       | `false`     | Use short callback data    | If true, uses index numbers instead of page names.             |
-
-```typescript
-import { Gramstax } from "gramstax";
-
-const bot = new Gramstax({
-  token: "YOUR_BOT_TOKEN",
-  deploy: "polling",
-  log: true,
-  optionsPage: {
-    shortCallbackData: true,
-  },
-});
-```
-
-&nbsp;
-
-## Deploy Modes
-
-### Polling
-
-Long-polling mode for development.
-
-```typescript
-new Gramstax({
-  token: "TOKEN",
-  deploy: "polling",
-});
-```
-
-### Webhook
-
-Webhook mode for production with Bun.
-
-```typescript
-new Gramstax({
-  token: "TOKEN",
-  deploy: "webhook:https://example.com/webhook",
-});
-```
-
-### Serverless
-
-Serverless mode for platforms like Vercel, Cloudflare Workers.
-
-```typescript
-new Gramstax({
-  token: "TOKEN",
-  deploy: "serverless:bun",
-});
-
-// Access handler for serverless
-export const handler = bot.handlerBotUpdate;
-```
-
-&nbsp;
-
-## Properties
-
-### `.bot`
-
-The underlying grammY Bot instance.
-
-- **type: Bot**
-
-### `.pages`
-
-Loaded page registry with routing maps.
-
-- **type: object**
-
-### `.templateManager`
-
-Template manager instance.
-
-- **type: TemplateManager**
-
-### `.cacheSession`
-
-Session cache adapter.
-
-- **type: CacheExternal**
-
-### `.cacheKeyboard`
-
-Keyboard cache.
-
-- **type: Map**
-
-### `.log`
-
-Logger instance.
-
-- **type: LoggingPretty | undefined**
-
-### `.handlerBotUpdate`
-
-Update handler for serverless deployments.
-
-- **type: function**
-
-&nbsp;
-
-## Lifecycle Hooks
-
-Override these methods in subclass to customize behavior.
-
-### `.hookBeforeStart()`
-
-Called before bot starts.
-
-```typescript
-class MyBot extends Gramstax {
-  hookBeforeStart() {
-    console.log("Bot is about to start");
-  }
-}
-```
-
-### `.hookAfterStart()`
-
-Called after bot starts successfully.
-
-```typescript
-class MyBot extends Gramstax {
-  hookAfterStart() {
-    console.log("Bot started successfully");
-  }
-}
-```
-
-### `.hookBeforeRoute(ctx, listenerName)`
-
-Called before routing each update. Return `false` to skip routing.
-
-| parameter    | type   | description      | ai_notes                            |
-| ------------ | ------ | ---------------- | ----------------------------------- |
-| ctx          | Ctx    | Context instance | Current update context.             |
-| listenerName | string | Event type       | Example values: "text", "callback". |
-
-- **returns: Promise<boolean>**
-- **ai_notes:** Return `false` to skip routing.
-
-```typescript
-class MyBot extends Gramstax {
-  async hookBeforeRoute(ctx, listenerName) {
-    // Ban check
-    if (await isBanned(ctx.userId)) {
-      return false;
-    }
-    return true;
-  }
-}
-```
-
-### `.hookErrorPage(ctx, listenerName, error, isEdit)`
-
-Called when page throws an error.
-
-| parameter    | type    | description           | ai_notes                            |
-| ------------ | ------- | --------------------- | ----------------------------------- |
-| ctx          | Ctx     | Context instance      | Current update context.             |
-| listenerName | string  | Event type            | Example values: "text", "callback". |
-| error        | any     | The error             | Error thrown by page.               |
-| isEdit       | boolean | Was it an edit action | True when edit handler path.        |
-
-```typescript
-import { GeneralStatusPage } from "~/pages/general-status";
-
-class MyBot extends Gramstax {
-  async hookErrorPage(ctx, listenerName, error, isEdit) {
-    console.error(`Error in ${listenerName}:`, error);
-    await new GeneralStatusPage(ctx).toError(
-      `${listenerName}:hookErrorPage`,
-      error,
-      isEdit
-    );
-  }
-}
-```
-
-### `.hookErrorInputNotFoundPage(ctx)`
-
-Called when no matching route found.
-
-```typescript
-import { GeneralStatusPage } from "~/pages/general-status";
-
-class MyBot extends Gramstax {
-  async hookErrorInputNotFoundPage(ctx) {
-    await new GeneralStatusPage(ctx).toErrorInputNotFound();
-  }
-}
-```
-
-&nbsp;
-
-## Routing Priority
-
-Routes are matched in this order:
-
-1. **staticSession** - Session-based routing (if session exists and entity has no own route)
-2. **static** - Exact match (e.g., `/start`, `help`)
-3. **staticIntent** - Payload match (e.g., `/start payload`, `callback:data`)
-4. **dynamicSpecific** - Type-specific free routes (e.g., `textFree`, `photoFree`)
-5. **dynamic** - Generic `free()` method
-
-&nbsp;
-
-## Usage
-
-```typescript
-import { Gramstax, Ctx, CacheExternal } from "gramstax";
-
-class MyBot extends Gramstax {
-  hookBeforeStart() {
-    this.log?.info("Initializing...");
-  }
-
-  hookAfterStart() {
-    this.log?.success("Bot is ready!");
-  }
-
-  async hookBeforeRoute(ctx: Ctx, listenerName: string) {
-    // Log all incoming updates
-    this.log?.debug(`[${listenerName}] ${ctx.userId}`);
-    return true;
-  }
-
-  async hookErrorPage(ctx: Ctx, listenerName: string, error: any) {
-    await new GeneralStatusPage(ctx).toError(
-      `${listenerName}:hookErrorPage`,
-      error,
-      isEdit
-    );
-  }
-}
-
-new MyBot({
-  token: process.env.BOT_TOKEN!,
-  deploy: "polling",
-  log: true,
-  cacheSession: new CacheExternal("redis://localhost:6379", "session"),
-});
-```
-
-#### Implementation Details (packages/gramstax/src/core/bot.ts)
-
-- Uses `logging-pretty` and logs `Gramstax v<package.json version>` on startup.
-- Initializes `cacheSession` with `CacheExternal("memory", "session")` and `cacheKeyboard` with `new Map()` when not provided.
-- Initializes `TemplateManager` with `path: [join(process.cwd(), "src", "pages")]` when no manager is provided.
-- Registers handlers for all grammY message types (`message:text`, `message:photo`, etc.) plus `callback_query:data`.
-- `pageLoads()` uses `PageManager.getFileManySync()` to load page classes and build route maps; clears `Page.template` after compiling.
-- `pageSorts()` sets up routing maps (static, static intent, static session, dynamic specific, dynamic) and can shorten callback data when `optionsPage.shortCallbackData` is `true`.
-- `pageRoutes()` implements the five-stage routing flow described in the docs with additional logic to bypass session routing when an entity has its own static/intent route.
-- `executeSyncBlocksDescription()` reads command descriptions from `TemplateManager` and syncs them to Telegram via `bot.api.setMyCommands`.
-- Deploy modes: `polling` uses `bot.start`, `webhook` uses `bun` server and `webhookCallback`, `serverless` uses `webhookCallback` directly.
 
 ### Ctx
 
@@ -566,7 +222,7 @@ Source: `docs/api/core/ctx.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
+> - **Last Updated:** 13/01/2026 22:59:25
 > - **Framework Version:** v0.3.20
 
 # Ctx
@@ -613,13 +269,29 @@ Page routing data created by `buildData()`.
 
 ## Static Methods
 
-### `.buildData(callbackData?)`
+### `.buildData(params?)`
 
-Create page data configuration.
+Create page data configuration. Accepts an optional callback or an options object.
 
-| parameter    | type     | required | description                             | ai_notes                              |
-| ------------ | -------- | -------- | --------------------------------------- | ------------------------------------- |
-| callbackData | function | no       | Function returning callback data string | Overrides default page name when set. |
+**Supported signatures**
+
+- `buildData()`
+- `buildData(callbackDataFn)`
+- `buildData({ callbackData?, text?, textCommand? })`
+
+**Options**
+
+| key          | type     | required | description                                           | ai_notes                                                                                       |
+| ------------ | -------- | -------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| callbackData | function | no       | Function returning callback payload                   | Appends `:<payload>` to the auto-generated callback key;                                       |
+| text         | string   | no       | Overrides trigger value for the `text()` route        | Only a single space is supported (max two words, e.g. `"🏠 Home"`); leave unset unless needed. |
+| textCommand  | string   | no       | Overrides trigger value for the `textCommand()` route | Useful when the default name contains `-`; leave unset unless needed.                          |
+
+**Internal fields (auto-set)**
+
+- `name`: internal page name assigned by the framework.
+- `_callbackData`: internal callback key (may be numeric if `shortCallbackData` is enabled).
+- `_positionPayloadText`: internal payload index for `text` triggers (max 2 when `text` contains one space).
 
 - **returns: IPageData**
 - **ai_notes:** Metadata used for routing.
@@ -628,7 +300,7 @@ Create page data configuration.
 import { PageBase } from "~/base/page";
 
 class MyPage extends PageBase {
-  // Simple data (dont create like below because its already create in background)
+  // Basic usage (auto-generated name and callback key)
   static data = this.buildData();
 
   // With payload function for callback data
@@ -1111,7 +783,7 @@ export class MyPage extends PageBase {
 - Adds helpers for keyboard caching: `inlineKeyboard` and `bottomKeyboard` support `{ cache: true }` and store keyboards in `cacheKeyboard` with keys like `"<page>:<lang>:i"` and `"<page>:<lang>:b"`.
 - Adds string parsing helpers: `getSeperatorTag`, `havePayloads`, `getPayloads`, `getIntent`.
 - Provides extensive session validation, setting, and merging helpers for every route type (`sessionToText`, `sessionToPhotoCaptionPayload`, etc.).
-- `buildData()` assigns `_callbackData`, `_positionPayloadText`, and constructs `callbackData()` to append `:` payloads.
+- `buildData()` assigns `_callbackData` and `_positionPayloadText`, wraps `callbackData()` to append `:` payloads, and derives `text` payload position when a single space is used.
 - Session method identifiers are numeric prefixes (`1-45`) built via `methodSession()`.
 - `sleep(ms)` is documented but not implemented in `Ctx` (no method in `packages/gramstax/src/core/ctx.ts`).
 
@@ -1514,7 +1186,6 @@ const kb = keyboards.default.id.inline({ name: "John" });
 - Import processing caches blocks via `processImportBlocks()` with a recursion depth limit of 10 and supports `block`, `base`, `lang`, and `section` attributes.
 - `_processSpaceBlocks()` only strips self-closing `<space />` lines (not `<space>...</space>` content).
 - `compileMedia()` resolves media block properties at runtime by compiling individual properties into functions.
-
 
 ### TemplateManager
 
@@ -3552,26 +3223,26 @@ await WorkerB.mtdConnectToA(); // run with trigger in main thread
 Source: `docs/api/worker-thread/_example/worker-main.ts`
 
 ```typescript
-import {WorkerServer} from "./worker-server"
-import {WorkerClient} from "./worker-client"
+import { WorkerServer } from "./worker-server";
+import { WorkerClient } from "./worker-client";
 
 async function main() {
-  console.log(`--- STARTING WORKER THREAD CLUSTER ---`)
+  console.log(`--- STARTING WORKER THREAD CLUSTER ---`);
 
   // 1. Launch Server
-  await WorkerServer.launchWorker([`Main-Server`])
+  await WorkerServer.launchWorker([`Main-Server`]);
 
   // // 2. Start Gateway
-  await WorkerServer.mtdStart()
+  await WorkerServer.mtdStart();
 
   // // 3. Launch Multiple Clients (Sequentially)
-  await WorkerClient.launchWorker([`Client-A`])
+  await WorkerClient.launchWorker([`Client-A`]);
 
-  console.log(`(${process.pid}) Cluster launched successfully.`)
+  console.log(`(${process.pid}) Cluster launched successfully.`);
 }
 
-main().catch(console.error)
-setInterval(() => {}, 60000)
+main().catch(console.error);
+setInterval(() => {}, 60000);
 ```
 
 ### worker-server.ts
@@ -3579,33 +3250,38 @@ setInterval(() => {}, 60000)
 Source: `docs/api/worker-thread/_example/worker-server.ts`
 
 ```typescript
-import {WorkerThreadInit} from "../../../../packages/gramstax/src/worker-thread/init"
-import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-thread/export"
+import { WorkerThreadInit } from "../../../../packages/gramstax/src/worker-thread/init";
+import { WorkerThreadExport } from "../../../../packages/gramstax/src/worker-thread/export";
 
 export class Worker extends WorkerThreadInit {
-  static gatewayServerPath = `gateway-main`
+  static gatewayServerPath = `gateway-main`;
 
   constructor() {
-    super()
+    super();
   }
 
   mtdHello(from: string) {
-    console.log(`[Worker-Server] Received greeting from: ${from}`)
-    return `Hello ${from}, I am Worker-Server!`
+    console.log(`[Worker-Server] Received greeting from: ${from}`);
+    return `Hello ${from}, I am Worker-Server!`;
   }
 
   async mtdStart() {
-    const res = await this.createGatewayServer()
+    const res = await this.createGatewayServer();
     if (res) {
-      console.log(`[Worker-Server] Gateway '${this.gatewayServerPath}' is active.`)
-      return res
+      console.log(
+        `[Worker-Server] Gateway '${this.gatewayServerPath}' is active.`
+      );
+      return res;
     }
-    return false
+    return false;
   }
 }
 
-export const WorkerServer = WorkerThreadExport.init({path: __filename, WTInit: Worker})
-export const WorkerServerGateway = WorkerServer.launchGatewayClient()
+export const WorkerServer = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: Worker,
+});
+export const WorkerServerGateway = WorkerServer.launchGatewayClient();
 ```
 
 ### worker-client.ts
@@ -3613,32 +3289,38 @@ export const WorkerServerGateway = WorkerServer.launchGatewayClient()
 Source: `docs/api/worker-thread/_example/worker-client.ts`
 
 ```typescript
-import {WorkerThreadInit} from "../../../../packages/gramstax/src/worker-thread/init"
-import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-thread/export"
-import {WorkerServerGateway} from "./worker-server"
+import { WorkerThreadInit } from "../../../../packages/gramstax/src/worker-thread/init";
+import { WorkerThreadExport } from "../../../../packages/gramstax/src/worker-thread/export";
+import { WorkerServerGateway } from "./worker-server";
 
 class Worker extends WorkerThreadInit {
-  private name: string = `Unknown`
+  private name: string = `Unknown`;
 
   constructor() {
-    super()
-    this.name = this.argv[3] || `Unknown`
-    this.mtdAutoRun()
+    super();
+    this.name = this.argv[3] || `Unknown`;
+    this.mtdAutoRun();
   }
 
   async mtdAutoRun() {
-    console.log(`[Worker-Client-${this.name}] Starting autoRun...`)
+    console.log(`[Worker-Client-${this.name}] Starting autoRun...`);
     try {
-      console.log(`[Worker-Client-${this.name}] Connecting to gateway...`)
-      const res = await WorkerServerGateway.mtdHello(this, `Worker-Client-${this.name}`)
-      console.log(`[Worker-Client-${this.name}] Server response: ${res}`)
+      console.log(`[Worker-Client-${this.name}] Connecting to gateway...`);
+      const res = await WorkerServerGateway.mtdHello(
+        this,
+        `Worker-Client-${this.name}`
+      );
+      console.log(`[Worker-Client-${this.name}] Server response: ${res}`);
     } catch (err: any) {
-      console.error(`[Worker-Client-${this.name}] Error:`, err.message || err)
+      console.error(`[Worker-Client-${this.name}] Error:`, err.message || err);
     }
   }
 }
 
-export const WorkerClient = WorkerThreadExport.init({path: __filename, WTInit: Worker})
+export const WorkerClient = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: Worker,
+});
 ```
 
 ### test-final-main.ts
@@ -3646,36 +3328,36 @@ export const WorkerClient = WorkerThreadExport.init({path: __filename, WTInit: W
 Source: `docs/api/worker-thread/_example/test-final-main.ts`
 
 ```typescript
-import {ServerMain} from "./test-final-server-main"
-import {WorkerA} from "./test-final-worker-a"
-import {WorkerB} from "./test-final-worker-b"
-import {WorkerC} from "./test-final-worker-c"
+import { ServerMain } from "./test-final-server-main";
+import { WorkerA } from "./test-final-worker-a";
+import { WorkerB } from "./test-final-worker-b";
+import { WorkerC } from "./test-final-worker-c";
 
 async function run() {
-  console.log(`--- STARTING FINAL 1-SERVER / 3-CLIENTS TEST ---`)
+  console.log(`--- STARTING FINAL 1-SERVER / 3-CLIENTS TEST ---`);
 
   // Launch Server
-  await ServerMain.launchWorker([`Server`])
-  await ServerMain.mtdStart()
-  await ServerMain.mtdHello(`From Main Thread`)
+  await ServerMain.launchWorker([`Server`]);
+  await ServerMain.mtdStart();
+  await ServerMain.mtdHello(`From Main Thread`);
 
   // Launch Clients
-  await WorkerA.launchWorker([`A`])
-  await WorkerB.launchWorker([`B`])
-  await WorkerC.launchWorker([`C`])
+  await WorkerA.launchWorker([`A`]);
+  await WorkerB.launchWorker([`B`]);
+  await WorkerC.launchWorker([`C`]);
 
-  console.log(`All workers launched. Interaction is autonomous.`)
+  console.log(`All workers launched. Interaction is autonomous.`);
 
   // Keep alive to see all logs
-  await new Promise((r) => setTimeout(r, 8000))
-  console.log(`Final test complete. Exiting.`)
-  process.exit(0)
+  await new Promise((r) => setTimeout(r, 8000));
+  console.log(`Final test complete. Exiting.`);
+  process.exit(0);
 }
 
 run().catch((err) => {
-  console.error(`Final Test Error:`, err)
-  process.exit(1)
-})
+  console.error(`Final Test Error:`, err);
+  process.exit(1);
+});
 ```
 
 ### test-final-server-main.ts
@@ -3683,32 +3365,37 @@ run().catch((err) => {
 Source: `docs/api/worker-thread/_example/test-final-server-main.ts`
 
 ```typescript
-import {WorkerThreadInit} from "../../../../packages/gramstax/src/worker-thread/init"
-import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-thread/export"
+import { WorkerThreadInit } from "../../../../packages/gramstax/src/worker-thread/init";
+import { WorkerThreadExport } from "../../../../packages/gramstax/src/worker-thread/export";
 
 class Worker extends WorkerThreadInit {
-  static gatewayServerPath = `gateway-final`
+  static gatewayServerPath = `gateway-final`;
   constructor() {
-    super()
+    super();
   }
 
   mtdHello(from: string) {
-    console.log(`[Server-Main] Received greeting from: ${from}`)
-    return `Hello ${from}, I am Server-Main!`
+    console.log(`[Server-Main] Received greeting from: ${from}`);
+    return `Hello ${from}, I am Server-Main!`;
   }
 
   async mtdStart() {
-    const res = await this.createGatewayServer()
+    const res = await this.createGatewayServer();
     if (res) {
-      console.log(`[Server-Main] Gateway '${this.gatewayServerPath}' is active.`)
-      return res
+      console.log(
+        `[Server-Main] Gateway '${this.gatewayServerPath}' is active.`
+      );
+      return res;
     }
-    return false
+    return false;
   }
 }
 
-export const ServerMain = WorkerThreadExport.init({path: __filename, WTInit: Worker})
-export const ServerMainGateway = ServerMain.launchGatewayClient()
+export const ServerMain = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: Worker,
+});
+export const ServerMainGateway = ServerMain.launchGatewayClient();
 ```
 
 ### test-final-worker-a.ts
@@ -3716,29 +3403,32 @@ export const ServerMainGateway = ServerMain.launchGatewayClient()
 Source: `docs/api/worker-thread/_example/test-final-worker-a.ts`
 
 ```typescript
-import {WorkerThreadInit} from "../../../../packages/gramstax/src/worker-thread/init"
-import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-thread/export"
-import {ServerMainGateway} from "./test-final-server-main"
+import { WorkerThreadInit } from "../../../../packages/gramstax/src/worker-thread/init";
+import { WorkerThreadExport } from "../../../../packages/gramstax/src/worker-thread/export";
+import { ServerMainGateway } from "./test-final-server-main";
 
 class Worker extends WorkerThreadInit {
   constructor() {
-    super()
-    this.mtdAutoRun()
+    super();
+    this.mtdAutoRun();
   }
 
   async mtdAutoRun() {
-    console.log(`[Worker-A] Starting autoRun...`)
+    console.log(`[Worker-A] Starting autoRun...`);
     try {
-      console.log(`[Worker-A] Connecting to gateway-final...`)
-      const res = await ServerMainGateway.mtdHello(this, `Worker-A`)
-      console.log(`[Worker-A] Server response: ${res}`)
+      console.log(`[Worker-A] Connecting to gateway-final...`);
+      const res = await ServerMainGateway.mtdHello(this, `Worker-A`);
+      console.log(`[Worker-A] Server response: ${res}`);
     } catch (err: any) {
-      console.error(`[Worker-A] Error:`, err.message || err)
+      console.error(`[Worker-A] Error:`, err.message || err);
     }
   }
 }
 
-export const WorkerA = WorkerThreadExport.init({path: __filename, WTInit: Worker})
+export const WorkerA = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: Worker,
+});
 ```
 
 ### test-final-worker-b.ts
@@ -3746,29 +3436,32 @@ export const WorkerA = WorkerThreadExport.init({path: __filename, WTInit: Worker
 Source: `docs/api/worker-thread/_example/test-final-worker-b.ts`
 
 ```typescript
-import {WorkerThreadInit} from "../../../../packages/gramstax/src/worker-thread/init"
-import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-thread/export"
-import {ServerMainGateway} from "./test-final-server-main"
+import { WorkerThreadInit } from "../../../../packages/gramstax/src/worker-thread/init";
+import { WorkerThreadExport } from "../../../../packages/gramstax/src/worker-thread/export";
+import { ServerMainGateway } from "./test-final-server-main";
 
 class Worker extends WorkerThreadInit {
   constructor() {
-    super()
-    this.mtdAutoRun()
+    super();
+    this.mtdAutoRun();
   }
 
   async mtdAutoRun() {
-    console.log(`[Worker-B] Starting autoRun...`)
+    console.log(`[Worker-B] Starting autoRun...`);
     try {
-      console.log(`[Worker-B] Connecting to gateway-final...`)
-      const res = await ServerMainGateway.mtdHello(this, `Worker-B`)
-      console.log(`[Worker-B] Server response: ${res}`)
+      console.log(`[Worker-B] Connecting to gateway-final...`);
+      const res = await ServerMainGateway.mtdHello(this, `Worker-B`);
+      console.log(`[Worker-B] Server response: ${res}`);
     } catch (err: any) {
-      console.error(`[Worker-B] Error:`, err.message || err)
+      console.error(`[Worker-B] Error:`, err.message || err);
     }
   }
 }
 
-export const WorkerB = WorkerThreadExport.init({path: __filename, WTInit: Worker})
+export const WorkerB = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: Worker,
+});
 ```
 
 ### test-final-worker-c.ts
@@ -3776,29 +3469,32 @@ export const WorkerB = WorkerThreadExport.init({path: __filename, WTInit: Worker
 Source: `docs/api/worker-thread/_example/test-final-worker-c.ts`
 
 ```typescript
-import {WorkerThreadInit} from "../../../../packages/gramstax/src/worker-thread/init"
-import {WorkerThreadExport} from "../../../../packages/gramstax/src/worker-thread/export"
-import {ServerMainGateway} from "./test-final-server-main"
+import { WorkerThreadInit } from "../../../../packages/gramstax/src/worker-thread/init";
+import { WorkerThreadExport } from "../../../../packages/gramstax/src/worker-thread/export";
+import { ServerMainGateway } from "./test-final-server-main";
 
 class Worker extends WorkerThreadInit {
   constructor() {
-    super()
-    this.mtdAutoRun()
+    super();
+    this.mtdAutoRun();
   }
 
   async mtdAutoRun() {
-    console.log(`[Worker-C] Starting autoRun...`)
+    console.log(`[Worker-C] Starting autoRun...`);
     try {
-      console.log(`[Worker-C] Connecting to gateway-final...`)
-      const res = await ServerMainGateway.mtdHello(this, `Worker-C`)
-      console.log(`[Worker-C] Server response: ${res}`)
+      console.log(`[Worker-C] Connecting to gateway-final...`);
+      const res = await ServerMainGateway.mtdHello(this, `Worker-C`);
+      console.log(`[Worker-C] Server response: ${res}`);
     } catch (err: any) {
-      console.error(`[Worker-C] Error:`, err.message || err)
+      console.error(`[Worker-C] Error:`, err.message || err);
     }
   }
 }
 
-export const WorkerC = WorkerThreadExport.init({path: __filename, WTInit: Worker})
+export const WorkerC = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: Worker,
+});
 ```
 
 ## Source Exports
