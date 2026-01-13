@@ -17,7 +17,7 @@ export type WorkerThreadAsyncMethods<T> = {
 }
 
 export class WorkerThreadExport {
-  static gateway<TWorker extends WorkerThreadInit>(path: string): WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>} {
+  static launchGatewayClient<TWorker extends WorkerThreadInit>(path: string): WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>} {
     const proxy: any = new Proxy({} as any, {
       get(_, prop) {
         if (typeof prop !== `string` || prop === `then`) return undefined
@@ -53,14 +53,14 @@ export class WorkerThreadExport {
 
   static init<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap = Record<any, any>>(
     options: WorkerThreadExportOpt<TWorker, TMain, TWrap>
-  ): TWrap & WorkerThreadAsyncMethods<TWorker> & {launchWorker: (argv?: any[]) => Promise<TMain>; gateway: (path: string) => WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>}} {
+  ): TWrap & WorkerThreadAsyncMethods<TWorker> & {launchWorker: (argv?: any[]) => Promise<TMain>; launchGatewayClient: (serverPath?: string) => WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>}} {
     const {WTInit, WTLaunch = WorkerThreadLaunch as any, path, wrap} = options
     const uniqueArg = `for-${path}`
 
     // check if we are in worker thread
     if (process.argv[2] === uniqueArg) {
       new WTInit()
-      return {gateway: (p: string) => WorkerThreadExport.gateway<TWorker>(p)} as any
+      return {launchGatewayClient: (sp?: string) => WorkerThreadExport.launchGatewayClient<TWorker>(sp || (WTInit as any).gatewayServerPath)} as any
     }
 
     // below is area main thread
@@ -91,15 +91,15 @@ export class WorkerThreadExport {
         await instance.ready()
         return instance
       },
-      gateway: (gatewayPath: string) => {
-        return WorkerThreadExport.gateway<TWorker>(gatewayPath)
+      launchGatewayClient: (serverPath?: string) => {
+        return WorkerThreadExport.launchGatewayClient<TWorker>(serverPath || (WTInit as any).gatewayServerPath)
       }
     }
 
     return new Proxy(result, {
       get(target, prop) {
         if (prop === `then`) return undefined
-        if (prop === `gateway`) return target.gateway
+        if (prop === `launchGatewayClient`) return target.launchGatewayClient
         if (prop === `launchWorker`) return target.launchWorker
         if (prop in target) return target[prop as any]
         if (typeof prop === `string`) {

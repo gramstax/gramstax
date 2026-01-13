@@ -13,6 +13,11 @@ export class WorkerThreadInit {
   gatewayClients = new Map<string, WorkerThreadGatewayClient>()
   gatewayClientLatest?: WorkerThreadGatewayClient
 
+  static gatewayServerPath?: string
+  static gatewayClientLatestPath?: string
+  gatewayServerPath = (this.constructor as any).gatewayServerPath
+  gatewayClientLatestPath = (this.constructor as any).gatewayServerPath
+
   get gatewayClient() {
     return this.gatewayClientLatest
   }
@@ -44,6 +49,7 @@ export class WorkerThreadInit {
   async createGatewayServer(path: string, methods: any = {}) {
     this.gatewayServer = new WorkerThreadGatewayServer()
     await this.gatewayServer.start(path, methods)
+    ;(this.constructor as any).gatewayServerPath = path
     return true
   }
 
@@ -52,6 +58,7 @@ export class WorkerThreadInit {
     await client.connect(path)
     this.gatewayClients.set(path, client)
     this.gatewayClientLatest = client
+    ;(this.constructor as any).gatewayClientPathLatest = path
     return client
   }
 }
