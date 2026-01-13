@@ -423,7 +423,7 @@ export class Ctx {
   bkb(...args: Parameters<typeof this.bottomKeyboard>) {
     return this.bottomKeyboard(...args)
   }
-  inlineKeyboard(callback: (kb: IInlineKb, arr: string[]) => IInlineKb, params?: {baseId?: string; data?: IData; cache?: boolean}): IInlineKb {
+  inlineKeyboard(callback: (k: IInlineKb, a: string[]) => IInlineKb, params?: {baseId?: string; data?: IData; cache?: boolean}): IInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:i`
@@ -442,7 +442,7 @@ export class Ctx {
     const rkb = callback(ikb, arr)
     return rkb
   }
-  bottomKeyboard(callback: (kb: IBottomKb, arr: string[]) => IBottomKb, params?: {baseId?: string; data?: IData; cache?: boolean}): IBottomKb {
+  bottomKeyboard(callback: (k: IBottomKb, a: string[]) => IBottomKb, params?: {baseId?: string; data?: IData; cache?: boolean}): IBottomKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:b`
