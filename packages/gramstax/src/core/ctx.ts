@@ -423,7 +423,7 @@ export class Ctx {
       /**
        * Overrides the value used to trigger the route function callback (besides the ending "free").
        * This is typically used when triggering the route via a payload, for example :123, or a payload combined with parts, such as ":123+x".
-       * When using parts, a payload must be provided first. A single payload may contain multiple parts, and the first payload is always used as the trigger.
+       * When using parts, a payload must be provided first. A single payload may contain multiple parts.
        *
        * important!: Leave this unset unless explicitly needed.
        */
