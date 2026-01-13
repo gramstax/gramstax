@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/gramstax/gramstax",
   "author": "gramstax",
-  "license": "MIT",
+  "license": "PROPRIETARY",
   "type": "module",
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.mjs",
