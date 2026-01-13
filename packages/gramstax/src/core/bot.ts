@@ -541,7 +541,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * algoritme = x = startsWith; O(x)
      * example = animationCaptionCommandPayload, callbackCommandPayload, textCommandPayload
      * description = route with intent and payloads, example "/start helloworld", "start helloworld", "/add item1", "/add item1 item2"
-     *               "callback:123", "callback:123:kkk"
+     *               "wallet:123", "wallet:123:kkk"
      */
     if (Page === undefined) {
       const pStaticIntent = this.pages.routeStaticIntent
