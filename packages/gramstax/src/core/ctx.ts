@@ -108,9 +108,6 @@ export class Ctx {
   get callbackDataPayload() {
     return this.callbackDataPayloads?.[0] as string
   }
-  get callbackDataParts() {
-    return this.callbackDataPayload && this.callbackDataPayload.indexOf(`+`) != -1 ? this.callbackDataPayload.split(`+`) : ([] as string[])
-  }
   set session(v: ITemp[`session`]) {
     this.temp.session = v
   }
