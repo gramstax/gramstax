@@ -399,9 +399,34 @@ export class Ctx {
     const callback = options.callbackData
 
     const data: IPageData<any> = {
+      /**
+       * Internal value derived from the file name.
+       * This value is used as the default trigger.
+       *
+       * important!: Do not set this manually. Let the system handle it.
+       */
       name: ``,
+      /**
+       * Overrides the value used to trigger the route function text (besides the ending "free").
+       * This is typically used when you want to trigger the route using a space-separated command, for example "X Start" or "🏠 Home", with a maximum of one space.
+       *
+       * important!: Leave this unset unless explicitly needed.
+       */
       text: options.text,
+      /**
+       * Overrides the value used to trigger the route function textCommand (besides the ending "free").
+       * This is usually required when this.name includes a hyphen ("-"), which may interfere with default routing behavior.
+       *
+       * important!: Leave this unset unless explicitly needed.
+       */
       textCommand: options.textCommand,
+      /**
+       * Overrides the value used to trigger the route function callback (besides the ending "free").
+       * This is typically used when triggering the route via a payload, for example :123, or a payload combined with parts, such as ":123+x".
+       * When using parts, a payload must be provided first. A single payload may contain multiple parts, and the first payload is always used as the trigger.
+       *
+       * important!: Leave this unset unless explicitly needed.
+       */
       callbackData: callback
         ? function (this: {_callbackData: string}, ...args: any[]): string {
             const params = callback(...args)
@@ -410,7 +435,19 @@ export class Ctx {
         : function (this: {_callbackData: string}) {
             return this?._callbackData
           },
+      /**
+       * Internal value used to trigger callbackData.
+       * By default, this follows this.name. However, if constructorParams.shortCallbackData is set to true, a numeric index value will be used instead.
+       *
+       * important!: Do not set this manually. Let the system handle it.
+       */
       _callbackData: ``,
+      /**
+       * Internal value that defines the trigger position for the route function text.
+       * The maximum allowed value is 2, which means only a single space is supported, for example "🏠 Home".
+       *
+       * important!: Do not set this manually. Let the system handle it.
+       */
       _positionPayloadText: options.text ? options.text.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any)
     }
     return data
