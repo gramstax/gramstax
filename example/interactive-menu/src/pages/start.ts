@@ -2,6 +2,8 @@ import {PageBase} from "~/base/page"
 import {CategoryPage} from "./category"
 import {HelpPage} from "./help"
 import {ResetPage} from "./reset"
+import {InlineWithCountPage} from "./inline-with-count"
+import {InlineWithoutCountPage} from "./inline-without-count"
 
 // Main menu page for the interactive bot.
 export class StartPage extends PageBase {
@@ -11,9 +13,12 @@ export class StartPage extends PageBase {
     return this.ikb((k, a) => {
       return k
         .text(a[0]!, CategoryPage.data.callbackData())
+        .text(a[1]!, InlineWithCountPage.data.callbackData())
         .row()
-        .text(a[1]!, HelpPage.data.callbackData())
-        .text(a[2]!, ResetPage.data.callbackData())
+        .text(a[2]!, InlineWithoutCountPage.data.callbackData())
+        .text(a[3]!, HelpPage.data.callbackData())
+        .row()
+        .text(a[4]!, ResetPage.data.callbackData())
     })
   }
 
@@ -81,7 +86,7 @@ export class StartPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Browse, Help, Reset</keyboard>
+      <keyboard>Browse, Inline Count, Inline Simple, Help, Reset</keyboard>
       <keyboard type="bottom">${this.kbd.menu(`default`)}, ${this.kbd.browse(`default`)}, ${this.kbd.help(`default`)}, ${this.kbd.reset(`default`)}</keyboard>
       <message>
         Welcome! Choose an action from the menu.
@@ -99,6 +104,8 @@ export class StartPage extends PageBase {
         Main Menu
 
         - Browse: view categories
+        - Inline Count: inline list with total pages
+        - Inline Simple: inline list without totals
         - Help: learn navigation
         - Reset: clear state
       </message>
