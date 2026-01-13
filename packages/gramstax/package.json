@@ -6,16 +6,8 @@
     "access": "public",
     "provenance": false
   },
-  "description": "A powerful Telegram bot framework with page-based routing and template system",
-  "keywords": [
-    "telegram",
-    "bot",
-    "grammy",
-    "telegram-bot",
-    "bot-framework",
-    "bot-framework",
-    "gramstax"
-  ],
+  "description": "",
+  "keywords": [],
   "scripts": {
     "nx-release-publish": "npm publish --access public"
   },

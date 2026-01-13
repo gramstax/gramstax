@@ -6,17 +6,8 @@
     "access": "public",
     "provenance": false
   },
-  "description": "CLI tool to quickly create a new Gramstax Telegram bot project with all the best practices",
-  "keywords": [
-    "create-gramstax",
-    "gramstax",
-    "telegram",
-    "bot",
-    "cli",
-    "generator",
-    "scaffold",
-    "telegram-bot"
-  ],
+  "description": "",
+  "keywords": [],
   "scripts": {
     "nx-release-publish": "npm publish --access public"
   },
