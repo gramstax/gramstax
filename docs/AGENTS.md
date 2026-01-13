@@ -51,7 +51,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2026 22:59:25
+> - **Last Updated:** 13/01/2026 23:40:00
 > - **Framework Version:** v0.3.20
 
 # CacheExternal
@@ -435,12 +435,6 @@ Get all payloads from callback data.
 
 - **type: string[]**
 
-### `.callbackDataParts`
-
-Get all parts split by colon.
-
-- **type: string[]**
-
 &nbsp;
 
 ## Session Methods
@@ -774,7 +768,6 @@ export class MyPage extends PageBase {
 #### Implementation Details (packages/gramstax/src/core/ctx.ts)
 
 - `Ctx` exposes additional getters: `msgTextCommandPayloads`, `msgTextCommandPayload`, `msgCaptionPayloads`, `msgCaptionCommandPayloads`, and media getters (`msgPhoto`, `msgVideo`, `msgAudio`).
-- `callbackDataParts` splits `callbackDataPayload` by `+` if present.
 - `broadcast(ids, languageCode, ...)` sends messages with per-user language, throttling every 30 messages via `setTimeout(1200)`.
 - `replyMedia` and `editMedia` route through template media blocks from `TemplateManager.getMedia()`.
 - `replyAction` wraps grammY `replyWithChatAction`.

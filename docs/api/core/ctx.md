@@ -1,6 +1,6 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2026 22:59:25
+> - **Last Updated:** 13/01/2026 23:40:00
 > - **Framework Version:** v0.3.20
 
 # Ctx
@@ -210,12 +210,6 @@ Get first payload from callback data.
 ### `.callbackDataPayloads`
 
 Get all payloads from callback data.
-
-- **type: string[]**
-
-### `.callbackDataParts`
-
-Get all parts split by colon.
 
 - **type: string[]**
 
