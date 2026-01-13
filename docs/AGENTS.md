@@ -51,7 +51,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 00:31:08
+> - **Last Updated:** 14/01/2026 01:47:39
 > - **Framework Version:** v0.3.21
 
 
@@ -60,6 +60,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 - Prefer `buildData(callbackDataFn)` when only callback payloads are needed (avoid `{ callbackData }`).
 - Avoid `textCommand` unless you must override the filename-derived default (`this.data.name`).
 - `textFree()` only triggers when text exists, so no empty-text guard is required.
+- `callbackQueryAnswer()` is auto-handled for routed callbacks; call it only for custom toasts.
 
 # PageManager
 

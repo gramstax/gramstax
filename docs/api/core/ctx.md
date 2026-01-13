@@ -1,6 +1,6 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 00:31:08
+> - **Last Updated:** 14/01/2026 01:47:39
 
 > - **Framework Version:** v0.3.21
 
@@ -385,7 +385,8 @@ Wait for specified milliseconds.
 
 ### `.callbackQueryAnswer(text?, options?)`
 
-Answer callback query (show toast).
+Answer callback query (show toast). Gramstax auto-answers routed callbacks, so call this only when you need a custom toast or extra acknowledgment.
+
 
 | parameter | type   | required | description    | ai_notes                         |
 | --------- | ------ | -------- | -------------- | -------------------------------- |
