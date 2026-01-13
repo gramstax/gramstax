@@ -1,7 +1,7 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # WorkerThreadPool
 

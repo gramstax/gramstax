@@ -52,7 +52,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.20
+> - **Framework Version:** v0.3.21
 
 # CacheExternal
 
@@ -213,8 +213,8 @@ Source: `docs/api/core/bot.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2026 22:59:25
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 ### Ctx
 
@@ -222,8 +222,8 @@ Source: `docs/api/core/ctx.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2026 22:59:25
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # Ctx
 
@@ -788,8 +788,8 @@ Source: `docs/api/page/manager.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # PageManager
 
@@ -925,8 +925,8 @@ Source: `docs/api/template/engine.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # TemplateEngine
 
@@ -1186,8 +1186,8 @@ Source: `docs/api/template/manager.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # TemplateManager
 
@@ -1467,8 +1467,8 @@ Source: `docs/api/utils/log.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # LoggingUtils
 
@@ -1577,8 +1577,8 @@ Source: `docs/api/components/keyboard.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # ComponentKeyboard
 
@@ -1730,8 +1730,8 @@ Source: `docs/api/data/keyboard.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # DataKeyboard
 
@@ -1863,8 +1863,8 @@ Source: `docs/api/worker-thread/export.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # WorkerThreadExport
 
@@ -2032,8 +2032,8 @@ Source: `docs/api/worker-thread/init.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # WorkerThreadInit
 
@@ -2290,8 +2290,8 @@ Source: `docs/api/worker-thread/launch.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # WorkerThreadLaunch
 
@@ -2490,8 +2490,8 @@ Source: `docs/api/worker-thread/pool.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # WorkerThreadPool
 
@@ -2703,8 +2703,8 @@ Source: `docs/api/worker-thread/rpc.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # WorkerThreadRpc
 
@@ -2901,8 +2901,8 @@ Source: `docs/api/worker-thread/gateway-client.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # WorkerThreadGatewayClient
 
@@ -3058,8 +3058,8 @@ Source: `docs/api/worker-thread/gateway-server.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2025 16:00
-> - **Framework Version:** v0.3.20
+> - **Last Updated:** 13/01/2026 23:40:00
+> - **Framework Version:** v0.3.21
 
 # WorkerThreadGatewayServer
 
