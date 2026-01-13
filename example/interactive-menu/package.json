@@ -1,0 +1,11 @@
+{
+  "name": "example-interactive-menu",
+  "private": false,
+  "scripts": {
+    "start": "bun ./src/index.ts",
+    "dev": "bun --watch ./src/index.ts"
+  },
+  "dependencies": {
+    "gramstax": "workspace:*"
+  }
+}
