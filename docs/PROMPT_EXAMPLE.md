@@ -67,4 +67,13 @@ Refer to `./example/complex/` for the standard project structure. Each new proje
 - Clear README with setup instructions and usage examples
 - Proper error handling
 
+**Best Practices (Context from prior runs):**
+
+- Prefer `buildData(callbackDataFn)` when only callback payloads are needed.
+- Avoid setting `textCommand` unless you must override the filename-derived default.
+- `textFree()` triggers only when text exists; no empty-text guard needed.
+- If you introduce multi-language keyboards, ensure every related flow handles all languages.
+- Favor fast paths (reuse computed data, avoid duplicate lookups).
+
 ---
+
