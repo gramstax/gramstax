@@ -5,7 +5,7 @@ import {TemplateManager} from "~/template/manager"
 import type {IMediaBlock} from "~/template/engine"
 import type {
   ICt,
-  IKb,
+  IInBoKb,
   IData,
   IOptEdit,
   IBottomKb,
@@ -130,7 +130,7 @@ export class Ctx {
     this.temp = params.temp
   }
 
-  async broadcast(ids: number[], languageCode: string[], keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReply, throwError = false) {
+  async broadcast(ids: number[], languageCode: string[], keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReply, throwError = false) {
     try {
       this.temp.isAnswer = true
       const limitFree = 30
@@ -154,7 +154,7 @@ export class Ctx {
       }
     }
   }
-  async reply(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReply) {
+  async reply(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReply) {
     this.temp.isAnswer = true
     const msg = this.templateManager.getMessage(this.data.name, baseId, this.userLanguage, data)
     return await this.ct.reply(msg, {
@@ -165,7 +165,7 @@ export class Ctx {
   }
   async replyMedia<T extends IMediaBlock[`type`]>(
     type: T,
-    keyboard?: IKb,
+    keyboard?: IInBoKb,
     data?: IData,
     baseId?: string,
     options?: T extends `photo`
@@ -205,34 +205,34 @@ export class Ctx {
     if (type == `location`) return await this.ct.replyWithLocation(parseInt(med.latitude!), parseInt(med.longitude!), opt)
     if (type == `contact`) return await this.ct.replyWithContact(med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
   }
-  async replyPhoto(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyPhoto) {
+  async replyPhoto(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyPhoto) {
     return this.replyMedia(`photo`, keyboard, data, baseId, options)
   }
-  async replyVideo(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyVideo) {
+  async replyVideo(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVideo) {
     return this.replyMedia(`video`, keyboard, data, baseId, options)
   }
-  async replyAudio(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyAudio) {
+  async replyAudio(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyAudio) {
     return this.replyMedia(`audio`, keyboard, data, baseId, options)
   }
-  async replyDocument(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyDocument) {
+  async replyDocument(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyDocument) {
     return this.replyMedia(`document`, keyboard, data, baseId, options)
   }
-  async replyAnimation(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyAnimation) {
+  async replyAnimation(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyAnimation) {
     return this.replyMedia(`animation`, keyboard, data, baseId, options)
   }
-  async replyVoice(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyVoice) {
+  async replyVoice(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVoice) {
     return this.replyMedia(`voice`, keyboard, data, baseId, options)
   }
-  async replyVideoNote(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyVideoNote) {
+  async replyVideoNote(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVideoNote) {
     return this.replyMedia(`video_note`, keyboard, data, baseId, options)
   }
-  async replySticker(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplySticker) {
+  async replySticker(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplySticker) {
     return this.replyMedia(`sticker`, keyboard, data, baseId, options)
   }
-  async replyLocation(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyLocation) {
+  async replyLocation(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyLocation) {
     return this.replyMedia(`location`, keyboard, data, baseId, options)
   }
-  async replyContact(keyboard?: IKb, data?: IData, baseId?: string, options?: IOptReplyContact) {
+  async replyContact(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyContact) {
     return this.replyMedia(`contact`, keyboard, data, baseId, options)
   }
   async replyAction(type: ITypeReplyAction) {
