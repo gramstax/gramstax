@@ -5,10 +5,10 @@ import {ServerMainGateway} from "./test-final-server-main"
 class Worker extends WorkerThreadInit {
   constructor() {
     super()
-    this.autoRun()
+    this.mtdAutoRun()
   }
 
-  async autoRun() {
+  async mtdAutoRun() {
     console.log(`[Worker-C] Starting autoRun...`)
     try {
       console.log(`[Worker-C] Connecting to gateway-final...`)

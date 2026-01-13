@@ -8,10 +8,10 @@ class Worker extends WorkerThreadInit {
   constructor() {
     super()
     this.name = this.argv[3] || `Unknown`
-    this.autoRun()
+    this.mtdAutoRun()
   }
 
-  async autoRun() {
+  async mtdAutoRun() {
     console.log(`[Worker-Client-${this.name}] Starting autoRun...`)
     try {
       console.log(`[Worker-Client-${this.name}] Connecting to gateway...`)
