@@ -1,6 +1,7 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2026 23:40:00
+> - **Last Updated:** 14/01/2026 00:31:08
+
 > - **Framework Version:** v0.3.21
 
 # Ctx
@@ -57,13 +58,20 @@ Create page data configuration. Accepts an optional callback or an options objec
 - `buildData(callbackDataFn)`
 - `buildData({ callbackData?, text?, textCommand? })`
 
+**Best practice**
+
+Use `buildData(callbackDataFn)` when you only need callback payloads, instead of passing `{ callbackData }`.
+
+Do not set `textCommand` unless you need to override the auto-derived command (it defaults to `this.data.name`, based on the filename).
+
 **Options**
 
-| key          | type     | required | description                                           | ai_notes                                                                                       |
-| ------------ | -------- | -------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| callbackData | function | no       | Function returning callback payload                   | Appends `:<payload>` to the auto-generated callback key;                                       |
-| text         | string   | no       | Overrides trigger value for the `text()` route        | Only a single space is supported (max two words, e.g. `"🏠 Home"`); leave unset unless needed. |
-| textCommand  | string   | no       | Overrides trigger value for the `textCommand()` route | Useful when the default name contains `-`; leave unset unless needed.                          |
+| key          | type     | required | description                                           | ai_notes                                                                                                  |
+| ------------ | -------- | -------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| callbackData | function | no       | Function returning callback payload                   | Appends `:<payload>` to the auto-generated callback key; use the direct callback signature when possible. |
+| text         | string   | no       | Overrides trigger value for the `text()` route        | Only a single space is supported (max two words, e.g. `"🏠 Home"`); leave unset unless needed.           |
+| textCommand  | string   | no       | Overrides trigger value for the `textCommand()` route | Useful when the default name contains `-`; leave unset unless needed.                                     |
+
 
 **Internal fields (auto-set)**
 
@@ -455,7 +463,8 @@ Define these methods in your page class to handle specific routes:
 | `textPayload()`                    | Text with payload                                              | message: start 123 AAA              |
 | `textCommand()`                    | Command match                                                  | message: /start                     |
 | `textCommandPayload()`             | Command with payload                                           | message: /start 123 AAA             |
-| `textFree()`                       | Any text (fallback route if set)                               | message: <A-Za-z0-9>                |
+| `textFree()`                       | Any text (fallback route if set)                               | message: <A-Za-z0-9> (no need to guard for empty text) |
+
 | `photoCaption()`                   | Exact caption match                                            | caption: start                      |
 | `photoCaptionPayload()`            | Caption with payload                                           | caption: start 123 AAA              |
 | `photoCaptionCommand()`            | Caption Command match                                          | caption: /start                     |
