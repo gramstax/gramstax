@@ -14,9 +14,12 @@ export class Worker extends WorkerThreadInit {
   }
 
   async mtdStart() {
-    const res = await this.createGatewayServer(this.gatewayServerPath, this)
-    console.log(`[Worker-Server] Gateway '${this.gatewayServerPath}' is active.`)
-    return res
+    const res = await this.createGatewayServer()
+    if (res) {
+      console.log(`[Worker-Server] Gateway '${this.gatewayServerPath}' is active.`)
+      return res
+    }
+    return false
   }
 }
 

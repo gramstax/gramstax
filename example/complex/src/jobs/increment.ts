@@ -6,6 +6,10 @@ export class Worker extends WorkerThreadInit {
     super()
 
     const ms = process.argv[3] as any
+    this.autoRun(ms)
+  }
+
+  autoRun(ms: number) {
     setInterval(() => {
       this.count += 1
       log.debug(`(${this.pid}:${this.id}) [IncrementCoreJob] count: ${this.count}`)
