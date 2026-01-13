@@ -2,7 +2,6 @@ import {PageBase} from "~/base/page"
 import {catalog} from "~/data/catalog"
 
 const menuItems = catalog.flatMap((category) => category.items.map((item) => ({id: item.id, name: item.name, category: category.name})))
-const menuItemMap = new Map(menuItems.map((item) => [item.id, item]))
 
 // Inline keyboard with total page count.
 export class InlineWithCountPage extends PageBase {
