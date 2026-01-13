@@ -51,7 +51,6 @@ export class InlineWithoutCountPage extends PageBase {
   async callbackPayload() {
     const [action, value] = this.callbackDataPayloads
     if (!action) {
-      await this.callbackQueryAnswer()
       return
     }
     if (action === `page`) {
@@ -62,8 +61,6 @@ export class InlineWithoutCountPage extends PageBase {
       return
     }
     if (action === `item` && value) {
-      const item = menuItemMap.get(value)
-      await this.callbackQueryAnswer(item?.name || `Selected`)
       return
     }
   }
