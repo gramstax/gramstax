@@ -51,13 +51,14 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 12:55:00
-> - **Framework Version:** v0.3.21
+> - **Last Updated:** 14/01/2026 16:37:38
+> - **Framework Version:** v0.3.22
 
 **Best Practices**
 
-- Prefer `buildData(callbackDataFn)` when only callback payloads are needed (avoid `{ callbackData }`).
-- Avoid `textCommand` unless you must override the filename-derived default (`this.data.name`).
+- Prefer `buildData(dataCallbackFn)` when only callback payloads are needed (avoid `{ dataCallback }`).
+- `dataCallback` must return an array (use `[]` for no payloads); it is converted to a string internally.
+- Avoid `intentText`/`intentTextCommand` unless you must override the filename-derived default (`this.data.name`).
 - `textFree()` only triggers when text exists, so no empty-text guard is required.
 - `callbackQueryAnswer()` is auto-handled for routed callbacks; call it only for custom toasts.
 
@@ -196,7 +197,7 @@ Source: `docs/api/template/engine.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 14/01/2026 12:55:00
-> - **Framework Version:** v0.3.21
+> - **Framework Version:** v0.3.22
 
 The `TemplateEngine` class provides static methods for parsing and compiling HTML-like templates into executable functions.
 
@@ -820,7 +821,7 @@ Source: `docs/api/utils/log.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.21
+> - **Framework Version:** v0.3.22
 
 # LoggingUtils
 
@@ -930,7 +931,7 @@ Source: `docs/api/components/keyboard.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.21
+> - **Framework Version:** v0.3.22
 
 # ComponentKeyboard
 
@@ -1083,7 +1084,7 @@ Source: `docs/api/data/keyboard.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.21
+> - **Framework Version:** v0.3.22
 
 # DataKeyboard
 
@@ -1216,7 +1217,7 @@ Source: `docs/api/worker-thread/export.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.21
+> - **Framework Version:** v0.3.22
 
 # WorkerThreadExport
 
@@ -1385,7 +1386,7 @@ Source: `docs/api/worker-thread/init.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.21
+> - **Framework Version:** v0.3.22
 
 # WorkerThreadInit
 
@@ -1643,7 +1644,7 @@ Source: `docs/api/worker-thread/launch.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.21
+> - **Framework Version:** v0.3.22
 
 # WorkerThreadLaunch
 
@@ -1843,7 +1844,7 @@ Source: `docs/api/worker-thread/pool.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.21
+> - **Framework Version:** v0.3.22
 
 # WorkerThreadPool
 
@@ -2056,7 +2057,7 @@ Source: `docs/api/worker-thread/rpc.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.21
+> - **Framework Version:** v0.3.22
 
 # WorkerThreadRpc
 
@@ -2254,7 +2255,7 @@ Source: `docs/api/worker-thread/gateway-client.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.21
+> - **Framework Version:** v0.3.22
 
 # WorkerThreadGatewayClient
 
@@ -2411,7 +2412,7 @@ Source: `docs/api/worker-thread/gateway-server.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.21
+> - **Framework Version:** v0.3.22
 
 # WorkerThreadGatewayServer
 

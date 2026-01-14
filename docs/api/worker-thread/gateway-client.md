@@ -1,7 +1,8 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.21
+> - **Last Updated:** 14/01/2026 16:37:38
+
+> - **Framework Version:** v0.3.22
 
 # WorkerThreadGatewayClient
 

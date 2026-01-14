@@ -1,8 +1,8 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 01:47:39
+> - **Last Updated:** 14/01/2026 16:37:38
 
-> - **Framework Version:** v0.3.21
+> - **Framework Version:** v0.3.22
 
 # Ctx
 
@@ -55,29 +55,30 @@ Create page data configuration. Accepts an optional callback or an options objec
 **Supported signatures**
 
 - `buildData()`
-- `buildData(callbackDataFn)`
-- `buildData({ callbackData?, text?, textCommand? })`
+- `buildData(dataCallbackFn)`
+- `buildData({ dataCallback?, intentText?, intentTextCommand? })`
 
 **Best practice**
 
-Use `buildData(callbackDataFn)` when you only need callback payloads, instead of passing `{ callbackData }`.
+Use `buildData(dataCallbackFn)` when you need callback payloads. The callback must return an array (use `[]` for no payloads).
 
-Do not set `textCommand` unless you need to override the auto-derived command (it defaults to `this.data.name`, based on the filename).
+Do not set `intentText` or `intentTextCommand` unless you need to override the auto-derived intent (it defaults to `this.data.name`, based on the filename).
+
 
 **Options**
 
-| key          | type     | required | description                                           | ai_notes                                                                                                  |
-| ------------ | -------- | -------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| callbackData | function | no       | Function returning callback payload                   | Appends `:<payload>` to the auto-generated callback key; use the direct callback signature when possible. |
-| text         | string   | no       | Overrides trigger value for the `text()` route        | Only a single space is supported (max two words, e.g. `"🏠 Home"`); leave unset unless needed.           |
-| textCommand  | string   | no       | Overrides trigger value for the `textCommand()` route | Useful when the default name contains `-`; leave unset unless needed.                                     |
+| key               | type     | required | description                                          | ai_notes                                                                                       |
+| ----------------- | -------- | -------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| dataCallback      | function | no       | Function returning callback payload array                 | Must return an array (use `[]` for no payloads); the system converts it to a string.                             |
 
+| intentText        | string   | no       | Overrides intent value for the `text()` route        | Only a single space is supported (max two words, e.g. `"🏠 Home"`); leave unset unless needed. |
+| intentTextCommand | string   | no       | Overrides intent value for the `textCommand()` route | Useful when the default name contains `-`; leave unset unless needed.                          |
 
 **Internal fields (auto-set)**
 
 - `name`: internal page name assigned by the framework.
-- `_callbackData`: internal callback key (may be numeric if `shortCallbackData` is enabled).
-- `_positionPayloadText`: internal payload index for `text` triggers (max 2 when `text` contains one space).
+- `intentCallback`: internal callback intent key (may be numeric if `shortCallbackData` is enabled).
+- `_positionPayloadText`: internal payload index for `text` triggers (max 2 when `intentText` contains one space).
 
 - **returns: IPageData**
 - **ai_notes:** Metadata used for routing.
@@ -90,13 +91,13 @@ class MyPage extends PageBase {
   static data = this.buildData();
 
   // With payload function for callback data
-  static data = this.buildData((id: string) => id);
+  static data = this.buildData((id: string) => [id]);
 
   // Custom data
   static data = this.buildData({
-    callbackData: (action: string) => action,
-    textCommand: "mycommand", // overrides trigger route function textCommand
-    text: "hi", // overrides trigger route function text
+    dataCallback: (action: string) => [action],
+    intentTextCommand: "mycommand", // overrides trigger route function textCommand
+    intentText: "hi", // overrides trigger route function text
   });
 }
 ```
@@ -387,7 +388,6 @@ Wait for specified milliseconds.
 
 Answer callback query (show toast). Gramstax auto-answers routed callbacks, so call this only when you need a custom toast or extra acknowledgment.
 
-
 | parameter | type   | required | description    | ai_notes                         |
 | --------- | ------ | -------- | -------------- | -------------------------------- |
 | text      | string | no       | Toast text     | Shown as notification to user.   |
@@ -456,55 +456,54 @@ await new HomePage(this).to({ inputName: `test` });
 
 Define these methods in your page class to handle specific routes:
 
-| Method                             | Trigger                                                        | Trigger Example                     |
-| ---------------------------------- | -------------------------------------------------------------- | ----------------------------------- |
-| `callback()`                       | Exact callback data match                                      | k.text(`title button`, `start`)     |
-| `callbackPayload()`                | Callback with payload (tested only 1 payload after symbol ":") | k.text(`title button`, `start:123`) |
-| `text()`                           | Exact text match with.                                         | message: start                      |
-| `textPayload()`                    | Text with payload                                              | message: start 123 AAA              |
-| `textCommand()`                    | Command match                                                  | message: /start                     |
-| `textCommandPayload()`             | Command with payload                                           | message: /start 123 AAA             |
+| Method                             | Trigger                                                        | Trigger Example                                        |
+| ---------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------ |
+| `callback()`                       | Exact callback data match                                      | k.text(`title button`, `start`)                        |
+| `callbackPayload()`                | Callback with payload (tested only 1 payload after symbol ":") | k.text(`title button`, `start:123`)                    |
+| `text()`                           | Exact text match with.                                         | message: start                                         |
+| `textPayload()`                    | Text with payload                                              | message: start 123 AAA                                 |
+| `textCommand()`                    | Command match                                                  | message: /start                                        |
+| `textCommandPayload()`             | Command with payload                                           | message: /start 123 AAA                                |
 | `textFree()`                       | Any text (fallback route if set)                               | message: <A-Za-z0-9> (no need to guard for empty text) |
-
-| `photoCaption()`                   | Exact caption match                                            | caption: start                      |
-| `photoCaptionPayload()`            | Caption with payload                                           | caption: start 123 AAA              |
-| `photoCaptionCommand()`            | Caption Command match                                          | caption: /start                     |
-| `photoCaptionCommandPayload()`     | Caption Command with payload                                   | caption: /start 123 AAA             |
-| `photoFree()`                      | Any photo (fallback route if set)                              | photo: <A-Za-z0-9>                  |
-| `videoCaption()`                   | Exact caption match                                            | caption: start                      |
-| `videoCaptionPayload()`            | Caption with payload                                           | caption: start 123 AAA              |
-| `videoCaptionCommand()`            | Caption Command match                                          | caption: /start                     |
-| `videoCaptionCommandPayload()`     | Caption Command with payload                                   | caption: /start 123 AAA             |
-| `videoFree()`                      | Any video (fallback route if set)                              | video: <A-Za-z0-9>                  |
-| `audioCaption()`                   | Exact caption match                                            | caption: start                      |
-| `audioCaptionPayload()`            | Caption with payload                                           | caption: start 123 AAA              |
-| `audioCaptionCommand()`            | Caption Command match                                          | caption: /start                     |
-| `audioCaptionCommandPayload()`     | Caption Command with payload                                   | caption: /start 123 AAA             |
-| `audioFree()`                      | Any audio (fallback route if set)                              | audio: <A-Za-z0-9>                  |
-| `documentCaption()`                | Exact caption match                                            | caption: start                      |
-| `documentCaptionPayload()`         | Caption with payload                                           | caption: start 123 AAA              |
-| `documentCaptionCommand()`         | Caption Command match                                          | caption: /start                     |
-| `documentCaptionCommandPayload()`  | Caption Command with payload                                   | caption: /start 123 AAA             |
-| `documentFree()`                   | Any document (fallback route if set)                           | document: <A-Za-z0-9>               |
-| `animationCaption()`               | Exact caption match                                            | caption: start                      |
-| `animationCaptionPayload()`        | Caption with payload                                           | caption: start 123 AAA              |
-| `animationCaptionCommand()`        | Caption Command match                                          | caption: /start                     |
-| `animationCaptionCommandPayload()` | Caption Command with payload                                   | caption: /start 123 AAA             |
-| `animationFree()`                  | Any animation (fallback route if set)                          | animation: <A-Za-z0-9>              |
-| `voiceCaption()`                   | Exact caption match                                            | caption: start                      |
-| `voiceCaptionPayload()`            | Caption with payload                                           | caption: start 123 AAA              |
-| `voiceCaptionCommand()`            | Caption Command match                                          | caption: /start                     |
-| `voiceCaptionCommandPayload()`     | Caption Command with payload                                   | caption: /start 123 AAA             |
-| `voiceFree()`                      | Any voice (fallback route if set)                              | voice: <A-Za-z0-9>                  |
-| `videoNoteCaption()`               | Exact caption match                                            | caption: start                      |
-| `videoNoteCaptionPayload()`        | Caption with payload                                           | caption: start 123 AAA              |
-| `videoNoteCaptionCommand()`        | Caption Command match                                          | caption: /start                     |
-| `videoNoteCaptionCommandPayload()` | Caption Command with payload                                   | caption: /start 123 AAA             |
-| `videoNoteFree()`                  | Any video note (fallback route if set)                         | videoNote: <A-Za-z0-9>              |
-| `stickerFree()`                    | Any sticker (fallback route if set)                            | sticker: <A-Za-z0-9>                |
-| `locationFree()`                   | Any location (fallback route if set)                           | location: <A-Za-z0-9>               |
-| `contactFree()`                    | Any contact (fallback route if set)                            | contact: <A-Za-z0-9>                |
-| `free()`                           | Any all route (fallback route if set)                          | <A-Za-z0-9>                         |
+| `photoCaption()`                   | Exact caption match                                            | caption: start                                         |
+| `photoCaptionPayload()`            | Caption with payload                                           | caption: start 123 AAA                                 |
+| `photoCaptionCommand()`            | Caption Command match                                          | caption: /start                                        |
+| `photoCaptionCommandPayload()`     | Caption Command with payload                                   | caption: /start 123 AAA                                |
+| `photoFree()`                      | Any photo (fallback route if set)                              | photo: <A-Za-z0-9>                                     |
+| `videoCaption()`                   | Exact caption match                                            | caption: start                                         |
+| `videoCaptionPayload()`            | Caption with payload                                           | caption: start 123 AAA                                 |
+| `videoCaptionCommand()`            | Caption Command match                                          | caption: /start                                        |
+| `videoCaptionCommandPayload()`     | Caption Command with payload                                   | caption: /start 123 AAA                                |
+| `videoFree()`                      | Any video (fallback route if set)                              | video: <A-Za-z0-9>                                     |
+| `audioCaption()`                   | Exact caption match                                            | caption: start                                         |
+| `audioCaptionPayload()`            | Caption with payload                                           | caption: start 123 AAA                                 |
+| `audioCaptionCommand()`            | Caption Command match                                          | caption: /start                                        |
+| `audioCaptionCommandPayload()`     | Caption Command with payload                                   | caption: /start 123 AAA                                |
+| `audioFree()`                      | Any audio (fallback route if set)                              | audio: <A-Za-z0-9>                                     |
+| `documentCaption()`                | Exact caption match                                            | caption: start                                         |
+| `documentCaptionPayload()`         | Caption with payload                                           | caption: start 123 AAA                                 |
+| `documentCaptionCommand()`         | Caption Command match                                          | caption: /start                                        |
+| `documentCaptionCommandPayload()`  | Caption Command with payload                                   | caption: /start 123 AAA                                |
+| `documentFree()`                   | Any document (fallback route if set)                           | document: <A-Za-z0-9>                                  |
+| `animationCaption()`               | Exact caption match                                            | caption: start                                         |
+| `animationCaptionPayload()`        | Caption with payload                                           | caption: start 123 AAA                                 |
+| `animationCaptionCommand()`        | Caption Command match                                          | caption: /start                                        |
+| `animationCaptionCommandPayload()` | Caption Command with payload                                   | caption: /start 123 AAA                                |
+| `animationFree()`                  | Any animation (fallback route if set)                          | animation: <A-Za-z0-9>                                 |
+| `voiceCaption()`                   | Exact caption match                                            | caption: start                                         |
+| `voiceCaptionPayload()`            | Caption with payload                                           | caption: start 123 AAA                                 |
+| `voiceCaptionCommand()`            | Caption Command match                                          | caption: /start                                        |
+| `voiceCaptionCommandPayload()`     | Caption Command with payload                                   | caption: /start 123 AAA                                |
+| `voiceFree()`                      | Any voice (fallback route if set)                              | voice: <A-Za-z0-9>                                     |
+| `videoNoteCaption()`               | Exact caption match                                            | caption: start                                         |
+| `videoNoteCaptionPayload()`        | Caption with payload                                           | caption: start 123 AAA                                 |
+| `videoNoteCaptionCommand()`        | Caption Command match                                          | caption: /start                                        |
+| `videoNoteCaptionCommandPayload()` | Caption Command with payload                                   | caption: /start 123 AAA                                |
+| `videoNoteFree()`                  | Any video note (fallback route if set)                         | videoNote: <A-Za-z0-9>                                 |
+| `stickerFree()`                    | Any sticker (fallback route if set)                            | sticker: <A-Za-z0-9>                                   |
+| `locationFree()`                   | Any location (fallback route if set)                           | location: <A-Za-z0-9>                                  |
+| `contactFree()`                    | Any contact (fallback route if set)                            | contact: <A-Za-z0-9>                                   |
+| `free()`                           | Any all route (fallback route if set)                          | <A-Za-z0-9>                                            |
 
 &nbsp;
 
@@ -515,13 +514,14 @@ import { PageBase } from "~/base/page";
 import { OtherPage } from "./other";
 
 export class MyPage extends PageBase {
-  static data = this.buildData((action: string) => action);
+  static data = this.buildData((action: string) => [action]);
+
 
   kb() {
     return this.ikb((k, a) => {
       return k
-        .text(a[0]!, this.data.callbackData("confirm"))
-        .text(a[1]!, this.data.callbackData("cancel"));
+        .text(a[0]!, this.data.callback("confirm"))
+        .text(a[1]!, this.data.callback("cancel"));
     });
   }
 
