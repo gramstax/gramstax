@@ -35,7 +35,7 @@ export class HistoryPage extends PageBase {
       <keyboard>Back to Menu</keyboard>
       <message>
         Recent activity:
-
+        
         {{history}}
       </message>
     </base>
