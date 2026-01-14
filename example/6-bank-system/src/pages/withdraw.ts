@@ -12,13 +12,12 @@ export class WithdrawPage extends PageBase {
   async to(isEdit = true) {
     await this.sessionTextFree()
     const kb = this.kb()
-
+    const id = `form`
     if (isEdit) {
-      await this.edit(kb, {}, `form`)
+      await this.edit(kb, {}, id)
       return
     }
-
-    await this.reply(kb, {}, `form`)
+    await this.reply(kb, {}, id)
   }
 
   async callback() {
@@ -34,7 +33,6 @@ export class WithdrawPage extends PageBase {
 
   private async handleWithdraw(amountInput?: string, isEdit = false) {
     const kb = this.kb()
-
     if (!amountInput) {
       await this.sessionClear()
       await this.reply(kb, {}, `invalid`)
@@ -69,12 +67,10 @@ export class WithdrawPage extends PageBase {
     const data = {amount: amountDisplay, balance}
 
     await this.sessionClear()
-
     if (isEdit) {
       await this.edit(kb, data, `success`)
       return
     }
-
     await this.reply(kb, data, `success`)
   }
 

@@ -12,13 +12,12 @@ export class TransferPage extends PageBase {
   async to(isEdit = true) {
     await this.sessionTextFree()
     const kb = this.kb()
-
+    const id = `form`
     if (isEdit) {
-      await this.edit(kb, {}, `form`)
+      await this.edit(kb, {}, id)
       return
     }
-
-    await this.reply(kb, {}, `form`)
+    await this.reply(kb, {}, id)
   }
 
   async callback() {
@@ -97,12 +96,10 @@ export class TransferPage extends PageBase {
     const data = {amount: amountDisplay, balance, target: target.label}
 
     await this.sessionClear()
-
     if (isEdit) {
       await this.edit(kb, data, `success`)
       return
     }
-
     await this.reply(kb, data, `success`)
   }
 
@@ -111,11 +108,9 @@ export class TransferPage extends PageBase {
     if (/^\d+$/.test(trimmed)) {
       return {id: Number(trimmed), label: `#${trimmed}`}
     }
-
     const username = trimmed.replace(/^@/, ``)
     const userId = this.bankStore.getUserIdByUsername(username)
     if (!userId) return null
-
     return {id: userId, label: `@${username}`}
   }
 

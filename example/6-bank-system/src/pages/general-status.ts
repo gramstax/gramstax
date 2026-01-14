@@ -5,7 +5,6 @@ import {StartPage} from "./start"
 // Error/fallback page for unified error messaging.
 export class GeneralStatusPage extends PageBase {
   constructorName?: string
-
   constructor(p: any) {
     super(p)
     this.constructorName = p?.constructor?.name
@@ -17,11 +16,9 @@ export class GeneralStatusPage extends PageBase {
 
   async toError(funcName: string, error: any, isUpdate = true) {
     log.errorMake(error, this.constructorName, funcName)
-
     await this.sessionClear()
     const kb = this.kb()
     const baseId = `error`
-
     if (isUpdate) {
       await this.edit(kb, {}, baseId)
     } else {

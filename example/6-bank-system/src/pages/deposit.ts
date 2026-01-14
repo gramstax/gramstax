@@ -3,8 +3,6 @@ import {StartPage} from "./start"
 
 // Deposits funds into the user's balance.
 export class DepositPage extends PageBase {
-  static data = this.buildData((payload?: string) => [payload])
-
   kb() {
     return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
@@ -12,13 +10,12 @@ export class DepositPage extends PageBase {
   async to(isEdit = true) {
     await this.sessionTextFree()
     const kb = this.kb()
-
+    const id = `form`
     if (isEdit) {
-      await this.edit(kb, {}, `form`)
+      await this.edit(kb, {}, id)
       return
     }
-
-    await this.reply(kb, {}, `form`)
+    await this.reply(kb, {}, id)
   }
 
   async callback() {
@@ -34,17 +31,17 @@ export class DepositPage extends PageBase {
 
   private async handleDeposit(amountInput?: string, isEdit = false) {
     const kb = this.kb()
-
+    const idInv = `invalid`
     if (!amountInput) {
       await this.sessionClear()
-      await this.reply(kb, {}, `invalid`)
+      await this.reply(kb, {}, idInv)
       return
     }
 
     const amount = this.bankStore.parseAmount(amountInput)
     if (amount === null) {
       await this.sessionClear()
-      await this.reply(kb, {amount: amountInput}, `invalid`)
+      await this.reply(kb, {amount: amountInput}, idInv)
       return
     }
 
@@ -63,13 +60,12 @@ export class DepositPage extends PageBase {
     const data = {amount: amountDisplay, balance}
 
     await this.sessionClear()
-
+    const idSuc = `success`
     if (isEdit) {
-      await this.edit(kb, data, `success`)
+      await this.edit(kb, data, idSuc)
       return
     }
-
-    await this.reply(kb, data, `success`)
+    await this.reply(kb, data, idSuc)
   }
 
   static template = `

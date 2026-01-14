@@ -13,12 +13,10 @@ export class HistoryPage extends PageBase {
     const history = this.formatHistory()
     const kb = this.kb()
     const data = {history}
-
     if (isEdit) {
       await this.edit(kb, data)
       return
     }
-
     await this.reply(kb, data)
   }
 

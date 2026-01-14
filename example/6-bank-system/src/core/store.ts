@@ -9,8 +9,6 @@ export type TransactionEntry = {
 }
 
 const DECIMALS = 6n
-const SCALE = 10n ** DECIMALS
-
 export class BankStore {
   private balances = new Map<number, string>()
   private histories = new Map<number, TransactionEntry[]>()
@@ -60,24 +58,11 @@ export class BankStore {
   }
 
   parseAmount(value: string) {
-    const trimmed = value.trim()
-    if (!/^[0-9]+(\.[0-9]{1,6})?$/.test(trimmed)) {
-      return null
-    }
-
-    const [wholePart, fractionPart] = trimmed.split(`.`)
-    const whole = BigInt(wholePart || `0`)
-    const fraction = (fractionPart || ``).padEnd(Number(DECIMALS), `0`)
-    const fractionValue = BigInt(fraction || `0`)
-    return whole * SCALE + fractionValue
+    return BigInt(value) * 10n ** DECIMALS
   }
 
   formatAmount(value: bigint) {
-    const sign = value < 0n ? `-` : ``
-    const abs = value < 0n ? -value : value
-    const whole = abs / SCALE
-    const fraction = abs % SCALE
-    return `${sign}${whole}.${fraction.toString().padStart(Number(DECIMALS), `0`)}`
+    return Number(value) / 10 ** Number(DECIMALS)
   }
 
   toHex(value: bigint) {
