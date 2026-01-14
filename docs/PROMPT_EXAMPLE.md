@@ -40,10 +40,12 @@ Refer to `./example/complex/` for the standard project structure. Each new proje
 **Features:**
 
 - **Inline Keyboards:**
+
   - Next/Previous navigation buttons
   - Pagination system for long lists
   - Multi-level menu navigation
   - Dynamic button generation based on data
+
 - **Reply Keyboards (Bottom Keyboard):**
 
   - Persistent menu options
@@ -51,6 +53,7 @@ Refer to `./example/complex/` for the standard project structure. Each new proje
   - Keyboard resize and customization
 
 - **Advanced Interactions:**
+
   - Callback query handling
   - State management for navigation
   - Button context switching

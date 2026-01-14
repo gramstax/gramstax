@@ -55,7 +55,7 @@ export class StartPage extends PageBase {
   // Bottom keyboard uses plain text; handle actions centrally.
   async textFree() {
     const action = this.msgText.trim()
-    const keyboardData = (this.constructor as typeof StartPage).kbd
+    const keyboardData = StartPage.kbd
 
     if (action === keyboardData.menu(`default`)) {
       await this.showMenu(false)
