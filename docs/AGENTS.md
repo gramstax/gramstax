@@ -68,7 +68,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 - `intentText` applies to `text()` and `textPayload()`; `intentTextCommand` applies to `textCommand()` and `textCommandPayload()`.
 - Prefer `intentText` + `text()` handlers for bottom-keyboard actions in single-language flows.
 - Use the core route handlers (`textCommand`, `callback`, `callbackPayload`) directly instead of wrapper helpers like `showMenu`.
-- Create mandatory flow components as classes; use static types where it improves clarity.
+- Create mandatory flow components as classes; use static types where it improves clarity, don't put variables outside the class, prioritize them inside the class.
 - Centralize guard/account checks once before routing instead of repeating them in each page handler.
 - Cache keyboard/data objects before `edit`/`reply` and avoid unnecessary base IDs to create code for faster performance.
 - Avoid passing `{}` as the data argument when it is unused; only pass `{}` when you need a later `baseId` argument.
@@ -104,7 +104,7 @@ If a page never uses callback payloads, omit `buildData` and let the system auto
 
 ```typescript
 export class StartPage extends PageBase {
-  static data = this.buildData((payload?: string) => [payload])
+  static data = this.buildData((payload?: string) => [payload]);
 }
 ```
 
@@ -149,23 +149,23 @@ Avoid repeating `this.kb()`/payload creation and base IDs when the default base 
 
 ```typescript
 if (isEdit) {
-  await this.edit(this.kb(), {balance: formatted}, `balance`)
-  return
+  await this.edit(this.kb(), { balance: formatted }, `balance`);
+  return;
 }
-await this.reply(this.kb(), {balance: formatted}, `balance`)
+await this.reply(this.kb(), { balance: formatted }, `balance`);
 ```
 
 **CORRECT**
 
 ```typescript
-const kb = this.kb()
-const data = {balance: formatted}
+const kb = this.kb();
+const data = { balance: formatted };
 
 if (isEdit) {
-  await this.edit(kb, data)
-  return
+  await this.edit(kb, data);
+  return;
 }
-await this.reply(kb, data)
+await this.reply(kb, data);
 ```
 
 **Example: Skip empty data objects**
@@ -175,15 +175,15 @@ Only pass `{}` when you need a `baseId` argument. Otherwise omit the data parame
 **WRONG**
 
 ```typescript
-await this.edit(kb, {})
-await this.reply(kb, {})
+await this.edit(kb, {});
+await this.reply(kb, {});
 ```
 
 **CORRECT**
 
 ```typescript
-await this.edit(kb)
-await this.reply(kb)
+await this.edit(kb);
+await this.reply(kb);
 ```
 
 **Example: Use target page callbacks**
@@ -193,13 +193,13 @@ Use the destination page `Page.data.callback(...)` for inline navigation.
 **WRONG**
 
 ```typescript
-k.text("Balance", this.data.callback("balance"))
+k.text("Balance", this.data.callback("balance"));
 ```
 
 **CORRECT**
 
 ```typescript
-k.text("Balance", BalancePage.data.callback())
+k.text("Balance", BalancePage.data.callback());
 ```
 
 ### Project Src Structure
