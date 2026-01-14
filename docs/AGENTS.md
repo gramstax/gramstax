@@ -51,7 +51,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 18:40:34
+> - **Last Updated:** 14/01/2026 19:42:05
 > - **Framework Version:** v0.3.22
 
 **Best Practices**
@@ -66,7 +66,20 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 - Payload text routes to `textPayload()` (e.g., `start 123`), payload commands route to `textCommandPayload()` (e.g., `/start 123`).
 - `intentText` applies to `text()` and `textPayload()`; `intentTextCommand` applies to `textCommand()` and `textCommandPayload()`.
 - Prefer `intentText` + `text()` handlers for bottom-keyboard actions in single-language flows.
+- Create mandatory flow components as classes; use static types where it improves clarity.
 - `callbackQueryAnswer()` is auto-handled for routed callbacks; call it only for custom toasts.
+
+**WRONG**
+
+```typescript
+static data = this.buildData((payload?: string) => [payload ?? ``])
+```
+
+**CORRECT**
+
+```typescript
+static data = this.buildData((payload?: string) => [payload])
+```
 
 # PageManager
 
