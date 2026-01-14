@@ -26,13 +26,13 @@ import type {
   IOptReplyVideoNote
 } from "~/types/ctx"
 
-type IPageData<T extends any[] = any[]> = {name: string; callbackData: (...args: T) => string; text: string; textCommand: string; _positionPayloadText: number; _callbackData: string}
+type IPageData<T extends any[] = any[]> = {name: string; callback: (...payloads: T) => string; intentText: string; intentTextCommand: string; _positionPayloadText: number; intentCallback: string}
 type ITemp = {isAnswer: boolean; session: {method?: string; params?: any}; data: Partial<IPageData<any>>; [key: string]: any}
 
 export class Ctx {
   static template?: string // string html
-  static data: IPageData<any> // for external access (**.data). example StartPage.data.callbackData
-  data = (this.constructor as Record<any, any>).data as IPageData<any> // for internal access (this.**). example this.data.callbackData
+  static data: IPageData<any> // for external access (**.data). example StartPage.data.callback
+  data = (this.constructor as Record<any, any>).data as IPageData<any> // for internal access (this.**). example this.data.callback
   get userIsPremium() {
     return this.ct.from?.is_premium ?? false
   }
@@ -386,66 +386,72 @@ export class Ctx {
     }
   }
   // =============== build data
-  static buildData<C extends (...args: any[]) => any>(callback: C): IPageData<Parameters<C>>
-  static buildData<C extends (...args: any[]) => any>(options: {callbackData: C; text?: string; textCommand?: string}): IPageData<Parameters<C>>
-  static buildData(options: {text?: string; textCommand?: string}): IPageData<[]>
+  static buildData<C extends (...args: any[]) => any>(dataCallback: C): IPageData<Parameters<C>>
+  static buildData<C extends (...args: any[]) => any>(options: {dataCallback?: C; intentText?: string; intentTextCommand?: string}): IPageData<Parameters<C>>
+  static buildData(options: {dataCallback?: any; intentText?: string; intentTextCommand?: string}): IPageData<[]>
   static buildData(): IPageData<[]>
   static buildData(params?: any): IPageData<any> {
     const isFunc = typeof params === `function`
-    const options = isFunc ? {callbackData: params} : params || {}
-    const callback = options.callbackData
+    const options = isFunc ? {dataCallback: params} : params || {}
+    const cbd = options.dataCallback
+    const addPld = this.prototype.addPayloads.bind(this.prototype)
 
     const data: IPageData<any> = {
       /**
        * Internal value derived from the file name.
-       * This value is used as the default trigger.
+       * This value is used as the default intent.
        *
        * important!: Do not set this manually. Let the system handle it.
        */
       name: ``,
       /**
-       * Overrides the value used to trigger the route function text (besides the ending "free").
+       * Overrides intent value used to trigger the route function text (besides the ending "free").
        * This is typically used when you want to trigger the route using a space-separated command, for example "X Start" or "🏠 Home", with a maximum of one space.
        *
+       * default: this.data.name
        * important!: Leave this unset unless explicitly needed.
        */
-      text: options.text,
+      intentText: options.intentText || ``,
       /**
-       * Overrides the value used to trigger the route function textCommand (besides the ending "free").
-       * This is usually required when this.name includes a hyphen ("-"), which may interfere with default routing behavior.
+       * Overrides intent value used to trigger the route function textCommand (besides the ending "free").
+       * This is usually required when this.data.name includes a hyphen ("-"), which may interfere with default routing behavior.
        *
+       * default: this.data.name
        * important!: Leave this unset unless explicitly needed.
        */
-      textCommand: options.textCommand,
+      intentTextCommand: options.intentTextCommand || ``,
       /**
-       * Overrides the value used to trigger the route function callback (besides the ending "free").
-       * This is typically used when triggering the route via a payload, for example :123, or a payload combined with parts, such as ":123+x".
-       * When using parts, a payload must be provided first. A single payload may contain multiple parts.
+       * Add payloads to intentCallback, will trigger only to route function callback (besides the ending "free").
+       * This is usually used when you want to insert a payload into it.
        *
+       * note: return cbd should use ARRAY only if there is a payload so that the background system can process it into a string
+       *
+       * default: this.data.name
        * important!: Leave this unset unless explicitly needed.
        */
-      callbackData: callback
-        ? function (this: {_callbackData: string}, ...args: any[]): string {
-            const params = callback(...args)
-            return `${this._callbackData}${params == `` || params === undefined ? `` : `:${params}`}`
+      callback: cbd
+        ? function (this: {intentCallback: string}, ...payloads: any[]): string {
+            return addPld(this.intentCallback, `colon`, cbd(...payloads))
           }
-        : function (this: {_callbackData: string}) {
-            return this?._callbackData
+        : function (this: {intentCallback: string}): string {
+            return this?.intentCallback
           },
       /**
-       * Internal value used to trigger callbackData.
-       * By default, this follows this.name. However, if constructorParams.shortCallbackData is set to true, a numeric index value will be used instead.
+       * Internal intent value used to trigger route function callback (besides the ending "free").
+       * if constructorParams.shortCallbackData is set to true, a numeric index value will be used instead.
        *
+       * default: this.data.name
        * important!: Do not set this manually. Let the system handle it.
        */
-      _callbackData: ``,
+      intentCallback: ``,
       /**
-       * Internal value that defines the trigger position for the route function text.
-       * The maximum allowed value is 2, which means only a single space is supported, for example "🏠 Home".
+       * An internal value that specifies the payload position for the route function text.
+       * The maximum allowed value is 2, which means only single spaces are supported, for example, "🏠 Home".
        *
+       * default: 1
        * important!: Do not set this manually. Let the system handle it.
        */
-      _positionPayloadText: options.text ? options.text.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any)
+      _positionPayloadText: options.intentText ? options.intentText.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any)
     }
     return data
   }
@@ -503,6 +509,17 @@ export class Ctx {
   }
   havePayloads(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0]) {
     return str.includes(this.getSeperatorTag(mtd))
+  }
+  addPayloads(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], pld: (string | undefined)[]) {
+    const sep = this.getSeperatorTag(mtd)
+    let out = ``
+    for (let i = 0; i < pld.length; i++) {
+      const v = pld[i]
+      if (v != null && v !== ``) {
+        out += sep + v
+      }
+    }
+    return str + out
   }
   getPayloads(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], positionStart: number = 1) {
     if (!str) return []
