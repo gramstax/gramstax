@@ -12,6 +12,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 
 - [Summary](#summary)
 - [Documentation Overview](#documentation-overview)
+  - [Project Src Structure](#project-src-structure)
 - [Cache](#cache)
   - [CacheExternal](#cacheexternal)
 - [Core](#core)
@@ -51,7 +52,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 19:42:05
+> - **Last Updated:** 14/01/2026 20:07:31
 > - **Framework Version:** v0.3.22
 
 **Best Practices**
@@ -80,6 +81,25 @@ static data = this.buildData((payload?: string) => [payload ?? ``])
 ```typescript
 static data = this.buildData((payload?: string) => [payload])
 ```
+
+### Project Src Structure
+
+Minimum folders that must be present in every bot project:
+
+- `./base` = Contains abstract class files used by other classes, such as `page.ts` with the `CtxCore` content (`./core/ctx.ts`).
+- `./components` = Contains component template string files, such as `<keyboard>` in the `KeyboardComponent` class (`./components/keyboard.ts`).
+- `./core` = Contains core files; both `ctx.ts` and `bot.ts` are required.
+- `./data` = Contains data files, such as `KeyboardData` (`./data/keyboard.ts`), used by `KeyboardComponent` (`./components/keyboard.ts`). Other relevant files can be added.
+- `./guards` = Contains guard files before proceeding to other tasks (e.g., user ban checks, language overrides).
+- `./pages` = Contains page files.
+- `./utils` = Contains utility files such as logs and string manipulation.
+
+Other folders if needed:
+
+- `./db` = Contains database files and schemas.
+- `./repositories` = Contains ready-to-use interactions with `./db`, used to avoid creating schema builders from scratch.
+- `./services` = Contains core service files (business logic and related helpers).
+- Others as needed.
 
 # PageManager
 
