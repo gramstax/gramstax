@@ -8,8 +8,8 @@ export type TransactionEntry = {
   ts: number
 }
 
-const DECIMALS = 6n
 export class BankStore {
+  DECIMALS = 6n
   private balances = new Map<number, string>()
   private histories = new Map<number, TransactionEntry[]>()
   private usernames = new Map<string, number>()
@@ -58,11 +58,11 @@ export class BankStore {
   }
 
   parseAmount(value: string) {
-    return BigInt(value) * 10n ** DECIMALS
+    return BigInt(value) * 10n ** this.DECIMALS
   }
 
   formatAmount(value: bigint) {
-    return Number(value) / 10 ** Number(DECIMALS)
+    return Number(value) / 10 ** Number(this.DECIMALS)
   }
 
   toHex(value: bigint) {
