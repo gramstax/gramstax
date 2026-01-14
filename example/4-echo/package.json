@@ -1,5 +1,5 @@
 {
-  "name": "example-helloworld",
+  "name": "example-4-echo",
   "private": false,
   "scripts": {
     "start": "bun ./src/index.ts",

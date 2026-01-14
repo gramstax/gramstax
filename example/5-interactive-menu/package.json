@@ -1,5 +1,5 @@
 {
-  "name": "example-echo",
+  "name": "example-5-interactive-menu",
   "private": false,
   "scripts": {
     "start": "bun ./src/index.ts",

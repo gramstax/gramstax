@@ -1,9 +1,10 @@
 {
-  "name": "complex",
+  "name": "example-3-helloworld-js",
+
   "private": false,
+  "type": "module",
   "scripts": {
-    "start": "bun ./src/index.ts",
-    "dev": "bun --watch ./src/index.ts"
+    "start": "node ./src/index.js"
   },
   "dependencies": {
     "gramstax": "workspace:*"

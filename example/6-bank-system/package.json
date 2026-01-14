@@ -1,5 +1,5 @@
 {
-  "name": "example-bank-system",
+  "name": "example-6-bank-system",
   "private": false,
   "scripts": {
     "start": "bun ./src/index.ts",
