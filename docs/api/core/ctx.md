@@ -1,6 +1,7 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 16:37:38
+> - **Last Updated:** 14/01/2026 18:11:24
+
 
 > - **Framework Version:** v0.3.22
 
@@ -62,6 +63,12 @@ Create page data configuration. Accepts an optional callback or an options objec
 
 Use `buildData(dataCallbackFn)` when you need callback payloads. The callback must return an array (use `[]` for no payloads).
 
+Prefer `intentText` + `text()` handlers for bottom-keyboard actions in single-language flows.
+
+If the text input includes payloads (e.g., `start 123`), it routes to `textPayload()`. If a command includes payloads (e.g., `/start 123`), it routes to `textCommandPayload()`.
+
+`intentText` applies to both `text()` and `textPayload()` routes; `intentTextCommand` applies to `textCommand()` and `textCommandPayload()` routes.
+
 Do not set `intentText` or `intentTextCommand` unless you need to override the auto-derived intent (it defaults to `this.data.name`, based on the filename).
 
 
@@ -69,10 +76,11 @@ Do not set `intentText` or `intentTextCommand` unless you need to override the a
 
 | key               | type     | required | description                                          | ai_notes                                                                                       |
 | ----------------- | -------- | -------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| dataCallback      | function | no       | Function returning callback payload array                 | Must return an array (use `[]` for no payloads); the system converts it to a string.                             |
+| dataCallback      | function | no       | Function returning callback payload array                 | Must return an array (use `[]` for no payloads); with payloads it routes to `callbackPayload()`, otherwise `callback()`. |
 
-| intentText        | string   | no       | Overrides intent value for the `text()` route        | Only a single space is supported (max two words, e.g. `"🏠 Home"`); leave unset unless needed. |
-| intentTextCommand | string   | no       | Overrides intent value for the `textCommand()` route | Useful when the default name contains `-`; leave unset unless needed.                          |
+| intentText        | string   | no       | Overrides intent value for the `text()` route        | Also applies to `textPayload()`; only a single space is supported (max two words, e.g. `"🏠 Home"`).           |
+| intentTextCommand | string   | no       | Overrides intent value for the `textCommand()` route | Also applies to `textCommandPayload()`; leave unset unless needed.                                              |
+
 
 **Internal fields (auto-set)**
 
