@@ -69,11 +69,10 @@ Refer to `./example/complex/` for the standard project structure. Each new proje
 
 **Best Practices (Context from prior runs):**
 
-- Prefer `buildData(callbackDataFn)` when only callback payloads are needed.
-- Avoid setting `textCommand` unless you must override the filename-derived default.
+- Prefer `buildData(dataCallbackFn)` when only callback payloads are needed.
+- Avoid setting `intentTextCommand` unless you must override the filename-derived default.
 - `textFree()` triggers only when text exists; no empty-text guard needed.
 - If you introduce multi-language keyboards, ensure every related flow handles all languages.
 - Favor fast paths (reuse computed data, avoid duplicate lookups).
 
 ---
-
