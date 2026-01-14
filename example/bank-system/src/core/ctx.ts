@@ -10,7 +10,5 @@ export class CtxCore extends Ctx {
     super({...params})
     this.cacheState = params.cacheState
     this.bankStore = params.bankStore
-
-    this.bankStore.registerUser(this.userId, this.userName)
   }
 }

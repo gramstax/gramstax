@@ -185,7 +185,7 @@ Loops over arrays and joins rendered output.
 | `join`    | string | no       | -       | Join separator string | Defaults to `\n`; quotes are escaped internally. |
 
 ```html
-<map src="items" join="\n"> - {{e.name}} ({{i}}) </map>
+<map src="items" join="\\n"> - {{e.name}} ({{i}}) </map>
 ```
 
 ### Import Block

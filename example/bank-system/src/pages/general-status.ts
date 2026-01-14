@@ -30,7 +30,8 @@ export class GeneralStatusPage extends PageBase {
   }
 
   async toErrorInputNotFound() {
-    await this.reply(this.kb(), {}, `error-input-notfound`)
+    const kb = this.kb()
+    await this.reply(kb, {}, `error-input-notfound`)
   }
 
   static template = `

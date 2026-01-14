@@ -12,21 +12,15 @@ export class BalancePage extends PageBase {
   async to(isEdit = true) {
     const balance = this.bankStore.getBalance(this.userId)
     const formatted = this.bankStore.formatAmount(balance)
+    const kb = this.kb()
+    const data = {balance: formatted}
 
     if (isEdit) {
-      await this.edit(this.kb(), {balance: formatted}, `balance`)
+      await this.edit(kb, data)
       return
     }
 
-    await this.reply(this.kb(), {balance: formatted}, `balance`)
-  }
-
-  async textCommand() {
-    await this.to(false)
-  }
-
-  async text() {
-    await this.to(false)
+    await this.reply(kb, data)
   }
 
   async callback() {
@@ -36,12 +30,6 @@ export class BalancePage extends PageBase {
   static template = `
     <base>
       <keyboard>Back to Menu</keyboard>
-      <message>
-        Balance: {{balance}}
-      </message>
-    </base>
-
-    <base id="balance">
       <message>
         Balance: {{balance}}
       </message>

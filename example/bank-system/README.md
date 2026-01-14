@@ -27,11 +27,8 @@ Gramstax example bot that manages balances, deposits, withdrawals, and transfers
 ## Commands and Usage
 
 - `/start`: Open the inline menu
-- `/balance`: Show current balance
-- `/deposit <amount>`: Add funds (6 decimals max)
-- `/withdraw <amount>`: Deduct funds
-- `/transfer <amount> <user>`: Transfer to user id or @username
-- `/history`: Show recent transactions
+- Inline menu buttons: Balance, Deposit, Withdraw, Transfer, History
+- After selecting an action, send the required input (amount or amount + user)
 
 ## File Structure
 

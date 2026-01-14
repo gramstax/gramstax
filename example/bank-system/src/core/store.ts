@@ -8,12 +8,24 @@ export type TransactionEntry = {
   ts: number
 }
 
-const SCALE = 1_000_000n
+const DECIMALS = 6n
+const SCALE = 10n ** DECIMALS
 
 export class BankStore {
   private balances = new Map<number, string>()
   private histories = new Map<number, TransactionEntry[]>()
   private usernames = new Map<string, number>()
+
+  hasAccount(userId: number) {
+    return this.balances.has(userId)
+  }
+
+  createAccount(userId: number) {
+    if (!this.balances.has(userId)) {
+      this.balances.set(userId, `0`)
+      this.histories.set(userId, [])
+    }
+  }
 
   registerUser(userId: number, username?: string) {
     const normalized = this.normalizeUsername(username)
@@ -54,10 +66,10 @@ export class BankStore {
     }
 
     const [wholePart, fractionPart] = trimmed.split(`.`)
-    const whole = wholePart || `0`
-    const fraction = (fractionPart || ``).padEnd(6, `0`)
-    const units = BigInt(whole) * SCALE + BigInt(fraction || `0`)
-    return units
+    const whole = BigInt(wholePart || `0`)
+    const fraction = (fractionPart || ``).padEnd(Number(DECIMALS), `0`)
+    const fractionValue = BigInt(fraction || `0`)
+    return whole * SCALE + fractionValue
   }
 
   formatAmount(value: bigint) {
@@ -65,7 +77,7 @@ export class BankStore {
     const abs = value < 0n ? -value : value
     const whole = abs / SCALE
     const fraction = abs % SCALE
-    return `${sign}${whole}.${fraction.toString().padStart(6, `0`)}`
+    return `${sign}${whole}.${fraction.toString().padStart(Number(DECIMALS), `0`)}`
   }
 
   toHex(value: bigint) {

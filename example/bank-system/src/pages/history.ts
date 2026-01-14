@@ -11,21 +11,15 @@ export class HistoryPage extends PageBase {
 
   async to(isEdit = true) {
     const history = this.formatHistory()
+    const kb = this.kb()
+    const data = {history}
 
     if (isEdit) {
-      await this.edit(this.kb(), {history}, `history`)
+      await this.edit(kb, data)
       return
     }
 
-    await this.reply(this.kb(), {history}, `history`)
-  }
-
-  async textCommand() {
-    await this.to(false)
-  }
-
-  async text() {
-    await this.to(false)
+    await this.reply(kb, data)
   }
 
   async callback() {
@@ -52,14 +46,6 @@ export class HistoryPage extends PageBase {
   static template = `
     <base>
       <keyboard>Back to Menu</keyboard>
-      <message>
-        Recent activity:
-
-        {{history}}
-      </message>
-    </base>
-
-    <base id="history">
       <message>
         Recent activity:
 

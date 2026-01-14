@@ -10,49 +10,48 @@ export class WithdrawPage extends PageBase {
   }
 
   async to(isEdit = true) {
+    await this.sessionTextFree()
+    const kb = this.kb()
+
     if (isEdit) {
-      await this.edit(this.kb(), {}, `form`)
+      await this.edit(kb, {}, `form`)
       return
     }
 
-    await this.reply(this.kb(), {}, `form`)
-  }
-
-  async textCommand() {
-    await this.to(false)
-  }
-
-  async text() {
-    await this.to(false)
+    await this.reply(kb, {}, `form`)
   }
 
   async callback() {
     await this.to(true)
   }
 
-  async textPayload() {
-    await this.handleWithdraw(this.msgTextPayload, false)
-  }
-
-  async textCommandPayload() {
-    await this.handleWithdraw(this.msgTextCommandPayload, false)
+  async textFree() {
+    if (!this.validateSessionTextFree()) {
+      return null
+    }
+    await this.handleWithdraw(this.msgText.trim(), false)
   }
 
   private async handleWithdraw(amountInput?: string, isEdit = false) {
+    const kb = this.kb()
+
     if (!amountInput) {
-      await this.reply(this.kb(), {}, `invalid`)
+      await this.sessionClear()
+      await this.reply(kb, {}, `invalid`)
       return
     }
 
     const amount = this.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      await this.reply(this.kb(), {amount: amountInput}, `invalid`)
+      await this.sessionClear()
+      await this.reply(kb, {amount: amountInput}, `invalid`)
       return
     }
 
     const current = this.bankStore.getBalance(this.userId)
     if (current < amount) {
-      await this.reply(this.kb(), {balance: this.bankStore.formatAmount(current)}, `insufficient`)
+      await this.sessionClear()
+      await this.reply(kb, {balance: this.bankStore.formatAmount(current)}, `insufficient`)
       return
     }
 
@@ -67,13 +66,16 @@ export class WithdrawPage extends PageBase {
 
     const balance = this.bankStore.formatAmount(next)
     const amountDisplay = this.bankStore.formatAmount(amount)
+    const data = {amount: amountDisplay, balance}
+
+    await this.sessionClear()
 
     if (isEdit) {
-      await this.edit(this.kb(), {amount: amountDisplay, balance}, `success`)
+      await this.edit(kb, data, `success`)
       return
     }
 
-    await this.reply(this.kb(), {amount: amountDisplay, balance}, `success`)
+    await this.reply(kb, data, `success`)
   }
 
   static template = `
@@ -82,9 +84,8 @@ export class WithdrawPage extends PageBase {
       <message>
         Withdraw funds
 
-        Usage:
-        - /withdraw 12.5
-        - withdraw 12.5
+        Tap Withdraw in the menu, then send an amount like:
+        - 12.5
       </message>
     </base>
 

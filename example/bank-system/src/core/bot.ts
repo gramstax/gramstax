@@ -1,6 +1,7 @@
 import {CacheExternal, Gramstax} from "gramstax"
 import {CtxCore} from "./ctx"
 import {BankStore} from "./store"
+import {BankGuard} from "~/guards/bank"
 import {GeneralStatusPage} from "~/pages/general-status"
 
 // BotCore wires hooks and shared stores.
@@ -22,6 +23,11 @@ export class BotCore extends Gramstax {
         data: {}
       }
     })
+  }
+
+  async hookBeforeRoute(ctx: CtxCore) {
+    BankGuard.ensureAccount(ctx)
+    return true
   }
 
   async hookErrorPage(ctx: CtxCore, listenerName: string, error: any, isEdit: boolean) {

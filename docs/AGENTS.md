@@ -52,7 +52,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 20:07:31
+> - **Last Updated:** 14/01/2026 22:05:00
 > - **Framework Version:** v0.3.22
 
 **Best Practices**
@@ -67,8 +67,18 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 - Payload text routes to `textPayload()` (e.g., `start 123`), payload commands route to `textCommandPayload()` (e.g., `/start 123`).
 - `intentText` applies to `text()` and `textPayload()`; `intentTextCommand` applies to `textCommand()` and `textCommandPayload()`.
 - Prefer `intentText` + `text()` handlers for bottom-keyboard actions in single-language flows.
+- Use the core route handlers (`textCommand`, `callback`, `callbackPayload`) directly instead of wrapper helpers like `showMenu`.
 - Create mandatory flow components as classes; use static types where it improves clarity.
+- Centralize guard/account checks once before routing instead of repeating them in each page handler.
+- Cache keyboard/data objects before `edit`/`reply` and avoid unnecessary base IDs to create code for faster performance.
+- Avoid passing `{}` as the data argument when it is unused; only pass `{}` when you need a later `baseId` argument.
+- Use target page `Page.data.callback(...)` for inline navigation instead of `this.data.callback("...")`.
+- Avoid duplicate `<base>` blocks when a single base is enough; create code for faster performance.
 - `callbackQueryAnswer()` is auto-handled for routed callbacks; call it only for custom toasts.
+
+**Example: `buildData` payload arrays**
+
+Use an array return even when payload is optional. Do not coerce to an empty string.
 
 **WRONG**
 
@@ -80,6 +90,116 @@ static data = this.buildData((payload?: string) => [payload ?? ``])
 
 ```typescript
 static data = this.buildData((payload?: string) => [payload])
+```
+
+**Example: Avoid duplicate `<base>` blocks**
+
+If a single base renders the message, do not duplicate it with another base id.
+
+**Example: Skip `buildData` when no payloads**
+
+If a page never uses callback payloads, omit `buildData` and let the system auto-generate `data`.
+
+**WRONG**
+
+```typescript
+export class StartPage extends PageBase {
+  static data = this.buildData((payload?: string) => [payload])
+}
+```
+
+**CORRECT**
+
+```typescript
+export class StartPage extends PageBase {}
+```
+
+**WRONG**
+
+```html
+<base>
+  <keyboard>Back to Menu</keyboard>
+  <message>
+    Balance: {{balance}}
+  </message>
+</base>
+<base id="balance">
+  <message>
+    Balance: {{balance}}
+  </message>
+</base>
+```
+
+**CORRECT**
+
+```html
+<base>
+  <keyboard>Back to Menu</keyboard>
+  <message>
+    Balance: {{balance}}
+  </message>
+</base>
+```
+
+**Example: Cache keyboard/data for edit/reply**
+
+Avoid repeating `this.kb()`/payload creation and base IDs when the default base is sufficient.
+
+**WRONG**
+
+```typescript
+if (isEdit) {
+  await this.edit(this.kb(), {balance: formatted}, `balance`)
+  return
+}
+await this.reply(this.kb(), {balance: formatted}, `balance`)
+```
+
+**CORRECT**
+
+```typescript
+const kb = this.kb()
+const data = {balance: formatted}
+
+if (isEdit) {
+  await this.edit(kb, data)
+  return
+}
+await this.reply(kb, data)
+```
+
+**Example: Skip empty data objects**
+
+Only pass `{}` when you need a `baseId` argument. Otherwise omit the data parameter.
+
+**WRONG**
+
+```typescript
+await this.edit(kb, {})
+await this.reply(kb, {})
+```
+
+**CORRECT**
+
+```typescript
+await this.edit(kb)
+await this.reply(kb)
+```
+
+**Example: Use target page callbacks**
+
+Use the destination page `Page.data.callback(...)` for inline navigation.
+
+**WRONG**
+
+```typescript
+k.text("Balance", this.data.callback("balance"))
+```
+
+**CORRECT**
+
+```typescript
+k.text("Balance", BalancePage.data.callback())
 ```
 
 ### Project Src Structure

@@ -10,61 +10,62 @@ export class TransferPage extends PageBase {
   }
 
   async to(isEdit = true) {
+    await this.sessionTextFree()
+    const kb = this.kb()
+
     if (isEdit) {
-      await this.edit(this.kb(), {}, `form`)
+      await this.edit(kb, {}, `form`)
       return
     }
 
-    await this.reply(this.kb(), {}, `form`)
-  }
-
-  async textCommand() {
-    await this.to(false)
-  }
-
-  async text() {
-    await this.to(false)
+    await this.reply(kb, {}, `form`)
   }
 
   async callback() {
     await this.to(true)
   }
 
-  async textPayload() {
-    await this.handleTransfer(this.msgTextPayloads, false)
-  }
-
-  async textCommandPayload() {
-    await this.handleTransfer(this.msgTextCommandPayloads, false)
+  async textFree() {
+    if (!this.validateSessionTextFree()) {
+      return null
+    }
+    const payloads = this.msgText.trim().split(/\s+/)
+    await this.handleTransfer(payloads, false)
   }
 
   private async handleTransfer(payloads: string[], isEdit = false) {
+    const kb = this.kb()
     const [amountInput, targetInput] = payloads
     if (!amountInput || !targetInput) {
-      await this.reply(this.kb(), {}, `invalid`)
+      await this.sessionClear()
+      await this.reply(kb, {}, `invalid`)
       return
     }
 
     const amount = this.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      await this.reply(this.kb(), {amount: amountInput}, `invalid`)
+      await this.sessionClear()
+      await this.reply(kb, {amount: amountInput}, `invalid`)
       return
     }
 
     const target = this.resolveTarget(targetInput)
     if (!target) {
-      await this.reply(this.kb(), {target: targetInput}, `unknown-user`)
+      await this.sessionClear()
+      await this.reply(kb, {target: targetInput}, `unknown-user`)
       return
     }
 
     if (target.id === this.userId) {
-      await this.reply(this.kb(), {}, `self`)
+      await this.sessionClear()
+      await this.reply(kb, {}, `self`)
       return
     }
 
     const current = this.bankStore.getBalance(this.userId)
     if (current < amount) {
-      await this.reply(this.kb(), {balance: this.bankStore.formatAmount(current)}, `insufficient`)
+      await this.sessionClear()
+      await this.reply(kb, {balance: this.bankStore.formatAmount(current)}, `insufficient`)
       return
     }
 
@@ -93,13 +94,16 @@ export class TransferPage extends PageBase {
 
     const amountDisplay = this.bankStore.formatAmount(amount)
     const balance = this.bankStore.formatAmount(nextSender)
+    const data = {amount: amountDisplay, balance, target: target.label}
+
+    await this.sessionClear()
 
     if (isEdit) {
-      await this.edit(this.kb(), {amount: amountDisplay, balance, target: target.label}, `success`)
+      await this.edit(kb, data, `success`)
       return
     }
 
-    await this.reply(this.kb(), {amount: amountDisplay, balance, target: target.label}, `success`)
+    await this.reply(kb, data, `success`)
   }
 
   private resolveTarget(input: string) {
@@ -121,16 +125,15 @@ export class TransferPage extends PageBase {
       <message>
         Transfer funds
 
-        Usage:
-        - /transfer 12.5 12345
-        - /transfer 12.5 @username
-        - transfer 12.5 12345
+        Tap Transfer in the menu, then send:
+        - 12.5 12345
+        - 12.5 @username
       </message>
     </base>
 
     <base id="form">
       <message>
-        Send: /transfer <amount> <user>
+        Send: <amount> <user>
       </message>
     </base>
 
@@ -163,7 +166,7 @@ export class TransferPage extends PageBase {
     <base id="invalid">
       <message>
         Invalid transfer input.
-        Example: /transfer 12.5 12345
+        Example: 12.5 12345
       </message>
     </base>
   `
