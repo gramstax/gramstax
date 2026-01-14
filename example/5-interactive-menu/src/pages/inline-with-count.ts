@@ -1,8 +1,5 @@
 import {PageBase} from "~/base/page"
-import {catalog} from "~/data/catalog"
-
-// VERY NOT RECOMENDED. put variable outside class
-const menuItems = catalog.flatMap((category) => category.items.map((item) => ({id: item.id, name: item.name, category: category.name})))
+import {CatalogData} from "~/data/catalog"
 
 // Inline keyboard with total page count.
 export class InlineWithCountPage extends PageBase {
@@ -10,11 +7,11 @@ export class InlineWithCountPage extends PageBase {
   static data = this.buildData((action?: string, page?: string) => [action, page])
 
   buildKb(page: number) {
-    const totalPages = Math.max(Math.ceil(menuItems.length / this.ITEMS_PER_PAGE), 1)
+    const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / this.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const start = safePage * this.ITEMS_PER_PAGE
     const end = start + this.ITEMS_PER_PAGE
-    const items = menuItems.slice(start, end)
+    const items = CatalogData.menuItems.slice(start, end)
     return this.ikb((k, a) => {
       items.forEach((item) => {
         k.text(item.name, this.data.callback(`item`, item.id)).row()
@@ -33,7 +30,7 @@ export class InlineWithCountPage extends PageBase {
   }
 
   async show(page: number, isEdit = true) {
-    const totalPages = Math.max(Math.ceil(menuItems.length / this.ITEMS_PER_PAGE), 1)
+    const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / this.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const data = {page: safePage + 1, totalPages}
     const kb = this.buildKb(safePage)

@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {catalog} from "~/data/catalog"
+import {CatalogData} from "~/data/catalog"
 import {ItemListPage} from "./item-list"
 import {StartPage} from "./start"
 
@@ -12,7 +12,7 @@ export class CategoryPage extends PageBase {
 
   kb() {
     return this.ikb((k, a) => {
-      catalog.forEach((category, index) => {
+      CatalogData.list.forEach((category, index) => {
         k.text(category.name, this.data.callback(`category`, category.id))
         if (index % 2 === 1) k.row()
       })

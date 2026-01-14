@@ -1,8 +1,5 @@
 import {PageBase} from "~/base/page"
-import {catalog} from "~/data/catalog"
-
-// VERY NOT RECOMENDED. put variable outside class
-const menuItems = catalog.flatMap((category) => category.items.map((item) => ({id: item.id, name: item.name, category: category.name})))
+import {CatalogData} from "~/data/catalog"
 
 // Inline keyboard with page info (no total count).
 export class InlineWithoutCountPage extends PageBase {
@@ -13,9 +10,9 @@ export class InlineWithoutCountPage extends PageBase {
     const safePage = Math.max(page, 0)
     const start = safePage * this.ITEMS_PER_PAGE
     const end = start + this.ITEMS_PER_PAGE
-    const items = menuItems.slice(start, end)
+    const items = CatalogData.menuItems.slice(start, end)
     const hasPrevious = safePage > 0
-    const hasMore = end < menuItems.length
+    const hasMore = end < CatalogData.menuItems.length
     return this.ikb((k, a) => {
       items.forEach((item) => {
         k.text(item.name, this.data.callback(`item`, item.id)).row()

@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {getItemById} from "~/data/catalog"
+import {CatalogData} from "~/data/catalog"
 import {ItemListPage} from "./item-list"
 
 // Item detail page with context-aware back button.
@@ -18,7 +18,7 @@ export class ItemDetailPage extends PageBase {
       return null
     }
 
-    const item = getItemById(categoryId, itemId)
+    const item = CatalogData.getItemById(categoryId, itemId)
     const page = Number((await this.cacheState.get(`${this.userId}:page`)) || 0)
     const bi = `detail`
     const kb = this.kb(page)

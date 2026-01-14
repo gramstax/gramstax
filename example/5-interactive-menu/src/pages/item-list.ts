@@ -1,19 +1,18 @@
 import {PageBase} from "~/base/page"
-import {getCategoryById} from "~/data/catalog"
+import {CatalogData} from "~/data/catalog"
 import {ItemDetailPage} from "./item-detail"
 import {CategoryPage} from "./category"
-
-const PAGE_SIZE = 3
 
 // Item list with pagination and dynamic buttons.
 export class ItemListPage extends PageBase {
   static data = this.buildData((action?: string, value?: string) => [action, value])
 
-  buildKeyboard(categoryId: string, page: number, category = getCategoryById(categoryId)) {
+  buildKeyboard(categoryId: string, page: number, category = CatalogData.getCategoryById(categoryId)) {
     if (!category) {
       return this.ikb((k, a) => k.text(a[0]!, CategoryPage.data.callback()))
     }
 
+    const PAGE_SIZE = 3
     const totalPages = Math.max(Math.ceil(category.items.length / PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const start = safePage * PAGE_SIZE
@@ -44,7 +43,7 @@ export class ItemListPage extends PageBase {
     await this.cacheState.set(`${this.userId}:category`, categoryId)
     await this.cacheState.set(`${this.userId}:page`, page)
 
-    const category = getCategoryById(categoryId)
+    const category = CatalogData.getCategoryById(categoryId)
     const categoryName = category?.name || `Unknown`
     const bi = `list`
     const da = {category: categoryName}
