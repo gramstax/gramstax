@@ -185,10 +185,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (Page?.data === undefined) {
       Page.data = Page.buildData() as any
     }
-    Page.data.name = parse(filePath).name
-    if (Page.data._callbackData.length == 0) {
-      Page.data._callbackData = Page.data.name
-    }
+    const name = parse(filePath).name
+    Page.data.name = name
+    if (!Page.data.intentText) Page.data.intentText = name
+    if (!Page.data.intentTextCommand) Page.data.intentTextCommand = name
+    if (!Page.data.intentCallback) Page.data.intentCallback = name
   }
 
   pageSorts(Page: typeof Ctx, pages: typeof this.pages, indexPage: number): void {
@@ -231,17 +232,17 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
         let key: string | undefined
         if (_isCommand) {
-          const _key = Page.data.textCommand || Page.data.name
+          const _key = Page.data.intentTextCommand
           key = _key ? `/${_key}` : undefined
         } else if (_isCallback) {
-          let _key = Page.data._callbackData || Page.data.name
+          let _key = Page.data.intentCallback
           if (this.optionsPage.shortCallbackData === true) {
             _key = String(indexPage)
-            Page.data._callbackData = _key
+            Page.data.intentCallback = _key
           }
           key = _key
         } else if (_isText) {
-          key = Page.data.text || Page.data.name
+          key = Page.data.intentText
         } else {
           key = Page.data.name
         }
