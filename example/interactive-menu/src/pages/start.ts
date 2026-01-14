@@ -7,6 +7,10 @@ import {InlineWithoutCountPage} from "./inline-without-count"
 
 // Main menu page for the interactive bot.
 export class StartPage extends PageBase {
+  static data = this.buildData({
+    intentText: `Menu`
+  })
+
   inlineKb() {
     return this.ikb((k, a) => {
       return k //
@@ -48,37 +52,12 @@ export class StartPage extends PageBase {
     await this.showMenu(false)
   }
 
-  async callback() {
-    await this.showMenu(true)
+  async text() {
+    await this.showMenu(false)
   }
 
-  // Bottom keyboard uses plain text; handle actions centrally.
-  async textFree() {
-    const action = this.msgText.trim()
-    const keyboardData = StartPage.kbd
-
-    if (action === keyboardData.menu(`default`)) {
-      await this.showMenu(false)
-      return null
-    }
-
-    if (action === keyboardData.browse(`default`)) {
-      await new CategoryPage(this).to(false)
-      return null
-    }
-
-    if (action === keyboardData.help(`default`)) {
-      await new HelpPage(this).to(false)
-      return null
-    }
-
-    if (action === keyboardData.reset(`default`)) {
-      await new ResetPage(this).to(false)
-      return null
-    }
-
-    // Friendly fallback for unknown text.
-    await this.reply(this.inlineKb(), {input: action}, `fallback`)
+  async callback() {
+    await this.showMenu(true)
   }
 
   static template = `
@@ -105,13 +84,6 @@ export class StartPage extends PageBase {
         - Inline Simple: inline list without totals
         - Help: learn navigation
         - Reset: clear state
-      </message>
-    </base>
-
-    <base id="fallback">
-      <message>
-        I did not recognize "{{input}}".
-        Use the Menu, Browse, Help, or Reset buttons.
       </message>
     </base>
   `

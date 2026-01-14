@@ -5,7 +5,10 @@ import {StartPage} from "./start"
 
 // Category list page with dynamic inline buttons.
 export class CategoryPage extends PageBase {
-  static data = this.buildData((payload?: string) => [payload])
+  static data = this.buildData({
+    dataCallback: (payload?: string) => [payload],
+    intentText: `Browse`
+  })
 
   kb() {
     return this.ikb((k) => {
@@ -29,6 +32,10 @@ export class CategoryPage extends PageBase {
 
   async callback() {
     await this.to(true)
+  }
+
+  async text() {
+    await this.to(false)
   }
 
   async callbackPayload() {

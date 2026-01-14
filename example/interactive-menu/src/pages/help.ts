@@ -3,7 +3,10 @@ import {StartPage} from "./start"
 
 // Help page describing navigation rules.
 export class HelpPage extends PageBase {
-  static data = this.buildData((payload?: string) => [payload])
+  static data = this.buildData({
+    dataCallback: (payload?: string) => [payload],
+    intentText: `Help`
+  })
 
   kb() {
     return this.ikb((k, a) => {
@@ -22,6 +25,10 @@ export class HelpPage extends PageBase {
 
   async callback() {
     await this.to(true)
+  }
+
+  async text() {
+    await this.to(false)
   }
 
   static template = `

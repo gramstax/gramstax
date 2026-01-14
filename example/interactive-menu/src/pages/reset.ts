@@ -3,7 +3,10 @@ import {StartPage} from "./start"
 
 // Reset state and return to main menu.
 export class ResetPage extends PageBase {
-  static data = this.buildData((payload?: string) => [payload])
+  static data = this.buildData({
+    dataCallback: (payload?: string) => [payload],
+    intentText: `Reset`
+  })
 
   kb() {
     return this.ikb((k, a) => {
@@ -26,6 +29,10 @@ export class ResetPage extends PageBase {
 
   async callback() {
     await this.to(true)
+  }
+
+  async text() {
+    await this.to(false)
   }
 
   static template = `
