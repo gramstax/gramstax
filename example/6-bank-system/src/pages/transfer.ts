@@ -3,25 +3,15 @@ import {StartPage} from "./start"
 
 // Transfer funds to another user.
 export class TransferPage extends PageBase {
-  static data = this.buildData((payload?: string) => [payload])
-
   kb() {
     return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
 
-  async to(isEdit = true) {
+  async callback() {
     await this.sessionTextFree()
     const kb = this.kb()
     const id = `form`
-    if (isEdit) {
-      await this.edit(kb, {}, id)
-      return
-    }
-    await this.reply(kb, {}, id)
-  }
-
-  async callback() {
-    await this.to(true)
+    await this.edit(kb, {}, id)
   }
 
   async textFree() {
@@ -63,7 +53,6 @@ export class TransferPage extends PageBase {
 
     const current = this.bankStore.getBalance(this.userId)
     if (current < amount) {
-      await this.sessionClear()
       await this.reply(kb, {balance: this.bankStore.formatAmount(current)}, `insufficient`)
       return
     }

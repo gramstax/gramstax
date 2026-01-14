@@ -7,19 +7,11 @@ export class DepositPage extends PageBase {
     return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
 
-  async to(isEdit = true) {
+  async callback() {
     await this.sessionTextFree()
     const kb = this.kb()
     const id = `form`
-    if (isEdit) {
-      await this.edit(kb, {}, id)
-      return
-    }
-    await this.reply(kb, {}, id)
-  }
-
-  async callback() {
-    await this.to(true)
+    await this.edit(kb, {}, id)
   }
 
   async textFree() {

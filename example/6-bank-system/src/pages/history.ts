@@ -7,19 +7,11 @@ export class HistoryPage extends PageBase {
     return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
 
-  async to(isEdit = true) {
+  async callback() {
     const history = this.formatHistory()
     const kb = this.kb()
     const data = {history}
-    if (isEdit) {
-      await this.edit(kb, data)
-      return
-    }
-    await this.reply(kb, data)
-  }
-
-  async callback() {
-    await this.to(true)
+    await this.edit(kb, data)
   }
 
   private formatHistory() {

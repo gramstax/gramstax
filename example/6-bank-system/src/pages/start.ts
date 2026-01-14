@@ -9,7 +9,7 @@ import {HistoryPage} from "./history"
 export class StartPage extends PageBase {
   kb() {
     return this.ikb((k, a) => {
-      return k
+      return k //
         .text(a[0]!, BalancePage.data.callback())
         .text(a[1]!, DepositPage.data.callback())
         .row()
@@ -20,14 +20,21 @@ export class StartPage extends PageBase {
     })
   }
 
-  async textCommand() {
+  async core(isEdit: boolean) {
     const kb = this.kb()
-    await this.reply(kb)
+    if (isEdit) {
+      await this.edit(kb)
+    } else {
+      await this.reply(kb)
+    }
+  }
+
+  async textCommand() {
+    await this.core(false)
   }
 
   async callback() {
-    const kb = this.kb()
-    await this.edit(kb)
+    await this.core(true)
   }
 
   static template = `

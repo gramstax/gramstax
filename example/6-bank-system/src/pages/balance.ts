@@ -7,20 +7,12 @@ export class BalancePage extends PageBase {
     return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
 
-  async to(isEdit = true) {
+  async callback() {
     const balance = this.bankStore.getBalance(this.userId)
     const formatted = this.bankStore.formatAmount(balance)
-    const kb = this.kb()
     const data = {balance: formatted}
-    if (isEdit) {
-      await this.edit(kb, data)
-      return
-    }
-    await this.reply(kb, data)
-  }
-
-  async callback() {
-    await this.to(true)
+    const kb = this.kb()
+    await this.edit(kb, data)
   }
 
   static template = `
