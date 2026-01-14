@@ -16,7 +16,7 @@ export class CounterThreadPage extends PageBase {
 
   async callback() {
     const kb = this.kb()
-    const count = await IncrementJob.getCount()
+    const count = await IncrementJob.mtdGetCount()
     await this.edit(kb, {count, timestamp: new Date().getTime()})
   }
 

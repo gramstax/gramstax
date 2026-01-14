@@ -6,17 +6,17 @@ export class Worker extends WorkerThreadInit {
     super()
 
     const ms = process.argv[3] as any
-    this.autoRun(ms)
+    this.mtdAutoRun(ms)
   }
 
-  autoRun(ms: number) {
+  mtdAutoRun(ms: number) {
     setInterval(() => {
       this.count += 1
       log.debug(`(${this.pid}:${this.id}) [IncrementCoreJob] count: ${this.count}`)
     }, ms)
   }
 
-  getCount() {
+  mtdGetCount() {
     return this.count
   }
 }
