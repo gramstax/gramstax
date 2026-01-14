@@ -1,14 +1,15 @@
 import {PageBase} from "~/base/page"
 import {catalog} from "~/data/catalog"
 
+// VERY NOT RECOMENDED. put variable outside class
 const menuItems = catalog.flatMap((category) => category.items.map((item) => ({id: item.id, name: item.name, category: category.name})))
 
 // Inline keyboard with total page count.
 export class InlineWithCountPage extends PageBase {
   ITEMS_PER_PAGE = 4
-  static data = this.buildData((page?: string) => [page])
+  static data = this.buildData((action?: string, page?: string) => [action, page])
 
-  buildKeyboard(page: number) {
+  buildKb(page: number) {
     const totalPages = Math.max(Math.ceil(menuItems.length / this.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const start = safePage * this.ITEMS_PER_PAGE
@@ -16,18 +17,17 @@ export class InlineWithCountPage extends PageBase {
     const items = menuItems.slice(start, end)
     return this.ikb((k, a) => {
       items.forEach((item) => {
-        k.text(item.name, this.data.callback(`item:${item.id}`)).row()
+        k.text(item.name, this.data.callback(`item`, item.id)).row()
       })
 
       k.row()
       if (safePage > 0) {
-        k.text(a[0]!, this.data.callback(`page:${safePage - 1}`))
+        k.text(a[0]!, this.data.callback(`page`, safePage - 1))
       }
       k.text(`${a[2]} ${safePage + 1}/${totalPages}`, `_`)
       if (safePage < totalPages - 1) {
-        k.text(a[1]!, this.data.callback(`page:${safePage + 1}`))
+        k.text(a[1]!, this.data.callback(`page`, safePage + 1))
       }
-
       return k
     })
   }
@@ -35,12 +35,14 @@ export class InlineWithCountPage extends PageBase {
   async show(page: number, isEdit = true) {
     const totalPages = Math.max(Math.ceil(menuItems.length / this.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-    const kb = this.buildKeyboard(safePage)
+    const data = {page: safePage + 1, totalPages}
+    const kb = this.buildKb(safePage)
+    const id = `list`
     if (isEdit) {
-      await this.edit(kb, {page: safePage + 1, totalPages}, `list`)
-      return
+      await this.edit(kb, data, id)
+    } else {
+      await this.reply(kb, data, id)
     }
-    await this.reply(kb, {page: safePage + 1, totalPages}, `list`)
   }
 
   async callback() {

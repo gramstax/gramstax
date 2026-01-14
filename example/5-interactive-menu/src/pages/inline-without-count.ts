@@ -1,14 +1,15 @@
 import {PageBase} from "~/base/page"
 import {catalog} from "~/data/catalog"
 
+// VERY NOT RECOMENDED. put variable outside class
 const menuItems = catalog.flatMap((category) => category.items.map((item) => ({id: item.id, name: item.name, category: category.name})))
 
 // Inline keyboard with page info (no total count).
 export class InlineWithoutCountPage extends PageBase {
   ITEMS_PER_PAGE = 4
-  static data = this.buildData((page?: string) => [page])
+  static data = this.buildData((action?: string, page?: string) => [action, page])
 
-  buildKeyboard(page: number) {
+  buildKb(page: number) {
     const safePage = Math.max(page, 0)
     const start = safePage * this.ITEMS_PER_PAGE
     const end = start + this.ITEMS_PER_PAGE
@@ -17,30 +18,31 @@ export class InlineWithoutCountPage extends PageBase {
     const hasMore = end < menuItems.length
     return this.ikb((k, a) => {
       items.forEach((item) => {
-        k.text(item.name, this.data.callback(`item:${item.id}`)).row()
+        k.text(item.name, this.data.callback(`item`, item.id)).row()
       })
 
       k.row()
       if (hasPrevious) {
-        k.text(a[0]!, this.data.callback(`page:${safePage - 1}`))
+        k.text(a[0]!, this.data.callback(`page`, safePage - 1))
       }
       k.text(`${a[2]} ${safePage + 1}`, `_`)
       if (hasMore) {
-        k.text(a[1]!, this.data.callback(`page:${safePage + 1}`))
+        k.text(a[1]!, this.data.callback(`page`, safePage + 1))
       }
-
       return k
     })
   }
 
   async show(page: number, isEdit = true) {
     const safePage = Math.max(page, 0)
-    const kb = this.buildKeyboard(safePage)
+    const data = {page: safePage + 1}
+    const kb = this.buildKb(safePage)
+    const id = `list`
     if (isEdit) {
-      await this.edit(kb, {page: safePage + 1}, `list`)
-      return
+      await this.edit(kb, data, id)
+    } else {
+      await this.reply(kb, data, id)
     }
-    await this.reply(kb, {page: safePage + 1}, `list`)
   }
 
   async callback() {

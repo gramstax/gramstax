@@ -5,25 +5,20 @@ import {StartPage} from "./start"
 // Error/fallback page used by hooks.
 export class GeneralStatusPage extends PageBase {
   constructorName?: string
-
   constructor(p: any) {
     super(p)
     this.constructorName = p?.constructor?.name
   }
 
   kb() {
-    return this.ikb((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
+    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
 
   async toError(funcName: string, error: any, isUpdate = true) {
     log.errorMake(error, this.constructorName, funcName)
-
     await this.sessionClear()
     const kb = this.kb()
     const baseId = `error`
-
     if (isUpdate) {
       await this.edit(kb, {}, baseId)
     } else {
@@ -32,7 +27,8 @@ export class GeneralStatusPage extends PageBase {
   }
 
   async toErrorInputNotFound() {
-    await this.reply(this.kb(), {}, `error-input-notfound`)
+    const kb = this.kb()
+    await this.reply(kb, {}, `error-input-notfound`)
   }
 
   static template = `

@@ -3,24 +3,20 @@ import {StartPage} from "./start"
 
 // Help page describing navigation rules.
 export class HelpPage extends PageBase {
-  static data = this.buildData({
-    dataCallback: (payload?: string) => [payload],
-    intentText: `Help`
-  })
+  static data = this.buildData({intentText: `Help`})
 
   kb() {
-    return this.ikb((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
+    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
 
   async to(isEdit = true) {
+    const kb = this.kb()
+    const id = `help`
     if (isEdit) {
-      await this.edit(this.kb(), {}, `help`)
-      return
+      await this.edit(kb, {}, id)
+    } else {
+      await this.reply(kb, {}, id)
     }
-
-    await this.reply(this.kb(), {}, `help`)
   }
 
   async callback() {

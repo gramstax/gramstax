@@ -4,11 +4,11 @@ import {ItemListPage} from "./item-list"
 
 // Item detail page with context-aware back button.
 export class ItemDetailPage extends PageBase {
-  static data = this.buildData((payload?: string) => [payload])
+  static data = this.buildData((action?: string, categoryId?: string, itemId?: string) => [action, categoryId, itemId])
 
   kb(page: number) {
     return this.ikb((k, a) => {
-      return k.text(a[0]!, ItemListPage.data.callback(`page:${page}`))
+      return k.text(a[0]!, ItemListPage.data.callback(`page`, `${page}`))
     })
   }
 
@@ -20,15 +20,13 @@ export class ItemDetailPage extends PageBase {
 
     const item = getItemById(categoryId, itemId)
     const page = Number((await this.cacheState.get(`${this.userId}:page`)) || 0)
-
-    await this.edit(
-      this.kb(page),
-      {
-        name: item?.name || `Unknown`,
-        description: item?.description || `No description found.`
-      },
-      `detail`
-    )
+    const bi = `detail`
+    const kb = this.kb(page)
+    const da = {
+      name: item?.name || `Unknown`,
+      description: item?.description || `No description found.`
+    }
+    await this.edit(kb, da, bi)
   }
 
   static template = `

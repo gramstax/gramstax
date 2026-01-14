@@ -7,11 +7,11 @@ const PAGE_SIZE = 3
 
 // Item list with pagination and dynamic buttons.
 export class ItemListPage extends PageBase {
-  static data = this.buildData((payload?: string) => [payload])
+  static data = this.buildData((action?: string, value?: string) => [action, value])
 
   buildKeyboard(categoryId: string, page: number, category = getCategoryById(categoryId)) {
     if (!category) {
-      return this.ikb((k) => k.text(`Back to Categories`, CategoryPage.data.callback()))
+      return this.ikb((k, a) => k.text(a[0]!, CategoryPage.data.callback()))
     }
 
     const totalPages = Math.max(Math.ceil(category.items.length / PAGE_SIZE), 1)
@@ -23,18 +23,17 @@ export class ItemListPage extends PageBase {
     return this.ikb(
       (k, a) => {
         items.forEach((item, index) => {
-          k.text(item.name, ItemDetailPage.data.callback(`detail:${categoryId}:${item.id}`))
+          k.text(item.name, ItemDetailPage.data.callback(`detail`, categoryId, item.id))
           if (index % 2 === 1) k.row()
         })
 
         k.row()
         if (safePage > 0) {
-          k.text(a[0]!, this.data.callback(`page:${safePage - 1}`))
+          k.text(a[0]!, this.data.callback(`page`, `${safePage - 1}`))
         }
         if (safePage < totalPages - 1) {
-          k.text(a[1]!, this.data.callback(`page:${safePage + 1}`))
+          k.text(a[1]!, this.data.callback(`page`, `${safePage - 1}`))
         }
-
         return k.row().text(a[2]!, CategoryPage.data.callback())
       },
       {baseId: `navigation`}
@@ -46,25 +45,24 @@ export class ItemListPage extends PageBase {
     await this.cacheState.set(`${this.userId}:page`, page)
 
     const category = getCategoryById(categoryId)
-    const kb = this.buildKeyboard(categoryId, page, category)
     const categoryName = category?.name || `Unknown`
-
+    const bi = `list`
+    const da = {category: categoryName}
+    const kb = this.buildKeyboard(categoryId, page, category)
     if (isEdit) {
-      await this.edit(kb, {category: categoryName}, `list`)
-      return
+      await this.edit(kb, da, bi)
+    } else {
+      await this.reply(kb, da, bi)
     }
-
-    await this.reply(kb, {category: categoryName}, `list`)
   }
 
   async callback() {
     const categoryId = await this.cacheState.get(`${this.userId}:category`)
     if (!categoryId) {
       await new CategoryPage(this).to(true)
-      return
+    } else {
+      await this.to(categoryId, 0, true)
     }
-
-    await this.to(categoryId, 0, true)
   }
 
   async callbackPayload() {
@@ -77,14 +75,14 @@ export class ItemListPage extends PageBase {
     const categoryId = await this.cacheState.get(`${this.userId}:category`)
     if (!categoryId) {
       await new CategoryPage(this).to(true)
-      return
+    } else {
+      await this.to(categoryId, Number(value), true)
     }
-
-    await this.to(categoryId, Number(value), true)
   }
 
   static template = `
     <base>
+      <keyboard>Back to Categories</keyboard>
       <message>
         Choose an item from the catalog.
       </message>

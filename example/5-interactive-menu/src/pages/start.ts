@@ -7,9 +7,7 @@ import {InlineWithoutCountPage} from "./inline-without-count"
 
 // Main menu page for the interactive bot.
 export class StartPage extends PageBase {
-  static data = this.buildData({
-    intentText: `Menu`
-  })
+  static data = this.buildData({intentText: `Menu`})
 
   inlineKb() {
     return this.ikb((k, a) => {
@@ -37,15 +35,18 @@ export class StartPage extends PageBase {
 
   async showMenu(isEdit = false) {
     const inlineKb = this.inlineKb()
+    const bi = `menu`
     if (isEdit) {
-      await this.edit(inlineKb, {}, `menu`)
+      await this.edit(inlineKb, {}, bi)
       return
     }
 
     // First reply shows the main menu with inline buttons.
-    await this.reply(inlineKb, {}, `menu`)
+    await this.reply(inlineKb, {}, bi)
+
     // Second reply enables persistent quick actions.
-    await this.reply(this.bottomKb(), {}, `quick-actions`)
+    const kb = this.bottomKb()
+    await this.reply(kb, {}, `quick-actions`)
   }
 
   async textCommand() {
