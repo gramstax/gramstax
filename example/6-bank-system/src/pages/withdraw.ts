@@ -3,8 +3,6 @@ import {StartPage} from "./start"
 
 // Withdraw funds from the user's balance.
 export class WithdrawPage extends PageBase {
-  static data = this.buildData((payload?: string) => [payload])
-
   kb() {
     return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }

@@ -128,7 +128,7 @@ export class TransferPage extends PageBase {
 
     <base id="form">
       <message>
-        Send: <amount> <user>
+        Send: [amount] [user]
       </message>
     </base>
 

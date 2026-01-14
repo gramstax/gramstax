@@ -3,8 +3,6 @@ import {StartPage} from "./start"
 
 // Shows recent transaction history.
 export class HistoryPage extends PageBase {
-  static data = this.buildData((payload?: string) => [payload])
-
   kb() {
     return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
@@ -29,7 +27,6 @@ export class HistoryPage extends PageBase {
     if (entries.length === 0) {
       return `No transactions yet.`
     }
-
     return entries
       .map((entry) => {
         const amount = this.bankStore.formatAmount(this.bankStore.fromHex(entry.amountHex))

@@ -2,6 +2,7 @@
 
 ## Purpose
 - Provide commands and style guidance for agents working in this repo.
+- Monorepo note: core library code lives in `packages/gramstax`.
 - Assume a Bun + TypeScript + Nx monorepo workflow.
 - Run commands from repository root unless noted.
 - Keep changes focused and consistent with existing patterns.
