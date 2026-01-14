@@ -1,8 +1,13 @@
 import {GuardBase} from "~/base/guard"
-import {GeneralErrorPage} from "~/pages/general-error"
+import {GeneralStatusPage} from "~/pages/general-status"
 import {UserNameNotFoundPage} from "~/pages/username-notfound"
 
 export class UserGuard extends GuardBase {
+  async _catch(err: any, func: any, isEdit: boolean) {
+    await new GeneralStatusPage(this).toError(func, err, isEdit)
+    return null
+  }
+
   async ensureValid(isEdit: boolean) {
     try {
       if (!this.userName || this.userName.length == 0) {
@@ -11,8 +16,7 @@ export class UserGuard extends GuardBase {
       }
       return {status: true}
     } catch (err) {
-      await new GeneralErrorPage(this).transition(`ensureValid`, err, isEdit)
-      return null
+      return await this._catch(err, `ensureValid`, isEdit)
     }
   }
 }

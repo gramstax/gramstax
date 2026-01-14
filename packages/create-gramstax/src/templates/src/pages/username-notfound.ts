@@ -4,7 +4,7 @@ import {PageBase} from "~/base/page"
 export class UserNameNotFoundPage extends PageBase {
   kb() {
     return this.ikb((k, a) => {
-      return k.text(a[0]!, HelpPage.data.callbackData())
+      return k.text(a[0]!, HelpPage.data.callback())
     })
   }
 

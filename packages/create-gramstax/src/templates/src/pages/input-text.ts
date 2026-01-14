@@ -4,12 +4,12 @@ import {SessionGuard} from "~/guards/session"
 
 export class InputTextPage extends PageBase {
   static data = this.buildData({
-    textCommand: `input_text`
+    intentTextCommand: `input_text`
   })
 
   kb(baseId?: string) {
     return this.ikb((k, a) => {
-      return k.text(a[0]!, StartPage.data.callbackData()), {baseId}
+      return k.text(a[0]!, StartPage.data.callback()), {baseId}
     })
   }
 

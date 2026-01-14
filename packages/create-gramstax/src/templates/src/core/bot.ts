@@ -1,11 +1,10 @@
 import {Gramstax} from "gramstax"
 import {UserGuard} from "~/guards/user"
-import {GeneralErrorPage} from "~/pages/general-error"
-import {GeneralErrorInputNotFoundPage} from "~/pages/general-error-input-notfound"
+import {GeneralStatusPage} from "~/pages/general-status"
 import type {CtxCore} from "./ctx"
 
 export class BotCore extends Gramstax {
-  async hookBeforeRoute(ctx: CtxCore): Promise<boolean> {
+  async hookBeforeRoute(ctx: CtxCore) {
     const result = await new UserGuard(ctx).ensureValid(true)
     if (result === null) {
       return false
@@ -13,11 +12,11 @@ export class BotCore extends Gramstax {
     return true
   }
 
-  async hookErrorPage(ctx: CtxCore, listenerName: string, error: any, isEdit: boolean): Promise<void> {
-    await new GeneralErrorPage(ctx).transition(listenerName, error, isEdit)
+  async hookErrorPage(ctx: CtxCore, listenerName: string, error: any, isEdit: boolean) {
+    await new GeneralStatusPage(ctx).toError(`${listenerName}:hookErrorPage`, error, isEdit)
   }
 
-  async hookErrorInputNotFoundPage(ctx: CtxCore): Promise<void> {
-    await new GeneralErrorInputNotFoundPage(ctx).transition()
+  async hookErrorInputNotFoundPage(ctx: CtxCore) {
+    await new GeneralStatusPage(ctx).toErrorInputNotFound()
   }
 }
