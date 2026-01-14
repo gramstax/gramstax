@@ -3,7 +3,7 @@ import {Ctx} from "gramstax"
 export class StartPage extends Ctx {
   kb() {
     return this.ikb((k, a) => {
-      return k.text(a[0], this.data.callbackData())
+      return k.text(a[0], this.data.callback())
     })
   }
 

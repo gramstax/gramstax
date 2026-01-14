@@ -7,24 +7,22 @@ import {InlineWithoutCountPage} from "./inline-without-count"
 
 // Main menu page for the interactive bot.
 export class StartPage extends PageBase {
-  static data = this.buildData()
-
   inlineKb() {
     return this.ikb((k, a) => {
-      return k
-        .text(a[0]!, CategoryPage.data.callbackData())
-        .text(a[1]!, InlineWithCountPage.data.callbackData())
+      return k //
+        .text(a[0]!, CategoryPage.data.callback())
+        .text(a[1]!, InlineWithCountPage.data.callback())
         .row()
-        .text(a[2]!, InlineWithoutCountPage.data.callbackData())
-        .text(a[3]!, HelpPage.data.callbackData())
+        .text(a[2]!, InlineWithoutCountPage.data.callback())
+        .text(a[3]!, HelpPage.data.callback())
         .row()
-        .text(a[4]!, ResetPage.data.callbackData())
+        .text(a[4]!, ResetPage.data.callback())
     })
   }
 
   bottomKb() {
     return this.bkb((k, a) => {
-      return k
+      return k //
         .text(a[0]!)
         .text(a[1]!)
         .row()
@@ -35,7 +33,6 @@ export class StartPage extends PageBase {
 
   async showMenu(isEdit = false) {
     const inlineKb = this.inlineKb()
-
     if (isEdit) {
       await this.edit(inlineKb, {}, `menu`)
       return

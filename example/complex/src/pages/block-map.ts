@@ -5,9 +5,9 @@ export class BlockMapPage extends PageBase {
   kb() {
     return this.ikb((k, a) => {
       return k //
-        .text(a[0]!, this.data.callbackData())
+        .text(a[0]!, this.data.callback())
         .row()
-        .text(a[1]!, StartPage.data.callbackData())
+        .text(a[1]!, StartPage.data.callback())
     })
   }
 

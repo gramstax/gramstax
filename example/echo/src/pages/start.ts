@@ -4,13 +4,11 @@ import {EchoPage} from "./echo"
 
 // Start page with welcome message and navigation.
 export class StartPage extends PageBase {
-  static data = this.buildData((payload?: string) => payload)
+  static data = this.buildData((payload?: string) => [payload])
 
   kb() {
     return this.ikb((k, a) => {
-      return k
-        .text(a[0]!, HelpPage.data.callbackData())
-        .text(a[1]!, EchoPage.data.callbackData())
+      return k.text(a[0]!, HelpPage.data.callback()).text(a[1]!, EchoPage.data.callback())
     })
   }
 

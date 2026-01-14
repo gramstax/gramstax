@@ -2,14 +2,14 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class TestAnimationPage extends PageBase {
-  static data = this.buildData((swc?: string) => swc)
+  static data = this.buildData((swc?: string) => [swc])
 
   kb(isDynamic = false) {
     return this.ikb((k, a) => {
       return k //
-        .text(isDynamic ? a[1] : a[0]!, this.data.callbackData(isDynamic ? `static` : `dynamic`))
+        .text(isDynamic ? a[1] : a[0]!, this.data.callback(isDynamic ? `static` : `dynamic`))
         .row()
-        .text(a[2]!, StartPage.data.callbackData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the callbackPayload route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
+        .text(a[2]!, StartPage.data.callback(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the callbackPayload route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
     })
   }
 

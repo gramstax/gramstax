@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class LanguagePage extends PageBase {
-  static data = this.buildData((lang?: string) => lang)
+  static data = this.buildData((lang?: string) => [lang])
 
   kb() {
     return this.ikb((k, a) => {
@@ -19,13 +19,13 @@ export class LanguagePage extends PageBase {
           const langCode = lang.toLowerCase()
           const isSelected = langCode === currentLang
           const displayText = isSelected ? `+ ${lang}` : lang
-          k.text(displayText, LanguagePage.data.callbackData(langCode))
+          k.text(displayText, LanguagePage.data.callback(langCode))
         })
         k.row()
       }
 
       // Add back button
-      return k.text(backButton, StartPage.data.callbackData())
+      return k.text(backButton, StartPage.data.callback())
     })
   }
 

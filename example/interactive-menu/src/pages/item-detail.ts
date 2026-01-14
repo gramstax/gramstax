@@ -4,11 +4,11 @@ import {ItemListPage} from "./item-list"
 
 // Item detail page with context-aware back button.
 export class ItemDetailPage extends PageBase {
-  static data = this.buildData((payload?: string) => payload)
+  static data = this.buildData((payload?: string) => [payload])
 
   kb(page: number) {
     return this.ikb((k, a) => {
-      return k.text(a[0]!, ItemListPage.data.callbackData(`page:${page}`))
+      return k.text(a[0]!, ItemListPage.data.callback(`page:${page}`))
     })
   }
 

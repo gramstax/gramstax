@@ -3,11 +3,11 @@ import {StartPage} from "./start"
 
 // Help page lists available commands.
 export class HelpPage extends PageBase {
-  static data = this.buildData((payload?: string) => payload)
+  static data = this.buildData((payload?: string) => [payload])
 
   kb() {
     return this.ikb((k, a) => {
-      return k.text(a[0]!, StartPage.data.callbackData())
+      return k.text(a[0]!, StartPage.data.callback())
     })
   }
 

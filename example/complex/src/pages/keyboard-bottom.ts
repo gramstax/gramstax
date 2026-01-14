@@ -3,12 +3,12 @@ import {StartPage} from "./start"
 
 export class KeyboardBottomPage extends PageBase {
   static data = this.buildData({
-    text: `📚 KBBottom:`, // <===== overrides trigger route function "text" because need emoticon + space, only support 1 space.
-    textCommand: `keyboard_bottom` // <===== overrides trigger route function "textCommand" because file name user "-" that not support command in telegram
+    intentText: `📚 KBBottom:`, // <===== overrides trigger route function "text" because need emoticon + space, only support 1 space.
+    intentTextCommand: `keyboard_bottom` // <===== overrides trigger route function "textCommand" because file name user "-" that not support command in telegram
   })
 
   bk(count?: number) {
-    const params = {data: {first: this.data.text}}
+    const params = {data: {first: this.data.intentText}}
     return this.bkb((k, a) => {
       return k
         .text(count === undefined ? `${a[0]!} 0` : `${a[0]} ${count + 1}`)
@@ -20,7 +20,7 @@ export class KeyboardBottomPage extends PageBase {
 
   ik() {
     return this.ikb((k, a) => {
-      return k.text(a[0]!, StartPage.data.callbackData())
+      return k.text(a[0]!, StartPage.data.callback())
     })
   }
 

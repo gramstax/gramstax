@@ -2,15 +2,15 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class BlockSwitchPage extends PageBase {
-  static data = this.buildData((status?: string) => status)
+  static data = this.buildData((status?: string) => [status])
 
   kb(status: string) {
     return this.ikb(
       (k, a) => {
         return k //
-          .text(a[0]!, this.data.callbackData(status === `1` ? `0` : `1`))
+          .text(a[0]!, this.data.callback(status === `1` ? `0` : `1`))
           .row()
-          .text(a[1]!, StartPage.data.callbackData())
+          .text(a[1]!, StartPage.data.callback())
       },
       {data: {status}}
     )

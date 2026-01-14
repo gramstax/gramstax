@@ -5,16 +5,16 @@ import {StartPage} from "./start"
 
 // Category list page with dynamic inline buttons.
 export class CategoryPage extends PageBase {
-  static data = this.buildData((payload?: string) => payload)
+  static data = this.buildData((payload?: string) => [payload])
 
   kb() {
     return this.ikb((k) => {
       catalog.forEach((category, index) => {
-        k.text(category.name, this.data.callbackData(`category:${category.id}`))
+        k.text(category.name, this.data.callback(`category:${category.id}`))
         if (index % 2 === 1) k.row()
       })
 
-      return k.row().text(`Back to Menu`, StartPage.data.callbackData())
+      return k.row().text(`Back to Menu`, StartPage.data.callback())
     })
   }
 

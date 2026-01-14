@@ -3,14 +3,14 @@ import {StartPage} from "./start"
 import {IncrementJob} from "~/jobs/increment"
 
 export class CounterThreadPage extends PageBase {
-  static data = this.buildData((exe?: string) => exe)
+  static data = this.buildData((exe?: string) => [exe])
 
   kb() {
     return this.ikb((k, a) => {
       return k //
-        .text(a[0]!, this.data.callbackData(`1`))
+        .text(a[0]!, this.data.callback(`1`))
         .row()
-        .text(a[1]!, StartPage.data.callbackData())
+        .text(a[1]!, StartPage.data.callback())
     })
   }
 

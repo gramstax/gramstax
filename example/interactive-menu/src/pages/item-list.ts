@@ -7,11 +7,11 @@ const PAGE_SIZE = 3
 
 // Item list with pagination and dynamic buttons.
 export class ItemListPage extends PageBase {
-  static data = this.buildData((payload?: string) => payload)
+  static data = this.buildData((payload?: string) => [payload])
 
   buildKeyboard(categoryId: string, page: number, category = getCategoryById(categoryId)) {
     if (!category) {
-      return this.ikb((k) => k.text(`Back to Categories`, CategoryPage.data.callbackData()))
+      return this.ikb((k) => k.text(`Back to Categories`, CategoryPage.data.callback()))
     }
 
     const totalPages = Math.max(Math.ceil(category.items.length / PAGE_SIZE), 1)
@@ -23,19 +23,19 @@ export class ItemListPage extends PageBase {
     return this.ikb(
       (k, a) => {
         items.forEach((item, index) => {
-          k.text(item.name, ItemDetailPage.data.callbackData(`detail:${categoryId}:${item.id}`))
+          k.text(item.name, ItemDetailPage.data.callback(`detail:${categoryId}:${item.id}`))
           if (index % 2 === 1) k.row()
         })
 
         k.row()
         if (safePage > 0) {
-          k.text(a[0]!, this.data.callbackData(`page:${safePage - 1}`))
+          k.text(a[0]!, this.data.callback(`page:${safePage - 1}`))
         }
         if (safePage < totalPages - 1) {
-          k.text(a[1]!, this.data.callbackData(`page:${safePage + 1}`))
+          k.text(a[1]!, this.data.callback(`page:${safePage + 1}`))
         }
 
-        return k.row().text(a[2]!, CategoryPage.data.callbackData())
+        return k.row().text(a[2]!, CategoryPage.data.callback())
       },
       {baseId: `navigation`}
     )

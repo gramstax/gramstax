@@ -4,7 +4,7 @@ import {StartPage} from "./start"
 export class TestAudioPage extends PageBase {
   kb() {
     return this.ikb((k, a) => {
-      return k.text(a[0]!, StartPage.data.callbackData(`3`))
+      return k.text(a[0]!, StartPage.data.callback(`3`))
     })
   }
 

@@ -6,7 +6,7 @@ const menuItems = catalog.flatMap((category) => category.items.map((item) => ({i
 // Inline keyboard with total page count.
 export class InlineWithCountPage extends PageBase {
   ITEMS_PER_PAGE = 4
-  static data = this.buildData((page?: string) => page)
+  static data = this.buildData((page?: string) => [page])
 
   buildKeyboard(page: number) {
     const totalPages = Math.max(Math.ceil(menuItems.length / this.ITEMS_PER_PAGE), 1)
@@ -16,16 +16,16 @@ export class InlineWithCountPage extends PageBase {
     const items = menuItems.slice(start, end)
     return this.ikb((k, a) => {
       items.forEach((item) => {
-        k.text(item.name, this.data.callbackData(`item:${item.id}`)).row()
+        k.text(item.name, this.data.callback(`item:${item.id}`)).row()
       })
 
       k.row()
       if (safePage > 0) {
-        k.text(a[0]!, this.data.callbackData(`page:${safePage - 1}`))
+        k.text(a[0]!, this.data.callback(`page:${safePage - 1}`))
       }
       k.text(`${a[2]} ${safePage + 1}/${totalPages}`, `_`)
       if (safePage < totalPages - 1) {
-        k.text(a[1]!, this.data.callbackData(`page:${safePage + 1}`))
+        k.text(a[1]!, this.data.callback(`page:${safePage + 1}`))
       }
 
       return k

@@ -3,12 +3,12 @@ import {StartPage} from "./start"
 
 export class InputText2Page extends PageBase {
   static data = this.buildData({
-    textCommand: `input_text2`
+    intentTextCommand: `input_text2`
   })
 
   kb(baseId?: string) {
     return this.ikb((k, a) => {
-      return k.text(a[0]!, StartPage.data.callbackData()), {baseId}
+      return k.text(a[0]!, StartPage.data.callback()), {baseId}
     })
   }
 
