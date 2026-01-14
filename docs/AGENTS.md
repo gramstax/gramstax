@@ -51,7 +51,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 18:21:22
+> - **Last Updated:** 14/01/2026 18:40:34
 > - **Framework Version:** v0.3.22
 
 **Best Practices**
@@ -62,7 +62,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 - `textFree()` triggers only when text exists; no empty-text guard needed.
 - If you introduce multi-language keyboards, ensure every related flow handles all languages.
 - Favor fast paths (reuse computed data, avoid duplicate lookups).
-- Avoid `intentText`/`intentTextCommand` unless you must override the filename-derived default (`this.data.name`).
+- Avoid `intentText`/`intentTextCommand` unless you must override the filename-derived default (`this.data.name`); renaming the page file (e.g., `reset.ts` → `Reset.ts`) also changes the derived intent.
 - Payload text routes to `textPayload()` (e.g., `start 123`), payload commands route to `textCommandPayload()` (e.g., `/start 123`).
 - `intentText` applies to `text()` and `textPayload()`; `intentTextCommand` applies to `textCommand()` and `textCommandPayload()`.
 - Prefer `intentText` + `text()` handlers for bottom-keyboard actions in single-language flows.

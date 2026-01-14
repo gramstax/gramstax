@@ -1,6 +1,6 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 18:11:24
+> - **Last Updated:** 14/01/2026 18:40:34
 
 
 > - **Framework Version:** v0.3.22
@@ -69,7 +69,7 @@ If the text input includes payloads (e.g., `start 123`), it routes to `textPaylo
 
 `intentText` applies to both `text()` and `textPayload()` routes; `intentTextCommand` applies to `textCommand()` and `textCommandPayload()` routes.
 
-Do not set `intentText` or `intentTextCommand` unless you need to override the auto-derived intent (it defaults to `this.data.name`, based on the filename).
+Do not set `intentText` or `intentTextCommand` unless you need to override the auto-derived intent (it defaults to `this.data.name`, based on the filename). You can also change the page filename (e.g., `reset.ts` → `Reset.ts`) to alter the derived intent without overriding it.
 
 
 **Options**
