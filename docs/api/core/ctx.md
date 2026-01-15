@@ -378,17 +378,6 @@ Delete the current message.
 - **returns: Promise\<boolean\>**
 - **ai_notes:** Resolves with operation result.
 
-### `.sleep(ms)`
-
-Wait for specified milliseconds.
-
-| parameter | type   | required | description  | ai_notes             |
-| --------- | ------ | -------- | ------------ | -------------------- |
-| ms        | number | yes      | Milliseconds | Delay before resume. |
-
-- **returns: Promise\<void\>**
-- **ai_notes:** Resolves after delay.
-
 ### `.callbackQueryAnswer(text?, options?)`
 
 Answer callback query (show toast). Gramstax auto-answers routed callbacks, so call this only when you need a custom toast or extra acknowledgment.
