@@ -1,4 +1,4 @@
-import {KeyboardPartial} from "~/components/keyboard"
+import {KeyboardPartial} from "~/partials/keyboard"
 import {CtxCore} from "~/core/ctx"
 
 // Base page to share helpers across pages.
