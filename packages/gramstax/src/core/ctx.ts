@@ -99,6 +99,33 @@ export class Ctx {
   get msgAudio() {
     return this.ct.message?.audio
   }
+  get msgDocument() {
+    return this.ct.message?.document
+  }
+  get msgAnimation() {
+    return this.ct.message?.animation
+  }
+  get msgVoice() {
+    return this.ct.message?.voice
+  }
+  get msgVideoNote() {
+    return this.ct.message?.video_note
+  }
+  get msgSticker() {
+    return this.ct.message?.sticker
+  }
+  get msgLocation() {
+    return this.ct.message?.location
+  }
+  get msgContact() {
+    return this.ct.message?.contact
+  }
+  get msgWebAppData() {
+    return this.ct.message?.web_app_data
+  }
+  get msgGift() {
+    return this.ct.message?.gift
+  }
   get callbackData() {
     return this.ct.callbackQuery?.data as string
   }
