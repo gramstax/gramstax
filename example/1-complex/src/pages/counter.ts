@@ -38,8 +38,8 @@ export class CounterPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Increase, Decrease, ${this.kbd.back(`default`)}</keyboard>
-      <keyboard lang="id">Tambah, Kurang, ${this.kbd.back(`id`)}</keyboard>
+      <keyboard>Increase, Decrease, ${this.kbl.back(`default`)}</keyboard>
+      <keyboard lang="id">Tambah, Kurang, ${this.kbl.back(`id`)}</keyboard>
       <message>
         Count: {{count}}
 

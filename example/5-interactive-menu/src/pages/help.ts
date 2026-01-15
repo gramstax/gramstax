@@ -6,16 +6,18 @@ export class HelpPage extends PageBase {
   static data = this.buildData({intentText: `Help`})
 
   kb() {
-    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
+    return this.inlineKeyboard((k, a) => {
+      return k.text(a[0]!, StartPage.data.callback())
+    })
   }
 
   async to(isEdit = true) {
     const kb = this.kb()
-    const id = `help`
+    const bi = `help`
     if (isEdit) {
-      await this.edit(kb, {}, id)
+      await this.edit(kb, {}, bi)
     } else {
-      await this.reply(kb, {}, id)
+      await this.reply(kb, {}, bi)
     }
   }
 
@@ -29,7 +31,7 @@ export class HelpPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbp.back()}
+      ${this.kbk.back()}
       <message>
         Help & Navigation
 

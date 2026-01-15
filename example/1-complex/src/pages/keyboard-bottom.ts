@@ -56,10 +56,10 @@ export class KeyboardBottomPage extends PageBase {
 
   static template = `    
     <base>
-      <keyboard>${this.kbd.home(`default`)}</keyboard>
-      <keyboard lang="id">${this.kbd.home(`id`)}</keyboard>
-      <keyboard type="bottom">{{first}}, ${this.kbd.home(`default`)}</keyboard>
-      <keyboard lang="id" type="bottom">{{first}}, ${this.kbd.home(`id`)}</keyboard>
+      <keyboard>${this.kbl.home(`default`)}</keyboard>
+      <keyboard lang="id">${this.kbl.home(`id`)}</keyboard>
+      <keyboard type="bottom">{{first}}, ${this.kbl.home(`default`)}</keyboard>
+      <keyboard lang="id" type="bottom">{{first}}, ${this.kbl.home(`id`)}</keyboard>
 
       <message>Use keyboard bottom with emoji and dynamic payload</message>
       <message lang="id">Gunakan keyboard bottom dengan emoji dan payload dinamis</message>

@@ -5,16 +5,13 @@ import {StartPage} from "./start"
 // Error/fallback page for unified error messaging.
 export class GeneralStatusPage extends PageBase {
   constructorName?: string
-
   constructor(p: any) {
     super(p)
     this.constructorName = p?.constructor?.name
   }
 
   kb() {
-    return this.ikb((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
+    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
 
   async toError(funcName: string, error: any, isUpdate = true) {
@@ -22,17 +19,18 @@ export class GeneralStatusPage extends PageBase {
 
     await this.sessionClear()
     const kb = this.kb()
-    const baseId = `error`
-
+    const bi = `error`
     if (isUpdate) {
-      await this.edit(kb, {}, baseId)
+      await this.edit(kb, {}, bi)
     } else {
-      await this.reply(kb, {}, baseId)
+      await this.reply(kb, {}, bi)
     }
   }
 
   async toErrorInputNotFound() {
-    await this.reply(this.kb(), {}, `error-input-notfound`)
+    const kb = this.kb()
+    const bi = `error-input-notfound`
+    await this.reply(kb, {}, bi)
   }
 
   static template = `

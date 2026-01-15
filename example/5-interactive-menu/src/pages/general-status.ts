@@ -11,29 +11,32 @@ export class GeneralStatusPage extends PageBase {
   }
 
   kb() {
-    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
+    return this.inlineKeyboard((k, a) => {
+      return k.text(a[0]!, StartPage.data.callback())
+    })
   }
 
-  async toError(funcName: string, error: any, isUpdate = true) {
+  async toError(funcName: string, error: any, isEdit = true) {
     log.errorMake(error, this.constructorName, funcName)
     await this.sessionClear()
     const kb = this.kb()
-    const baseId = `error`
-    if (isUpdate) {
-      await this.edit(kb, {}, baseId)
+    const bi = `error`
+    if (isEdit) {
+      await this.edit(kb, {}, bi)
     } else {
-      await this.reply(kb, {}, baseId)
+      await this.reply(kb, {}, bi)
     }
   }
 
   async toErrorInputNotFound() {
     const kb = this.kb()
-    await this.reply(kb, {}, `error-input-notfound`)
+    const bi = `error-input-notfound`
+    await this.reply(kb, {}, bi)
   }
 
   static template = `
     <base>
-      ${this.kbp.back()}
+      ${this.kbk.back()}
     </base>
 
     <base id="error">

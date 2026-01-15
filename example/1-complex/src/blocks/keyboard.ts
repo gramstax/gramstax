@@ -1,9 +1,9 @@
-import {KeyboardData} from "~/data/keyboard"
-import {ComponentKeyboard} from "gramstax"
+import {KeyboardLabel} from "~/labels/keyboard"
+import {BlockKeyboard} from "gramstax"
 
-// Partial template keyboard block.
-export class KeyboardPartial extends ComponentKeyboard {
-  static data = KeyboardData
+// Block template keyboard.
+export class KeyboardBlock extends BlockKeyboard {
+  static label = KeyboardLabel
 
   static home(lang?: string, type?: string) {
     return this._build(`home`, lang, type)

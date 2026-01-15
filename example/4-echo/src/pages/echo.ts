@@ -3,17 +3,15 @@ import {StartPage} from "./start"
 
 // Echo page responds to any free text input.
 export class EchoPage extends PageBase {
-  static data = this.buildData((payload?: string) => [payload])
-
   kb() {
-    return this.ikb((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
+    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
 
   // Inline button to show echo usage tips.
   async callback() {
-    await this.edit(this.kb(), {}, `tips`)
+    const kb = this.kb()
+    const bi = `tips`
+    await this.edit(kb, {}, bi)
   }
 
   // Catch-all for text inputs that are not matched by other pages.
@@ -21,12 +19,10 @@ export class EchoPage extends PageBase {
     if (this.msgText.startsWith(`/`)) {
       return null
     }
-
-    const data = {
-      input: this.msgText
-    }
-
-    await this.reply(this.kb(), data, `echo-result`)
+    const kb = this.kb()
+    const bi = `echo-result`
+    const data = {input: this.msgText}
+    await this.reply(kb, data, bi)
   }
 
   static template = `

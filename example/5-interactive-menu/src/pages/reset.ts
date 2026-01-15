@@ -6,12 +6,12 @@ export class ResetPage extends PageBase {
   static data = this.buildData({intentText: `Reset`})
 
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k.text(a[0]!, StartPage.data.callback())
     })
   }
 
-  async to(isEdit = false) {
+  async core(isEdit = false) {
     await this.cacheState.delete(`${this.userId}:category`)
     await this.cacheState.delete(`${this.userId}:page`)
     await this.sessionClear()
@@ -26,16 +26,16 @@ export class ResetPage extends PageBase {
   }
 
   async callback() {
-    await this.to(true)
+    await this.core(true)
   }
 
   async text() {
-    await this.to(false)
+    await this.core(false)
   }
 
   static template = `
     <base>
-      ${this.kbp.back()}
+      ${this.kbk.back()}
       <message>
         State cleared. You can start fresh.
       </message>

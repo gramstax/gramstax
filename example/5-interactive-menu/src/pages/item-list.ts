@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {CatalogData} from "~/data/catalog"
+import {CatalogData} from "~/labels/catalog"
 import {ItemDetailPage} from "./item-detail"
 import {CategoryPage} from "./category"
 
@@ -9,7 +9,7 @@ export class ItemListPage extends PageBase {
 
   buildKeyboard(categoryId: string, page: number, category = CatalogData.getCategoryById(categoryId)) {
     if (!category) {
-      return this.ikb((k, a) => k.text(a[0]!, CategoryPage.data.callback()))
+      return this.inlineKeyboard((k, a) => k.text(a[0]!, CategoryPage.data.callback()))
     }
 
     const PAGE_SIZE = 3
@@ -19,7 +19,7 @@ export class ItemListPage extends PageBase {
     const end = start + PAGE_SIZE
     const items = category.items.slice(start, end)
 
-    return this.ikb(
+    return this.inlineKeyboard(
       (k, a) => {
         items.forEach((item, index) => {
           k.text(item.name, ItemDetailPage.data.callback(`detail`, categoryId, item.id))
@@ -45,9 +45,9 @@ export class ItemListPage extends PageBase {
 
     const category = CatalogData.getCategoryById(categoryId)
     const categoryName = category?.name || `Unknown`
-    const bi = `list`
     const da = {category: categoryName}
     const kb = this.buildKeyboard(categoryId, page, category)
+    const bi = `list`
     if (isEdit) {
       await this.edit(kb, da, bi)
     } else {

@@ -1,19 +1,19 @@
 import {PageBase} from "~/base/page"
-import {CatalogData} from "~/data/catalog"
+import {CatalogData} from "~/labels/catalog"
 
 // Inline keyboard with page info (no total count).
 export class InlineWithoutCountPage extends PageBase {
-  ITEMS_PER_PAGE = 4
   static data = this.buildData((action?: string, page?: string) => [action, page])
 
   buildKb(page: number) {
+    const ITEMS_PER_PAGE = 4
     const safePage = Math.max(page, 0)
-    const start = safePage * this.ITEMS_PER_PAGE
-    const end = start + this.ITEMS_PER_PAGE
+    const start = safePage * ITEMS_PER_PAGE
+    const end = start + ITEMS_PER_PAGE
     const items = CatalogData.menuItems.slice(start, end)
     const hasPrevious = safePage > 0
     const hasMore = end < CatalogData.menuItems.length
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       items.forEach((item) => {
         k.text(item.name, this.data.callback(`item`, item.id)).row()
       })
@@ -30,20 +30,20 @@ export class InlineWithoutCountPage extends PageBase {
     })
   }
 
-  async show(page: number, isEdit = true) {
+  async core(page: number, isEdit = true) {
     const safePage = Math.max(page, 0)
     const data = {page: safePage + 1}
     const kb = this.buildKb(safePage)
-    const id = `list`
+    const bi = `list`
     if (isEdit) {
-      await this.edit(kb, data, id)
+      await this.edit(kb, data, bi)
     } else {
-      await this.reply(kb, data, id)
+      await this.reply(kb, data, bi)
     }
   }
 
   async callback() {
-    await this.show(0, true)
+    await this.core(0, true)
   }
 
   async callbackPayload() {
@@ -54,7 +54,7 @@ export class InlineWithoutCountPage extends PageBase {
     if (action === `page`) {
       const nextPage = Number(value)
       if (!Number.isNaN(nextPage)) {
-        await this.show(nextPage, true)
+        await this.core(nextPage, true)
       }
       return
     }

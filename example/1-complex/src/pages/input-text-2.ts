@@ -28,12 +28,12 @@ export class InputText2Page extends PageBase {
 
   static template = `
     <base>
-      ${this.kbp.cancel()}
+      ${this.kbk.cancel()}
       <message>Please input text you want view</message>
       <message lang="id">Tolong masukan text yang ingin anda liat</message>
     </base>
     <base id="result">
-      ${this.kbp.home()}
+      ${this.kbk.home()}
       <message>
         Result input text2 (without session): {{res}}
 

@@ -48,8 +48,8 @@ export class LanguagePage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>EN, ID, ${this.kbd.back(`default`)}</keyboard>
-      <keyboard lang="id">EN, ID, ${this.kbd.back(`id`)}</keyboard>
+      <keyboard>EN, ID, ${this.kbl.back(`default`)}</keyboard>
+      <keyboard lang="id">EN, ID, ${this.kbl.back(`id`)}</keyboard>
 
       <message>Choose language below</message>
       <message lang="id">Pilih bahasa di bawah</message>

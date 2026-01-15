@@ -1,7 +1,7 @@
-import {KeyboardPartial} from "~/partials/keyboard"
+import {KeyboardBlock} from "~/blocks/keyboard"
 import {CtxCore} from "~/core/ctx"
 
 export abstract class PageBase extends CtxCore {
-  static kbp = KeyboardPartial
-  static kbd = KeyboardPartial.data
+  static kbk = KeyboardBlock
+  static kbl = KeyboardBlock.label
 }

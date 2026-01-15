@@ -3,20 +3,18 @@ import {StartPage} from "./start"
 
 // Help page lists available commands.
 export class HelpPage extends PageBase {
-  static data = this.buildData((payload?: string) => [payload])
-
   kb() {
-    return this.ikb((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
+    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
 
   async textCommand() {
-    await this.reply(this.kb())
+    const kb = this.kb()
+    await this.reply(kb)
   }
 
   async callback() {
-    await this.edit(this.kb())
+    const kb = this.kb()
+    await this.edit(kb)
   }
 
   static template = `

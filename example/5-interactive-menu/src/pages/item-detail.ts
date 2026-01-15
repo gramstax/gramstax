@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {CatalogData} from "~/data/catalog"
+import {CatalogData} from "~/labels/catalog"
 import {ItemListPage} from "./item-list"
 
 // Item detail page with context-aware back button.
@@ -7,7 +7,7 @@ export class ItemDetailPage extends PageBase {
   static data = this.buildData((action?: string, categoryId?: string, itemId?: string) => [action, categoryId, itemId])
 
   kb(page: number) {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k.text(a[0]!, ItemListPage.data.callback(`page`, `${page}`))
     })
   }
@@ -20,30 +20,21 @@ export class ItemDetailPage extends PageBase {
 
     const item = CatalogData.getItemById(categoryId, itemId)
     const page = Number((await this.cacheState.get(`${this.userId}:page`)) || 0)
-    const bi = `detail`
     const kb = this.kb(page)
     const da = {
-      name: item?.name || `Unknown`,
-      description: item?.description || `No description found.`
+      name: item?.name,
+      description: item?.description
     }
-    await this.edit(kb, da, bi)
+    await this.edit(kb, da)
   }
 
   static template = `
     <base>
       <keyboard>Back to List</keyboard>
       <message>
-        {{name}}
+        {~name || "Unknown"~}
 
-        {{description}}
-      </message>
-    </base>
-
-    <base id="detail">
-      <message>
-        {{name}}
-
-        {{description}}
+        {~description || "No description found."~}
       </message>
     </base>
   `

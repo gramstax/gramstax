@@ -35,14 +35,14 @@ export class BlockSwitchPage extends PageBase {
           <case is="1">Off</case>
           <default>On</default>
         </switch>,
-        ${this.kbd.back(`default`)}
+        ${this.kbl.back(`default`)}
       </keyboard>
       <keyboard lang="id">
         <switch value="status">
           <case is="1">Mati</case>
           <default>Nyala</default>
         </switch>,
-        ${this.kbd.back(`id`)}
+        ${this.kbl.back(`id`)}
       </keyboard>
 
       <message>

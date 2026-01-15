@@ -1,7 +1,7 @@
-import {DataKeyboard} from "gramstax"
+import {LabelKeyboard} from "gramstax"
 
 // Keyboard data labels for inline menus.
-export class KeyboardData extends DataKeyboard {
+export class KeyboardLabel extends LabelKeyboard {
   static menu(lang?: string) {
     return this._build(lang, false, {
       default: `Main Menu`

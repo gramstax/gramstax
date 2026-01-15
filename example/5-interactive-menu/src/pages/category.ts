@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {CatalogData} from "~/data/catalog"
+import {CatalogData} from "~/labels/catalog"
 import {ItemListPage} from "./item-list"
 import {StartPage} from "./start"
 
@@ -11,7 +11,7 @@ export class CategoryPage extends PageBase {
   })
 
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       CatalogData.list.forEach((category, index) => {
         k.text(category.name, this.data.callback(`category`, category.id))
         if (index % 2 === 1) k.row()
@@ -22,11 +22,11 @@ export class CategoryPage extends PageBase {
 
   async to(isEdit = true) {
     const kb = this.kb()
-    const id = `categories`
+    const bi = `categories`
     if (isEdit) {
-      await this.edit(kb, {}, id)
+      await this.edit(kb, {}, bi)
     } else {
-      await this.reply(kb, {}, id)
+      await this.reply(kb, {}, bi)
     }
   }
 

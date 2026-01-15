@@ -10,7 +10,7 @@ export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Menu`})
 
   inlineKb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k //
         .text(a[0]!, CategoryPage.data.callback())
         .text(a[1]!, InlineWithCountPage.data.callback())
@@ -23,7 +23,7 @@ export class StartPage extends PageBase {
   }
 
   bottomKb() {
-    return this.bkb((k, a) => {
+    return this.bottomKeyboard((k, a) => {
       return k //
         .text(a[0]!)
         .text(a[1]!)
@@ -33,7 +33,7 @@ export class StartPage extends PageBase {
     })
   }
 
-  async showMenu(isEdit = false) {
+  async core(isEdit = false) {
     const inlineKb = this.inlineKb()
     const bi = `menu`
     if (isEdit) {
@@ -45,26 +45,26 @@ export class StartPage extends PageBase {
     await this.reply(inlineKb, {}, bi)
 
     // Second reply enables persistent quick actions.
-    const kb = this.bottomKb()
-    await this.reply(kb, {}, `quick-actions`)
+    const bottomKb = this.bottomKb()
+    await this.reply(bottomKb, {}, `quick-actions`)
   }
 
   async textCommand() {
-    await this.showMenu(false)
+    await this.core(false)
   }
 
   async text() {
-    await this.showMenu(false)
+    await this.core(false)
   }
 
   async callback() {
-    await this.showMenu(true)
+    await this.core(true)
   }
 
   static template = `
     <base>
       <keyboard>Browse, Inline Count, Inline Simple, Help, Reset</keyboard>
-      <keyboard type="bottom">${this.kbd.menu(`default`)}, ${this.kbd.browse(`default`)}, ${this.kbd.help(`default`)}, ${this.kbd.reset(`default`)}</keyboard>
+      <keyboard type="bottom">${this.kbl.menu(`default`)}, ${this.kbl.browse(`default`)}, ${this.kbl.help(`default`)}, ${this.kbl.reset(`default`)}</keyboard>
       <message>
         Welcome! Choose an action from the menu.
       </message>
