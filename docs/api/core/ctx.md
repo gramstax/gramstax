@@ -285,12 +285,12 @@ Set session for textFree route.
 
 Send a text message reply.
 
-| parameter | type    | required | default   | description         | ai_notes                          |
-| --------- | ------- | -------- | --------- | ------------------- | --------------------------------- |
-| keyboard  | IInBoKb | no       | -         | Keyboard markup     | From `ikb()` or `bkb()` builders. |
-| data      | object  | no       | -         | Template data       | Used for template interpolation.  |
-| baseId    | string  | no       | "default" | Template base ID    | Matches `<base id="...">`.        |
-| options   | object  | no       | -         | grammY send options | Passed to grammY `reply` options. |
+| parameter | type    | required | default   | description         | ai_notes                                                |
+| --------- | ------- | -------- | --------- | ------------------- | ------------------------------------------------------- |
+| keyboard  | IInBoKb | no       | -         | Keyboard markup     | From `inlineKeyboard()` or `bottomKeyboard()` builders. |
+| data      | object  | no       | -         | Template data       | Used for template interpolation.                        |
+| baseId    | string  | no       | "default" | Template base ID    | Matches `<base id="...">`.                              |
+| options   | object  | no       | -         | grammY send options | Passed to grammY `reply` options.                       |
 
 - **returns: Promise\<Message\>**
 - **ai_notes:** Resolves with sent message.
@@ -522,7 +522,7 @@ export class MyPage extends PageBase {
   static data = this.buildData((action: string) => [action]);
 
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k
         .text(a[0]!, this.data.callback("confirm"))
         .text(a[1]!, this.data.callback("cancel"));
