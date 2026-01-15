@@ -25,12 +25,12 @@ export class BlockKeyboard {
 
   static _build(key: string, lang?: string, type?: string) {
     if (!this.label) {
-      throw new Error(`Data not found`)
+      throw new Error(`Label not found, make sure set this.label from class extends LabelKeyboard`)
     }
     const func = (this.label as any)[key]
     if (!func) {
       throw new Error(`Function ${key} not found`)
     }
-    return this._process(func.call(this.label, lang), {type, lang})
+    return this._process(func.call(this.label, undefined), {type, lang})
   }
 }
