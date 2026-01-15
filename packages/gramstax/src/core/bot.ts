@@ -1,4 +1,5 @@
 import {Ctx} from "./ctx"
+import {log} from "~/utils/log"
 import {join, dirname, parse} from "node:path"
 import {readFileSync} from "node:fs"
 import {fileURLToPath} from "node:url"
@@ -52,7 +53,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       this.optionsPage.shortCallbackData = params.optionsPage.shortCallbackData
     }
 
-    this.log = params.log === true ? new LoggingPretty() : !params.log ? undefined : params.log
+    this.log = params.log === true ? log : !params.log ? undefined : params.log
     this.log?.info?.(`Gramstax v${__PKG_VERSION__}`)
 
     this.cacheSession = params.cacheSession || new CacheExternal(`memory`, `session`)
@@ -103,7 +104,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   onCatch(error: BotError<Context>) {
-    this.log?.error?.(`[Bot.catch]: ${JSON.stringify(error, null, 2)}`)
+    if ((this.log as any)?.errorMake) {
+      ;(this.log as any)?.errorMake(error, `Bot`, `catch`)
+    } else {
+      const err = JSON.stringify(error, null, 2)
+      this.log?.error?.(`[Bot.catch]: ${err}`)
+    }
   }
 
   hookBeforeStart() {}

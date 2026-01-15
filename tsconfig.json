@@ -38,6 +38,21 @@
     },
     {
       "path": "./packages/create-gramstax"
+    },
+    {
+      "path": "./example/1-complex"
+    },
+    {
+      "path": "./example/2-helloworld"
+    },
+    {
+      "path": "./example/4-echo"
+    },
+    {
+      "path": "./example/5-interactive-menu"
+    },
+    {
+      "path": "./example/6-bank-system"
     }
   ],
   "files": [],

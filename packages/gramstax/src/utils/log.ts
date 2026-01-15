@@ -5,8 +5,13 @@ export class LoggingUtils extends LoggingPretty {
     super(options)
   }
 
-  errorMake(error: any, constructorName?: any, funcName?: string) {
-    this.error(`[${constructorName ? `${constructorName}:${funcName}` : funcName}] ${String(error)}`)
+  errorMake(pureError: any, constructorName?: any, funcName?: string) {
+    this.error(`[${constructorName ? `${constructorName}:${funcName}` : funcName}] ${this._formatErrorObj(pureError)}`)
+  }
+
+  _formatErrorObj(pureError: any) {
+    const error = JSON.stringify(pureError instanceof Error ? {message: pureError.message, stack: pureError.stack, name: pureError.name} : pureError, null, 2)
+    return error
   }
 }
 
