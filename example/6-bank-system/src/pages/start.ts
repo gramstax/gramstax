@@ -8,7 +8,7 @@ import {HistoryPage} from "./history"
 // Main menu page for the bank system bot.
 export class StartPage extends PageBase {
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k //
         .text(a[0]!, BalancePage.data.callback())
         .text(a[1]!, DepositPage.data.callback())

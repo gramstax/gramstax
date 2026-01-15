@@ -4,7 +4,7 @@ import {StartPage} from "./start"
 // Deposits funds into the user's balance.
 export class DepositPage extends PageBase {
   kb(baseId = `default`) {
-    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()), {baseId})
+    return this.inlineKeyboard((k, a) => k.text(a[0]!, StartPage.data.callback()), {baseId})
   }
 
   async callback() {

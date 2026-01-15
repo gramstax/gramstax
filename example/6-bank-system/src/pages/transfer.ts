@@ -4,7 +4,7 @@ import {StartPage} from "./start"
 // Transfer funds to another user.
 export class TransferPage extends PageBase {
   kb(baseId = `default`) {
-    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()), {baseId})
+    return this.inlineKeyboard((k, a) => k.text(a[0]!, StartPage.data.callback()), {baseId})
   }
 
   async callback() {

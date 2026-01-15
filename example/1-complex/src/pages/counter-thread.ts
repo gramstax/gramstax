@@ -6,7 +6,7 @@ export class CounterThreadPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k //
         .text(a[0]!, this.data.callback(`1`))
         .row()

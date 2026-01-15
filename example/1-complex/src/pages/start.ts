@@ -25,7 +25,7 @@ export class StartPage extends PageBase {
   static data = this.buildData((rdm?: string) => [rdm])
 
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k //
         .text(a[0]!, CounterPage.data.callback())
         .text(a[1]!, CounterThreadPage.data.callback())

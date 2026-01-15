@@ -3,7 +3,7 @@ import {StartPage} from "./start"
 
 export class TestContactPage extends PageBase {
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k.text(a[0]!, StartPage.data.callback(`3`))
     })
   }

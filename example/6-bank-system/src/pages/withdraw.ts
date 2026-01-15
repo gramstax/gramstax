@@ -4,7 +4,7 @@ import {StartPage} from "./start"
 // Withdraw funds from the user's balance.
 export class WithdrawPage extends PageBase {
   kb(baseId = `default`) {
-    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()), {baseId})
+    return this.inlineKeyboard((k, a) => k.text(a[0]!, StartPage.data.callback()), {baseId})
   }
 
   async callback() {

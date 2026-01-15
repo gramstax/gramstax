@@ -3,7 +3,7 @@ import {StartPage} from "./start"
 
 export class BlockMapPage extends PageBase {
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k //
         .text(a[0]!, this.data.callback())
         .row()
@@ -12,13 +12,14 @@ export class BlockMapPage extends PageBase {
   }
 
   async callback() {
+    const kb = this.kb()
     const data = {
       arr: Array.from({length: Math.floor(Math.random() * 4) + 3}, () => ({number: Math.random()})),
       status: 1,
       e: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`,
       i: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`
     }
-    await this.edit(this.kb(), data)
+    await this.edit(kb, data)
   }
 
   static template = `

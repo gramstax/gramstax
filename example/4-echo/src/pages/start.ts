@@ -5,7 +5,7 @@ import {EchoPage} from "./echo"
 // Start page with welcome message and navigation.
 export class StartPage extends PageBase {
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k //
         .text(a[0]!, HelpPage.data.callback())
         .text(a[1]!, EchoPage.data.callback())

@@ -5,7 +5,7 @@ export class LanguagePage extends PageBase {
   static data = this.buildData((lang?: string) => [lang])
 
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       const languages = a.slice(0, -1)
       const backButton = a[a.length - 1]! // Get the back button text
 

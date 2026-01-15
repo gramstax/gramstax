@@ -4,7 +4,7 @@ import {StartPage} from "./start"
 // Shows recent transaction history.
 export class HistoryPage extends PageBase {
   kb() {
-    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
+    return this.inlineKeyboard((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
 
   async callback() {

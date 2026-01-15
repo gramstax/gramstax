@@ -2,7 +2,7 @@ import {Ctx} from "gramstax"
 
 export class StartPage extends Ctx {
   kb() {
-    return this.ikb((k, a) => k.text(a[0]!, this.data.callback()))
+    return this.inlineKeyboard((k, a) => k.text(a[0]!, this.data.callback()))
   }
 
   async core(edit = true) {

@@ -19,7 +19,7 @@ export class KeyboardBottomPage extends PageBase {
   }
 
   ik() {
-    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
+    return this.inlineKeyboard((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
 
   async core(count?: number, baseId?: string) {

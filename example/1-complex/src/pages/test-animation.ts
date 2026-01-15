@@ -5,7 +5,7 @@ export class TestAnimationPage extends PageBase {
   static data = this.buildData((swc?: string) => [swc])
 
   kb(isDynamic = false) {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k //
         .text(isDynamic ? a[1] : a[0]!, this.data.callback(isDynamic ? `static` : `dynamic`))
         .row()
