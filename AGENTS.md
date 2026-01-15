@@ -30,34 +30,29 @@
 
 ## Install
 - `bun install`
-
 ## Build Commands
 - `bun run build:all`
 - `bun run build:gramstax`
 - `bun run build:create-gramstax`
 - `nx build gramstax`
 - `nx build create-gramstax`
-
 ## Lint Commands
 - `bun run lint`
 - `bun run lint:fix`
-
 ## Typecheck Commands
 - `bun run ci:check`
 - `tsc --noEmit`
-
 ## Test Commands
 - `bun run test`
+- `bun test packages/gramstax/test/<file>.ts` (single test file)
+- `bun test --filter "TemplateEngine"` (single test by name)
 - `bun test packages/gramstax/test/core.bot.test.ts`
 - `bun test packages/gramstax/test/template.engine.test.ts`
-- `bun test --filter "TemplateEngine"`
 - `bun test --filter "TemplateManager"`
 - `bun test --watch` (optional local dev)
-
 ## CI / Pre-push
 - `bun run ci:test` (lint + typecheck + tests)
 - `bun run prepush` (ci + build + safety echo)
-
 ## Release Commands (when asked)
 - `bun run release`
 - `bun run release:patch`
@@ -65,7 +60,6 @@
 - `bun run release:major`
 - `bun run dry-run`
 - `bun run publish:all`
-
 ## Formatting Rules
 - Use Prettier settings from `.prettierrc`.
 - 2-space indentation; `useTabs: false`.
@@ -77,14 +71,12 @@
 - `object-curly-spacing: never` (eslint rule).
 - `arrowParens: always`.
 - Prefer backticks for all strings (eslint `quotes: backtick`).
-
 ## Lint Rules (highlights)
 - `@typescript-eslint/no-explicit-any: off` (allowed but avoid when possible).
 - `@typescript-eslint/no-unused-vars: error` (remove or use values).
 - `no-unused-vars: off` (handled by TS rule).
 - `object-curly-spacing: never` (align with Prettier).
 - `quotes: backtick` (use template literals).
-
 ## Imports
 - Use ESM `import`/`export` (repo is `type: module`).
 - Use `node:` prefixes for built-in modules (`node:fs`, `node:path`).
@@ -95,17 +87,16 @@
 - Keep ordering consistent within each file.
 - Remove unused imports; lint treats unused vars as errors.
 - Prefer named exports over default exports unless a file already uses default.
-
 ## Types and TS Practices
 - `strict: true` and `noUncheckedIndexedAccess: true` are enforced.
 - Prefer explicit types at public boundaries (exports, callbacks, params).
+- Add return types for exported functions when clarity helps.
 - `any` is allowed but discouraged; use `unknown` or precise types.
 - Use `type` aliases for unions and helper types; interfaces for public shapes.
 - Keep generics focused and avoid overly broad constraints.
 - Use `as` casts only when necessary; keep the cast narrow.
 - Use `const` for values that do not change.
 - Prefer `async`/`await` over raw promise chains.
-
 ## Naming Conventions
 - Files and folders: lowercase or kebab-case (e.g., `worker-thread`).
 - Classes, types, interfaces: PascalCase.
