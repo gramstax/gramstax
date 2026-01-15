@@ -4,7 +4,9 @@ import {StartPage} from "./start"
 // Echo page responds to any free text input.
 export class EchoPage extends PageBase {
   kb() {
-    return this.inlineKeyboard((k, a) => k.text(a[0]!, StartPage.data.callback()))
+    return this.inlineKeyboard((k, a) => {
+      return k.text(a[0]!, StartPage.data.callback())
+    })
   }
 
   // Inline button to show echo usage tips.

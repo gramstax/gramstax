@@ -9,7 +9,7 @@ export class KeyboardBottomPage extends PageBase {
 
   bk(count?: number) {
     const params = {data: {first: this.data.intentText}}
-    return this.bkb((k, a) => {
+    return this.bottomKeyboard((k, a) => {
       return k
         .text(count === undefined ? `${a[0]!} 0` : `${a[0]} ${count + 1}`)
         .row()
@@ -19,7 +19,9 @@ export class KeyboardBottomPage extends PageBase {
   }
 
   ik() {
-    return this.inlineKeyboard((k, a) => k.text(a[0]!, StartPage.data.callback()))
+    return this.inlineKeyboard((k, a) => {
+      return k.text(a[0]!, StartPage.data.callback())
+    })
   }
 
   async core(count?: number, baseId?: string) {

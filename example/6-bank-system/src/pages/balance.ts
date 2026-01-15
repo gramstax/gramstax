@@ -4,7 +4,9 @@ import {StartPage} from "./start"
 // Shows the current user balance.
 export class BalancePage extends PageBase {
   kb() {
-    return this.inlineKeyboard((k, a) => k.text(a[0]!, StartPage.data.callback()))
+    return this.inlineKeyboard((k, a) => {
+      return k.text(a[0]!, StartPage.data.callback())
+    })
   }
 
   async callback() {

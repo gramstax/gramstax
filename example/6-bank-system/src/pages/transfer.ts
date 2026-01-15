@@ -3,8 +3,13 @@ import {StartPage} from "./start"
 
 // Transfer funds to another user.
 export class TransferPage extends PageBase {
-  kb(baseId = `default`) {
-    return this.inlineKeyboard((k, a) => k.text(a[0]!, StartPage.data.callback()), {baseId})
+  kb(baseId?: string) {
+    return this.inlineKeyboard(
+      (k, a) => {
+        return k.text(a[0]!, StartPage.data.callback())
+      },
+      {baseId}
+    )
   }
 
   async callback() {
@@ -91,11 +96,8 @@ export class TransferPage extends PageBase {
     await this.sessionClear()
     const idSuc = `success`
     const kb = this.kb()
-    if (isEdit) {
-      await this.edit(kb, data, idSuc)
-      return
-    }
-    await this.reply(kb, data, idSuc)
+    if (isEdit) await this.edit(kb, data, idSuc)
+    else await this.reply(kb, data, idSuc)
   }
 
   private resolveTarget(input: string) {

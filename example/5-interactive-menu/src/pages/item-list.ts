@@ -9,7 +9,9 @@ export class ItemListPage extends PageBase {
 
   buildKeyboard(categoryId: string, page: number, category = CatalogData.getCategoryById(categoryId)) {
     if (!category) {
-      return this.inlineKeyboard((k, a) => k.text(a[0]!, CategoryPage.data.callback()))
+      return this.inlineKeyboard((k, a) => {
+        return k.text(a[0]!, CategoryPage.data.callback())
+      })
     }
 
     const PAGE_SIZE = 3
@@ -48,11 +50,9 @@ export class ItemListPage extends PageBase {
     const da = {category: categoryName}
     const kb = this.buildKeyboard(categoryId, page, category)
     const bi = `list`
-    if (isEdit) {
-      await this.edit(kb, da, bi)
-    } else {
-      await this.reply(kb, da, bi)
-    }
+
+    if (isEdit) await this.edit(kb, da, bi)
+    else await this.reply(kb, da, bi)
   }
 
   async callback() {

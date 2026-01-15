@@ -3,8 +3,13 @@ import {StartPage} from "./start"
 
 // Deposits funds into the user's balance.
 export class DepositPage extends PageBase {
-  kb(baseId = `default`) {
-    return this.inlineKeyboard((k, a) => k.text(a[0]!, StartPage.data.callback()), {baseId})
+  kb(baseId?: string) {
+    return this.inlineKeyboard(
+      (k, a) => {
+        return k.text(a[0]!, StartPage.data.callback())
+      },
+      {baseId}
+    )
   }
 
   async callback() {
@@ -53,11 +58,8 @@ export class DepositPage extends PageBase {
     await this.sessionClear()
     const idSuc = `success`
     const kb = this.kb()
-    if (isEdit) {
-      await this.edit(kb, data, idSuc)
-      return
-    }
-    await this.reply(kb, data, idSuc)
+    if (isEdit) await this.edit(kb, data, idSuc)
+    else await this.reply(kb, data, idSuc)
   }
 
   static template = `
@@ -69,8 +71,6 @@ export class DepositPage extends PageBase {
         Add funds to your account by entering a whole-number amount.
         Example:
         - 125.000
-
-        Use Home to return to the main menu.
       </message>
     </base>
 
