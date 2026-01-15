@@ -28,7 +28,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 - [Blocks](#blocks)
   - [BlockKeyboard](#blockkeyboard)
 - [Data](#data)
-  - [DataKeyboard](#datakeyboard)
+  - [LabelKeyboard](#datakeyboard)
 - [Worker Thread](#worker-thread)
   - [WorkerThreadExport](#workerthreadexport)
   - [WorkerThreadInit](#workerthreadinit)
@@ -160,12 +160,11 @@ await this.reply(this.kb(), { balance: formatted }, `balance`);
 ```typescript
 const kb = this.kb();
 const data = { balance: formatted };
-
 if (isEdit) {
   await this.edit(kb, data);
-  return;
+} else {
+  await this.reply(kb, data);
 }
-await this.reply(kb, data);
 ```
 
 **Example: Skip empty data objects**
@@ -190,16 +189,16 @@ await this.reply(kb);
 
 Use the destination page `Page.data.callback(...)` for inline navigation.
 
-**WRONG**
+**WRONG: ONLY IF NOT HAVE PAYLOAD**
 
 ```typescript
-k.text("Balance", this.data.callback("balance"));
+k.text(a[0]!, this.data.callback("balance"));
 ```
 
 **CORRECT**
 
 ```typescript
-k.text("Balance", BalancePage.data.callback());
+k.text(a[0]!, BalancePage.data.callback());
 ```
 
 ### Project Src Structure
@@ -212,7 +211,7 @@ Minimum folders that must be present in every bot project:
 - `./labels` = Contains label files, such as `KeyboardLabel` (`./labels/keyboard.ts`), used by `KeyboardBlock` (`./blocks/keyboard.ts`). Other relevant files can be added.
 - `./guards` = Contains guard files before proceeding to other tasks (e.g., user ban checks, language overrides).
 - `./pages` = Contains page files.
-- `./utils` = Contains utility files such as logs and string manipulation.
+- `./utils` = Contains utility files such as logs and string manipulation or others.
 
 Other folders if needed:
 
@@ -1106,23 +1105,23 @@ The `BlockKeyboard` class provides static methods for generating keyboard templa
 
 ## Static Properties
 
-### `.data`
+### `.label`
 
-Reference to the `DataKeyboard` class containing keyboard definitions.
+Reference to the `LabelKeyboard` class containing keyboard definitions.
 
-- **type: typeof DataKeyboard**
+- **type: typeof LabelKeyboard**
 - **required:** Must be set before using `_build()`.
 
 ```typescript
-import { BlockKeyboard, DataKeyboard } from "gramstax";
+import { BlockKeyboard, LabelKeyboard } from "gramstax";
 
-class MyKeyboards extends DataKeyboard {
+class MyKeyboards extends LabelKeyboard {
   static backNext() {
     return { en: "Back, Next", id: "Kembali, Lanjut" };
   }
 }
 
-ComponentKeyboard.data = MyKeyboards;
+BlockKeyboard.label = MyKeyboards;
 ```
 
 &nbsp;
@@ -1147,15 +1146,15 @@ Generate keyboard template blocks from an object of language-keyed values.
 const obj = { en: "Back, Next", id: "Kembali, Lanjut" };
 
 // All languages
-ComponentKeyboard._process(obj, { type: "inline" });
+BlockKeyboard._process(obj, { type: "inline" });
 // => `<keyboard type="inline" lang="en">Back, Next</keyboard> <keyboard type="inline" lang="id">Kembali, Lanjut</keyboard>`
 
 // Single language
-ComponentKeyboard._process(obj, { type: "inline", lang: "en" });
+BlockKeyboard._process(obj, { type: "inline", lang: "en" });
 // => `<keyboard type="inline" lang="en">Back, Next</keyboard>`
 
 // Reversed
-ComponentKeyboard._process(obj, { type: "inline", reverse: true });
+BlockKeyboard._process(obj, { type: "inline", reverse: true });
 // => `<keyboard type="inline" lang="en">Next, Back</keyboard> ...`
 ```
 
@@ -1163,25 +1162,25 @@ ComponentKeyboard._process(obj, { type: "inline", reverse: true });
 
 ### `._build(key, lang?, type?)`
 
-Build keyboard blocks by calling a method from the linked `DataKeyboard`.
+Build keyboard blocks by calling a method from the linked `LabelKeyboard`.
 
-| parameter | type   | required | default    | description                 | ai_notes                               |
-| --------- | ------ | -------- | ---------- | --------------------------- | -------------------------------------- |
-| key       | string | yes      | -          | Method name in DataKeyboard | Must exist or throws.                  |
-| lang      | string | no       | -          | Target language             | If set, returns single language block. |
-| type      | string | no       | `"inline"` | Keyboard type               | Values are `"inline"` or `"bottom"`.   |
+| parameter | type   | required | default    | description                  | ai_notes                               |
+| --------- | ------ | -------- | ---------- | ---------------------------- | -------------------------------------- |
+| key       | string | yes      | -          | Method name in LabelKeyboard | Must exist or throws.                  |
+| lang      | string | no       | -          | Target language              | If set, returns single language block. |
+| type      | string | no       | `"inline"` | Keyboard type                | Values are `"inline"` or `"bottom"`.   |
 
 - **returns: string**
 - **ai_notes:** Returns keyboard block string.
 - **throws:** Error if `data` not set or method not found.
 
 ```typescript
-// Assuming ComponentKeyboard.data = MyKeyboards with backNext() method
+// Assuming BlockKeyboard.label = MyKeyboards with backNext() method
 
-ComponentKeyboard._build("backNext");
+BlockKeyboard._build("backNext");
 // => '<keyboard type="inline" lang="en">Back, Next</keyboard> ...'
 
-ComponentKeyboard._build("backNext", "en", "bottom");
+BlockKeyboard._build("backNext", "en", "bottom");
 // => '<keyboard type="bottom" lang="en">Back, Next</keyboard>'
 ```
 
@@ -1190,10 +1189,10 @@ ComponentKeyboard._build("backNext", "en", "bottom");
 ## Usage
 
 ```typescript
-import { ComponentKeyboard, DataKeyboard, Ctx } from "gramstax";
+import { BlockKeyboard, LabelKeyboard, Ctx } from "gramstax";
 
-// ./data/keyboard.ts
-class KeyboardD extends DataKeyboard {
+// ./labels/keyboard.ts
+class KeyboardD extends LabelKeyboard {
   static navigation() {
     return {
       en: "Back, Home, Next",
@@ -1202,8 +1201,8 @@ class KeyboardD extends DataKeyboard {
   }
 }
 
-// ./components/keyboard.ts
-export class KeyboardC extends ComponentKeyboard {
+// ./blocks/keyboard.ts
+export class KeyboardBlock extends BlockKeyboard {
   static data = KeyboardD;
   static navigation(lang?: string, type?: string) {
     return this._build(`navigation`, lang, type);
@@ -1212,8 +1211,8 @@ export class KeyboardC extends ComponentKeyboard {
 
 // ./base/page.ts
 export class PageBase extends Ctx {
-  static kbc = KeyboardC;
-  static kbd = KeyboardC.data;
+  static kbk = KeyboardBlock;
+  static kbl = KeyboardBlock.label;
 }
 
 // ./pages/my.ts
@@ -1221,37 +1220,37 @@ export class PageBase extends Ctx {
 export class MyPage extends PageBase {
   static template = `
     <base>
-      ${this.kbc.navigation()}
+      ${this.kbk.navigation()}
       <message>Choose an option</message>
     </base>
   `;
 }
 ```
 
-#### Implementation Details (packages/gramstax/src/components/keyboard.ts)
+#### Implementation Details (packages/gramstax/src/blocks/keyboard.ts)
 
 - `_process()` defaults `type` to `inline` and supports generating multiple `<keyboard>` tags when `lang` is omitted.
-- `_process()` reverses button order through `DataKeyboard._reverse()` when `params.reverse` is `true`.
-- `_build()` throws when `data` or method is missing and calls the DataKeyboard method with `lang` before rendering.
+- `_process()` reverses button order through `LabelKeyboard._reverse()` when `params.reverse` is `true`.
+- `_build()` throws when `data` or method is missing and calls the LabelKeyboard method with `lang` before rendering.
 
-## Data
+## Labels
 
-### DataKeyboard
+### LabelKeyboard
 
-Source: `docs/api/data/keyboard.md`
+Source: `docs/api/labels/keyboard.md`
 
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
 > - **Framework Version:** v0.3.22
 
-# DataKeyboard
+# LabelKeyboard
 
-The `DataKeyboard` class provides static utilities for keyboard data manipulation, specifically for reversing keyboard button order.
+The `LabelKeyboard` class provides static utilities for keyboard data manipulation, specifically for reversing keyboard button order.
 
 > **AI Notes (non-normative / for parsing):**
 >
-> - **Scope:** This document describes the `DataKeyboard` static utility methods.
+> - **Scope:** This document describes the `LabelKeyboard` static utility methods.
 > - **Usage:** Used as base class for user-defined keyboard data classes.
 > - **Purpose:** Provides button order manipulation for multi-language keyboards.
 
@@ -1271,13 +1270,13 @@ Reverse the order of comma-separated button labels.
 - **ai_notes:** Reversed comma-separated labels.
 
 ```typescript
-import { DataKeyboard } from "gramstax";
+import { LabelKeyboard } from "gramstax";
 
-const reversed = DataKeyboard._reverse("Back, Next, Submit");
+const reversed = LabelKeyboard._reverse("Back, Next, Submit");
 // => "Submit, Next, Back"
 
 // Escaped commas are preserved
-const preserved = DataKeyboard._reverse("Option A\\, B, Option C");
+const preserved = LabelKeyboard._reverse("Option A\\, B, Option C");
 // => "Option C, Option A\\, B"
 ```
 
@@ -1295,7 +1294,7 @@ Reverse button order for all languages in an object.
 - **ai_notes:** Returns object with reversed labels.
 
 ```typescript
-const reversed = DataKeyboard._reverseObj({
+const reversed = LabelKeyboard._reverseObj({
   en: "Back, Next",
   id: "Kembali, Lanjut",
 });
@@ -1324,15 +1323,15 @@ const keyboards = {
 };
 
 // Get specific language
-DataKeyboard._build("en", false, keyboards);
+LabelKeyboard._build("en", false, keyboards);
 // => "Back, Next"
 
 // Get specific language reversed
-DataKeyboard._build("en", true, keyboards);
+LabelKeyboard._build("en", true, keyboards);
 // => "Next, Back"
 
 // Get all languages
-DataKeyboard._build(undefined, false, keyboards);
+LabelKeyboard._build(undefined, false, keyboards);
 // => { en: "Back, Next", id: "Kembali, Lanjut" }
 ```
 
@@ -1340,12 +1339,12 @@ DataKeyboard._build(undefined, false, keyboards);
 
 ## Usage
 
-Extend `DataKeyboard` to define reusable keyboard configurations:
+Extend `LabelKeyboard` to define reusable keyboard configurations:
 
 ```typescript
-import { DataKeyboard } from "gramstax";
+import { LabelKeyboard } from "gramstax";
 
-export class KeyboardData extends DataKeyboard {
+export class KeyboardLabel extends LabelKeyboard {
   static backNext(lang?: string) {
     return this._build(lang, false, {
       en: "Back, Next",
@@ -1362,7 +1361,7 @@ export class KeyboardData extends DataKeyboard {
 }
 ```
 
-#### Implementation Details (packages/gramstax/src/data/keyboard.ts)
+#### Implementation Details (packages/gramstax/src/labels/keyboard.ts)
 
 - `_reverse()` splits with `/((?<!\\), *)/` so escaped commas are preserved.
 - `_build()` returns a string for a specific language or an object for all languages.
@@ -3012,8 +3011,8 @@ Source: `packages/gramstax/src/index.ts`
 - `export * from "./core/ctx"`
 - `export * from "./template/engine"`
 - `export * from "./template/manager"`
-- `export * from "./components/keyboard"`
-- `export * from "./data/keyboard"`
+- `export * from "./blocks/keyboard"`
+- `export * from "./labels/keyboard"`
 - `export * from "./worker-thread/export"`
 - `export * from "./worker-thread/gateway-client"`
 - `export * from "./worker-thread/gateway-server"`

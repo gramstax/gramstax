@@ -4,13 +4,13 @@
 
 > - **Framework Version:** v0.3.22
 
-# DataKeyboard
+# LabelKeyboard
 
-The `DataKeyboard` class provides static utilities for keyboard data manipulation, specifically for reversing keyboard button order.
+The `LabelKeyboard` class provides static utilities for keyboard data manipulation, specifically for reversing keyboard button order.
 
 > **AI Notes (non-normative / for parsing):**
 >
-> - **Scope:** This document describes the `DataKeyboard` static utility methods.
+> - **Scope:** This document describes the `LabelKeyboard` static utility methods.
 > - **Usage:** Used as base class for user-defined keyboard data classes.
 > - **Purpose:** Provides button order manipulation for multi-language keyboards.
 
@@ -30,13 +30,13 @@ Reverse the order of comma-separated button labels.
 - **ai_notes:** Reversed comma-separated labels.
 
 ```typescript
-import { DataKeyboard } from "gramstax";
+import { LabelKeyboard } from "gramstax";
 
-const reversed = DataKeyboard._reverse("Back, Next, Submit");
+const reversed = LabelKeyboard._reverse("Back, Next, Submit");
 // => "Submit, Next, Back"
 
 // Escaped commas are preserved
-const preserved = DataKeyboard._reverse("Option A\\, B, Option C");
+const preserved = LabelKeyboard._reverse("Option A\\, B, Option C");
 // => "Option C, Option A\\, B"
 ```
 
@@ -54,7 +54,7 @@ Reverse button order for all languages in an object.
 - **ai_notes:** Returns object with reversed labels.
 
 ```typescript
-const reversed = DataKeyboard._reverseObj({
+const reversed = LabelKeyboard._reverseObj({
   en: "Back, Next",
   id: "Kembali, Lanjut",
 });
@@ -83,15 +83,15 @@ const keyboards = {
 };
 
 // Get specific language
-DataKeyboard._build("en", false, keyboards);
+LabelKeyboard._build("en", false, keyboards);
 // => "Back, Next"
 
 // Get specific language reversed
-DataKeyboard._build("en", true, keyboards);
+LabelKeyboard._build("en", true, keyboards);
 // => "Next, Back"
 
 // Get all languages
-DataKeyboard._build(undefined, false, keyboards);
+LabelKeyboard._build(undefined, false, keyboards);
 // => { en: "Back, Next", id: "Kembali, Lanjut" }
 ```
 
@@ -99,12 +99,12 @@ DataKeyboard._build(undefined, false, keyboards);
 
 ## Usage
 
-Extend `DataKeyboard` to define reusable keyboard configurations:
+Extend `LabelKeyboard` to define reusable keyboard configurations:
 
 ```typescript
-import { DataKeyboard } from "gramstax";
+import { LabelKeyboard } from "gramstax";
 
-export class KeyboardData extends DataKeyboard {
+export class KeyboardLabel extends LabelKeyboard {
   static backNext(lang?: string) {
     return this._build(lang, false, {
       en: "Back, Next",

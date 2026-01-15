@@ -40,9 +40,9 @@ The folder structure mirrors `packages/gramstax/src` for easy navigation.
 
 - [keyboard.md](blocks/keyboard.md) - `BlockKeyboard` for keyboard template generation
 
-### data/
+### labels/
 
-- [keyboard.md](data/keyboard.md) - `DataKeyboard` keyboard data helpers
+- [keyboard.md](labels/keyboard.md) - `LabelKeyboard` keyboard label helpers
 
 ### worker-thread/
 
