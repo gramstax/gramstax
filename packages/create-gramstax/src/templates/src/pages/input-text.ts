@@ -8,7 +8,7 @@ export class InputTextPage extends PageBase {
   })
 
   kb(baseId?: string) {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k.text(a[0]!, StartPage.data.callback()), {baseId}
     })
   }
@@ -44,13 +44,13 @@ export class InputTextPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbc.cancel()}
+      ${this.kbk.cancel()}
       <message>Please input text you want view</message>
       <message lang="it">Inserisci il testo che vuoi vedere</message>      
       <message lang="id">Tolong masukan text yang ingin anda liat</message>
     </base>
     <base id="result">
-      ${this.kbc.home()}
+      ${this.kbk.home()}
       <message>
         Result: {{res}}
 

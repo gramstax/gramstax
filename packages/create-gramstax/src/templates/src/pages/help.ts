@@ -3,31 +3,28 @@ import {StartPage} from "./start"
 
 export class HelpPage extends PageBase {
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k.text(a[0]!, StartPage.data.callback())
     })
   }
 
-  async internal(edit = true) {
+  async core(edit = true) {
     const kb = this.kb()
-    if (edit) {
-      await this.edit(kb)
-    } else {
-      await this.reply(kb)
-    }
+    if (edit) await this.edit(kb)
+    else await this.reply(kb)
   }
 
   async callback() {
-    await this.internal(true)
+    await this.core(true)
   }
 
   async textCommand() {
-    await this.internal(false)
+    await this.core(false)
   }
 
   static template = `
     <base>
-      ${this.kbc.back()}
+      ${this.kbk.back()}
       <message><b>Help message</b></message>
       <message lang="it"><b>Ordina aiuto</b></message>
       <message lang="id"><b>Pesan bantuan</b></message>

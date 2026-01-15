@@ -10,7 +10,7 @@ export class GeneralStatusPage extends PageBase {
   }
 
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k.text(a[0]!, StartPage.data.callback())
     })
   }
@@ -34,7 +34,7 @@ export class GeneralStatusPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbc.home()}
+      ${this.kbk.home()}
     </base>
 
     <base id="error">

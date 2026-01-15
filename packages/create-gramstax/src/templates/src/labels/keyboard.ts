@@ -1,6 +1,6 @@
-import {DataKeyboard} from "gramstax"
+import {LabelKeyboard} from "gramstax"
 
-export class KeyboardData extends DataKeyboard {
+export class KeyboardLabel extends LabelKeyboard {
   static home(lang?: string) {
     return this._build(lang, false, {
       default: `Home`,

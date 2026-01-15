@@ -1,8 +1,8 @@
-import {KeyboardData} from "~/data/keyboard"
-import {ComponentKeyboard} from "gramstax"
+import {BlockKeyboard} from "gramstax"
+import {KeyboardLabel} from "~/labels/keyboard"
 
-export class KeyboardComponent extends ComponentKeyboard {
-  static data = KeyboardData
+export class KeyboardBlock extends BlockKeyboard {
+  static label = KeyboardLabel
   static home(lang?: string, type?: string) {
     return this._build(`home`, lang, type)
   }

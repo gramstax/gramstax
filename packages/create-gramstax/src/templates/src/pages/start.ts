@@ -3,27 +3,24 @@ import {PageBase} from "~/base/page"
 
 export class StartPage extends PageBase {
   kb() {
-    return this.ikb((k, a) => {
+    return this.inlineKeyboard((k, a) => {
       return k.text(a[0]!, HelpPage.data.callback())
     })
   }
 
-  async internal(edit = true) {
+  async core(edit = true) {
     const kb = this.kb()
     const data = {userName: this.userName}
-    if (edit) {
-      await this.edit(kb, data)
-    } else {
-      await this.reply(kb, data)
-    }
+    if (edit) await this.edit(kb, data)
+    else await this.reply(kb, data)
   }
 
   async callback() {
-    await this.internal(true)
+    await this.core(true)
   }
 
   async textCommand() {
-    await this.internal(false)
+    await this.core(false)
   }
 
   static template = `
