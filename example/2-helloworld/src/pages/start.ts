@@ -2,12 +2,10 @@ import {Ctx} from "gramstax"
 
 export class StartPage extends Ctx {
   kb() {
-    return this.ikb((k, a) => {
-      return k.text(a[0]!, this.data.callback())
-    })
+    return this.ikb((k, a) => k.text(a[0]!, this.data.callback()))
   }
 
-  async internal(edit = true) {
+  async core(edit = true) {
     const kb = this.kb()
     const data = {time: new Date().toString()}
     if (edit) {
@@ -18,11 +16,11 @@ export class StartPage extends Ctx {
   }
 
   async textCommand() {
-    await this.internal(false)
+    await this.core(false)
   }
 
   async callback() {
-    await this.internal(true)
+    await this.core(true)
   }
 
   static template = `

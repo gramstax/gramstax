@@ -19,36 +19,35 @@ export class KeyboardBottomPage extends PageBase {
   }
 
   ik() {
-    return this.ikb((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
+    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
   }
 
-  async internal(count?: number, baseId?: string) {
-    await this.reply(this.bk(count), {}, baseId)
+  async core(count?: number, baseId?: string) {
+    const kb = this.bk(count)
+    await this.reply(kb, {}, baseId)
   }
 
   async callback() {
-    await this.internal()
+    await this.core()
   }
 
   async text() {
-    await this.internal()
+    await this.core()
   }
 
   async textPayload() {
-    await this.internal(parseInt(this.msgTextPayload))
+    await this.core(parseInt(this.msgTextPayload))
   }
 
   async textCommand() {
-    await this.internal()
+    await this.core()
   }
 
   async textCommandPayload() {
     const pld = this.msgTextCommandPayload
     const kb = this.ik()
     if (pld == `reset`) {
-      await this.internal(kb, pld)
+      await this.core(kb, pld)
     }
     if (pld == `delete`) {
       await this.reply(kb, {}, pld, {reply_markup: {remove_keyboard: true}})

@@ -16,16 +16,16 @@ export class BlockSwitchPage extends PageBase {
     )
   }
 
-  async internal(status: string) {
+  async core(status: string) {
     await this.edit(this.kb(status), {status})
   }
 
   async callback() {
-    await this.internal(`0`)
+    await this.core(`0`)
   }
 
   async callbackPayload() {
-    await this.internal(this.callbackDataPayload)
+    await this.core(this.callbackDataPayload)
   }
 
   static template = `

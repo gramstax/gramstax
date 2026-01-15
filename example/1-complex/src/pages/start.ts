@@ -61,7 +61,8 @@ export class StartPage extends PageBase {
         .text(a[21]!, this.data.callback())
     })
   }
-  async internal(condition = 1) {
+
+  async core(condition = 1) {
     const kb = this.kb()
     const da = {
       firstName: this.userFirstName,
@@ -78,27 +79,35 @@ export class StartPage extends PageBase {
       await this.reply(kb, da)
     }
   }
+
   async toError() {
-    await this.internal(1)
+    await this.core(1)
   }
+
   async text() {
-    await this.internal(1)
+    await this.core(1)
   }
+
   async textPayload() {
-    await this.internal(1)
+    await this.core(1)
   }
+
   async textCommand() {
-    await this.internal(1)
+    await this.core(1)
   }
+
   async textCommandPayload() {
-    await this.internal(1)
+    await this.core(1)
   }
+
   async callback() {
-    await this.internal(2)
+    await this.core(2)
   }
+
   async callbackPayload() {
-    await this.internal(3)
+    await this.core(3)
   }
+
   static template = `
     <base id="kb-for-block-import">
       ${this.kbp.refreshBack()}

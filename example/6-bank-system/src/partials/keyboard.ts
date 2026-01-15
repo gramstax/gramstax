@@ -1,8 +1,8 @@
 import {ComponentKeyboard} from "gramstax"
 import {KeyboardData} from "~/data/keyboard"
 
-// Keyboard component helpers for templates.
-export class KeyboardComponent extends ComponentKeyboard {
+// Partial template keyboard block.
+export class KeyboardPartial extends ComponentKeyboard {
   static data = KeyboardData
 
   static menu(lang?: string, type?: string) {

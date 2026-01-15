@@ -35,7 +35,7 @@ export class ResetPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbc.back()}
+      ${this.kbp.back()}
       <message>
         State cleared. You can start fresh.
       </message>
