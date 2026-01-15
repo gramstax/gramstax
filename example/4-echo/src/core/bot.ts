@@ -1,16 +1,13 @@
-import {CacheExternal, Gramstax} from "gramstax"
+import {Gramstax} from "gramstax"
 import {CtxCore} from "./ctx"
 import {GeneralStatusPage} from "~/pages/general-status"
 
 // BotCore configures Gramstax hooks for this project.
 export class BotCore extends Gramstax {
-  cacheState = new CacheExternal(`memory`)
-
   // Ensure each page receives our custom context class.
   createCtx(ct: Parameters<Gramstax[`createCtx`]>[0]) {
     return new CtxCore({
       ct,
-      cacheState: this.cacheState,
       cacheSession: this.cacheSession,
       cacheKeyboard: this.cacheKeyboard,
       templateManager: this.templateManager,

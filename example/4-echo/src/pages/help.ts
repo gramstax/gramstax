@@ -21,13 +21,13 @@ export class HelpPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbk.home(`default`)}
+      ${this.kbk.back(`default`)}
       <message>
         Available commands:
         - /start: Welcome message
         - /help: Show this help
 
-        You can also send any text to echo it back.
+        You can also send any message to echo it back.
       </message>
     </base>
   `

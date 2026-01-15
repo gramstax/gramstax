@@ -1,4 +1,4 @@
-import {CacheExternal, Gramstax} from "gramstax"
+import {Gramstax} from "gramstax"
 import {CtxCore} from "./ctx"
 import {BankStore} from "./store"
 import {BankGuard} from "~/guards/bank"
@@ -6,13 +6,11 @@ import {GeneralStatusPage} from "~/pages/general-status"
 
 // BotCore wires hooks and shared stores.
 export class BotCore extends Gramstax {
-  cacheState = new CacheExternal(`memory`)
   bankStore = new BankStore()
 
   createCtx(ct: Parameters<Gramstax[`createCtx`]>[0]) {
     return new CtxCore({
       ct,
-      cacheState: this.cacheState,
       cacheSession: this.cacheSession,
       cacheKeyboard: this.cacheKeyboard,
       templateManager: this.templateManager,
