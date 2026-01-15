@@ -29,14 +29,12 @@ export class DepositPage extends PageBase {
   private async handleDeposit(amountInput?: string, isEdit = false) {
     const biInv = `invalid`
     if (!amountInput) {
-      await this.sessionClear()
       await this.reply(this.kb(biInv), {}, biInv)
       return
     }
 
     const amount = this.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      await this.sessionClear()
       await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
       return
     }
