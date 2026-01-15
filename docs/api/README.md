@@ -36,9 +36,9 @@ The folder structure mirrors `packages/gramstax/src` for easy navigation.
 
 - [log.md](utils/log.md) - `LoggingUtils` enhanced logging utility
 
-### components/
+### blocks/
 
-- [keyboard.md](components/keyboard.md) - `ComponentKeyboard` for keyboard template generation
+- [keyboard.md](blocks/keyboard.md) - `BlockKeyboard` for keyboard template generation
 
 ### data/
 

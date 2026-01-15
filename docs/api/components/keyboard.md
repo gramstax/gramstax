@@ -114,7 +114,7 @@ class KeyboardD extends DataKeyboard {
   }
 }
 
-// ./components/keyboard.ts
+// ./blocks/keyboard.ts
 export class KeyboardC extends ComponentKeyboard {
   static data = KeyboardD;
   static navigation(lang?: string, type?: string) {

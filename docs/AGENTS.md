@@ -25,8 +25,8 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
   - [TemplateManager](#templatemanager)
 - [Utils](#utils)
   - [LoggingUtils](#loggingutils)
-- [Components](#components)
-  - [ComponentKeyboard](#componentkeyboard)
+- [Blocks](#blocks)
+  - [BlockKeyboard](#blockkeyboard)
 - [Data](#data)
   - [DataKeyboard](#datakeyboard)
 - [Worker Thread](#worker-thread)
@@ -207,9 +207,9 @@ k.text("Balance", BalancePage.data.callback());
 Minimum folders that must be present in every bot project:
 
 - `./base` = Contains abstract class files used by other classes, such as `page.ts` with the `CtxCore` content (`./core/ctx.ts`).
-- `./components` = Contains component template string files, such as `<keyboard>` in the `KeyboardComponent` class (`./components/keyboard.ts`).
+- `./blocks` = Contains block template string files, such as `<keyboard>` in the `KeyboardBlock` class (`./blocks/keyboard.ts`).
 - `./core` = Contains core files; both `ctx.ts` and `bot.ts` are required.
-- `./data` = Contains data files, such as `KeyboardData` (`./data/keyboard.ts`), used by `KeyboardComponent` (`./components/keyboard.ts`). Other relevant files can be added.
+- `./labels` = Contains label files, such as `KeyboardLabel` (`./labels/keyboard.ts`), used by `KeyboardBlock` (`./blocks/keyboard.ts`). Other relevant files can be added.
 - `./guards` = Contains guard files before proceeding to other tasks (e.g., user ban checks, language overrides).
 - `./pages` = Contains page files.
 - `./utils` = Contains utility files such as logs and string manipulation.
@@ -1081,25 +1081,25 @@ logger.errorMake(new Error("Oops"), "Worker", "init");
 - `LoggingUtils` simply forwards options to `LoggingPretty` and adds `errorMake()` formatting.
 - The `log` singleton is initialized eagerly as `new LoggingUtils()`.
 
-## Components
+## Blocks
 
-### ComponentKeyboard
+### BlockKeyboard
 
-Source: `docs/api/components/keyboard.md`
+Source: `docs/api/blocks/keyboard.md`
 
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
 > - **Framework Version:** v0.3.22
 
-# ComponentKeyboard
+# LabelKeyboard
 
-The `ComponentKeyboard` class provides static methods for generating keyboard template blocks from `DataKeyboard` definitions.
+The `BlockKeyboard` class provides static methods for generating keyboard template blocks from `LabelKeyboard` definitions.
 
 > **AI Notes (non-normative / for parsing):**
 >
-> - **Scope:** This document describes the `ComponentKeyboard` static methods.
-> - **Dependency:** Requires `DataKeyboard` to be set via `ComponentKeyboard.data`.
+> - **Scope:** This document describes the `BlockKeyboard` static methods.
+> - **Dependency:** Requires `LabelKeyboard` to be set via `BlockKeyboard.label`.
 > - **Output:** Generates HTML-like `<keyboard>` blocks for template engine.
 
 &nbsp;
@@ -1114,7 +1114,7 @@ Reference to the `DataKeyboard` class containing keyboard definitions.
 - **required:** Must be set before using `_build()`.
 
 ```typescript
-import { ComponentKeyboard, DataKeyboard } from "gramstax";
+import { BlockKeyboard, DataKeyboard } from "gramstax";
 
 class MyKeyboards extends DataKeyboard {
   static backNext() {
