@@ -1,4 +1,4 @@
-export class DataKeyboard {
+export class LabelKeyboard {
   static _reverse(input: string) {
     return input
       .split(/(?<!\\), */)
