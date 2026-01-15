@@ -2,7 +2,6 @@
 >
 > - **Last Updated:** 14/01/2026 18:40:34
 
-
 > - **Framework Version:** v0.3.22
 
 # Ctx
@@ -71,16 +70,14 @@ If the text input includes payloads (e.g., `start 123`), it routes to `textPaylo
 
 Do not set `intentText` or `intentTextCommand` unless you need to override the auto-derived intent (it defaults to `this.data.name`, based on the filename). You can also change the page filename (e.g., `reset.ts` → `Reset.ts`) to alter the derived intent without overriding it.
 
-
 **Options**
 
-| key               | type     | required | description                                          | ai_notes                                                                                       |
-| ----------------- | -------- | -------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| dataCallback      | function | no       | Function returning callback payload array                 | Must return an array (use `[]` for no payloads); with payloads it routes to `callbackPayload()`, otherwise `callback()`. |
+| key          | type     | required | description                               | ai_notes                                                                                                                 |
+| ------------ | -------- | -------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| dataCallback | function | no       | Function returning callback payload array | Must return an array (use `[]` for no payloads); with payloads it routes to `callbackPayload()`, otherwise `callback()`. |
 
-| intentText        | string   | no       | Overrides intent value for the `text()` route        | Also applies to `textPayload()`; only a single space is supported (max two words, e.g. `"🏠 Home"`).           |
-| intentTextCommand | string   | no       | Overrides intent value for the `textCommand()` route | Also applies to `textCommandPayload()`; leave unset unless needed.                                              |
-
+| intentText | string | no | Overrides intent value for the `text()` route | Also applies to `textPayload()`; only a single space is supported (max two words, e.g. `"🏠 Home"`). |
+| intentTextCommand | string | no | Overrides intent value for the `textCommand()` route | Also applies to `textCommandPayload()`; leave unset unless needed. |
 
 **Internal fields (auto-set)**
 
@@ -401,7 +398,7 @@ Answer callback query (show toast). Gramstax auto-answers routed callbacks, so c
 | text      | string | no       | Toast text     | Shown as notification to user.   |
 | options   | object | no       | Answer options | Passed to grammY answer options. |
 
-### `.ikb(builder) or .inlineKeyboard(builder)` and `.bkb(builder) or .bottomKeyboard(builder)`
+### `.inlineKeyboard(builder)` and `.bottomKeyboard(builder)`
 
 Create using builder pattern.
 
@@ -421,7 +418,7 @@ parameter builder.
 
 ```typescript
 // inline keyboard (will show on below message)
-const ik = this.ikb((k, a) => {
+const ik = this.inlineKeyboard((k, a) => {
   return k //
     .text(a[0]!, "action1")
     .text(a[1]!, "action2")
@@ -430,7 +427,7 @@ const ik = this.ikb((k, a) => {
 });
 
 // bottom keyboard (will show on below position keyboard phone)
-const bk = this.bkb((k, a) => {
+const bk = this.bottomKeyboard((k, a) => {
   return k //
     .text(a[0]!)
     .text(a[1]!)
@@ -523,7 +520,6 @@ import { OtherPage } from "./other";
 
 export class MyPage extends PageBase {
   static data = this.buildData((action: string) => [action]);
-
 
   kb() {
     return this.ikb((k, a) => {
