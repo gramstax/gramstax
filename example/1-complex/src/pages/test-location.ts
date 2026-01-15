@@ -14,7 +14,7 @@ export class TestLocationPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbc.back()}
+      ${this.kbp.back()}
       <media type="location" latitude="51.50735" longitude="-0.12776"></media>
       <media lang="id" type="location" latitude="-7.257471" longitude="112.752088"></media>
     </base>

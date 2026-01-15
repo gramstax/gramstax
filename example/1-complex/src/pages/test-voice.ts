@@ -14,7 +14,7 @@ export class TestVoicePage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbc.back()}
+      ${this.kbp.back()}
       <media type="voice" src="https://www.w3schools.com/html/horse.ogg"></media>
       <media lang="id" type="voice" src="https://www.w3schools.com/html/horse.ogg"></media>
     </base>

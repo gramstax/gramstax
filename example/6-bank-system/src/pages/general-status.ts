@@ -17,30 +17,28 @@ export class GeneralStatusPage extends PageBase {
   async toError(funcName: string, error: any, isUpdate = true) {
     log.errorMake(error, this.constructorName, funcName)
     await this.sessionClear()
+    const bi = `error`
     const kb = this.kb()
-    const baseId = `error`
-    if (isUpdate) {
-      await this.edit(kb, {}, baseId)
-    } else {
-      await this.reply(kb, {}, baseId)
-    }
+    await (isUpdate ? this.edit : this.reply)(kb, {}, bi)
   }
 
   async toErrorInputNotFound() {
+    const bi = `error-input-notfound`
     const kb = this.kb()
-    await this.reply(kb, {}, `error-input-notfound`)
+    await this.reply(kb, {}, bi)
   }
 
   static template = `
     <base>
-      <keyboard>Back to Menu</keyboard>
+      <keyboard>Home</keyboard>
     </base>
 
     <base id="error">
       <message>
         <b>❌ Error</b>
 
-        Something went wrong. Please try again.
+        An error occurred while processing your request.
+        Please try again or select Home to return to the main menu.
       </message>
     </base>
 
@@ -48,7 +46,8 @@ export class GeneralStatusPage extends PageBase {
       <message>
         <b>❌ Not Found</b>
 
-        No matching command. Try /start.
+        Command not recognized.
+        Use /start or select Home to return to the main menu.
       </message>
     </base>
   `

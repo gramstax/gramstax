@@ -26,7 +26,7 @@ export class CounterThreadPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbc.refreshBack()}
+      ${this.kbp.refreshBack()}
       <message>
         Counter: {{count}}
         Timestamp: {{timestamp}}

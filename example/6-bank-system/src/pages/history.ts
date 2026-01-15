@@ -17,7 +17,7 @@ export class HistoryPage extends PageBase {
   private formatHistory() {
     const entries = this.bankStore.getHistory(this.userId)
     if (entries.length === 0) {
-      return `No transactions yet.`
+      return `No transactions available.`
     }
     return entries
       .map((entry) => {
@@ -25,17 +25,31 @@ export class HistoryPage extends PageBase {
         const sign = entry.type === `deposit` || entry.type === `transfer-in` ? `+` : `-`
         const time = new Date(entry.ts).toISOString().replace(`T`, ` `).slice(0, 19)
         const peer = entry.peerName ? ` (${entry.peerName})` : ``
-        return `${time} ${sign}${amount} ${entry.type}${peer}`
+        const typeLabel = (() => {
+          switch (entry.type) {
+            case `deposit`:
+              return `Deposit`
+            case `withdraw`:
+              return `Withdrawal`
+            case `transfer-in`:
+              return `Transfer In`
+            case `transfer-out`:
+              return `Transfer Out`
+            default:
+              return entry.type
+          }
+        })()
+        return `${time} ${sign}${amount} ${typeLabel}${peer}`
       })
       .join(`\n`)
   }
 
   static template = `
     <base>
-      <keyboard>Back to Menu</keyboard>
+      <keyboard>Home</keyboard>
       <message>
-        Recent activity:
-        
+        Recent transactions:
+
         {{history}}
       </message>
     </base>

@@ -4,7 +4,7 @@ import {DataKeyboard} from "gramstax"
 export class KeyboardData extends DataKeyboard {
   static menu(lang?: string) {
     return this._build(lang, false, {
-      default: `Menu`
+      default: `Main Menu`
     })
   }
 

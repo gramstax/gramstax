@@ -3,14 +3,14 @@ import {StartPage} from "./start"
 
 // Withdraw funds from the user's balance.
 export class WithdrawPage extends PageBase {
-  kb() {
-    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
+  kb(baseId = `default`) {
+    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()), {baseId})
   }
 
   async callback() {
     await this.sessionTextFree()
-    const kb = this.kb()
     const id = `form`
+    const kb = this.kb(id)
     await this.edit(kb, {}, id)
   }
 
@@ -22,23 +22,25 @@ export class WithdrawPage extends PageBase {
   }
 
   private async handleWithdraw(amountInput?: string, isEdit = false) {
-    const kb = this.kb()
+    const idInv = `invalid`
     if (!amountInput) {
       await this.sessionClear()
-      await this.reply(kb, {}, `invalid`)
+      await this.reply(this.kb(), {}, idInv)
       return
     }
 
     const amount = this.bankStore.parseAmount(amountInput)
     if (amount === null) {
       await this.sessionClear()
-      await this.reply(kb, {amount: amountInput}, `invalid`)
+      await this.reply(this.kb(), {amount: amountInput}, idInv)
       return
     }
 
     const current = this.bankStore.getBalance(this.userId)
     if (current < amount) {
-      await this.reply(kb, {balance: this.bankStore.formatAmount(current)}, `insufficient`)
+      const idIns = `insufficient`
+      await this.sessionClear()
+      await this.reply(this.kb(), {balance: this.bankStore.formatAmount(current)}, idIns)
       return
     }
 
@@ -56,47 +58,61 @@ export class WithdrawPage extends PageBase {
     const data = {amount: amountDisplay, balance}
 
     await this.sessionClear()
+    const idSuc = `success`
+    const kb = this.kb()
     if (isEdit) {
-      await this.edit(kb, data, `success`)
+      await this.edit(kb, data, idSuc)
       return
     }
-    await this.reply(kb, data, `success`)
+    await this.reply(kb, data, idSuc)
   }
 
   static template = `
     <base>
-      <keyboard>Back to Menu</keyboard>
+      <keyboard>Home</keyboard>
       <message>
-        Withdraw funds
+        Withdraw
 
-        Tap Withdraw in the menu, then send an amount like:
-        - 12.5
+        Withdraw funds by entering a whole-number amount.
+        Example:
+        - 125.000
+
+        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="form">
+      <keyboard>Cancel</keyboard>
       <message>
-        Send a withdrawal amount (6 decimals max).
+        Please enter the withdrawal amount as a whole number. Dots are accepted for thousand separators.
+        Use Cancel to return to the main menu.
       </message>
     </base>
 
     <base id="success">
       <message>
-        Withdrawal successful: {{amount}}
-        New balance: {{balance}}
+        Withdrawal completed: {{amount}}
+        Updated balance: {{balance}}
+
+        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="insufficient">
       <message>
-        Insufficient balance. Current: {{balance}}
+        Insufficient funds for this withdrawal.
+        Available balance: {{balance}}
+
+        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="invalid">
       <message>
         Invalid amount: "{{amount}}".
-        Use up to 6 decimals.
+        Enter a whole number only (no decimals).
+
+        Use Home to return to the main menu.
       </message>
     </base>
   `

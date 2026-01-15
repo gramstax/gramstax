@@ -34,12 +34,12 @@ export class InputTextPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbc.cancel()}
+      ${this.kbp.cancel()}
       <message>Please input text you want view</message>
       <message lang="id">Tolong masukan text yang ingin anda liat</message>
     </base>
     <base id="result">
-      ${this.kbc.home()}
+      ${this.kbp.home()}
       <message>
         Result: {{res}}
 

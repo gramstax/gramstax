@@ -17,9 +17,12 @@ export class BalancePage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Back to Menu</keyboard>
+      <keyboard>Home</keyboard>
       <message>
-        Balance: {{balance}}
+        Account balance: {{balance}}
+
+        This is your current available balance. Use the menu to make a deposit, withdrawal, or transfer.
+        Use Home to return to the main menu.
       </message>
     </base>
   `

@@ -14,7 +14,7 @@ export class TestVideoPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbc.back()}
+      ${this.kbp.back()}
       <media type="video" src="https://www.w3schools.com/html/mov_bbb.mp4">Caption text for media <b>video</b></media>
       <media lang="id" type="video" src="https://www.w3schools.com/html/mov_bbb.mp4">Kaption text untuk media <b>video</b></media>
     </base>

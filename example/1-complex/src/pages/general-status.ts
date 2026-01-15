@@ -34,7 +34,7 @@ export class GeneralStatusPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbc.home()}
+      ${this.kbp.home()}
     </base>
 
     <base id="error">

@@ -14,7 +14,7 @@ export class TestVideoNotePage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbc.back()}
+      ${this.kbp.back()}
       <media type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4"></media>
       <media lang="id" type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4"></media>
     </base>

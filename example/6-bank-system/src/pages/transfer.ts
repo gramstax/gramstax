@@ -3,14 +3,14 @@ import {StartPage} from "./start"
 
 // Transfer funds to another user.
 export class TransferPage extends PageBase {
-  kb() {
-    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()))
+  kb(baseId = `default`) {
+    return this.ikb((k, a) => k.text(a[0]!, StartPage.data.callback()), {baseId})
   }
 
   async callback() {
     await this.sessionTextFree()
-    const kb = this.kb()
     const id = `form`
+    const kb = this.kb(id)
     await this.edit(kb, {}, id)
   }
 
@@ -23,37 +23,41 @@ export class TransferPage extends PageBase {
   }
 
   private async handleTransfer(payloads: string[], isEdit = false) {
-    const kb = this.kb()
     const [amountInput, targetInput] = payloads
+    const idInv = `invalid`
     if (!amountInput || !targetInput) {
       await this.sessionClear()
-      await this.reply(kb, {}, `invalid`)
+      await this.reply(this.kb(), {}, idInv)
       return
     }
 
     const amount = this.bankStore.parseAmount(amountInput)
     if (amount === null) {
       await this.sessionClear()
-      await this.reply(kb, {amount: amountInput}, `invalid`)
+      await this.reply(this.kb(), {amount: amountInput}, idInv)
       return
     }
 
     const target = this.resolveTarget(targetInput)
     if (!target) {
+      const idUnknown = `unknown-user`
       await this.sessionClear()
-      await this.reply(kb, {target: targetInput}, `unknown-user`)
+      await this.reply(this.kb(), {target: targetInput}, idUnknown)
       return
     }
 
     if (target.id === this.userId) {
+      const idSelf = `self`
       await this.sessionClear()
-      await this.reply(kb, {}, `self`)
+      await this.reply(this.kb(), {}, idSelf)
       return
     }
 
     const current = this.bankStore.getBalance(this.userId)
     if (current < amount) {
-      await this.reply(kb, {balance: this.bankStore.formatAmount(current)}, `insufficient`)
+      const idIns = `insufficient`
+      await this.sessionClear()
+      await this.reply(this.kb(), {balance: this.bankStore.formatAmount(current)}, idIns)
       return
     }
 
@@ -85,11 +89,13 @@ export class TransferPage extends PageBase {
     const data = {amount: amountDisplay, balance, target: target.label}
 
     await this.sessionClear()
+    const idSuc = `success`
+    const kb = this.kb()
     if (isEdit) {
-      await this.edit(kb, data, `success`)
+      await this.edit(kb, data, idSuc)
       return
     }
-    await this.reply(kb, data, `success`)
+    await this.reply(kb, data, idSuc)
   }
 
   private resolveTarget(input: string) {
@@ -105,52 +111,71 @@ export class TransferPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Back to Menu</keyboard>
+      <keyboard>Home</keyboard>
       <message>
-        Transfer funds
+        Transfer
 
-        Tap Transfer in the menu, then send:
-        - 12.5 12345
-        - 12.5 @username
+        Send funds by entering a whole-number amount and a recipient ID or username.
+        Examples:
+        - 125.000 12345
+        - 125.000 @username
+
+        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="form">
+      <keyboard>Cancel</keyboard>
       <message>
-        Send: [amount] [user]
+        Enter: [amount] [recipient]
+
+        Amounts must be whole numbers. Dots are accepted for thousand separators.
+        Use Cancel to return to the main menu.
       </message>
     </base>
 
     <base id="success">
       <message>
-        Transfer successful: {{amount}} to {{target}}
-        New balance: {{balance}}
+        Transfer completed: {{amount}} to {{target}}
+        Updated balance: {{balance}}
+
+        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="insufficient">
       <message>
-        Insufficient balance. Current: {{balance}}
+        Insufficient funds for this transfer.
+        Available balance: {{balance}}
+
+        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="unknown-user">
       <message>
-        Unknown user: "{{target}}".
-        Use a numeric ID or a known username.
+        Recipient not found: "{{target}}".
+        Provide a numeric ID or a registered username.
+
+        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="self">
       <message>
-        You cannot transfer to yourself.
+        Transfers to your own account are not permitted.
+        Please choose a different recipient.
+
+        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="invalid">
       <message>
-        Invalid transfer input.
-        Example: 12.5 12345
+        Invalid transfer format.
+        Example: 125.000 12345
+
+        Use Home to return to the main menu.
       </message>
     </base>
   `

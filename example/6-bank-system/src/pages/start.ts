@@ -41,7 +41,9 @@ export class StartPage extends PageBase {
     <base>
       <keyboard>Balance, Deposit, Withdraw, Transfer, History</keyboard>
       <message>
-        Bank System Menu
+        Banking Menu
+
+        Select a service below to manage your account. You can review balances, move funds, or view recent activity.
 
         - Balance
         - Deposit

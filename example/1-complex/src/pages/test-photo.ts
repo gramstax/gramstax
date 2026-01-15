@@ -14,7 +14,7 @@ export class TestPhotoPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbc.back()}
+      ${this.kbp.back()}
       <media type="photo" src="https://www.w3schools.com/html/img_girl.jpg">Caption text for media <b>photo</b></media>
       <media lang="id" type="photo" src="https://www.w3schools.com/html/img_girl.jpg">Kaption text untuk media <b>foto</b></media>
     </base>

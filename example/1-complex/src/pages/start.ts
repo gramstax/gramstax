@@ -101,7 +101,7 @@ export class StartPage extends PageBase {
   }
   static template = `
     <base id="kb-for-block-import">
-      ${this.kbc.refreshBack()}
+      ${this.kbp.refreshBack()}
     </base>
     <base id="for-block-import">
       <import src="start" base="kb-for-block-import" />

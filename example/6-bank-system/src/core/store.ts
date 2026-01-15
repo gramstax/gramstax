@@ -58,11 +58,20 @@ export class BankStore {
   }
 
   parseAmount(value: string) {
-    return BigInt(value) * 10n ** this.DECIMALS
+    const normalized = value.replace(/\./g, ``).trim()
+    if (!/^\d+$/.test(normalized)) {
+      return null
+    }
+    return BigInt(normalized) * 10n ** this.DECIMALS
   }
 
   formatAmount(value: bigint) {
-    return Number(value) / 10 ** Number(this.DECIMALS)
+    const divisor = 10n ** this.DECIMALS
+    const whole = value / divisor
+    const sign = whole < 0n ? `-` : ``
+    const digits = (whole < 0n ? -whole : whole).toString()
+    const grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, `.`)
+    return `${sign}${grouped}`
   }
 
   toHex(value: bigint) {
