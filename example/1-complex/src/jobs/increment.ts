@@ -1,10 +1,10 @@
-import {log, WorkerThreadExport, WorkerThreadInit} from "gramstax"
+import {log} from "~/utils/log"
+import {WorkerThreadExport, WorkerThreadInit} from "gramstax"
 
 export class Worker extends WorkerThreadInit {
   count = 0
   constructor() {
     super()
-
     const ms = process.argv[3] as any
     this.mtdAutoRun(ms)
   }

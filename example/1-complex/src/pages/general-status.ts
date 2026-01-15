@@ -1,4 +1,4 @@
-import {log} from "gramstax"
+import {log} from "~/utils/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
@@ -20,16 +20,18 @@ export class GeneralStatusPage extends PageBase {
 
     await this.sessionClear()
     const kb = this.kb()
-    const id = `error`
+    const bi = `error`
     if (isUpdate === true) {
-      await this.edit(kb, {}, id)
+      await this.edit(kb, {}, bi)
     } else {
-      await this.reply(kb, {}, id)
+      await this.reply(kb, {}, bi)
     }
   }
 
   async toErrorInputNotFound() {
-    await this.reply(this.kb(), {}, `error-input-notfound`)
+    const kb = this.kb()
+    const bi = `error-input-notfound`
+    await this.reply(kb, {}, bi)
   }
 
   static template = `
