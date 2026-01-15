@@ -457,12 +457,6 @@ export class Ctx {
   }
 
   // =============== build keyboard
-  ikb(...args: Parameters<typeof this.inlineKeyboard>) {
-    return this.inlineKeyboard(...args)
-  }
-  bkb(...args: Parameters<typeof this.bottomKeyboard>) {
-    return this.bottomKeyboard(...args)
-  }
   inlineKeyboard(callback: (k: IInlineKb, a: string[]) => IInlineKb, params?: {baseId?: string; data?: IData; cache?: boolean}): IInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
