@@ -2,9 +2,15 @@ import {LabelKeyboard} from "gramstax"
 
 // Shared keyboard labels for inline/bottom keyboards.
 export class KeyboardLabel extends LabelKeyboard {
-  static menu(lang?: string) {
+  static home(lang?: string) {
     return this._build(lang, false, {
-      default: `Menu`
+      default: `Home`
+    })
+  }
+
+  static back(lang?: string) {
+    return this._build(lang, false, {
+      default: `Back`
     })
   }
 
@@ -23,12 +29,6 @@ export class KeyboardLabel extends LabelKeyboard {
   static reset(lang?: string) {
     return this._build(lang, false, {
       default: `Reset`
-    })
-  }
-
-  static back(lang?: string) {
-    return this._build(lang, false, {
-      default: `Back`
     })
   }
 }

@@ -14,9 +14,9 @@ export class TransferPage extends PageBase {
 
   async callback() {
     await this.sessionTextFree()
-    const id = `form`
-    const kb = this.kb(id)
-    await this.edit(kb, {}, id)
+    const bi = `form`
+    const kb = this.kb(bi)
+    await this.edit(kb, {}, bi)
   }
 
   async textFree() {
@@ -29,40 +29,40 @@ export class TransferPage extends PageBase {
 
   private async handleTransfer(payloads: string[], isEdit = false) {
     const [amountInput, targetInput] = payloads
-    const idInv = `invalid`
+    const biInv = `invalid`
     if (!amountInput || !targetInput) {
       await this.sessionClear()
-      await this.reply(this.kb(), {}, idInv)
+      await this.reply(this.kb(biInv), {}, biInv)
       return
     }
 
     const amount = this.bankStore.parseAmount(amountInput)
     if (amount === null) {
       await this.sessionClear()
-      await this.reply(this.kb(), {amount: amountInput}, idInv)
+      await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
       return
     }
 
     const target = this.resolveTarget(targetInput)
     if (!target) {
-      const idUnknown = `unknown-user`
+      const bi = `unknown-user`
       await this.sessionClear()
-      await this.reply(this.kb(), {target: targetInput}, idUnknown)
+      await this.reply(this.kb(bi), {target: targetInput}, bi)
       return
     }
 
     if (target.id === this.userId) {
-      const idSelf = `self`
+      const bi = `self`
       await this.sessionClear()
-      await this.reply(this.kb(), {}, idSelf)
+      await this.reply(this.kb(bi), {}, bi)
       return
     }
 
     const current = this.bankStore.getBalance(this.userId)
     if (current < amount) {
-      const idIns = `insufficient`
+      const bi = `insufficient`
       await this.sessionClear()
-      await this.reply(this.kb(), {balance: this.bankStore.formatAmount(current)}, idIns)
+      await this.reply(this.kb(bi), {balance: this.bankStore.formatAmount(current)}, bi)
       return
     }
 
@@ -94,10 +94,13 @@ export class TransferPage extends PageBase {
     const data = {amount: amountDisplay, balance, target: target.label}
 
     await this.sessionClear()
-    const idSuc = `success`
-    const kb = this.kb()
-    if (isEdit) await this.edit(kb, data, idSuc)
-    else await this.reply(kb, data, idSuc)
+    const biSuc = `success`
+    const kb = this.kb(biSuc)
+    if (isEdit) {
+      await this.edit(kb, data, biSuc)
+    } else {
+      await this.reply(kb, data, biSuc)
+    }
   }
 
   private resolveTarget(input: string) {
@@ -112,72 +115,52 @@ export class TransferPage extends PageBase {
   }
 
   static template = `
-    <base>
-      <keyboard>Home</keyboard>
-      <message>
-        Transfer
-
-        Send funds by entering a whole-number amount and a recipient ID or username.
-        Examples:
-        - 125.000 12345
-        - 125.000 @username
-
-        Use Home to return to the main menu.
-      </message>
-    </base>
-
     <base id="form">
-      <keyboard>Cancel</keyboard>
+      ${this.kbk.cancel(`default`)}
       <message>
         Enter: [amount] [recipient]
 
         Amounts must be whole numbers. Dots are accepted for thousand separators.
-        Use Cancel to return to the main menu.
       </message>
     </base>
 
     <base id="success">
+      ${this.kbk.home(`default`)}
       <message>
         Transfer completed: {{amount}} to {{target}}
         Updated balance: {{balance}}
-
-        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="insufficient">
+      ${this.kbk.cancel(`default`)}
       <message>
         Insufficient funds for this transfer.
         Available balance: {{balance}}
-
-        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="unknown-user">
+      ${this.kbk.cancel(`default`)}
       <message>
         Recipient not found: "{{target}}".
         Provide a numeric ID or a registered username.
-
-        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="self">
+      ${this.kbk.cancel(`default`)}
       <message>
         Transfers to your own account are not permitted.
         Please choose a different recipient.
-
-        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="invalid">
+      ${this.kbk.cancel(`default`)}
       <message>
         Invalid transfer format.
         Example: 125.000 12345
-
-        Use Home to return to the main menu.
       </message>
     </base>
   `

@@ -21,7 +21,7 @@ export class HelpPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Back to Start</keyboard>
+      ${this.kbk.home(`default`)}
       <message>
         Available commands:
         - /start: Welcome message

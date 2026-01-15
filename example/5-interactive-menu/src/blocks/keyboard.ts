@@ -4,8 +4,12 @@ import {KeyboardLabel} from "~/labels/keyboard"
 // Block template keyboard block.
 export class KeyboardBlock extends BlockKeyboard {
   static label = KeyboardLabel
-  static menu(lang?: string, type?: string) {
-    return this._build(`menu`, lang, type)
+  static home(lang?: string, type?: string) {
+    return this._build(`home`, lang, type)
+  }
+
+  static back(lang?: string, type?: string) {
+    return this._build(`back`, lang, type)
   }
 
   static browse(lang?: string, type?: string) {
@@ -18,9 +22,5 @@ export class KeyboardBlock extends BlockKeyboard {
 
   static reset(lang?: string, type?: string) {
     return this._build(`reset`, lang, type)
-  }
-
-  static back(lang?: string, type?: string) {
-    return this._build(`back`, lang, type)
   }
 }

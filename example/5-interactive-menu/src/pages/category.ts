@@ -51,7 +51,7 @@ export class CategoryPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Back to Menu</keyboard>
+      ${this.kbk.back(`default`)}
       <message>
         Browse Categories
       </message>

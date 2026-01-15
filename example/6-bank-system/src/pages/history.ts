@@ -48,7 +48,7 @@ export class HistoryPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Home</keyboard>
+      ${this.kbk.back(`default`)}
       <message>
         Recent transactions:
 

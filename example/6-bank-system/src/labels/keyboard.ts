@@ -1,40 +1,24 @@
 import {LabelKeyboard} from "gramstax"
 
-// Keyboard data labels for inline menus.
 export class KeyboardLabel extends LabelKeyboard {
-  static menu(lang?: string) {
+  static home(lang?: string) {
     return this._build(lang, false, {
-      default: `Main Menu`
+      default: `.. Home`,
+      id: `.. Beranda`
     })
   }
 
-  static balance(lang?: string) {
+  static back(lang?: string) {
     return this._build(lang, false, {
-      default: `Balance`
+      default: `Back`,
+      id: `Kembali`
     })
   }
 
-  static deposit(lang?: string) {
+  static cancel(lang?: string) {
     return this._build(lang, false, {
-      default: `Deposit`
-    })
-  }
-
-  static withdraw(lang?: string) {
-    return this._build(lang, false, {
-      default: `Withdraw`
-    })
-  }
-
-  static transfer(lang?: string) {
-    return this._build(lang, false, {
-      default: `Transfer`
-    })
-  }
-
-  static history(lang?: string) {
-    return this._build(lang, false, {
-      default: `History`
+      default: `Cancel`,
+      id: `Batal`
     })
   }
 }

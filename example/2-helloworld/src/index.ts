@@ -1,8 +1,11 @@
-import {Gramstax, log} from "gramstax"
+import {env} from "./env"
+import {log} from "./utils/log"
+import {BotCore} from "./core/bot"
 
-log.info(`Started..`)
-new Gramstax({
-  deploy: `polling`,
-  token: `7552314214:AAHEf0p8MrTiU6LZg9J-YJqwEIsTYS0ZMHk`, // test token bot, its already revoke
+log.info(`Starting helloworld bot...`)
+
+new BotCore({
+  deploy: env.TELEGRAM_BOT_DEPLOY,
+  token: env.TELEGRAM_BOT_TOKEN, // test token bot, its already revoke
   log: true
 })

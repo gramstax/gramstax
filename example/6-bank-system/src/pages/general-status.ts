@@ -21,8 +21,11 @@ export class GeneralStatusPage extends PageBase {
     await this.sessionClear()
     const bi = `error`
     const kb = this.kb()
-    if (isEdit) await this.edit(kb, {}, bi)
-    else await this.reply(kb, {}, bi)
+    if (isEdit) {
+      await this.edit(kb, {}, bi)
+    } else {
+      await this.reply(kb, {}, bi)
+    }
   }
 
   async toErrorInputNotFound() {
@@ -33,7 +36,7 @@ export class GeneralStatusPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Home</keyboard>
+      ${this.kbk.home(`default`)}
     </base>
 
     <base id="error">

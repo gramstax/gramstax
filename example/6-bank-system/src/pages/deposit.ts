@@ -14,9 +14,9 @@ export class DepositPage extends PageBase {
 
   async callback() {
     await this.sessionTextFree()
-    const id = `form`
-    const kb = this.kb(id)
-    await this.edit(kb, {}, id)
+    const bi = `form`
+    const kb = this.kb(bi)
+    await this.edit(kb, {}, bi)
   }
 
   async textFree() {
@@ -27,17 +27,17 @@ export class DepositPage extends PageBase {
   }
 
   private async handleDeposit(amountInput?: string, isEdit = false) {
-    const idInv = `invalid`
+    const biInv = `invalid`
     if (!amountInput) {
       await this.sessionClear()
-      await this.reply(this.kb(), {}, idInv)
+      await this.reply(this.kb(biInv), {}, biInv)
       return
     }
 
     const amount = this.bankStore.parseAmount(amountInput)
     if (amount === null) {
       await this.sessionClear()
-      await this.reply(this.kb(), {amount: amountInput}, idInv)
+      await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
       return
     }
 
@@ -56,47 +56,36 @@ export class DepositPage extends PageBase {
     const data = {amount: amountDisplay, balance}
 
     await this.sessionClear()
-    const idSuc = `success`
-    const kb = this.kb()
-    if (isEdit) await this.edit(kb, data, idSuc)
-    else await this.reply(kb, data, idSuc)
+    const biSuc = `success`
+    const kb = this.kb(biSuc)
+    if (isEdit) {
+      await this.edit(kb, data, biSuc)
+    } else {
+      await this.reply(kb, data, biSuc)
+    }
   }
 
   static template = `
-    <base>
-      <keyboard>Home</keyboard>
-      <message>
-        Deposit
-
-        Add funds to your account by entering a whole-number amount.
-        Example:
-        - 125.000
-      </message>
-    </base>
-
     <base id="form">
-      <keyboard>Cancel</keyboard>
+      ${this.kbk.cancel(`default`)}
       <message>
         Please enter the deposit amount as a whole number. Dots are accepted for thousand separators.
-        Use Cancel to return to the main menu.
       </message>
     </base>
 
     <base id="success">
+      ${this.kbk.home(`default`)}
       <message>
         Deposit completed: {{amount}}
         Updated balance: {{balance}}
-
-        Use Home to return to the main menu.
       </message>
     </base>
 
     <base id="invalid">
+      ${this.kbk.cancel(`default`)}
       <message>
         Invalid amount: "{{amount}}".
-        Enter a whole number only (no decimals).
-
-        Use Home to return to the main menu.
+        Enter a whole number only.
       </message>
     </base>
   `

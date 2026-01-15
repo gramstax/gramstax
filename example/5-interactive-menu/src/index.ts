@@ -1,9 +1,8 @@
-import {log} from "gramstax"
 import {env} from "./env"
+import {log} from "./utils/log"
 import {BotCore} from "./core/bot"
 
-// Entry point for the interactive menu bot.
-log.info(`Starting Interactive Menu bot...`)
+log.info(`Starting interactive-menu bot...`)
 
 new BotCore({
   deploy: env.TELEGRAM_BOT_DEPLOY,

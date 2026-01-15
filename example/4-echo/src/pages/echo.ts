@@ -29,7 +29,7 @@ export class EchoPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Back to Start</keyboard>
+      ${this.kbk.home(`default`)}
       <message>
         Tap Echo Tips to see how echo works.
       </message>

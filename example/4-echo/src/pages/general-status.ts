@@ -1,4 +1,4 @@
-import {log} from "gramstax"
+import {log} from "~/utils/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
@@ -36,9 +36,7 @@ export class GeneralStatusPage extends PageBase {
   }
 
   static template = `
-    <base>
-      <keyboard>Back to Start</keyboard>
-    </base>
+    <base>${this.kbk.home(`default`)}</base>
 
     <base id="error">
       <message>

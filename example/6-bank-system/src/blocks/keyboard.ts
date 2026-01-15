@@ -1,30 +1,18 @@
 import {BlockKeyboard} from "gramstax"
 import {KeyboardLabel} from "~/labels/keyboard"
 
-// Partial template keyboard block.
 export class KeyboardBlock extends BlockKeyboard {
   static label = KeyboardLabel
-  static menu(lang?: string, type?: string) {
-    return this._build(`menu`, lang, type)
+
+  static home(lang?: string, type?: string) {
+    return this._build(`home`, lang, type)
   }
 
-  static balance(lang?: string, type?: string) {
-    return this._build(`balance`, lang, type)
+  static back(lang?: string, type?: string) {
+    return this._build(`back`, lang, type)
   }
 
-  static deposit(lang?: string, type?: string) {
-    return this._build(`deposit`, lang, type)
-  }
-
-  static withdraw(lang?: string, type?: string) {
-    return this._build(`withdraw`, lang, type)
-  }
-
-  static transfer(lang?: string, type?: string) {
-    return this._build(`transfer`, lang, type)
-  }
-
-  static history(lang?: string, type?: string) {
-    return this._build(`history`, lang, type)
+  static cancel(lang?: string, type?: string) {
+    return this._build(`cancel`, lang, type)
   }
 }
