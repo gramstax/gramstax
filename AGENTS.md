@@ -133,6 +133,10 @@
 - Use backticks in test strings to satisfy lint.
 - Prefer deterministic inputs; avoid timers unless required.
 
+## Template Guidelines
+- When multiple `<base>` blocks share identical `<keyboard>` content, define it once in the default `<base>` (no `id`) and omit duplicates in other bases.
+- Reuse the default keyboard by calling the inline/bottom keyboard builder without a `baseId`.
+
 ## Package: gramstax
 - Source root is `packages/gramstax/src`; update `packages/gramstax/src/index.ts` when adding exports.
 - Path alias `~/*` maps to `packages/gramstax/src/*` (from `packages/gramstax/tsconfig.json`).
