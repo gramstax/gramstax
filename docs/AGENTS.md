@@ -203,15 +203,25 @@ k.text(a[0]!, BalancePage.data.callback());
 
 ### Project Src Structure
 
-Minimum folders that must be present in every bot project:
+Minimum folders and file that must be present in every bot project:
 
 - `./base` = Contains abstract class files used by other classes, such as `page.ts` with the `CtxCore` content (`./core/ctx.ts`).
+- `./base/guard.ts`
+- `./base/page.ts`
 - `./blocks` = Contains block template string files, such as `<keyboard>` in the `KeyboardBlock` class (`./blocks/keyboard.ts`).
+- `./blocks/keyboard.ts`
 - `./core` = Contains core files; both `ctx.ts` and `bot.ts` are required.
+- `./core/bot.ts`
+- `./core/ctx.ts`
 - `./labels` = Contains label files, such as `KeyboardLabel` (`./labels/keyboard.ts`), used by `KeyboardBlock` (`./blocks/keyboard.ts`). Other relevant files can be added.
+- `./labels/keyboard.ts`
 - `./guards` = Contains guard files before proceeding to other tasks (e.g., user ban checks, language overrides).
+- `./guards/__example.ts` = YOU CAN DELETE THIS IF THAT FOLDER IS ALREADY HAS A REAL FILE GUARD, IF NOT, JUST LEAVE IT!!
 - `./pages` = Contains page files.
+- `./pages/start.ts`
+- `./pages/general-status.ts`
 - `./utils` = Contains utility files such as logs and string manipulation or others.
+- `./utils/log.ts`
 
 Other folders if needed:
 
