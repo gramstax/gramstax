@@ -71,7 +71,7 @@
 - `<message>` renders text with `{{key}}` interpolation from `data`.
 - `<keyboard>` defines comma-separated labels; `type="bottom"` for reply keyboards.
 - `<media>` is the only supported media block (no `<photo>`, `<video>` tags).
-- `<map src="items" join="\n">` iterates arrays with `{{e}}`, `{{e.prop}}`, `{{i}}`.
+- `<map src="items" join="\\n">` iterates arrays with `{{e}}`, `{{e.prop}}`, `{{i}}` must be use double slash if join like this \\n not this \n.
 - `<switch value="status">` with `<case is="a,b">` and `<default>` for fallback.
 - `<import src="other" block="message,keyboard" base="default" />` for reuse.
 - `{~ ... ~}` and `<script>` evaluate JS; return empty string on errors.
