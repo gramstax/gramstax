@@ -1,5 +1,6 @@
 import {PageBase} from "~/base/page"
 import {CatalogData} from "~/labels/catalog"
+import {StartPage} from "./start"
 
 // Inline keyboard with total page count.
 export class InlineWithCountPage extends PageBase {
@@ -25,7 +26,7 @@ export class InlineWithCountPage extends PageBase {
       if (safePage < totalPages - 1) {
         k.text(a[1]!, this.data.callback(`page`, safePage + 1))
       }
-      return k
+      return k.row().text(a[3]!, StartPage.data.callback())
     })
   }
 
@@ -66,7 +67,7 @@ export class InlineWithCountPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Prev, Next, Page</keyboard>
+      <keyboard>Prev, Next, Page, ${this.kbl.home(`default`)}</keyboard>
       <message>
         Inline Menu (With Count)
 

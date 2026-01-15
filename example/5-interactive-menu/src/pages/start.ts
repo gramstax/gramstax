@@ -7,9 +7,9 @@ import {InlineWithoutCountPage} from "./inline-without-count"
 
 // Main menu page for the interactive bot.
 export class StartPage extends PageBase {
-  static data = this.buildData({intentText: `Menu`})
+  static data = this.buildData({intentText: `Home`})
 
-  inlineKb() {
+  ikb() {
     return this.inlineKeyboard((k, a) => {
       return k //
         .text(a[0]!, CategoryPage.data.callback())
@@ -22,7 +22,7 @@ export class StartPage extends PageBase {
     })
   }
 
-  bottomKb() {
+  bkb() {
     return this.bottomKeyboard((k, a) => {
       return k //
         .text(a[0]!)
@@ -34,19 +34,18 @@ export class StartPage extends PageBase {
   }
 
   async core(isEdit = false) {
-    const inlineKb = this.inlineKb()
-    const bi = `menu`
+    const ikb = this.ikb()
     if (isEdit) {
-      await this.edit(inlineKb, {}, bi)
+      await this.edit(ikb)
       return
     }
 
     // First reply shows the main menu with inline buttons.
-    await this.reply(inlineKb, {}, bi)
+    await this.reply(ikb)
 
     // Second reply enables persistent quick actions.
-    const bottomKb = this.bottomKb()
-    await this.reply(bottomKb, {}, `quick-actions`)
+    const bkb = this.bkb()
+    await this.reply(bkb, {}, `quick-actions`)
   }
 
   async textCommand() {
@@ -66,18 +65,6 @@ export class StartPage extends PageBase {
       <keyboard>Browse, Inline Count, Inline Simple, Help, Reset</keyboard>
       <keyboard type="bottom">${this.kbl.home(`default`)}, ${this.kbl.browse(`default`)}, ${this.kbl.help(`default`)}, ${this.kbl.reset(`default`)}</keyboard>
       <message>
-        Welcome! Choose an action from the menu.
-      </message>
-    </base>
-
-    <base id="quick-actions">
-      <message>
-        Quick actions enabled. Use the bottom keyboard anytime.
-      </message>
-    </base>
-
-    <base id="menu">
-      <message>
         Main Menu
 
         - Browse: view categories
@@ -85,6 +72,12 @@ export class StartPage extends PageBase {
         - Inline Simple: inline list without totals
         - Help: learn navigation
         - Reset: clear state
+      </message>
+    </base>
+
+    <base id="quick-actions">
+      <message>
+        Quick actions enabled. Use the bottom keyboard anytime.
       </message>
     </base>
   `

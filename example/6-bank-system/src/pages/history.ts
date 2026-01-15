@@ -26,7 +26,7 @@ export class HistoryPage extends PageBase {
         const amount = this.bankStore.formatAmount(this.bankStore.fromHex(entry.amountHex))
         const sign = entry.type === `deposit` || entry.type === `transfer-in` ? `+` : `-`
         const time = new Date(entry.ts).toISOString().replace(`T`, ` `).slice(0, 19)
-        const peer = entry.peerName ? ` (${entry.peerName})` : ``
+        const peer = entry.peerName ? ` (@${entry.peerName})` : ``
         const typeLabel = (() => {
           switch (entry.type) {
             case `deposit`:

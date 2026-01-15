@@ -31,14 +31,12 @@ export class TransferPage extends PageBase {
     const [amountInput, targetInput] = payloads
     const biInv = `invalid`
     if (!amountInput || !targetInput) {
-      await this.sessionClear()
       await this.reply(this.kb(biInv), {}, biInv)
       return
     }
 
     const amount = this.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      await this.sessionClear()
       await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
       return
     }
@@ -46,14 +44,12 @@ export class TransferPage extends PageBase {
     const target = this.resolveTarget(targetInput)
     if (!target) {
       const bi = `unknown-user`
-      await this.sessionClear()
       await this.reply(this.kb(bi), {target: targetInput}, bi)
       return
     }
 
     if (target.id === this.userId) {
       const bi = `self`
-      await this.sessionClear()
       await this.reply(this.kb(bi), {}, bi)
       return
     }
@@ -61,7 +57,6 @@ export class TransferPage extends PageBase {
     const current = this.bankStore.getBalance(this.userId)
     if (current < amount) {
       const bi = `insufficient`
-      await this.sessionClear()
       await this.reply(this.kb(bi), {balance: this.bankStore.formatAmount(current)}, bi)
       return
     }
