@@ -694,8 +694,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   async onCallbackQueryData(ct: Context): Promise<void> {
     const ctx = this.createCtx(ct)
     try {
-      // answer callback query first for fast response
-      await ctx.callbackQueryAnswer()
       const before = await this.hookBeforeRoute(ctx, `onCallbackQueryData`)
       if (before === false) {
         return
