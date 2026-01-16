@@ -52,8 +52,8 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 22:05:00
-> - **Framework Version:** v0.3.22
+> - **Last Updated:** 16/01/2026 12:24:00
+> - **Framework Version:** v0.5.0
 
 **Best Practices**
 
@@ -364,8 +364,8 @@ Source: `docs/api/template/engine.md`
 
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 12:55:00
-> - **Framework Version:** v0.3.22
+> - **Last Updated:** 16/01/2026 12:24:00
+> - **Framework Version:** v0.5.0
 
 The `TemplateEngine` class provides static methods for parsing and compiling HTML-like templates into executable functions.
 
@@ -989,7 +989,7 @@ Source: `docs/api/utils/log.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # LoggingUtils
 
@@ -1099,7 +1099,7 @@ Source: `docs/api/blocks/keyboard.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # LabelKeyboard
 
@@ -1252,7 +1252,7 @@ Source: `docs/api/labels/keyboard.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # LabelKeyboard
 
@@ -1385,7 +1385,7 @@ Source: `docs/api/worker-thread/export.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadExport
 
@@ -1554,7 +1554,7 @@ Source: `docs/api/worker-thread/init.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadInit
 
@@ -1812,7 +1812,7 @@ Source: `docs/api/worker-thread/launch.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadLaunch
 
@@ -2012,7 +2012,7 @@ Source: `docs/api/worker-thread/pool.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadPool
 
@@ -2225,7 +2225,7 @@ Source: `docs/api/worker-thread/rpc.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadRpc
 
@@ -2423,7 +2423,7 @@ Source: `docs/api/worker-thread/gateway-client.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadGatewayClient
 
@@ -2580,7 +2580,7 @@ Source: `docs/api/worker-thread/gateway-server.md`
 > **Documentation Info**
 >
 > - **Last Updated:** 13/01/2026 23:40:00
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadGatewayServer
 

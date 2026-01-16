@@ -1,7 +1,7 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 16:37:38
-> - **Framework Version:** v0.3.22
+> - **Last Updated:** 16/01/2026 12:24:00
+> - **Framework Version:** v0.5.0
 
 # CacheExternal
 
@@ -21,12 +21,12 @@ The `CacheExternal` class extends [Keyv](https://github.com/jaredwray/keyv) to p
 
 ### `new CacheExternal(url?, namespace?, ttl?, more?)`
 
-| parameter | type   | required | default    | description                                                               |
-| --------- | ------ | -------- | ---------- | ------------------------------------------------------------------------- |
-| url       | string | no       | `"memory"` | Storage connection URL. Memory uses `"memory"`; Redis uses `"redis://..."`. |
-| namespace | string | no       | -          | Key namespace prefix. Isolates keys by namespace.                         |
+| parameter | type   | required | default    | description                                                                                |
+| --------- | ------ | -------- | ---------- | ------------------------------------------------------------------------------------------ |
+| url       | string | no       | `"memory"` | Storage connection URL. Memory uses `"memory"`; Redis uses `"redis://..."`.                |
+| namespace | string | no       | -          | Key namespace prefix. Isolates keys by namespace.                                          |
 | ttl       | number | no       | -          | Default time-to-live in milliseconds. Applies to all keys unless overridden per operation. |
-| more      | IMore  | no       | -          | Additional Keyv options. `forceStore` overrides automatic store selection. |
+| more      | IMore  | no       | -          | Additional Keyv options. `forceStore` overrides automatic store selection.                 |
 
 ```typescript
 import { CacheExternal } from "gramstax";
@@ -70,10 +70,10 @@ const value = await cache.get("user:123");
 
 Set a value with optional TTL.
 
-| parameter | type   | required | default | description                                       |
-| --------- | ------ | -------- | ------- | ------------------------------------------------- |
-| key       | string | yes      | -       | The key. Cache lookup.                            |
-| value     | any    | yes      | -       | The value to store. Persisted cache payload.      |
+| parameter | type   | required | default | description                                          |
+| --------- | ------ | -------- | ------- | ---------------------------------------------------- |
+| key       | string | yes      | -       | The key. Cache lookup.                               |
+| value     | any    | yes      | -       | The value to store. Persisted cache payload.         |
 | ttl       | number | no       | -       | TTL in milliseconds. Overrides default TTL when set. |
 
 - **returns: Promise\<boolean\>**
@@ -87,9 +87,9 @@ await cache.set("user:123", { name: "John" }, 60000);
 
 Delete a key.
 
-| parameter | type   | required | description                          |
-| --------- | ------ | -------- | ------------------------------------ |
-| key       | string | yes      | The key. Cache key to remove.        |
+| parameter | type   | required | description                   |
+| --------- | ------ | -------- | ----------------------------- |
+| key       | string | yes      | The key. Cache key to remove. |
 
 - **returns: Promise\<boolean\>**
 - **description:** Resolves with operation result.

@@ -1,8 +1,8 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 18:40:34
+> - **Last Updated:** 16/01/2026 12:24:00
 
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # Ctx
 
@@ -13,7 +13,7 @@ The `Ctx` class is the context/page base class that provides access to user data
 > - **Scope:** This document describes the `Ctx` base class for pages.
 > - **Usage:** Extend this class to create page handlers.
 > - **Template:** Define static `template` property for HTML-like templates.
-> - **Data:** Define static `data` via `buildData()` for routing configuration.
+> - **Data:** Define static `data` via `buildData()` if need with payloads. for routing configuration (this is automaticly handle by system if not defined).
 
 &nbsp;
 
@@ -21,9 +21,11 @@ The `Ctx` class is the context/page base class that provides access to user data
 
 ### `.template`
 
-HTML-like template string for the page.
+| key      | type   | required | default | description                                                              |
+| -------- | ------ | -------- | ------- | ------------------------------------------------------------------------ |
+| template | string | yes      | -       | HTML-like template string for the page. must be have block <base></base> |
 
-- **type: string | undefined**
+- **example:**
 
 ```typescript
 import { PageBase } from "~/base/page";
@@ -40,9 +42,27 @@ class MyPage extends PageBase {
 
 ### `.data`
 
-Page routing data created by `buildData()`.
+| key  | type      | required | default          | description                                                                                                                                                                                        |
+| ---- | --------- | -------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| data | IPageData | no       | this.buildData() | Page routing data created by `buildData()`. Only defined when you want to override the intent and have a callback payload. Do not define if nothing is needed; let the system automatic handle it. |
 
-- **type: IPageData**
+- **example:**
+
+```typescript
+import { PageBase } from "~/base/page";
+
+class MyPage extends PageBase {
+  // only defined for callback payload route
+  static data = this.buildData((confirm?: string) => [confirm])
+
+  // defined for callback payload route and text. textCommand trigger route
+  static data = this.buildData({
+    callback: (confirm?: string) => [confirm])
+    intentText: `my_page`,
+    intentTextCommand: `hello`
+  })
+}
+```
 
 &nbsp;
 
@@ -72,12 +92,11 @@ Do not set `intentText` or `intentTextCommand` unless you need to override the a
 
 **Options**
 
-| key               | type     | required | description                                                                                                                                           |
-| ----------------- | -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| key               | type     | required | description                                                                                                                                                         |
+| ----------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | dataCallback      | function | no       | Function returning callback payload array. Must return an array (use `[]` for no payloads); with payloads it routes to `callbackPayload()`, otherwise `callback()`. |
-| intentText        | string   | no       | Overrides intent value for the `text()` route. Also applies to `textPayload()`; only a single space is supported (max two words, e.g. `"🏠 Home"`). |
-| intentTextCommand | string   | no       | Overrides intent value for the `textCommand()` route. Also applies to `textCommandPayload()`; leave unset unless needed.                             |
-
+| intentText        | string   | no       | Overrides intent value for the `text()` route. Also applies to `textPayload()`; only a single space is supported (max two words, e.g. `"🏠 Home"`).                 |
+| intentTextCommand | string   | no       | Overrides intent value for the `textCommand()` route. Also applies to `textCommandPayload()`; leave unset unless needed.                                            |
 
 **Internal fields (auto-set)**
 
@@ -87,7 +106,6 @@ Do not set `intentText` or `intentTextCommand` unless you need to override the a
 
 - **returns: IPageData**
 - **description:** Metadata used for routing.
-
 
 ```typescript
 import { PageBase } from "~/base/page";
@@ -243,11 +261,10 @@ Get current session data.
 
 Set session data.
 
-| parameter | type   | required | description                                     |
-| --------- | ------ | -------- | ----------------------------------------------- |
-| method    | string | yes      | Session method. Matches route handler name.     |
-| params    | any    | no       | Session parameters. Stored in session payload.  |
-
+| parameter | type   | required | description                                    |
+| --------- | ------ | -------- | ---------------------------------------------- |
+| method    | string | yes      | Session method. Matches route handler name.    |
+| params    | any    | no       | Session parameters. Stored in session payload. |
 
 - **returns: Promise\<boolean\>**
 - **description:** Resolves with operation result.
@@ -287,13 +304,12 @@ Set session for textFree route.
 
 Send a text message reply.
 
-| parameter | type    | required | default   | description                                                                   |
-| --------- | ------- | -------- | --------- | ----------------------------------------------------------------------------- |
-| keyboard  | IInBoKb | no       | -         | Keyboard markup. From `inlineKeyboard()` or `bottomKeyboard()` builders.      |
-| data      | object  | no       | -         | Template data. Used for template interpolation.                               |
-| baseId    | string  | no       | "default" | Template base ID. Matches `<base id="...">`.                                   |
-| options   | object  | no       | -         | grammY send options. Passed to grammY `reply` options.                        |
-
+| parameter | type    | required | default   | description                                                              |
+| --------- | ------- | -------- | --------- | ------------------------------------------------------------------------ |
+| keyboard  | IInBoKb | no       | -         | Keyboard markup. From `inlineKeyboard()` or `bottomKeyboard()` builders. |
+| data      | object  | no       | -         | Template data. Used for template interpolation.                          |
+| baseId    | string  | no       | "default" | Template base ID. Matches `<base id="...">`.                             |
+| options   | object  | no       | -         | grammY send options. Passed to grammY `reply` options.                   |
 
 - **returns: Promise\<Message\>**
 - **description:** Resolves with sent message.
@@ -385,28 +401,25 @@ Delete the current message.
 
 Answer callback query (show toast). Gramstax auto-answers routed callbacks, so call this only when you need a custom toast or extra acknowledgment.
 
-| parameter | type   | required | description                                               |
-| --------- | ------ | -------- | --------------------------------------------------------- |
-| text      | string | no       | Toast text. Shown as notification to user.                |
-| options   | object | no       | Answer options. Passed to grammY answer options.          |
-
+| parameter | type   | required | description                                      |
+| --------- | ------ | -------- | ------------------------------------------------ |
+| text      | string | no       | Toast text. Shown as notification to user.       |
+| options   | object | no       | Answer options. Passed to grammY answer options. |
 
 ### `.inlineKeyboard(builder)` and `.bottomKeyboard(builder)`
 
 Create using builder pattern.
 
-| parameter | type     | required | description                                 |
-| --------- | -------- | -------- | ------------------------------------------- |
-| builder   | function | yes      | Builder callback. Receives (kb, labels).    |
-
+| parameter | type     | required | description                              |
+| --------- | -------- | -------- | ---------------------------------------- |
+| builder   | function | yes      | Builder callback. Receives (kb, labels). |
 
 parameter builder.
 
-| parameter | type     | required | description                                                                                       |
-| --------- | -------- | -------- | ------------------------------------------------------------------------------------------------- |
+| parameter | type     | required | description                                                                                      |
+| --------- | -------- | -------- | ------------------------------------------------------------------------------------------------ |
 | k         | object   | yes      | For build keyboard. Init class InlineKeyboard (for inline) or Keyboard (for bottom) from grammY. |
 | a         | string[] | yes      | For text keyboard. Each value is obtained from the <keyboard> block with a comma separator.      |
-
 
 - **returns: InlineKeyboard or BottomKeyboard**
 - **description:** Builder instance for inline buttons and bottom buttons.
@@ -436,10 +449,9 @@ const bk = this.bottomKeyboard((k, a) => {
 
 Transition to another page.
 
-| parameter | type   | required | description                                                                              |
-| --------- | ------ | -------- | ---------------------------------------------------------------------------------------- |
+| parameter | type   | required | description                                                                             |
+| --------- | ------ | -------- | --------------------------------------------------------------------------------------- |
 | data      | object | no       | Data to pass. Provide the data from the previous page to this page that is only needed. |
-
 
 ```typescript
 // ./pages/home.ts
