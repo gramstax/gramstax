@@ -2,7 +2,7 @@
 >
 > - **Last Updated:** 16/01/2026 12:24:00
 
-> - **Framework Version:** v0.5.0
+> - **Framework Version:** v0.5.1
 
 # Ctx
 
@@ -21,10 +21,8 @@ The `Ctx` class is the context/page base class that provides access to user data
 
 ### `.template`
 
-| key      | type   | required | default | description                                                              |
-| -------- | ------ | -------- | ------- | ------------------------------------------------------------------------ |
-| template | string | yes      | -       | HTML-like template string for the page. must be have block <base></base> |
-
+- **type:** string
+- **description:** HTML-like template string for the page. must be have block \<base\>\</base\>
 - **example:**
 
 ```typescript
@@ -42,10 +40,8 @@ class MyPage extends PageBase {
 
 ### `.data`
 
-| key  | type      | required | default          | description                                                                                                                                                                                        |
-| ---- | --------- | -------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data | IPageData | no       | this.buildData() | Page routing data created by `buildData()`. Only defined when you want to override the intent and have a callback payload. Do not define if nothing is needed; let the system automatic handle it. |
-
+- **type:** IPageData
+- **description:** Page routing data created by `this.buildData()`. Only defined when you want to override the intent and have a callback payload. Do not define if nothing is needed; let the system automatic handle it.
 - **example:**
 
 ```typescript
@@ -70,54 +66,64 @@ class MyPage extends PageBase {
 
 ### `.buildData(params?)`
 
-Create page data configuration. Accepts an optional callback or an options object.
-
-**Supported signatures**
-
-- `buildData()`
-- `buildData(dataCallbackFn)`
-- `buildData({ dataCallback?, intentText?, intentTextCommand? })`
-
-**Best practice**
-
-Use `buildData(dataCallbackFn)` when you need callback payloads. The callback must return an array (use `[]` for no payloads).
-
-Prefer `intentText` + `text()` handlers for bottom-keyboard actions in single-language flows.
-
-If the text input includes payloads (e.g., `start 123`), it routes to `textPayload()`. If a command includes payloads (e.g., `/start 123`), it routes to `textCommandPayload()`.
-
-`intentText` applies to both `text()` and `textPayload()` routes; `intentTextCommand` applies to `textCommand()` and `textCommandPayload()` routes.
-
-Do not set `intentText` or `intentTextCommand` unless you need to override the auto-derived intent (it defaults to `this.data.name`, based on the filename). You can also change the page filename (e.g., `reset.ts` → `Reset.ts`) to alter the derived intent without overriding it.
-
-**Options**
-
-| key               | type     | required | description                                                                                                                                                         |
-| ----------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| dataCallback      | function | no       | Function returning callback payload array. Must return an array (use `[]` for no payloads); with payloads it routes to `callbackPayload()`, otherwise `callback()`. |
-| intentText        | string   | no       | Overrides intent value for the `text()` route. Also applies to `textPayload()`; only a single space is supported (max two words, e.g. `"🏠 Home"`).                 |
-| intentTextCommand | string   | no       | Overrides intent value for the `textCommand()` route. Also applies to `textCommandPayload()`; leave unset unless needed.                                            |
-
-**Internal fields (auto-set)**
-
-- `name`: internal page name assigned by the framework.
-- `intentCallback`: internal callback intent key (may be numeric if `shortCallbackData` is enabled).
-- `_positionPayloadText`: internal payload index for `text` triggers (max 2 when `intentText` contains one space).
-
-- **returns: IPageData**
-- **description:** Metadata used for routing.
+- **args:**
+  - **params:**
+    - **type:** object
+    - **required:** no
+    - **default:** void | undefined
+    - **value:**
+      - **callback:**
+        - **type:** function
+        - **required:** no
+        - **default:** void | undefined
+        - **return:** Array<string> (internal) | string (public)
+        - **description:** Function that returns an array of callback payloads. Must return an array; if there is a payload, it will be directed to `callbackPayload()`, if not, to `callback()`. leave unset unless needed.
+        - **example:** `((confirm: string) => [confirm])`
+      - **intentText:**
+        - **type:** string
+        - **required:** no
+        - **default:** void | undefined
+        - **return:** string
+        - **description:** Trigger route function `text` and `textPayload`
+        - **example:** "home"
+      - **intentTextCommand:**
+        - **type:** string
+        - **required:** no
+        - **default:** void | undefined
+        - **return:** string
+        - **description:** Trigger route function `textCommand` and `textCommandPayload`
+        - **example:** "product_detail"
+- **return:**
+  - **name:**
+    - **type:** string
+    - **description:** Page name assigned by the framework.
+  - **callback:**
+    - **type:** function
+    - **return:** string
+    - **description:** see [this.args.params.value.callback.description]()
+  - **intentText:**:
+    - **type:** string
+    - **description:** see [this.args.params.value.intentText.description]()
+  - **intentTextCommand:**:
+    - **type:** string
+    - **description:** see [this.args.params.value.intentTextCommand.description]()
+  - **intentCallback:**:
+    - **type:** string
+    - **description:** Callback intent key (may be numeric if `shortCallbackData` is enabled).
+  - **\_positionPayloadText:**
+    - **type:** number | undefined
+    - **description:** Payload index for `text` triggers (max 2 when `intentText` contains one space).
+- **description:** Create page data configuration. Accepts an optional callback or an options object.
+- **example:**
 
 ```typescript
 import { PageBase } from "~/base/page";
 
 class MyPage extends PageBase {
-  // Basic usage (auto-generated name and callback key)
-  static data = this.buildData();
-
-  // With payload function for callback data
+  // Make payload for callback data
   static data = this.buildData((id: string) => [id]);
 
-  // Custom data
+  // Custom all data
   static data = this.buildData({
     dataCallback: (action: string) => [action],
     intentTextCommand: "mycommand", // overrides trigger route function textCommand
@@ -126,57 +132,97 @@ class MyPage extends PageBase {
 }
 ```
 
+- **best_practice:**
+
+  - Use `buildData(dataCallbackFn)` when you need callback payloads. The callback must return an array (use `[]` for no payloads).
+  - Prefer `intentText` + `text()` handlers for bottom-keyboard actions in single-language flows.
+  - If the text input includes payloads (e.g., `start 123`), it routes to `textPayload()`. If a command includes payloads (e.g., `/start 123`), it routes to `textCommandPayload()`.
+  - `intentText` applies to both `text()` and `textPayload()` routes; `intentTextCommand` applies to `textCommand()` and `textCommandPayload()` routes.
+  - Do not set `intentText` or `intentTextCommand` unless you need to override the auto-derived intent (it defaults to `this.data.name`, based on the filename). You can also change the page filename (e.g., `reset.ts` → `Reset.ts`) to alter the derived intent without overriding it.
+
 &nbsp;
 
 ## User Properties
 
 ### `.userId`
 
-Get current user's Telegram ID.
+- **type:** number
+- **description:** Telegram user ID from the current update context.
+- **example:**
 
-- **type: number**
+```typescript
+this.userId; // 12345678
+```
 
 ### `.userName`
 
-Get current user's username.
+- **type:** string | undefined
+- **description:** Telegram username from the user profile.
+- **example:**
 
-- **type: string | undefined**
+```typescript
+this.userName; // `gramstax_user`
+```
 
 ### `.userFirstName`
 
-Get current user's first name.
+- **type:** string
+- **description:** User's first name from Telegram profile data.
+- **example:**
 
-- **type: string**
+```typescript
+this.userFirstName; // `Alya`
+```
 
 ### `.userLastName`
 
-Get current user's last name.
+- **type:** string | undefined
+- **description:** User's last name from Telegram profile data.
+- **example:**
 
-- **type: string | undefined**
+```typescript
+this.userLastName; // `Putri`
+```
 
 ### `.userFullName`
 
-Get current user's full name.
+- **type:** string
+- **description:** Combined first and last name derived from profile fields.
+- **example:**
 
-- **type: string**
+```typescript
+this.userFullName; // `Alya Putri`
+```
 
 ### `.userLanguage`
 
-Get or set current user's language code.
+- **type:** string
+- **description:** User language code from Telegram.
+- **example:**
 
-- **type: string**
+```typescript
+this.userLanguage; // `en`
+```
 
 ### `.userIsPremium`
 
-Check if user has Telegram Premium.
+- **type:** boolean
+- **description:** True when the user has Telegram Premium.
+- **example:**
 
-- **type: boolean**
+```typescript
+this.userIsPremium; // true
+```
 
 ### `.userIsBot`
 
-Check if user is a bot.
+- **type:** boolean
+- **description:** True when the user account is a bot.
+- **example:**
 
-- **type: boolean**
+```typescript
+this.userIsBot; // false
+```
 
 &nbsp;
 
@@ -184,45 +230,73 @@ Check if user is a bot.
 
 ### `.msgText`
 
-Get message text.
+- **type:** string | undefined
+- **description:** Message text from the current update.
+- **example:**
 
-- **type: string | undefined**
+```typescript
+this.msgText; // `Hello`
+```
 
 ### `.msgTextPayload`
 
-Get first payload from text message.
+- **type:** string | undefined
+- **description:** First payload token parsed from message text.
+- **example:**
 
-- **type: string | undefined**
+```typescript
+this.msgTextPayload; // `123`
+```
 
 ### `.msgTextPayloads`
 
-Get all payloads from text message.
+- **type:** string[]
+- **description:** All payload tokens parsed from message text.
+- **example:**
 
-- **type: string[]**
+```typescript
+this.msgTextPayloads; // [`start`, `123`]
+```
 
 ### `.msgCaption`
 
-Get message caption.
+- **type:** string | undefined
+- **description:** Caption text for media messages.
+- **example:**
 
-- **type: string | undefined**
+```typescript
+this.msgCaption; // `Photo caption`
+```
 
 ### `.msgPhoto`
 
-Get photo message data.
+- **type:** PhotoSize[] | undefined
+- **description:** Photo sizes attached to the message.
+- **example:**
 
-- **type: PhotoSize[] | undefined**
+```typescript
+this.msgPhoto; // [/* PhotoSize */]
+```
 
 ### `.msgVideo`
 
-Get video message data.
+- **type:** Video | undefined
+- **description:** Video payload attached to the message.
+- **example:**
 
-- **type: Video | undefined**
+```typescript
+this.msgVideo; // { /* Video */ }
+```
 
 ### `.msgAudio`
 
-Get audio message data.
+- **type:** Audio | undefined
+- **description:** Audio payload attached to the message.
+- **example:**
 
-- **type: Audio | undefined**
+```typescript
+this.msgAudio; // { /* Audio */ }
+```
 
 &nbsp;
 
@@ -230,21 +304,33 @@ Get audio message data.
 
 ### `.callbackData`
 
-Get callback query data.
+- **type:** string | undefined
+- **description:** Raw callback query data from inline keyboard interactions.
+- **example:**
 
-- **type: string | undefined**
+```typescript
+this.callbackData; // `menu:settings:ok`
+```
 
 ### `.callbackDataPayload`
 
-Get first payload from callback data.
+- **type:** string | undefined
+- **description:** First payload token parsed from callback data.
+- **example:**
 
-- **type: string | undefined**
+```typescript
+this.callbackDataPayload; // `settings`
+```
 
 ### `.callbackDataPayloads`
 
-Get all payloads from callback data.
+- **type:** string[]
+- **description:** All payload tokens parsed from callback data.
+- **example:**
 
-- **type: string[]**
+```typescript
+this.callbackDataPayloads; // [`settings`, `ok`]
+```
 
 &nbsp;
 
@@ -252,111 +338,490 @@ Get all payloads from callback data.
 
 ### `.sessionGet()`
 
-Get current session data.
+- **description:** Get current session data.
+- **return:**
+  - **type:** Promise<{ method: string; params: any } | undefined>
+  - **description:** Resolves with stored session payload.
+- **example:**
 
-- **returns: Promise\<{ method: string; params: any } | undefined\>**
-- **description:** Resolves with stored session payload.
+```typescript
+await this.sessionGet(); // { method: `text`, params: { id: `123` } }
+```
 
 ### `.sessionSet(method, params)`
 
-Set session data.
+- **description:** Set session data.
+- **args:**
+  - **method:**
+    - **type:** string
+    - **required:** yes
+    - **description:** Session method. Matches route handler name.
+  - **params:**
+    - **type:** any
+    - **required:** no
+    - **description:** Session parameters. Stored in session payload.
+- **return:**
+  - **type:** Promise<boolean>
+  - **description:** Resolves with operation result.
+- **example:**
 
-| parameter | type   | required | description                                    |
-| --------- | ------ | -------- | ---------------------------------------------- |
-| method    | string | yes      | Session method. Matches route handler name.    |
-| params    | any    | no       | Session parameters. Stored in session payload. |
-
-- **returns: Promise\<boolean\>**
-- **description:** Resolves with operation result.
+```typescript
+await this.sessionSet(`text`, { id: `123` }); // true
+```
 
 ### `.sessionClear()`
 
-Clear current session.
+- **description:** Clear current session.
+- **return:**
+  - **type:** Promise<boolean>
+  - **description:** Resolves with operation result.
+- **example:**
 
-- **returns: Promise\<boolean\>**
-- **description:** Resolves with operation result.
+```typescript
+await this.sessionClear(); // true
+```
 
 ### `.sessionCallback(params?, name?)`
 
-Set session for callback route.
+- **description:** Set session for callback route.
+- **args:**
+  - **params:**
+    - **type:** any
+    - **required:** no
+    - **description:** Session parameters.
+  - **name:**
+    - **type:** string
+    - **required:** no
+    - **description:** Optional page name override.
+- **return:**
+  - **type:** Promise<boolean>
+  - **description:** Resolves with operation result.
+- **example:**
+
+```typescript
+await this.sessionCallback({ action: `next` }); // true
+```
 
 ### `.sessionCallbackPayload(params?, name?)`
 
-Set session for callbackPayload route.
+- **description:** Set session for callbackPayload route.
+- **args:**
+  - **params:**
+    - **type:** any
+    - **required:** no
+    - **description:** Session parameters.
+  - **name:**
+    - **type:** string
+    - **required:** no
+    - **description:** Optional page name override.
+- **return:**
+  - **type:** Promise<boolean>
+  - **description:** Resolves with operation result.
+- **example:**
+
+```typescript
+await this.sessionCallbackPayload({ id: `123` }); // true
+```
 
 ### `.sessionText(params?, name?)`
 
-Set session for text route.
+- **description:** Set session for text route.
+- **args:**
+  - **params:**
+    - **type:** any
+    - **required:** no
+    - **description:** Session parameters.
+  - **name:**
+    - **type:** string
+    - **required:** no
+    - **description:** Optional page name override.
+- **return:**
+  - **type:** Promise<boolean>
+  - **description:** Resolves with operation result.
+- **example:**
+
+```typescript
+await this.sessionText({ step: `name` }); // true
+```
 
 ### `.sessionTextPayload(params?, name?)`
 
-Set session for textPayload route.
+- **description:** Set session for textPayload route.
+- **args:**
+  - **params:**
+    - **type:** any
+    - **required:** no
+    - **description:** Session parameters.
+  - **name:**
+    - **type:** string
+    - **required:** no
+    - **description:** Optional page name override.
+- **return:**
+  - **type:** Promise<boolean>
+  - **description:** Resolves with operation result.
+- **example:**
+
+```typescript
+await this.sessionTextPayload({ id: `123` }); // true
+```
 
 ### `.sessionTextFree(params?, name?)`
 
-Set session for textFree route.
+- **description:** Set session for textFree route.
+- **args:**
+  - **params:**
+    - **type:** any
+    - **required:** no
+    - **description:** Session parameters.
+  - **name:**
+    - **type:** string
+    - **required:** no
+    - **description:** Optional page name override.
+- **return:**
+  - **type:** Promise<boolean>
+  - **description:** Resolves with operation result.
+- **example:**
+
+```typescript
+await this.sessionTextFree({ note: `any` }); // true
+```
 
 &nbsp;
 
 ## Reply Methods
 
+### Reply Argument Notes
+
+<a id="reply-arg-keyboard"></a>
+
+- **keyboard:** Keyboard markup from `inlineKeyboard()` or `bottomKeyboard()` builders.
+
+<a id="reply-arg-data"></a>
+
+- **data:** Template data used for interpolation.
+
+<a id="reply-arg-baseid"></a>
+
+- **baseId:** Template base ID. Defaults to `default`.
+
 ### `.reply(keyboard?, data?, baseId?, options?)`
 
-Send a text message reply.
-
-| parameter | type    | required | default   | description                                                              |
-| --------- | ------- | -------- | --------- | ------------------------------------------------------------------------ |
-| keyboard  | IInBoKb | no       | -         | Keyboard markup. From `inlineKeyboard()` or `bottomKeyboard()` builders. |
-| data      | object  | no       | -         | Template data. Used for template interpolation.                          |
-| baseId    | string  | no       | "default" | Template base ID. Matches `<base id="...">`.                             |
-| options   | object  | no       | -         | grammY send options. Passed to grammY `reply` options.                   |
-
-- **returns: Promise\<Message\>**
-- **description:** Resolves with sent message.
+- **description:** Send a text message reply.
+- **args:**
+  - **keyboard:**
+    - **type:** IInBoKb
+    - **required:** no
+    - **description:** See [keyboard](#reply-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#reply-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#reply-arg-baseid).
+  - **options:**
+    - **type:** IOptReply
+    - **required:** no
+    - **description:** Options passed to the `grammY` reply call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with sent message.
+- **example:**
 
 ```typescript
-await this.reply(this.kb(), { name: "John" });
+await this.reply(); // Message
 ```
 
 ### `.replyPhoto(keyboard?, data?, baseId?, options?)`
 
-Send a photo message.
+- **description:** Send a photo message.
+- **args:**
+  - **keyboard:**
+    - **type:** IInBoKb
+    - **required:** no
+    - **description:** See [keyboard](#reply-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#reply-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#reply-arg-baseid).
+  - **options:**
+    - **type:** IOptReplyPhoto
+    - **required:** no
+    - **description:** Options passed to the `grammY` reply call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with sent message.
+- **example:**
+
+```typescript
+await this.replyPhoto(); // Message
+```
 
 ### `.replyVideo(keyboard?, data?, baseId?, options?)`
 
-Send a video message.
+- **description:** Send a video message.
+- **args:**
+  - **keyboard:**
+    - **type:** IInBoKb
+    - **required:** no
+    - **description:** See [keyboard](#reply-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#reply-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#reply-arg-baseid).
+  - **options:**
+    - **type:** IOptReplyVideo
+    - **required:** no
+    - **description:** Options passed to the `grammY` reply call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with sent message.
+- **example:**
+
+```typescript
+await this.replyVideo(); // Message
+```
 
 ### `.replyAudio(keyboard?, data?, baseId?, options?)`
 
-Send an audio message.
+- **description:** Send an audio message.
+- **args:**
+  - **keyboard:**
+    - **type:** IInBoKb
+    - **required:** no
+    - **description:** See [keyboard](#reply-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#reply-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#reply-arg-baseid).
+  - **options:**
+    - **type:** IOptReplyAudio
+    - **required:** no
+    - **description:** Options passed to the `grammY` reply call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with sent message.
+- **example:**
+
+```typescript
+await this.replyAudio(); // Message
+```
 
 ### `.replyDocument(keyboard?, data?, baseId?, options?)`
 
-Send a document message.
+- **description:** Send a document message.
+- **args:**
+  - **keyboard:**
+    - **type:** IInBoKb
+    - **required:** no
+    - **description:** See [keyboard](#reply-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#reply-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#reply-arg-baseid).
+  - **options:**
+    - **type:** IOptReplyDocument
+    - **required:** no
+    - **description:** Options passed to the `grammY` reply call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with sent message.
+- **example:**
+
+```typescript
+await this.replyDocument(); // Message
+```
 
 ### `.replyAnimation(keyboard?, data?, baseId?, options?)`
 
-Send an animation/GIF.
+- **description:** Send an animation/GIF.
+- **args:**
+  - **keyboard:**
+    - **type:** IInBoKb
+    - **required:** no
+    - **description:** See [keyboard](#reply-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#reply-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#reply-arg-baseid).
+  - **options:**
+    - **type:** IOptReplyAnimation
+    - **required:** no
+    - **description:** Options passed to the `grammY` reply call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with sent message.
+- **example:**
+
+```typescript
+await this.replyAnimation(); // Message
+```
 
 ### `.replyVoice(keyboard?, data?, baseId?, options?)`
 
-Send a voice message.
+- **description:** Send a voice message.
+- **args:**
+  - **keyboard:**
+    - **type:** IInBoKb
+    - **required:** no
+    - **description:** See [keyboard](#reply-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#reply-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#reply-arg-baseid).
+  - **options:**
+    - **type:** IOptReplyVoice
+    - **required:** no
+    - **description:** Options passed to the `grammY` reply call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with sent message.
+- **example:**
+
+```typescript
+await this.replyVoice(); // Message
+```
 
 ### `.replyVideoNote(keyboard?, data?, baseId?, options?)`
 
-Send a video note.
+- **description:** Send a video note.
+- **args:**
+  - **keyboard:**
+    - **type:** IInBoKb
+    - **required:** no
+    - **description:** See [keyboard](#reply-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#reply-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#reply-arg-baseid).
+  - **options:**
+    - **type:** IOptReplyVideoNote
+    - **required:** no
+    - **description:** Options passed to the `grammY` reply call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with sent message.
+- **example:**
+
+```typescript
+await this.replyVideoNote(); // Message
+```
 
 ### `.replySticker(keyboard?, data?, baseId?, options?)`
 
-Send a sticker.
+- **description:** Send a sticker.
+- **args:**
+  - **keyboard:**
+    - **type:** IInBoKb
+    - **required:** no
+    - **description:** See [keyboard](#reply-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#reply-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#reply-arg-baseid).
+  - **options:**
+    - **type:** IOptReplySticker
+    - **required:** no
+    - **description:** Options passed to the `grammY` reply call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with sent message.
+- **example:**
+
+```typescript
+await this.replySticker(); // Message
+```
 
 ### `.replyLocation(keyboard?, data?, baseId?, options?)`
 
-Send a location.
+- **description:** Send a location.
+- **args:**
+  - **keyboard:**
+    - **type:** IInBoKb
+    - **required:** no
+    - **description:** See [keyboard](#reply-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#reply-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#reply-arg-baseid).
+  - **options:**
+    - **type:** IOptReplyLocation
+    - **required:** no
+    - **description:** Options passed to the `grammY` reply call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with sent message.
+- **example:**
+
+```typescript
+await this.replyLocation(); // Message
+```
 
 ### `.replyContact(keyboard?, data?, baseId?, options?)`
 
-Send a contact.
+- **description:** Send a contact.
+- **args:**
+  - **keyboard:**
+    - **type:** IInBoKb
+    - **required:** no
+    - **description:** See [keyboard](#reply-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#reply-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#reply-arg-baseid).
+  - **options:**
+    - **type:** IOptReplyContact
+    - **required:** no
+    - **description:** Options passed to the `grammY` reply call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with sent message.
+- **example:**
+
+```typescript
+await this.replyContact(); // Message
+```
 
 &nbsp;
 
