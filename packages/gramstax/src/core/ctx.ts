@@ -413,14 +413,14 @@ export class Ctx {
     }
   }
   // =============== build data
-  static buildData<C extends (...args: any[]) => any>(dataCallback: C): IPageData<Parameters<C>>
-  static buildData<C extends (...args: any[]) => any>(options: {dataCallback?: C; intentText?: string; intentTextCommand?: string}): IPageData<Parameters<C>>
-  static buildData(options: {dataCallback?: any; intentText?: string; intentTextCommand?: string}): IPageData<[]>
+  static buildData<C extends (...args: any[]) => any>(callback: C): IPageData<Parameters<C>>
+  static buildData<C extends (...args: any[]) => any>(options: {callback?: C; intentText?: string; intentTextCommand?: string}): IPageData<Parameters<C>>
+  static buildData(options: {callback?: any; intentText?: string; intentTextCommand?: string}): IPageData<[]>
   static buildData(): IPageData<[]>
   static buildData(params?: any): IPageData<any> {
     const isFunc = typeof params === `function`
-    const options = isFunc ? {dataCallback: params} : params || {}
-    const cbd = options.dataCallback
+    const options = isFunc ? {callback: params} : params || {}
+    const cbd = options.callback
     const addPld = this.prototype.addPayloads.bind(this.prototype)
 
     const data: IPageData<any> = {
