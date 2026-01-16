@@ -862,14 +862,9 @@ Delete the current message.
 - **returns: Promise\<boolean\>**
 - **description:** Resolves with operation result.
 
-### `.callbackQueryAnswer(text?, options?)`
+### `.callbackQueryAnswer(options?)`
 
-Answer callback query (show toast). Gramstax auto-answers routed callbacks, so call this only when you need a custom toast or extra acknowledgment.
-
-| parameter | type   | required | description                                      |
-| --------- | ------ | -------- | ------------------------------------------------ |
-| text      | string | no       | Toast text. Shown as notification to user.       |
-| options   | object | no       | Answer options. Passed to grammY answer options. |
+Answer callback query (show toast). call this only when you need a custom toast or extra acknowledgment.
 
 ### `.inlineKeyboard(builder)` and `.bottomKeyboard(builder)`
 
