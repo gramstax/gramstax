@@ -63,7 +63,7 @@
 - Utilities: `delete`, `callbackQueryAnswer`.
 - Keyboard builders: `inlineKeyboard((k, a) => ...)` and `bottomKeyboard((k, a) => ...)`.
 - Page transition: `to(data?)` to move to another page instance.
-- Route methods include `callback`, `callbackPayload`, `text`, `textPayload`, `textCommand`, `textCommandPayload`, `textFree`, and media caption/free variants (`photoCaption*`, `videoCaption*`, `audioCaption*`, `documentCaption*`, `animationCaption*`, `voiceCaption*`, plus `stickerFree`, `locationFree`, `contactFree`, `free`).
+- Route methods include `callback`, `callbackPayload`, `text`, `textPayload`, `textCommand`, `textCommandPayload`, `textFree`, and media caption/free variants (`photoCaption*`, `videoCaption*`, `audioCaption*`, `documentCaption*`, `animationCaption*`, `voiceCaption*`, plus `videoNoteFree`, `stickerFree`, `locationFree`, `contactFree`, `free`). See `docs/api/core/ctx.md#route-methods` for trigger processing and examples.
 
 ## Template system essentials
 

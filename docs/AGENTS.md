@@ -68,6 +68,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 - `intentText` applies to `text()` and `textPayload()`; `intentTextCommand` applies to `textCommand()` and `textCommandPayload()`.
 - Prefer `intentText` + `text()` handlers for bottom-keyboard actions in single-language flows.
 - Use the core route handlers (`textCommand`, `callback`, `callbackPayload`) directly instead of wrapper helpers like `showMenu`.
+- See `docs/api/core/ctx.md#route-methods` for trigger processing and examples.
 - Create mandatory flow components as classes; use static types where it improves clarity, don't put variables outside the class, prioritize them inside the class.
 - Centralize guard/account checks once before routing instead of repeating them in each page handler.
 - Cache keyboard/data objects before `edit`/`reply` and avoid unnecessary base IDs to create code for faster performance.
