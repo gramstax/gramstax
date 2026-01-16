@@ -1,7 +1,7 @@
 > **Documentation Info**
 >
 > - **Last Updated:** 16/01/2026 12:24:00
-> - **Framework Version:** v0.5.1
+> - **Framework Version:** v0.5.2
 
 # CacheExternal
 
