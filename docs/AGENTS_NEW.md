@@ -50,8 +50,8 @@
 
 - Static `.template` defines HTML-like blocks; omit to rely on external templates.
 - Static `.data` comes from `buildData()` and configures routing metadata.
-- `buildData` signatures: `buildData()`, `buildData(dataCallbackFn)`, or `buildData({ dataCallback, intentText, intentTextCommand })`.
-- `dataCallback` must return an array (use `[]` for no payloads).
+- `buildData` signatures: `buildData()`, `buildData(callbackFn)`, or `buildData({ callback, intentText, intentTextCommand })`.
+- `callback` must return an array (do not define if there is no payload purpose).
 - `intentText` applies to `text()` and `textPayload()`; `intentTextCommand` applies to `textCommand()` and `textCommandPayload()`.
 - Intent defaults derive from the filename (`this.data.name`) unless overridden.
 - User properties: `userId`, `userName`, `userFirstName`, `userLastName`, `userFullName`, `userLanguage`, `userIsPremium`, `userIsBot`.
@@ -81,8 +81,8 @@
 - Use a single `<base>` when keyboards are identical across variants.
 - Reuse the default keyboard without providing a `baseId`.
 - Avoid duplicate `<base>` blocks that only change the `id`.
-- Use `buildData(...)` only when callback payloads are required.
-- `dataCallback` must return an array (use `[]` for no payloads).
+- Use `buildData(...)` only when this.data.callback payloads are required.
+- `this.data.callback` must return an array (do not define if there is no payload purpose).
 - Avoid `intentTextCommand` unless overriding filename-derived defaults.
 - `textFree()` only fires when text exists; no empty-text guard needed.
 - Prefer core handlers (`textCommand`, `callback`, `callbackPayload`) over wrappers.

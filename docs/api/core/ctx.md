@@ -125,7 +125,7 @@ class MyPage extends PageBase {
 
   // Custom all data
   static data = this.buildData({
-    dataCallback: (action: string) => [action],
+    callback: (action: string) => [action],
     intentTextCommand: "mycommand", // overrides trigger route function textCommand
     intentText: "hi", // overrides trigger route function text
   });
@@ -134,7 +134,7 @@ class MyPage extends PageBase {
 
 - **best_practice:**
 
-  - Use `buildData(dataCallbackFn)` when you need callback payloads. The callback must return an array (use `[]` for no payloads).
+  - Use `buildData(callbackFn)` when you need callback payloads. The callback must return an array (do not define if there is no payload purpose).
   - Prefer `intentText` + `text()` handlers for bottom-keyboard actions in single-language flows.
   - If the text input includes payloads (e.g., `start 123`), it routes to `textPayload()`. If a command includes payloads (e.g., `/start 123`), it routes to `textCommandPayload()`.
   - `intentText` applies to both `text()` and `textPayload()` routes; `intentTextCommand` applies to `textCommand()` and `textCommandPayload()` routes.

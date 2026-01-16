@@ -57,8 +57,8 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
 
 **Best Practices**
 
-- Prefer `buildData(dataCallbackFn)` when only callback payloads are needed (avoid `{ dataCallback }`).
-- `dataCallback` must return an array (use `[]` for no payloads); payloads route to `callbackPayload()`, otherwise `callback()`.
+- Prefer `buildData(callbackFn)` when only callback payloads are needed (avoid `{ callback }`).
+- `this.data.callback` must return an array (do not define if there is no payload purpose); payloads route to `callbackPayload()`, otherwise `callback()`.
 - Avoid setting `intentTextCommand` unless you must override the filename-derived default.
 - `textFree()` triggers only when text exists; no empty-text guard needed.
 - If you introduce multi-language keyboards, ensure every related flow handles all languages.
