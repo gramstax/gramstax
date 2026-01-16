@@ -3,7 +3,7 @@ import {log} from "./utils/log"
 import {BotCore} from "./core/bot"
 
 // Entry point for the Echo bot.
-log.info(`Starting echo bot...`)
+log.info(`Starting 4-echo bot...`)
 
 new BotCore({
   deploy: env.TELEGRAM_BOT_DEPLOY,

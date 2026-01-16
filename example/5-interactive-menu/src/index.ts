@@ -2,7 +2,7 @@ import {env} from "./env"
 import {log} from "./utils/log"
 import {BotCore} from "./core/bot"
 
-log.info(`Starting interactive-menu bot...`)
+log.info(`Starting 5-interactive-menu bot...`)
 
 new BotCore({
   deploy: env.TELEGRAM_BOT_DEPLOY,
