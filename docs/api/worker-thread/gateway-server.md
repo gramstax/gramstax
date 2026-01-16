@@ -1,8 +1,8 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 16:37:38
+> - **Last Updated:** 16/01/2026 12:24:00
 
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadGatewayServer
 
@@ -63,11 +63,10 @@ Methods exposed to clients.
 
 Start the gateway server.
 
-| parameter | type   | required | default | description                                                               |
-| --------- | ------ | -------- | ------- | ------------------------------------------------------------------------- |
-| path      | string | yes      | -       | Unix socket path to bind. Gateway path identifier.                        |
-| methods   | object | no       | `{}`    | Methods to expose to clients. Called by connected clients.                |
-
+| parameter | type   | required | default | description                                                |
+| --------- | ------ | -------- | ------- | ---------------------------------------------------------- |
+| path      | string | yes      | -       | Unix socket path to bind. Gateway path identifier.         |
+| methods   | object | no       | `{}`    | Methods to expose to clients. Called by connected clients. |
 
 - **returns: Promise\<WorkerThreadGatewayServer\>**
 - **description:** Resolves when server is ready.

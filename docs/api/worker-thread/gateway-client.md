@@ -1,8 +1,8 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 16:37:38
+> - **Last Updated:** 16/01/2026 12:24:00
 
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadGatewayClient
 
@@ -53,10 +53,9 @@ RPC handler for messaging.
 
 Connect to a gateway server.
 
-| parameter | type   | required | description                                   |
-| --------- | ------ | -------- | --------------------------------------------- |
-| path      | string | yes      | Unix socket path. Matches server gateway.     |
-
+| parameter | type   | required | description                               |
+| --------- | ------ | -------- | ----------------------------------------- |
+| path      | string | yes      | Unix socket path. Matches server gateway. |
 
 - **returns: Promise\<WorkerThreadGatewayClient\>**
 - **description:** Resolves when connection is ready.
@@ -70,13 +69,12 @@ console.log("Connected to gateway server");
 
 Make an RPC request to the server.
 
-| parameter | type    | required | default | description                                                        |
-| --------- | ------- | -------- | ------- | ------------------------------------------------------------------ |
-| method    | string  | yes      | -       | Server method to call. Targets server RPC method.                  |
-| params    | any     | yes      | -       | Method parameters. Sent as positional array.                       |
-| wait      | boolean | no       | `true`  | Wait for response. If false, fire-and-forget.                      |
-| others    | object  | no       | -       | Additional RPC data. Merged into RPC payload.                      |
-
+| parameter | type    | required | default | description                                       |
+| --------- | ------- | -------- | ------- | ------------------------------------------------- |
+| method    | string  | yes      | -       | Server method to call. Targets server RPC method. |
+| params    | any     | yes      | -       | Method parameters. Sent as positional array.      |
+| wait      | boolean | no       | `true`  | Wait for response. If false, fire-and-forget.     |
+| others    | object  | no       | -       | Additional RPC data. Merged into RPC payload.     |
 
 - **returns: Promise\<any\>**
 - **description:** Resolves with server response.

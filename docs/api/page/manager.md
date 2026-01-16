@@ -1,8 +1,8 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 16:37:38
+> - **Last Updated:** 16/01/2026 12:24:00
 
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # PageManager
 
@@ -38,11 +38,10 @@ const pagesPath = PageManager.getFilePath();
 
 Synchronously load a single page module.
 
-| parameter      | type   | required | default         | description                                                     |
-| -------------- | ------ | -------- | --------------- | --------------------------------------------------------------- |
+| parameter      | type   | required | default         | description                                                       |
+| -------------- | ------ | -------- | --------------- | ----------------------------------------------------------------- |
 | path           | string | no       | `getFilePath()` | Path to the page file. Uses default pages directory when omitted. |
 | positionModule | number | no       | `0`             | Index of the exported class. Used when file has multiple exports. |
-
 
 - **returns: typeof Ctx**
 - **description:** First exported page class.
@@ -60,11 +59,10 @@ const StartPage = PageManager.getFileSync(
 
 Asynchronously load a single page module with cache busting.
 
-| parameter      | type   | required | default         | description                                                     |
-| -------------- | ------ | -------- | --------------- | --------------------------------------------------------------- |
+| parameter      | type   | required | default         | description                                                       |
+| -------------- | ------ | -------- | --------------- | ----------------------------------------------------------------- |
 | path           | string | no       | `getFilePath()` | Path to the page file. Uses default pages directory when omitted. |
 | positionModule | number | no       | `0`             | Index of the exported class. Appends timestamp for cache busting. |
-
 
 - **returns: Promise\<typeof Ctx\>**
 - **description:** Resolves with loaded page class.
@@ -81,11 +79,10 @@ const StartPage = await PageManager.getFile(
 
 Synchronously load all page modules from a directory.
 
-| parameter      | type   | required | default         | description                                                     |
-| -------------- | ------ | -------- | --------------- | --------------------------------------------------------------- |
+| parameter      | type   | required | default         | description                                                             |
+| -------------- | ------ | -------- | --------------- | ----------------------------------------------------------------------- |
 | path           | string | no       | `getFilePath()` | Path to the pages directory. Uses default pages directory when omitted. |
-| positionModule | number | no       | `0`             | Index of the exported class. Used when files have multiple exports. |
-
+| positionModule | number | no       | `0`             | Index of the exported class. Used when files have multiple exports.     |
 
 - **returns: Array\<{ path: string; page: typeof Ctx }\>**
 - **description:** Array of page records.
@@ -102,10 +99,9 @@ const pages = PageManager.getFileManySync();
 
 Clear the require cache for all page modules.
 
-| parameter | type   | required | default         | description                                                |
-| --------- | ------ | -------- | --------------- | ---------------------------------------------------------- |
+| parameter | type   | required | default         | description                                                  |
+| --------- | ------ | -------- | --------------- | ------------------------------------------------------------ |
 | path      | string | no       | `getFilePath()` | Path to the pages directory. Enables hot-reloading of pages. |
-
 
 - **returns: boolean**
 - **description:** True when cache cleared.

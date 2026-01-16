@@ -1,8 +1,8 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 16:37:38
+> - **Last Updated:** 16/01/2026 12:24:00
 
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadRpc
 
@@ -22,11 +22,10 @@ The `WorkerThreadRpc` class handles JSON-RPC style communication between threads
 
 ### `new WorkerThreadRpc(send, register)`
 
-| parameter | type     | required | description                                            |
-| --------- | -------- | -------- | ------------------------------------------------------ |
-| send      | function | yes      | Function to send data. Called with RPC payload.        |
-| register  | object   | yes      | Object with callable methods. Exposed RPC method map.  |
-
+| parameter | type     | required | description                                           |
+| --------- | -------- | -------- | ----------------------------------------------------- |
+| send      | function | yes      | Function to send data. Called with RPC payload.       |
+| register  | object   | yes      | Object with callable methods. Exposed RPC method map. |
 
 ```typescript
 import { WorkerThreadRpc } from "gramstax";
@@ -68,10 +67,9 @@ Object containing registered methods.
 
 Process an incoming RPC message.
 
-| parameter | type   | required | description                                         |
-| --------- | ------ | -------- | --------------------------------------------------- |
-| data      | object | yes      | RPC message object. Shape is request/result/error.  |
-
+| parameter | type   | required | description                                        |
+| --------- | ------ | -------- | -------------------------------------------------- |
+| data      | object | yes      | RPC message object. Shape is request/result/error. |
 
 - **returns: Promise\<void\>**
 - **description:** Handles requests, results, and errors.
@@ -104,13 +102,12 @@ const id = rpc.makeId();
 
 Create and send an RPC request.
 
-| parameter | type    | required | default | description                                                         |
-| --------- | ------- | -------- | ------- | ------------------------------------------------------------------- |
-| method    | string  | yes      | -       | Method name to call. Targets registered method.                     |
-| params    | any     | yes      | -       | Method parameters. Sent as positional array.                        |
-| wait      | boolean | no       | `true`  | Wait for response. If false, returns send result.                   |
-| others    | object  | no       | -       | Additional data to include. Merged into RPC payload.                |
-
+| parameter | type    | required | default | description                                          |
+| --------- | ------- | -------- | ------- | ---------------------------------------------------- |
+| method    | string  | yes      | -       | Method name to call. Targets registered method.      |
+| params    | any     | yes      | -       | Method parameters. Sent as positional array.         |
+| wait      | boolean | no       | `true`  | Wait for response. If false, returns send result.    |
+| others    | object  | no       | -       | Additional data to include. Merged into RPC payload. |
 
 - **returns: Promise\<any\>**
 - **description:** If `wait=false`, returns result of `send()` directly.

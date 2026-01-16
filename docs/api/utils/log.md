@@ -1,8 +1,8 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 16:37:38
+> - **Last Updated:** 16/01/2026 12:24:00
 
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # LoggingUtils
 
@@ -19,10 +19,9 @@ The `LoggingUtils` class extends [LoggingPretty](https://www.npmjs.com/package/l
 
 ### `new LoggingUtils(options?)`
 
-| parameter | type   | required | default | description                                                                  |
-| --------- | ------ | -------- | ------- | ---------------------------------------------------------------------------- |
+| parameter | type   | required | default | description                                                                       |
+| --------- | ------ | -------- | ------- | --------------------------------------------------------------------------------- |
 | options   | object | no       | -       | LoggingPretty constructor options. **Passed through:** to parent `LoggingPretty`. |
-
 
 ```typescript
 import { LoggingUtils } from "gramstax";
@@ -38,12 +37,11 @@ const logger = new LoggingUtils();
 
 Log a formatted error message with optional class and function context.
 
-| parameter       | type   | required | default | description                                                                  |
-| --------------- | ------ | -------- | ------- | ---------------------------------------------------------------------------- |
-| error           | any    | yes      | -       | The error to log. Stringified using `String(error)`.                         |
-| constructorName | any    | no       | -       | Class name for context. Format is `[ClassName:methodName] error`.            |
-| funcName        | string | no       | -       | Method/function name. Format is `[methodName] error` if no class.            |
-
+| parameter       | type   | required | default | description                                                       |
+| --------------- | ------ | -------- | ------- | ----------------------------------------------------------------- |
+| error           | any    | yes      | -       | The error to log. Stringified using `String(error)`.              |
+| constructorName | any    | no       | -       | Class name for context. Format is `[ClassName:methodName] error`. |
+| funcName        | string | no       | -       | Method/function name. Format is `[methodName] error` if no class. |
 
 - **returns: void**
 - **description:** Writes formatted log entry.

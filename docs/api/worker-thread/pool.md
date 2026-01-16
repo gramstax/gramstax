@@ -1,8 +1,8 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 16:37:38
+> - **Last Updated:** 16/01/2026 12:24:00
 
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadPool
 
@@ -58,10 +58,9 @@ Current number of workers in the pool.
 
 Add a single worker to the pool.
 
-| parameter | type               | required | description                                   |
-| --------- | ------------------ | -------- | --------------------------------------------- |
-| instance  | WorkerThreadLaunch | yes      | Worker to add. Registers by threadId.         |
-
+| parameter | type               | required | description                           |
+| --------- | ------------------ | -------- | ------------------------------------- |
+| instance  | WorkerThreadLaunch | yes      | Worker to add. Registers by threadId. |
 
 - **returns: void**
 - **description:** No return value.
@@ -76,10 +75,9 @@ pool.add(newWorker);
 
 Add multiple workers to the pool.
 
-| parameter | type                 | required | description                               |
-| --------- | -------------------- | -------- | ----------------------------------------- |
-| instances | WorkerThreadLaunch[] | yes      | Workers to add. Registers all workers.    |
-
+| parameter | type                 | required | description                            |
+| --------- | -------------------- | -------- | -------------------------------------- |
+| instances | WorkerThreadLaunch[] | yes      | Workers to add. Registers all workers. |
 
 - **returns: void**
 - **description:** No return value.
@@ -92,10 +90,9 @@ pool.addMany([worker4, worker5]);
 
 Get a specific worker by thread ID.
 
-| parameter | type   | required | description                                   |
-| --------- | ------ | -------- | --------------------------------------------- |
-| threadId  | number | yes      | Worker thread ID. Lookup in pool registry.    |
-
+| parameter | type   | required | description                                |
+| --------- | ------ | -------- | ------------------------------------------ |
+| threadId  | number | yes      | Worker thread ID. Lookup in pool registry. |
 
 - **returns: WorkerThreadLaunch | undefined**
 - **description:** Worker instance or undefined.
@@ -111,10 +108,9 @@ if (worker) {
 
 Kill and remove a specific worker from the pool.
 
-| parameter | type   | required | description                               |
-| --------- | ------ | -------- | ----------------------------------------- |
-| threadId  | number | yes      | Worker thread ID. Terminates worker.      |
-
+| parameter | type   | required | description                          |
+| --------- | ------ | -------- | ------------------------------------ |
+| threadId  | number | yes      | Worker thread ID. Terminates worker. |
 
 - **returns: number | undefined** - The killed worker's threadId.
 - **description:** Undefined if worker not found.
@@ -140,14 +136,13 @@ console.log(`All workers terminated`);
 
 Send a request to a specific worker.
 
-| parameter | type    | required | default | description                                                          |
-| --------- | ------- | -------- | ------- | -------------------------------------------------------------------- |
-| threadId  | number  | yes      | -       | Target worker thread ID. Lookup in pool registry.                    |
-| method    | string  | yes      | -       | Method name to call. Targets worker RPC method.                      |
-| params    | any     | yes      | -       | Method parameters. Sent as positional array.                         |
-| wait      | boolean | no       | `true`  | Wait for response. If false, fire-and-forget.                        |
-| others    | object  | no       | -       | Additional RPC data. Merged into RPC payload.                        |
-
+| parameter | type    | required | default | description                                       |
+| --------- | ------- | -------- | ------- | ------------------------------------------------- |
+| threadId  | number  | yes      | -       | Target worker thread ID. Lookup in pool registry. |
+| method    | string  | yes      | -       | Method name to call. Targets worker RPC method.   |
+| params    | any     | yes      | -       | Method parameters. Sent as positional array.      |
+| wait      | boolean | no       | `true`  | Wait for response. If false, fire-and-forget.     |
+| others    | object  | no       | -       | Additional RPC data. Merged into RPC payload.     |
 
 - **returns: Promise\<any\>**
 - **description:** Resolves with worker response.
@@ -160,11 +155,10 @@ const result = await pool.request(123, "process", [data]);
 
 Send a request to all workers and collect results.
 
-| parameter | type   | required | description                                              |
-| --------- | ------ | -------- | -------------------------------------------------------- |
-| method    | string | yes      | Method name to call. Invoked on every worker.            |
-| params    | any    | yes      | Method parameters. Sent as positional array.             |
-
+| parameter | type   | required | description                                   |
+| --------- | ------ | -------- | --------------------------------------------- |
+| method    | string | yes      | Method name to call. Invoked on every worker. |
+| params    | any    | yes      | Method parameters. Sent as positional array.  |
 
 - **returns: Promise\<any[]\>** - Array of results from all workers.
 - **description:** Order follows worker list.

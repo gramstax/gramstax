@@ -1,8 +1,8 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 16:37:38
+> - **Last Updated:** 16/01/2026 12:24:00
 
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadLaunch
 
@@ -22,11 +22,10 @@ The `WorkerThreadLaunch` class manages worker thread lifecycle from the main thr
 
 ### `new WorkerThreadLaunch(path, argv)`
 
-| parameter | type   | required | description                                                                 |
-| --------- | ------ | -------- | --------------------------------------------------------------------------- |
-| path      | string | yes      | Path to the worker file. **Must be:** valid JavaScript/TypeScript file.     |
-| argv      | any[]  | yes      | Arguments to pass to worker. **Accessible:** via `process.argv` in worker.  |
-
+| parameter | type   | required | description                                                                |
+| --------- | ------ | -------- | -------------------------------------------------------------------------- |
+| path      | string | yes      | Path to the worker file. **Must be:** valid JavaScript/TypeScript file.    |
+| argv      | any[]  | yes      | Arguments to pass to worker. **Accessible:** via `process.argv` in worker. |
 
 ```typescript
 import { WorkerThreadLaunch } from "gramstax";
@@ -108,10 +107,9 @@ console.log("Worker is ready");
 
 Send a message to the worker thread.
 
-| parameter | type | required | description                               |
-| --------- | ---- | -------- | ----------------------------------------- |
-| payload   | any  | yes      | Data to send. Sent to worker thread.      |
-
+| parameter | type | required | description                          |
+| --------- | ---- | -------- | ------------------------------------ |
+| payload   | any  | yes      | Data to send. Sent to worker thread. |
 
 - **returns: void**
 - **description:** No return value.
@@ -124,13 +122,12 @@ worker.send({ action: "process", data: [1, 2, 3] });
 
 Make an RPC request to the worker thread.
 
-| parameter | type    | required | default | description                                                                              |
-| --------- | ------- | -------- | ------- | ---------------------------------------------------------------------------------------- |
-| method    | string  | yes      | -       | Method name to call in worker. Must exist on WorkerThreadInit.                          |
-| params    | any     | yes      | -       | Method parameters. Passed as array to worker method.                                    |
-| wait      | boolean | no       | `true`  | Wait for response. If false fire-and-forget.                                            |
-| others    | object  | no       | -       | Additional RPC data. Additional key value aligned position with method, params.         |
-
+| parameter | type    | required | default | description                                                                     |
+| --------- | ------- | -------- | ------- | ------------------------------------------------------------------------------- |
+| method    | string  | yes      | -       | Method name to call in worker. Must exist on WorkerThreadInit.                  |
+| params    | any     | yes      | -       | Method parameters. Passed as array to worker method.                            |
+| wait      | boolean | no       | `true`  | Wait for response. If false fire-and-forget.                                    |
+| others    | object  | no       | -       | Additional RPC data. Additional key value aligned position with method, params. |
 
 - **returns: Promise\<any\>**
 - **description:** Resolves with worker response.

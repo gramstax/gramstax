@@ -1,8 +1,8 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 16:37:38
+> - **Last Updated:** 16/01/2026 12:24:00
 
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # LabelKeyboard
 
@@ -22,10 +22,9 @@ The `LabelKeyboard` class provides static utilities for keyboard data manipulati
 
 Reverse the order of comma-separated button labels.
 
-| parameter | type   | required | description                                                         |
-| --------- | ------ | -------- | ------------------------------------------------------------------- |
+| parameter | type   | required | description                                                          |
+| --------- | ------ | -------- | -------------------------------------------------------------------- |
 | input     | string | yes      | Comma-separated button labels. Escaped commas (`\\,`) are preserved. |
-
 
 - **returns: string**
 - **description:** Reversed comma-separated labels.
@@ -47,10 +46,9 @@ const preserved = LabelKeyboard._reverse("Option A\\, B, Option C");
 
 Reverse button order for all languages in an object.
 
-| parameter | type   | required | description                                                                    |
-| --------- | ------ | -------- | ------------------------------------------------------------------------------ |
+| parameter | type   | required | description                                                                      |
+| --------- | ------ | -------- | -------------------------------------------------------------------------------- |
 | input     | object | yes      | Object with language keys and button values. Applies `_reverse()` to each value. |
-
 
 - **returns: object**
 - **description:** Returns object with reversed labels.
@@ -69,12 +67,11 @@ const reversed = LabelKeyboard._reverseObj({
 
 Build keyboard string with optional language selection and reversal.
 
-| parameter | type    | required | description                                                                                 |
-| --------- | ------- | -------- | ------------------------------------------------------------------------------------------- |
-| lang      | string  | no       | Target language code. If provided, returns only that language value.                        |
-| reverse   | boolean | no       | Whether to reverse button order. If true, applies `_reverse()` to result.                   |
-| obj       | object  | yes      | Object with language keys. Structure is `{ en: "...", id: "...", ... }`.                  |
-
+| parameter | type    | required | description                                                               |
+| --------- | ------- | -------- | ------------------------------------------------------------------------- |
+| lang      | string  | no       | Target language code. If provided, returns only that language value.      |
+| reverse   | boolean | no       | Whether to reverse button order. If true, applies `_reverse()` to result. |
+| obj       | object  | yes      | Object with language keys. Structure is `{ en: "...", id: "...", ... }`.  |
 
 - **returns: string | object**
 - **description:** Returns string if `lang` provided, object otherwise.

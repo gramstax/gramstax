@@ -1,8 +1,8 @@
 > **Documentation Info**
 >
-> - **Last Updated:** 14/01/2026 16:37:38
+> - **Last Updated:** 16/01/2026 12:24:00
 
-> - **Framework Version:** v0.3.22
+> - **Framework Version:** v0.5.0
 
 # WorkerThreadInit
 
@@ -129,10 +129,9 @@ The most recently created gateway client.
 
 Send a message to the main thread.
 
-| parameter | type | required | description                              |
-| --------- | ---- | -------- | ---------------------------------------- |
-| payload   | any  | yes      | Data to send. Payload to main thread.    |
-
+| parameter | type | required | description                           |
+| --------- | ---- | -------- | ------------------------------------- |
+| payload   | any  | yes      | Data to send. Payload to main thread. |
 
 - **returns: void**
 - **description:** No return value.
@@ -145,13 +144,12 @@ this.send({ status: "processing", progress: 50 });
 
 Make an RPC request to the main thread.
 
-| parameter | type    | required | default | description                                                         |
-| --------- | ------- | -------- | ------- | ------------------------------------------------------------------- |
-| method    | string  | yes      | -       | Method name to call. Targets main-thread RPC method.                |
-| params    | any     | yes      | -       | Method parameters. Sent as positional array.                        |
-| wait      | boolean | no       | `true`  | Wait for response. If false, fire-and-forget.                       |
-| others    | object  | no       | -       | Additional RPC data. Merged into RPC payload.                       |
-
+| parameter | type    | required | default | description                                          |
+| --------- | ------- | -------- | ------- | ---------------------------------------------------- |
+| method    | string  | yes      | -       | Method name to call. Targets main-thread RPC method. |
+| params    | any     | yes      | -       | Method parameters. Sent as positional array.         |
+| wait      | boolean | no       | `true`  | Wait for response. If false, fire-and-forget.        |
+| others    | object  | no       | -       | Additional RPC data. Merged into RPC payload.        |
 
 - **returns: Promise\<any\>**
 - **description:** Resolves with main-thread response.
@@ -164,11 +162,10 @@ const result = await this.request("getConfig", ["key"]);
 
 Create a gateway server for inter-worker communication.
 
-| parameter | type   | required | default                            | description                                                                   |
-| --------- | ------ | -------- | ---------------------------------- | ----------------------------------------------------------------------------- |
-| methods   | object | no       | this                               | Methods with value function to expose. Called by gateway clients.             |
-| path      | string | no       | this.constructor.gatewayServerPath | Unix socket path. Gateway identifier.                                         |
-
+| parameter | type   | required | default                            | description                                                       |
+| --------- | ------ | -------- | ---------------------------------- | ----------------------------------------------------------------- |
+| methods   | object | no       | this                               | Methods with value function to expose. Called by gateway clients. |
+| path      | string | no       | this.constructor.gatewayServerPath | Unix socket path. Gateway identifier.                             |
 
 - **returns: Promise\<boolean\>**
 - **description:** Resolves when gateway is ready.
@@ -190,10 +187,9 @@ await this.createGatewayServer(
 
 Create a gateway client to connect to another worker. (not recomended, use init "launchGatewayClient" from export directly from source)
 
-| parameter  | type   | required | description                                           |
-| ---------- | ------ | -------- | ----------------------------------------------------- |
-| serverPath | string | yes      | Unix socket path to connect. Matches server gateway.  |
-
+| parameter  | type   | required | description                                          |
+| ---------- | ------ | -------- | ---------------------------------------------------- |
+| serverPath | string | yes      | Unix socket path to connect. Matches server gateway. |
 
 - **returns: Promise\<WorkerThreadGatewayClient\>**
 - **description:** Resolves with connected client.
