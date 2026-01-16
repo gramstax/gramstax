@@ -358,10 +358,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `animationCaptionCommand`,
       // voice
       `voiceCaption`,
-      `voiceCaptionCommand`,
-      // videoNote
-      `videoNoteCaption`,
-      `videoNoteCaptionCommand`
+      `voiceCaptionCommand`
     ] as const
     const listRouteStaticIntent = [
       // callback
@@ -386,10 +383,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `animationCaptionCommandPayload`,
       // voice
       `voiceCaptionPayload`,
-      `voiceCaptionCommandPayload`,
-      // video note
-      `videoNoteCaptionPayload`,
-      `videoNoteCaptionCommandPayload`
+      `voiceCaptionCommandPayload`
     ] as const
     const listRouteStaticSession = [
       ...listRouteStatic,

@@ -603,10 +603,6 @@ export class Ctx {
   async voiceCaptionCommandPayload?(): Promise<void | null>
   async voiceFree?(): Promise<void | null>
   // video_note
-  async videoNoteCaption?(): Promise<void | null>
-  async videoNoteCaptionPayload?(): Promise<void | null>
-  async videoNoteCaptionCommand?(): Promise<void | null>
-  async videoNoteCaptionCommandPayload?(): Promise<void | null>
   async videoNoteFree?(): Promise<void | null>
   // sticker
   async stickerFree?(): Promise<void | null>
@@ -738,18 +734,6 @@ export class Ctx {
     return (method ?? this.session.method) === this.methodSessionVoiceFree(name)
   }
   // video note
-  validateSessionVideoNoteCaption(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVideoNoteCaption(name)
-  }
-  validateSessionVideoNoteCaptionPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVideoNoteCaptionPayload(name)
-  }
-  validateSessionVideoNoteCaptionCommand(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVideoNoteCaptionCommand(name)
-  }
-  validateSessionVideoNoteCaptionCommandPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVideoNoteCaptionCommandPayload(name)
-  }
   validateSessionVideoNoteFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoNoteFree(name)
   }
@@ -886,18 +870,6 @@ export class Ctx {
     return this.sessionSet(this.methodSessionVoiceFree(name), params)
   }
   // video note
-  sessionVideoNoteCaption(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVideoNoteCaption(name), params)
-  }
-  sessionVideoNoteCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVideoNoteCaptionPayload(name), params)
-  }
-  sessionVideoNoteCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVideoNoteCaptionCommand(name), params)
-  }
-  sessionVideoNoteCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVideoNoteCaptionCommandPayload(name), params)
-  }
   sessionVideoNoteFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoNoteFree(name), params)
   }
@@ -1035,18 +1007,6 @@ export class Ctx {
     return this.sessionVoiceFree({...this.session.params, ...paramsAdd}, name)
   }
   // videonote
-  sessionToVideoNoteCaption(paramsAdd?: any, name?: string) {
-    return this.sessionVideoNoteCaption({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToVideoNoteCaptionPayload(paramsAdd?: any, name?: string) {
-    return this.sessionVideoNoteCaptionPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToVideoNoteCaptionCommand(paramsAdd?: any, name?: string) {
-    return this.sessionVideoNoteCaptionCommand({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToVideoNoteCaptionCommandPayload(paramsAdd?: any, name?: string) {
-    return this.sessionVideoNoteCaptionCommandPayload({...this.session.params, ...paramsAdd}, name)
-  }
   sessionToVideoNoteFree(paramsAdd?: any, name?: string) {
     return this.sessionVideoNoteFree({...this.session.params, ...paramsAdd}, name)
   }
@@ -1186,31 +1146,19 @@ export class Ctx {
     return this.methodSession(`37`, name)
   }
   // video note method
-  methodSessionVideoNoteCaption(name?: string) {
-    return this.methodSession(`38`, name)
-  }
-  methodSessionVideoNoteCaptionPayload(name?: string) {
-    return this.methodSession(`39`, name)
-  }
-  methodSessionVideoNoteCaptionCommand(name?: string) {
-    return this.methodSession(`40`, name)
-  }
-  methodSessionVideoNoteCaptionCommandPayload(name?: string) {
-    return this.methodSession(`41`, name)
-  }
   methodSessionVideoNoteFree(name?: string) {
-    return this.methodSession(`42`, name)
+    return this.methodSession(`38`, name)
   }
   // sticker method
   methodSessionStickerFree(name?: string) {
-    return this.methodSession(`43`, name)
+    return this.methodSession(`39`, name)
   }
   // location method
   methodSessionLocationFree(name?: string) {
-    return this.methodSession(`44`, name)
+    return this.methodSession(`40`, name)
   }
   // contact method
   methodSessionContactFree(name?: string) {
-    return this.methodSession(`45`, name)
+    return this.methodSession(`41`, name)
   }
 }
