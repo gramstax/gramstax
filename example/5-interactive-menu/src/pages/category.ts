@@ -6,7 +6,7 @@ import {StartPage} from "./start"
 // Category list page with dynamic inline buttons.
 export class CategoryPage extends PageBase {
   static data = this.buildData({
-    dataCallback: (action?: string, payload?: string) => [action, payload],
+    callback: (action?: string, payload?: string) => [action, payload],
     intentText: `Browse`
   })
 
