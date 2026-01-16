@@ -827,29 +827,193 @@ await this.replyContact(); // Message
 
 ## Edit Methods
 
+### Edit Argument Notes
+
+<a id="edit-arg-keyboard"></a>
+
+- **keyboard:** Inline keyboard markup from `inlineKeyboard()`.
+
+<a id="edit-arg-data"></a>
+
+- **data:** Template data used for interpolation.
+
+<a id="edit-arg-baseid"></a>
+
+- **baseId:** Template base ID. Defaults to `default`.
+
 ### `.edit(keyboard?, data?, baseId?, options?)`
 
-Edit the current message text.
+- **description:** Edit the current message text.
+- **args:**
+  - **keyboard:**
+    - **type:** IInlineKb
+    - **required:** no
+    - **description:** See [keyboard](#edit-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#edit-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#edit-arg-baseid).
+  - **options:**
+    - **type:** IOptEdit
+    - **required:** no
+    - **description:** Options passed to the `grammY` edit call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with edited message.
+- **example:**
+
+```typescript
+await this.edit(); // Message
+```
 
 ### `.editPhoto(keyboard?, data?, baseId?, options?)`
 
-Edit media to photo.
+- **description:** Edit media to photo.
+- **args:**
+  - **keyboard:**
+    - **type:** IInlineKb
+    - **required:** no
+    - **description:** See [keyboard](#edit-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#edit-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#edit-arg-baseid).
+  - **options:**
+    - **type:** IOptEditMedia1
+    - **required:** no
+    - **description:** Options passed to the `grammY` edit call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with edited message.
+- **example:**
+
+```typescript
+await this.editPhoto(); // Message
+```
 
 ### `.editVideo(keyboard?, data?, baseId?, options?)`
 
-Edit media to video.
+- **description:** Edit media to video.
+- **args:**
+  - **keyboard:**
+    - **type:** IInlineKb
+    - **required:** no
+    - **description:** See [keyboard](#edit-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#edit-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#edit-arg-baseid).
+  - **options:**
+    - **type:** IOptEditMedia1
+    - **required:** no
+    - **description:** Options passed to the `grammY` edit call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with edited message.
+- **example:**
+
+```typescript
+await this.editVideo(); // Message
+```
 
 ### `.editAudio(keyboard?, data?, baseId?, options?)`
 
-Edit media to audio.
+- **description:** Edit media to audio.
+- **args:**
+  - **keyboard:**
+    - **type:** IInlineKb
+    - **required:** no
+    - **description:** See [keyboard](#edit-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#edit-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#edit-arg-baseid).
+  - **options:**
+    - **type:** IOptEditMedia1
+    - **required:** no
+    - **description:** Options passed to the `grammY` edit call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with edited message.
+- **example:**
+
+```typescript
+await this.editAudio(); // Message
+```
 
 ### `.editDocument(keyboard?, data?, baseId?, options?)`
 
-Edit media to document.
+- **description:** Edit media to document.
+- **args:**
+  - **keyboard:**
+    - **type:** IInlineKb
+    - **required:** no
+    - **description:** See [keyboard](#edit-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#edit-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#edit-arg-baseid).
+  - **options:**
+    - **type:** IOptEditMedia1
+    - **required:** no
+    - **description:** Options passed to the `grammY` edit call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with edited message.
+- **example:**
+
+```typescript
+await this.editDocument(); // Message
+```
 
 ### `.editAnimation(keyboard?, data?, baseId?, options?)`
 
-Edit media to animation.
+- **description:** Edit media to animation.
+- **args:**
+  - **keyboard:**
+    - **type:** IInlineKb
+    - **required:** no
+    - **description:** See [keyboard](#edit-arg-keyboard).
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** See [data](#edit-arg-data).
+  - **baseId:**
+    - **type:** string
+    - **required:** no
+    - **description:** See [baseId](#edit-arg-baseid).
+  - **options:**
+    - **type:** IOptEditMedia1
+    - **required:** no
+    - **description:** Options passed to the `grammY` edit call.
+- **return:**
+  - **type:** Promise<Message>
+  - **description:** Resolves with edited message.
+- **example:**
+
+```typescript
+await this.editAnimation(); // Message
+```
 
 &nbsp;
 
@@ -857,42 +1021,64 @@ Edit media to animation.
 
 ### `.delete()`
 
-Delete the current message.
+- **description:** Delete the current message.
+- **return:**
+  - **type:** Promise<boolean>
+  - **description:** Resolves with operation result.
+- **example:**
 
-- **returns: Promise\<boolean\>**
-- **description:** Resolves with operation result.
+```typescript
+await this.delete(); // true
+```
 
 ### `.callbackQueryAnswer(options?)`
 
-Answer callback query (show toast). call this only when you need a custom toast or extra acknowledgment.
+- **description:** Answer callback query (show toast). Call this only when you need a custom toast or extra acknowledgment.
+- **args:**
+  - **options:**
+    - **type:** object
+    - **required:** no
+    - **description:** Options passed to grammY `answerCallbackQuery`.
+- **return:**
+  - **type:** Promise<boolean | null>
+  - **description:** Resolves with operation result or null on error.
+- **example:**
+
+```typescript
+await this.callbackQueryAnswer({ text: `Saved` }); // true
+```
 
 ### `.inlineKeyboard(builder)` and `.bottomKeyboard(builder)`
 
-Create using builder pattern.
-
-| parameter | type     | required | description                              |
-| --------- | -------- | -------- | ---------------------------------------- |
-| builder   | function | yes      | Builder callback. Receives (kb, labels). |
-
-parameter builder.
-
-| parameter | type     | required | description                                                                                      |
-| --------- | -------- | -------- | ------------------------------------------------------------------------------------------------ |
-| k         | object   | yes      | For build keyboard. Init class InlineKeyboard (for inline) or Keyboard (for bottom) from grammY. |
-| a         | string[] | yes      | For text keyboard. Each value is obtained from the <keyboard> block with a comma separator.      |
-
-- **returns: InlineKeyboard or BottomKeyboard**
-- **description:** Builder instance for inline buttons and bottom buttons.
+- **description:** Create a keyboard using the builder pattern.
+- **args:**
+  - **builder:**
+    - **type:** function
+    - **required:** yes
+    - **description:** Builder callback. Receives (kb, labels).
+  - **builderArgs:**
+    - **k:**
+      - **type:** object
+      - **required:** yes
+      - **description:** InlineKeyboard (inline) or Keyboard (bottom) from grammY.
+    - **a:**
+      - **type:** string[]
+      - **required:** yes
+      - **description:** Labels from `<keyboard>` block split by commas.
+- **return:**
+  - **type:** InlineKeyboard | BottomKeyboard
+  - **description:** Builder instance for inline buttons and bottom buttons.
+- **example:**
 
 ```typescript
 // inline keyboard (will show on below message)
 const ik = this.inlineKeyboard((k, a) => {
   return k //
-    .text(a[0]!, "action1")
-    .text(a[1]!, "action2")
+    .text(a[0]!, `action1`)
+    .text(a[1]!, `action2`)
     .row()
-    .text(a[2]!, "action3");
-});
+    .text(a[2]!, `action3`);
+}); // InlineKeyboard
 
 // bottom keyboard (will show on below position keyboard phone)
 const bk = this.bottomKeyboard((k, a) => {
@@ -902,16 +1088,21 @@ const bk = this.bottomKeyboard((k, a) => {
     .row()
     .text(a[2])
     .oneTime();
-});
+}); // BottomKeyboard
 ```
 
 ### `.to(data: {})`
 
-Transition to another page.
-
-| parameter | type   | required | description                                                                             |
-| --------- | ------ | -------- | --------------------------------------------------------------------------------------- |
-| data      | object | no       | Data to pass. Provide the data from the previous page to this page that is only needed. |
+- **description:** Transition to another page.
+- **args:**
+  - **data:**
+    - **type:** object
+    - **required:** no
+    - **description:** Data to pass. Provide the data from the previous page to this page that is only needed.
+- **return:**
+  - **type:** Promise<void>
+  - **description:** Resolves after the transition completes.
+- **example:**
 
 ```typescript
 // ./pages/home.ts
@@ -920,7 +1111,7 @@ async to(data: {inputName: any}) {
 }
 
 // ./pages/others.ts
-await new HomePage(this).to({ inputName: `test` });
+await new HomePage(this).to({ inputName: `test` }); // navigates to HomePage
 ```
 
 &nbsp;
@@ -968,10 +1159,6 @@ Define these methods in your page class to handle specific routes:
 | `voiceCaptionCommand()`            | Caption Command match                                          | caption: /start                                        |
 | `voiceCaptionCommandPayload()`     | Caption Command with payload                                   | caption: /start 123 AAA                                |
 | `voiceFree()`                      | Any voice (fallback route if set)                              | voice: <A-Za-z0-9>                                     |
-| `videoNoteCaption()`               | Exact caption match                                            | caption: start                                         |
-| `videoNoteCaptionPayload()`        | Caption with payload                                           | caption: start 123 AAA                                 |
-| `videoNoteCaptionCommand()`        | Caption Command match                                          | caption: /start                                        |
-| `videoNoteCaptionCommandPayload()` | Caption Command with payload                                   | caption: /start 123 AAA                                |
 | `videoNoteFree()`                  | Any video note (fallback route if set)                         | videoNote: <A-Za-z0-9>                                 |
 | `stickerFree()`                    | Any sticker (fallback route if set)                            | sticker: <A-Za-z0-9>                                   |
 | `locationFree()`                   | Any location (fallback route if set)                           | location: <A-Za-z0-9>                                  |
