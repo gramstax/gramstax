@@ -82,7 +82,7 @@
         "fix": {
           "semverBump": "patch",
           "changelog": {
-            "title": "🐛 Bug Fixes"
+            "title": "🔨 Fixed"
           }
         },
         "chore": {
