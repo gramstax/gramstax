@@ -23,7 +23,7 @@ The `PageManager` class provides static utilities for loading and managing page 
 Returns the default pages directory path.
 
 - **returns: string**
-- **ai_notes:** Returns `join(process.cwd(), "src", "pages")`.
+- **description:** Returns `join(process.cwd(), "src", "pages")`.
 
 ```typescript
 import { PageManager } from "gramstax";
@@ -38,13 +38,14 @@ const pagesPath = PageManager.getFilePath();
 
 Synchronously load a single page module.
 
-| parameter      | type   | required | default         | description                 | ai_notes                                   |
-| -------------- | ------ | -------- | --------------- | --------------------------- | ------------------------------------------ |
-| path           | string | no       | `getFilePath()` | Path to the page file       | Uses default pages directory when omitted. |
-| positionModule | number | no       | `0`             | Index of the exported class | Used when file has multiple exports.       |
+| parameter      | type   | required | default         | description                                                     |
+| -------------- | ------ | -------- | --------------- | --------------------------------------------------------------- |
+| path           | string | no       | `getFilePath()` | Path to the page file. Uses default pages directory when omitted. |
+| positionModule | number | no       | `0`             | Index of the exported class. Used when file has multiple exports. |
+
 
 - **returns: typeof Ctx**
-- **ai_notes:** First exported page class.
+- **description:** First exported page class.
 - **throws:** Error if file has no exports.
 
 ```typescript
@@ -59,13 +60,14 @@ const StartPage = PageManager.getFileSync(
 
 Asynchronously load a single page module with cache busting.
 
-| parameter      | type   | required | default         | description                 | ai_notes                                   |
-| -------------- | ------ | -------- | --------------- | --------------------------- | ------------------------------------------ |
-| path           | string | no       | `getFilePath()` | Path to the page file       | Uses default pages directory when omitted. |
-| positionModule | number | no       | `0`             | Index of the exported class | Appends timestamp for cache busting.       |
+| parameter      | type   | required | default         | description                                                     |
+| -------------- | ------ | -------- | --------------- | --------------------------------------------------------------- |
+| path           | string | no       | `getFilePath()` | Path to the page file. Uses default pages directory when omitted. |
+| positionModule | number | no       | `0`             | Index of the exported class. Appends timestamp for cache busting. |
+
 
 - **returns: Promise\<typeof Ctx\>**
-- **ai_notes:** Resolves with loaded page class.
+- **description:** Resolves with loaded page class.
 
 ```typescript
 const StartPage = await PageManager.getFile(
@@ -79,13 +81,14 @@ const StartPage = await PageManager.getFile(
 
 Synchronously load all page modules from a directory.
 
-| parameter      | type   | required | default         | description                 | ai_notes                                   |
-| -------------- | ------ | -------- | --------------- | --------------------------- | ------------------------------------------ |
-| path           | string | no       | `getFilePath()` | Path to the pages directory | Uses default pages directory when omitted. |
-| positionModule | number | no       | `0`             | Index of the exported class | Used when files have multiple exports.     |
+| parameter      | type   | required | default         | description                                                     |
+| -------------- | ------ | -------- | --------------- | --------------------------------------------------------------- |
+| path           | string | no       | `getFilePath()` | Path to the pages directory. Uses default pages directory when omitted. |
+| positionModule | number | no       | `0`             | Index of the exported class. Used when files have multiple exports. |
+
 
 - **returns: Array\<{ path: string; page: typeof Ctx }\>**
-- **ai_notes:** Array of page records.
+- **description:** Array of page records.
 - **throws:** Error if directory does not exist.
 
 ```typescript
@@ -99,12 +102,13 @@ const pages = PageManager.getFileManySync();
 
 Clear the require cache for all page modules.
 
-| parameter | type   | required | default         | description                 | ai_notes                        |
-| --------- | ------ | -------- | --------------- | --------------------------- | ------------------------------- |
-| path      | string | no       | `getFilePath()` | Path to the pages directory | Enables hot-reloading of pages. |
+| parameter | type   | required | default         | description                                                |
+| --------- | ------ | -------- | --------------- | ---------------------------------------------------------- |
+| path      | string | no       | `getFilePath()` | Path to the pages directory. Enables hot-reloading of pages. |
+
 
 - **returns: boolean**
-- **ai_notes:** True when cache cleared.
+- **description:** True when cache cleared.
 - **throws:** Error if directory does not exist.
 
 ```typescript

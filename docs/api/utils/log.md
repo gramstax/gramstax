@@ -19,9 +19,10 @@ The `LoggingUtils` class extends [LoggingPretty](https://www.npmjs.com/package/l
 
 ### `new LoggingUtils(options?)`
 
-| parameter | type   | required | default | description                       | ai_notes                                       |
-| --------- | ------ | -------- | ------- | --------------------------------- | ---------------------------------------------- |
-| options   | object | no       | -       | LoggingPretty constructor options | **Passed through:** to parent `LoggingPretty`. |
+| parameter | type   | required | default | description                                                                  |
+| --------- | ------ | -------- | ------- | ---------------------------------------------------------------------------- |
+| options   | object | no       | -       | LoggingPretty constructor options. **Passed through:** to parent `LoggingPretty`. |
+
 
 ```typescript
 import { LoggingUtils } from "gramstax";
@@ -37,14 +38,15 @@ const logger = new LoggingUtils();
 
 Log a formatted error message with optional class and function context.
 
-| parameter       | type   | required | default | description            | ai_notes                                    |
-| --------------- | ------ | -------- | ------- | ---------------------- | ------------------------------------------- |
-| error           | any    | yes      | -       | The error to log       | Stringified using `String(error)`.          |
-| constructorName | any    | no       | -       | Class name for context | Format is `[ClassName:methodName] error`.   |
-| funcName        | string | no       | -       | Method/function name   | Format is `[methodName] error` if no class. |
+| parameter       | type   | required | default | description                                                                  |
+| --------------- | ------ | -------- | ------- | ---------------------------------------------------------------------------- |
+| error           | any    | yes      | -       | The error to log. Stringified using `String(error)`.                         |
+| constructorName | any    | no       | -       | Class name for context. Format is `[ClassName:methodName] error`.            |
+| funcName        | string | no       | -       | Method/function name. Format is `[methodName] error` if no class.            |
+
 
 - **returns: void**
-- **ai_notes:** Writes formatted log entry.
+- **description:** Writes formatted log entry.
 
 ```typescript
 const logger = new LoggingUtils();

@@ -42,7 +42,7 @@ class MyWorker extends WorkerThreadInit {
 Check if currently running in the main thread.
 
 - **type: boolean**
-- **ai_notes:** Re-exported from `node:worker_threads`.
+- **description:** Re-exported from `node:worker_threads`.
 
 ```typescript
 if (WorkerThreadInit.isMainThread) {
@@ -57,7 +57,7 @@ if (WorkerThreadInit.isMainThread) {
 Path gateway server. (if need server gateway you can overrides)
 
 - **type: string | undefined**
-- **ai_notes:** Overrides if need gateway server`.
+- **description:** Overrides if need gateway server`.
 
 &nbsp;
 
@@ -68,21 +68,21 @@ Path gateway server. (if need server gateway you can overrides)
 Command line arguments passed to the worker.
 
 - **type: string[]**
-- **ai_notes:** Same as `process.argv`. Custom args start at index 3.
+- **description:** Same as `process.argv`. Custom args start at index 3.
 
 ### `.id`
 
 The worker thread ID.
 
 - **type: number**
-- **ai_notes:** From `node:worker_threads` `threadId`.
+- **description:** From `node:worker_threads` `threadId`.
 
 ### `.pid`
 
 The process ID.
 
 - **type: number**
-- **ai_notes:** Same as `process.pid`.
+- **description:** Same as `process.pid`.
 
 ### `.rpc`
 
@@ -95,7 +95,7 @@ RPC handler for method invocations.
 Reference to the parent port for messaging.
 
 - **type: MessagePort | null**
-- **ai_notes:** From `node:worker_threads`.
+- **description:** From `node:worker_threads`.
 
 ### `.gatewayServer`
 
@@ -129,12 +129,13 @@ The most recently created gateway client.
 
 Send a message to the main thread.
 
-| parameter | type | required | description  | ai_notes                |
-| --------- | ---- | -------- | ------------ | ----------------------- |
-| payload   | any  | yes      | Data to send | Payload to main thread. |
+| parameter | type | required | description                              |
+| --------- | ---- | -------- | ---------------------------------------- |
+| payload   | any  | yes      | Data to send. Payload to main thread.    |
+
 
 - **returns: void**
-- **ai_notes:** No return value.
+- **description:** No return value.
 
 ```typescript
 this.send({ status: "processing", progress: 50 });
@@ -144,15 +145,16 @@ this.send({ status: "processing", progress: 50 });
 
 Make an RPC request to the main thread.
 
-| parameter | type    | required | default | description         | ai_notes                        |
-| --------- | ------- | -------- | ------- | ------------------- | ------------------------------- |
-| method    | string  | yes      | -       | Method name to call | Targets main-thread RPC method. |
-| params    | any     | yes      | -       | Method parameters   | Sent as positional array.       |
-| wait      | boolean | no       | `true`  | Wait for response   | If false, fire-and-forget.      |
-| others    | object  | no       | -       | Additional RPC data | Merged into RPC payload.        |
+| parameter | type    | required | default | description                                                         |
+| --------- | ------- | -------- | ------- | ------------------------------------------------------------------- |
+| method    | string  | yes      | -       | Method name to call. Targets main-thread RPC method.                |
+| params    | any     | yes      | -       | Method parameters. Sent as positional array.                        |
+| wait      | boolean | no       | `true`  | Wait for response. If false, fire-and-forget.                       |
+| others    | object  | no       | -       | Additional RPC data. Merged into RPC payload.                       |
+
 
 - **returns: Promise\<any\>**
-- **ai_notes:** Resolves with main-thread response.
+- **description:** Resolves with main-thread response.
 
 ```typescript
 const result = await this.request("getConfig", ["key"]);
@@ -162,13 +164,14 @@ const result = await this.request("getConfig", ["key"]);
 
 Create a gateway server for inter-worker communication.
 
-| parameter | type   | required | default                            | description                           | ai_notes                   |
-| --------- | ------ | -------- | ---------------------------------- | ------------------------------------- | -------------------------- |
-| methods   | object | no       | this                               | Methods with value function to expose | Called by gateway clients. |
-| path      | string | no       | this.constructor.gatewayServerPath | Unix socket path                      | Gateway identifier.        |
+| parameter | type   | required | default                            | description                                                                   |
+| --------- | ------ | -------- | ---------------------------------- | ----------------------------------------------------------------------------- |
+| methods   | object | no       | this                               | Methods with value function to expose. Called by gateway clients.             |
+| path      | string | no       | this.constructor.gatewayServerPath | Unix socket path. Gateway identifier.                                         |
+
 
 - **returns: Promise\<boolean\>**
-- **ai_notes:** Resolves when gateway is ready.
+- **description:** Resolves when gateway is ready.
 
 ```typescript
 // recomended
@@ -187,12 +190,13 @@ await this.createGatewayServer(
 
 Create a gateway client to connect to another worker. (not recomended, use init "launchGatewayClient" from export directly from source)
 
-| parameter  | type   | required | description                 | ai_notes                |
-| ---------- | ------ | -------- | --------------------------- | ----------------------- |
-| serverPath | string | yes      | Unix socket path to connect | Matches server gateway. |
+| parameter  | type   | required | description                                           |
+| ---------- | ------ | -------- | ----------------------------------------------------- |
+| serverPath | string | yes      | Unix socket path to connect. Matches server gateway.  |
+
 
 - **returns: Promise\<WorkerThreadGatewayClient\>**
-- **ai_notes:** Resolves with connected client.
+- **description:** Resolves with connected client.
 
 ```typescript
 // set path directly

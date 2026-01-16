@@ -20,12 +20,12 @@ The `TemplateManager` class manages template loading, compilation, caching, and 
 
 ### `new TemplateManager(options)`
 
-| parameter           | type     | required | default | description             | ai_notes                                      |
-| ------------------- | -------- | -------- | ------- | ----------------------- | --------------------------------------------- |
-| options.path        | string[] | yes      | -       | Paths to scan for pages | Note: Typically `["src/pages"]`.              |
-| options.enableWatch | boolean  | no       | `false` | Enable file watching    | Note: For development auto-reload on changes. |
+| parameter            | type     | required | default | description                                                                  |
+| -------------------- | -------- | -------- | ------- | ---------------------------------------------------------------------------- |
+| options.path         | string[] | yes      | -       | Paths to scan for pages. Note: Typically `["src/pages"]`.                   |
+| options.enableWatch  | boolean  | no       | `false` | Enable file watching. Note: For development auto-reload on changes.          |
+| options.watchOptions | object   | no       | -       | Chokidar watch options. **Passed to:** chokidar watcher.                     |
 
-| options.watchOptions | object | no | - | Chokidar watch options | **Passed to:** chokidar watcher. |
 
 ```typescript
 import { TemplateManager } from "gramstax";
@@ -72,15 +72,16 @@ Create `my-page.html` alongside `my-page.ts`:
 
 Get compiled message string.
 
-| parameter | type   | required | default   | description          | ai_notes                         |
-| --------- | ------ | -------- | --------- | -------------------- | -------------------------------- |
-| key       | string | yes      | -         | Page name (filename) | Template file key.               |
-| baseId    | string | no       | "default" | Base block ID        | Matches `<base id="...">`.       |
-| language  | string | no       | "default" | Language code        | Uses `default` as fallback.      |
-| data      | object | no       | -         | Template variables   | Used for template interpolation. |
+| parameter | type   | required | default   | description                                                             |
+| --------- | ------ | -------- | --------- | ----------------------------------------------------------------------- |
+| key       | string | yes      | -         | Page name (filename). Template file key.                                |
+| baseId    | string | no       | "default" | Base block ID. Matches `<base id="...">`.                                |
+| language  | string | no       | "default" | Language code. Uses `default` as fallback.                              |
+| data      | object | no       | -         | Template variables. Used for template interpolation.                    |
+
 
 - **returns: string**
-- **ai_notes:** Rendered template string.
+- **description:** Rendered template string.
 
 ```typescript
 const message = tm.getMessage("start", "default", "en", { name: "John" });
@@ -90,16 +91,17 @@ const message = tm.getMessage("start", "default", "en", { name: "John" });
 
 Get compiled keyboard labels.
 
-| parameter | type   | required | default   | description          | ai_notes                        |
-| --------- | ------ | -------- | --------- | -------------------- | ------------------------------- |
-| key       | string | yes      | -         | Page name (filename) | Source template file key.       |
-| baseId    | string | no       | "default" | Base block ID        | Matches `<base id="...">`.      |
-| language  | string | no       | "default" | Language code        | Fallback uses `default`.        |
-| type      | string | no       | "inline"  | Keyboard type        | Values are `inline`, `bottom`.  |
-| data      | object | no       | -         | Template variables   | Used by template interpolation. |
+| parameter | type   | required | default   | description                                                              |
+| --------- | ------ | -------- | --------- | ------------------------------------------------------------------------ |
+| key       | string | yes      | -         | Page name (filename). Source template file key.                          |
+| baseId    | string | no       | "default" | Base block ID. Matches `<base id="...">`.                                 |
+| language  | string | no       | "default" | Language code. Fallback uses `default`.                                 |
+| type      | string | no       | "inline"  | Keyboard type. Values are `inline`, `bottom`.                           |
+| data      | object | no       | -         | Template variables. Used by template interpolation.                     |
+
 
 - **returns: string[]**
-- **ai_notes:** Button labels for selected language.
+- **description:** Button labels for selected language.
 
 ```typescript
 const buttons = tm.getKeyboard("start", "default", "en", "inline");
@@ -110,15 +112,16 @@ const buttons = tm.getKeyboard("start", "default", "en", "inline");
 
 Get compiled media data.
 
-| parameter | type   | required | default   | description          | ai_notes                         |
-| --------- | ------ | -------- | --------- | -------------------- | -------------------------------- |
-| key       | string | yes      | -         | Page name (filename) | Template file key.               |
-| baseId    | string | no       | "default" | Base block ID        | Matches `<base id="...">`.       |
-| language  | string | no       | "default" | Language code        | Uses `default` as fallback.      |
-| data      | object | no       | -         | Template variables   | Used for template interpolation. |
+| parameter | type   | required | default   | description                                                             |
+| --------- | ------ | -------- | --------- | ----------------------------------------------------------------------- |
+| key       | string | yes      | -         | Page name (filename). Template file key.                                |
+| baseId    | string | no       | "default" | Base block ID. Matches `<base id="...">`.                                |
+| language  | string | no       | "default" | Language code. Uses `default` as fallback.                              |
+| data      | object | no       | -         | Template variables. Used for template interpolation.                    |
+
 
 - **returns: IMediaBlock | undefined**
-- **ai_notes:** Media payload for selected base/lang.
+- **description:** Media payload for selected base/lang.
 
 ```typescript
 const media = tm.getMedia("photo-page", "default", "en");
@@ -129,16 +132,17 @@ const media = tm.getMedia("photo-page", "default", "en");
 
 Get command description for Telegram menu.
 
-| parameter | type   | required | default   | description          | ai_notes                        |
-| --------- | ------ | -------- | --------- | -------------------- | ------------------------------- |
-| key       | string | yes      | -         | Page name (filename) | Source template file key.       |
-| baseId    | string | no       | "default" | Base block ID        | Matches `<base id="...">`.      |
-| language  | string | no       | "default" | Language code        | Fallback uses `default`.        |
-| scope     | string | no       | "default" | Bot command scope    | Telegram command scope.         |
-| data      | object | no       | -         | Template variables   | Used by template interpolation. |
+| parameter | type   | required | default   | description                                                              |
+| --------- | ------ | -------- | --------- | ------------------------------------------------------------------------ |
+| key       | string | yes      | -         | Page name (filename). Source template file key.                          |
+| baseId    | string | no       | "default" | Base block ID. Matches `<base id="...">`.                                 |
+| language  | string | no       | "default" | Language code. Fallback uses `default`.                                 |
+| scope     | string | no       | "default" | Bot command scope. Telegram command scope.                              |
+| data      | object | no       | -         | Template variables. Used by template interpolation.                     |
+
 
 - **returns: string**
-- **ai_notes:** Rendered description string.
+- **description:** Rendered description string.
 
 ```typescript
 const desc = tm.getDescription("start", "default", "en");
@@ -150,32 +154,33 @@ const desc = tm.getDescription("start", "default", "en");
 Get available languages for a description.
 
 - **returns: string[]**
-- **ai_notes:** Languages present for scope.
+- **description:** Languages present for scope.
 
 ### `.getDescriptionScopes(key, baseId?)`
 
 Get available scopes for a description.
 
 - **returns: string[]**
-- **ai_notes:** Scope keys for description.
+- **description:** Scope keys for description.
 
 ### `.has(key)`
 
 Check if template exists.
 
-| parameter | type   | required | description | ai_notes               |
-| --------- | ------ | -------- | ----------- | ---------------------- |
-| key       | string | yes      | Page name   | Template cache lookup. |
+| parameter | type   | required | description                              |
+| --------- | ------ | -------- | ---------------------------------------- |
+| key       | string | yes      | Page name. Template cache lookup.        |
+
 
 - **returns: boolean**
-- **ai_notes:** True when template exists.
+- **description:** True when template exists.
 
 ### `.destroy()`
 
 Cleanup resources and close watchers.
 
 - **returns: Promise\<void\>**
-- **ai_notes:** Resolves after watchers closed.
+- **description:** Resolves after watchers closed.
 
 &nbsp;
 

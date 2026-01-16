@@ -22,10 +22,11 @@ The `WorkerThreadRpc` class handles JSON-RPC style communication between threads
 
 ### `new WorkerThreadRpc(send, register)`
 
-| parameter | type     | required | description                  | ai_notes                 |
-| --------- | -------- | -------- | ---------------------------- | ------------------------ |
-| send      | function | yes      | Function to send data        | Called with RPC payload. |
-| register  | object   | yes      | Object with callable methods | Exposed RPC method map.  |
+| parameter | type     | required | description                                            |
+| --------- | -------- | -------- | ------------------------------------------------------ |
+| send      | function | yes      | Function to send data. Called with RPC payload.        |
+| register  | object   | yes      | Object with callable methods. Exposed RPC method map.  |
+
 
 ```typescript
 import { WorkerThreadRpc } from "gramstax";
@@ -45,7 +46,7 @@ const rpc = new WorkerThreadRpc((data) => postMessage(data), {
 Map of pending requests by ID.
 
 - **type: Map\<any, { resolve, reject }\>**
-- **ai_notes:** Stores promise handlers for pending requests.
+- **description:** Stores promise handlers for pending requests.
 
 ### `.send`
 
@@ -67,12 +68,13 @@ Object containing registered methods.
 
 Process an incoming RPC message.
 
-| parameter | type   | required | description        | ai_notes                       |
-| --------- | ------ | -------- | ------------------ | ------------------------------ |
-| data      | object | yes      | RPC message object | Shape is request/result/error. |
+| parameter | type   | required | description                                         |
+| --------- | ------ | -------- | --------------------------------------------------- |
+| data      | object | yes      | RPC message object. Shape is request/result/error.  |
+
 
 - **returns: Promise\<void\>**
-- **ai_notes:** Handles requests, results, and errors.
+- **description:** Handles requests, results, and errors.
 
 **Message Types:**
 
@@ -92,7 +94,7 @@ worker.on("message", (data) => {
 Generate a unique request ID.
 
 - **returns: number**
-- **ai_notes:** Uses `Math.random()`.
+- **description:** Uses `Math.random()`.
 
 ```typescript
 const id = rpc.makeId();
@@ -102,15 +104,16 @@ const id = rpc.makeId();
 
 Create and send an RPC request.
 
-| parameter | type    | required | default | description                | ai_notes                       |
-| --------- | ------- | -------- | ------- | -------------------------- | ------------------------------ |
-| method    | string  | yes      | -       | Method name to call        | Targets registered method.     |
-| params    | any     | yes      | -       | Method parameters          | Sent as positional array.      |
-| wait      | boolean | no       | `true`  | Wait for response          | If false, returns send result. |
-| others    | object  | no       | -       | Additional data to include | Merged into RPC payload.       |
+| parameter | type    | required | default | description                                                         |
+| --------- | ------- | -------- | ------- | ------------------------------------------------------------------- |
+| method    | string  | yes      | -       | Method name to call. Targets registered method.                     |
+| params    | any     | yes      | -       | Method parameters. Sent as positional array.                        |
+| wait      | boolean | no       | `true`  | Wait for response. If false, returns send result.                   |
+| others    | object  | no       | -       | Additional data to include. Merged into RPC payload.                |
+
 
 - **returns: Promise\<any\>**
-- **ai_notes:** If `wait=false`, returns result of `send()` directly.
+- **description:** If `wait=false`, returns result of `send()` directly.
 
 ```typescript
 // Wait for response

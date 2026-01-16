@@ -22,15 +22,15 @@ The `WorkerThreadExport` class provides a unified interface for creating and man
 
 Initialize a worker thread export with automatic environment detection.
 
-| parameter        | type     | required | default              | description              | ai_notes                                             |
-| ---------------- | -------- | -------- | -------------------- | ------------------------ | ---------------------------------------------------- |
-| options.path     | string   | yes      | -                    | Path to the worker file  | Typically `__filename` for self-referential workers. |
-| options.WTInit   | class    | yes      | -                    | Worker thread init class | Extends `WorkerThreadInit`.                          |
-| options.WTLaunch | class    | no       | `WorkerThreadLaunch` | Main thread launch class | Extends `WorkerThreadLaunch`.                        |
-| options.wrap     | function | no       | -                    | Custom wrapper function  | Adds custom methods to returned object.              |
+| parameter        | type     | required | default              | description                                                                   |
+| ---------------- | -------- | -------- | -------------------- | ----------------------------------------------------------------------------- |
+| options.path     | string   | yes      | -                    | Path to the worker file. Typically `__filename` for self-referential workers. |
+| options.WTInit   | class    | yes      | -                    | Worker thread init class. Extends `WorkerThreadInit`.                         |
+| options.WTLaunch | class    | no       | `WorkerThreadLaunch` | Main thread launch class. Extends `WorkerThreadLaunch`.                       |
+| options.wrap     | function | no       | -                    | Custom wrapper function. Adds custom methods to returned object.              |
 
 - **returns: object** - Proxied object with `launchWorker`, `launchGatewayClient`, and worker methods.
-- **ai_notes:** In worker thread context, only returns `launchGatewayClient`. In main thread, returns full proxy.
+- **description:** In worker thread context, only returns `launchGatewayClient`. In main thread, returns full proxy.
 
 ```typescript
 import { WorkerThreadExport, WorkerThreadInit } from "gramstax";
@@ -60,21 +60,29 @@ export const CounterJob = WorkerThreadExport.init({
 
 Create a typed launchGatewayClient proxy for inter-worker communication.
 
-| parameter  | type   | required | description                    | ai_notes                       |
-| ---------- | ------ | -------- | ------------------------------ | ------------------------------ |
-| serverPath | string | no       | Path to the target worker file | Must match target init `path`. |
+| parameter  | type   | required | description                                                    |
+| ---------- | ------ | -------- | -------------------------------------------------------------- |
+| serverPath | string | no       | Path to the target worker file. Must match target init `path`. |
 
 - **returns: WorkerThreadGatewayProxy & { new(owner): WorkerThreadAsyncMethods }**
-- **ai_notes:** Can be used as static methods or as constructor.
+- **description:** Can be used as static methods or as constructor.
 
 ```typescript
-// Static usage
-const OtherWorker =
+// RECOMENDED: Launch without define serverPath
+export const OtherWorkerGateway = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: OtherWorkerClass,
+}).launchGatewayClient();
+
+// Launch with define serverPath
+const OtherWorkerGateway =
   WorkerThreadExport.launchGatewayClient<OtherWorkerClass>("/path/to/other.ts");
-await OtherWorker.someMethod(this, arg1, arg2);
+
+// RECOMENDED: Static usage
+await OtherWorkerGateway.someMethod(this, arg1, arg2);
 
 // Constructor usage
-const client = new OtherWorker(this);
+const client = new OtherWorkerGateway(this);
 await client.someMethod(arg1, arg2);
 ```
 
@@ -86,19 +94,19 @@ await client.someMethod(arg1, arg2);
 
 Launch the worker thread from the main thread.
 
-| parameter | type  | required | default | description            | ai_notes                                 |
-| --------- | ----- | -------- | ------- | ---------------------- | ---------------------------------------- |
-| argv      | any[] | no       | `[]`    | Command line arguments | Accessible via `process.argv` in worker. |
+| parameter | type  | required | default | description                                                      |
+| --------- | ----- | -------- | ------- | ---------------------------------------------------------------- |
+| argv      | any[] | no       | `[]`    | Command line arguments. Accessible via `process.argv` in worker. |
 
 - **returns: Promise\<WorkerThreadLaunch\>**
-- **ai_notes:** Resolves when worker signals ready.
+- **description:** Resolves when worker signals ready.
 
 ```typescript
 // In main thread
 await CounterJob.launchWorker([5000]);
 ```
 
-### `.launchGatewayClient(path)`
+### `.launchGatewayClient(serverPath)`
 
 Get a launchGatewayClient proxy for inter-worker communication.
 
@@ -109,10 +117,10 @@ Get a launchGatewayClient proxy for inter-worker communication.
 Call any method defined in the worker's `WTInit` class.
 
 - **returns: Promise\<ReturnType\>**
-- **ai_notes:** Automatically proxied via RPC.
+- **description:** Automatically proxied via RPC.
 
 ```typescript
-// In main thread, after launchWorker
+// In main thread, after .launchWorker()
 const count = await CounterJob.increment();
 const current = await CounterJob.getCount();
 ```

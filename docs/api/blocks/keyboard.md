@@ -50,15 +50,15 @@ class KeyboardBlock extends BlockKeyboard {
 
 Generate keyboard template blocks from an object of language-keyed values.
 
-| parameter      | type    | required | default    | description               | ai_notes                                  |
-| -------------- | ------- | -------- | ---------- | ------------------------- | ----------------------------------------- |
-| obj            | object  | yes      | -          | Object with language keys | Structure is `{ en: "...", id: "..." }`.  |
-| params.type    | string  | no       | `"inline"` | Keyboard type             | Values are `"inline"` or `"bottom"`.      |
-| params.lang    | string  | no       | -          | Target language           | If set, returns single language block.    |
-| params.reverse | boolean | no       | -          | Reverse button order      | If true, reverses comma-separated labels. |
+| parameter      | type    | required | default    | description                                                         |
+| -------------- | ------- | -------- | ---------- | ------------------------------------------------------------------- |
+| obj            | object  | yes      | -          | Object with language keys. Structure is `{ en: "...", id: "..." }`. |
+| params.type    | string  | no       | `"inline"` | Keyboard type. Values are `"inline"` or `"bottom"`.                 |
+| params.lang    | string  | no       | -          | Target language. If set, returns single language block.             |
+| params.reverse | boolean | no       | -          | Reverse button order. If true, reverses comma-separated labels.     |
 
 - **returns: string**
-- **ai_notes:** Returns HTML-like `<keyboard>` block(s) as string.
+- **description:** Returns HTML-like `<keyboard>` block(s) as string.
 
 ```typescript
 const obj = { en: "Back, Next", id: "Kembali, Lanjut" };
@@ -82,14 +82,15 @@ BlockKeyboard._process(obj, { type: "inline", reverse: true });
 
 Build keyboard blocks by calling a method from the linked `LabelKeyboard`.
 
-| parameter | type   | required | default    | description                  | ai_notes                               |
-| --------- | ------ | -------- | ---------- | ---------------------------- | -------------------------------------- |
-| key       | string | yes      | -          | Method name in LabelKeyboard | Must exist or throws.                  |
-| lang      | string | no       | -          | Target language              | If set, returns single language block. |
-| type      | string | no       | `"inline"` | Keyboard type                | Values are `"inline"` or `"bottom"`.   |
+| parameter | type   | required | default    | description                                             |
+| --------- | ------ | -------- | ---------- | ------------------------------------------------------- |
+| key       | string | yes      | -          | Method name in LabelKeyboard. Must exist or throws.     |
+| lang      | string | no       | -          | Target language. If set, returns single language block. |
+| type      | string | no       | `"inline"` | Keyboard type. Values are `"inline"` or `"bottom"`.     |
 
 - **returns: string**
-- **ai_notes:** Returns keyboard block string.
+- **description:** Returns keyboard block string.
+
 - **throws:** Error if `data` not set or method not found.
 
 ```typescript

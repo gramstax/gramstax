@@ -21,15 +21,15 @@ The `Gramstax` class is the main bot framework class that handles initialization
 
 ### `new Gramstax(params)`
 
-| parameter                            | type               | required | default     | description                | ai_notes                                                       |
-| ------------------------------------ | ------------------ | -------- | ----------- | -------------------------- | -------------------------------------------------------------- |
-| params.token                         | string             | yes      | -           | Telegram bot token         | Obtained from @BotFather.                                      |
-| params.deploy                        | string             | yes      | -           | Deployment mode            | Values are "polling", "webhook:<url>", "serverless:<adapter>". |
-| params.log                           | LoggingPretty/bool | no       | -           | Logger instance or boolean | If true, creates new LoggingPretty.                            |
-| params.cacheSession                  | CacheExternal      | no       | memory      | Session cache adapter      | Defaults to in-memory cache.                                   |
-| params.cacheKeyboard                 | Map                | no       | `new Map()` | Keyboard cache             | Caches keyboard layouts.                                       |
-| params.templateManager               | TemplateManager    | no       | auto        | Template manager instance  | Defaults to `src/pages` loader.                                |
-| params.optionsPage.shortCallbackData | boolean            | no       | `false`     | Use short callback data    | If true, uses index numbers instead of page names.             |
+| parameter                            | type               | required | default     | description                                                                     |
+| ------------------------------------ | ------------------ | -------- | ----------- | ------------------------------------------------------------------------------- |
+| params.token                         | string             | yes      | -           | Telegram bot token. Obtained from @BotFather.                                   |
+| params.deploy                        | string             | yes      | -           | Deployment mode. Values are "polling", "webhook:<url>", "serverless:<adapter>". |
+| params.log                           | LoggingPretty/bool | no       | -           | Logger instance or boolean. If true, creates new LoggingPretty.                 |
+| params.cacheSession                  | CacheExternal      | no       | memory      | Session cache adapter. Defaults to in-memory cache.                             |
+| params.cacheKeyboard                 | Map                | no       | `new Map()` | Keyboard cache. Caches keyboard layouts.                                        |
+| params.templateManager               | TemplateManager    | no       | auto        | Template manager instance. Defaults to `src/pages` loader.                      |
+| params.optionsPage.shortCallbackData | boolean            | no       | `false`     | Use short callback data. If true, uses index numbers instead of page names.     |
 
 ```typescript
 import { Gramstax } from "gramstax";
@@ -164,13 +164,13 @@ class MyBot extends Gramstax {
 
 Called before routing each update. Return `false` to skip routing.
 
-| parameter    | type   | description      | ai_notes                            |
-| ------------ | ------ | ---------------- | ----------------------------------- |
-| ctx          | Ctx    | Context instance | Current update context.             |
-| listenerName | string | Event type       | Example values: "text", "callback". |
+| parameter    | type   | description                                     |
+| ------------ | ------ | ----------------------------------------------- |
+| ctx          | Ctx    | Context instance. Current update context.       |
+| listenerName | string | Event type. Example values: "text", "callback". |
 
 - **returns: Promise\<boolean\>**
-- **ai_notes:** Return `false` to skip routing.
+- **description:** Return `false` to skip routing.
 
 ```typescript
 class MyBot extends Gramstax {
@@ -188,12 +188,12 @@ class MyBot extends Gramstax {
 
 Called when page throws an error.
 
-| parameter    | type    | description           | ai_notes                            |
-| ------------ | ------- | --------------------- | ----------------------------------- |
-| ctx          | Ctx     | Context instance      | Current update context.             |
-| listenerName | string  | Event type            | Example values: "text", "callback". |
-| error        | any     | The error             | Error thrown by page.               |
-| isEdit       | boolean | Was it an edit action | True when edit handler path.        |
+| parameter    | type    | description                                         |
+| ------------ | ------- | --------------------------------------------------- |
+| ctx          | Ctx     | Context instance. Current update context.           |
+| listenerName | string  | Event type. Example values: "text", "callback".     |
+| error        | any     | The error. Error thrown by page.                    |
+| isEdit       | boolean | Was it an edit action. True when edit handler path. |
 
 ```typescript
 import { GeneralStatusPage } from "~/pages/general-status";

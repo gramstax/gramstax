@@ -72,12 +72,12 @@ Do not set `intentText` or `intentTextCommand` unless you need to override the a
 
 **Options**
 
-| key          | type     | required | description                               | ai_notes                                                                                                                 |
-| ------------ | -------- | -------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| dataCallback | function | no       | Function returning callback payload array | Must return an array (use `[]` for no payloads); with payloads it routes to `callbackPayload()`, otherwise `callback()`. |
+| key               | type     | required | description                                                                                                                                           |
+| ----------------- | -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| dataCallback      | function | no       | Function returning callback payload array. Must return an array (use `[]` for no payloads); with payloads it routes to `callbackPayload()`, otherwise `callback()`. |
+| intentText        | string   | no       | Overrides intent value for the `text()` route. Also applies to `textPayload()`; only a single space is supported (max two words, e.g. `"🏠 Home"`). |
+| intentTextCommand | string   | no       | Overrides intent value for the `textCommand()` route. Also applies to `textCommandPayload()`; leave unset unless needed.                             |
 
-| intentText | string | no | Overrides intent value for the `text()` route | Also applies to `textPayload()`; only a single space is supported (max two words, e.g. `"🏠 Home"`). |
-| intentTextCommand | string | no | Overrides intent value for the `textCommand()` route | Also applies to `textCommandPayload()`; leave unset unless needed. |
 
 **Internal fields (auto-set)**
 
@@ -86,7 +86,8 @@ Do not set `intentText` or `intentTextCommand` unless you need to override the a
 - `_positionPayloadText`: internal payload index for `text` triggers (max 2 when `intentText` contains one space).
 
 - **returns: IPageData**
-- **ai_notes:** Metadata used for routing.
+- **description:** Metadata used for routing.
+
 
 ```typescript
 import { PageBase } from "~/base/page";
@@ -236,26 +237,27 @@ Get all payloads from callback data.
 Get current session data.
 
 - **returns: Promise\<{ method: string; params: any } | undefined\>**
-- **ai_notes:** Resolves with stored session payload.
+- **description:** Resolves with stored session payload.
 
 ### `.sessionSet(method, params)`
 
 Set session data.
 
-| parameter | type   | required | description        | ai_notes                    |
-| --------- | ------ | -------- | ------------------ | --------------------------- |
-| method    | string | yes      | Session method     | Matches route handler name. |
-| params    | any    | no       | Session parameters | Stored in session payload.  |
+| parameter | type   | required | description                                     |
+| --------- | ------ | -------- | ----------------------------------------------- |
+| method    | string | yes      | Session method. Matches route handler name.     |
+| params    | any    | no       | Session parameters. Stored in session payload.  |
+
 
 - **returns: Promise\<boolean\>**
-- **ai_notes:** Resolves with operation result.
+- **description:** Resolves with operation result.
 
 ### `.sessionClear()`
 
 Clear current session.
 
 - **returns: Promise\<boolean\>**
-- **ai_notes:** Resolves with operation result.
+- **description:** Resolves with operation result.
 
 ### `.sessionCallback(params?, name?)`
 
@@ -285,15 +287,16 @@ Set session for textFree route.
 
 Send a text message reply.
 
-| parameter | type    | required | default   | description         | ai_notes                                                |
-| --------- | ------- | -------- | --------- | ------------------- | ------------------------------------------------------- |
-| keyboard  | IInBoKb | no       | -         | Keyboard markup     | From `inlineKeyboard()` or `bottomKeyboard()` builders. |
-| data      | object  | no       | -         | Template data       | Used for template interpolation.                        |
-| baseId    | string  | no       | "default" | Template base ID    | Matches `<base id="...">`.                              |
-| options   | object  | no       | -         | grammY send options | Passed to grammY `reply` options.                       |
+| parameter | type    | required | default   | description                                                                   |
+| --------- | ------- | -------- | --------- | ----------------------------------------------------------------------------- |
+| keyboard  | IInBoKb | no       | -         | Keyboard markup. From `inlineKeyboard()` or `bottomKeyboard()` builders.      |
+| data      | object  | no       | -         | Template data. Used for template interpolation.                               |
+| baseId    | string  | no       | "default" | Template base ID. Matches `<base id="...">`.                                   |
+| options   | object  | no       | -         | grammY send options. Passed to grammY `reply` options.                        |
+
 
 - **returns: Promise\<Message\>**
-- **ai_notes:** Resolves with sent message.
+- **description:** Resolves with sent message.
 
 ```typescript
 await this.reply(this.kb(), { name: "John" });
@@ -376,34 +379,37 @@ Edit media to animation.
 Delete the current message.
 
 - **returns: Promise\<boolean\>**
-- **ai_notes:** Resolves with operation result.
+- **description:** Resolves with operation result.
 
 ### `.callbackQueryAnswer(text?, options?)`
 
 Answer callback query (show toast). Gramstax auto-answers routed callbacks, so call this only when you need a custom toast or extra acknowledgment.
 
-| parameter | type   | required | description    | ai_notes                         |
-| --------- | ------ | -------- | -------------- | -------------------------------- |
-| text      | string | no       | Toast text     | Shown as notification to user.   |
-| options   | object | no       | Answer options | Passed to grammY answer options. |
+| parameter | type   | required | description                                               |
+| --------- | ------ | -------- | --------------------------------------------------------- |
+| text      | string | no       | Toast text. Shown as notification to user.                |
+| options   | object | no       | Answer options. Passed to grammY answer options.          |
+
 
 ### `.inlineKeyboard(builder)` and `.bottomKeyboard(builder)`
 
 Create using builder pattern.
 
-| parameter | type     | required | description      | ai_notes               |
-| --------- | -------- | -------- | ---------------- | ---------------------- |
-| builder   | function | yes      | Builder callback | Receives (kb, labels). |
+| parameter | type     | required | description                                 |
+| --------- | -------- | -------- | ------------------------------------------- |
+| builder   | function | yes      | Builder callback. Receives (kb, labels).    |
+
 
 parameter builder.
 
-| parameter | type     | required | description        | ai_notes                                                                    |
-| --------- | -------- | -------- | ------------------ | --------------------------------------------------------------------------- |
-| k         | object   | yes      | For build keyboard | init class InlineKeyboard (for inline) or Keyboard (for bottom) from grammY |
-| a         | string[] | yes      | For text keyboard  | each value is obtained from the <keyboard> block with a comma separator     |
+| parameter | type     | required | description                                                                                       |
+| --------- | -------- | -------- | ------------------------------------------------------------------------------------------------- |
+| k         | object   | yes      | For build keyboard. Init class InlineKeyboard (for inline) or Keyboard (for bottom) from grammY. |
+| a         | string[] | yes      | For text keyboard. Each value is obtained from the <keyboard> block with a comma separator.      |
+
 
 - **returns: InlineKeyboard or BottomKeyboard**
-- **ai_notes:** Builder instance for inline buttons and bottom buttons.
+- **description:** Builder instance for inline buttons and bottom buttons.
 
 ```typescript
 // inline keyboard (will show on below message)
@@ -430,9 +436,10 @@ const bk = this.bottomKeyboard((k, a) => {
 
 Transition to another page.
 
-| parameter | type   | required | description  | ai_notes                                                                 |
-| --------- | ------ | -------- | ------------ | ------------------------------------------------------------------------ |
-| data      | object | no       | Data to pass | Provide the data from the previous page to this page that is only needed |
+| parameter | type   | required | description                                                                              |
+| --------- | ------ | -------- | ---------------------------------------------------------------------------------------- |
+| data      | object | no       | Data to pass. Provide the data from the previous page to this page that is only needed. |
+
 
 ```typescript
 // ./pages/home.ts

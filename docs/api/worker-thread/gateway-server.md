@@ -47,7 +47,7 @@ The underlying `net-ipc` Server instance.
 Map of RPC handlers per connection.
 
 - **type: Map\<string, WorkerThreadRpc\>**
-- **ai_notes:** Key is the connection ID.
+- **description:** Key is the connection ID.
 
 ### `.methods`
 
@@ -63,13 +63,14 @@ Methods exposed to clients.
 
 Start the gateway server.
 
-| parameter | type   | required | default | description                  | ai_notes                     |
-| --------- | ------ | -------- | ------- | ---------------------------- | ---------------------------- |
-| path      | string | yes      | -       | Unix socket path to bind     | Gateway path identifier.     |
-| methods   | object | no       | `{}`    | Methods to expose to clients | Called by connected clients. |
+| parameter | type   | required | default | description                                                               |
+| --------- | ------ | -------- | ------- | ------------------------------------------------------------------------- |
+| path      | string | yes      | -       | Unix socket path to bind. Gateway path identifier.                        |
+| methods   | object | no       | `{}`    | Methods to expose to clients. Called by connected clients.                |
+
 
 - **returns: Promise\<WorkerThreadGatewayServer\>**
-- **ai_notes:** Resolves when server is ready.
+- **description:** Resolves when server is ready.
 
 ```typescript
 await server.start("/tmp/data-worker.sock", {

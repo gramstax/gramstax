@@ -22,12 +22,13 @@ The `LabelKeyboard` class provides static utilities for keyboard data manipulati
 
 Reverse the order of comma-separated button labels.
 
-| parameter | type   | required | description                   | ai_notes                              |
-| --------- | ------ | -------- | ----------------------------- | ------------------------------------- |
-| input     | string | yes      | Comma-separated button labels | Escaped commas (`\\,`) are preserved. |
+| parameter | type   | required | description                                                         |
+| --------- | ------ | -------- | ------------------------------------------------------------------- |
+| input     | string | yes      | Comma-separated button labels. Escaped commas (`\\,`) are preserved. |
+
 
 - **returns: string**
-- **ai_notes:** Reversed comma-separated labels.
+- **description:** Reversed comma-separated labels.
 
 ```typescript
 import { LabelKeyboard } from "gramstax";
@@ -46,12 +47,13 @@ const preserved = LabelKeyboard._reverse("Option A\\, B, Option C");
 
 Reverse button order for all languages in an object.
 
-| parameter | type   | required | description                                 | ai_notes                            |
-| --------- | ------ | -------- | ------------------------------------------- | ----------------------------------- |
-| input     | object | yes      | Object with language keys and button values | Applies `_reverse()` to each value. |
+| parameter | type   | required | description                                                                    |
+| --------- | ------ | -------- | ------------------------------------------------------------------------------ |
+| input     | object | yes      | Object with language keys and button values. Applies `_reverse()` to each value. |
+
 
 - **returns: object**
-- **ai_notes:** Returns object with reversed labels.
+- **description:** Returns object with reversed labels.
 
 ```typescript
 const reversed = LabelKeyboard._reverseObj({
@@ -67,14 +69,15 @@ const reversed = LabelKeyboard._reverseObj({
 
 Build keyboard string with optional language selection and reversal.
 
-| parameter | type    | required | description                     | ai_notes                                       |
-| --------- | ------- | -------- | ------------------------------- | ---------------------------------------------- |
-| lang      | string  | no       | Target language code            | If provided, returns only that language value. |
-| reverse   | boolean | no       | Whether to reverse button order | If true, applies `_reverse()` to result.       |
-| obj       | object  | yes      | Object with language keys       | Structure is `{ en: "...", id: "...", ... }`.  |
+| parameter | type    | required | description                                                                                 |
+| --------- | ------- | -------- | ------------------------------------------------------------------------------------------- |
+| lang      | string  | no       | Target language code. If provided, returns only that language value.                        |
+| reverse   | boolean | no       | Whether to reverse button order. If true, applies `_reverse()` to result.                   |
+| obj       | object  | yes      | Object with language keys. Structure is `{ en: "...", id: "...", ... }`.                  |
+
 
 - **returns: string | object**
-- **ai_notes:** Returns string if `lang` provided, object otherwise.
+- **description:** Returns string if `lang` provided, object otherwise.
 
 ```typescript
 const keyboards = {

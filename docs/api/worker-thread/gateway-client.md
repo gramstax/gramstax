@@ -53,12 +53,13 @@ RPC handler for messaging.
 
 Connect to a gateway server.
 
-| parameter | type   | required | description      | ai_notes                |
-| --------- | ------ | -------- | ---------------- | ----------------------- |
-| path      | string | yes      | Unix socket path | Matches server gateway. |
+| parameter | type   | required | description                                   |
+| --------- | ------ | -------- | --------------------------------------------- |
+| path      | string | yes      | Unix socket path. Matches server gateway.     |
+
 
 - **returns: Promise\<WorkerThreadGatewayClient\>**
-- **ai_notes:** Resolves when connection is ready.
+- **description:** Resolves when connection is ready.
 
 ```typescript
 await client.connect("/tmp/worker-server.sock");
@@ -69,15 +70,16 @@ console.log("Connected to gateway server");
 
 Make an RPC request to the server.
 
-| parameter | type    | required | default | description           | ai_notes                   |
-| --------- | ------- | -------- | ------- | --------------------- | -------------------------- |
-| method    | string  | yes      | -       | Server method to call | Targets server RPC method. |
-| params    | any     | yes      | -       | Method parameters     | Sent as positional array.  |
-| wait      | boolean | no       | `true`  | Wait for response     | If false, fire-and-forget. |
-| others    | object  | no       | -       | Additional RPC data   | Merged into RPC payload.   |
+| parameter | type    | required | default | description                                                        |
+| --------- | ------- | -------- | ------- | ------------------------------------------------------------------ |
+| method    | string  | yes      | -       | Server method to call. Targets server RPC method.                  |
+| params    | any     | yes      | -       | Method parameters. Sent as positional array.                       |
+| wait      | boolean | no       | `true`  | Wait for response. If false, fire-and-forget.                      |
+| others    | object  | no       | -       | Additional RPC data. Merged into RPC payload.                      |
+
 
 - **returns: Promise\<any\>**
-- **ai_notes:** Resolves with server response.
+- **description:** Resolves with server response.
 
 ```typescript
 const result = await client.request("ping", []);

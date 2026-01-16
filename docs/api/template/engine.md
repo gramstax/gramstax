@@ -21,9 +21,9 @@ The `TemplateEngine` class provides static methods for parsing and compiling HTM
 
 REQUIRED. Container for template sections.
 
-| attribute | type   | required | default | description     | ai_notes                                                           |
-| --------- | ------ | -------- | ------- | --------------- | ------------------------------------------------------------------ |
-| `id`      | string | no       | -       | Base identifier | Defaults to `default` when missing; leading whitespace is trimmed. |
+| attribute | type   | required | default | description                                                                 |
+| --------- | ------ | -------- | ------- | --------------------------------------------------------------------------- |
+| `id`      | string | no       | -       | Base identifier. Defaults to `default` when missing; leading whitespace is trimmed. |
 
 ```html
 <base id="default">
@@ -40,9 +40,9 @@ REQUIRED. Container for template sections.
 
 Text content with template interpolation.
 
-| attribute | type   | required | default | description  | ai_notes                        |
-| --------- | ------ | -------- | ------- | ------------ | ------------------------------- |
-| `lang`    | string | no       | -       | Language key | Defaults to `default` language. |
+| attribute | type   | required | default | description                                           |
+| --------- | ------ | -------- | ------- | ----------------------------------------------------- |
+| `lang`    | string | no       | -       | Language key. Defaults to `default` language.          |
 
 ```html
 <message>Hello {{name}}!</message> <message lang="id">Halo {{name}}!</message>
@@ -52,10 +52,10 @@ Text content with template interpolation.
 
 Comma-separated button labels for inline or bottom keyboards.
 
-| attribute | type   | required | default | description   | ai_notes                                                                |
-| --------- | ------ | -------- | ------- | ------------- | ----------------------------------------------------------------------- |
-| `lang`    | string | no       | -       | Language key  | Defaults to `default` language.                                         |
-| `type`    | string | no       | -       | Keyboard type | `bottom` for reply keyboard; anything else defaults to inline keyboard. |
+| attribute | type   | required | default | description                                                                                 |
+| --------- | ------ | -------- | ------- | ------------------------------------------------------------------------------------------- |
+| `lang`    | string | no       | -       | Language key. Defaults to `default` language.                                              |
+| `type`    | string | no       | -       | Keyboard type. `bottom` for reply keyboard; anything else defaults to inline keyboard.     |
 
 ```html
 <keyboard>Yes, No</keyboard>
@@ -67,10 +67,10 @@ Comma-separated button labels for inline or bottom keyboards.
 
 Bot command descriptions for Telegram menu.
 
-| attribute | type   | required | default | description            | ai_notes                        |
-| --------- | ------ | -------- | ------- | ---------------------- | ------------------------------- |
-| `lang`    | string | no       | -       | Language key           | Defaults to `default` language. |
-| `scope`   | string | no       | -       | Telegram command scope | Defaults to `default` scope.    |
+| attribute | type   | required | default | description                                                           |
+| --------- | ------ | -------- | ------- | --------------------------------------------------------------------- |
+| `lang`    | string | no       | -       | Language key. Defaults to `default` language.                         |
+| `scope`   | string | no       | -       | Telegram command scope. Defaults to `default` scope.                  |
 
 ```html
 <description>Start the bot</description>
@@ -82,17 +82,17 @@ Bot command descriptions for Telegram menu.
 
 Media is defined using `<media>` blocks only (no `<photo>`, `<video>`, etc.). The inner content becomes the caption for supported types.
 
-| attribute    | type   | required | default | description               | ai_notes                                                                                                            |
-| ------------ | ------ | -------- | ------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `type`       | string | yes      | -       | Media type                | One of `photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, `sticker`, `location`, `contact`. |
-| `lang`       | string | no       | -       | Language key              | Defaults to `default` language.                                                                                     |
-| `src`        | string | no       | -       | Media source              | Required for file-based media types; omitted for `location`/`contact` metadata-only blocks.                         |
-| `latitude`   | string | no       | -       | Latitude (location only)  | Used only when `type="location"`.                                                                                   |
-| `longitude`  | string | no       | -       | Longitude (location only) | Used only when `type="location"`.                                                                                   |
-| `phone`      | string | no       | -       | Contact phone number      | Used only when `type="contact"`.                                                                                    |
-| `first_name` | string | no       | -       | Contact first name        | Used only when `type="contact"`.                                                                                    |
-| `last_name`  | string | no       | -       | Contact last name         | Used only when `type="contact"`.                                                                                    |
-| `vcard`      | string | no       | -       | Contact vCard             | Used only when `type="contact"`.                                                                                    |
+| attribute    | type   | required | default | description                                                                                                               |
+| ------------ | ------ | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `type`       | string | yes      | -       | Media type. One of `photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, `sticker`, `location`, `contact`. |
+| `lang`       | string | no       | -       | Language key. Defaults to `default` language.                                                                              |
+| `src`        | string | no       | -       | Media source. Required for file-based media types; omitted for `location`/`contact` metadata-only blocks.                  |
+| `latitude`   | string | no       | -       | Latitude (location only). Used only when `type="location"`.                                                               |
+| `longitude`  | string | no       | -       | Longitude (location only). Used only when `type="location"`.                                                              |
+| `phone`      | string | no       | -       | Contact phone number. Used only when `type="contact"`.                                                                     |
+| `first_name` | string | no       | -       | Contact first name. Used only when `type="contact"`.                                                                       |
+| `last_name`  | string | no       | -       | Contact last name. Used only when `type="contact"`.                                                                        |
+| `vcard`      | string | no       | -       | Contact vCard. Used only when `type="contact"`.                                                                            |
 
 ```html
 <media type="photo" src="path/to/image.jpg">Caption text</media>
@@ -107,9 +107,9 @@ Media is defined using `<media>` blocks only (no `<photo>`, `<video>`, etc.). Th
 
 Inline script evaluated with access to `data` via `with(data)`.
 
-| attribute | type | required | default | description | ai_notes                                                               |
-| --------- | ---- | -------- | ------- | ----------- | ---------------------------------------------------------------------- |
-| (none)    | -    | -        | -       | -           | If the script throws or `data` is missing, it returns an empty string. |
+| attribute | type | required | default | description                                                          |
+| --------- | ---- | -------- | ------- | -------------------------------------------------------------------- |
+| (none)    | -    | -        | -       | If the script throws or `data` is missing, it returns an empty string. |
 
 ```html
 <script>
@@ -121,9 +121,9 @@ Inline script evaluated with access to `data` via `with(data)`.
 
 Plain container used to normalize indentation. No attributes are supported.
 
-| attribute | type | required | default | description | ai_notes                            |
-| --------- | ---- | -------- | ------- | ----------- | ----------------------------------- |
-| (none)    | -    | -        | -       | -           | Content is de-indented and trimmed. |
+| attribute | type | required | default | description                            |
+| --------- | ---- | -------- | ------- | -------------------------------------- |
+| (none)    | -    | -        | -       | Content is de-indented and trimmed.    |
 
 ```html
 <div>Line 1 Line 2</div>
@@ -133,9 +133,9 @@ Plain container used to normalize indentation. No attributes are supported.
 
 Removes the entire line that contains a self-closing `<space />` tag.
 
-| attribute | type | required | default | description | ai_notes                                                     |
-| --------- | ---- | -------- | ------- | ----------- | ------------------------------------------------------------ |
-| (none)    | -    | -        | -       | -           | Only `<space />` is recognized; `<space>...</space>` is not. |
+| attribute | type | required | default | description                                                          |
+| --------- | ---- | -------- | ------- | -------------------------------------------------------------------- |
+| (none)    | -    | -        | -       | Only `<space />` is recognized; `<space>...</space>` is not.          |
 
 ```html
 Line 1
@@ -147,9 +147,9 @@ Line 2
 
 Conditional rendering with `case` and `default` sub-blocks.
 
-| attribute | type   | required | default | description | ai_notes                                                               |
-| --------- | ------ | -------- | ------- | ----------- | ---------------------------------------------------------------------- |
-| `value`   | string | yes      | -       | Data key    | Uses `data["value"]` for switching; missing value yields empty string. |
+| attribute | type   | required | default | description                                                                 |
+| --------- | ------ | -------- | ------- | --------------------------------------------------------------------------- |
+| `value`   | string | yes      | -       | Data key. Uses `data["value"]` for switching; missing value yields empty string. |
 
 ```html
 <switch value="status">
@@ -163,26 +163,26 @@ Conditional rendering with `case` and `default` sub-blocks.
 
 Sub-block for `switch` values.
 
-| attribute | type   | required | default | description    | ai_notes                                            |
-| --------- | ------ | -------- | ------- | -------------- | --------------------------------------------------- |
-| `is`      | string | yes      | -       | Match value(s) | Supports comma-separated values (e.g., `is="a,b"`). |
+| attribute | type   | required | default | description                                                      |
+| --------- | ------ | -------- | ------- | ---------------------------------------------------------------- |
+| `is`      | string | yes      | -       | Match value(s). Supports comma-separated values (e.g., `is="a,b"`). |
 
 ### Default Block
 
 Fallback for `switch` when no `case` matches.
 
-| attribute | type | required | default | description | ai_notes                        |
-| --------- | ---- | -------- | ------- | ----------- | ------------------------------- |
-| (none)    | -    | -        | -       | -           | Emits empty string when absent. |
+| attribute | type | required | default | description                       |
+| --------- | ---- | -------- | ------- | --------------------------------- |
+| (none)    | -    | -        | -       | Emits empty string when absent.   |
 
 ### Map Block
 
 Loops over arrays and joins rendered output.
 
-| attribute | type   | required | default | description           | ai_notes                                         |
-| --------- | ------ | -------- | ------- | --------------------- | ------------------------------------------------ |
-| `src`     | string | yes      | -       | Data key for array    | Uses `data[src]` or `[]` if missing.             |
-| `join`    | string | no       | -       | Join separator string | Defaults to `\n`; quotes are escaped internally. |
+| attribute | type   | required | default | description                                                              |
+| --------- | ------ | -------- | ------- | ------------------------------------------------------------------------ |
+| `src`     | string | yes      | -       | Data key for array. Uses `data[src]` or `[]` if missing.                 |
+| `join`    | string | no       | -       | Join separator string. Defaults to `\n`; quotes are escaped internally. |
 
 ```html
 <map src="items" join="\\n"> - {{e.name}} ({{i}}) </map>
@@ -192,13 +192,13 @@ Loops over arrays and joins rendered output.
 
 Imports blocks from another template and supports scoped extraction.
 
-| attribute | type   | required | default | description         | ai_notes                                                     |
-| --------- | ------ | -------- | ------- | ------------------- | ------------------------------------------------------------ |
-| `src`     | string | yes      | -       | Source template key | Required; missing `src` removes the import.                  |
-| `block`   | string | no       | -       | Block list or `all` | Comma-separated list (`"message,keyboard"`) or `all`.        |
-| `base`    | string | no       | -       | Base id             | Defaults to `default`.                                       |
-| `lang`    | string | no       | -       | Language filter     | Matches block `lang` (default matches missing `lang`).       |
-| `section` | string | no       | -       | `all` or `value`    | `all` keeps block tags; `value` extracts inner content only. |
+| attribute | type   | required | default | description                                                                 |
+| --------- | ------ | -------- | ------- | --------------------------------------------------------------------------- |
+| `src`     | string | yes      | -       | Source template key. Required; missing `src` removes the import.            |
+| `block`   | string | no       | -       | Block list or `all`. Comma-separated list (`"message,keyboard"`) or `all`. |
+| `base`    | string | no       | -       | Base id. Defaults to `default`.                                             |
+| `lang`    | string | no       | -       | Language filter. Matches block `lang` (default matches missing `lang`).     |
+| `section` | string | no       | -       | `all` or `value`. `all` keeps block tags; `value` extracts inner content only. |
 
 ```html
 <import src="other-page" block="message,keyboard" base="default" />
@@ -211,9 +211,9 @@ Imports blocks from another template and supports scoped extraction.
 
 Variables use double curly braces and only resolve top-level `data` keys.
 
-| syntax    | default | description        | ai_notes                                             |
-| --------- | ------- | ------------------ | ---------------------------------------------------- |
-| `{{key}}` | -       | Inserts `data.key` | Only `\w+` keys are supported (no nested dot paths). |
+| syntax    | default | description                                                             |
+| --------- | ------- | ----------------------------------------------------------------------- |
+| `{{key}}` | -       | Inserts `data.key`. Only `\w+` keys are supported (no nested dot paths). |
 
 ```html
 <message>Hello {{name}}!</message>
@@ -223,11 +223,11 @@ Variables use double curly braces and only resolve top-level `data` keys.
 
 Inside `<map>`, you can reference:
 
-| syntax       | default | description              | ai_notes                        |
-| ------------ | ------- | ------------------------ | ------------------------------- |
-| `{{e}}`      | -       | Current element          | `e` is the loop item.           |
-| `{{e.prop}}` | -       | Current element property | Supports dot access within `e`. |
-| `{{i}}`      | -       | Current index            | Zero-based index.               |
+| syntax       | default | description                                                     |
+| ------------ | ------- | --------------------------------------------------------------- |
+| `{{e}}`      | -       | Current element. `e` is the loop item.                          |
+| `{{e.prop}}` | -       | Current element property. Supports dot access within `e`.       |
+| `{{i}}`      | -       | Current index. Zero-based index.                                |
 
 &nbsp;
 
@@ -235,9 +235,9 @@ Inside `<map>`, you can reference:
 
 Inline execution uses `{~ ... ~}` and is evaluated as JavaScript.
 
-| syntax       | default | description          | ai_notes                                                                       |
-| ------------ | ------- | -------------------- | ------------------------------------------------------------------------------ |
-| `{~ code ~}` | -       | Evaluates expression | Tries plain execution first, then `with(data)`; returns empty string on error. |
+| syntax       | default | description                                                                                 |
+| ------------ | ------- | ------------------------------------------------------------------------------------------- |
+| `{~ code ~}` | -       | Evaluates expression. Tries plain execution first, then `with(data)`; returns empty string on error. |
 
 ```html
 <message>Total: {~ data?.count ?? 0 ~}</message>
@@ -251,63 +251,63 @@ Inline execution uses `{~ ... ~}` and is evaluated as JavaScript.
 
 Compile message blocks from template.
 
-| parameter  | type   | required | default | description            | ai_notes                       |
-| ---------- | ------ | -------- | ------- | ---------------------- | ------------------------------ |
-| template   | string | yes      | -       | Raw template string    | HTML-like template source.     |
-| baseBlocks | object | no       | -       | Pre-parsed base blocks | Optional reuse of base blocks. |
+| parameter  | type   | required | default | description                                                  |
+| ---------- | ------ | -------- | ------- | ------------------------------------------------------------ |
+| template   | string | yes      | -       | Raw template string. HTML-like template source.              |
+| baseBlocks | object | no       | -       | Pre-parsed base blocks. Optional reuse of base blocks.        |
 
 - **returns: object** - `{ [baseId]: { [lang]: (data) => string } }`
-- **ai_notes:** Compiled message functions by base/lang.
+- **description:** Compiled message functions by base/lang.
 
 ### `.compileKeyboards(template, baseBlocks?)`
 
 Compile keyboard blocks from template.
 
-| parameter  | type   | required | default | description            | ai_notes                       |
-| ---------- | ------ | -------- | ------- | ---------------------- | ------------------------------ |
-| template   | string | yes      | -       | Raw template string    | HTML-like template source.     |
-| baseBlocks | object | no       | -       | Pre-parsed base blocks | Optional reuse of base blocks. |
+| parameter  | type   | required | default | description                                                  |
+| ---------- | ------ | -------- | ------- | ------------------------------------------------------------ |
+| template   | string | yes      | -       | Raw template string. HTML-like template source.              |
+| baseBlocks | object | no       | -       | Pre-parsed base blocks. Optional reuse of base blocks.        |
 
 - **returns: object** - `{ [baseId]: { [lang]: { inline, bottom } } }`
-- **ai_notes:** Compiled keyboard builders per base/lang.
+- **description:** Compiled keyboard builders per base/lang.
 
 ### `.compileMedia(template, baseBlocks?)`
 
 Compile media blocks from template.
 
-| parameter  | type   | required | default | description            | ai_notes                       |
-| ---------- | ------ | -------- | ------- | ---------------------- | ------------------------------ |
-| template   | string | yes      | -       | Raw template string    | HTML-like template source.     |
-| baseBlocks | object | no       | -       | Pre-parsed base blocks | Optional reuse of base blocks. |
+| parameter  | type   | required | default | description                                                  |
+| ---------- | ------ | -------- | ------- | ------------------------------------------------------------ |
+| template   | string | yes      | -       | Raw template string. HTML-like template source.              |
+| baseBlocks | object | no       | -       | Pre-parsed base blocks. Optional reuse of base blocks.        |
 
 - **returns: object** - `{ [baseId]: { [lang]: (data) => IMediaBlock } }`
-- **ai_notes:** Compiled media builders per base/lang.
+- **description:** Compiled media builders per base/lang.
 
 ### `.compileDescription(template, baseBlocks?)`
 
 Compile description blocks from template.
 
-| parameter  | type   | required | default | description            | ai_notes                       |
-| ---------- | ------ | -------- | ------- | ---------------------- | ------------------------------ |
-| template   | string | yes      | -       | Raw template string    | HTML-like template source.     |
-| baseBlocks | object | no       | -       | Pre-parsed base blocks | Optional reuse of base blocks. |
+| parameter  | type   | required | default | description                                                  |
+| ---------- | ------ | -------- | ------- | ------------------------------------------------------------ |
+| template   | string | yes      | -       | Raw template string. HTML-like template source.              |
+| baseBlocks | object | no       | -       | Pre-parsed base blocks. Optional reuse of base blocks.        |
 
 - **returns: object** - `{ [baseId]: { [scope]: { [lang]: (data) => string } } }`
-- **ai_notes:** Compiled description functions by scope.
+- **description:** Compiled description functions by scope.
 
 ### `.processImportBlocks(template, resolver, depth?, importCache?)`
 
 Process import blocks recursively.
 
-| parameter   | type     | required | default | description                 | ai_notes                           |
-| ----------- | -------- | -------- | ------- | --------------------------- | ---------------------------------- |
-| template    | string   | yes      | -       | Template with imports       | Contains `<import>` directives.    |
-| resolver    | function | yes      | -       | Function to resolve imports | Returns template content string.   |
-| depth       | number   | no       | 0       | Current recursion depth     | Stops at depth limit (10).         |
-| importCache | Map      | no       | -       | Cache for resolved imports  | Optional reuse of resolved blocks. |
+| parameter   | type     | required | default | description                                                         |
+| ----------- | -------- | -------- | ------- | ------------------------------------------------------------------- |
+| template    | string   | yes      | -       | Template with imports. Contains `<import>` directives.              |
+| resolver    | function | yes      | -       | Function to resolve imports. Returns template content string.       |
+| depth       | number   | no       | 0       | Current recursion depth. Stops at depth limit (10).                 |
+| importCache | Map      | no       | -       | Cache for resolved imports. Optional reuse of resolved blocks.      |
 
 - **returns: string** - Template with imports resolved.
-- **ai_notes:** Returns template with `<import>` blocks replaced.
+- **description:** Returns template with `<import>` blocks replaced.
 
 &nbsp;
 

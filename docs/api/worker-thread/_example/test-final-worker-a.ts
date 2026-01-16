@@ -12,7 +12,7 @@ class Worker extends WorkerThreadInit {
     console.log(`[Worker-A] Starting autoRun...`)
     try {
       console.log(`[Worker-A] Connecting to gateway-final...`)
-      const res = await ServerMainGateway.mtdHello(this, `Worker-A`)
+      const res = await new ServerMainGateway(this).mtdHello(`Worker-A`)
       console.log(`[Worker-A] Server response: ${res}`)
     } catch (err: any) {
       console.error(`[Worker-A] Error:`, err.message || err)

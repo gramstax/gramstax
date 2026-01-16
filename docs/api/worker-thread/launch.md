@@ -22,10 +22,11 @@ The `WorkerThreadLaunch` class manages worker thread lifecycle from the main thr
 
 ### `new WorkerThreadLaunch(path, argv)`
 
-| parameter | type   | required | description                 | ai_notes                                       |
-| --------- | ------ | -------- | --------------------------- | ---------------------------------------------- |
-| path      | string | yes      | Path to the worker file     | **Must be:** valid JavaScript/TypeScript file. |
-| argv      | any[]  | yes      | Arguments to pass to worker | **Accessible:** via `process.argv` in worker.  |
+| parameter | type   | required | description                                                                 |
+| --------- | ------ | -------- | --------------------------------------------------------------------------- |
+| path      | string | yes      | Path to the worker file. **Must be:** valid JavaScript/TypeScript file.     |
+| argv      | any[]  | yes      | Arguments to pass to worker. **Accessible:** via `process.argv` in worker.  |
+
 
 ```typescript
 import { WorkerThreadLaunch } from "gramstax";
@@ -43,7 +44,7 @@ await worker.ready();
 Check if currently running in the main thread.
 
 - **type: boolean**
-- **ai_notes:** Re-exported from `node:worker_threads`.
+- **description:** Re-exported from `node:worker_threads`.
 
 &nbsp;
 
@@ -60,7 +61,7 @@ The main process ID.
 The underlying Node.js Worker instance.
 
 - **type: Worker**
-- **ai_notes:** From `node:worker_threads`.
+- **description:** From `node:worker_threads`.
 
 ### `.threadId`
 
@@ -95,7 +96,7 @@ Arguments passed to the worker.
 Wait for the worker to signal it's ready.
 
 - **returns: Promise\<void\>**
-- **ai_notes:** Resolves when worker calls `super()` in `WorkerThreadInit`.
+- **description:** Resolves when worker calls `super()` in `WorkerThreadInit`.
 
 ```typescript
 const worker = new WorkerThreadLaunch("./worker.ts", []);
@@ -107,12 +108,13 @@ console.log("Worker is ready");
 
 Send a message to the worker thread.
 
-| parameter | type | required | description  | ai_notes               |
-| --------- | ---- | -------- | ------------ | ---------------------- |
-| payload   | any  | yes      | Data to send | Sent to worker thread. |
+| parameter | type | required | description                               |
+| --------- | ---- | -------- | ----------------------------------------- |
+| payload   | any  | yes      | Data to send. Sent to worker thread.      |
+
 
 - **returns: void**
-- **ai_notes:** No return value.
+- **description:** No return value.
 
 ```typescript
 worker.send({ action: "process", data: [1, 2, 3] });
@@ -122,15 +124,16 @@ worker.send({ action: "process", data: [1, 2, 3] });
 
 Make an RPC request to the worker thread.
 
-| parameter | type    | required | default | description                   | ai_notes                                                  |
-| --------- | ------- | -------- | ------- | ----------------------------- | --------------------------------------------------------- |
-| method    | string  | yes      | -       | Method name to call in worker | Must exist on WorkerThreadInit.                           |
-| params    | any     | yes      | -       | Method parameters             | Passed as array to worker method.                         |
-| wait      | boolean | no       | `true`  | Wait for response             | If false fire-and-forget.                                 |
-| others    | object  | no       | -       | Additional RPC data           | Additional key value aligned position with method, params |
+| parameter | type    | required | default | description                                                                              |
+| --------- | ------- | -------- | ------- | ---------------------------------------------------------------------------------------- |
+| method    | string  | yes      | -       | Method name to call in worker. Must exist on WorkerThreadInit.                          |
+| params    | any     | yes      | -       | Method parameters. Passed as array to worker method.                                    |
+| wait      | boolean | no       | `true`  | Wait for response. If false fire-and-forget.                                            |
+| others    | object  | no       | -       | Additional RPC data. Additional key value aligned position with method, params.         |
+
 
 - **returns: Promise\<any\>**
-- **ai_notes:** Resolves with worker response.
+- **description:** Resolves with worker response.
 
 ```typescript
 const result = await worker.request("processData", [[1, 2, 3]]);
@@ -142,7 +145,7 @@ console.log("Result:", result);
 Terminate the worker thread immediately.
 
 - **returns: void**
-- **ai_notes:** Calls `thread.terminate()`.
+- **description:** Calls `thread.terminate()`.
 
 ```typescript
 worker.kill();

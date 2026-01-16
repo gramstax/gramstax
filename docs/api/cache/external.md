@@ -21,12 +21,12 @@ The `CacheExternal` class extends [Keyv](https://github.com/jaredwray/keyv) to p
 
 ### `new CacheExternal(url?, namespace?, ttl?, more?)`
 
-| parameter | type   | required | default    | description                          | ai_notes                                             |
-| --------- | ------ | -------- | ---------- | ------------------------------------ | ---------------------------------------------------- |
-| url       | string | no       | `"memory"` | Storage connection URL               | Memory uses `"memory"`; Redis uses `"redis://..."`.  |
-| namespace | string | no       | -          | Key namespace prefix                 | Isolates keys by namespace.                          |
-| ttl       | number | no       | -          | Default time-to-live in milliseconds | Applies to all keys unless overridden per operation. |
-| more      | IMore  | no       | -          | Additional Keyv options              | `forceStore` overrides automatic store selection.    |
+| parameter | type   | required | default    | description                                                               |
+| --------- | ------ | -------- | ---------- | ------------------------------------------------------------------------- |
+| url       | string | no       | `"memory"` | Storage connection URL. Memory uses `"memory"`; Redis uses `"redis://..."`. |
+| namespace | string | no       | -          | Key namespace prefix. Isolates keys by namespace.                         |
+| ttl       | number | no       | -          | Default time-to-live in milliseconds. Applies to all keys unless overridden per operation. |
+| more      | IMore  | no       | -          | Additional Keyv options. `forceStore` overrides automatic store selection. |
 
 ```typescript
 import { CacheExternal } from "gramstax";
@@ -55,12 +55,12 @@ const cache = new CacheExternal("memory", "myapp", 60000);
 
 Get a value by key.
 
-| parameter | type   | required | description | ai_notes      |
-| --------- | ------ | -------- | ----------- | ------------- |
-| key       | string | yes      | The key     | Cache lookup. |
+| parameter | type   | required | description            |
+| --------- | ------ | -------- | ---------------------- |
+| key       | string | yes      | The key. Cache lookup. |
 
 - **returns: Promise\<any\>**
-- **ai_notes:** Resolves with stored value or undefined.
+- **description:** Resolves with stored value or undefined.
 
 ```typescript
 const value = await cache.get("user:123");
@@ -70,14 +70,14 @@ const value = await cache.get("user:123");
 
 Set a value with optional TTL.
 
-| parameter | type   | required | default | description         | ai_notes                        |
-| --------- | ------ | -------- | ------- | ------------------- | ------------------------------- |
-| key       | string | yes      | -       | The key             | cache lookup.                   |
-| value     | any    | yes      | -       | The value to store  | Persisted cache payload.        |
-| ttl       | number | no       | -       | TTL in milliseconds | Overrides default TTL when set. |
+| parameter | type   | required | default | description                                       |
+| --------- | ------ | -------- | ------- | ------------------------------------------------- |
+| key       | string | yes      | -       | The key. Cache lookup.                            |
+| value     | any    | yes      | -       | The value to store. Persisted cache payload.      |
+| ttl       | number | no       | -       | TTL in milliseconds. Overrides default TTL when set. |
 
 - **returns: Promise\<boolean\>**
-- **ai_notes:** Resolves with operation result.
+- **description:** Resolves with operation result.
 
 ```typescript
 await cache.set("user:123", { name: "John" }, 60000);
@@ -87,12 +87,12 @@ await cache.set("user:123", { name: "John" }, 60000);
 
 Delete a key.
 
-| parameter | type   | required | description | ai_notes             |
-| --------- | ------ | -------- | ----------- | -------------------- |
-| key       | string | yes      | The key     | Cache key to remove. |
+| parameter | type   | required | description                          |
+| --------- | ------ | -------- | ------------------------------------ |
+| key       | string | yes      | The key. Cache key to remove.        |
 
 - **returns: Promise\<boolean\>**
-- **ai_notes:** Resolves with operation result.
+- **description:** Resolves with operation result.
 
 ```typescript
 await cache.delete("user:123");
@@ -103,7 +103,7 @@ await cache.delete("user:123");
 Clear all keys in the namespace.
 
 - **returns: Promise\<void\>**
-- **ai_notes:** Resolves when cache is cleared.
+- **description:** Resolves when cache is cleared.
 
 ```typescript
 await cache.clear();
@@ -113,12 +113,12 @@ await cache.clear();
 
 Check if a key exists.
 
-| parameter | type   | required | description | ai_notes      |
-| --------- | ------ | -------- | ----------- | ------------- |
-| key       | string | yes      | The key     | Cache lookup. |
+| parameter | type   | required | description            |
+| --------- | ------ | -------- | ---------------------- |
+| key       | string | yes      | The key. Cache lookup. |
 
 - **returns: Promise\<boolean\>**
-- **ai_notes:** Resolves with operation result.
+- **description:** Resolves with operation result.
 
 ```typescript
 const exists = await cache.has("user:123");
