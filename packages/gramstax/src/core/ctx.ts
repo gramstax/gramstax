@@ -1,5 +1,5 @@
 import {setTimeout} from "node:timers/promises"
-import {CacheExternal} from "~/cache/external"
+import {CacheExternal, ICacheRpc} from "~/cache/external"
 import {InlineKeyboard, Keyboard} from "grammy"
 import {TemplateManager} from "~/template/manager"
 import type {IMediaBlock} from "~/template/engine"
@@ -144,7 +144,7 @@ export class Ctx {
     return this.temp.session
   }
   ct: ICt
-  cacheSession: CacheExternal
+  cacheSession: CacheExternal<ICacheRpc>
   cacheKeyboard: Map<any, any>
   templateManager: TemplateManager
   temp: ITemp
@@ -396,7 +396,7 @@ export class Ctx {
       return null
     }
   }
-  async sessionGet(): Promise<{method: string; params: any; [moreRoot: string]: any} | null> {
+  async sessionGet() {
     try {
       const result = await this.cacheSession.get(`${this.userId}`)
       if (result) this.session = result

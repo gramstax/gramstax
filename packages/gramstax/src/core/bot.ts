@@ -4,11 +4,11 @@ import {join, dirname, parse} from "node:path"
 import {readFileSync} from "node:fs"
 import {fileURLToPath} from "node:url"
 import {PageManager} from "~/page/manager"
-import {CacheExternal} from "~/cache/external"
-import {LoggingPretty} from "logging-pretty"
+import type {LoggingPretty} from "logging-pretty"
 import {TemplateManager} from "~/template/manager"
 import {Bot, webhookCallback, type BotError, type Context} from "grammy"
 import type {UserFromGetMe} from "grammy/types"
+import {CacheExternal, ICacheRpc} from "~/cache/external"
 
 const ___filename = (() => {
   try {
@@ -23,7 +23,7 @@ const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.j
 export class Gramstax<ICtx extends Ctx = Ctx> {
   templateManager: TemplateManager
   cacheKeyboard: Map<any, any>
-  cacheSession: CacheExternal
+  cacheSession: CacheExternal<ICacheRpc>
   pages: ReturnType<typeof this.pageLoads>
   optionsPage = {
     shortCallbackData: false
@@ -37,7 +37,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     token: string
     deploy: string
     log?: LoggingPretty | boolean | null
-    cacheData?: CacheExternal
     cacheSession?: CacheExternal
     cacheKeyboard?: Map<any, any>
     templateManager?: TemplateManager
