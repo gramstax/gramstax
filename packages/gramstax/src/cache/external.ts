@@ -2,8 +2,9 @@ import {Keyv} from "keyv"
 import KeyvRedis from "@keyv/redis"
 
 type IMore = Omit<Required<ConstructorParameters<typeof Keyv>>[0], `store` | `namespace` | `ttl`> & {forceStore?: any}
+export type ICacheRpc = {method: string; params: any; [moreRoot: string]: any}
 
-export class CacheExternal extends Keyv {
+export class CacheExternal<V = any> extends Keyv<V> {
   constructor(
     public url: string = `memory`,
     ttl?: number,
