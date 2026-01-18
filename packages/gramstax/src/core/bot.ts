@@ -56,7 +56,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.log = params.log === true ? log : !params.log ? undefined : params.log
     this.log?.info?.(`Gramstax v${__PKG_VERSION__}`)
 
-    this.cacheSession = params.cacheSession || new CacheExternal(`memory`, `session`)
+    this.cacheSession = params.cacheSession || new CacheExternal(`memory`)
     this.cacheKeyboard = params.cacheKeyboard || new Map()
     this.templateManager =
       params.templateManager ||
@@ -432,9 +432,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         location: initDynamicSpesific(),
         contact: initDynamicSpesific()
       },
-      routeStatic: makeObject(listRouteStatic, () => ({} as Record<string, {name: string; routeName: string}>)), // [page.data.name]: {name: Page.data.name, routeName: routeFunctionName}
-      routeStaticIntent: makeObject(listRouteStaticIntent, () => ({} as Record<string, {name: string; routeName: string}>)), // [routeName]: {name: Page.data.name, routeName: routeFunctionName}
-      routeStaticSession: makeObject(listRouteStaticSession, () => ({} as Record<string, {name: string; routeName: string}>)), // [session.method]: {name: Page.data.name, routeName: routeFunctionName}
+      routeStatic: makeObject(listRouteStatic, () => ({}) as Record<string, {name: string; routeName: string}>), // [page.data.name]: {name: Page.data.name, routeName: routeFunctionName}
+      routeStaticIntent: makeObject(listRouteStaticIntent, () => ({}) as Record<string, {name: string; routeName: string}>), // [routeName]: {name: Page.data.name, routeName: routeFunctionName}
+      routeStaticSession: makeObject(listRouteStaticSession, () => ({}) as Record<string, {name: string; routeName: string}>), // [session.method]: {name: Page.data.name, routeName: routeFunctionName}
       listRouteStatic,
       listRouteStaticIntent,
       listRouteStaticSession,
