@@ -4,12 +4,7 @@ import {StartPage} from "./start"
 // Transfer funds to another user.
 export class TransferPage extends PageBase {
   kb(baseId?: string) {
-    return this.inlineKeyboard(
-      (k, a) => {
-        return k.text(a[0]!, StartPage.data.callback())
-      },
-      {baseId}
-    )
+    return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
   async callback() {
@@ -20,14 +15,12 @@ export class TransferPage extends PageBase {
   }
 
   async textFree() {
-    if (!this.validateSessionTextFree()) {
-      return null
-    }
+    if (!this.validateSessionTextFree()) return null
     const payloads = this.msgText.trim().split(/\s+/)
     await this.handleTransfer(payloads, false)
   }
 
-  private async handleTransfer(payloads: string[], isEdit = false) {
+  private async handleTransfer(payloads: string[], edit = false) {
     const [amountInput, targetInput] = payloads
     const biInv = `invalid`
     if (!amountInput || !targetInput) {
@@ -91,18 +84,14 @@ export class TransferPage extends PageBase {
     await this.sessionClear()
     const biSuc = `success`
     const kb = this.kb(biSuc)
-    if (isEdit) {
-      await this.edit(kb, data, biSuc)
-    } else {
-      await this.reply(kb, data, biSuc)
-    }
+    if (edit) await this.edit(kb, data, biSuc)
+    else await this.reply(kb, data, biSuc)
   }
 
   private resolveTarget(input: string) {
     const trimmed = input.trim()
-    if (/^\d+$/.test(trimmed)) {
-      return {id: Number(trimmed), label: `#${trimmed}`}
-    }
+    if (/^\d+$/.test(trimmed)) return {id: Number(trimmed), label: `#${trimmed}`}
+
     const username = trimmed.replace(/^@/, ``)
     const userId = this.bankStore.getUserIdByUsername(username)
     if (!userId) return null

@@ -4,29 +4,20 @@ import {StartPage} from "./start"
 // Deposits funds into the user's balance.
 export class DepositPage extends PageBase {
   kb(baseId?: string) {
-    return this.inlineKeyboard(
-      (k, a) => {
-        return k.text(a[0]!, StartPage.data.callback())
-      },
-      {baseId}
-    )
+    return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
   async callback() {
     await this.sessionTextFree()
-    const bi = `form`
-    const kb = this.kb(bi)
-    await this.edit(kb, {}, bi)
+    await this.edit(this.kb(), {}, `form`)
   }
 
   async textFree() {
-    if (!this.validateSessionTextFree()) {
-      return null
-    }
+    if (!this.validateSessionTextFree()) return null
     await this.handleDeposit(this.msgText.trim(), false)
   }
 
-  private async handleDeposit(amountInput?: string, isEdit = false) {
+  private async handleDeposit(amountInput?: string, edit = false) {
     const biInv = `invalid`
     if (!amountInput) {
       await this.reply(this.kb(biInv), {}, biInv)
@@ -56,11 +47,8 @@ export class DepositPage extends PageBase {
     await this.sessionClear()
     const biSuc = `success`
     const kb = this.kb(biSuc)
-    if (isEdit) {
-      await this.edit(kb, data, biSuc)
-    } else {
-      await this.reply(kb, data, biSuc)
-    }
+    if (edit) await this.edit(kb, data, biSuc)
+    else await this.reply(kb, data, biSuc)
   }
 
   static template = `

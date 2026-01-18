@@ -2,7 +2,7 @@ import {log} from "~/utils/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-// Error/fallback page used by hooks.
+// Error/fallback page for unified error messaging.
 export class GeneralStatusPage extends PageBase {
   constructorName?: string
   constructor(p: any) {
@@ -11,21 +11,17 @@ export class GeneralStatusPage extends PageBase {
   }
 
   kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
+    return this.inlineKeyboardT([StartPage])
   }
 
-  async toError(funcName: string, error: any, isEdit = true) {
+  async toError(funcName: string, error: any, edit = true) {
     log.errorMake(error, this.constructorName, funcName)
+
     await this.sessionClear()
     const kb = this.kb()
     const bi = `error`
-    if (isEdit) {
-      await this.edit(kb, {}, bi)
-    } else {
-      await this.reply(kb, {}, bi)
-    }
+    if (edit) await this.edit(kb, {}, bi)
+    else await this.reply(kb, {}, bi)
   }
 
   async toErrorInputNotFound() {
@@ -35,15 +31,13 @@ export class GeneralStatusPage extends PageBase {
   }
 
   static template = `
-    <base>
-      ${this.kbk.home()}
-    </base>
+    <base>${this.kbk.home(`default`)}</base>
 
     <base id="error">
       <message>
         <b>❌ Error</b>
 
-        Something went wrong in the menu flow.
+        Something went wrong. Please try again.
       </message>
     </base>
 
@@ -51,7 +45,7 @@ export class GeneralStatusPage extends PageBase {
       <message>
         <b>❌ Not Found</b>
 
-        Use the menu buttons to navigate.
+        No matching.
       </message>
     </base>
   `

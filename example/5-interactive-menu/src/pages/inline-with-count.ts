@@ -30,39 +30,30 @@ export class InlineWithCountPage extends PageBase {
     })
   }
 
-  async core(page: number, isEdit = true) {
+  async show(page: number, edit = true) {
     const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / this.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const data = {page: safePage + 1, totalPages}
     const kb = this.buildKb(safePage)
     const bi = `list`
-    if (isEdit) {
-      await this.edit(kb, data, bi)
-    } else {
-      await this.reply(kb, data, bi)
-    }
+    if (edit) await this.edit(kb, data, bi)
+    else await this.reply(kb, data, bi)
   }
 
   async callback() {
-    await this.core(0, true)
+    await this.show(0, true)
   }
 
   async callbackPayload() {
     const [action, value] = this.callbackDataPayloads
-    if (!action) {
-      return
-    }
+    if (!action) return
+
     if (action === `page`) {
       const nextPage = Number(value)
-      if (!Number.isNaN(nextPage)) {
-        await this.core(nextPage, true)
-      }
+      if (!Number.isNaN(nextPage)) await this.show(nextPage, true)
       return
     }
-
-    if (action === `item` && value) {
-      return
-    }
+    if (action === `item` && value) return
   }
 
   static template = `

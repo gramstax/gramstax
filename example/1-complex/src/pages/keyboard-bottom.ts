@@ -7,53 +7,39 @@ export class KeyboardBottomPage extends PageBase {
     intentTextCommand: `keyboard_bottom` // <===== overrides trigger route function "textCommand" because file name user "-" that not support command in telegram
   })
 
-  bk(count?: number) {
-    const params = {data: {first: this.data.intentText}}
-    return this.bottomKeyboard((k, a) => {
+  async show(count?: number, baseId?: string) {
+    const da = {data: {first: this.data.intentText}}
+    const kb = this.bottomKeyboard((k, a) => {
       return k
         .text(count === undefined ? `${a[0]!} 0` : `${a[0]} ${count + 1}`)
         .row()
         .text(a[1]!)
         .oneTime()
-    }, params)
-  }
-
-  ik() {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
-  }
-
-  async core(count?: number, baseId?: string) {
-    const kb = this.bk(count)
+    }, da)
     await this.reply(kb, {}, baseId)
   }
 
   async callback() {
-    await this.core()
+    await this.show()
   }
 
   async text() {
-    await this.core()
+    await this.show()
   }
 
   async textPayload() {
-    await this.core(parseInt(this.msgTextPayload))
+    await this.show(parseInt(this.msgTextPayload))
   }
 
   async textCommand() {
-    await this.core()
+    await this.show()
   }
 
   async textCommandPayload() {
     const pld = this.msgTextCommandPayload
-    const kb = this.ik()
-    if (pld == `reset`) {
-      await this.core(kb, pld)
-    }
-    if (pld == `delete`) {
-      await this.reply(kb, {}, pld, {reply_markup: {remove_keyboard: true}})
-    }
+    const kb = this.inlineKeyboardT([StartPage])
+    if (pld == `reset`) await this.show(kb, pld)
+    if (pld == `delete`) await this.reply(kb, {}, pld, {reply_markup: {remove_keyboard: true}})
   }
 
   static template = `    

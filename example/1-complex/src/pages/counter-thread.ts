@@ -5,17 +5,8 @@ import {IncrementJob} from "~/jobs/increment"
 export class CounterThreadPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
-  kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k //
-        .text(a[0]!, this.data.callback(`1`))
-        .row()
-        .text(a[1]!, StartPage.data.callback())
-    })
-  }
-
   async callback() {
-    const kb = this.kb()
+    const kb = this.inlineKeyboardT([this.data.callback(`1`), StartPage])
     const count = await IncrementJob.mtdGetCount()
     await this.edit(kb, {count, timestamp: new Date().getTime()})
   }

@@ -11,22 +11,17 @@ export class GeneralStatusPage extends PageBase {
   }
 
   kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0], StartPage.data.callback())
-    })
+    return this.inlineKeyboardT([StartPage])
   }
 
-  async toError(funcName, error, isUpdate = true) {
+  async toError(funcName, error, edit = true) {
     log.errorMake(error, this.constructorName, funcName)
 
     await this.sessionClear()
     const kb = this.kb()
     const bi = `error`
-    if (isUpdate) {
-      await this.edit(kb, {}, bi)
-    } else {
-      await this.reply(kb, {}, bi)
-    }
+    if (edit) await this.edit(kb, {}, bi)
+    else await this.reply(kb, {}, bi)
   }
 
   async toErrorInputNotFound() {

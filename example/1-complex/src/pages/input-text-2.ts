@@ -7,9 +7,7 @@ export class InputText2Page extends PageBase {
   })
 
   kb(baseId?: string) {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback()), {baseId}
-    })
+    return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
   async callback() {

@@ -5,32 +5,23 @@ import {StartPage} from "./start"
 export class ResetPage extends PageBase {
   static data = this.buildData({intentText: `Reset`})
 
-  kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
-  }
-
-  async core(isEdit = false) {
+  async show(edit = false) {
     await this.cacheState.delete(`${this.userId}:category`)
     await this.cacheState.delete(`${this.userId}:page`)
     await this.sessionClear()
 
-    const kb = this.kb()
+    const kb = this.inlineKeyboardT([StartPage])
     const bi = `reset`
-    if (isEdit) {
-      await this.edit(kb, {}, bi)
-    } else {
-      await this.reply(kb, {}, bi)
-    }
+    if (edit) await this.edit(kb, {}, bi)
+    else await this.reply(kb, {}, bi)
   }
 
   async callback() {
-    await this.core(true)
+    await this.show(true)
   }
 
   async text() {
-    await this.core(false)
+    await this.show(false)
   }
 
   static template = `

@@ -4,28 +4,17 @@ import {StartPage} from "./start"
 export class BlockSwitchPage extends PageBase {
   static data = this.buildData((status?: string) => [status])
 
-  kb(status: string) {
-    return this.inlineKeyboard(
-      (k, a) => {
-        return k //
-          .text(a[0]!, this.data.callback(status === `1` ? `0` : `1`))
-          .row()
-          .text(a[1]!, StartPage.data.callback())
-      },
-      {data: {status}}
-    )
-  }
-
-  async core(status: string) {
-    await this.edit(this.kb(status), {status})
+  async show(status: string) {
+    const kb = this.inlineKeyboardT([this.data.callback(status === `1` ? `0` : `1`), StartPage], `1`, null, {status})
+    await this.edit(kb, {status})
   }
 
   async callback() {
-    await this.core(`0`)
+    await this.show(`0`)
   }
 
   async callbackPayload() {
-    await this.core(this.callbackDataPayload)
+    await this.show(this.callbackDataPayload)
   }
 
   static template = `

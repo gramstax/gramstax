@@ -9,9 +9,7 @@ export class ItemListPage extends PageBase {
 
   buildKeyboard(categoryId: string, page: number, category = CatalogData.getCategoryById(categoryId)) {
     if (!category) {
-      return this.inlineKeyboard((k, a) => {
-        return k.text(a[0]!, CategoryPage.data.callback())
-      })
+      return this.inlineKeyboardT([CategoryPage])
     }
 
     const PAGE_SIZE = 3
@@ -57,26 +55,19 @@ export class ItemListPage extends PageBase {
 
   async callback() {
     const categoryId = await this.cacheState.get(`${this.userId}:category`)
-    if (!categoryId) {
-      await new CategoryPage(this).to(true)
-    } else {
-      await this.to(categoryId, 0, true)
-    }
+    if (!categoryId) await new CategoryPage(this).show(true)
+    else await this.to(categoryId, 0, true)
   }
 
   async callbackPayload() {
     const [action, value] = this.callbackDataPayloads
     if (action !== `page`) {
-      await this.callback()
-      return
+      return await this.callback()
     }
 
     const categoryId = await this.cacheState.get(`${this.userId}:category`)
-    if (!categoryId) {
-      await new CategoryPage(this).to(true)
-    } else {
-      await this.to(categoryId, Number(value), true)
-    }
+    if (!categoryId) await new CategoryPage(this).show(true)
+    else await this.to(categoryId, Number(value), true)
   }
 
   static template = `

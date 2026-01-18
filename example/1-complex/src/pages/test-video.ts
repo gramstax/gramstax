@@ -2,14 +2,9 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class TestVideoPage extends PageBase {
-  kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback(`3`))
-    })
-  }
-
   async callback() {
-    await this.editVideo(this.kb())
+    const kb = this.inlineKeyboardT([StartPage.data.callback(`3`)])
+    await this.editVideo(kb)
   }
 
   static template = `

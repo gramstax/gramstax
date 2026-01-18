@@ -3,20 +3,18 @@ import {StartPage} from "./start"
 
 // Help page lists available commands.
 export class HelpPage extends PageBase {
-  kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
+  async show(edit = true) {
+    const kb = this.inlineKeyboardT([StartPage])
+    if (edit) this.edit(kb)
+    else this.reply(kb)
   }
 
   async textCommand() {
-    const kb = this.kb()
-    await this.reply(kb)
+    await this.show(false)
   }
 
   async callback() {
-    const kb = this.kb()
-    await this.edit(kb)
+    await this.show(true)
   }
 
   static template = `

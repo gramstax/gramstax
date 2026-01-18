@@ -7,34 +7,18 @@ import {HistoryPage} from "./history"
 
 // Main menu page for the bank system bot.
 export class StartPage extends PageBase {
-  kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k //
-        .text(a[0]!, BalancePage.data.callback())
-        .text(a[1]!, DepositPage.data.callback())
-        .row()
-        .text(a[2]!, WithdrawPage.data.callback())
-        .text(a[3]!, TransferPage.data.callback())
-        .row()
-        .text(a[4]!, HistoryPage.data.callback())
-    })
-  }
-
-  async core(isEdit: boolean) {
-    const kb = this.kb()
-    if (isEdit) {
-      await this.edit(kb)
-    } else {
-      await this.reply(kb)
-    }
+  async show(edit: boolean) {
+    const kb = this.inlineKeyboardT([BalancePage, DepositPage, WithdrawPage, TransferPage, HistoryPage], `2`)
+    if (edit) await this.edit(kb)
+    else await this.reply(kb)
   }
 
   async textCommand() {
-    await this.core(false)
+    await this.show(false)
   }
 
   async callback() {
-    await this.core(true)
+    await this.show(true)
   }
 
   static template = `

@@ -29,13 +29,12 @@ export class LanguagePage extends PageBase {
     })
   }
 
-  async core() {
-    const kb = this.kb()
-    await this.edit(kb)
+  async show() {
+    await this.edit(this.kb())
   }
 
   async callback() {
-    await this.core()
+    await this.show()
   }
 
   async callbackPayload() {
@@ -43,7 +42,7 @@ export class LanguagePage extends PageBase {
 
     await this.cacheData.set(`${this.userId}:lang`, language)
     this.userLanguage = language
-    await this.core()
+    await this.show()
   }
 
   static template = `

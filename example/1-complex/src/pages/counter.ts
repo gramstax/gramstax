@@ -5,13 +5,7 @@ export class CounterPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
   kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k //
-        .text(a[0]!, this.data.callback(`I`))
-        .text(a[1]!, this.data.callback(`D`))
-        .row()
-        .text(a[2]!, StartPage.data.callback())
-    })
+    return this.inlineKeyboardT([this.data.callback(`I`), this.data.callback(`D`), StartPage], `2`)
   }
 
   async callbackPayload() {
@@ -23,7 +17,6 @@ export class CounterPage extends PageBase {
     let count
     if (execution == `I`) count = `${parseInt(data) + 1}`
     if (execution == `D`) count = `${parseInt(data) - 1}`
-
     await this.cacheData.set(key, count)
     await this.edit(kb, {count})
   }
@@ -32,7 +25,6 @@ export class CounterPage extends PageBase {
     const kb = this.kb()
     const key = `${this.userId}`
     const count = (await this.cacheData.get(key)) || `0`
-
     await this.edit(kb, {count})
   }
 

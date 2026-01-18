@@ -1,40 +1,15 @@
-import {PageBase} from "~/base/page"
-import {CategoryPage} from "./category"
 import {HelpPage} from "./help"
+import {PageBase} from "~/base/page"
 import {ResetPage} from "./reset"
-import {InlineWithCountPage} from "./inline-with-count"
+import {CategoryPage} from "./category"
 import {InlineWithoutCountPage} from "./inline-without-count"
 
 // Main menu page for the interactive bot.
 export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Home`})
 
-  ikb() {
-    return this.inlineKeyboard((k, a) => {
-      return k //
-        .text(a[0]!, CategoryPage.data.callback())
-        .text(a[1]!, InlineWithCountPage.data.callback())
-        .row()
-        .text(a[2]!, InlineWithoutCountPage.data.callback())
-        .text(a[3]!, HelpPage.data.callback())
-        .row()
-        .text(a[4]!, ResetPage.data.callback())
-    })
-  }
-
-  bkb() {
-    return this.bottomKeyboard((k, a) => {
-      return k //
-        .text(a[0]!)
-        .text(a[1]!)
-        .row()
-        .text(a[2]!)
-        .text(a[3]!)
-    })
-  }
-
-  async core(isEdit = false) {
-    const ikb = this.ikb()
+  async show(isEdit = false) {
+    const ikb = this.inlineKeyboardT([CategoryPage, InlineWithoutCountPage, InlineWithoutCountPage, HelpPage, ResetPage], `2`)
     if (isEdit) {
       await this.edit(ikb)
       return
@@ -44,20 +19,20 @@ export class StartPage extends PageBase {
     await this.reply(ikb)
 
     // Second reply enables persistent quick actions.
-    const bkb = this.bkb()
+    const bkb = this.bottomKeyboardT(`2`)
     await this.reply(bkb, {}, `quick-actions`)
   }
 
   async textCommand() {
-    await this.core(false)
+    await this.show(false)
   }
 
   async text() {
-    await this.core(false)
+    await this.show(false)
   }
 
   async callback() {
-    await this.core(true)
+    await this.show(true)
   }
 
   static template = `

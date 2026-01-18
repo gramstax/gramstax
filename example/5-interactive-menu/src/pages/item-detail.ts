@@ -6,21 +6,13 @@ import {ItemListPage} from "./item-list"
 export class ItemDetailPage extends PageBase {
   static data = this.buildData((action?: string, categoryId?: string, itemId?: string) => [action, categoryId, itemId])
 
-  kb(page: number) {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0]!, ItemListPage.data.callback(`page`, `${page}`))
-    })
-  }
-
   async callbackPayload() {
     const [action, categoryId, itemId] = this.callbackDataPayloads
-    if (action !== `detail` || !categoryId || !itemId) {
-      return null
-    }
+    if (action !== `detail` || !categoryId || !itemId) return null
 
     const item = CatalogData.getItemById(categoryId, itemId)
     const page = Number((await this.cacheState.get(`${this.userId}:page`)) || 0)
-    const kb = this.kb(page)
+    const kb = this.inlineKeyboardT([ItemListPage.data.callback(`page`, `${page}`)])
     const da = {
       name: item?.name,
       description: item?.description

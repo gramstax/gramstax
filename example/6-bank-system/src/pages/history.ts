@@ -3,24 +3,17 @@ import {StartPage} from "./start"
 
 // Shows recent transaction history.
 export class HistoryPage extends PageBase {
-  kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
-  }
-
   async callback() {
     const history = this.formatHistory()
-    const kb = this.kb()
+    const kb = this.inlineKeyboardT([StartPage])
     const data = {history}
     await this.edit(kb, data)
   }
 
   private formatHistory() {
     const entries = this.bankStore.getHistory(this.userId)
-    if (entries.length === 0) {
-      return `No transactions available.`
-    }
+    if (entries.length === 0) return `No transactions available.`
+
     return entries
       .map((entry) => {
         const amount = this.bankStore.formatAmount(this.bankStore.fromHex(entry.amountHex))

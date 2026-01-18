@@ -5,28 +5,19 @@ import {StartPage} from "./start"
 export class HelpPage extends PageBase {
   static data = this.buildData({intentText: `Help`})
 
-  kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
-  }
-
-  async to(isEdit = true) {
-    const kb = this.kb()
+  async show(edit = true) {
+    const kb = this.inlineKeyboardT([StartPage])
     const bi = `help`
-    if (isEdit) {
-      await this.edit(kb, {}, bi)
-    } else {
-      await this.reply(kb, {}, bi)
-    }
+    if (edit) await this.edit(kb, {}, bi)
+    else await this.reply(kb, {}, bi)
   }
 
   async callback() {
-    await this.to(true)
+    await this.show(true)
   }
 
   async text() {
-    await this.to(false)
+    await this.show(false)
   }
 
   static template = `

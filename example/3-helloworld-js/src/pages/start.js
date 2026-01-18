@@ -1,25 +1,19 @@
 import {Ctx} from "gramstax"
 
 export class StartPage extends Ctx {
-  kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0], this.data.callback())
-    })
-  }
-
-  async core(edit = true) {
-    const kb = this.kb()
+  async show(edit = true) {
+    const kb = this.inlineKeyboardT([this])
     const data = {time: new Date().toString()}
     if (edit) await this.edit(kb, data)
     else await this.reply(kb, data)
   }
 
   async textCommand() {
-    await this.core(false)
+    await this.show(false)
   }
 
   async callback() {
-    await this.core(true)
+    await this.show(true)
   }
 
   static template = `

@@ -20,29 +20,25 @@ export class CategoryPage extends PageBase {
     })
   }
 
-  async to(isEdit = true) {
+  async show(edit = true) {
     const kb = this.kb()
     const bi = `categories`
-    if (isEdit) {
-      await this.edit(kb, {}, bi)
-    } else {
-      await this.reply(kb, {}, bi)
-    }
+    if (edit) await this.edit(kb, {}, bi)
+    else await this.reply(kb, {}, bi)
   }
 
   async callback() {
-    await this.to(true)
+    await this.show(true)
   }
 
   async text() {
-    await this.to(false)
+    await this.show(false)
   }
 
   async callbackPayload() {
     const [action, categoryId] = this.callbackDataPayloads
     if (action !== `category` || !categoryId) {
-      await this.to(true)
-      return
+      return await this.show(true)
     }
     await this.cacheState.set(`${this.userId}:category`, categoryId)
     await this.cacheState.set(`${this.userId}:page`, 0)

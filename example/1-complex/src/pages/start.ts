@@ -25,44 +25,47 @@ export class StartPage extends PageBase {
   static data = this.buildData((rdm?: string) => [rdm])
 
   kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k //
-        .text(a[0]!, CounterPage.data.callback())
-        .text(a[1]!, CounterThreadPage.data.callback())
-        .row()
-        .text(a[2]!, HelpPage.data.callback())
-        .text(a[3]!, LanguagePage.data.callback())
-        .row()
-        .text(a[4]!, TestPhotoPage.data.callback())
-        .text(a[5]!, TestVideoPage.data.callback())
-        .row()
-        .text(a[6]!, TestAudioPage.data.callback())
-        .text(a[7]!, TestDocumentPage.data.callback())
-        .row()
-        .text(a[8]!, TestAnimationPage.data.callback())
-        .text(a[9]!, TestVoicePage.data.callback())
-        .row()
-        .text(a[10]!, TestVideoNotePage.data.callback())
-        .text(a[11]!, TestStickerPage.data.callback())
-        .row()
-        .text(a[12]!, TestLocationPage.data.callback())
-        .text(a[13]!, TestContactPage.data.callback())
-        .row()
-        .text(a[14]!, TestErrorPage.data.callback())
-        .text(a[15]!, InputText2Page.data.callback())
-        .row()
-        .text(a[16]!, InputTextPage.data.callback())
-        .text(a[17]!, BlockMapPage.data.callback())
-        .row()
-        .text(a[18]!, BlockImportPage.data.callback())
-        .text(a[19]!, BlockSwitchPage.data.callback())
-        .row()
-        .text(a[20]!, KeyboardBottomPage.data.callback())
-        .text(a[21]!, this.data.callback())
-    })
+    return this.inlineKeyboard(
+      (k, a) => {
+        return k //
+          .text(a[0]!, CounterPage.data.callback())
+          .text(a[1]!, CounterThreadPage.data.callback())
+          .row()
+          .text(a[2]!, HelpPage.data.callback())
+          .text(a[3]!, LanguagePage.data.callback())
+          .row()
+          .text(a[4]!, TestPhotoPage.data.callback())
+          .text(a[5]!, TestVideoPage.data.callback())
+          .row()
+          .text(a[6]!, TestAudioPage.data.callback())
+          .text(a[7]!, TestDocumentPage.data.callback())
+          .row()
+          .text(a[8]!, TestAnimationPage.data.callback())
+          .text(a[9]!, TestVoicePage.data.callback())
+          .row()
+          .text(a[10]!, TestVideoNotePage.data.callback())
+          .text(a[11]!, TestStickerPage.data.callback())
+          .row()
+          .text(a[12]!, TestLocationPage.data.callback())
+          .text(a[13]!, TestContactPage.data.callback())
+          .row()
+          .text(a[14]!, TestErrorPage.data.callback())
+          .text(a[15]!, InputText2Page.data.callback())
+          .row()
+          .text(a[16]!, InputTextPage.data.callback())
+          .text(a[17]!, BlockMapPage.data.callback())
+          .row()
+          .text(a[18]!, BlockImportPage.data.callback())
+          .text(a[19]!, BlockSwitchPage.data.callback())
+          .row()
+          .text(a[20]!, KeyboardBottomPage.data.callback())
+          .text(a[21]!, this.data.callback())
+      },
+      {cache: true}
+    )
   }
 
-  async core(condition = 1) {
+  async show(condition = 1) {
     const kb = this.kb()
     const da = {
       firstName: this.userFirstName,
@@ -81,31 +84,31 @@ export class StartPage extends PageBase {
   }
 
   async toError() {
-    await this.core(1)
+    await this.show(1)
   }
 
   async text() {
-    await this.core(1)
+    await this.show(1)
   }
 
   async textPayload() {
-    await this.core(1)
+    await this.show(1)
   }
 
   async textCommand() {
-    await this.core(1)
+    await this.show(1)
   }
 
   async textCommandPayload() {
-    await this.core(1)
+    await this.show(1)
   }
 
   async callback() {
-    await this.core(2)
+    await this.show(2)
   }
 
   async callbackPayload() {
-    await this.core(3)
+    await this.show(3)
   }
 
   static template = `

@@ -4,22 +4,18 @@ import {EchoPage} from "./echo"
 
 // Start page with welcome message and navigation.
 export class StartPage extends PageBase {
-  kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k //
-        .text(a[0]!, HelpPage.data.callback())
-        .text(a[1]!, EchoPage.data.callback())
-    })
+  async show(edit = true) {
+    const kb = this.inlineKeyboardT([HelpPage, EchoPage])
+    if (edit) await this.edit(kb)
+    else await this.reply(kb)
   }
 
   async textCommand() {
-    const kb = this.kb()
-    await this.reply(kb)
+    await this.show(false)
   }
 
   async callback() {
-    const kb = this.kb()
-    await this.edit(kb)
+    await this.show(true)
   }
 
   static template = `

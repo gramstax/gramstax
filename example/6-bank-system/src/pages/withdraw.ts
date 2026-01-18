@@ -4,12 +4,7 @@ import {StartPage} from "./start"
 // Withdraw funds from the user's balance.
 export class WithdrawPage extends PageBase {
   kb(baseId?: string) {
-    return this.inlineKeyboard(
-      (k, a) => {
-        return k.text(a[0]!, StartPage.data.callback())
-      },
-      {baseId}
-    )
+    return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
   async callback() {
@@ -20,13 +15,11 @@ export class WithdrawPage extends PageBase {
   }
 
   async textFree() {
-    if (!this.validateSessionTextFree()) {
-      return null
-    }
+    if (!this.validateSessionTextFree()) return null
     await this.handleWithdraw(this.msgText.trim(), false)
   }
 
-  private async handleWithdraw(amountInput?: string, isEdit = false) {
+  private async handleWithdraw(amountInput?: string, edit = false) {
     const biInv = `invalid`
     if (!amountInput) {
       await this.reply(this.kb(biInv), {}, biInv)
@@ -62,11 +55,8 @@ export class WithdrawPage extends PageBase {
     await this.sessionClear()
     const biSuc = `success`
     const kb = this.kb(biSuc)
-    if (isEdit) {
-      await this.edit(kb, data, biSuc)
-    } else {
-      await this.reply(kb, data, biSuc)
-    }
+    if (edit) await this.edit(kb, data, biSuc)
+    else await this.reply(kb, data, biSuc)
   }
 
   static template = `

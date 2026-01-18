@@ -4,12 +4,7 @@ import {StartPage} from "./start"
 // Echo page responds to any free text input.
 export class EchoPage extends PageBase {
   kb(baseId?: string) {
-    return this.inlineKeyboard(
-      (k, a) => {
-        return k.text(a[0]!, StartPage.data.callback())
-      },
-      {baseId}
-    )
+    return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
   // Inline button to show echo usage tips.
@@ -34,9 +29,7 @@ export class EchoPage extends PageBase {
   async photoFree() {
     const caption = this.msgCaption
     const fileIdLargest = this.msgPhoto[this.msgPhoto.length - 1].file_id
-    if (caption?.startsWith(`/`)) {
-      return null
-    }
+    if (caption?.startsWith(`/`)) return null
 
     const bi = `echo-result-photo`
     const kb = this.kb(bi)
@@ -47,9 +40,7 @@ export class EchoPage extends PageBase {
   async videoFree() {
     const caption = this.msgCaption
     const fileId = this.msgVideo.file_id
-    if (caption?.startsWith(`/`)) {
-      return null
-    }
+    if (caption?.startsWith(`/`)) return null
 
     const bi = `echo-result-video`
     const kb = this.kb(bi)
@@ -60,9 +51,7 @@ export class EchoPage extends PageBase {
   async audioFree() {
     const caption = this.msgCaption
     const fileId = this.msgAudio.file_id
-    if (caption?.startsWith(`/`)) {
-      return null
-    }
+    if (caption?.startsWith(`/`)) return null
 
     const bi = `echo-result-audio`
     const kb = this.kb(bi)
@@ -73,9 +62,7 @@ export class EchoPage extends PageBase {
   async documentFree() {
     const caption = this.msgCaption
     const fileId = this.msgDocument.file_id
-    if (caption?.startsWith(`/`)) {
-      return null
-    }
+    if (caption?.startsWith(`/`)) return null
 
     const bi = `echo-result-document`
     const kb = this.kb(bi)
@@ -86,9 +73,7 @@ export class EchoPage extends PageBase {
   async animationFree() {
     const caption = this.msgCaption
     const fileId = this.msgAnimation.file_id
-    if (caption?.startsWith(`/`)) {
-      return null
-    }
+    if (caption?.startsWith(`/`)) return null
 
     const bi = `echo-result-animation`
     const kb = this.kb(bi)
@@ -99,9 +84,7 @@ export class EchoPage extends PageBase {
   async voiceFree() {
     const caption = this.msgCaption
     const fileId = this.msgVoice.file_id
-    if (caption?.startsWith(`/`)) {
-      return null
-    }
+    if (caption?.startsWith(`/`)) return null
 
     const bi = `echo-result-voice`
     const kb = this.kb(bi)

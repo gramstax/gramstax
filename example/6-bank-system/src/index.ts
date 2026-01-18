@@ -1,5 +1,5 @@
-import {log} from "gramstax"
 import {env} from "./env"
+import {log} from "./utils/log"
 import {BotCore} from "./core/bot"
 
 // Entry point for the Bank System bot.

@@ -19,10 +19,7 @@ export class TestAnimationPage extends PageBase {
 
   async callbackPayload() {
     const swc = this.callbackDataPayload
-    if (swc == `static`) {
-      return await this.callback()
-    }
-
+    if (swc == `static`) return await this.callback()
     if (swc == `dynamic`) {
       const data = {
         src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.

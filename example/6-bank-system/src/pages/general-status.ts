@@ -1,4 +1,4 @@
-import {log} from "gramstax"
+import {log} from "~/utils/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
@@ -11,40 +11,33 @@ export class GeneralStatusPage extends PageBase {
   }
 
   kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0]!, StartPage.data.callback())
-    })
+    return this.inlineKeyboardT([StartPage])
   }
 
-  async toError(funcName: string, error: any, isEdit = true) {
+  async toError(funcName: string, error: any, edit = true) {
     log.errorMake(error, this.constructorName, funcName)
+
     await this.sessionClear()
-    const bi = `error`
     const kb = this.kb()
-    if (isEdit) {
-      await this.edit(kb, {}, bi)
-    } else {
-      await this.reply(kb, {}, bi)
-    }
+    const bi = `error`
+    if (edit) await this.edit(kb, {}, bi)
+    else await this.reply(kb, {}, bi)
   }
 
   async toErrorInputNotFound() {
-    const bi = `error-input-notfound`
     const kb = this.kb()
+    const bi = `error-input-notfound`
     await this.reply(kb, {}, bi)
   }
 
   static template = `
-    <base>
-      ${this.kbk.home(`default`)}
-    </base>
+    <base>${this.kbk.home(`default`)}</base>
 
     <base id="error">
       <message>
         <b>❌ Error</b>
 
-        An error occurred while processing your request.
-        Please try again or select Home to return to the main menu.
+        Something went wrong. Please try again.
       </message>
     </base>
 
@@ -52,8 +45,7 @@ export class GeneralStatusPage extends PageBase {
       <message>
         <b>❌ Not Found</b>
 
-        Command not recognized.
-        Use /start or select Home to return to the main menu.
+        No matching.
       </message>
     </base>
   `
