@@ -27,7 +27,7 @@ import type {
 } from "~/types/ctx"
 
 type IPageData<T extends any[] = any[]> = {name: string; callback: (...payloads: T) => string; intentText: string; intentTextCommand: string; _positionPayloadText: number; intentCallback: string}
-type ITemp = {isAnswer: boolean; session: {method?: string; params?: any}; data: Partial<IPageData<any>>; [key: string]: any}
+type ITemp = {isAnswer: boolean; session: Partial<ICacheRpc>; data: Partial<IPageData<any>>; [key: string]: any}
 type IKbDest = typeof Ctx | Ctx | string
 type IKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${1 | 2 | 3 | 4 | 5 | 6}`
 
@@ -396,7 +396,7 @@ export class Ctx {
       return null
     }
   }
-  async sessionGet() {
+  async sessionGet(): Promise<ICacheRpc | null> {
     try {
       const result = await this.cacheSession.get(`${this.userId}`)
       if (result) this.session = result
