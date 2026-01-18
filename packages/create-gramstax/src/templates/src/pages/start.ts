@@ -2,25 +2,19 @@ import {HelpPage} from "./help"
 import {PageBase} from "~/base/page"
 
 export class StartPage extends PageBase {
-  kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0]!, HelpPage.data.callback())
-    })
-  }
-
-  async core(edit = true) {
-    const kb = this.kb()
+  async show(edit = true) {
+    const kb = this.inlineKeyboardT([HelpPage])
     const data = {userName: this.userName}
     if (edit) await this.edit(kb, data)
     else await this.reply(kb, data)
   }
 
   async callback() {
-    await this.core(true)
+    await this.show(true)
   }
 
   async textCommand() {
-    await this.core(false)
+    await this.show(false)
   }
 
   static template = `

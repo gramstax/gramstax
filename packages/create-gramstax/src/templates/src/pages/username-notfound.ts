@@ -2,14 +2,8 @@ import {HelpPage} from "./help"
 import {PageBase} from "~/base/page"
 
 export class UserNameNotFoundPage extends PageBase {
-  kb() {
-    return this.inlineKeyboard((k, a) => {
-      return k.text(a[0]!, HelpPage.data.callback())
-    })
-  }
-
   async transition(edit = true) {
-    const kb = this.kb()
+    const kb = this.inlineKeyboardT([HelpPage])
     if (edit) await this.edit(kb)
     else await this.reply(kb)
   }

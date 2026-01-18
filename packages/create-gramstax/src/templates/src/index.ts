@@ -8,7 +8,7 @@ logUt.success(`Bot started..`)
 new BotCore({
   token: env.TELEGRAM_BOT_TOKEN,
   deploy: env.TELEGRAM_BOT_DEPLOY,
-  cacheSession: new CacheExternal(env.TELEGRAM_CACHE_SESSION, `session`, 24 * 60 * 60 * 1000),
+  cacheSession: new CacheExternal(env.TELEGRAM_CACHE_SESSION, 24 * 60 * 60 * 1000, `s`),
   optionsPage: {
     shortCallbackData: true
   }
