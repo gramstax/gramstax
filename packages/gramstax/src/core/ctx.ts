@@ -28,6 +28,8 @@ import type {
 
 type IPageData<T extends any[] = any[]> = {name: string; callback: (...payloads: T) => string; intentText: string; intentTextCommand: string; _positionPayloadText: number; intentCallback: string}
 type ITemp = {isAnswer: boolean; session: {method?: string; params?: any}; data: Partial<IPageData<any>>; [key: string]: any}
+type IKbDest = typeof Ctx | Ctx | string
+type IKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${1 | 2 | 3 | 4 | 5 | 6}`
 
 export class Ctx {
   static template?: string // string html
@@ -195,24 +197,24 @@ export class Ctx {
     options?: T extends `photo`
       ? IOptReplyPhoto
       : T extends `video`
-      ? IOptReplyVideo
-      : T extends `audio`
-      ? IOptReplyAudio
-      : T extends `document`
-      ? IOptReplyDocument
-      : T extends `animation`
-      ? IOptReplyAnimation
-      : T extends `voice`
-      ? IOptReplyVoice
-      : T extends `video_note`
-      ? IOptReplyVideoNote
-      : T extends `sticker`
-      ? IOptReplySticker
-      : T extends `location`
-      ? IOptReplyLocation
-      : T extends `contact`
-      ? IOptReplyContact
-      : undefined
+        ? IOptReplyVideo
+        : T extends `audio`
+          ? IOptReplyAudio
+          : T extends `document`
+            ? IOptReplyDocument
+            : T extends `animation`
+              ? IOptReplyAnimation
+              : T extends `voice`
+                ? IOptReplyVoice
+                : T extends `video_note`
+                  ? IOptReplyVideoNote
+                  : T extends `sticker`
+                    ? IOptReplySticker
+                    : T extends `location`
+                      ? IOptReplyLocation
+                      : T extends `contact`
+                        ? IOptReplyContact
+                        : undefined
   ) {
     this.temp.isAnswer = true
     const med = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
@@ -287,15 +289,15 @@ export class Ctx {
     options1?: T extends `voice`
       ? IOptReplyVoice
       : T extends `video_note`
-      ? IOptReplyVideoNote
-      : T extends `sticker`
-      ? IOptReplySticker
-      : T extends `location`
-      ? IOptReplyLocation
-      : T extends `contact`
-      ? IOptReplyContact
-      : //
-        IOptEditMedia1,
+        ? IOptReplyVideoNote
+        : T extends `sticker`
+          ? IOptReplySticker
+          : T extends `location`
+            ? IOptReplyLocation
+            : T extends `contact`
+              ? IOptReplyContact
+              : //
+                IOptEditMedia1,
     options2?: IOptEditMedia2,
     fallbackReply = true
   ) {
@@ -484,6 +486,60 @@ export class Ctx {
   }
 
   // =============== build keyboard
+  keyboardCols<T = any>(k: T, a: string[], layout: IKbCols, cb: (e: string, i: number) => any): T {
+    const [colsStr, lastRowStr] = layout.split(`-`)
+    const cols = parseInt(colsStr!)
+    const lastRow = lastRowStr ? parseInt(lastRowStr) : null
+    const total = a.length
+    const kb = k as any
+    for (let index = 0; index < total; index++) {
+      const e = a[index]!
+      cb(e, index)
+
+      // Jika tidak ada spesifikasi lastRow, pakai pola normal
+      if (lastRow === null) {
+        if ((index + 1) % cols === 0 && index < total - 1) {
+          kb.row()
+        }
+      } else {
+        // Ada spesifikasi lastRow
+        const remainingButtons = total - (index + 1)
+
+        // Jika sisa tombol sama dengan lastRow, row break sekarang
+        if (remainingButtons === lastRow) {
+          kb.row()
+        }
+        // Jika belum mencapai baris terakhir, pakai pola cols normal
+        else if (remainingButtons > lastRow && (index + 1) % cols === 0) {
+          kb.row()
+        }
+      }
+    }
+    return k
+  }
+
+  bottomKeyboardT(layout: IKbCols = `1`, baseId?: string | null, data?: Record<any, any>) {
+    return this.bottomKeyboard(
+      (k, a) => {
+        return this.keyboardCols(k, a, layout, (e) => k.text(e))
+      },
+      {baseId: baseId ?? undefined, data}
+    )
+  }
+
+  inlineKeyboardT(PageDest: IKbDest[], layout: IKbCols = `1`, baseId?: string | null, data?: Record<any, any>) {
+    return this.inlineKeyboard(
+      (k, a) => {
+        return this.keyboardCols(k, a, layout, (e, i) => {
+          const page = PageDest[i]!
+          const data = typeof page == `string` ? page : page.data.callback()
+          k.text(e, data)
+        })
+      },
+      {baseId: baseId ?? undefined, data}
+    )
+  }
+
   inlineKeyboard(callback: (k: IInlineKb, a: string[]) => IInlineKb, params?: {baseId?: string; data?: IData; cache?: boolean}): IInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
@@ -503,6 +559,7 @@ export class Ctx {
     const rkb = callback(ikb, arr)
     return rkb
   }
+
   bottomKeyboard(callback: (k: IBottomKb, a: string[]) => IBottomKb, params?: {baseId?: string; data?: IData; cache?: boolean}): IBottomKb {
     const tkey = this.data.name
     if (params?.cache === true) {
@@ -547,15 +604,29 @@ export class Ctx {
     const tag = this.getSeperatorTag(mtd)
     return str.split(tag).slice(positionStart)
   }
+
+  /**
+   * For get intent from string, example: callbackData: "start:123:1" intent: "start"
+   * @param str String
+   * @param mtd Seperator
+   * @param positionEnd Number
+   * @returns Intent string
+   */
   getIntent(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], positionEnd: number = 1) {
     if (!str) return ``
     const tag = this.getSeperatorTag(mtd)
     const spl = str.split(tag)
     return positionEnd == 1 ? (spl[0] as string) : spl.slice(0, positionEnd).join(tag)
   }
+
   // =============== most common used function
-  async to?(...args: any): Promise<any> // for transition page
-  async core?(...args: any): Promise<any> // for process core logic
+  /**
+   * Must be overrides if need this is just placeholder type
+   * @for Only for transition page from other page
+   * @param args Params
+   */
+  async transition?(...args: any): Promise<any>
+
   // =============== route function
   // callback
   async callback?(): Promise<void | null> // example: start
