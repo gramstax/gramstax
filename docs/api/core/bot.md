@@ -204,7 +204,7 @@ class MyBot extends Gramstax {
     await new GeneralStatusPage(ctx).toError(
       `${listenerName}:hookErrorPage`,
       error,
-      isEdit
+      isEdit,
     );
   }
 }
@@ -262,7 +262,7 @@ class MyBot extends Gramstax {
     await new GeneralStatusPage(ctx).toError(
       `${listenerName}:hookErrorPage`,
       error,
-      isEdit
+      isEdit,
     );
   }
 }
@@ -271,6 +271,6 @@ new MyBot({
   token: process.env.BOT_TOKEN!,
   deploy: "polling",
   log: true,
-  cacheSession: new CacheExternal("redis://localhost:6379", "session"),
+  cacheSession: new CacheExternal("redis://localhost:6379", 60_000, "s"),
 });
 ```

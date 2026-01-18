@@ -19,13 +19,13 @@ The `CacheExternal` class extends [Keyv](https://github.com/jaredwray/keyv) to p
 
 ## Constructor
 
-### `new CacheExternal(url?, namespace?, ttl?, more?)`
+### `new CacheExternal(url?, ttl?, namespace?, more?)`
 
 | parameter | type   | required | default    | description                                                                                |
 | --------- | ------ | -------- | ---------- | ------------------------------------------------------------------------------------------ |
 | url       | string | no       | `"memory"` | Storage connection URL. Memory uses `"memory"`; Redis uses `"redis://..."`.                |
-| namespace | string | no       | -          | Key namespace prefix. Isolates keys by namespace.                                          |
 | ttl       | number | no       | -          | Default time-to-live in milliseconds. Applies to all keys unless overridden per operation. |
+| namespace | string | no       | -          | Key namespace prefix. Isolates keys by namespace.                                          |
 | more      | IMore  | no       | -          | Additional Keyv options. `forceStore` overrides automatic store selection.                 |
 
 ```typescript
@@ -35,14 +35,10 @@ import { CacheExternal } from "gramstax";
 const memoryCache = new CacheExternal();
 
 // Redis cache
-const redisCache = new CacheExternal(
-  "redis://localhost:6379",
-  "session",
-  3600000
-);
+const redisCache = new CacheExternal("redis://localhost:6379", 3600000, "s");
 
 // With namespace and TTL
-const cache = new CacheExternal("memory", "myapp", 60000);
+const cache = new CacheExternal("memory", 60000, "myapp");
 ```
 
 &nbsp;
