@@ -22,12 +22,12 @@ export class InputTextPage extends PageBase {
   }
 
   async textFree() {
-    const params = await new SessionGuard(this).ensureTextFree()
-    if (params === null) return null
+    const pa = await new SessionGuard(this).ensureTextFree()
+    if (pa === null) return null
 
-    const baseId = `result`
-    const data = {res: this.msgText}
-    await this.reply(this.kb(baseId), data, baseId)
+    const bi = `result`
+    const da = {res: this.msgText}
+    await this.reply(this.kb(bi), da, bi)
   }
 
   static template = `

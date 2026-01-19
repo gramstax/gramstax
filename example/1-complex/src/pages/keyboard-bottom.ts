@@ -36,10 +36,10 @@ export class KeyboardBottomPage extends PageBase {
   }
 
   async textCommandPayload() {
-    const pld = this.msgTextCommandPayload
+    const pl = this.msgTextCommandPayload
     const kb = this.inlineKeyboardT([StartPage])
-    if (pld == `reset`) await this.show(kb, pld)
-    if (pld == `delete`) await this.reply(kb, {}, pld, {reply_markup: {remove_keyboard: true}})
+    if (pl == `reset`) await this.show(kb, pl)
+    if (pl == `delete`) await this.reply(kb, {}, pl, {reply_markup: {remove_keyboard: true}})
   }
 
   static template = `    
