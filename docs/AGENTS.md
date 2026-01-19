@@ -24,7 +24,7 @@ Consolidates `docs/api` content with implementation notes from `packages/gramsta
   - [TemplateEngine](#templateengine)
   - [TemplateManager](#templatemanager)
 - [Utils](#utils)
-  - [LoggingUtils](#loggingutils)
+  - [LoggingUtil](#LoggingUtil)
 - [Blocks](#blocks)
   - [BlockKeyboard](#blockkeyboard)
 - [Data](#data)
@@ -276,7 +276,7 @@ Synchronously load a single page module.
 
 ```typescript
 const StartPage = PageManager.getFileSync(
-  "/path/to/project/src/pages/start.ts"
+  "/path/to/project/src/pages/start.ts",
 );
 ```
 
@@ -296,7 +296,7 @@ Asynchronously load a single page module with cache busting.
 
 ```typescript
 const StartPage = await PageManager.getFile(
-  "/path/to/project/src/pages/start.ts"
+  "/path/to/project/src/pages/start.ts",
 );
 ```
 
@@ -963,7 +963,7 @@ const keyboard = templateManager.getKeyboard(
   "welcome",
   "default",
   "en",
-  "inline"
+  "inline",
 );
 
 console.log("Message:", message);
@@ -983,7 +983,7 @@ console.log("Buttons:", keyboard);
 
 ## Utils
 
-### LoggingUtils
+### LoggingUtil
 
 Source: `docs/api/utils/log.md`
 
@@ -992,29 +992,29 @@ Source: `docs/api/utils/log.md`
 > - **Last Updated:** 16/01/2026 18:09:06
 > - **Framework Version:** v0.5.3
 
-# LoggingUtils
+# LoggingUtil
 
-The `LoggingUtils` class extends [LoggingPretty](https://www.npmjs.com/package/logging-pretty) to provide enhanced logging functionality.
+The `LoggingUtil` class extends [LoggingPretty](https://www.npmjs.com/package/logging-pretty) to provide enhanced logging functionality.
 
 > **AI Notes (non-normative / for parsing):**
 >
-> - **Scope:** This document describes the `LoggingUtils` class and the exported `log` singleton.
+> - **Scope:** This document describes the `LoggingUtil` class and the exported `log` singleton.
 > - **Inheritance:** Extends `LoggingPretty` with additional helper methods.
 
 &nbsp;
 
 ## Constructor
 
-### `new LoggingUtils(options?)`
+### `new LoggingUtil(options?)`
 
 | parameter | type   | required | default | description                       | ai_notes                                       |
 | --------- | ------ | -------- | ------- | --------------------------------- | ---------------------------------------------- |
 | options   | object | no       | -       | LoggingPretty constructor options | **Passed through:** to parent `LoggingPretty`. |
 
 ```typescript
-import { LoggingUtils } from "gramstax";
+import { LoggingUtil } from "gramstax";
 
-const logger = new LoggingUtils();
+const logger = new LoggingUtil();
 ```
 
 &nbsp;
@@ -1035,7 +1035,7 @@ Log a formatted error message with optional class and function context.
 - **ai_notes:** Writes formatted log entry.
 
 ```typescript
-const logger = new LoggingUtils();
+const logger = new LoggingUtil();
 
 try {
   throw new Error("Something went wrong");
@@ -1051,7 +1051,7 @@ try {
 
 ### `log`
 
-A pre-instantiated `LoggingUtils` instance for convenience.
+A pre-instantiated `LoggingUtil` instance for convenience.
 
 ```typescript
 import { log } from "gramstax";
@@ -1078,18 +1078,18 @@ All methods from [LoggingPretty](https://www.npmjs.com/package/logging-pretty) a
 ## Usage
 
 ```typescript
-import { log, LoggingUtils } from "gramstax";
+import { log, LoggingUtil } from "gramstax";
 
 log.info("Application started");
 
-const logger = new LoggingUtils();
+const logger = new LoggingUtil();
 logger.errorMake(new Error("Oops"), "Worker", "init");
 ```
 
 #### Implementation Details (packages/gramstax/src/utils/log.ts)
 
-- `LoggingUtils` simply forwards options to `LoggingPretty` and adds `errorMake()` formatting.
-- The `log` singleton is initialized eagerly as `new LoggingUtils()`.
+- `LoggingUtil` simply forwards options to `LoggingPretty` and adds `errorMake()` formatting.
+- The `log` singleton is initialized eagerly as `new LoggingUtil()`.
 
 ## Blocks
 
@@ -1732,7 +1732,7 @@ await this.createGatewayServer(
   {
     ping: () => "pong",
   },
-  "/tmp/my-worker.sock"
+  "/tmp/my-worker.sock",
 );
 ```
 
@@ -2193,7 +2193,7 @@ async function main() {
       const w = new WorkerThreadLaunch("./processor.ts", [String(i)]);
       await w.ready();
       return w;
-    })
+    }),
   );
 
   const pool = new WorkerThreadPool(workers);
@@ -2402,7 +2402,7 @@ const methods = {
 // Create RPC handler
 const rpc = new WorkerThreadRpc(
   (data) => parentPort.postMessage(data),
-  methods
+  methods,
 );
 
 // Handle incoming messages
@@ -2529,7 +2529,7 @@ export class Worker extends WorkerThreadInit {
   async mtdStart() {
     const res = await this.createGatewayServer();
     console.log(
-      `[Worker-Server] Gateway '${this.gatewayServerPath}' is active.`
+      `[Worker-Server] Gateway '${this.gatewayServerPath}' is active.`,
     );
     return res;
   }
@@ -2784,7 +2784,7 @@ export class Worker extends WorkerThreadInit {
     const res = await this.createGatewayServer();
     if (res) {
       console.log(
-        `[Worker-Server] Gateway '${this.gatewayServerPath}' is active.`
+        `[Worker-Server] Gateway '${this.gatewayServerPath}' is active.`,
       );
       return res;
     }
@@ -2823,7 +2823,7 @@ class Worker extends WorkerThreadInit {
       console.log(`[Worker-Client-${this.name}] Connecting to gateway...`);
       const res = await WorkerServerGateway.mtdHello(
         this,
-        `Worker-Client-${this.name}`
+        `Worker-Client-${this.name}`,
       );
       console.log(`[Worker-Client-${this.name}] Server response: ${res}`);
     } catch (err: any) {
@@ -2898,7 +2898,7 @@ class Worker extends WorkerThreadInit {
     const res = await this.createGatewayServer();
     if (res) {
       console.log(
-        `[Server-Main] Gateway '${this.gatewayServerPath}' is active.`
+        `[Server-Main] Gateway '${this.gatewayServerPath}' is active.`,
       );
       return res;
     }

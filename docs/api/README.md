@@ -34,7 +34,7 @@ The folder structure mirrors `packages/gramstax/src` for easy navigation.
 
 ### utils/
 
-- [log.md](utils/log.md) - `LoggingUtils` enhanced logging utility
+- [log.md](utils/log.md) - `LoggingUtil` enhanced logging utility
 
 ### blocks/
 

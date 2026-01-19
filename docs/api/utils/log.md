@@ -4,29 +4,29 @@
 
 > - **Framework Version:** v0.5.3
 
-# LoggingUtils
+# LoggingUtil
 
-The `LoggingUtils` class extends [LoggingPretty](https://www.npmjs.com/package/logging-pretty) to provide enhanced logging functionality.
+The `LoggingUtil` class extends [LoggingPretty](https://www.npmjs.com/package/logging-pretty) to provide enhanced logging functionality.
 
 > **AI Notes (non-normative / for parsing):**
 >
-> - **Scope:** This document describes the `LoggingUtils` class and the exported `log` singleton.
+> - **Scope:** This document describes the `LoggingUtil` class and the exported `log` singleton.
 > - **Inheritance:** Extends `LoggingPretty` with additional helper methods.
 
 &nbsp;
 
 ## Constructor
 
-### `new LoggingUtils(options?)`
+### `new LoggingUtil(options?)`
 
 | parameter | type   | required | default | description                                                                       |
 | --------- | ------ | -------- | ------- | --------------------------------------------------------------------------------- |
 | options   | object | no       | -       | LoggingPretty constructor options. **Passed through:** to parent `LoggingPretty`. |
 
 ```typescript
-import { LoggingUtils } from "gramstax";
+import { LoggingUtil } from "gramstax";
 
-const logger = new LoggingUtils();
+const logger = new LoggingUtil();
 ```
 
 &nbsp;
@@ -47,7 +47,7 @@ Log a formatted error message with optional class and function context.
 - **description:** Writes formatted log entry.
 
 ```typescript
-const logger = new LoggingUtils();
+const logger = new LoggingUtil();
 
 try {
   throw new Error("Something went wrong");
@@ -63,7 +63,7 @@ try {
 
 ### `log`
 
-A pre-instantiated `LoggingUtils` instance for convenience.
+A pre-instantiated `LoggingUtil` instance for convenience.
 
 ```typescript
 import { log } from "gramstax";
@@ -90,10 +90,10 @@ All methods from [LoggingPretty](https://www.npmjs.com/package/logging-pretty) a
 ## Usage
 
 ```typescript
-import { log, LoggingUtils } from "gramstax";
+import { log, LoggingUtil } from "gramstax";
 
 log.info("Application started");
 
-const logger = new LoggingUtils();
+const logger = new LoggingUtil();
 logger.errorMake(new Error("Oops"), "Worker", "init");
 ```
