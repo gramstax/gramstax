@@ -1,6 +1,6 @@
 import {LoggingPretty} from "logging-pretty"
 
-export class LoggingUtils extends LoggingPretty {
+export class LoggingUtil extends LoggingPretty {
   constructor(options?: ConstructorParameters<typeof LoggingPretty>[0]) {
     super(options)
   }
@@ -15,4 +15,4 @@ export class LoggingUtils extends LoggingPretty {
   }
 }
 
-export const log = new LoggingUtils()
+export const log = new LoggingUtil()
