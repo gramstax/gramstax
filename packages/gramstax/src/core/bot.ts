@@ -1,23 +1,24 @@
 import {Ctx} from "./ctx"
 import {log} from "~/utils/log"
-import {join, dirname, parse} from "node:path"
+import {PageManager} from "~/page/manager"
 import {readFileSync} from "node:fs"
 import {fileURLToPath} from "node:url"
-import {PageManager} from "~/page/manager"
-import type {LoggingPretty} from "logging-pretty"
+import {dirname, join, parse} from "node:path"
 import {TemplateManager} from "~/template/manager"
-import {Bot, webhookCallback, type BotError, type Context} from "grammy"
-import type {UserFromGetMe} from "grammy/types"
 import {CacheExternal, ICacheRpc} from "~/cache/external"
+import {Bot, webhookCallback, type BotError, type Context} from "grammy"
+import type {LoggingPretty} from "logging-pretty"
+import type {UserFromGetMe} from "grammy/types"
 
-const ___filename = (() => {
-  try {
-    return __filename
-  } catch {
-    return fileURLToPath(import.meta.url)
-  }
-})()
-const __dirname = dirname(___filename)
+const __dirname = dirname(
+  (() => {
+    try {
+      return __filename
+    } catch {
+      return fileURLToPath(import.meta.url)
+    }
+  })()
+)
 const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.json`), `utf-8`)).version as string
 
 export class Gramstax<ICtx extends Ctx = Ctx> {
@@ -190,11 +191,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (Page?.data === undefined) {
       Page.data = Page.buildData() as any
     }
-    const name = parse(filePath).name
-    Page.data.name = name
-    if (!Page.data.intentText) Page.data.intentText = name
-    if (!Page.data.intentTextCommand) Page.data.intentTextCommand = name
-    if (!Page.data.intentCallback) Page.data.intentCallback = name
+    const {name} = parse(filePath)
+    if (!Page.data.name) Page.data.name = name
+    if (!Page.data.intentText) Page.data.intentText = Page.data.name
+    if (!Page.data.intentTextCommand) Page.data.intentTextCommand = Page.data.name
+    if (!Page.data.intentCallback) Page.data.intentCallback = Page.data.name
   }
 
   pageSorts(Page: typeof Ctx, pages: typeof this.pages, indexPage: number): void {

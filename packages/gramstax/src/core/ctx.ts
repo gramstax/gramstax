@@ -1,7 +1,7 @@
 import {setTimeout} from "node:timers/promises"
-import {CacheExternal, ICacheRpc} from "~/cache/external"
-import {InlineKeyboard, Keyboard} from "grammy"
 import {TemplateManager} from "~/template/manager"
+import {InlineKeyboard, Keyboard} from "grammy"
+import {CacheExternal, ICacheRpc} from "~/cache/external"
 import type {IMediaBlock} from "~/template/engine"
 import type {
   ICt,
@@ -416,8 +416,8 @@ export class Ctx {
   }
   // =============== build data
   static buildData<C extends (...args: any[]) => any>(callback: C): IPageData<Parameters<C>>
-  static buildData<C extends (...args: any[]) => any>(options: {callback?: C; intentText?: string; intentTextCommand?: string}): IPageData<Parameters<C>>
-  static buildData(options: {callback?: any; intentText?: string; intentTextCommand?: string}): IPageData<[]>
+  static buildData<C extends (...args: any[]) => any>(options: {name?: string; callback?: C; intentText?: string; intentTextCommand?: string}): IPageData<Parameters<C>>
+  static buildData(options: {name?: string; callback?: any; intentText?: string; intentTextCommand?: string}): IPageData<[]>
   static buildData(): IPageData<[]>
   static buildData(params?: any): IPageData<any> {
     const isFunc = typeof params === `function`
@@ -425,6 +425,7 @@ export class Ctx {
     const cbd = options.callback
     const addPld = this.prototype.addPayloads.bind(this.prototype)
 
+    const name = options.name || ``
     const data: IPageData<any> = {
       /**
        * Internal value derived from the file name.
@@ -432,7 +433,7 @@ export class Ctx {
        *
        * important!: Do not set this manually. Let the system handle it.
        */
-      name: ``,
+      name,
       /**
        * Overrides intent value used to trigger the route function text (besides the ending "free").
        * This is typically used when you want to trigger the route using a space-separated command, for example "X Start" or "🏠 Home", with a maximum of one space.
@@ -440,7 +441,7 @@ export class Ctx {
        * default: this.data.name
        * important!: Leave this unset unless explicitly needed.
        */
-      intentText: options.intentText || ``,
+      intentText: options.intentText || name,
       /**
        * Overrides intent value used to trigger the route function textCommand (besides the ending "free").
        * This is usually required when this.data.name includes a hyphen ("-"), which may interfere with default routing behavior.
@@ -448,7 +449,15 @@ export class Ctx {
        * default: this.data.name
        * important!: Leave this unset unless explicitly needed.
        */
-      intentTextCommand: options.intentTextCommand || ``,
+      intentTextCommand: options.intentTextCommand || name,
+      /**
+       * Internal intent value used to trigger route function callback (besides the ending "free").
+       * if constructorParams.shortCallbackData is set to true, a numeric index value will be used instead.
+       *
+       * default: this.data.name
+       * important!: Do not set this manually. Let the system handle it.
+       */
+      intentCallback: name,
       /**
        * Add payloads to intentCallback, will trigger only to route function callback (besides the ending "free").
        * This is usually used when you want to insert a payload into it.
@@ -465,14 +474,6 @@ export class Ctx {
         : function (this: {intentCallback: string}): string {
             return this?.intentCallback
           },
-      /**
-       * Internal intent value used to trigger route function callback (besides the ending "free").
-       * if constructorParams.shortCallbackData is set to true, a numeric index value will be used instead.
-       *
-       * default: this.data.name
-       * important!: Do not set this manually. Let the system handle it.
-       */
-      intentCallback: ``,
       /**
        * An internal value that specifies the payload position for the route function text.
        * The maximum allowed value is 2, which means only single spaces are supported, for example, "🏠 Home".
@@ -622,67 +623,68 @@ export class Ctx {
   // =============== most common used function
   /**
    * Must be overrides if need this is just placeholder type
-   * @for Only for transition page from other page
+   * @for Only for transition page to other page
    * @param args Params
    */
   async transition?(...args: any): Promise<any>
 
   // =============== route function
   // callback
-  async callback?(): Promise<void | null> // example: start
-  async callbackPayload?(): Promise<void | null> // example: start:{DYNAMIC}
+  async callback?(): Promise<any> // example: "start"
+  async callbackPayload?(): Promise<any> // example: "start:123"
+
   // text
-  async text?(): Promise<void | null> // example: start
-  async textPayload?(): Promise<void | null> // example: start {...DYNAMIC}
-  async textCommand?(): Promise<void | null> // example: /start
-  async textCommandPayload?(): Promise<void | null> // example: /start {...DYNAMIC}
-  async textFree?(): Promise<void | null> // example (for session): {...DYNAMIC}
+  async text?(): Promise<any> // example: "start"
+  async textPayload?(): Promise<any> // example: "start 123"
+  async textCommand?(): Promise<any> // example: "/start"
+  async textCommandPayload?(): Promise<any> // example: "/start 123"
+  async textFree?(): Promise<any> // example: "123"
   // photo
-  async photoCaption?(): Promise<void | null>
-  async photoCaptionPayload?(): Promise<void | null>
-  async photoCaptionCommand?(): Promise<void | null>
-  async photoCaptionCommandPayload?(): Promise<void | null>
-  async photoFree?(): Promise<void | null>
+  async photoCaption?(): Promise<any>
+  async photoCaptionPayload?(): Promise<any>
+  async photoCaptionCommand?(): Promise<any>
+  async photoCaptionCommandPayload?(): Promise<any>
+  async photoFree?(): Promise<any>
   // video
-  async videoCaption?(): Promise<void | null>
-  async videoCaptionPayload?(): Promise<void | null>
-  async videoCaptionCommand?(): Promise<void | null>
-  async videoCaptionCommandPayload?(): Promise<void | null>
-  async videoFree?(): Promise<void | null>
+  async videoCaption?(): Promise<any>
+  async videoCaptionPayload?(): Promise<any>
+  async videoCaptionCommand?(): Promise<any>
+  async videoCaptionCommandPayload?(): Promise<any>
+  async videoFree?(): Promise<any>
   // audio
-  async audioCaption?(): Promise<void | null>
-  async audioCaptionPayload?(): Promise<void | null>
-  async audioCaptionCommand?(): Promise<void | null>
-  async audioCaptionCommandPayload?(): Promise<void | null>
-  async audioFree?(): Promise<void | null>
+  async audioCaption?(): Promise<any>
+  async audioCaptionPayload?(): Promise<any>
+  async audioCaptionCommand?(): Promise<any>
+  async audioCaptionCommandPayload?(): Promise<any>
+  async audioFree?(): Promise<any>
   // document
-  async documentCaption?(): Promise<void | null>
-  async documentCaptionPayload?(): Promise<void | null>
-  async documentCaptionCommand?(): Promise<void | null>
-  async documentCaptionCommandPayload?(): Promise<void | null>
-  async documentFree?(): Promise<void | null>
+  async documentCaption?(): Promise<any>
+  async documentCaptionPayload?(): Promise<any>
+  async documentCaptionCommand?(): Promise<any>
+  async documentCaptionCommandPayload?(): Promise<any>
+  async documentFree?(): Promise<any>
   // animation
-  async animationCaption?(): Promise<void | null>
-  async animationCaptionPayload?(): Promise<void | null>
-  async animationCaptionCommand?(): Promise<void | null>
-  async animationCaptionCommandPayload?(): Promise<void | null>
-  async animationFree?(): Promise<void | null>
+  async animationCaption?(): Promise<any>
+  async animationCaptionPayload?(): Promise<any>
+  async animationCaptionCommand?(): Promise<any>
+  async animationCaptionCommandPayload?(): Promise<any>
+  async animationFree?(): Promise<any>
   // voice
-  async voiceCaption?(): Promise<void | null>
-  async voiceCaptionPayload?(): Promise<void | null>
-  async voiceCaptionCommand?(): Promise<void | null>
-  async voiceCaptionCommandPayload?(): Promise<void | null>
-  async voiceFree?(): Promise<void | null>
+  async voiceCaption?(): Promise<any>
+  async voiceCaptionPayload?(): Promise<any>
+  async voiceCaptionCommand?(): Promise<any>
+  async voiceCaptionCommandPayload?(): Promise<any>
+  async voiceFree?(): Promise<any>
   // video_note
-  async videoNoteFree?(): Promise<void | null>
+  async videoNoteFree?(): Promise<any>
   // sticker
-  async stickerFree?(): Promise<void | null>
+  async stickerFree?(): Promise<any>
   // location
-  async locationFree?(): Promise<void | null>
+  async locationFree?(): Promise<any>
   // contact
-  async contactFree?(): Promise<void | null>
+  async contactFree?(): Promise<any>
   // all
-  async free?(): Promise<void | null>
+  async free?(): Promise<any>
 
   // =============== session validate
   // callback
