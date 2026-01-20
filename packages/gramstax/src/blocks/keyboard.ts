@@ -11,17 +11,17 @@ import {LabelKeyboard} from "~/labels/keyboard"
  * ```typescript
  * import { BlockKeyboard, LabelKeyboard } from "gramstax";
  *
- * class KeyboardLabel extends LabelKeyboard {
- *   static backNext(lang?: string) {
- *     return this._build(lang, false, {
- *       en: "Back, Next",
- *       id: "Kembali, Lanjut",
- *     });
- *   }
- * }
- *
  * class KeyboardBlock extends BlockKeyboard {
- *   static label = KeyboardLabel;
+ *   static label = class extends LabelKeyboard {
+ *     static backNext = {
+ *       en: "Back, Next",
+ *       id: "Kembali, Lanjut"
+ *     }
+ *   }
+ *
+ *   static backNext(lang?: string, type?: string) {
+ *     return this._build(`backNext`, lang, type)
+ *   }
  * }
  * ```
  *
@@ -38,60 +38,12 @@ export class BlockKeyboard {
   static label: typeof LabelKeyboard
 
   /**
-   * Generate keyboard template blocks from an object of language-keyed values.
-   *
-   * @param obj - Object with language keys. Structure is `{ en: "...", id: "..." }`.
-   * @param params - Configuration parameters for keyboard generation.
-   * @param params.type - Keyboard type. Values are `"inline"` or `"bottom"`. Defaults to `"inline"`.
-   * @param params.lang - Target language. If set, returns single language block.
-   * @param params.reverse - Reverse button order. If true, reverses comma-separated labels.
-   * @returns HTML-like `<keyboard>` block(s) as string.
-   *
-   * @example
-   * ```typescript
-   * const obj = { en: "Back, Next", id: "Kembali, Lanjut" };
-   *
-   * // All languages
-   * BlockKeyboard._process(obj, { type: "inline" });
-   * // => `<keyboard type="inline" lang="en">Back, Next</keyboard> <keyboard type="inline" lang="id">Kembali, Lanjut</keyboard>`
-   *
-   * // Single language
-   * BlockKeyboard._process(obj, { type: "inline", lang: "en" });
-   * // => `<keyboard type="inline" lang="en">Back, Next</keyboard>`
-   *
-   * // Reversed
-   * BlockKeyboard._process(obj, { type: "inline", reverse: true });
-   * // => `<keyboard type="inline" lang="en">Next, Back</keyboard> ...`
-   * ```
-   * @internal
-   */
-  static _process(obj: any, params: {type?: string; lang?: string; reverse?: boolean}) {
-    if (!params.type) {
-      params.type = `inline`
-    }
-
-    if (params.lang) {
-      const v = obj[params.lang]
-      return `
-        <keyboard type="${params.type}" lang="${params.lang}">${params.reverse ? this.label._reverse(v) : v}</keyboard>
-      `
-    }
-    return Object.keys(obj)
-      .map((lang) => {
-        const v = obj[lang]
-        return `
-          <keyboard type="${params.type}" lang="${lang}">${params.reverse ? this.label._reverse(v) : v}</keyboard>
-        `
-      })
-      .join(` `)
-  }
-
-  /**
    * Build keyboard blocks by calling a method from the linked `LabelKeyboard`.
    *
    * @param key - Method name in LabelKeyboard. Must exist or throws.
    * @param lang - Target language. If set, returns single language block.
    * @param type - Keyboard type. Values are `"inline"` or `"bottom"`. Defaults to `"inline"`.
+   * @param reverse - Reverse button order. If true, reverses comma-separated labels.
    * @returns Keyboard block string.
    *
    * @throws Error if {@link BlockKeyboard.label} is not set.
@@ -101,22 +53,33 @@ export class BlockKeyboard {
    * ```typescript
    * // Assuming BlockKeyboard.label = MyKeyboards with backNext() method
    *
-   * BlockKeyboard._build("backNext");
+   * const kbk = BlockKeyboard
+   * kbk._build("backNext");
    * // => '<keyboard type="inline" lang="en">Back, Next</keyboard> ...'
    *
-   * BlockKeyboard._build("backNext", "en", "bottom");
+   * kbk._build("backNext", "en", "bottom");
    * // => '<keyboard type="bottom" lang="en">Back, Next</keyboard>'
    * ```
    * @internal
    */
-  static _build(key: string, lang?: string, type?: string) {
+  static _build(key: string, lang?: string, type?: string, reverse?: boolean) {
     if (!this.label) {
       throw new Error(`Label not found, make sure set this.label from class extends LabelKeyboard`)
     }
-    const func = (this.label as any)[key]
-    if (!func) {
-      throw new Error(`Function ${key} not found`)
+
+    if (!type) {
+      type = `inline`
     }
-    return this._process(func.call(this.label, undefined), {type, lang})
+
+    const obj = (this.label as any)[key]
+    if (!obj) {
+      throw new Error(`Object value ${key} not found`)
+    }
+    const pro = (v: string, lang: string) => `<keyboard type="${type}" lang="${lang}">${reverse ? this.label._reverse(v) : v}</keyboard>`
+    return lang
+      ? pro(obj[lang], lang)
+      : Object.keys(obj)
+          .map((lang) => pro(obj[lang], lang))
+          .join(` `)
   }
 }
