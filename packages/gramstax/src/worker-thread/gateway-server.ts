@@ -1,16 +1,54 @@
 import {Server, type Connection} from "net-ipc"
 import {WorkerThreadRpc} from "./rpc"
 
+/**
+ * Provides IPC server functionality for inter-worker communication using Unix domain sockets.
+ *
+ * @remarks
+ * Uses `net-ipc` library for Unix domain socket communication.
+ * Supports connections from multiple gateway clients.
+ * Typically created via {@link WorkerThreadInit.createGatewayServer}.
+ *
+ * @example
+ * ```typescript
+ * import { WorkerThreadGatewayServer } from "gramstax";
+ *
+ * const server = new WorkerThreadGatewayServer();
+ * await server.start("/tmp/my-server.sock", {
+ *   ping: () => "pong",
+ *   getData: (key) => database.get(key),
+ * });
+ * ```
+ *
+ * @public
+ */
 export class WorkerThreadGatewayServer {
+  /**
+   * The underlying `net-ipc` Server instance.
+   */
   server = new Server()
-  rpc = new Map<string, WorkerThreadRpc>()
-  methods: any = {}
 
+  /**
+   * Map of RPC handlers per connection. Key is the connection ID.
+   */
+  rpc = new Map<string, WorkerThreadRpc>()
+
+  /**
+   * Object exposed to clients.
+   */
+  register: any = {}
+
+  /**
+   * Creates a new gateway server instance.
+   *
+   * @remarks
+   * Typically not called directly; use {@link WorkerThreadInit.createGatewayServer} instead.
+   */
   constructor() {
     this.server.on(`connect`, (connection: Connection) => {
       const rpc = new WorkerThreadRpc((data) => {
         return connection.send(data)
-      }, this.methods)
+      }, this.register)
 
       this.rpc.set(connection.id, rpc)
     })
@@ -31,8 +69,26 @@ export class WorkerThreadGatewayServer {
     })
   }
 
-  async start(path: string, methods: any = {}) {
-    this.methods = methods
+  /**
+   * Start the gateway server.
+   *
+   * @param path - Unix socket path to bind. Gateway path identifier.
+   * @param register - Object to expose to clients. Called by connected clients. Defaults to `{}`.
+   * @returns Promise that resolves to this server instance when ready.
+   *
+   * @example
+   * ```typescript
+   * await server.start("/tmp/data-worker.sock", {
+   *   ping: () => "pong",
+   *   getData: (key) => database.get(key),
+   *   setData: (key, value) => database.set(key, value),
+   * });
+   * console.log("Gateway server started");
+   * ```
+   * @public
+   */
+  async start(path: string, register: any = {}) {
+    this.register = register
     this.server.options.path = path
     const p = new Promise((resolve) => {
       this.server.once(`ready`, () => resolve(this))

@@ -1,28 +1,111 @@
 import {isMainThread, Worker} from "node:worker_threads"
 import {WorkerThreadRpc} from "./rpc"
 
+/**
+ * Manages worker thread lifecycle from the main thread.
+ * Handles spawning, communication, and termination of worker threads.
+ *
+ * @remarks
+ * Automatically registers SIGINT/SIGTERM handlers to terminate workers.
+ * Uses promise-based ready detection for synchronization.
+ *
+ * @example
+ * ```typescript
+ * import { WorkerThreadLaunch } from "gramstax";
+ *
+ * async function main() {
+ *   const worker = new WorkerThreadLaunch("./jobs/processor.ts", ["config.json"]);
+ *   await worker.ready();
+ *   console.log(`Worker ${worker.threadId} is ready`);
+ *
+ *   const result = await worker.request("process", [{ data: "test" }]);
+ *   console.log("Result:", result);
+ *
+ *   worker.kill();
+ * }
+ * ```
+ *
+ * @public
+ */
 export class WorkerThreadLaunch {
+  /**
+   * Check if currently running in the main thread.
+   * Re-exported from `node:worker_threads`.
+   */
   static isMainThread = isMainThread
+
   private _readyResolve?: () => void
   private _readyPromise = new Promise<void>((resolve) => (this._readyResolve = resolve))
+
+  /**
+   * The main process ID.
+   */
   pid = process.pid
+
+  /**
+   * The underlying Node.js Worker instance from `node:worker_threads`.
+   */
   thread: Worker = {} as any
+
+  /**
+   * The worker thread ID.
+   */
   threadId: number = {} as any
+
+  /**
+   * RPC handler for method invocations.
+   */
   rpc: WorkerThreadRpc = {} as any
 
-  constructor(public path: string, public argv: any[]) {
+  /**
+   * Creates a new WorkerThreadLaunch instance and spawns the worker thread.
+   *
+   * @param path - Path to the worker file. Must be valid JavaScript/TypeScript file.
+   * @param argv - Arguments to pass to worker. Accessible via `process.argv` in worker.
+   * @param register - Object with value function to expose. Called by thread worker. Defaults to `this`.
+   */
+  constructor(
+    public path: string,
+    public argv: any[],
+    public register?: any
+  ) {
     this.init()
-    this.rpc = new WorkerThreadRpc(this.send.bind(this), this)
+    if (!register) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      register = this
+    }
+    this.rpc = new WorkerThreadRpc(this.send.bind(this), register)
   }
 
+  /**
+   * Wait for the worker to signal it's ready.
+   *
+   * @returns Promise that resolves when worker calls `super()` in `WorkerThreadInit`.
+   *
+   * @example
+   * ```typescript
+   * const worker = new WorkerThreadLaunch("./worker.ts", []);
+   * await worker.ready();
+   * console.log("Worker is ready");
+   * ```
+   * @public
+   */
   ready() {
     return this._readyPromise
   }
 
+  /**
+   * Internal method called by worker to signal readiness.
+   * @internal
+   */
   mtdReady() {
     this._readyResolve?.()
   }
 
+  /**
+   * Initialize the worker thread and set up message handlers.
+   * @internal
+   */
   init() {
     this.thread = new Worker(this.path, {argv: this.argv.length == 0 && this.argv[0] === undefined ? undefined : this.argv})
     this.threadId = this.thread.threadId
@@ -32,18 +115,60 @@ export class WorkerThreadLaunch {
     process.once(`SIGTERM`, () => this.kill())
   }
 
+  /**
+   * Handle incoming messages from the worker thread.
+   *
+   * @param data - Message data from worker.
+   * @internal
+   */
   async handleOnMessage(data: any) {
     this.rpc.make(data)
   }
 
+  /**
+   * Terminate the worker thread immediately.
+   *
+   * @example
+   * ```typescript
+   * worker.kill();
+   * ```
+   * @public
+   */
   kill() {
     this.thread.terminate()
   }
 
+  /**
+   * Send a message to the worker thread.
+   *
+   * @param payload - Data to send. Sent to worker thread.
+   *
+   * @example
+   * ```typescript
+   * worker.send({ action: "process", data: [1, 2, 3] });
+   * ```
+   * @public
+   */
   send(payload: any) {
     this.thread.postMessage(payload)
   }
 
+  /**
+   * Make an RPC request to the worker thread.
+   *
+   * @param method - Method name to call in worker. Must exist on WorkerThreadInit.
+   * @param params - Method parameters. Passed as array to worker method.
+   * @param _wait - Wait for response. If false, fire-and-forget. Defaults to `true`.
+   * @param _others - Additional RPC data. Merged into RPC payload.
+   * @returns Promise resolving with worker response.
+   *
+   * @example
+   * ```typescript
+   * const result = await worker.request("processData", [[1, 2, 3]]);
+   * console.log("Result:", result);
+   * ```
+   * @public
+   */
   async request(method: string, params: any, _wait = true, _others?: any) {
     return this.rpc.makeRequest(method, params, _wait, _others)
   }
