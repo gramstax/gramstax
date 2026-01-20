@@ -319,7 +319,7 @@ export class TemplateEngine {
           .replace(/^\n+/, ``)
           .replace(/\n+$/, ``)
           .trim()
-          .replace(/`/g, `\\\``)
+        //  .replace(/`/g, `\\\``)
         casesJs += `default: return \`${content}\`; `
       } else {
         casesJs += `default: return ''; `
