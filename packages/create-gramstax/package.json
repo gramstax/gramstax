@@ -1,6 +1,6 @@
 {
   "name": "create-gramstax",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "private": false,
   "publishConfig": {
     "access": "public",
