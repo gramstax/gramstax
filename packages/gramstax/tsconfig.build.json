@@ -4,6 +4,7 @@
         "composite": false,
         "noEmit": false,
         "resolveJsonModule": true,
+        "removeComments": true
     },
     "include": [
         "src/**/*"
