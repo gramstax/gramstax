@@ -21,19 +21,114 @@ const __dirname = dirname(
 )
 const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.json`), `utf-8`)).version as string
 
+/**
+ * Main bot framework class for building Telegram bots.
+ *
+ * @remarks
+ * Gramstax provides a page-based routing system for handling Telegram updates.
+ * It automatically loads page classes from the file system and routes incoming
+ * messages and callbacks to the appropriate handlers.
+ *
+ * @typeParam ICtx - The context type extending {@link Ctx}.
+ *
+ * @example
+ * ```typescript
+ * import {Gramstax} from "gramstax"
+ *
+ * const bot = new Gramstax({
+ *   token: process.env.BOT_TOKEN!,
+ *   deploy: "polling",
+ *   log: true
+ * })
+ * ```
+ *
+ * @public
+ */
 export class Gramstax<ICtx extends Ctx = Ctx> {
+  /**
+   * Manages template loading and rendering for pages.
+   * @public
+   */
   templateManager: TemplateManager
+
+  /**
+   * In-memory cache for keyboard instances by language.
+   * @public
+   */
   cacheKeyboard: Map<any, any>
+
+  /**
+   * External cache for user session data.
+   * @public
+   */
   cacheSession: CacheExternal<ICacheRpc>
+
+  /**
+   * Loaded and sorted page routes.
+   * @readonly
+   * @public
+   */
   pages: ReturnType<typeof this.pageLoads>
+
+  /**
+   * Page options configuration.
+   * @public
+   */
   optionsPage = {
+    /**
+     * If true, uses numeric index for callback data instead of page names.
+     * @defaultValue false
+     */
     shortCallbackData: false
   }
+
+  /**
+   * Logger instance for debugging and info output.
+   * @public
+   */
   log: LoggingPretty | undefined
+
+  /**
+   * The underlying grammY Bot instance.
+   * @public
+   */
   bot: Bot
 
+  /**
+   * Handler function for processing bot updates.
+   * @remarks
+   * Can be customized for serverless or webhook deployments.
+   * @public
+   */
   handlerBotUpdate: any
 
+  /**
+   * Creates a new Gramstax bot instance.
+   *
+   * @param params - Configuration options.
+   * @param params.token - Telegram Bot API token.
+   * @param params.deploy - Deployment mode: "polling", "webhook:\<url\>", or "serverless:\<adapter\>".
+   * @param params.log - Logger instance, true for default logger, or null/false to disable.
+   * @param params.cacheSession - Custom session cache implementation.
+   * @param params.cacheKeyboard - Custom keyboard cache.
+   * @param params.templateManager - Custom template manager.
+   * @param params.optionsPage - Page routing options.
+   * @param params.optionsPage.shortCallbackData - Use numeric callback data for smaller payloads.
+   *
+   * @example
+   * ```typescript
+   * // Polling mode
+   * new Gramstax({token: "BOT_TOKEN", deploy: "polling"})
+   *
+   * // Webhook mode
+   * new Gramstax({token: "BOT_TOKEN", deploy: "webhook:https://example.com/bot"})
+   *
+   * // Serverless mode
+   * new Gramstax({token: "BOT_TOKEN", deploy: "serverless:std/http"})
+   * ```
+   *
+   * @public
+   */
   constructor(params: {
     token: string
     deploy: string
@@ -103,6 +198,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
+  /**
+   * Global error handler for bot errors.
+   *
+   * @param error - The bot error object.
+   *
+   * @public
+   */
   onCatch(error: BotError<Context>) {
     if ((this.log as any)?.errorMake) {
       ;(this.log as any)?.errorMake(error, `Bot`, `catch`)
@@ -112,8 +214,31 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
+  /**
+   * Hook called before the bot starts.
+   * @remarks Override this method to run initialization logic.
+   * @virtual
+   * @public
+   */
   hookBeforeStart() {}
+
+  /**
+   * Hook called after the bot has started.
+   * @remarks Override this method to run post-start logic.
+   * @virtual
+   * @public
+   */
   hookAfterStart() {}
+
+  /**
+   * Called when the bot successfully starts.
+   *
+   * @param botInfo - Information about the bot from Telegram.
+   * @param method - The deployment method used.
+   * @param data - Additional data (URL for webhook/serverless).
+   *
+   * @internal
+   */
   async onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
     await this.executeSyncBlocksDescription(this.pages)
 
@@ -122,10 +247,26 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.hookAfterStart()
   }
 
+  /**
+   * Creates the grammY Bot instance.
+   *
+   * @param token - The Telegram Bot API token.
+   * @returns The Bot instance.
+   *
+   * @public
+   */
   createBot(token: string) {
     return new Bot(token)
   }
 
+  /**
+   * Creates a context instance for handling an update.
+   *
+   * @param ct - The grammY Context object.
+   * @returns A new Ctx instance.
+   *
+   * @public
+   */
   createCtx(ct: Context): ICtx {
     return new Ctx({
       ct,
@@ -140,6 +281,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }) as any
   }
 
+  /**
+   * Starts the bot in long polling mode.
+   *
+   * @internal
+   */
   runPolling(): void {
     this.bot.start({
       onStart: (botInfo) => {
@@ -148,6 +294,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     })
   }
 
+  /**
+   * Starts the bot in webhook mode.
+   *
+   * @remarks
+   * Uses Bun's built-in HTTP server. Automatically sets the webhook URL if needed.
+   *
+   * @param fullUrl - The full public URL for the webhook.
+   *
+   * @internal
+   */
   async runWebhook(fullUrl: string): Promise<void> {
     const {serve} = await import(`bun`) // <==== import in this because this package support node/bun (default use bun)
     const handleUpdate = webhookCallback(this.bot, `bun`)
@@ -181,12 +337,34 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     await this.onStart(botInfo, `webhook`, fullUrl)
   }
 
+  /**
+   * Starts the bot in serverless mode.
+   *
+   * @remarks
+   * Configures the handler for serverless adapters (e.g., AWS Lambda, Cloudflare Workers).
+   *
+   * @param adapter - The grammY adapter name (e.g., "std/http", "aws-lambda").
+   *
+   * @internal
+   */
   async runServerless(adapter: string): Promise<void> {
     this.handlerBotUpdate = webhookCallback(this.bot, adapter as any)
     const botInfo = await this.bot.api.getMe()
     await this.onStart(botInfo, `serverless`, adapter)
   }
 
+  /**
+   * Builds page data configuration for a page class.
+   *
+   * @remarks
+   * Initializes `Page.data` if undefined and sets default intent values
+   * based on the file name.
+   *
+   * @param Page - The page class.
+   * @param filePath - The file path of the page.
+   *
+   * @internal
+   */
   pageBuildData(Page: typeof Ctx, filePath: string): void {
     if (Page?.data === undefined) {
       Page.data = Page.buildData() as any
@@ -198,6 +376,20 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (!Page.data.intentCallback) Page.data.intentCallback = Page.data.name
   }
 
+  /**
+   * Sorts and categorizes page routes into routing tables.
+   *
+   * @remarks
+   * Populates `routeStatic`, `routeStaticIntent`, `routeStaticSession`,
+   * `routeDynamicSpesific`, and `routeDynamic` collections based on
+   * which route methods exist on the page class.
+   *
+   * @param Page - The page class.
+   * @param pages - The pages routing structure.
+   * @param indexPage - The page index (used for shortCallbackData).
+   *
+   * @internal
+   */
   pageSorts(Page: typeof Ctx, pages: typeof this.pages, indexPage: number): void {
     const name = Page.data.name
     const proto = Page.prototype
@@ -332,6 +524,17 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
+  /**
+   * Loads all page classes and builds routing tables.
+   *
+   * @remarks
+   * Scans the pages directory, processes each page class, and builds
+   * optimized routing tables for O(1) lookups.
+   *
+   * @returns The pages routing structure.
+   *
+   * @internal
+   */
   pageLoads() {
     this.log?.info?.(`Load pages..`)
 
@@ -453,6 +656,45 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     return pages
   }
 
+  /**
+   * Routes an incoming update to the appropriate page handler.
+   *
+   * @remarks
+   * The routing follows a strict **priority hierarchy**. When a match is found
+   * at any level, the method executes the handler and returns immediately.
+   * If no match is found, it falls through to the next level.
+   *
+   * **Routing Priority (executed in order):**
+   *
+   * 1. **staticSession** - Session-based routes (O(1) lookup)
+   *    - Checks if user has an active session with a matching method
+   *    - Skips if the input matches a static or staticIntent route
+   *    - Example: `textFree` with session method "7-mypage"
+   *
+   * 2. **static** - Exact intent match routes (O(1) lookup)
+   *    - Matches exact text/callback data to page intents
+   *    - Example: "start" → `text()`, "/help" → `textCommand()`
+   *
+   * 3. **staticIntent** - Intent with payloads routes (O(1) lookup)
+   *    - Matches intent prefix when payloads are present
+   *    - Example: "start:123" → `callbackPayload()`, "/add item" → `textCommandPayload()`
+   *
+   * 4. **dynamicSpesific** - Type-specific free handlers (O(n) iteration)
+   *    - Runs all `*Free` handlers for the message type
+   *    - Example: `textFree()`, `photoFree()`
+   *    - **All matching handlers are executed** (no early return)
+   *
+   * 5. **dynamic** - Global fallback handlers (O(n) iteration)
+   *    - Runs all `free()` handlers from pages that define them
+   *    - Last resort when nothing else matches
+   *    - **All matching handlers are executed** (no early return)
+   *
+   * @param ctx - The context instance.
+   * @param fromListener - The listener type that triggered the route.
+   * @returns The route handler result, or null if no handler answered.
+   *
+   * @internal
+   */
   async pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof this.pages.routeDynamicSpesific): Promise<any> {
     // to be reassigned
     let Page: typeof Ctx | undefined
@@ -646,6 +888,30 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
+  /**
+   * Hook called before routing an update.
+   *
+   * @remarks
+   * Override this method to add pre-routing logic like authentication,
+   * rate limiting, or logging.
+   *
+   * @param ctx - The context instance.
+   * @param listenerName - The name of the listener handling this update.
+   * @returns True to continue routing, false to abort.
+   *
+   * @example
+   * ```typescript
+   * async hookBeforeRoute(ctx: Ctx, listenerName: string) {
+   *   if (ctx.userId === blockedUserId) {
+   *     return false // Block this user
+   *   }
+   *   return true
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async hookBeforeRoute(ctx: ICtx, listenerName: string): Promise<boolean> {
     // must be override
     if (ctx || listenerName) {
@@ -654,6 +920,29 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     return false
   }
 
+  /**
+   * Hook called when a page handler throws an error.
+   *
+   * @remarks
+   * Override this method to handle errors gracefully, e.g., sending
+   * an error message to the user or logging to an external service.
+   *
+   * @param ctx - The context instance.
+   * @param listenerName - The name of the listener handling this update.
+   * @param error - The caught error.
+   * @param isEdit - Whether the handler was editing a message.
+   *
+   * @example
+   * ```typescript
+   * async hookErrorPage(ctx: Ctx, listenerName: string, error: any) {
+   *   await ctx.reply(undefined, {error: "An error occurred"})
+   *   console.error(error)
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async hookErrorPage(ctx: ICtx, listenerName: string, error: any, isEdit: boolean): Promise<void> {
     // must be override
     if (ctx || listenerName || error || isEdit) {
@@ -661,6 +950,25 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
+  /**
+   * Hook called when no page handler matches the input.
+   *
+   * @remarks
+   * Override this method to send a "command not found" message or
+   * redirect to a help page.
+   *
+   * @param ctx - The context instance.
+   *
+   * @example
+   * ```typescript
+   * async hookErrorInputNotFoundPage(ctx: Ctx) {
+   *   await ctx.ct.reply("Unknown command. Type /help for assistance.")
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async hookErrorInputNotFoundPage(ctx: ICtx): Promise<void> {
     // must be override
     if (ctx) {
@@ -668,6 +976,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
+  /**
+   * Handles incoming messages of a specific type.
+   *
+   * @param ct - The grammY Context object.
+   * @param listenerName - The message type being handled.
+   *
+   * @internal
+   */
   async onMessage(ct: Context, listenerName: keyof typeof this.pages.routeDynamicSpesific): Promise<void> {
     const ctx = this.createCtx(ct)
     try {
@@ -685,6 +1001,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
+  /**
+   * Handles incoming callback queries from inline keyboards.
+   *
+   * @param ct - The grammY Context object.
+   *
+   * @internal
+   */
   async onCallbackQueryData(ct: Context): Promise<void> {
     const ctx = this.createCtx(ct)
     try {
@@ -700,72 +1023,105 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
+  /** @internal */
   async onMessageText(ct: Context): Promise<void> {
     await this.onMessage(ct, `text`)
   }
+  /** @internal */
   async onMessagePhoto(ct: Context): Promise<void> {
     await this.onMessage(ct, `photo`)
   }
+  /** @internal */
   async onMessageVideo(ct: Context): Promise<void> {
     await this.onMessage(ct, `video`)
   }
+  /** @internal */
   async onMessageAudio(ct: Context): Promise<void> {
     await this.onMessage(ct, `audio`)
   }
+  /** @internal */
   async onMessageDocument(ct: Context): Promise<void> {
     await this.onMessage(ct, `document`)
   }
+  /** @internal */
   async onMessageAnimation(ct: Context): Promise<void> {
     await this.onMessage(ct, `animation`)
   }
+  /** @internal */
   async onMessageVoice(ct: Context): Promise<void> {
     await this.onMessage(ct, `voice`)
   }
+  /** @internal */
   async onMessageVideoNote(ct: Context): Promise<void> {
     await this.onMessage(ct, `videoNote`)
   }
+  /** @internal */
   async onMessageSticker(ct: Context): Promise<void> {
     await this.onMessage(ct, `sticker`)
   }
+  /** @internal */
   async onMessageLocation(ct: Context): Promise<void> {
     await this.onMessage(ct, `location`)
   }
+  /** @internal */
   async onMessageContact(ct: Context): Promise<void> {
     await this.onMessage(ct, `contact`)
   }
+
+  /**
+   * Registers message handlers.
+   *
+   * @remarks
+   * These methods register grammY event handlers for different message types.
+   * Override to customize message filtering.
+   *
+   * @internal
+   */
+  /** @internal */
   registerOnCallbackQueryData() {
     this.bot.on(`callback_query:data`, this.onCallbackQueryData.bind(this)) // Handle callback queries from inline keyboards
   }
+  /** @internal */
   registerOnMessageText() {
     this.bot.on(`message:text`, this.onMessageText.bind(this)) // Handle global text messages
   }
+  /** @internal */
   registerOnMessagePhoto() {
     this.bot.on(`message:photo`, this.onMessagePhoto.bind(this)) // Handle global photo messages
   }
+  /** @internal */
   registerOnMessageVideo() {
     this.bot.on(`message:video`, this.onMessageVideo.bind(this)) // Handle global video messages
   }
+  /** @internal */
   registerOnMessageAudio() {
     this.bot.on(`message:audio`, this.onMessageAudio.bind(this)) // Handle global audio messages
   }
+  /** @internal */
   registerOnMessageDocument() {
     this.bot.on(`message:document`, this.onMessageDocument.bind(this)) // Handle global document messages
   }
+  /** @internal */
   registerOnMessageAnimation() {
     this.bot.on(`message:animation`, this.onMessageAnimation.bind(this)) // Handle global animation messages
   }
+  /** @internal */
   registerOnMessageVoice() {
     this.bot.on(`message:voice`, this.onMessageVoice.bind(this)) // Handle global voice messages
   }
+  /** @internal */
   registerOnMessageVideoNote() {
     this.bot.on(`message:video_note`, this.onMessageVideoNote.bind(this)) // Handle global video note messages
   }
+  /** @internal */
   registerOnMessageSticker() {
     this.bot.on(`message:sticker`, this.onMessageSticker.bind(this)) // Handle global sticker messages
   }
+  /** @internal */
   registerOnMessageLocation() {
     this.bot.on(`message:location`, this.onMessageLocation.bind(this)) // Handle global location messages
   }
+  /** @internal */
   registerOnMessageContact() {
     this.bot.on(`message:contact`, this.onMessageContact.bind(this)) // Handle global contact messages
   }
