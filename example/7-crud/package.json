@@ -1,0 +1,12 @@
+{
+  "name": "example-7-crud",
+  "private": false,
+  "scripts": {
+    "start": "bun ./src/index.ts",
+    "dev": "bun --watch ./src/index.ts"
+  },
+  "dependencies": {
+    "gramstax": "workspace:*",
+    "lmdb": "^3.4.4"
+  }
+}
