@@ -45,25 +45,6 @@
 - Lifecycle hooks: `hookBeforeStart()`, `hookAfterStart()`, `hookBeforeRoute(ctx, listenerName)`, `hookErrorPage(ctx, listenerName, error, isEdit)`, `hookErrorInputNotFoundPage(ctx)`.
 - Routing priority: `staticSession` → `static` → `staticIntent` → `dynamicSpecific` → `dynamic`.
 
-## Ctx base class (ctx.ts) API essentials
-
-- Static `.template` defines HTML-like blocks; omit to rely on external templates.
-- Static `.data` comes from `buildData()` and configures routing metadata.
-- `buildData` signatures: `buildData()`, `buildData(callbackFn)`, or `buildData({ callback, intentText, intentTextCommand })`.
-- `callback` must return an array (do not define if there is no payload purpose).
-- `intentText` applies to `text()` and `textPayload()`; `intentTextCommand` applies to `textCommand()` and `textCommandPayload()`.
-- Intent defaults derive from the filename (`this.data.name`) unless overridden.
-- User properties: `userId`, `userName`, `userFirstName`, `userLastName`, `userFullName`, `userLanguage`, `userIsPremium`, `userIsBot`.
-- Message properties: `msgText`, `msgTextPayload`, `msgTextPayloads`, `msgCaption`, `msgPhoto`, `msgVideo`, `msgAudio`.
-- Callback properties: `callbackData`, `callbackDataPayload`, `callbackDataPayloads`.
-- Session helpers: `sessionGet`, `sessionSet`, `sessionClear`, plus `sessionCallback`, `sessionCallbackPayload`, `sessionText`, `sessionTextPayload`, `sessionTextFree`.
-- Reply helpers: `reply`, `replyPhoto`, `replyVideo`, `replyAudio`, `replyDocument`, `replyAnimation`, `replyVoice`, `replyVideoNote`, `replySticker`, `replyLocation`, `replyContact`.
-- Edit helpers: `edit`, `editPhoto`, `editVideo`, `editAudio`, `editDocument`, `editAnimation`.
-- Utilities: `delete`, `callbackQueryAnswer`.
-- Keyboard builders: `inlineKeyboard((k, a) => ...)` and `bottomKeyboard((k, a) => ...)`.
-- Page transition: `to(data?)` to move to another page instance.
-- Route methods include `callback`, `callbackPayload`, `text`, `textPayload`, `textCommand`, `textCommandPayload`, `textFree`, and media caption/free variants (`photoCaption*`, `videoCaption*`, `audioCaption*`, `documentCaption*`, `animationCaption*`, `voiceCaption*`, plus `videoNoteFree`, `stickerFree`, `locationFree`, `contactFree`, `free`). See `docs/api/core/ctx.md#route-methods` for trigger processing and examples.
-
 ## Template system essentials
 
 - Templates use `<base>` blocks; missing `id` implies `default`.
@@ -86,7 +67,7 @@
 - `textFree()` only fires when text exists; no empty-text guard needed.
 - Prefer core handlers (`textCommand`, `callback`, `callbackPayload`) over wrappers.
 - Use destination page callbacks like `BalancePage.data.callback()`.
-- `callbackQueryAnswer()` is auto-handled for routed callbacks; call only for custom toasts.
+- dont call `callbackQueryAnswer()` if not needed; call only for custom toasts.
 
 ## Performance and safety tips
 
