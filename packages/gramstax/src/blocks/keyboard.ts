@@ -9,19 +9,39 @@ import {LabelKeyboard} from "~/labels/keyboard"
  *
  * @example
  * ```typescript
+ * // blocks/keyboard.ts
  * import { BlockKeyboard, LabelKeyboard } from "gramstax";
  *
  * class KeyboardBlock extends BlockKeyboard {
  *   static label = class extends LabelKeyboard {
- *     static backNext = {
- *       en: "Back, Next",
- *       id: "Kembali, Lanjut"
- *     }
+ *     static backNext = {en: "Back, Next", id: "Kembali, Lanjut"}
  *   }
+ *   static backNext = (lang?: string, type?: string) => this._build(`backNext`, lang, type)
+ * }
  *
- *   static backNext(lang?: string, type?: string) {
- *     return this._build(`backNext`, lang, type)
- *   }
+ * // base/page.ts
+ * import {KeyboardBlock} from "~/blocks/keyboard"
+ * export abstract class PageBase extends CtxCore {
+ *   static kbk = KeyboardBlock
+ *   static kbl = KeyboardBlock.label
+ * }
+ *
+ * // pages/some.ts
+ * import {PageBase} from "~/base/page"
+ * export class SomePage extends PageBase {
+ *   static template = `
+ *     <base>
+ *       ${this.kbk.backNext()}
+ *       <message>Default message hello world</message>
+ *     </base>
+ *     <base id="others-id-1">
+ *       <message>Message from others id 1 with keyboard from base id default</message>
+ *     </base>
+ *     <base id="others-id-2">
+ *       <base>${this.kbk.backNext()}</base>
+ *       <message>Message from others id 3 with keyboard in same base</message>
+ *     </base>
+ *   `
  * }
  * ```
  *
