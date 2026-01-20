@@ -30,8 +30,8 @@ export class TestAnimationPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Dynamic Attr, Static Attr, ${this.kbl.back(`default`)}</keyboard>
-      <keyboard lang="id">Dynamic Attr, Static Attr, ${this.kbl.back(`id`)}</keyboard>
+      <keyboard>Dynamic Attr, Static Attr, ${this.kbl.back.default}</keyboard>
+      <keyboard lang="id">Dynamic Attr, Static Attr, ${this.kbl.back.id}</keyboard>
       <media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">Caption text for media <b>animation</b></media>
       <media lang="id" type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">Kaption text untuk media <b>animasi</b></media>
     </base>

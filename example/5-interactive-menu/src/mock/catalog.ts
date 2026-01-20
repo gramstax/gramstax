@@ -10,7 +10,7 @@ export type CatalogCategory = {
   items: CatalogItem[]
 }
 
-export class CatalogData {
+export class CatalogMock {
   // Sample catalog data used for menus and pagination.
   static list: CatalogCategory[] = [
     {
@@ -46,7 +46,7 @@ export class CatalogData {
     }
   ]
 
-  static menuItems = CatalogData.list.flatMap((category) => category.items.map((item) => ({id: item.id, name: item.name, category: category.name})))
+  static menuItems = CatalogMock.list.flatMap((category) => category.items.map((item) => ({id: item.id, name: item.name, category: category.name})))
 
   static getCategoryById(categoryId: string) {
     return this.list.find((category) => category.id === categoryId)

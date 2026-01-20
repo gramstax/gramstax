@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {CatalogData} from "~/labels/catalog"
+import {CatalogMock} from "~/mock/catalog"
 import {StartPage} from "./start"
 
 // Inline keyboard with page info (no total count).
@@ -11,9 +11,9 @@ export class InlineWithoutCountPage extends PageBase {
     const safePage = Math.max(page, 0)
     const start = safePage * ITEMS_PER_PAGE
     const end = start + ITEMS_PER_PAGE
-    const items = CatalogData.menuItems.slice(start, end)
+    const items = CatalogMock.menuItems.slice(start, end)
     const hasPrevious = safePage > 0
-    const hasMore = end < CatalogData.menuItems.length
+    const hasMore = end < CatalogMock.menuItems.length
     return this.inlineKeyboard((k, a) => {
       items.forEach((item) => {
         k.text(item.name, this.data.callback(`item`, item.id)).row()
@@ -58,7 +58,7 @@ export class InlineWithoutCountPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Prev, Next, Page, ${this.kbl.home(`default`)}</keyboard>
+      <keyboard>Prev, Next, Page, ${this.kbl.home.default}</keyboard>
       <message>
         Inline Menu (Without Count)
 

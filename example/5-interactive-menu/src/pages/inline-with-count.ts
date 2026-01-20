@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {CatalogData} from "~/labels/catalog"
+import {CatalogMock} from "~/mock/catalog"
 import {StartPage} from "./start"
 
 // Inline keyboard with total page count.
@@ -8,11 +8,11 @@ export class InlineWithCountPage extends PageBase {
   static data = this.buildData((action?: string, page?: string) => [action, page])
 
   buildKb(page: number) {
-    const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / this.ITEMS_PER_PAGE), 1)
+    const totalPages = Math.max(Math.ceil(CatalogMock.menuItems.length / this.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const start = safePage * this.ITEMS_PER_PAGE
     const end = start + this.ITEMS_PER_PAGE
-    const items = CatalogData.menuItems.slice(start, end)
+    const items = CatalogMock.menuItems.slice(start, end)
     return this.inlineKeyboard((k, a) => {
       items.forEach((item) => {
         k.text(item.name, this.data.callback(`item`, item.id)).row()
@@ -31,7 +31,7 @@ export class InlineWithCountPage extends PageBase {
   }
 
   async show(page: number, edit = true) {
-    const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / this.ITEMS_PER_PAGE), 1)
+    const totalPages = Math.max(Math.ceil(CatalogMock.menuItems.length / this.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const data = {page: safePage + 1, totalPages}
     const kb = this.buildKb(safePage)
@@ -58,7 +58,7 @@ export class InlineWithCountPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Prev, Next, Page, ${this.kbl.home(`default`)}</keyboard>
+      <keyboard>Prev, Next, Page, ${this.kbl.home.default}</keyboard>
       <message>
         Inline Menu (With Count)
 

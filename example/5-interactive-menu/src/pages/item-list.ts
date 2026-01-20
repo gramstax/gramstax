@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {CatalogData} from "~/labels/catalog"
+import {CatalogMock} from "~/mock/catalog"
 import {ItemDetailPage} from "./item-detail"
 import {CategoryPage} from "./category"
 
@@ -7,7 +7,7 @@ import {CategoryPage} from "./category"
 export class ItemListPage extends PageBase {
   static data = this.buildData((action?: string, value?: string) => [action, value])
 
-  buildKeyboard(categoryId: string, page: number, category = CatalogData.getCategoryById(categoryId)) {
+  buildKeyboard(categoryId: string, page: number, category = CatalogMock.getCategoryById(categoryId)) {
     if (!category) {
       return this.inlineKeyboardT([CategoryPage])
     }
@@ -43,7 +43,7 @@ export class ItemListPage extends PageBase {
     await this.cacheState.set(`${this.userId}:category`, categoryId)
     await this.cacheState.set(`${this.userId}:page`, page)
 
-    const category = CatalogData.getCategoryById(categoryId)
+    const category = CatalogMock.getCategoryById(categoryId)
     const categoryName = category?.name || `Unknown`
     const da = {category: categoryName}
     const kb = this.buildKeyboard(categoryId, page, category)

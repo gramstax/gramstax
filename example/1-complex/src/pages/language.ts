@@ -45,13 +45,16 @@ export class LanguagePage extends PageBase {
     await this.show()
   }
 
-  static template = `
-    <base>
-      <keyboard>EN, ID, ${this.kbl.back(`default`)}</keyboard>
-      <keyboard lang="id">EN, ID, ${this.kbl.back(`id`)}</keyboard>
+  static template = (() => {
+    const lb = this.kbl.back
+    return `
+      <base>
+        <keyboard>EN, ID, ${lb.default}</keyboard>
+        <keyboard lang="id">EN, ID, ${lb.id}</keyboard>
 
-      <message>Choose language below</message>
-      <message lang="id">Pilih bahasa di bawah</message>
-    </base>
-  `
+        <message>Choose language below</message>
+        <message lang="id">Pilih bahasa di bawah</message>
+      </base>
+    `
+  })()
 }

@@ -42,23 +42,26 @@ export class KeyboardBottomPage extends PageBase {
     if (pl == `delete`) await this.reply(kb, {}, pl, {reply_markup: {remove_keyboard: true}})
   }
 
-  static template = `    
-    <base>
-      <keyboard>${this.kbl.home(`default`)}</keyboard>
-      <keyboard lang="id">${this.kbl.home(`id`)}</keyboard>
-      <keyboard type="bottom">{{first}}, ${this.kbl.home(`default`)}</keyboard>
-      <keyboard lang="id" type="bottom">{{first}}, ${this.kbl.home(`id`)}</keyboard>
+  static template = (() => {
+    const lh = this.kbl.home
+    return `    
+      <base>
+        <keyboard>${lh.default}</keyboard>
+        <keyboard lang="id">${lh.id}</keyboard>
+        <keyboard type="bottom">{{first}}, ${lh.default}</keyboard>
+        <keyboard lang="id" type="bottom">{{first}}, ${lh.id}</keyboard>
 
-      <message>Use keyboard bottom with emoji and dynamic payload</message>
-      <message lang="id">Gunakan keyboard bottom dengan emoji dan payload dinamis</message>
-    </base>
-    <base id="reset">
-      <message>Reset keyboard bottom success</message>
-      <message lang="id">Reset keyboard bawah sukses</message>    
-    </base>
-    <base id="delete">
-      <message>Delete keyboard bottom success</message>
-      <message lang="id">Hapus keyboard bawah sukses</message>    
-    </base>
-  `
+        <message>Use keyboard bottom with emoji and dynamic payload</message>
+        <message lang="id">Gunakan keyboard bottom dengan emoji dan payload dinamis</message>
+      </base>
+      <base id="reset">
+        <message>Reset keyboard bottom success</message>
+        <message lang="id">Reset keyboard bawah sukses</message>    
+      </base>
+      <base id="delete">
+        <message>Delete keyboard bottom success</message>
+        <message lang="id">Hapus keyboard bawah sukses</message>    
+      </base>
+    `
+  })()
 }

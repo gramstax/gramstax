@@ -38,7 +38,7 @@ export class StartPage extends PageBase {
   static template = `
     <base>
       <keyboard>Browse, Inline Count, Inline Simple, Help, Reset</keyboard>
-      <keyboard type="bottom">${this.kbl.home(`default`)}, ${this.kbl.browse(`default`)}, ${this.kbl.help(`default`)}, ${this.kbl.reset(`default`)}</keyboard>
+      <keyboard type="bottom">${this.kbl.home.default}, ${this.kbl.browse.default}, ${this.kbl.help.default}, ${this.kbl.reset.default}</keyboard>
       <message>
         Main Menu
 

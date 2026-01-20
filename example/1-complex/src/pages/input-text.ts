@@ -30,24 +30,28 @@ export class InputTextPage extends PageBase {
     await this.reply(this.kb(bi), da, bi)
   }
 
-  static template = `
-    <base>
-      ${this.kbk.cancel()}
-      <message>Please input text you want view</message>
-      <message lang="id">Tolong masukan text yang ingin anda liat</message>
-    </base>
-    <base id="result">
-      ${this.kbk.home()}
-      <message>
-        Result: {{res}}
+  static template = (() => {
+    const kc = this.kbk.cancel()
+    const kh = this.kbk.home()
+    return `
+      <base>
+        ${kc}
+        <message>Please input text you want view</message>
+        <message lang="id">Tolong masukan text yang ingin anda liat</message>
+      </base>
+      <base id="result">
+        ${kh}
+        <message>
+          Result: {{res}}
 
-        Please input other text to see difference result
-      </message>
-      <message lang="id">
-        Hasil: {{res}}
+          Please input other text to see difference result
+        </message>
+        <message lang="id">
+          Hasil: {{res}}
 
-        Tolong masukan text lain untuk lihat hasil yang berbeda
-      </message>
-    </base>
-  `
+          Tolong masukan text lain untuk lihat hasil yang berbeda
+        </message>
+      </base>
+    `
+  })()
 }
