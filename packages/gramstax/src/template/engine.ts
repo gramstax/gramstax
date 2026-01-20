@@ -1,3 +1,35 @@
+/**
+ * Represents a media block configuration for Telegram messages.
+ *
+ * @remarks
+ * This type defines the structure for various media types supported by Telegram,
+ * including file-based media (photo, video, audio, document, animation, voice,
+ * video_note, sticker), location, and contact.
+ *
+ * @example
+ * ```typescript
+ * const photoMedia: IMediaBlock = {
+ *   type: 'photo',
+ *   src: 'path/to/image.jpg',
+ *   caption: 'A beautiful sunset'
+ * };
+ *
+ * const locationMedia: IMediaBlock = {
+ *   type: 'location',
+ *   latitude: '37.7749',
+ *   longitude: '-122.4194'
+ * };
+ *
+ * const contactMedia: IMediaBlock = {
+ *   type: 'contact',
+ *   phone: '+1234567890',
+ *   first_name: 'John',
+ *   last_name: 'Doe'
+ * };
+ * ```
+ *
+ * @public
+ */
 export type IMediaBlock = {
   type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact`
   src?: string
@@ -12,17 +44,118 @@ export type IMediaBlock = {
   vcard?: string
 }
 
+/**
+ * Static utility class for parsing and compiling HTML-like templates.
+ *
+ * @remarks
+ * The `TemplateEngine` provides methods for parsing HTML-like template syntax
+ * with custom blocks (base, message, keyboard, media, description, etc.) and
+ * compiling them into executable functions. It supports variable interpolation,
+ * conditional rendering, array mapping, script execution, and template imports.
+ *
+ * Templates are typically organized into `<base>` blocks containing various
+ * content blocks like `<message>`, `<keyboard>`, `<media>`, and `<description>`.
+ * Each block supports a `lang` attribute for internationalization.
+ *
+ * @example
+ * ```typescript
+ * import { TemplateEngine } from 'gramstax';
+ *
+ * const template = `
+ *   <base>
+ *     <keyboard>Back, Next</keyboard>
+ *     <message>Welcome {{name}}!</message>
+ *   </base>
+ * `;
+ *
+ * const messages = TemplateEngine.compileMessages(template);
+ * const keyboards = TemplateEngine.compileKeyboards(template);
+ *
+ * const msg = messages.default.default({ name: 'John' });
+ * // Result: 'Welcome John!'
+ * ```
+ *
+ * @public
+ */
 export class TemplateEngine {
+  /**
+   * Escapes special characters in a string for safe use in template literals.
+   *
+   * @remarks
+   * This internal method escapes backslashes and backticks to prevent them from
+   * interfering with template literal syntax during compilation.
+   *
+   * @param str - The input string to escape
+   * @returns The escaped string with backslashes and backticks properly escaped
+   *
+   * @example
+   * ```typescript
+   * const escaped = TemplateEngine._escape('Hello `world`');
+   * // Result: 'Hello \\`world\\`'
+   * ```
+   *
+   * @internal
+   */
   static _escape(str: string): string {
     return str
       .replace(/\\/g, `\\\\`) // escape backslash: \ → \\
       .replace(/`/g, `\\\``) // escape backtick: ` → \`
   }
 
+  /**
+   * Converts `{{variable}}` placeholders to JavaScript template literal expressions.
+   *
+   * @remarks
+   * This internal method transforms Mustache-like variable syntax into JavaScript
+   * template literal interpolation. Variables are accessed from the `data` object,
+   * with nullish coalescing to empty string when undefined.
+   *
+   * @param template - The template string containing `{{variable}}` placeholders
+   * @returns The processed template with placeholders converted to `${data["key"]}` syntax
+   *
+   * @example
+   * ```typescript
+   * const processed = TemplateEngine._processVariables('Hello {{name}}!');
+   * // Result: 'Hello ${(data && data["name"]) ?? ""}!'
+   * ```
+   *
+   * @internal
+   */
   static _processVariables(template: string) {
     return template.replace(/\{\{(\w+)\}\}/g, (_, key) => `\${(data && data["${key}"]) ?? ""}`)
   }
 
+  /**
+   * Extracts and parses `<base>` blocks from a template string.
+   *
+   * @remarks
+   * This internal method identifies all `<base>` blocks in the template and extracts
+   * their content, organizing them by their `id` attribute. Blocks without an `id`
+   * are stored under the key `"default"`. Leading whitespace and surrounding
+   * newlines are trimmed from the inner content.
+   *
+   * @param template - The raw template string containing `<base>` blocks
+   * @returns An object mapping base IDs to their cleaned inner content
+   *
+   * @example
+   * ```typescript
+   * const template = `
+   *   <base id="main">
+   *     <message>Hello World</message>
+   *   </base>
+   *   <base id="error">
+   *     <message>Error occurred</message>
+   *   </base>
+   * `;
+   * const bases = TemplateEngine._processBaseBlocks(template);
+   * // Result: {
+   * //   main: '<message>Hello World</message>',
+   * //   error: '<message>Error occurred</message>'
+   * // }
+   * ```
+   *
+   * @internal
+   */
   static _processBaseBlocks(template: string) {
     const baseRegex = /<base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/base>/g
     const result: {
@@ -43,6 +176,26 @@ export class TemplateEngine {
     return result
   }
 
+  /**
+   * Transforms `<script>` blocks into executable JavaScript expressions.
+   *
+   * @remarks
+   * This internal method converts `<script>` blocks into self-invoking functions
+   * that execute with access to the `data` object via `with(data)`. If the script
+   * throws an error or `data` is undefined, an empty string is returned.
+   *
+   * @param template - The template string containing `<script>` blocks
+   * @returns The template with `<script>` blocks converted to executable expressions
+   *
+   * @example
+   * ```typescript
+   * const template = '<script>return name ? `Hello ${name}` : `Hello`;</script>';
+   * const processed = TemplateEngine._processScriptBlocks(template);
+   * // Result: '${(() => { if (!data) return ''; try { with(data) { return name ? `Hello ${name}` : `Hello`; } } catch(e) { return '' } })()}'
+   * ```
+   *
+   * @internal
+   */
   static _processScriptBlocks(template: string) {
     return template.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, (_, rawCode: string) => {
       const innerCode = rawCode.trim()
@@ -52,10 +205,50 @@ export class TemplateEngine {
     })
   }
 
+  /**
+   * Removes lines containing self-closing `<space />` tags.
+   *
+   * @remarks
+   * This internal method identifies lines that contain only a `<space />` tag
+   * (with optional surrounding whitespace) and removes the entire line.
+   * This is useful for controlling whitespace in templates.
+   *
+   * @param template - The template string containing `<space />` tags
+   * @returns The template with `<space />` lines removed
+   *
+   * @example
+   * ```typescript
+   * const template = 'Line 1\n<space />\nLine 2';
+   * const processed = TemplateEngine._processSpaceBlocks(template);
+   * // Result: 'Line 1\n\nLine 2'
+   * ```
+   *
+   * @internal
+   */
   static _processSpaceBlocks(template: string) {
     return template.replace(/^[ \t]*<space\s*\/>[ \t]*$/gim, ``)
   }
 
+  /**
+   * Normalizes content within `<div>` blocks by removing indentation.
+   *
+   * @remarks
+   * This internal method processes `<div>` blocks and cleans their inner content
+   * by removing leading tabs/spaces per line and trimming surrounding newlines.
+   * The `<div>` tags themselves are removed from the output.
+   *
+   * @param template - The template string containing `<div>` blocks
+   * @returns The template with `<div>` blocks replaced by their de-indented content
+   *
+   * @example
+   * ```typescript
+   * const template = '<div>\n    Line 1\n    Line 2\n</div>';
+   * const processed = TemplateEngine._processDivBlocks(template);
+   * // Result: 'Line 1\nLine 2'
+   * ```
+   *
+   * @internal
+   */
   static _processDivBlocks(template: string) {
     return template.replace(/<div>([\s\S]*?)<\/div>/gi, (_, inner: string) => {
       const cleaned = inner
@@ -66,6 +259,33 @@ export class TemplateEngine {
     })
   }
 
+  /**
+   * Transforms `<switch>` blocks into JavaScript switch statement expressions.
+   *
+   * @remarks
+   * This internal method converts `<switch>` blocks with `<case>` and `<default>`
+   * sub-blocks into self-invoking JavaScript switch expressions. The `value`
+   * attribute specifies which data key to switch on. Case values can be
+   * comma-separated for multiple matches.
+   *
+   * @param template - The template string containing `<switch>` blocks
+   * @returns The template with `<switch>` blocks converted to executable switch expressions
+   *
+   * @example
+   * ```typescript
+   * const template = `
+   *   <switch value="status">
+   *     <case is="active">Active status</case>
+   *     <case is="pending">Pending status</case>
+   *     <default>Unknown status</default>
+   *   </switch>
+   * `;
+   * const processed = TemplateEngine._processSwitchBlocks(template);
+   * // Result: '${(() => { switch((data && data["status"])) { case "active": return `Active status`; ... } })()}'
+   * ```
+   *
+   * @internal
+   */
   static _processSwitchBlocks(template: string) {
     const switchRegex = /<switch\b(?:\s+value="([^"]+)")?>([\s\S]*?)<\/switch>/gi
     return template.replace(switchRegex, (_, valueKey, innerContent) => {
@@ -109,10 +329,51 @@ export class TemplateEngine {
     })
   }
 
+  /**
+   * Transforms inline execution blocks `{~ code ~}` into JavaScript expressions.
+   *
+   * @remarks
+   * This internal method converts inline execution syntax into self-invoking
+   * JavaScript expressions. It first attempts direct execution, then falls back
+   * to `with(data)` scope. Returns an empty string on any error.
+   *
+   * @param template - The template string containing `{~ code ~}` expressions
+   * @returns The template with inline execution blocks converted to executable expressions
+   *
+   * @example
+   * ```typescript
+   * const template = 'Total: {~ data?.count ?? 0 ~}';
+   * const processed = TemplateEngine._processExec(template);
+   * // Result: 'Total: ${(() => { try { return data?.count ?? 0 } catch(e) { try { with(data || {}) { return data?.count ?? 0 } } catch(ee) { return '' } } })()}'
+   * ```
+   *
+   * @internal
+   */
   static _processExec(template: string) {
     return template.replace(/{~\s*([\s\S]*?)\s*~}/g, (_, code) => `\${(() => { try { return ${code} } catch(e) { try { with(data || {}) { return ${code} } } catch(ee) { return '' } } })()}`)
   }
 
+  /**
+   * Transforms `<map>` blocks into JavaScript array map expressions.
+   *
+   * @remarks
+   * This internal method converts `<map>` blocks into array mapping operations.
+   * The `src` attribute specifies which data key contains the array. Inside the
+   * block, `{{e}}` refers to the current element, `{{e.prop}}` to element properties,
+   * and `{{i}}` to the current index. The `join` attribute specifies the separator.
+   *
+   * @param template - The template string containing `<map>` blocks
+   * @returns The template with `<map>` blocks converted to map expressions
+   *
+   * @example
+   * ```typescript
+   * const template = '<map src="items" join=", "> - {{e.name}} ({{i}})</map>';
+   * const processed = TemplateEngine._processMapBlocks(template);
+   * // Result: '${(data && data["items"] || []).map((e, i) => ` - ${e.name} (${i})`).join(", ")}'
+   * ```
+   *
+   * @internal
+   */
   static _processMapBlocks(template: string) {
     const mapRegex = /<map(?:\s+([^>]*))?>([\s\S]*?)<\/map>/gi
     return template.replace(mapRegex, (_, attributesStr, rawContent) => {
@@ -154,6 +415,27 @@ export class TemplateEngine {
     })
   }
 
+  /**
+   * Extracts and parses `<media>` blocks from a template string.
+   *
+   * @remarks
+   * This internal method identifies all `<media>` blocks and extracts their
+   * attributes and content. It supports various media types including photo,
+   * video, audio, document, animation, voice, video_note, sticker, location,
+   * and contact. The inner content becomes the caption for supported types.
+   *
+   * @param template - The template string containing `<media>` blocks
+   * @returns An object mapping language keys to their corresponding media block configurations
+   *
+   * @example
+   * ```typescript
+   * const template = '<media type="photo" src="image.jpg" lang="en">Hello</media>';
+   * const media = TemplateEngine._processMediaBlocks(template);
+   * // Result: { en: { type: 'photo', src: 'image.jpg', caption: 'Hello' } }
+   * ```
+   *
+   * @internal
+   */
   static _processMediaBlocks(template: string) {
     const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
     const result: {[lang: string]: IMediaBlock} = {}
@@ -218,6 +500,29 @@ export class TemplateEngine {
     return result
   }
 
+  /**
+   * Extracts and parses `<message>` blocks from a template string.
+   *
+   * @remarks
+   * This internal method identifies all `<message>` blocks and extracts their
+   * content organized by language. Blocks without a `lang` attribute are stored
+   * under `"default"`. Leading whitespace and surrounding newlines are trimmed.
+   *
+   * @param template - The template string containing `<message>` blocks
+   * @returns An object mapping language keys to their cleaned message content
+   *
+   * @example
+   * ```typescript
+   * const template = `
+   *   <message>Hello World</message>
+   *   <message lang="id">Halo Dunia</message>
+   * `;
+   * const messages = TemplateEngine._processMessageBlocks(template);
+   * // Result: { default: 'Hello World', id: 'Halo Dunia' }
+   * ```
+   *
+   * @internal
+   */
   static _processMessageBlocks(template: string) {
     const messageRegex = /<message(?:\s+([^>]*))?>([\s\S]*?)<\/message>/gi
     const result: {
@@ -246,6 +551,34 @@ export class TemplateEngine {
     return result
   }
 
+  /**
+   * Extracts and parses `<description>` blocks from a template string.
+   *
+   * @remarks
+   * This internal method identifies all `<description>` blocks and extracts their
+   * content organized by language and scope. Blocks without a `lang` attribute
+   * are stored under `"default"` language, and blocks without a `scope` attribute
+   * are stored under `"default"` scope.
+   *
+   * @param template - The template string containing `<description>` blocks
+   * @returns A nested object mapping language keys to scopes to their cleaned content
+   *
+   * @example
+   * ```typescript
+   * const template = `
+   *   <description>Start the bot</description>
+   *   <description lang="id">Mulai bot</description>
+   *   <description scope="chat_administrators">Admin command</description>
+   * `;
+   * const descriptions = TemplateEngine._processDescriptionBlocks(template);
+   * // Result: {
+   * //   default: { default: 'Start the bot', chat_administrators: 'Admin command' },
+   * //   id: { default: 'Mulai bot' }
+   * // }
+   * ```
+   *
+   * @internal
+   */
   static _processDescriptionBlocks(template: string) {
     const descriptionRegex = /<description(?:\s+([^>]*))?>([\s\S]*?)<\/description>/gi
     const result: {
@@ -280,6 +613,34 @@ export class TemplateEngine {
     return result
   }
 
+  /**
+   * Extracts and parses `<keyboard>` blocks from a template string.
+   *
+   * @remarks
+   * This internal method identifies all `<keyboard>` blocks and extracts their
+   * content organized by language and type (inline or bottom). Blocks without
+   * a `lang` attribute are stored under `"default"`. The `type` attribute
+   * defaults to `"inline"` unless explicitly set to `"bottom"`.
+   *
+   * @param template - The template string containing `<keyboard>` blocks
+   * @returns A nested object mapping language keys to keyboard mode configurations
+   *
+   * @example
+   * ```typescript
+   * const template = `
+   *   <keyboard>Yes, No</keyboard>
+   *   <keyboard type="bottom">Button 1, Button 2</keyboard>
+   *   <keyboard lang="id">Ya, Tidak</keyboard>
+   * `;
+   * const keyboards = TemplateEngine._processKeyboardBlocks(template);
+   * // Result: {
+   * //   default: { inline: 'Yes, No', bottom: 'Button 1, Button 2' },
+   * //   id: { inline: 'Ya, Tidak' }
+   * // }
+   * ```
+   *
+   * @internal
+   */
   static _processKeyboardBlocks(template: string) {
     const keyboardRegex = /<keyboard(?:\s+([^>]*))?>([\s\S]*?)<\/keyboard>/gi
     const result: {
@@ -311,6 +672,29 @@ export class TemplateEngine {
     return result
   }
 
+  /**
+   * Compiles a processed template string into an executable function.
+   *
+   * @remarks
+   * This internal method takes a pre-processed template (or array of templates)
+   * and compiles it into a JavaScript function that accepts a `data` object and
+   * returns the rendered result. The function is created using `new Function()`.
+   *
+   * @typeParam T - Boolean type indicating whether the input is an array
+   * @param template - The processed template string or array of strings
+   * @param isArray - Whether the template parameter is an array
+   * @returns A function that accepts optional data and returns the rendered string or string array
+   *
+   * @example
+   * ```typescript
+   * const processed = '${(data && data["name"]) ?? ""}';
+   * const fn = TemplateEngine._compileToFunction(processed, false);
+   * const result = fn({ name: 'John' });
+   * // Result: 'John'
+   * ```
+   *
+   * @internal
+   */
   static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): T extends true ? (data?: Record<string, any>) => string[] : (data?: Record<string, any>) => string {
     let singleOrCombined: string
     if (isArray) {
@@ -332,6 +716,32 @@ export class TemplateEngine {
     }
   }
 
+  /**
+   * Compiles media blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<media>` blocks from the template and compiles them into
+   * functions that generate `IMediaBlock` objects. The result is organized by
+   * base ID and language. Pre-parsed base blocks can be provided for efficiency.
+   *
+   * @param template - Raw template string containing `<base>` and `<media>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled media functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const template = `
+   *   <base>
+   *     <media type="photo" src="{{image}}">{{caption}}</media>
+   *   </base>
+   * `;
+   * const media = TemplateEngine.compileMedia(template);
+   * const result = media.default.default({ image: 'photo.jpg', caption: 'Hello' });
+   * // Result: { type: 'photo', src: 'photo.jpg', caption: 'Hello' }
+   * ```
+   *
+   * @public
+   */
   static compileMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
@@ -366,6 +776,33 @@ export class TemplateEngine {
     return result
   }
 
+  /**
+   * Compiles message blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<message>` blocks from the template and compiles them into
+   * functions that generate rendered message strings. The result is organized by
+   * base ID and language. Pre-parsed base blocks can be provided for efficiency.
+   *
+   * @param template - Raw template string containing `<base>` and `<message>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled message functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const template = `
+   *   <base>
+   *     <message>Hello {{name}}!</message>
+   *     <message lang="id">Halo {{name}}!</message>
+   *   </base>
+   * `;
+   * const messages = TemplateEngine.compileMessages(template);
+   * const result = messages.default.default({ name: 'John' });
+   * // Result: 'Hello John!'
+   * ```
+   *
+   * @public
+   */
   static compileMessages(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
@@ -387,6 +824,33 @@ export class TemplateEngine {
     return result
   }
 
+  /**
+   * Compiles description blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<description>` blocks from the template and compiles them
+   * into functions that generate rendered description strings. The result is organized
+   * by base ID, scope, and language. Used for Telegram bot command descriptions.
+   *
+   * @param template - Raw template string containing `<base>` and `<description>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled description functions organized by base ID, scope, and language
+   *
+   * @example
+   * ```typescript
+   * const template = `
+   *   <base>
+   *     <description>Start the bot</description>
+   *     <description scope="chat_administrators">Admin command</description>
+   *   </base>
+   * `;
+   * const descriptions = TemplateEngine.compileDescription(template);
+   * const result = descriptions.default.default.default({});
+   * // Result: 'Start the bot'
+   * ```
+   *
+   * @public
+   */
   static compileDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
@@ -415,6 +879,34 @@ export class TemplateEngine {
     return result
   }
 
+  /**
+   * Compiles keyboard blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<keyboard>` blocks from the template and compiles them
+   * into functions that generate button label arrays. The result is organized by
+   * base ID and language, with separate `inline` and `bottom` keyboard modes.
+   * Comma-separated labels are split into individual button strings.
+   *
+   * @param template - Raw template string containing `<base>` and `<keyboard>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled keyboard functions organized by base ID, language, and mode
+   *
+   * @example
+   * ```typescript
+   * const template = `
+   *   <base>
+   *     <keyboard>Yes, No, {{action}}</keyboard>
+   *     <keyboard type="bottom">Menu, Help</keyboard>
+   *   </base>
+   * `;
+   * const keyboards = TemplateEngine.compileKeyboards(template);
+   * const inline = keyboards.default.default.inline?.({ action: 'Cancel' });
+   * // Result: ['Yes', 'No', 'Cancel']
+   * ```
+   *
+   * @public
+   */
   static compileKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
@@ -447,6 +939,35 @@ export class TemplateEngine {
     return result
   }
 
+  /**
+   * Extracts specific blocks from template content with optional filtering.
+   *
+   * @remarks
+   * This internal method extracts content from templates based on base ID,
+   * block type, language, and section mode. It supports scoped extraction
+   * with indentation normalization for clean output.
+   *
+   * @param content - The template content to extract from
+   * @param blocks - Block type(s) to extract, or `"all"` for all blocks
+   * @param baseId - The base ID to extract from (defaults to `"default"`)
+   * @param section - Whether to return the full block (`"all"`) or just inner content (`"value"`)
+   * @param lang - Optional language filter for blocks
+   * @returns The extracted content as a string
+   *
+   * @example
+   * ```typescript
+   * const template = `
+   *   <base id="main">
+   *     <message>Hello</message>
+   *     <keyboard>Yes, No</keyboard>
+   *   </base>
+   * `;
+   * const result = TemplateEngine._extractBlock(template, 'message', 'main', 'value');
+   * // Result: 'Hello'
+   * ```
+   *
+   * @internal
+   */
   static _extractBlock(content: string, blocks?: string | string[], baseId: string = `default`, section: `all` | `value` = `all`, lang?: string) {
     // 1. Extract Base Block
     const baseRegex = /<base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/base>/g
@@ -553,6 +1074,27 @@ export class TemplateEngine {
     return baseContent
   }
 
+  /**
+   * Parses `<import>` directives from a template and extracts import metadata.
+   *
+   * @remarks
+   * This internal method identifies all `<import>` tags in a template and replaces
+   * them with placeholders while collecting their metadata (src, blocks, base, lang,
+   * section, indent). The placeholders are later resolved by `processImportBlocks`.
+   *
+   * @param template - The template string containing `<import>` directives
+   * @returns An object containing the processed template with placeholders and an array of import metadata
+   *
+   * @example
+   * ```typescript
+   * const template = '<import src="other-page" block="message" />';
+   * const { processed, imports } = TemplateEngine._processImportBlocks(template);
+   * // processed: '__IMPORT_0__'
+   * // imports: [{ src: 'other-page', blocks: 'message', base: 'default', ... }]
+   * ```
+   *
+   * @internal
+   */
   static _processImportBlocks(template: string) {
     const importRegex = /([ \t]*)<import(?:\s+([^>]*))?\/?>/gi
     const imports: Array<{src: string; blocks?: string | string[]; base: string; lang?: string; section: `all` | `value`; indent: string}> = []
@@ -600,6 +1142,34 @@ export class TemplateEngine {
     return {processed, imports}
   }
 
+  /**
+   * Recursively processes and resolves `<import>` blocks in a template.
+   *
+   * @remarks
+   * This method resolves all `<import>` directives in a template by calling the
+   * provided resolver function to fetch external template content. It supports
+   * recursive imports with a depth limit of 10 to prevent infinite loops.
+   * An optional cache can be provided to avoid redundant resolutions.
+   *
+   * @param template - Template string containing `<import>` directives
+   * @param resolver - Function that resolves import sources to template content
+   * @param depth - Current recursion depth (defaults to 0)
+   * @param importCache - Optional Map to cache resolved imports for reuse
+   * @returns Template with all `<import>` blocks resolved and replaced
+   *
+   * @example
+   * ```typescript
+   * const template = '<import src="header" block="message" />\n<message>Main content</message>';
+   * const resolver = (src: string) => {
+   *   if (src === 'header') return '<message>Header text</message>';
+   *   return null;
+   * };
+   * const result = TemplateEngine.processImportBlocks(template, resolver);
+   * // Result: '<message>Header text</message>\n<message>Main content</message>'
+   * ```
+   *
+   * @public
+   */
   static processImportBlocks(template: string, resolver: (src: string) => string | null, depth = 0, importCache?: Map<string, string>): string {
     if (depth > 10) return `` // recursive limit
 
