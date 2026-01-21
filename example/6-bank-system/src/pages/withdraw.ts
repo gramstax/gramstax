@@ -22,21 +22,18 @@ export class WithdrawPage extends PageBase {
   private async handleWithdraw(amountInput?: string, edit = false) {
     const biInv = `invalid`
     if (!amountInput) {
-      await this.reply(this.kb(biInv), {}, biInv)
-      return
+      return await this.reply(this.kb(biInv), {}, biInv)
     }
 
     const amount = this.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
-      return
+      return await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
     }
 
     const current = this.bankStore.getBalance(this.userId)
     if (current < amount) {
       const biIns = `insufficient`
-      await this.reply(this.kb(biInv), {balance: this.bankStore.formatAmount(current)}, biIns)
-      return
+      return await this.reply(this.kb(biInv), {balance: this.bankStore.formatAmount(current)}, biIns)
     }
 
     const next = current - amount

@@ -31,7 +31,7 @@ export class UpdatePage extends PageBase {
         return await this.reply(kb, {}, bi)
       }
 
-      const existing = this.crudStore.getItem(id)
+      const existing = this.crudStore.getItem(this.userId, id)
       if (!existing) {
         const bi = `error-notfound`
         const kb = this.kb(bi)
@@ -60,7 +60,7 @@ export class UpdatePage extends PageBase {
       const title = spar?.title as string
       const description = this.msgText.trim()
 
-      const updated = this.crudStore.updateItem(id, title, description)
+      const updated = this.crudStore.updateItem(this.userId, id, title, description)
       if (!updated) {
         const bi = `error-notfound`
         const kb = this.kb(bi)

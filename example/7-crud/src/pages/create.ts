@@ -38,7 +38,7 @@ export class CreatePage extends PageBase {
   }
 
   private async handleCreate(title: string, description: string) {
-    const item = this.crudStore.createItem(title, description)
+    const item = this.crudStore.createItem(this.userId, title, description)
     await this.sessionClear()
     const data = {
       id: String(item.id),

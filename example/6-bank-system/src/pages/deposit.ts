@@ -20,14 +20,12 @@ export class DepositPage extends PageBase {
   private async handleDeposit(amountInput?: string, edit = false) {
     const biInv = `invalid`
     if (!amountInput) {
-      await this.reply(this.kb(biInv), {}, biInv)
-      return
+      return await this.reply(this.kb(biInv), {}, biInv)
     }
 
     const amount = this.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
-      return
+      return await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
     }
 
     const current = this.bankStore.getBalance(this.userId)

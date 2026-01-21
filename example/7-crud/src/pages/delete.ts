@@ -6,7 +6,7 @@ export class DeletePage extends PageBase {
   static data = this.buildData((action: string, itemId?: string) => [action, itemId])
 
   async callback() {
-    const items = this.crudStore.listItems()
+    const items = this.crudStore.listItems(this.userId)
     if (items.length === 0) {
       const kb = this.inlineKeyboardT([StartPage])
       await this.edit(kb, {}, `empty`)
@@ -35,7 +35,7 @@ export class DeletePage extends PageBase {
         return await this.edit(kb, {}, bi)
       }
 
-      const deleted = this.crudStore.deleteItem(id)
+      const deleted = this.crudStore.deleteItem(this.userId, id)
       if (!deleted) {
         const bi = `notfound`
         const kb = this.inlineKeyboardT([StartPage], `1`, bi)

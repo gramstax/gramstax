@@ -1,6 +1,6 @@
 import {Gramstax} from "gramstax"
 import {CtxCore} from "./ctx"
-import {CrudStore} from "./store"
+import {CrudStore} from "../db"
 import {GeneralStatusPage} from "~/pages/general-status"
 
 // BotCore wires hooks and shared stores.

@@ -24,34 +24,29 @@ export class TransferPage extends PageBase {
     const [amountInput, targetInput] = payloads
     const biInv = `invalid`
     if (!amountInput || !targetInput) {
-      await this.reply(this.kb(biInv), {}, biInv)
-      return
+      return await this.reply(this.kb(biInv), {}, biInv)
     }
 
     const amount = this.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
-      return
+      return await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
     }
 
     const target = this.resolveTarget(targetInput)
     if (!target) {
       const bi = `unknown-user`
-      await this.reply(this.kb(bi), {target: targetInput}, bi)
-      return
+      return await this.reply(this.kb(bi), {target: targetInput}, bi)
     }
 
     if (target.id === this.userId) {
       const bi = `self`
-      await this.reply(this.kb(bi), {}, bi)
-      return
+      return await this.reply(this.kb(bi), {}, bi)
     }
 
     const current = this.bankStore.getBalance(this.userId)
     if (current < amount) {
       const bi = `insufficient`
-      await this.reply(this.kb(bi), {balance: this.bankStore.formatAmount(current)}, bi)
-      return
+      return await this.reply(this.kb(bi), {balance: this.bankStore.formatAmount(current)}, bi)
     }
 
     const nextSender = current - amount

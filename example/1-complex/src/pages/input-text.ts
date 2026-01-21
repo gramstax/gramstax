@@ -1,6 +1,5 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
-import {SessionGuard} from "~/guards/session"
 
 export class InputTextPage extends PageBase {
   static data = this.buildData({
@@ -22,9 +21,7 @@ export class InputTextPage extends PageBase {
   }
 
   async textFree() {
-    const pa = await new SessionGuard(this).ensureTextFree()
-    if (pa === null) return null
-
+    if (!this.validateSessionTextFree()) return null
     const bi = `result`
     const da = {res: this.msgText}
     await this.reply(this.kb(bi), da, bi)

@@ -4,11 +4,11 @@ import {StartPage} from "./start"
 // Lists all existing todo items with improved formatting.
 export class ListPage extends PageBase {
   async callback() {
-    const items = this.crudStore.listItems()
-    const count = this.crudStore.listCount()
+    const items = this.crudStore.listItems(this.userId, 5)
+    const count = this.crudStore.listCount(this.userId)
     const data = {
       items,
-      count: String(count)
+      count: count.toLocaleString(`id`)
     }
     const kb = this.inlineKeyboardT([StartPage])
     await this.edit(kb, data)

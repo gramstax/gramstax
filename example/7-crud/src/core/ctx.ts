@@ -1,5 +1,5 @@
 import {Ctx} from "gramstax"
-import type {CrudStore} from "./store"
+import type {CrudStore} from "../db"
 
 // Shared context for CRUD pages.
 export class CtxCore extends Ctx {
