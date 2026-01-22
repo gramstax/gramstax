@@ -1,9 +1,9 @@
-import {open} from "lmdb"
+// import {open} from "lmdb"
 
-const db = open({
-  path: `./database`,
-  compression: true
-})
+// const db = open({
+//   path: `./database`,
+//   compression: true
+// })
 
 // for (const data of db.getRange()) {
 //   console.log(data)

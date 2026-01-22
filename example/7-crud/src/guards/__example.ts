@@ -1,7 +1,1 @@
-import type {CtxCore} from "~/core/ctx"
-
-export class ExampleGuard {
-  static ensureInitialized(ctx: CtxCore) {
-    return true
-  }
-}
+// YOU CAN DELETE THIS FILE IF NOT NEEDED.
