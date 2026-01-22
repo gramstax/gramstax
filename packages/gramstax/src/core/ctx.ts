@@ -2152,16 +2152,36 @@ export class Ctx {
 
   // =============== route function
   /**
-   * Route handler for callback queries without payloads.
-   * @remarks Triggered by callback data matching `intentCallback` exactly (e.g., "start").
+   * Route handler for callback queries without payloads matching `intentCallback`.
+   *
+   * @remarks Triggered by callback data matching.
+   *
+   * @example callbackData = "start".
+   * ```typescript
+   * async callback() {
+   *    this.callbackData // => "start"
+   * }
+   * ```
+   *
    * @virtual
    * @public
    */
   async callback?(): Promise<any>
 
   /**
-   * Route handler for callback queries with payloads.
-   * @remarks Triggered by callback data with payloads (e.g., "start:123").
+   * Route handler for callback queries with payloads matching `intentCallback`.
+   *
+   * @remarks Triggered by callback data with payloads.
+   *
+   * @example callbackData = "start:123"
+   * ```typescript
+   * async callbackPayload() {
+   *    this.callbackData // => "start:123"
+   *    this.callbackDataPayload // => "123"
+   *    this.callbackDataPayloads // => ["123"]
+   * }
+   * ```
+   *
    * @virtual
    * @public
    */
@@ -2169,31 +2189,71 @@ export class Ctx {
 
   /**
    * Route handler for text messages matching `intentText`.
-   * @remarks Triggered by exact text match (e.g., "start").
+   *
+   * @remarks Triggered by exact text match.
+   *
+   * @example msgText = "start"
+   * ```typescript
+   * async text() {
+   *    this.msgText // => "start"
+   * }
+   * ```
+   *
    * @virtual
    * @public
    */
   async text?(): Promise<any>
 
   /**
-   * Route handler for text messages with payloads.
-   * @remarks Triggered by text with space-separated payloads (e.g., "start 123").
+   * Route handler for text messages with payloads match intent `intentText`.
+   *
+   * @remarks Triggered by text with space-separated payloads.
+   *
+   * @example msgText = "start 123 aaa"
+   * ```typescript
+   * async textPayload() {
+   *    this.msgText // => "start"
+   *    this.msgTextPayload // => "123"
+   *    this.msgTextPayloads // => ["123", "aaa"]
+   * }
+   * ```
+   *
    * @virtual
    * @public
    */
   async textPayload?(): Promise<any>
 
   /**
-   * Route handler for command messages.
-   * @remarks Triggered by slash commands (e.g., "/start").
+   * Route handler for command messages match intent `intentTextCommand`.
+   *
+   * @remarks Triggered by text with slash commands.
+   *
+   * @example msgText = "/start"
+   * ```typescript
+   * async textCommand() {
+   *    this.msgText // => "/start"
+   * }
+   * ```
+   *
    * @virtual
    * @public
    */
   async textCommand?(): Promise<any>
 
   /**
-   * Route handler for command messages with payloads.
-   * @remarks Triggered by commands with payloads (e.g., "/start 123").
+   * Route handler for command messages with payloads match intent `intentTextCommand`.
+   *
+   * @remarks Triggered by text with commands slash with payloads.
+   *
+   * @example msgText = "/start 123 aaa"
+   * ```typescript
+   * async textCommandPayload() {
+   *    this.msgText // => "/start 123 aaa"
+   *    this.msgTextPayload // => "123"
+   *    this.msgTextPayload // => ["123", "aaa"]
+   * }
+   * ```
+   *
    * @virtual
    * @public
    */
@@ -2201,22 +2261,112 @@ export class Ctx {
 
   /**
    * Route handler for free-form text input.
+   *
    * @remarks Triggered by any text not matching other routes, typically used with sessions.
+   *
+   * @example msgText = "hello gramstax"
+   * ```typescript
+   * async text() {
+   *    this.msgText // => "hello gramstax"
+   * }
+   * ```
+   *
    * @virtual
    * @public
    */
   async textFree?(): Promise<any>
 
   // photo
-  /** @remarks Triggered by photo with caption matching `intentText`. @virtual @public */
+  /**
+   * Route function for photoCaption match intent `this.data.name`
+   *
+   * @remarks Triggered by photo with caption.
+   *
+   * @example this.data.name = "start"
+   * ```typescript
+   * async photoCaption() {
+   *   this.msgPhoto // => {...}
+   *   this.msgCaption // => "start"
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async photoCaption?(): Promise<any>
-  /** @remarks Triggered by photo with caption and payloads. @virtual @public */
+
+  /**
+   * Route function for photoCaption with payload match intent `this.data.name`
+   *
+   * @remarks Triggered by photo with caption and with payload.
+   *
+   * @example this.data.name = "start 123 aaa"
+   * ```typescript
+   * async photoCaptionPayload() {
+   *   this.msgPhoto // => {...}
+   *   this.msgCaption // => "start"
+   *   this.msgCaptionPayload // => "123"
+   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async photoCaptionPayload?(): Promise<any>
-  /** @remarks Triggered by photo with caption command. @virtual @public */
+
+  /**
+   * Route function for photoCaption with slash command match intent `this.data.name`
+   *
+   * @remarks Triggered by photo with caption command.
+   *
+   * @example this.data.name = "/start"
+   * ```typescript
+   * async photoCaptionCommand() {
+   *   this.msgPhoto // => {...}
+   *   this.msgCaption // => "/start"
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   *
+   */
   async photoCaptionCommand?(): Promise<any>
-  /** @remarks Triggered by photo with caption command and payloads. @virtual @public */
+
+  /**
+   * Route function for photoCaptionCommandPayload with slash command and payload match intent `this.data.name`
+   *
+   * @remarks Triggered by photo with caption command and payloads.
+   *
+   * @example this.data.name = "/start 123 aaa"
+   * ```typescript
+   * async photoCaptionCommandPayload() {
+   *   this.msgPhoto // => {...}
+   *   this.msgCaption // => "/start 123 aaa"
+   *   this.msgCaptionPayload // => "123"
+   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   * }
+   *
+   * @virtual
+   * @public */
   async photoCaptionCommandPayload?(): Promise<any>
-  /** @remarks Triggered by any photo. @virtual @public */
+
+  /**
+   * Route handler for free-form photo input.
+   *
+   * @remarks Triggered by any photo not matching other routes, typically used with sessions.
+   *
+   * @example msgPhoto = <...photo...>
+   * ```typescript
+   * async photoFree() {
+   *    this.msgPhoto // => {...}
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async photoFree?(): Promise<any>
 
   // video

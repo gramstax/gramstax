@@ -1,0 +1,49 @@
+items:
+  - name: SharePoint Framework reference
+    href: ~/overview/sharepoint.md
+    items:
+      - name: gramstax
+        uid: gramstax!
+        items:
+          - name: BlockKeyboard
+            uid: gramstax!BlockKeyboard:class
+          - name: CacheExternal
+            uid: gramstax!CacheExternal:class
+          - name: Ctx
+            uid: gramstax!Ctx:class
+          - name: Gramstax
+            uid: gramstax!Gramstax:class
+          - name: ICacheRpc
+            uid: gramstax!ICacheRpc:type
+          - name: IMapRpc
+            uid: gramstax!IMapRpc:type
+          - name: IMediaBlock
+            uid: gramstax!IMediaBlock:type
+          - name: LabelKeyboard
+            uid: gramstax!LabelKeyboard:class
+          - name: LoggingUtil
+            uid: gramstax!LoggingUtil:class
+          - name: TemplateEngine
+            uid: gramstax!TemplateEngine:class
+          - name: TemplateManager
+            uid: gramstax!TemplateManager:class
+          - name: WorkerThreadAsyncMethods
+            uid: gramstax!WorkerThreadAsyncMethods:type
+          - name: WorkerThreadExport
+            uid: gramstax!WorkerThreadExport:class
+          - name: WorkerThreadExportOpt
+            uid: gramstax!WorkerThreadExportOpt:type
+          - name: WorkerThreadGatewayClient
+            uid: gramstax!WorkerThreadGatewayClient:class
+          - name: WorkerThreadGatewayProxy
+            uid: gramstax!WorkerThreadGatewayProxy:type
+          - name: WorkerThreadGatewayServer
+            uid: gramstax!WorkerThreadGatewayServer:class
+          - name: WorkerThreadInit
+            uid: gramstax!WorkerThreadInit:class
+          - name: WorkerThreadLaunch
+            uid: gramstax!WorkerThreadLaunch:class
+          - name: WorkerThreadPool
+            uid: gramstax!WorkerThreadPool:class
+          - name: WorkerThreadRpc
+            uid: gramstax!WorkerThreadRpc:class

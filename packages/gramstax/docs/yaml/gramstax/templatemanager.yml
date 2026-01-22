@@ -1,0 +1,392 @@
+### YamlMime:TSType
+name: TemplateManager
+uid: gramstax!TemplateManager:class
+package: gramstax!
+fullName: TemplateManager
+summary: Manages template loading, compilation, caching, and hot-reloading from page files.
+remarks: >-
+  The `TemplateManager` class provides a centralized system for handling templates used in Gramstax bots. It supports: -
+  Loading templates from static `template` properties in page classes - Loading templates from external `.html` files -
+  Hot-reloading templates during development via file watching - Multi-language support with fallback to `default`
+
+
+  Templates are compiled once and cached for efficient retrieval.
+example:
+  - |-
+    ```typescript
+    import {TemplateManager} from "gramstax"
+    import {join} from "path"
+
+    const tm = new TemplateManager({
+      path: [join(process.cwd(), "src", "pages")],
+      enableWatch: process.env.NODE_ENV === "development"
+    })
+
+    // Get a compiled message
+    const message = tm.getMessage("start", "default", "en", {name: "John"})
+    ```
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(options)
+    uid: gramstax!TemplateManager:constructor(1)
+    package: gramstax!
+    fullName: (constructor)(options)
+    summary: Creates a new TemplateManager instance.
+    remarks: >-
+      The constructor validates paths, initializes watchers (if enabled), and loads all template files from the
+      specified paths.
+    example:
+      - |-
+        ```typescript
+        const tm = new TemplateManager({
+          path: [join(process.cwd(), "src", "pages")],
+          enableWatch: true,
+          watchOptions: {
+            ignored: /node_modules/,
+            persistent: true
+          }
+        })
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(options: ITemplateOptions);'
+      parameters:
+        - id: options
+          description: Configuration options for the template manager
+          type: <xref uid="gramstax!~ITemplateOptions:type" />
+properties:
+  - name: _isWatchEnabled
+    uid: gramstax!TemplateManager#_isWatchEnabled:member
+    package: gramstax!
+    fullName: _isWatchEnabled
+    summary: Flag indicating if file watching is enabled
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readonly _isWatchEnabled: ITemplateOptions[`enableWatch`];'
+      return:
+        type: <xref uid="gramstax!~ITemplateOptions:type" />[`enableWatch`]
+  - name: _path
+    uid: gramstax!TemplateManager#_path:member
+    package: gramstax!
+    fullName: _path
+    summary: Base paths for scanning template files
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'readonly _path: ITemplateOptions[`path`];'
+      return:
+        type: <xref uid="gramstax!~ITemplateOptions:type" />[`path`]
+methods:
+  - name: _handleWatchError(error)
+    uid: gramstax!TemplateManager#_handleWatchError:member(1)
+    package: gramstax!
+    fullName: _handleWatchError(error)
+    summary: Handles watcher errors.
+    remarks: Override this method in a subclass to implement custom error handling.
+    example:
+      - |-
+        ```typescript
+        this._handleWatchError(new Error("ENOENT"))
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        _handleWatchError(error: any): void;
+      parameters:
+        - id: error
+          description: The error object from the watcher
+          type: any
+      return:
+        type: void
+        description: ''
+  - name: destroy()
+    uid: gramstax!TemplateManager#destroy:member(1)
+    package: gramstax!
+    fullName: destroy()
+    summary: Cleans up resources and closes file watchers.
+    remarks: >-
+      Call this method when shutting down the bot to properly release file system resources. Clears the template cache
+      as well.
+    example:
+      - |-
+        ```typescript
+        // Cleanup on shutdown
+        process.on("SIGINT", async () => {
+          await tm.destroy()
+          process.exit(0)
+        })
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'destroy(): Promise<void>;'
+      return:
+        type: Promise&lt;void&gt;
+        description: Promise that resolves after watchers are closed
+  - name: getDescription(key, baseId, language, scope, data)
+    uid: gramstax!TemplateManager#getDescription:member(1)
+    package: gramstax!
+    fullName: getDescription(key, baseId, language, scope, data)
+    summary: Gets a command description for Telegram menu.
+    remarks: >-
+      Retrieves the compiled description function for the specified template, scope, and language, then executes it with
+      the provided data.
+    example:
+      - |-
+        ```typescript
+        const desc = tm.getDescription("start", "default", "en")
+        // => "Start the bot"
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        getDescription(key: string, baseId?: string, language?: string, scope?: string, data?: Record<string, any>):
+        string;
+      parameters:
+        - id: key
+          description: Template identifier (filename without extension)
+          type: string
+        - id: baseId
+          description: Base block ID matching `<base id="...">`
+          type: string
+        - id: language
+          description: Target language code (falls back to `default`<!-- -->)
+          type: string
+        - id: scope
+          description: Telegram bot command scope (e.g., `default`<!-- -->, `admin`<!-- -->)
+          type: string
+        - id: data
+          description: Template variables for interpolation
+          type: Record&lt;string, any&gt;
+      return:
+        type: string
+        description: Rendered description string, or empty string if not found
+  - name: getDescriptionLanguage(key, baseId, scope)
+    uid: gramstax!TemplateManager#getDescriptionLanguage:member(1)
+    package: gramstax!
+    fullName: getDescriptionLanguage(key, baseId, scope)
+    summary: Gets available languages for a description.
+    remarks: Useful for determining which languages are defined for a command description.
+    example:
+      - |-
+        ```typescript
+        const languages = tm.getDescriptionLanguage("start", "default", "default")
+        // => ["default", "en", "id"]
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getDescriptionLanguage(key: string, baseId?: string, scope?: string): string[];'
+      parameters:
+        - id: key
+          description: Template identifier (filename without extension)
+          type: string
+        - id: baseId
+          description: Base block ID matching `<base id="...">`
+          type: string
+        - id: scope
+          description: Telegram bot command scope
+          type: string
+      return:
+        type: string[]
+        description: Array of language codes present for the scope
+  - name: getDescriptionScopes(key, baseId)
+    uid: gramstax!TemplateManager#getDescriptionScopes:member(1)
+    package: gramstax!
+    fullName: getDescriptionScopes(key, baseId)
+    summary: Gets available scopes for a description.
+    remarks: Useful for determining which scopes are defined for a command.
+    example:
+      - |-
+        ```typescript
+        const scopes = tm.getDescriptionScopes("start", "default")
+        // => ["default", "admin"]
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getDescriptionScopes(key: string, baseId?: string): string[];'
+      parameters:
+        - id: key
+          description: Template identifier (filename without extension)
+          type: string
+        - id: baseId
+          description: Base block ID matching `<base id="...">`
+          type: string
+      return:
+        type: string[]
+        description: Array of scope keys for the description
+  - name: getKeyboard(key, baseId, language, type, data)
+    uid: gramstax!TemplateManager#getKeyboard:member(1)
+    package: gramstax!
+    fullName: getKeyboard(key, baseId, language, type, data)
+    summary: Gets compiled keyboard template labels.
+    remarks: >-
+      Retrieves the compiled keyboard function for the specified template, language, and type, then executes it with the
+      provided data to generate button labels.
+    example:
+      - |-
+        ```typescript
+        const buttons = tm.getKeyboard("start", "default", "en", "inline")
+        // => ["Counter", "Help", "Settings"]
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        getKeyboard(key: string, baseId?: string, language?: string, type?: `inline` | `bottom`, data?: Record<string,
+        any>): string[];
+      parameters:
+        - id: key
+          description: Template identifier (filename without extension)
+          type: string
+        - id: baseId
+          description: Base block ID matching `<base id="...">`
+          type: string
+        - id: language
+          description: Target language code (falls back to `default`<!-- -->)
+          type: string
+        - id: type
+          description: 'Keyboard type: `inline` or `bottom`'
+          type: '`inline` | `bottom`'
+        - id: data
+          description: Template variables for interpolation
+          type: Record&lt;string, any&gt;
+      return:
+        type: string[]
+        description: Array of rendered button labels, or empty array if not found
+  - name: getMedia(key, baseId, language, data)
+    uid: gramstax!TemplateManager#getMedia:member(1)
+    package: gramstax!
+    fullName: getMedia(key, baseId, language, data)
+    summary: Gets compiled media template data.
+    remarks: >-
+      Retrieves the compiled media function for the specified template and language, then executes it with the provided
+      data to generate the media payload.
+    example:
+      - |-
+        ```typescript
+        const media = tm.getMedia("photo-page", "default", "en", {photoUrl: "..."})}
+        // => {type: "photo", src: "...", caption: "..."}
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        getMedia(key: string, baseId?: string, language?: string, data?: Record<string, any>):
+        ReturnType<ICompiledTemplate[`media`][`default`][`default`]>;
+      parameters:
+        - id: key
+          description: Template identifier (filename without extension)
+          type: string
+        - id: baseId
+          description: Base block ID matching `<base id="...">`
+          type: string
+        - id: language
+          description: Target language code (falls back to `default`<!-- -->)
+          type: string
+        - id: data
+          description: Template variables for interpolation
+          type: Record&lt;string, any&gt;
+      return:
+        type: ReturnType&lt;<xref uid="gramstax!~ICompiledTemplate:type" />[`media`][`default`][`default`]&gt;
+        description: Media object containing type, src, and caption
+  - name: getMessage(key, baseId, language, data)
+    uid: gramstax!TemplateManager#getMessage:member(1)
+    package: gramstax!
+    fullName: getMessage(key, baseId, language, data)
+    summary: Gets a compiled message template string.
+    remarks: >-
+      Retrieves the compiled message function for the specified template and language, then executes it with the
+      provided data to generate the message.
+    example:
+      - |-
+        ```typescript
+        const message = tm.getMessage("start", "default", "en", {name: "John"})
+        // => "Hello, John! Welcome to the bot."
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getMessage(key: string, baseId?: string, language?: string, data?: Record<string, any>): string;'
+      parameters:
+        - id: key
+          description: Template identifier (filename without extension)
+          type: string
+        - id: baseId
+          description: Base block ID matching `<base id="...">`
+          type: string
+        - id: language
+          description: Target language code (falls back to `default`<!-- -->)
+          type: string
+        - id: data
+          description: Template variables for interpolation
+          type: Record&lt;string, any&gt;
+      return:
+        type: string
+        description: Rendered message string, or empty string if not found
+  - name: has(key)
+    uid: gramstax!TemplateManager#has:member(1)
+    package: gramstax!
+    fullName: has(key)
+    summary: Checks if a template exists in the cache.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        if (tm.has("welcome")) {
+          const msg = tm.getMessage("welcome", "default", "en")
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'has(key: string): boolean;'
+      parameters:
+        - id: key
+          description: Template identifier (filename without extension)
+          type: string
+      return:
+        type: boolean
+        description: '`true` if template exists in cache'
+  - name: write(filename, template)
+    uid: gramstax!TemplateManager#write:member(1)
+    package: gramstax!
+    fullName: write(filename, template)
+    summary: Writes a template to file and updates the cache.
+    remarks: >-
+      Only `.html` files are supported for writing. The method searches all configured paths for an existing file and
+      updates it in place. After writing, the template is recompiled and cached.
+    example:
+      - |-
+        ```typescript
+        const success = await tm.write("welcome.html", newTemplateContent)
+        if (success) {
+          console.log("Template updated")
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'write(filename: string, template: string): Promise<boolean | null>;'
+      parameters:
+        - id: filename
+          description: Target filename with `.html` extension
+          type: string
+        - id: template
+          description: Template string content to write
+          type: string
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: '`true` if file was written, `null` if file not found or invalid extension'

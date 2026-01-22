@@ -1,0 +1,386 @@
+### YamlMime:TSType
+name: Gramstax
+uid: gramstax!Gramstax:class
+package: gramstax!
+fullName: Gramstax
+summary: Main bot framework class for building Telegram bots.
+remarks: >-
+  Gramstax provides a page-based routing system for handling Telegram updates. It automatically loads page classes from
+  the file system and routes incoming messages and callbacks to the appropriate handlers.
+example:
+  - |-
+    ```typescript
+    import {Gramstax} from "gramstax"
+
+    const bot = new Gramstax({
+      token: process.env.BOT_TOKEN!,
+      deploy: "polling",
+      log: true
+    })
+    ```
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(params)
+    uid: gramstax!Gramstax:constructor(1)
+    package: gramstax!
+    fullName: (constructor)(params)
+    summary: Creates a new Gramstax bot instance.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        // Polling mode
+        new Gramstax({token: "BOT_TOKEN", deploy: "polling"})
+
+        // Webhook mode
+        new Gramstax({token: "BOT_TOKEN", deploy: "webhook:https://example.com/bot"})
+
+        // Serverless mode
+        new Gramstax({token: "BOT_TOKEN", deploy: "serverless:std/http"})
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        constructor(params: {
+                token: string;
+                deploy: string;
+                log?: LoggingPretty | boolean | null;
+                cacheSession?: CacheExternal;
+                cacheKeyboard?: Map<any, any>;
+                templateManager?: TemplateManager;
+                optionsPage?: {
+                    shortCallbackData?: boolean;
+                };
+            });
+      parameters:
+        - id: params
+          description: Configuration options.
+          type: |-
+            {
+                    token: string;
+                    deploy: string;
+                    log?: <xref uid="logging-pretty!LoggingPretty:class" /> | boolean | null;
+                    cacheSession?: <xref uid="gramstax!CacheExternal:class" />;
+                    cacheKeyboard?: Map&lt;any, any&gt;;
+                    templateManager?: <xref uid="gramstax!TemplateManager:class" />;
+                    optionsPage?: {
+                        shortCallbackData?: boolean;
+                    };
+                }
+properties:
+  - name: bot
+    uid: gramstax!Gramstax#bot:member
+    package: gramstax!
+    fullName: bot
+    summary: The underlying grammY Bot instance.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'bot: Bot;'
+      return:
+        type: <xref uid="grammy!Bot:class" />
+  - name: cacheKeyboard
+    uid: gramstax!Gramstax#cacheKeyboard:member
+    package: gramstax!
+    fullName: cacheKeyboard
+    summary: In-memory cache for keyboard instances by language.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'cacheKeyboard: Map<any, any>;'
+      return:
+        type: Map&lt;any, any&gt;
+  - name: cacheSession
+    uid: gramstax!Gramstax#cacheSession:member
+    package: gramstax!
+    fullName: cacheSession
+    summary: External cache for user session data.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'cacheSession: CacheExternal<ICacheRpc>;'
+      return:
+        type: <xref uid="gramstax!CacheExternal:class" />&lt;<xref uid="gramstax!ICacheRpc:type" />&gt;
+  - name: handlerBotUpdate
+    uid: gramstax!Gramstax#handlerBotUpdate:member
+    package: gramstax!
+    fullName: handlerBotUpdate
+    summary: Handler function for processing bot updates.
+    remarks: Can be customized for serverless or webhook deployments.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'handlerBotUpdate: any;'
+      return:
+        type: any
+  - name: log
+    uid: gramstax!Gramstax#log:member
+    package: gramstax!
+    fullName: log
+    summary: Logger instance for debugging and info output.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'log: LoggingPretty | undefined;'
+      return:
+        type: <xref uid="logging-pretty!LoggingPretty:class" /> | undefined
+  - name: optionsPage
+    uid: gramstax!Gramstax#optionsPage:member
+    package: gramstax!
+    fullName: optionsPage
+    summary: Page options configuration.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        optionsPage: {
+                shortCallbackData: boolean;
+            };
+      return:
+        type: |-
+          {
+                  shortCallbackData: boolean;
+              }
+  - name: pages
+    uid: gramstax!Gramstax#pages:member
+    package: gramstax!
+    fullName: pages
+    summary: Loaded and sorted page routes.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'pages: ReturnType<typeof this.pageLoads>;'
+      return:
+        type: ReturnType&lt;typeof gramstax!Gramstax#<xref uid="pageLoads:member" />&gt;
+  - name: templateManager
+    uid: gramstax!Gramstax#templateManager:member
+    package: gramstax!
+    fullName: templateManager
+    summary: Manages template loading and rendering for pages.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'templateManager: TemplateManager;'
+      return:
+        type: <xref uid="gramstax!TemplateManager:class" />
+methods:
+  - name: createBot(token)
+    uid: gramstax!Gramstax#createBot:member(1)
+    package: gramstax!
+    fullName: createBot(token)
+    summary: Creates the grammY Bot instance.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'createBot(token: string): Bot<Context, grammy.Api<grammy.RawApi>>;'
+      parameters:
+        - id: token
+          description: The Telegram Bot API token.
+          type: string
+      return:
+        type: >-
+          <xref uid="grammy!Bot:class" />&lt;<xref uid="grammy!Context:class" />, <xref uid="grammy!Api:class"
+          />&lt;<xref uid="grammy!RawApi:type" />&gt;&gt;
+        description: The Bot instance.
+  - name: createCtx(ct)
+    uid: gramstax!Gramstax#createCtx:member(1)
+    package: gramstax!
+    fullName: createCtx(ct)
+    summary: Creates a context instance for handling an update.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'createCtx(ct: Context): ICtx;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: ICtx
+        description: A new Ctx instance.
+  - name: executeSyncBlocksDescription(pages)
+    uid: gramstax!Gramstax#executeSyncBlocksDescription:member(1)
+    package: gramstax!
+    fullName: executeSyncBlocksDescription(pages)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'executeSyncBlocksDescription(pages: typeof Gramstax.prototype.pages): Promise<void>;'
+      parameters:
+        - id: pages
+          description: ''
+          type: typeof gramstax!Gramstax#<xref uid="pages:member" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: hookAfterStart()
+    uid: gramstax!Gramstax#hookAfterStart:member(1)
+    package: gramstax!
+    fullName: hookAfterStart()
+    summary: Hook called after the bot has started.
+    remarks: Override this method to run post-start logic.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        hookAfterStart(): void;
+      return:
+        type: void
+        description: ''
+  - name: hookBeforeRoute(ctx, listenerName)
+    uid: gramstax!Gramstax#hookBeforeRoute:member(1)
+    package: gramstax!
+    fullName: hookBeforeRoute(ctx, listenerName)
+    summary: Hook called before routing an update.
+    remarks: Override this method to add pre-routing logic like authentication, rate limiting, or logging.
+    example:
+      - |-
+        ```typescript
+        async hookBeforeRoute(ctx: Ctx, listenerName: string) {
+          if (ctx.userId === blockedUserId) {
+            return false // Block this user
+          }
+          return true
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        hookBeforeRoute(ctx: ICtx, listenerName: string): Promise<boolean>;
+      parameters:
+        - id: ctx
+          description: The context instance.
+          type: ICtx
+        - id: listenerName
+          description: The name of the listener handling this update.
+          type: string
+      return:
+        type: Promise&lt;boolean&gt;
+        description: True to continue routing, false to abort.
+  - name: hookBeforeStart()
+    uid: gramstax!Gramstax#hookBeforeStart:member(1)
+    package: gramstax!
+    fullName: hookBeforeStart()
+    summary: Hook called before the bot starts.
+    remarks: Override this method to run initialization logic.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        hookBeforeStart(): void;
+      return:
+        type: void
+        description: ''
+  - name: hookErrorInputNotFoundPage(ctx)
+    uid: gramstax!Gramstax#hookErrorInputNotFoundPage:member(1)
+    package: gramstax!
+    fullName: hookErrorInputNotFoundPage(ctx)
+    summary: Hook called when no page handler matches the input.
+    remarks: Override this method to send a "command not found" message or redirect to a help page.
+    example:
+      - |-
+        ```typescript
+        async hookErrorInputNotFoundPage(ctx: Ctx) {
+          await ctx.ct.reply("Unknown command. Type /help for assistance.")
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        hookErrorInputNotFoundPage(ctx: ICtx): Promise<void>;
+      parameters:
+        - id: ctx
+          description: The context instance.
+          type: ICtx
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: hookErrorPage(ctx, listenerName, error, isEdit)
+    uid: gramstax!Gramstax#hookErrorPage:member(1)
+    package: gramstax!
+    fullName: hookErrorPage(ctx, listenerName, error, isEdit)
+    summary: Hook called when a page handler throws an error.
+    remarks: >-
+      Override this method to handle errors gracefully, e.g., sending an error message to the user or logging to an
+      external service.
+    example:
+      - |-
+        ```typescript
+        async hookErrorPage(ctx: Ctx, listenerName: string, error: any) {
+          await ctx.reply(undefined, {error: "An error occurred"})
+          console.error(error)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        hookErrorPage(ctx: ICtx, listenerName: string, error: any, isEdit: boolean): Promise<void>;
+      parameters:
+        - id: ctx
+          description: The context instance.
+          type: ICtx
+        - id: listenerName
+          description: The name of the listener handling this update.
+          type: string
+        - id: error
+          description: The caught error.
+          type: any
+        - id: isEdit
+          description: Whether the handler was editing a message.
+          type: boolean
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: onCatch(error)
+    uid: gramstax!Gramstax#onCatch:member(1)
+    package: gramstax!
+    fullName: onCatch(error)
+    summary: Global error handler for bot errors.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'onCatch(error: BotError<Context>): void;'
+      parameters:
+        - id: error
+          description: The bot error object.
+          type: <xref uid="grammy!BotError:class" />&lt;<xref uid="grammy!Context:class" />&gt;
+      return:
+        type: void
+        description: ''

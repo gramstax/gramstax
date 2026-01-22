@@ -1,0 +1,16 @@
+### YamlMime:TSTypeAlias
+name: ICacheRpc
+uid: gramstax!ICacheRpc:type
+package: gramstax!
+fullName: ICacheRpc
+summary: RPC cache request structure.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ICacheRpc = {
+      method: string;
+      params: any;
+      [moreRoot: string]: any;
+  };

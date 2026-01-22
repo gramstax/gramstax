@@ -1,0 +1,104 @@
+### YamlMime:TSType
+name: CacheExternal
+uid: gramstax!CacheExternal:class
+package: gramstax!
+fullName: CacheExternal
+summary: >-
+  Extends [Keyv](https://github.com/jaredwray/keyv) to provide a unified caching interface with built-in support for
+  memory and Redis storage.
+remarks: >-
+  Storage modes: - \*\*Memory mode:\*\* when `url` is `"memory"` (default), uses an in-memory `Map`<!-- -->. - \*\*Redis
+  mode:\*\* when `url` starts with `"redis"`<!-- -->, uses `@keyv/redis` adapter. - \*\*Custom mode:\*\* when
+  `more.forceStore` is provided, uses the custom store.
+example:
+  - |-
+    ```typescript
+    import { CacheExternal } from "gramstax";
+
+    // Memory cache (default)
+    const memoryCache = new CacheExternal();
+
+    // Redis cache
+    const redisCache = new CacheExternal("redis://localhost:6379", 3600000, "s");
+
+    // With namespace and TTL
+    const cache = new CacheExternal("memory", 60000, "myapp");
+
+    // Set and get data
+    await cache.set("user:123", { name: "John" });
+    const user = await cache.get("user:123");
+    ```
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(url, ttl, namespace, more)
+    uid: gramstax!CacheExternal:constructor(1)
+    package: gramstax!
+    fullName: (constructor)(url, ttl, namespace, more)
+    summary: Creates a new CacheExternal instance.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(url?: string, ttl?: number, namespace?: string, more?: IMore);'
+      parameters:
+        - id: url
+          description: Storage connection URL. Use `"memory"` for in-memory storage or `"redis://..."` for Redis.
+          type: string
+        - id: ttl
+          description: Default time-to-live in milliseconds. Applies to all keys unless overridden per operation.
+          type: number
+        - id: namespace
+          description: Key namespace prefix. Isolates keys by namespace.
+          type: string
+        - id: more
+          description: Additional Keyv options. Use `forceStore` to override automatic store selection.
+          type: <xref uid="gramstax!~IMore:type" />
+properties:
+  - name: url
+    uid: gramstax!CacheExternal#url:member
+    package: gramstax!
+    fullName: url
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'url: string;'
+      return:
+        type: string
+methods:
+  - name: refreshLruCache(maxLength)
+    uid: gramstax!CacheExternal#refreshLruCache:member(1)
+    package: gramstax!
+    fullName: refreshLruCache(maxLength)
+    summary: Refreshes the LRU cache by re-accessing keys in order.
+    remarks: >-
+      This method iterates through the store keys and calls `get()` on each to refresh the LRU order. Only applicable
+      for memory-based stores using `Map`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const cache = new CacheExternal("memory", 60000, "app");
+
+        // Refresh all keys
+        cache.refreshLruCache();
+
+        // Refresh only the first 100 keys
+        cache.refreshLruCache(100);
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'refreshLruCache(maxLength?: number): void;'
+      parameters:
+        - id: maxLength
+          description: Maximum number of keys to refresh. If omitted, refreshes all keys.
+          type: number
+      return:
+        type: void
+        description: ''
+extends: <xref uid="keyv!Keyv:class" />&lt;V&gt;

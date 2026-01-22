@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: WorkerThreadAsyncMethods
+uid: gramstax!WorkerThreadAsyncMethods:type
+package: gramstax!
+fullName: WorkerThreadAsyncMethods
+summary: Async methods type for worker thread. Transforms all worker methods to return Promises.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type WorkerThreadAsyncMethods<T> = {
+      [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: any[]) => any ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<Awaited<R>> : never;
+  };

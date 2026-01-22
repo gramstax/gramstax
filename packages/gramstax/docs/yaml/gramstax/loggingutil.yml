@@ -1,0 +1,78 @@
+### YamlMime:TSType
+name: LoggingUtil
+uid: gramstax!LoggingUtil:class
+package: gramstax!
+fullName: LoggingUtil
+summary: Extends [LoggingPretty](https://www.npmjs.com/package/logging-pretty) to provide enhanced logging functionality.
+remarks: >-
+  Inherits all methods from `LoggingPretty` including `info()`<!-- -->, `debug()`<!-- -->, `warn()`<!-- -->,
+  `error()`<!-- -->, and `success()`<!-- -->. Adds helper methods for formatted error logging with class/function
+  context.
+example:
+  - |-
+    ```typescript
+    import { LoggingUtil, log } from "gramstax";
+
+    // Use the singleton
+    log.info("Application started");
+
+    // Or create a new instance
+    const logger = new LoggingUtil();
+    logger.errorMake(new Error("Oops"), "Worker", "init");
+    ```
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(options)
+    uid: gramstax!LoggingUtil:constructor(1)
+    package: gramstax!
+    fullName: (constructor)(options)
+    summary: Creates a new LoggingUtil instance.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(options?: ConstructorParameters<typeof LoggingPretty>[0]);'
+      parameters:
+        - id: options
+          description: LoggingPretty constructor options. Passed through to parent `LoggingPretty`<!-- -->.
+          type: ConstructorParameters&lt;typeof <xref uid="logging-pretty!LoggingPretty:class" />&gt;[0]
+methods:
+  - name: errorMake(pureError, constructorName, funcName)
+    uid: gramstax!LoggingUtil#errorMake:member(1)
+    package: gramstax!
+    fullName: errorMake(pureError, constructorName, funcName)
+    summary: Log a formatted error message with optional class and function context.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const logger = new LoggingUtil();
+
+        try {
+          throw new Error("Something went wrong");
+        } catch (error) {
+          logger.errorMake(error, "UserService", "createUser");
+          // Logs: [UserService:createUser] { "message": "Something went wrong", ... }
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'errorMake(pureError: any, constructorName?: any, funcName?: string): void;'
+      parameters:
+        - id: pureError
+          description: The error to log. Can be an `Error` object or any value.
+          type: any
+        - id: constructorName
+          description: Class name for context. Format is `[ClassName:methodName] error`<!-- -->.
+          type: any
+        - id: funcName
+          description: Method/function name. Format is `[methodName] error` if no class.
+          type: string
+      return:
+        type: void
+        description: ''
+extends: <xref uid="logging-pretty!LoggingPretty:class" />

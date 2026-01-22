@@ -1,0 +1,118 @@
+### YamlMime:TSType
+name: WorkerThreadGatewayClient
+uid: gramstax!WorkerThreadGatewayClient:class
+package: gramstax!
+fullName: WorkerThreadGatewayClient
+summary: Provides IPC client functionality for inter-worker communication using Unix domain sockets.
+remarks: >-
+  Uses `net-ipc` library for Unix domain socket communication. Typically created via
+  [WorkerThreadInit.createGatewayClient()](xref:gramstax!WorkerThreadInit%23createGatewayClient:member(1))<!-- -->.
+example:
+  - |-
+    ```typescript
+    import { WorkerThreadGatewayClient } from "gramstax";
+
+    const client = new WorkerThreadGatewayClient();
+    await client.connect("/tmp/my-server.sock");
+    const result = await client.request("ping", []);
+    ```
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)()
+    uid: gramstax!WorkerThreadGatewayClient:constructor(1)
+    package: gramstax!
+    fullName: (constructor)()
+    summary: Creates a new gateway client instance.
+    remarks: >-
+      Typically not called directly; use
+      [WorkerThreadInit.createGatewayClient()](xref:gramstax!WorkerThreadInit%23createGatewayClient:member(1)) instead.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: constructor();
+properties:
+  - name: client
+    uid: gramstax!WorkerThreadGatewayClient#client:member
+    package: gramstax!
+    fullName: client
+    summary: The underlying `net-ipc` Client instance.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'client: Client;'
+      return:
+        type: Client
+  - name: rpc
+    uid: gramstax!WorkerThreadGatewayClient#rpc:member
+    package: gramstax!
+    fullName: rpc
+    summary: RPC handler for messaging.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rpc: WorkerThreadRpc;'
+      return:
+        type: <xref uid="gramstax!WorkerThreadRpc:class" />
+methods:
+  - name: connect(path)
+    uid: gramstax!WorkerThreadGatewayClient#connect:member(1)
+    package: gramstax!
+    fullName: connect(path)
+    summary: Connect to a gateway server.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        await client.connect("/tmp/worker-server.sock");
+        console.log("Connected to gateway server");
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'connect(path: string): Promise<unknown>;'
+      parameters:
+        - id: path
+          description: Unix socket path. Matches server gateway.
+          type: string
+      return:
+        type: Promise&lt;unknown&gt;
+        description: Promise that resolves to this client instance when connection is ready.
+  - name: request(method, params, _wait, _others)
+    uid: gramstax!WorkerThreadGatewayClient#request:member(1)
+    package: gramstax!
+    fullName: request(method, params, _wait, _others)
+    summary: Make an RPC request to the server.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const result = await client.request("ping", []);
+        console.log("Server responded:", result);
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;'
+      parameters:
+        - id: method
+          description: Server method to call. Targets server RPC method.
+          type: string
+        - id: params
+          description: Method parameters. Sent as positional array.
+          type: any
+        - id: _wait
+          description: Wait for response. If false, fire-and-forget. Defaults to `true`<!-- -->.
+          type: boolean
+        - id: _others
+          description: Additional RPC data. Merged into RPC payload.
+          type: any
+      return:
+        type: Promise&lt;any&gt;
+        description: Promise resolving with server response.
