@@ -10,7 +10,7 @@
   "keywords": [],
   "scripts": {
     "build": "tsup",
-    "build:docs": "bun run build && api-extractor run --local --verbose && api-documenter markdown -i ./docs/extractor/temp -o ./docs/markdown && api-documenter yaml -i ./docs/extractor/temp -o ./docs/yaml && rm -irf ./dist/gramstax.d.ts",
+    "build:docs": "bun run build --tsconfig tsconfig.build.docs.json && api-extractor run --local --verbose && api-documenter markdown -i ./docs/extractor/temp -o ./docs/markdown && api-documenter yaml -i ./docs/extractor/temp -o ./docs/yaml && rm -irf ./dist/gramstax.d.ts",
     "nx-release-publish": "npm publish --access public"
   },
   "repository": {
