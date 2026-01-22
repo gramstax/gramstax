@@ -4,6 +4,8 @@
 
 ## Ctx.voiceCaptionCommand() method
 
+Route function for voiceCaption with slash command match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -17,4 +19,15 @@ Promise&lt;any&gt;
 ## Remarks
 
 Triggered by voice with caption command.
+
+## Example
+
+this.data.name = "/start"
+
+```typescript
+async voiceCaptionCommand() {
+  this.msgVoice // => {...}
+  this.msgCaption // => "/start"
+}
+```
 

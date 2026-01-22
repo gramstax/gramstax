@@ -4,6 +4,8 @@
 
 ## Ctx.videoCaption() method
 
+Route function for videoCaption match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,16 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by video with caption matching `intentText`<!-- -->.
+Triggered by video with caption.
+
+## Example
+
+this.data.name = "start"
+
+```typescript
+async videoCaption() {
+  this.msgVideo // => {...}
+  this.msgCaption // => "start"
+}
+```
 

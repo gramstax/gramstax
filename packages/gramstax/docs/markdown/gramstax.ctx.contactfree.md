@@ -4,6 +4,8 @@
 
 ## Ctx.contactFree() method
 
+Route handler for free-form contact input.
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by any contact message.
+Triggered by any contact not matching other routes, typically used with sessions.
+
+## Example
+
+msgContact = &lt;<!-- -->...contact...<!-- -->&gt;
+
+```typescript
+async contactFree() {
+   this.msgContact // => {...}
+}
+```
 

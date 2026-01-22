@@ -4,6 +4,8 @@
 
 ## Ctx.photoCaption() method
 
+Route function for photoCaption match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,16 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by photo with caption matching `intentText`<!-- -->.
+Triggered by photo with caption.
+
+## Example
+
+this.data.name = "start"
+
+```typescript
+async photoCaption() {
+  this.msgPhoto // => {...}
+  this.msgCaption // => "start"
+}
+```
 

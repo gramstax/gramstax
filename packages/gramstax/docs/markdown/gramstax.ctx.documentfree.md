@@ -4,6 +4,8 @@
 
 ## Ctx.documentFree() method
 
+Route handler for free-form document input.
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by any document.
+Triggered by any document not matching other routes, typically used with sessions.
+
+## Example
+
+msgDocument = &lt;<!-- -->...document...<!-- -->&gt;
+
+```typescript
+async documentFree() {
+   this.msgDocument // => {...}
+}
+```
 

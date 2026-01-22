@@ -4,6 +4,8 @@
 
 ## Ctx.videoCaptionPayload() method
 
+Route function for videoCaption with payload match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,18 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by video with caption and payloads.
+Triggered by video with caption and with payload.
+
+## Example
+
+this.data.name = "start 123 aaa"
+
+```typescript
+async videoCaptionPayload() {
+  this.msgVideo // => {...}
+  this.msgCaption // => "start"
+  this.msgCaptionPayload // => "123"
+  this.msgCaptionPayloads // => ["123", "aaa"]
+}
+```
 

@@ -4,6 +4,8 @@
 
 ## Ctx.animationFree() method
 
+Route handler for free-form animation input.
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by any animation.
+Triggered by any animation not matching other routes, typically used with sessions.
+
+## Example
+
+msgAnimation = &lt;<!-- -->...animation...<!-- -->&gt;
+
+```typescript
+async animationFree() {
+   this.msgAnimation // => {...}
+}
+```
 

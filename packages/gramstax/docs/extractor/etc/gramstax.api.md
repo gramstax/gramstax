@@ -49,25 +49,25 @@ export class Ctx {
     });
     // @internal
     addPayloads(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], pld: (string | undefined)[]): string;
-    // @virtual (undocumented)
+    // @virtual
     animationCaption?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     animationCaptionCommand?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     animationCaptionCommandPayload?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     animationCaptionPayload?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     animationFree?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     audioCaption?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     audioCaptionCommand?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     audioCaptionCommandPayload?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     audioCaptionPayload?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     audioFree?(): Promise<any>;
     // Warning: (ae-forgotten-export) The symbol "IBottomKb" needs to be exported by the entry point index.d.ts
     bottomKeyboard(callback: (k: IBottomKb, a: string[]) => IBottomKb, params?: {
@@ -106,7 +106,7 @@ export class Ctx {
     // @virtual
     callbackPayload?(): Promise<any>;
     callbackQueryAnswer(options?: Parameters<typeof Ctx.prototype.ct.answerCallbackQuery>[0]): Promise<true | null>;
-    // @virtual (undocumented)
+    // @virtual
     contactFree?(): Promise<any>;
     // Warning: (ae-forgotten-export) The symbol "ICt" needs to be exported by the entry point index.d.ts
     //
@@ -116,15 +116,15 @@ export class Ctx {
     static data: IPageData<any>;
     data: IPageData<any>;
     delete(): Promise<true>;
-    // @virtual (undocumented)
+    // @virtual
     documentCaption?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     documentCaptionCommand?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     documentCaptionCommandPayload?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     documentCaptionPayload?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     documentFree?(): Promise<any>;
     // Warning: (ae-forgotten-export) The symbol "IInlineKb" needs to be exported by the entry point index.d.ts
     // Warning: (ae-forgotten-export) The symbol "IOptEdit" needs to be exported by the entry point index.d.ts
@@ -165,7 +165,7 @@ export class Ctx {
     inlineKeyboardT(PageDest: IKbDest[], layout?: IKbCols, baseId?: string | null, data?: Record<any, any>): InlineKeyboard;
     // Warning: (ae-forgotten-export) The symbol "IKbCols" needs to be exported by the entry point index.d.ts
     keyboardCols<T = any>(k: T, a: string[], layout: IKbCols, cb: (e: string, i: number) => any): T;
-    // @virtual (undocumented)
+    // @virtual
     locationFree?(): Promise<any>;
     // @internal
     methodSession(prefix: string, name: string | undefined): string;
@@ -273,15 +273,15 @@ export class Ctx {
     get msgVideoNote(): _grammyjs_types.VideoNote | undefined;
     get msgVoice(): _grammyjs_types.Voice | undefined;
     get msgWebAppData(): _grammyjs_types.WebAppData | undefined;
-    // @virtual (undocumented)
+    // @virtual
     photoCaption?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     photoCaptionCommand?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     photoCaptionCommandPayload?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     photoCaptionPayload?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     photoFree?(): Promise<any>;
     reply(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReply): Promise<_grammyjs_types.Message.TextMessage>;
     // Warning: (ae-forgotten-export) The symbol "ITypeReplyAction" needs to be exported by the entry point index.d.ts
@@ -476,7 +476,7 @@ export class Ctx {
     sessionVoiceCaptionPayload(params?: any, name?: string): Promise<boolean | null>;
     // (undocumented)
     sessionVoiceFree(params?: any, name?: string): Promise<boolean | null>;
-    // @virtual (undocumented)
+    // @virtual
     stickerFree?(): Promise<any>;
     // @internal
     temp: ITemp;
@@ -587,27 +587,27 @@ export class Ctx {
     validateSessionVoiceCaptionPayload(method?: string, name?: string): boolean;
     // (undocumented)
     validateSessionVoiceFree(method?: string, name?: string): boolean;
-    // @virtual (undocumented)
+    // @virtual
     videoCaption?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     videoCaptionCommand?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     videoCaptionCommandPayload?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     videoCaptionPayload?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     videoFree?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     videoNoteFree?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     voiceCaption?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     voiceCaptionCommand?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     voiceCaptionCommandPayload?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     voiceCaptionPayload?(): Promise<any>;
-    // @virtual (undocumented)
+    // @virtual
     voiceFree?(): Promise<any>;
 }
 

@@ -794,9 +794,18 @@ methods:
     uid: gramstax!Ctx#animationCaption:member(1)
     package: gramstax!
     fullName: animationCaption()
-    summary: ''
-    remarks: Triggered by animation with caption matching `intentText`<!-- -->.
-    example: []
+    summary: Route function for animationCaption match intent `this.data.name`
+    remarks: Triggered by animation with caption.
+    example:
+      - |-
+        this.data.name = "start"
+
+        ```typescript
+        async animationCaption() {
+          this.msgAnimation // => {...}
+          this.msgCaption // => "start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -810,9 +819,18 @@ methods:
     uid: gramstax!Ctx#animationCaptionCommand:member(1)
     package: gramstax!
     fullName: animationCaptionCommand()
-    summary: ''
+    summary: Route function for animationCaption with slash command match intent `this.data.name`
     remarks: Triggered by animation with caption command.
-    example: []
+    example:
+      - |-
+        this.data.name = "/start"
+
+        ```typescript
+        async animationCaptionCommand() {
+          this.msgAnimation // => {...}
+          this.msgCaption // => "/start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -826,9 +844,13 @@ methods:
     uid: gramstax!Ctx#animationCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: animationCaptionCommandPayload()
-    summary: ''
+    summary: Route function for animationCaptionCommandPayload with slash command and payload match intent `this.data.name`
     remarks: Triggered by animation with caption command and payloads.
-    example: []
+    example:
+      - >-
+        this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async animationCaptionCommandPayload() {
+        this.msgAnimation // =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa"
+        this.msgCaptionPayload // =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
     isPreview: false
     isDeprecated: false
     syntax:
@@ -842,9 +864,20 @@ methods:
     uid: gramstax!Ctx#animationCaptionPayload:member(1)
     package: gramstax!
     fullName: animationCaptionPayload()
-    summary: ''
-    remarks: Triggered by animation with caption and payloads.
-    example: []
+    summary: Route function for animationCaption with payload match intent `this.data.name`
+    remarks: Triggered by animation with caption and with payload.
+    example:
+      - |-
+        this.data.name = "start 123 aaa"
+
+        ```typescript
+        async animationCaptionPayload() {
+          this.msgAnimation // => {...}
+          this.msgCaption // => "start"
+          this.msgCaptionPayload // => "123"
+          this.msgCaptionPayloads // => ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -858,9 +891,17 @@ methods:
     uid: gramstax!Ctx#animationFree:member(1)
     package: gramstax!
     fullName: animationFree()
-    summary: ''
-    remarks: Triggered by any animation.
-    example: []
+    summary: Route handler for free-form animation input.
+    remarks: Triggered by any animation not matching other routes, typically used with sessions.
+    example:
+      - |-
+        msgAnimation = &lt;<!-- -->...animation...<!-- -->&gt;
+
+        ```typescript
+        async animationFree() {
+           this.msgAnimation // => {...}
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -874,9 +915,18 @@ methods:
     uid: gramstax!Ctx#audioCaption:member(1)
     package: gramstax!
     fullName: audioCaption()
-    summary: ''
-    remarks: Triggered by audio with caption matching `intentText`<!-- -->.
-    example: []
+    summary: Route function for audioCaption match intent `this.data.name`
+    remarks: Triggered by audio with caption.
+    example:
+      - |-
+        this.data.name = "start"
+
+        ```typescript
+        async audioCaption() {
+          this.msgAudio // => {...}
+          this.msgCaption // => "start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -890,9 +940,18 @@ methods:
     uid: gramstax!Ctx#audioCaptionCommand:member(1)
     package: gramstax!
     fullName: audioCaptionCommand()
-    summary: ''
+    summary: Route function for audioCaption with slash command match intent `this.data.name`
     remarks: Triggered by audio with caption command.
-    example: []
+    example:
+      - |-
+        this.data.name = "/start"
+
+        ```typescript
+        async audioCaptionCommand() {
+          this.msgAudio // => {...}
+          this.msgCaption // => "/start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -906,9 +965,13 @@ methods:
     uid: gramstax!Ctx#audioCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: audioCaptionCommandPayload()
-    summary: ''
+    summary: Route function for audioCaptionCommandPayload with slash command and payload match intent `this.data.name`
     remarks: Triggered by audio with caption command and payloads.
-    example: []
+    example:
+      - >-
+        this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async audioCaptionCommandPayload() { this.msgAudio //
+        =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa" this.msgCaptionPayload //
+        =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
     isPreview: false
     isDeprecated: false
     syntax:
@@ -922,9 +985,20 @@ methods:
     uid: gramstax!Ctx#audioCaptionPayload:member(1)
     package: gramstax!
     fullName: audioCaptionPayload()
-    summary: ''
-    remarks: Triggered by audio with caption and payloads.
-    example: []
+    summary: Route function for audioCaption with payload match intent `this.data.name`
+    remarks: Triggered by audio with caption and with payload.
+    example:
+      - |-
+        this.data.name = "start 123 aaa"
+
+        ```typescript
+        async audioCaptionPayload() {
+          this.msgAudio // => {...}
+          this.msgCaption // => "start"
+          this.msgCaptionPayload // => "123"
+          this.msgCaptionPayloads // => ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -938,9 +1012,17 @@ methods:
     uid: gramstax!Ctx#audioFree:member(1)
     package: gramstax!
     fullName: audioFree()
-    summary: ''
-    remarks: Triggered by any audio.
-    example: []
+    summary: Route handler for free-form audio input.
+    remarks: Triggered by any audio not matching other routes, typically used with sessions.
+    example:
+      - |-
+        msgAudio = &lt;<!-- -->...audio...<!-- -->&gt;
+
+        ```typescript
+        async audioFree() {
+           this.msgAudio // => {...}
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1190,9 +1272,17 @@ methods:
     uid: gramstax!Ctx#callback:member(1)
     package: gramstax!
     fullName: callback()
-    summary: Route handler for callback queries without payloads.
-    remarks: Triggered by callback data matching `intentCallback` exactly (e.g., "start").
-    example: []
+    summary: Route handler for callback queries without payloads matching `intentCallback`<!-- -->.
+    remarks: Triggered by callback data matching.
+    example:
+      - |-
+        callbackData = "start".
+
+        ```typescript
+        async callback() {
+           this.callbackData // => "start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1206,9 +1296,19 @@ methods:
     uid: gramstax!Ctx#callbackPayload:member(1)
     package: gramstax!
     fullName: callbackPayload()
-    summary: Route handler for callback queries with payloads.
-    remarks: Triggered by callback data with payloads (e.g., "start:123").
-    example: []
+    summary: Route handler for callback queries with payloads matching `intentCallback`<!-- -->.
+    remarks: Triggered by callback data with payloads.
+    example:
+      - |-
+        callbackData = "start:123"
+
+        ```typescript
+        async callbackPayload() {
+           this.callbackData // => "start:123"
+           this.callbackDataPayload // => "123"
+           this.callbackDataPayloads // => ["123"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1249,9 +1349,17 @@ methods:
     uid: gramstax!Ctx#contactFree:member(1)
     package: gramstax!
     fullName: contactFree()
-    summary: ''
-    remarks: Triggered by any contact message.
-    example: []
+    summary: Route handler for free-form contact input.
+    remarks: Triggered by any contact not matching other routes, typically used with sessions.
+    example:
+      - |-
+        msgContact = &lt;<!-- -->...contact...<!-- -->&gt;
+
+        ```typescript
+        async contactFree() {
+           this.msgContact // => {...}
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1285,9 +1393,18 @@ methods:
     uid: gramstax!Ctx#documentCaption:member(1)
     package: gramstax!
     fullName: documentCaption()
-    summary: ''
-    remarks: Triggered by document with caption matching `intentText`<!-- -->.
-    example: []
+    summary: Route function for documentCaption match intent `this.data.name`
+    remarks: Triggered by document with caption.
+    example:
+      - |-
+        this.data.name = "start"
+
+        ```typescript
+        async documentCaption() {
+          this.msgDocument // => {...}
+          this.msgCaption // => "start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1301,9 +1418,18 @@ methods:
     uid: gramstax!Ctx#documentCaptionCommand:member(1)
     package: gramstax!
     fullName: documentCaptionCommand()
-    summary: ''
+    summary: Route function for documentCaption with slash command match intent `this.data.name`
     remarks: Triggered by document with caption command.
-    example: []
+    example:
+      - |-
+        this.data.name = "/start"
+
+        ```typescript
+        async documentCaptionCommand() {
+          this.msgDocument // => {...}
+          this.msgCaption // => "/start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1317,9 +1443,13 @@ methods:
     uid: gramstax!Ctx#documentCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: documentCaptionCommandPayload()
-    summary: ''
+    summary: Route function for documentCaptionCommandPayload with slash command and payload match intent `this.data.name`
     remarks: Triggered by document with caption command and payloads.
-    example: []
+    example:
+      - >-
+        this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async documentCaptionCommandPayload() {
+        this.msgDocument // =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa"
+        this.msgCaptionPayload // =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1333,9 +1463,20 @@ methods:
     uid: gramstax!Ctx#documentCaptionPayload:member(1)
     package: gramstax!
     fullName: documentCaptionPayload()
-    summary: ''
-    remarks: Triggered by document with caption and payloads.
-    example: []
+    summary: Route function for documentCaption with payload match intent `this.data.name`
+    remarks: Triggered by document with caption and with payload.
+    example:
+      - |-
+        this.data.name = "start 123 aaa"
+
+        ```typescript
+        async documentCaptionPayload() {
+          this.msgDocument // => {...}
+          this.msgCaption // => "start"
+          this.msgCaptionPayload // => "123"
+          this.msgCaptionPayloads // => ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1349,9 +1490,17 @@ methods:
     uid: gramstax!Ctx#documentFree:member(1)
     package: gramstax!
     fullName: documentFree()
-    summary: ''
-    remarks: Triggered by any document.
-    example: []
+    summary: Route handler for free-form document input.
+    remarks: Triggered by any document not matching other routes, typically used with sessions.
+    example:
+      - |-
+        msgDocument = &lt;<!-- -->...document...<!-- -->&gt;
+
+        ```typescript
+        async documentFree() {
+           this.msgDocument // => {...}
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1938,8 +2087,16 @@ methods:
     package: gramstax!
     fullName: free()
     summary: Fallback route handler for any unmatched update.
-    remarks: Triggered when no other route handler type static\*\*\* matches the update.
-    example: []
+    remarks: >-
+      Triggered when no other route handler matches the current update. Use this for global fallback logic, logging, or
+      safety responses.
+    example:
+      - |-
+        ```typescript
+        async free() {
+          // handle unexpected updates
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -2074,9 +2231,17 @@ methods:
     uid: gramstax!Ctx#locationFree:member(1)
     package: gramstax!
     fullName: locationFree()
-    summary: ''
-    remarks: Triggered by any location message.
-    example: []
+    summary: Route handler for free-form location input.
+    remarks: Triggered by any location not matching other routes, typically used with sessions.
+    example:
+      - |-
+        msgLocation = &lt;<!-- -->...location...<!-- -->&gt;
+
+        ```typescript
+        async locationFree() {
+           this.msgLocation // => {...}
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -2828,9 +2993,18 @@ methods:
     uid: gramstax!Ctx#photoCaption:member(1)
     package: gramstax!
     fullName: photoCaption()
-    summary: ''
-    remarks: Triggered by photo with caption matching `intentText`<!-- -->.
-    example: []
+    summary: Route function for photoCaption match intent `this.data.name`
+    remarks: Triggered by photo with caption.
+    example:
+      - |-
+        this.data.name = "start"
+
+        ```typescript
+        async photoCaption() {
+          this.msgPhoto // => {...}
+          this.msgCaption // => "start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -2844,9 +3018,18 @@ methods:
     uid: gramstax!Ctx#photoCaptionCommand:member(1)
     package: gramstax!
     fullName: photoCaptionCommand()
-    summary: ''
+    summary: Route function for photoCaption with slash command match intent `this.data.name`
     remarks: Triggered by photo with caption command.
-    example: []
+    example:
+      - |-
+        this.data.name = "/start"
+
+        ```typescript
+        async photoCaptionCommand() {
+          this.msgPhoto // => {...}
+          this.msgCaption // => "/start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -2860,9 +3043,13 @@ methods:
     uid: gramstax!Ctx#photoCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: photoCaptionCommandPayload()
-    summary: ''
+    summary: Route function for photoCaptionCommandPayload with slash command and payload match intent `this.data.name`
     remarks: Triggered by photo with caption command and payloads.
-    example: []
+    example:
+      - >-
+        this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async photoCaptionCommandPayload() { this.msgPhoto //
+        =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa" this.msgCaptionPayload //
+        =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
     isPreview: false
     isDeprecated: false
     syntax:
@@ -2876,9 +3063,20 @@ methods:
     uid: gramstax!Ctx#photoCaptionPayload:member(1)
     package: gramstax!
     fullName: photoCaptionPayload()
-    summary: ''
-    remarks: Triggered by photo with caption and payloads.
-    example: []
+    summary: Route function for photoCaption with payload match intent `this.data.name`
+    remarks: Triggered by photo with caption and with payload.
+    example:
+      - |-
+        this.data.name = "start 123 aaa"
+
+        ```typescript
+        async photoCaptionPayload() {
+          this.msgPhoto // => {...}
+          this.msgCaption // => "start"
+          this.msgCaptionPayload // => "123"
+          this.msgCaptionPayloads // => ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -2892,9 +3090,17 @@ methods:
     uid: gramstax!Ctx#photoFree:member(1)
     package: gramstax!
     fullName: photoFree()
-    summary: ''
-    remarks: Triggered by any photo.
-    example: []
+    summary: Route handler for free-form photo input.
+    remarks: Triggered by any photo not matching other routes, typically used with sessions.
+    example:
+      - |-
+        msgPhoto = &lt;<!-- -->...photo...<!-- -->&gt;
+
+        ```typescript
+        async photoFree() {
+           this.msgPhoto // => {...}
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -5292,9 +5498,17 @@ methods:
     uid: gramstax!Ctx#stickerFree:member(1)
     package: gramstax!
     fullName: stickerFree()
-    summary: ''
-    remarks: Triggered by any sticker message.
-    example: []
+    summary: Route handler for free-form sticker input.
+    remarks: Triggered by any sticker not matching other routes, typically used with sessions.
+    example:
+      - |-
+        msgSticker = &lt;<!-- -->...sticker...<!-- -->&gt;
+
+        ```typescript
+        async stickerFree() {
+           this.msgSticker // => {...}
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -5309,8 +5523,15 @@ methods:
     package: gramstax!
     fullName: text()
     summary: Route handler for text messages matching `intentText`<!-- -->.
-    remarks: Triggered by exact text match (e.g., "start").
-    example: []
+    remarks: Triggered by exact text match.
+    example:
+      - |-
+        ```typescript
+        // msgText = "start"
+        async text() {
+           this.msgText // => "start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -5324,9 +5545,17 @@ methods:
     uid: gramstax!Ctx#textCommand:member(1)
     package: gramstax!
     fullName: textCommand()
-    summary: Route handler for command messages.
-    remarks: Triggered by slash commands (e.g., "/start").
-    example: []
+    summary: Route handler for command messages match intent `intentTextCommand`<!-- -->.
+    remarks: Triggered by text with slash commands.
+    example:
+      - |-
+        msgText = "/start"
+
+        ```typescript
+        async textCommand() {
+           this.msgText // => "/start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -5340,9 +5569,19 @@ methods:
     uid: gramstax!Ctx#textCommandPayload:member(1)
     package: gramstax!
     fullName: textCommandPayload()
-    summary: Route handler for command messages with payloads.
-    remarks: Triggered by commands with payloads (e.g., "/start 123").
-    example: []
+    summary: Route handler for command messages with payloads match intent `intentTextCommand`<!-- -->.
+    remarks: Triggered by text with commands slash with payloads.
+    example:
+      - |-
+        msgText = "/start 123 aaa"
+
+        ```typescript
+        async textCommandPayload() {
+           this.msgText // => "/start 123 aaa"
+           this.msgTextPayload // => "123"
+           this.msgTextPayload // => ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -5358,7 +5597,15 @@ methods:
     fullName: textFree()
     summary: Route handler for free-form text input.
     remarks: Triggered by any text not matching other routes, typically used with sessions.
-    example: []
+    example:
+      - |-
+        msgText = "hello gramstax"
+
+        ```typescript
+        async text() {
+           this.msgText // => "hello gramstax"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -5372,9 +5619,19 @@ methods:
     uid: gramstax!Ctx#textPayload:member(1)
     package: gramstax!
     fullName: textPayload()
-    summary: Route handler for text messages with payloads.
-    remarks: Triggered by text with space-separated payloads (e.g., "start 123").
-    example: []
+    summary: Route handler for text messages with payloads match intent `intentText`<!-- -->.
+    remarks: Triggered by text with space-separated payloads.
+    example:
+      - |-
+        msgText = "start 123 aaa"
+
+        ```typescript
+        async textPayload() {
+           this.msgText // => "start"
+           this.msgTextPayload // => "123"
+           this.msgTextPayloads // => ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6250,9 +6507,18 @@ methods:
     uid: gramstax!Ctx#videoCaption:member(1)
     package: gramstax!
     fullName: videoCaption()
-    summary: ''
-    remarks: Triggered by video with caption matching `intentText`<!-- -->.
-    example: []
+    summary: Route function for videoCaption match intent `this.data.name`
+    remarks: Triggered by video with caption.
+    example:
+      - |-
+        this.data.name = "start"
+
+        ```typescript
+        async videoCaption() {
+          this.msgVideo // => {...}
+          this.msgCaption // => "start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6266,9 +6532,18 @@ methods:
     uid: gramstax!Ctx#videoCaptionCommand:member(1)
     package: gramstax!
     fullName: videoCaptionCommand()
-    summary: ''
+    summary: Route function for videoCaption with slash command match intent `this.data.name`
     remarks: Triggered by video with caption command.
-    example: []
+    example:
+      - |-
+        this.data.name = "/start"
+
+        ```typescript
+        async videoCaptionCommand() {
+          this.msgVideo // => {...}
+          this.msgCaption // => "/start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6282,9 +6557,13 @@ methods:
     uid: gramstax!Ctx#videoCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: videoCaptionCommandPayload()
-    summary: ''
+    summary: Route function for videoCaptionCommandPayload with slash command and payload match intent `this.data.name`
     remarks: Triggered by video with caption command and payloads.
-    example: []
+    example:
+      - >-
+        this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async videoCaptionCommandPayload() { this.msgVideo //
+        =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa" this.msgCaptionPayload //
+        =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6298,9 +6577,20 @@ methods:
     uid: gramstax!Ctx#videoCaptionPayload:member(1)
     package: gramstax!
     fullName: videoCaptionPayload()
-    summary: ''
-    remarks: Triggered by video with caption and payloads.
-    example: []
+    summary: Route function for videoCaption with payload match intent `this.data.name`
+    remarks: Triggered by video with caption and with payload.
+    example:
+      - |-
+        this.data.name = "start 123 aaa"
+
+        ```typescript
+        async videoCaptionPayload() {
+          this.msgVideo // => {...}
+          this.msgCaption // => "start"
+          this.msgCaptionPayload // => "123"
+          this.msgCaptionPayloads // => ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6314,9 +6604,17 @@ methods:
     uid: gramstax!Ctx#videoFree:member(1)
     package: gramstax!
     fullName: videoFree()
-    summary: ''
-    remarks: Triggered by any video.
-    example: []
+    summary: Route handler for free-form video input.
+    remarks: Triggered by any video not matching other routes, typically used with sessions.
+    example:
+      - |-
+        msgVideo = &lt;<!-- -->...video...<!-- -->&gt;
+
+        ```typescript
+        async videoFree() {
+           this.msgVideo // => {...}
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6330,9 +6628,17 @@ methods:
     uid: gramstax!Ctx#videoNoteFree:member(1)
     package: gramstax!
     fullName: videoNoteFree()
-    summary: ''
-    remarks: Triggered by any video note (circular video).
-    example: []
+    summary: Route handler for free-form video note input.
+    remarks: Triggered by any video note not matching other routes, typically used with sessions.
+    example:
+      - |-
+        msgVideoNote = &lt;<!-- -->...video note...<!-- -->&gt;
+
+        ```typescript
+        async videoNoteFree() {
+           this.msgVideoNote // => {...}
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6346,9 +6652,18 @@ methods:
     uid: gramstax!Ctx#voiceCaption:member(1)
     package: gramstax!
     fullName: voiceCaption()
-    summary: ''
-    remarks: Triggered by voice with caption matching `intentText`<!-- -->.
-    example: []
+    summary: Route function for voiceCaption match intent `this.data.name`
+    remarks: Triggered by voice with caption.
+    example:
+      - |-
+        this.data.name = "start"
+
+        ```typescript
+        async voiceCaption() {
+          this.msgVoice // => {...}
+          this.msgCaption // => "start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6362,9 +6677,18 @@ methods:
     uid: gramstax!Ctx#voiceCaptionCommand:member(1)
     package: gramstax!
     fullName: voiceCaptionCommand()
-    summary: ''
+    summary: Route function for voiceCaption with slash command match intent `this.data.name`
     remarks: Triggered by voice with caption command.
-    example: []
+    example:
+      - |-
+        this.data.name = "/start"
+
+        ```typescript
+        async voiceCaptionCommand() {
+          this.msgVoice // => {...}
+          this.msgCaption // => "/start"
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6378,9 +6702,13 @@ methods:
     uid: gramstax!Ctx#voiceCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: voiceCaptionCommandPayload()
-    summary: ''
+    summary: Route function for voiceCaptionCommandPayload with slash command and payload match intent `this.data.name`
     remarks: Triggered by voice with caption command and payloads.
-    example: []
+    example:
+      - >-
+        this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async voiceCaptionCommandPayload() { this.msgVoice //
+        =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa" this.msgCaptionPayload //
+        =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6394,9 +6722,20 @@ methods:
     uid: gramstax!Ctx#voiceCaptionPayload:member(1)
     package: gramstax!
     fullName: voiceCaptionPayload()
-    summary: ''
-    remarks: Triggered by voice with caption and payloads.
-    example: []
+    summary: Route function for voiceCaption with payload match intent `this.data.name`
+    remarks: Triggered by voice with caption and with payload.
+    example:
+      - |-
+        this.data.name = "start 123 aaa"
+
+        ```typescript
+        async voiceCaptionPayload() {
+          this.msgVoice // => {...}
+          this.msgCaption // => "start"
+          this.msgCaptionPayload // => "123"
+          this.msgCaptionPayloads // => ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6410,9 +6749,17 @@ methods:
     uid: gramstax!Ctx#voiceFree:member(1)
     package: gramstax!
     fullName: voiceFree()
-    summary: ''
-    remarks: Triggered by any voice.
-    example: []
+    summary: Route handler for free-form voice input.
+    remarks: Triggered by any voice not matching other routes, typically used with sessions.
+    example:
+      - |-
+        msgVoice = &lt;<!-- -->...voice...<!-- -->&gt;
+
+        ```typescript
+        async voiceFree() {
+           this.msgVoice // => {...}
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:

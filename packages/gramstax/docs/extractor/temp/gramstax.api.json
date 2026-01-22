@@ -477,7 +477,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#animationCaption:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by animation with caption matching `intentText`.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for animationCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption.\n *\n * @example\n *\n * this.data.name = \"start\"\n * ```typescript\n * async animationCaption() {\n *   this.msgAnimation // => {...}\n *   this.msgCaption // => \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -513,7 +513,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#animationCaptionCommand:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by animation with caption command.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for animationCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\"\n * ```typescript\n * async animationCaptionCommand() {\n *   this.msgAnimation // => {...}\n *   this.msgCaption // => \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -549,7 +549,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#animationCaptionCommandPayload:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by animation with caption command and payloads.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for animationCaptionCommandPayload with slash command and payload match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption command and payloads.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" ```typescript async animationCaptionCommandPayload() { this.msgAnimation // => {...} this.msgCaption // => \"/start 123 aaa\" this.msgCaptionPayload // => \"123\" this.msgCaptionPayloads // => [\"123\", \"aaa\"] }\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -585,7 +585,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#animationCaptionPayload:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by animation with caption and payloads.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for animationCaption with payload match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption and with payload.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async animationCaptionPayload() {\n *   this.msgAnimation // => {...}\n *   this.msgCaption // => \"start\"\n *   this.msgCaptionPayload // => \"123\"\n *   this.msgCaptionPayloads // => [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -621,7 +621,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#animationFree:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by any animation.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form animation input.\n *\n * @remarks\n *\n * Triggered by any animation not matching other routes, typically used with sessions.\n *\n * @example\n *\n * msgAnimation = <...animation...>\n * ```typescript\n * async animationFree() {\n *    this.msgAnimation // => {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -657,7 +657,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#audioCaption:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by audio with caption matching `intentText`.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for audioCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption.\n *\n * @example\n *\n * this.data.name = \"start\"\n * ```typescript\n * async audioCaption() {\n *   this.msgAudio // => {...}\n *   this.msgCaption // => \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -693,7 +693,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#audioCaptionCommand:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by audio with caption command.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for audioCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\"\n * ```typescript\n * async audioCaptionCommand() {\n *   this.msgAudio // => {...}\n *   this.msgCaption // => \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -729,7 +729,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#audioCaptionCommandPayload:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by audio with caption command and payloads.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for audioCaptionCommandPayload with slash command and payload match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption command and payloads.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" ```typescript async audioCaptionCommandPayload() { this.msgAudio // => {...} this.msgCaption // => \"/start 123 aaa\" this.msgCaptionPayload // => \"123\" this.msgCaptionPayloads // => [\"123\", \"aaa\"] }\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -765,7 +765,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#audioCaptionPayload:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by audio with caption and payloads.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for audioCaption with payload match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption and with payload.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async audioCaptionPayload() {\n *   this.msgAudio // => {...}\n *   this.msgCaption // => \"start\"\n *   this.msgCaptionPayload // => \"123\"\n *   this.msgCaptionPayloads // => [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -801,7 +801,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#audioFree:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by any audio.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form audio input.\n *\n * @remarks\n *\n * Triggered by any audio not matching other routes, typically used with sessions.\n *\n * @example\n *\n * msgAudio = <...audio...>\n * ```typescript\n * async audioFree() {\n *    this.msgAudio // => {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1419,7 +1419,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#callback:member(1)",
-              "docComment": "/**\n * Route handler for callback queries without payloads.\n *\n * @remarks\n *\n * Triggered by callback data matching `intentCallback` exactly (e.g., \"start\").\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for callback queries without payloads matching `intentCallback`.\n *\n * @remarks\n *\n * Triggered by callback data matching.\n *\n * @example\n *\n * callbackData = \"start\".\n * ```typescript\n * async callback() {\n *    this.callbackData // => \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1545,7 +1545,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#callbackPayload:member(1)",
-              "docComment": "/**\n * Route handler for callback queries with payloads.\n *\n * @remarks\n *\n * Triggered by callback data with payloads (e.g., \"start:123\").\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for callback queries with payloads matching `intentCallback`.\n *\n * @remarks\n *\n * Triggered by callback data with payloads.\n *\n * @example\n *\n * callbackData = \"start:123\"\n * ```typescript\n * async callbackPayload() {\n *    this.callbackData // => \"start:123\"\n *    this.callbackDataPayload // => \"123\"\n *    this.callbackDataPayloads // => [\"123\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1648,7 +1648,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#contactFree:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by any contact message.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form contact input.\n *\n * @remarks\n *\n * Triggered by any contact not matching other routes, typically used with sessions.\n *\n * @example\n *\n * msgContact = <...contact...>\n * ```typescript\n * async contactFree() {\n *    this.msgContact // => {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1790,7 +1790,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#documentCaption:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by document with caption matching `intentText`.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for documentCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption.\n *\n * @example\n *\n * this.data.name = \"start\"\n * ```typescript\n * async documentCaption() {\n *   this.msgDocument // => {...}\n *   this.msgCaption // => \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1826,7 +1826,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#documentCaptionCommand:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by document with caption command.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for documentCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\"\n * ```typescript\n * async documentCaptionCommand() {\n *   this.msgDocument // => {...}\n *   this.msgCaption // => \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1862,7 +1862,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#documentCaptionCommandPayload:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by document with caption command and payloads.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for documentCaptionCommandPayload with slash command and payload match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption command and payloads.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" ```typescript async documentCaptionCommandPayload() { this.msgDocument // => {...} this.msgCaption // => \"/start 123 aaa\" this.msgCaptionPayload // => \"123\" this.msgCaptionPayloads // => [\"123\", \"aaa\"] }\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1898,7 +1898,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#documentCaptionPayload:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by document with caption and payloads.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for documentCaption with payload match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption and with payload.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async documentCaptionPayload() {\n *   this.msgDocument // => {...}\n *   this.msgCaption // => \"start\"\n *   this.msgCaptionPayload // => \"123\"\n *   this.msgCaptionPayloads // => [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1934,7 +1934,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#documentFree:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by any document.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form document input.\n *\n * @remarks\n *\n * Triggered by any document not matching other routes, typically used with sessions.\n *\n * @example\n *\n * msgDocument = <...document...>\n * ```typescript\n * async documentFree() {\n *    this.msgDocument // => {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4568,7 +4568,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#free:member(1)",
-              "docComment": "/**\n * Fallback route handler for any unmatched update.\n *\n * @remarks\n *\n * Triggered when no other route handler type static*** matches the update.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Fallback route handler for any unmatched update.\n *\n * @remarks\n *\n * Triggered when no other route handler matches the current update. Use this for global fallback logic, logging, or safety responses.\n *\n * @example\n * ```typescript\n * async free() {\n *   // handle unexpected updates\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4918,7 +4918,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#locationFree:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by any location message.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form location input.\n *\n * @remarks\n *\n * Triggered by any location not matching other routes, typically used with sessions.\n *\n * @example\n *\n * msgLocation = <...location...>\n * ```typescript\n * async locationFree() {\n *    this.msgLocation // => {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7642,7 +7642,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#photoCaption:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by photo with caption matching `intentText`.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for photoCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption.\n *\n * @example\n *\n * this.data.name = \"start\"\n * ```typescript\n * async photoCaption() {\n *   this.msgPhoto // => {...}\n *   this.msgCaption // => \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7678,7 +7678,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#photoCaptionCommand:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by photo with caption command.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for photoCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\"\n * ```typescript\n * async photoCaptionCommand() {\n *   this.msgPhoto // => {...}\n *   this.msgCaption // => \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7714,7 +7714,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#photoCaptionCommandPayload:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by photo with caption command and payloads.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for photoCaptionCommandPayload with slash command and payload match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption command and payloads.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" ```typescript async photoCaptionCommandPayload() { this.msgPhoto // => {...} this.msgCaption // => \"/start 123 aaa\" this.msgCaptionPayload // => \"123\" this.msgCaptionPayloads // => [\"123\", \"aaa\"] }\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7750,7 +7750,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#photoCaptionPayload:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by photo with caption and payloads.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for photoCaption with payload match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption and with payload.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async photoCaptionPayload() {\n *   this.msgPhoto // => {...}\n *   this.msgCaption // => \"start\"\n *   this.msgCaptionPayload // => \"123\"\n *   this.msgCaptionPayloads // => [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7786,7 +7786,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#photoFree:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by any photo.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form photo input.\n *\n * @remarks\n *\n * Triggered by any photo not matching other routes, typically used with sessions.\n *\n * @example\n *\n * msgPhoto = <...photo...>\n * ```typescript\n * async photoFree() {\n *    this.msgPhoto // => {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15950,7 +15950,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#stickerFree:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by any sticker message.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form sticker input.\n *\n * @remarks\n *\n * Triggered by any sticker not matching other routes, typically used with sessions.\n *\n * @example\n *\n * msgSticker = <...sticker...>\n * ```typescript\n * async stickerFree() {\n *    this.msgSticker // => {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16016,7 +16016,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#text:member(1)",
-              "docComment": "/**\n * Route handler for text messages matching `intentText`.\n *\n * @remarks\n *\n * Triggered by exact text match (e.g., \"start\").\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for text messages matching `intentText`.\n *\n * @remarks\n *\n * Triggered by exact text match.\n *\n * @example\n * ```typescript\n * // msgText = \"start\"\n * async text() {\n *    this.msgText // => \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16052,7 +16052,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#textCommand:member(1)",
-              "docComment": "/**\n * Route handler for command messages.\n *\n * @remarks\n *\n * Triggered by slash commands (e.g., \"/start\").\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for command messages match intent `intentTextCommand`.\n *\n * @remarks\n *\n * Triggered by text with slash commands.\n *\n * @example\n *\n * msgText = \"/start\"\n * ```typescript\n * async textCommand() {\n *    this.msgText // => \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16088,7 +16088,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#textCommandPayload:member(1)",
-              "docComment": "/**\n * Route handler for command messages with payloads.\n *\n * @remarks\n *\n * Triggered by commands with payloads (e.g., \"/start 123\").\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for command messages with payloads match intent `intentTextCommand`.\n *\n * @remarks\n *\n * Triggered by text with commands slash with payloads.\n *\n * @example\n *\n * msgText = \"/start 123 aaa\"\n * ```typescript\n * async textCommandPayload() {\n *    this.msgText // => \"/start 123 aaa\"\n *    this.msgTextPayload // => \"123\"\n *    this.msgTextPayload // => [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16124,7 +16124,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#textFree:member(1)",
-              "docComment": "/**\n * Route handler for free-form text input.\n *\n * @remarks\n *\n * Triggered by any text not matching other routes, typically used with sessions.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form text input.\n *\n * @remarks\n *\n * Triggered by any text not matching other routes, typically used with sessions.\n *\n * @example\n *\n * msgText = \"hello gramstax\"\n * ```typescript\n * async text() {\n *    this.msgText // => \"hello gramstax\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16160,7 +16160,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#textPayload:member(1)",
-              "docComment": "/**\n * Route handler for text messages with payloads.\n *\n * @remarks\n *\n * Triggered by text with space-separated payloads (e.g., \"start 123\").\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for text messages with payloads match intent `intentText`.\n *\n * @remarks\n *\n * Triggered by text with space-separated payloads.\n *\n * @example\n *\n * msgText = \"start 123 aaa\"\n * ```typescript\n * async textPayload() {\n *    this.msgText // => \"start\"\n *    this.msgTextPayload // => \"123\"\n *    this.msgTextPayloads // => [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19049,7 +19049,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#videoCaption:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by video with caption matching `intentText`.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for videoCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption.\n *\n * @example\n *\n * this.data.name = \"start\"\n * ```typescript\n * async videoCaption() {\n *   this.msgVideo // => {...}\n *   this.msgCaption // => \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19085,7 +19085,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#videoCaptionCommand:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by video with caption command.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for videoCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\"\n * ```typescript\n * async videoCaptionCommand() {\n *   this.msgVideo // => {...}\n *   this.msgCaption // => \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19121,7 +19121,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#videoCaptionCommandPayload:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by video with caption command and payloads.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for videoCaptionCommandPayload with slash command and payload match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption command and payloads.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" ```typescript async videoCaptionCommandPayload() { this.msgVideo // => {...} this.msgCaption // => \"/start 123 aaa\" this.msgCaptionPayload // => \"123\" this.msgCaptionPayloads // => [\"123\", \"aaa\"] }\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19157,7 +19157,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#videoCaptionPayload:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by video with caption and payloads.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for videoCaption with payload match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption and with payload.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async videoCaptionPayload() {\n *   this.msgVideo // => {...}\n *   this.msgCaption // => \"start\"\n *   this.msgCaptionPayload // => \"123\"\n *   this.msgCaptionPayloads // => [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19193,7 +19193,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#videoFree:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by any video.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form video input.\n *\n * @remarks\n *\n * Triggered by any video not matching other routes, typically used with sessions.\n *\n * @example\n *\n * msgVideo = <...video...>\n * ```typescript\n * async videoFree() {\n *    this.msgVideo // => {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19229,7 +19229,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#videoNoteFree:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by any video note (circular video).\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form video note input.\n *\n * @remarks\n *\n * Triggered by any video note not matching other routes, typically used with sessions.\n *\n * @example\n *\n * msgVideoNote = <...video note...>\n * ```typescript\n * async videoNoteFree() {\n *    this.msgVideoNote // => {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19265,7 +19265,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#voiceCaption:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by voice with caption matching `intentText`.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for voiceCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption.\n *\n * @example\n *\n * this.data.name = \"start\"\n * ```typescript\n * async voiceCaption() {\n *   this.msgVoice // => {...}\n *   this.msgCaption // => \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19301,7 +19301,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#voiceCaptionCommand:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by voice with caption command.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for voiceCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\"\n * ```typescript\n * async voiceCaptionCommand() {\n *   this.msgVoice // => {...}\n *   this.msgCaption // => \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19337,7 +19337,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#voiceCaptionCommandPayload:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by voice with caption command and payloads.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for voiceCaptionCommandPayload with slash command and payload match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption command and payloads.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" ```typescript async voiceCaptionCommandPayload() { this.msgVoice // => {...} this.msgCaption // => \"/start 123 aaa\" this.msgCaptionPayload // => \"123\" this.msgCaptionPayloads // => [\"123\", \"aaa\"] }\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19373,7 +19373,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#voiceCaptionPayload:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by voice with caption and payloads.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for voiceCaption with payload match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption and with payload.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async voiceCaptionPayload() {\n *   this.msgVoice // => {...}\n *   this.msgCaption // => \"start\"\n *   this.msgCaptionPayload // => \"123\"\n *   this.msgCaptionPayloads // => [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19409,7 +19409,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#voiceFree:member(1)",
-              "docComment": "/**\n * @remarks\n *\n * Triggered by any voice.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route handler for free-form voice input.\n *\n * @remarks\n *\n * Triggered by any voice not matching other routes, typically used with sessions.\n *\n * @example\n *\n * msgVoice = <...voice...>\n * ```typescript\n * async voiceFree() {\n *    this.msgVoice // => {...}\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

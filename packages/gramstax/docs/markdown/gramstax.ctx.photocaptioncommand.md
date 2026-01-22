@@ -4,6 +4,8 @@
 
 ## Ctx.photoCaptionCommand() method
 
+Route function for photoCaption with slash command match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -17,4 +19,15 @@ Promise&lt;any&gt;
 ## Remarks
 
 Triggered by photo with caption command.
+
+## Example
+
+this.data.name = "/start"
+
+```typescript
+async photoCaptionCommand() {
+  this.msgPhoto // => {...}
+  this.msgCaption // => "/start"
+}
+```
 

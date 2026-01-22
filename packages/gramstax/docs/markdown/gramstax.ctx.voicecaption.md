@@ -4,6 +4,8 @@
 
 ## Ctx.voiceCaption() method
 
+Route function for voiceCaption match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,16 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by voice with caption matching `intentText`<!-- -->.
+Triggered by voice with caption.
+
+## Example
+
+this.data.name = "start"
+
+```typescript
+async voiceCaption() {
+  this.msgVoice // => {...}
+  this.msgCaption // => "start"
+}
+```
 

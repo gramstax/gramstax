@@ -4,6 +4,8 @@
 
 ## Ctx.audioCaption() method
 
+Route function for audioCaption match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,16 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by audio with caption matching `intentText`<!-- -->.
+Triggered by audio with caption.
+
+## Example
+
+this.data.name = "start"
+
+```typescript
+async audioCaption() {
+  this.msgAudio // => {...}
+  this.msgCaption // => "start"
+}
+```
 

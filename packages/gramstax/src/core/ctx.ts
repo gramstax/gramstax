@@ -2192,8 +2192,9 @@ export class Ctx {
    *
    * @remarks Triggered by exact text match.
    *
-   * @example msgText = "start"
+   * @example
    * ```typescript
+   * // msgText = "start"
    * async text() {
    *    this.msgText // => "start"
    * }

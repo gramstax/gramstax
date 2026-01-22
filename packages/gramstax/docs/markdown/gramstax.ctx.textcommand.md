@@ -4,7 +4,7 @@
 
 ## Ctx.textCommand() method
 
-Route handler for command messages.
+Route handler for command messages match intent `intentTextCommand`<!-- -->.
 
 **Signature:**
 
@@ -18,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by slash commands (e.g., "/start").
+Triggered by text with slash commands.
+
+## Example
+
+msgText = "/start"
+
+```typescript
+async textCommand() {
+   this.msgText // => "/start"
+}
+```
 

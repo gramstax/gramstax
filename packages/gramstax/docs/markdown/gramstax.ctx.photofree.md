@@ -4,6 +4,8 @@
 
 ## Ctx.photoFree() method
 
+Route handler for free-form photo input.
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by any photo.
+Triggered by any photo not matching other routes, typically used with sessions.
+
+## Example
+
+msgPhoto = &lt;<!-- -->...photo...<!-- -->&gt;
+
+```typescript
+async photoFree() {
+   this.msgPhoto // => {...}
+}
+```
 

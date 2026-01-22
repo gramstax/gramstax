@@ -4,6 +4,8 @@
 
 ## Ctx.documentCaptionCommand() method
 
+Route function for documentCaption with slash command match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -17,4 +19,15 @@ Promise&lt;any&gt;
 ## Remarks
 
 Triggered by document with caption command.
+
+## Example
+
+this.data.name = "/start"
+
+```typescript
+async documentCaptionCommand() {
+  this.msgDocument // => {...}
+  this.msgCaption // => "/start"
+}
+```
 

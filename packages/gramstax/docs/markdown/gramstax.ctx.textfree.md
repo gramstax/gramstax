@@ -20,3 +20,13 @@ Promise&lt;any&gt;
 
 Triggered by any text not matching other routes, typically used with sessions.
 
+## Example
+
+msgText = "hello gramstax"
+
+```typescript
+async text() {
+   this.msgText // => "hello gramstax"
+}
+```
+

@@ -4,6 +4,8 @@
 
 ## Ctx.voiceFree() method
 
+Route handler for free-form voice input.
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by any voice.
+Triggered by any voice not matching other routes, typically used with sessions.
+
+## Example
+
+msgVoice = &lt;<!-- -->...voice...<!-- -->&gt;
+
+```typescript
+async voiceFree() {
+   this.msgVoice // => {...}
+}
+```
 

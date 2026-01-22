@@ -4,7 +4,7 @@
 
 ## Ctx.textPayload() method
 
-Route handler for text messages with payloads.
+Route handler for text messages with payloads match intent `intentText`<!-- -->.
 
 **Signature:**
 
@@ -18,5 +18,17 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by text with space-separated payloads (e.g., "start 123").
+Triggered by text with space-separated payloads.
+
+## Example
+
+msgText = "start 123 aaa"
+
+```typescript
+async textPayload() {
+   this.msgText // => "start"
+   this.msgTextPayload // => "123"
+   this.msgTextPayloads // => ["123", "aaa"]
+}
+```
 

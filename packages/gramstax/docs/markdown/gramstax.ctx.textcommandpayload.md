@@ -4,7 +4,7 @@
 
 ## Ctx.textCommandPayload() method
 
-Route handler for command messages with payloads.
+Route handler for command messages with payloads match intent `intentTextCommand`<!-- -->.
 
 **Signature:**
 
@@ -18,5 +18,17 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by commands with payloads (e.g., "/start 123").
+Triggered by text with commands slash with payloads.
+
+## Example
+
+msgText = "/start 123 aaa"
+
+```typescript
+async textCommandPayload() {
+   this.msgText // => "/start 123 aaa"
+   this.msgTextPayload // => "123"
+   this.msgTextPayload // => ["123", "aaa"]
+}
+```
 

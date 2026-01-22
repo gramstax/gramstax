@@ -4,6 +4,8 @@
 
 ## Ctx.locationFree() method
 
+Route handler for free-form location input.
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by any location message.
+Triggered by any location not matching other routes, typically used with sessions.
+
+## Example
+
+msgLocation = &lt;<!-- -->...location...<!-- -->&gt;
+
+```typescript
+async locationFree() {
+   this.msgLocation // => {...}
+}
+```
 

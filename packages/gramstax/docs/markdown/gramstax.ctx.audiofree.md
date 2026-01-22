@@ -4,6 +4,8 @@
 
 ## Ctx.audioFree() method
 
+Route handler for free-form audio input.
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by any audio.
+Triggered by any audio not matching other routes, typically used with sessions.
+
+## Example
+
+msgAudio = &lt;<!-- -->...audio...<!-- -->&gt;
+
+```typescript
+async audioFree() {
+   this.msgAudio // => {...}
+}
+```
 

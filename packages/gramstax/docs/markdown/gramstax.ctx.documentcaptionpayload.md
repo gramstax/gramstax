@@ -4,6 +4,8 @@
 
 ## Ctx.documentCaptionPayload() method
 
+Route function for documentCaption with payload match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,18 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by document with caption and payloads.
+Triggered by document with caption and with payload.
+
+## Example
+
+this.data.name = "start 123 aaa"
+
+```typescript
+async documentCaptionPayload() {
+  this.msgDocument // => {...}
+  this.msgCaption // => "start"
+  this.msgCaptionPayload // => "123"
+  this.msgCaptionPayloads // => ["123", "aaa"]
+}
+```
 

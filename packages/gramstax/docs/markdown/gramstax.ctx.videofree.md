@@ -4,6 +4,8 @@
 
 ## Ctx.videoFree() method
 
+Route handler for free-form video input.
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by any video.
+Triggered by any video not matching other routes, typically used with sessions.
+
+## Example
+
+msgVideo = &lt;<!-- -->...video...<!-- -->&gt;
+
+```typescript
+async videoFree() {
+   this.msgVideo // => {...}
+}
+```
 

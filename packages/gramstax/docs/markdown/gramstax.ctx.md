@@ -866,7 +866,7 @@ Description
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for animationCaption match intent `this.data.name`
 
 
 </td></tr>
@@ -880,7 +880,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for animationCaption with slash command match intent `this.data.name`
 
 
 </td></tr>
@@ -894,7 +894,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for animationCaptionCommandPayload with slash command and payload match intent `this.data.name`
 
 
 </td></tr>
@@ -908,7 +908,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for animationCaption with payload match intent `this.data.name`
 
 
 </td></tr>
@@ -922,7 +922,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route handler for free-form animation input.
 
 
 </td></tr>
@@ -936,7 +936,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for audioCaption match intent `this.data.name`
 
 
 </td></tr>
@@ -950,7 +950,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for audioCaption with slash command match intent `this.data.name`
 
 
 </td></tr>
@@ -964,7 +964,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for audioCaptionCommandPayload with slash command and payload match intent `this.data.name`
 
 
 </td></tr>
@@ -978,7 +978,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for audioCaption with payload match intent `this.data.name`
 
 
 </td></tr>
@@ -992,7 +992,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route handler for free-form audio input.
 
 
 </td></tr>
@@ -1112,7 +1112,7 @@ Creates default page routing data configuration.
 
 </td><td>
 
-_(Optional)_ Route handler for callback queries without payloads.
+_(Optional)_ Route handler for callback queries without payloads matching `intentCallback`<!-- -->.
 
 
 </td></tr>
@@ -1126,7 +1126,7 @@ _(Optional)_ Route handler for callback queries without payloads.
 
 </td><td>
 
-_(Optional)_ Route handler for callback queries with payloads.
+_(Optional)_ Route handler for callback queries with payloads matching `intentCallback`<!-- -->.
 
 
 </td></tr>
@@ -1154,7 +1154,7 @@ Answers a callback query with an optional notification.
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route handler for free-form contact input.
 
 
 </td></tr>
@@ -1182,7 +1182,7 @@ Deletes the current message.
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for documentCaption match intent `this.data.name`
 
 
 </td></tr>
@@ -1196,7 +1196,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for documentCaption with slash command match intent `this.data.name`
 
 
 </td></tr>
@@ -1210,7 +1210,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for documentCaptionCommandPayload with slash command and payload match intent `this.data.name`
 
 
 </td></tr>
@@ -1224,7 +1224,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for documentCaption with payload match intent `this.data.name`
 
 
 </td></tr>
@@ -1238,7 +1238,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route handler for free-form document input.
 
 
 </td></tr>
@@ -1476,7 +1476,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route handler for free-form location input.
 
 
 </td></tr>
@@ -1982,7 +1982,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for photoCaption match intent `this.data.name`
 
 
 </td></tr>
@@ -1996,7 +1996,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for photoCaption with slash command match intent `this.data.name`
 
 
 </td></tr>
@@ -2010,7 +2010,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for photoCaptionCommandPayload with slash command and payload match intent `this.data.name`
 
 
 </td></tr>
@@ -2024,7 +2024,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for photoCaption with payload match intent `this.data.name`
 
 
 </td></tr>
@@ -2038,7 +2038,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route handler for free-form photo input.
 
 
 </td></tr>
@@ -3250,7 +3250,7 @@ Sets session data for the current user.
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route handler for free-form sticker input.
 
 
 </td></tr>
@@ -3278,7 +3278,7 @@ _(Optional)_ Route handler for text messages matching `intentText`<!-- -->.
 
 </td><td>
 
-_(Optional)_ Route handler for command messages.
+_(Optional)_ Route handler for command messages match intent `intentTextCommand`<!-- -->.
 
 
 </td></tr>
@@ -3292,7 +3292,7 @@ _(Optional)_ Route handler for command messages.
 
 </td><td>
 
-_(Optional)_ Route handler for command messages with payloads.
+_(Optional)_ Route handler for command messages with payloads match intent `intentTextCommand`<!-- -->.
 
 
 </td></tr>
@@ -3320,7 +3320,7 @@ _(Optional)_ Route handler for free-form text input.
 
 </td><td>
 
-_(Optional)_ Route handler for text messages with payloads.
+_(Optional)_ Route handler for text messages with payloads match intent `intentText`<!-- -->.
 
 
 </td></tr>
@@ -3828,7 +3828,7 @@ _(Optional)_ Transition method for navigating between pages.
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for videoCaption match intent `this.data.name`
 
 
 </td></tr>
@@ -3842,7 +3842,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for videoCaption with slash command match intent `this.data.name`
 
 
 </td></tr>
@@ -3856,7 +3856,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for videoCaptionCommandPayload with slash command and payload match intent `this.data.name`
 
 
 </td></tr>
@@ -3870,7 +3870,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for videoCaption with payload match intent `this.data.name`
 
 
 </td></tr>
@@ -3884,7 +3884,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route handler for free-form video input.
 
 
 </td></tr>
@@ -3898,7 +3898,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route handler for free-form video note input.
 
 
 </td></tr>
@@ -3912,7 +3912,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for voiceCaption match intent `this.data.name`
 
 
 </td></tr>
@@ -3926,7 +3926,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for voiceCaption with slash command match intent `this.data.name`
 
 
 </td></tr>
@@ -3940,7 +3940,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for voiceCaptionCommandPayload with slash command and payload match intent `this.data.name`
 
 
 </td></tr>
@@ -3954,7 +3954,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route function for voiceCaption with payload match intent `this.data.name`
 
 
 </td></tr>
@@ -3968,7 +3968,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Route handler for free-form voice input.
 
 
 </td></tr>

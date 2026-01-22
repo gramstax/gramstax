@@ -4,6 +4,8 @@
 
 ## Ctx.animationCaptionCommand() method
 
+Route function for animationCaption with slash command match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -17,4 +19,15 @@ Promise&lt;any&gt;
 ## Remarks
 
 Triggered by animation with caption command.
+
+## Example
+
+this.data.name = "/start"
+
+```typescript
+async animationCaptionCommand() {
+  this.msgAnimation // => {...}
+  this.msgCaption // => "/start"
+}
+```
 

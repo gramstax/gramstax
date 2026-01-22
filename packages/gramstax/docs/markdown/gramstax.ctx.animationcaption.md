@@ -4,6 +4,8 @@
 
 ## Ctx.animationCaption() method
 
+Route function for animationCaption match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,16 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by animation with caption matching `intentText`<!-- -->.
+Triggered by animation with caption.
+
+## Example
+
+this.data.name = "start"
+
+```typescript
+async animationCaption() {
+  this.msgAnimation // => {...}
+  this.msgCaption // => "start"
+}
+```
 

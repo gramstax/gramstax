@@ -4,6 +4,8 @@
 
 ## Ctx.videoCaptionCommand() method
 
+Route function for videoCaption with slash command match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -17,4 +19,15 @@ Promise&lt;any&gt;
 ## Remarks
 
 Triggered by video with caption command.
+
+## Example
+
+this.data.name = "/start"
+
+```typescript
+async videoCaptionCommand() {
+  this.msgVideo // => {...}
+  this.msgCaption // => "/start"
+}
+```
 

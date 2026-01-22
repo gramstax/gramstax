@@ -4,6 +4,8 @@
 
 ## Ctx.videoNoteFree() method
 
+Route handler for free-form video note input.
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by any video note (circular video).
+Triggered by any video note not matching other routes, typically used with sessions.
+
+## Example
+
+msgVideoNote = &lt;<!-- -->...video note...<!-- -->&gt;
+
+```typescript
+async videoNoteFree() {
+   this.msgVideoNote // => {...}
+}
+```
 

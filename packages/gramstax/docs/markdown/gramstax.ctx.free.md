@@ -18,5 +18,14 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered when no other route handler type static\*\*\* matches the update.
+Triggered when no other route handler matches the current update. Use this for global fallback logic, logging, or safety responses.
+
+## Example
+
+
+```typescript
+async free() {
+  // handle unexpected updates
+}
+```
 

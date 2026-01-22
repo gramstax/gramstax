@@ -4,6 +4,8 @@
 
 ## Ctx.voiceCaptionCommandPayload() method
 
+Route function for voiceCaptionCommandPayload with slash command and payload match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -17,4 +19,8 @@ Promise&lt;any&gt;
 ## Remarks
 
 Triggered by voice with caption command and payloads.
+
+## Example
+
+this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async voiceCaptionCommandPayload() { this.msgVoice // =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa" this.msgCaptionPayload // =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
 

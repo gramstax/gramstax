@@ -18,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by exact text match (e.g., "start").
+Triggered by exact text match.
+
+## Example
+
+
+```typescript
+// msgText = "start"
+async text() {
+   this.msgText // => "start"
+}
+```
 

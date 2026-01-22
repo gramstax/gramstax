@@ -4,6 +4,8 @@
 
 ## Ctx.stickerFree() method
 
+Route handler for free-form sticker input.
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by any sticker message.
+Triggered by any sticker not matching other routes, typically used with sessions.
+
+## Example
+
+msgSticker = &lt;<!-- -->...sticker...<!-- -->&gt;
+
+```typescript
+async stickerFree() {
+   this.msgSticker // => {...}
+}
+```
 

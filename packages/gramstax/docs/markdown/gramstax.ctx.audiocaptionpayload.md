@@ -4,6 +4,8 @@
 
 ## Ctx.audioCaptionPayload() method
 
+Route function for audioCaption with payload match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,18 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by audio with caption and payloads.
+Triggered by audio with caption and with payload.
+
+## Example
+
+this.data.name = "start 123 aaa"
+
+```typescript
+async audioCaptionPayload() {
+  this.msgAudio // => {...}
+  this.msgCaption // => "start"
+  this.msgCaptionPayload // => "123"
+  this.msgCaptionPayloads // => ["123", "aaa"]
+}
+```
 

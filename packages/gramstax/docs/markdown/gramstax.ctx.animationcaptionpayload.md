@@ -4,6 +4,8 @@
 
 ## Ctx.animationCaptionPayload() method
 
+Route function for animationCaption with payload match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,18 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by animation with caption and payloads.
+Triggered by animation with caption and with payload.
+
+## Example
+
+this.data.name = "start 123 aaa"
+
+```typescript
+async animationCaptionPayload() {
+  this.msgAnimation // => {...}
+  this.msgCaption // => "start"
+  this.msgCaptionPayload // => "123"
+  this.msgCaptionPayloads // => ["123", "aaa"]
+}
+```
 

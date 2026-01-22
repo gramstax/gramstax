@@ -4,7 +4,7 @@
 
 ## Ctx.callback() method
 
-Route handler for callback queries without payloads.
+Route handler for callback queries without payloads matching `intentCallback`<!-- -->.
 
 **Signature:**
 
@@ -18,5 +18,15 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by callback data matching `intentCallback` exactly (e.g., "start").
+Triggered by callback data matching.
+
+## Example
+
+callbackData = "start".
+
+```typescript
+async callback() {
+   this.callbackData // => "start"
+}
+```
 

@@ -4,6 +4,8 @@
 
 ## Ctx.photoCaptionPayload() method
 
+Route function for photoCaption with payload match intent `this.data.name`
+
 **Signature:**
 
 ```typescript
@@ -16,5 +18,18 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by photo with caption and payloads.
+Triggered by photo with caption and with payload.
+
+## Example
+
+this.data.name = "start 123 aaa"
+
+```typescript
+async photoCaptionPayload() {
+  this.msgPhoto // => {...}
+  this.msgCaption // => "start"
+  this.msgCaptionPayload // => "123"
+  this.msgCaptionPayloads // => ["123", "aaa"]
+}
+```
 

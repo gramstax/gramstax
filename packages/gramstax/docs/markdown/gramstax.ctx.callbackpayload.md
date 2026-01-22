@@ -4,7 +4,7 @@
 
 ## Ctx.callbackPayload() method
 
-Route handler for callback queries with payloads.
+Route handler for callback queries with payloads matching `intentCallback`<!-- -->.
 
 **Signature:**
 
@@ -18,5 +18,17 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Triggered by callback data with payloads (e.g., "start:123").
+Triggered by callback data with payloads.
+
+## Example
+
+callbackData = "start:123"
+
+```typescript
+async callbackPayload() {
+   this.callbackData // => "start:123"
+   this.callbackDataPayload // => "123"
+   this.callbackDataPayloads // => ["123"]
+}
+```
 
