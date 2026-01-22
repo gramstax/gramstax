@@ -390,7 +390,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @internal
    */
-  pageSorts(Page: typeof Ctx, pages: typeof this.pages, indexPage: number): void {
+  pageSorts(Page: typeof Ctx, pages: typeof Gramstax.prototype.pages, indexPage: number): void {
     const name = Page.data.name
     const proto = Page.prototype
 
@@ -467,7 +467,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
-  async executeSyncBlocksDescription(pages: typeof this.pages) {
+  async executeSyncBlocksDescription(pages: typeof Gramstax.prototype.pages) {
     // 1. Collect all unique (scope, language) pairs
     const targets = new Map<string, Set<string>>() // scope -> Set<language>
     const allCommands = pages.routeStatic.textCommand
@@ -695,7 +695,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @internal
    */
-  async pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof this.pages.routeDynamicSpesific): Promise<any> {
+  async pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: {name: string; routeName: string} | undefined
@@ -984,7 +984,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @internal
    */
-  async onMessage(ct: Context, listenerName: keyof typeof this.pages.routeDynamicSpesific): Promise<void> {
+  async onMessage(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<void> {
     const ctx = this.createCtx(ct)
     try {
       const before = await this.hookBeforeRoute(ctx, listenerName)

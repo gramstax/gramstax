@@ -892,10 +892,16 @@ export class Ctx {
    * @example
    * ```typescript
    * async callback() {
+   *   // Automatic reply with content from this.template
    *   await this.reply()
-   *   // With keyboard and data
+   *
+   *   // With keyboard builder and data
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
    *   await this.reply(kb, {name: "John"})
+   *
+   *   // With keyboard short and custom baseId between reply and keyboard
+   *   const kb = this.inlineKeyboardT([StartPage], `1`, "my-custom-id")
+   *   await this.reply(kb, {name: "John"}, "id-hello-world")
    * }
    * ```
    *
@@ -1592,7 +1598,7 @@ export class Ctx {
    *
    * @public
    */
-  async callbackQueryAnswer(options?: Parameters<typeof this.ct.answerCallbackQuery>[0]) {
+  async callbackQueryAnswer(options?: Parameters<typeof Ctx.prototype.ct.answerCallbackQuery>[0]) {
     try {
       this.temp.isAnswer = true
       return await this.ct.answerCallbackQuery(options)
@@ -1920,6 +1926,13 @@ export class Ctx {
    * async callback() {
    *   const kb = this.inlineKeyboardT([SettingsPage, HelpPage], "2")
    *   await this.reply(kb)
+   *
+   *   // Or with payload
+   *   const kb = this.inlineKeyboardT([SettingsPage.data.callback(1), HelpPage.data.callback(`hi`)], "2")
+   *   await this.reply(kb)
+   *
+   *   // Compare with builder for basic but not recomended because very long syntax, only use builder when needed.!
+   *   this.inlineKeyboard((k, a) => k.text(SettingsPage.data.callback(), a[0]!).text(HelpPage.data.callback(), a[1]!))
    * }
    * ```
    *
