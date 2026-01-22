@@ -2370,85 +2370,556 @@ export class Ctx {
   async photoFree?(): Promise<any>
 
   // video
-  /** @remarks Triggered by video with caption matching `intentText`. @virtual @public */
+  /**
+   * Route function for videoCaption match intent `this.data.name`
+   *
+   * @remarks Triggered by video with caption.
+   *
+   * @example this.data.name = "start"
+   * ```typescript
+   * async videoCaption() {
+   *   this.msgVideo // => {...}
+   *   this.msgCaption // => "start"
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async videoCaption?(): Promise<any>
-  /** @remarks Triggered by video with caption and payloads. @virtual @public */
+
+  /**
+   * Route function for videoCaption with payload match intent `this.data.name`
+   *
+   * @remarks Triggered by video with caption and with payload.
+   *
+   * @example this.data.name = "start 123 aaa"
+   * ```typescript
+   * async videoCaptionPayload() {
+   *   this.msgVideo // => {...}
+   *   this.msgCaption // => "start"
+   *   this.msgCaptionPayload // => "123"
+   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async videoCaptionPayload?(): Promise<any>
-  /** @remarks Triggered by video with caption command. @virtual @public */
+
+  /**
+   * Route function for videoCaption with slash command match intent `this.data.name`
+   *
+   * @remarks Triggered by video with caption command.
+   *
+   * @example this.data.name = "/start"
+   * ```typescript
+   * async videoCaptionCommand() {
+   *   this.msgVideo // => {...}
+   *   this.msgCaption // => "/start"
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   *
+   */
   async videoCaptionCommand?(): Promise<any>
-  /** @remarks Triggered by video with caption command and payloads. @virtual @public */
+
+  /**
+   * Route function for videoCaptionCommandPayload with slash command and payload match intent `this.data.name`
+   *
+   * @remarks Triggered by video with caption command and payloads.
+   *
+   * @example this.data.name = "/start 123 aaa"
+   * ```typescript
+   * async videoCaptionCommandPayload() {
+   *   this.msgVideo // => {...}
+   *   this.msgCaption // => "/start 123 aaa"
+   *   this.msgCaptionPayload // => "123"
+   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   * }
+   *
+   * @virtual
+   * @public */
   async videoCaptionCommandPayload?(): Promise<any>
-  /** @remarks Triggered by any video. @virtual @public */
+
+  /**
+   * Route handler for free-form video input.
+   *
+   * @remarks Triggered by any video not matching other routes, typically used with sessions.
+   *
+   * @example msgVideo = <...video...>
+   * ```typescript
+   * async videoFree() {
+   *    this.msgVideo // => {...}
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async videoFree?(): Promise<any>
 
   // audio
-  /** @remarks Triggered by audio with caption matching `intentText`. @virtual @public */
+  /**
+   * Route function for audioCaption match intent `this.data.name`
+   *
+   * @remarks Triggered by audio with caption.
+   *
+   * @example this.data.name = "start"
+   * ```typescript
+   * async audioCaption() {
+   *   this.msgAudio // => {...}
+   *   this.msgCaption // => "start"
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async audioCaption?(): Promise<any>
-  /** @remarks Triggered by audio with caption and payloads. @virtual @public */
+
+  /**
+   * Route function for audioCaption with payload match intent `this.data.name`
+   *
+   * @remarks Triggered by audio with caption and with payload.
+   *
+   * @example this.data.name = "start 123 aaa"
+   * ```typescript
+   * async audioCaptionPayload() {
+   *   this.msgAudio // => {...}
+   *   this.msgCaption // => "start"
+   *   this.msgCaptionPayload // => "123"
+   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async audioCaptionPayload?(): Promise<any>
-  /** @remarks Triggered by audio with caption command. @virtual @public */
+
+  /**
+   * Route function for audioCaption with slash command match intent `this.data.name`
+   *
+   * @remarks Triggered by audio with caption command.
+   *
+   * @example this.data.name = "/start"
+   * ```typescript
+   * async audioCaptionCommand() {
+   *   this.msgAudio // => {...}
+   *   this.msgCaption // => "/start"
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   *
+   */
   async audioCaptionCommand?(): Promise<any>
-  /** @remarks Triggered by audio with caption command and payloads. @virtual @public */
+
+  /**
+   * Route function for audioCaptionCommandPayload with slash command and payload match intent `this.data.name`
+   *
+   * @remarks Triggered by audio with caption command and payloads.
+   *
+   * @example this.data.name = "/start 123 aaa"
+   * ```typescript
+   * async audioCaptionCommandPayload() {
+   *   this.msgAudio // => {...}
+   *   this.msgCaption // => "/start 123 aaa"
+   *   this.msgCaptionPayload // => "123"
+   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   * }
+   *
+   * @virtual
+   * @public */
   async audioCaptionCommandPayload?(): Promise<any>
-  /** @remarks Triggered by any audio. @virtual @public */
+
+  /**
+   * Route handler for free-form audio input.
+   *
+   * @remarks Triggered by any audio not matching other routes, typically used with sessions.
+   *
+   * @example msgAudio = <...audio...>
+   * ```typescript
+   * async audioFree() {
+   *    this.msgAudio // => {...}
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async audioFree?(): Promise<any>
 
   // document
-  /** @remarks Triggered by document with caption matching `intentText`. @virtual @public */
+  /**
+   * Route function for documentCaption match intent `this.data.name`
+   *
+   * @remarks Triggered by document with caption.
+   *
+   * @example this.data.name = "start"
+   * ```typescript
+   * async documentCaption() {
+   *   this.msgDocument // => {...}
+   *   this.msgCaption // => "start"
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async documentCaption?(): Promise<any>
-  /** @remarks Triggered by document with caption and payloads. @virtual @public */
+
+  /**
+   * Route function for documentCaption with payload match intent `this.data.name`
+   *
+   * @remarks Triggered by document with caption and with payload.
+   *
+   * @example this.data.name = "start 123 aaa"
+   * ```typescript
+   * async documentCaptionPayload() {
+   *   this.msgDocument // => {...}
+   *   this.msgCaption // => "start"
+   *   this.msgCaptionPayload // => "123"
+   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async documentCaptionPayload?(): Promise<any>
-  /** @remarks Triggered by document with caption command. @virtual @public */
+
+  /**
+   * Route function for documentCaption with slash command match intent `this.data.name`
+   *
+   * @remarks Triggered by document with caption command.
+   *
+   * @example this.data.name = "/start"
+   * ```typescript
+   * async documentCaptionCommand() {
+   *   this.msgDocument // => {...}
+   *   this.msgCaption // => "/start"
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   *
+   */
   async documentCaptionCommand?(): Promise<any>
-  /** @remarks Triggered by document with caption command and payloads. @virtual @public */
+
+  /**
+   * Route function for documentCaptionCommandPayload with slash command and payload match intent `this.data.name`
+   *
+   * @remarks Triggered by document with caption command and payloads.
+   *
+   * @example this.data.name = "/start 123 aaa"
+   * ```typescript
+   * async documentCaptionCommandPayload() {
+   *   this.msgDocument // => {...}
+   *   this.msgCaption // => "/start 123 aaa"
+   *   this.msgCaptionPayload // => "123"
+   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   * }
+   *
+   * @virtual
+   * @public */
   async documentCaptionCommandPayload?(): Promise<any>
-  /** @remarks Triggered by any document. @virtual @public */
+
+  /**
+   * Route handler for free-form document input.
+   *
+   * @remarks Triggered by any document not matching other routes, typically used with sessions.
+   *
+   * @example msgDocument = <...document...>
+   * ```typescript
+   * async documentFree() {
+   *    this.msgDocument // => {...}
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async documentFree?(): Promise<any>
 
   // animation
-  /** @remarks Triggered by animation with caption matching `intentText`. @virtual @public */
+  /**
+   * Route function for animationCaption match intent `this.data.name`
+   *
+   * @remarks Triggered by animation with caption.
+   *
+   * @example this.data.name = "start"
+   * ```typescript
+   * async animationCaption() {
+   *   this.msgAnimation // => {...}
+   *   this.msgCaption // => "start"
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async animationCaption?(): Promise<any>
-  /** @remarks Triggered by animation with caption and payloads. @virtual @public */
+
+  /**
+   * Route function for animationCaption with payload match intent `this.data.name`
+   *
+   * @remarks Triggered by animation with caption and with payload.
+   *
+   * @example this.data.name = "start 123 aaa"
+   * ```typescript
+   * async animationCaptionPayload() {
+   *   this.msgAnimation // => {...}
+   *   this.msgCaption // => "start"
+   *   this.msgCaptionPayload // => "123"
+   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async animationCaptionPayload?(): Promise<any>
-  /** @remarks Triggered by animation with caption command. @virtual @public */
+
+  /**
+   * Route function for animationCaption with slash command match intent `this.data.name`
+   *
+   * @remarks Triggered by animation with caption command.
+   *
+   * @example this.data.name = "/start"
+   * ```typescript
+   * async animationCaptionCommand() {
+   *   this.msgAnimation // => {...}
+   *   this.msgCaption // => "/start"
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   *
+   */
   async animationCaptionCommand?(): Promise<any>
-  /** @remarks Triggered by animation with caption command and payloads. @virtual @public */
+
+  /**
+   * Route function for animationCaptionCommandPayload with slash command and payload match intent `this.data.name`
+   *
+   * @remarks Triggered by animation with caption command and payloads.
+   *
+   * @example this.data.name = "/start 123 aaa"
+   * ```typescript
+   * async animationCaptionCommandPayload() {
+   *   this.msgAnimation // => {...}
+   *   this.msgCaption // => "/start 123 aaa"
+   *   this.msgCaptionPayload // => "123"
+   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   * }
+   *
+   * @virtual
+   * @public */
   async animationCaptionCommandPayload?(): Promise<any>
-  /** @remarks Triggered by any animation. @virtual @public */
+
+  /**
+   * Route handler for free-form animation input.
+   *
+   * @remarks Triggered by any animation not matching other routes, typically used with sessions.
+   *
+   * @example msgAnimation = <...animation...>
+   * ```typescript
+   * async animationFree() {
+   *    this.msgAnimation // => {...}
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async animationFree?(): Promise<any>
 
   // voice
-  /** @remarks Triggered by voice with caption matching `intentText`. @virtual @public */
+  /**
+   * Route function for voiceCaption match intent `this.data.name`
+   *
+   * @remarks Triggered by voice with caption.
+   *
+   * @example this.data.name = "start"
+   * ```typescript
+   * async voiceCaption() {
+   *   this.msgVoice // => {...}
+   *   this.msgCaption // => "start"
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async voiceCaption?(): Promise<any>
-  /** @remarks Triggered by voice with caption and payloads. @virtual @public */
+
+  /**
+   * Route function for voiceCaption with payload match intent `this.data.name`
+   *
+   * @remarks Triggered by voice with caption and with payload.
+   *
+   * @example this.data.name = "start 123 aaa"
+   * ```typescript
+   * async voiceCaptionPayload() {
+   *   this.msgVoice // => {...}
+   *   this.msgCaption // => "start"
+   *   this.msgCaptionPayload // => "123"
+   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async voiceCaptionPayload?(): Promise<any>
-  /** @remarks Triggered by voice with caption command. @virtual @public */
+
+  /**
+   * Route function for voiceCaption with slash command match intent `this.data.name`
+   *
+   * @remarks Triggered by voice with caption command.
+   *
+   * @example this.data.name = "/start"
+   * ```typescript
+   * async voiceCaptionCommand() {
+   *   this.msgVoice // => {...}
+   *   this.msgCaption // => "/start"
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   *
+   */
   async voiceCaptionCommand?(): Promise<any>
-  /** @remarks Triggered by voice with caption command and payloads. @virtual @public */
+
+  /**
+   * Route function for voiceCaptionCommandPayload with slash command and payload match intent `this.data.name`
+   *
+   * @remarks Triggered by voice with caption command and payloads.
+   *
+   * @example this.data.name = "/start 123 aaa"
+   * ```typescript
+   * async voiceCaptionCommandPayload() {
+   *   this.msgVoice // => {...}
+   *   this.msgCaption // => "/start 123 aaa"
+   *   this.msgCaptionPayload // => "123"
+   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   * }
+   *
+   * @virtual
+   * @public */
   async voiceCaptionCommandPayload?(): Promise<any>
-  /** @remarks Triggered by any voice. @virtual @public */
+
+  /**
+   * Route handler for free-form voice input.
+   *
+   * @remarks Triggered by any voice not matching other routes, typically used with sessions.
+   * @example msgVoice = <...voice...>
+   * ```typescript
+   * async voiceFree() {
+   *    this.msgVoice // => {...}
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async voiceFree?(): Promise<any>
 
   // video_note
-  /** @remarks Triggered by any video note (circular video). @virtual @public */
+  /**
+   * Route handler for free-form video note input.
+   *
+   * @remarks Triggered by any video note not matching other routes, typically used with sessions.
+   *
+   * @example msgVideoNote = <...video note...>
+   * ```typescript
+   * async videoNoteFree() {
+   *    this.msgVideoNote // => {...}
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async videoNoteFree?(): Promise<any>
 
   // sticker
-  /** @remarks Triggered by any sticker message. @virtual @public */
+  /**
+   * Route handler for free-form sticker input.
+   *
+   * @remarks Triggered by any sticker not matching other routes, typically used with sessions.
+   *
+   * @example msgSticker = <...sticker...>
+   * ```typescript
+   * async stickerFree() {
+   *    this.msgSticker // => {...}
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async stickerFree?(): Promise<any>
 
   // location
-  /** @remarks Triggered by any location message. @virtual @public */
+  /**
+   * Route handler for free-form location input.
+   *
+   * @remarks Triggered by any location not matching other routes, typically used with sessions.
+   *
+   * @example msgLocation = <...location...>
+   * ```typescript
+   * async locationFree() {
+   *    this.msgLocation // => {...}
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async locationFree?(): Promise<any>
 
   // contact
-  /** @remarks Triggered by any contact message. @virtual @public */
+  /**
+   * Route handler for free-form contact input.
+   *
+   * @remarks Triggered by any contact not matching other routes, typically used with sessions.
+   *
+   * @example msgContact = <...contact...>
+   * ```typescript
+   * async contactFree() {
+   *    this.msgContact // => {...}
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
   async contactFree?(): Promise<any>
 
   // all
   /**
    * Fallback route handler for any unmatched update.
-   * @remarks Triggered when no other route handler type static*** matches the update.
+   *
+   * @remarks
+   * Triggered when no other route handler matches the current update. Use this for
+   * global fallback logic, logging, or safety responses.
+   *
+   * @example
+   * ```typescript
+   * async free() {
+   *   // handle unexpected updates
+   * }
+   * ```
+   *
    * @virtual
    * @public
    */
