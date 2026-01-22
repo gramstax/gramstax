@@ -18,23 +18,53 @@ Extend this class to create page handlers. Define static `template` property for
 
 The constructor for this class is marked as internal. Third-party code should not call the constructor directly or create subclasses that extend the `Ctx` class.
 
-## Example
+## Example 1
 
+Basic Without PageBase
 
 ```typescript
-import {Ctx} from "gramstax"
+import {Ctx} from "gramstax" // not recommended, use PageBase with extends Ctx instead
+import {Menu1Page} from "./menu1"
+import {Menu2Page} from "./menu2"
 
 class StartPage extends Ctx {
+  async callback() {
+    const kb = this.inlineKeyboardT([Menu1Page, Menu2Page])
+    await this.reply(kb)
+  }
+
   static template = `
     <base>
       <keyboard>Button 1, Button 2</keyboard>
       <message>Hello {{name}}!</message>
     </base>
   `
+}
+```
 
+## Example 2
+
+Multi Base Id
+
+```typescript
+import {Ctx} from "gramstax"
+import {Menu1Page} from "./menu1"
+import {Menu2Page} from "./menu2"
+
+class StartPage extends Ctx {
   async callback() {
+    const kb = this.inlineKeyboardT([Menu1Page, Menu2Page], "2", "special-kb")
     await this.reply()
   }
+
+  static template = `
+    <base id="special-kb">
+      <keyboard>Button 1, Button 2</keyboard>
+    </base>
+    <base>
+      <message>Hello {{name}}!</message>
+    </base>
+  `
 }
 ```
 

@@ -22,9 +22,9 @@ Triggered by exact text match.
 
 ## Example
 
+// msgText = "start"
 
 ```typescript
-// msgText = "start"
 async text() {
    this.msgText // => "start"
 }

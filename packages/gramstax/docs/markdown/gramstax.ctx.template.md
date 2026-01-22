@@ -17,8 +17,9 @@ static template?: string;
 
 Must contain a `<base></base>` block. Supports template interpolation with `{{variable}}` syntax.
 
-## Example
+## Example 1
 
+Basic
 
 ```typescript
 class MyPage extends Ctx {
@@ -26,6 +27,42 @@ class MyPage extends Ctx {
     <base>
       <keyboard>Button 1, Button 2</keyboard>
       <message>Hello {{name}}!</message>
+    </base>
+  `
+}
+```
+
+## Example 2
+
+Multi Id
+
+```typescript
+class MyPage extends Ctx {
+  static template = `
+    <base id="lah">
+      <keyboard>Button 1, Button 2</keyboard>
+    </base>
+    <base>
+      <message>Hello {{name}}!</message>
+    </base>
+  `
+}
+```
+
+## Example 3
+
+Multi Language
+
+```typescript
+class MyPage extends Ctx {
+  static template = `
+    <base id="lah">
+      <keyboard>Button 1, Button 2</keyboard>
+      <keyboard lang="id">Tombol 1, Tombol 2</keyboard>
+    </base>
+    <base>
+      <message>Hello {{name}}!</message>
+      <message lang="id">Halo {{name}}!</message>
     </base>
   `
 }

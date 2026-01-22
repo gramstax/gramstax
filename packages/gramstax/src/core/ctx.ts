@@ -39,21 +39,47 @@ type IKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${1 | 2 | 
  * Extend this class to create page handlers. Define static `template` property for
  * HTML-like templates and static `data` via {@link Ctx.buildData} for routing configuration.
  *
- * @example
+ * @example Basic Without PageBase
  * ```typescript
- * import {Ctx} from "gramstax"
+ * import {Ctx} from "gramstax" // not recommended, use PageBase with extends Ctx instead
+ * import {Menu1Page} from "./menu1"
+ * import {Menu2Page} from "./menu2"
  *
  * class StartPage extends Ctx {
+ *   async callback() {
+ *     const kb = this.inlineKeyboardT([Menu1Page, Menu2Page])
+ *     await this.reply(kb)
+ *   }
+ *
  *   static template = `
  *     <base>
  *       <keyboard>Button 1, Button 2</keyboard>
  *       <message>Hello {{name}}!</message>
  *     </base>
  *   `
+ * }
+ * ```
  *
+ * @example Multi Base Id
+ * ```typescript
+ * import {Ctx} from "gramstax"
+ * import {Menu1Page} from "./menu1"
+ * import {Menu2Page} from "./menu2"
+ *
+ * class StartPage extends Ctx {
  *   async callback() {
+ *     const kb = this.inlineKeyboardT([Menu1Page, Menu2Page], "2", "special-kb")
  *     await this.reply()
  *   }
+ *
+ *   static template = `
+ *     <base id="special-kb">
+ *       <keyboard>Button 1, Button 2</keyboard>
+ *     </base>
+ *     <base>
+ *       <message>Hello {{name}}!</message>
+ *     </base>
+ *   `
  * }
  * ```
  *
@@ -66,13 +92,43 @@ export class Ctx {
    * @remarks
    * Must contain a `<base></base>` block. Supports template interpolation with `{{variable}}` syntax.
    *
-   * @example
+   * @example Basic
    * ```typescript
    * class MyPage extends Ctx {
    *   static template = `
    *     <base>
    *       <keyboard>Button 1, Button 2</keyboard>
    *       <message>Hello {{name}}!</message>
+   *     </base>
+   *   `
+   * }
+   * ```
+   *
+   * @example Multi Id
+   * ```typescript
+   * class MyPage extends Ctx {
+   *   static template = `
+   *     <base id="lah">
+   *       <keyboard>Button 1, Button 2</keyboard>
+   *     </base>
+   *     <base>
+   *       <message>Hello {{name}}!</message>
+   *     </base>
+   *   `
+   * }
+   * ```
+   *
+   * @example Multi Language
+   * ```typescript
+   * class MyPage extends Ctx {
+   *   static template = `
+   *     <base id="lah">
+   *       <keyboard>Button 1, Button 2</keyboard>
+   *       <keyboard lang="id">Tombol 1, Tombol 2</keyboard>
+   *     </base>
+   *     <base>
+   *       <message>Hello {{name}}!</message>
+   *       <message lang="id">Halo {{name}}!</message>
    *     </base>
    *   `
    * }
@@ -285,7 +341,20 @@ export class Ctx {
     return this.ct.from?.language_code as string
   }
 
-  /** @public */
+  /**
+   * Overrides user's language code from Telegram (e.g., "en", "id").
+   *
+   * @remarks
+   * This property can be both read and written. Setting this value overrides
+   * the language used for template rendering.
+   *
+   * @example
+   * ```typescript
+   * this.userLanguage = "id" // Override to Indonesian
+   * ```
+   *
+   * @public
+   */
   set userLanguage(v: string) {
     this.ct.from!.language_code = v
   }
@@ -2192,9 +2261,8 @@ export class Ctx {
    *
    * @remarks Triggered by exact text match.
    *
-   * @example
+   * @example // msgText = "start"
    * ```typescript
-   * // msgText = "start"
    * async text() {
    *    this.msgText // => "start"
    * }

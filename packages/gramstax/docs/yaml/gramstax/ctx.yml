@@ -15,20 +15,49 @@ remarks: >-
   create subclasses that extend the `Ctx` class.
 example:
   - |-
+    Basic Without PageBase
+
     ```typescript
-    import {Ctx} from "gramstax"
+    import {Ctx} from "gramstax" // not recommended, use PageBase with extends Ctx instead
+    import {Menu1Page} from "./menu1"
+    import {Menu2Page} from "./menu2"
 
     class StartPage extends Ctx {
+      async callback() {
+        const kb = this.inlineKeyboardT([Menu1Page, Menu2Page])
+        await this.reply(kb)
+      }
+
       static template = `
         <base>
           <keyboard>Button 1, Button 2</keyboard>
           <message>Hello {{name}}!</message>
         </base>
       `
+    }
+    ```
+  - |-
+    Multi Base Id
 
+    ```typescript
+    import {Ctx} from "gramstax"
+    import {Menu1Page} from "./menu1"
+    import {Menu2Page} from "./menu2"
+
+    class StartPage extends Ctx {
       async callback() {
+        const kb = this.inlineKeyboardT([Menu1Page, Menu2Page], "2", "special-kb")
         await this.reply()
       }
+
+      static template = `
+        <base id="special-kb">
+          <keyboard>Button 1, Button 2</keyboard>
+        </base>
+        <base>
+          <message>Hello {{name}}!</message>
+        </base>
+      `
     }
     ```
 isPreview: false
@@ -611,12 +640,46 @@ properties:
     remarks: Must contain a `<base></base>` block. Supports template interpolation with `{{variable}}` syntax.
     example:
       - |-
+        Basic
+
         ```typescript
         class MyPage extends Ctx {
           static template = `
             <base>
               <keyboard>Button 1, Button 2</keyboard>
               <message>Hello {{name}}!</message>
+            </base>
+          `
+        }
+        ```
+      - |-
+        Multi Id
+
+        ```typescript
+        class MyPage extends Ctx {
+          static template = `
+            <base id="lah">
+              <keyboard>Button 1, Button 2</keyboard>
+            </base>
+            <base>
+              <message>Hello {{name}}!</message>
+            </base>
+          `
+        }
+        ```
+      - |-
+        Multi Language
+
+        ```typescript
+        class MyPage extends Ctx {
+          static template = `
+            <base id="lah">
+              <keyboard>Button 1, Button 2</keyboard>
+              <keyboard lang="id">Tombol 1, Tombol 2</keyboard>
+            </base>
+            <base>
+              <message>Hello {{name}}!</message>
+              <message lang="id">Halo {{name}}!</message>
             </base>
           `
         }
@@ -5526,8 +5589,9 @@ methods:
     remarks: Triggered by exact text match.
     example:
       - |-
-        ```typescript
         // msgText = "start"
+
+        ```typescript
         async text() {
            this.msgText // => "start"
         }
