@@ -31,7 +31,7 @@ export class StartPage extends PageBase {
 
     <base>
       <message>
-        ✅ CRUD Cache Menu
+        ✅ CRUD Menu
 
         Choose an action to manage your cached items:
 
@@ -43,7 +43,7 @@ export class StartPage extends PageBase {
         - ❓ Help
       </message>
       <message lang="id">
-        ✅ Menu CRUD Cache
+        ✅ Menu CRUD
 
         Pilih aksi untuk mengelola item tersimpan:
 

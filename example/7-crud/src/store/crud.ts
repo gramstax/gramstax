@@ -32,14 +32,20 @@ export class CrudStore {
     return item
   }
 
-  async listItems(userId: number): Promise<CrudItem[]> {
+  async listItems(userId: number, options?: {limit?: number; offset?: number}): Promise<CrudItem[]> {
+    await this.ensureUser(userId)
+    const items = this.listAllItems(userId)
+    const limit = options?.limit
+    const offset = options?.offset ?? 0
+    if (limit == null && offset === 0) return items
+    return items.slice(offset, limit == null ? undefined : offset + limit)
+  }
+
+  async countItems(userId: number): Promise<number> {
     await this.ensureUser(userId)
     const prefix = this.itemPrefix(userId)
-    const items: CrudItem[] = []
-    for (const {value} of this.db.getRange({start: prefix, end: `${prefix}~`})) {
-      if (value) items.push(value as CrudItem)
-    }
-    return items.sort((a, b) => a.createdAt - b.createdAt)
+    const count = this.db.getKeysCount({start: prefix, end: `${prefix}~`})
+    return count
   }
 
   async getItem(userId: number, id: string): Promise<CrudItem | null> {
@@ -80,6 +86,15 @@ export class CrudStore {
 
   private counterKey(userId: number) {
     return `counter:${userId}`
+  }
+
+  private listAllItems(userId: number): CrudItem[] {
+    const prefix = this.itemPrefix(userId)
+    const items: CrudItem[] = []
+    for (const {value} of this.db.getRange({start: prefix, end: `${prefix}~`})) {
+      if (value) items.push(value as CrudItem)
+    }
+    return items.sort((a, b) => a.createdAt - b.createdAt)
   }
 
   private async nextId(userId: number) {
