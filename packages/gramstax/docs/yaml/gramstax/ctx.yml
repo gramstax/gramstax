@@ -616,20 +616,23 @@ properties:
     uid: gramstax!Ctx#session:member
     package: gramstax!
     fullName: session
-    summary: Gets the current session data.
+    summary: Gets and setter the current session data.
     remarks: ''
     example:
       - |-
         ```typescript
         async textFree() {
           const session = this.session
-          console.log(session) // => {method: "...", params: ...}
+          console.log(session) // {method: "...", params: ...}
         }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'set session(v: ITemp[`session`]);'
+      content: |-
+        get session(): ITemp[`session`];
+
+        set session(v: ITemp[`session`]);
       return:
         type: <xref uid="gramstax!~ITemp:type" />[`session`]
   - name: template
@@ -865,8 +868,8 @@ methods:
 
         ```typescript
         async animationCaption() {
-          this.msgAnimation // => {...}
-          this.msgCaption // => "start"
+          this.msgAnimation // {...}
+          this.msgCaption // "start"
         }
         ```
     isPreview: false
@@ -890,8 +893,8 @@ methods:
 
         ```typescript
         async animationCaptionCommand() {
-          this.msgAnimation // => {...}
-          this.msgCaption // => "/start"
+          this.msgAnimation // {...}
+          this.msgCaption // "/start"
         }
         ```
     isPreview: false
@@ -910,10 +913,17 @@ methods:
     summary: Route function for animationCaptionCommandPayload with slash command and payload match intent `this.data.name`
     remarks: Triggered by animation with caption command and payloads.
     example:
-      - >-
-        this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async animationCaptionCommandPayload() {
-        this.msgAnimation // =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa"
-        this.msgCaptionPayload // =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
+      - |-
+        this.data.name = "/start 123 aaa"
+
+        ```typescript
+        async animationCaptionCommandPayload() {
+          this.msgAnimation // {...}
+          this.msgCaption // "/start 123 aaa"
+          this.msgCaptionPayload // "123"
+          this.msgCaptionPayloads // ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -935,10 +945,10 @@ methods:
 
         ```typescript
         async animationCaptionPayload() {
-          this.msgAnimation // => {...}
-          this.msgCaption // => "start"
-          this.msgCaptionPayload // => "123"
-          this.msgCaptionPayloads // => ["123", "aaa"]
+          this.msgAnimation // {...}
+          this.msgCaption // "start"
+          this.msgCaptionPayload // "123"
+          this.msgCaptionPayloads // ["123", "aaa"]
         }
         ```
     isPreview: false
@@ -958,11 +968,9 @@ methods:
     remarks: Triggered by any animation not matching other routes, typically used with sessions.
     example:
       - |-
-        msgAnimation = &lt;<!-- -->...animation...<!-- -->&gt;
-
         ```typescript
         async animationFree() {
-           this.msgAnimation // => {...}
+           this.msgAnimation // {...}
         }
         ```
     isPreview: false
@@ -986,8 +994,8 @@ methods:
 
         ```typescript
         async audioCaption() {
-          this.msgAudio // => {...}
-          this.msgCaption // => "start"
+          this.msgAudio // {...}
+          this.msgCaption // "start"
         }
         ```
     isPreview: false
@@ -1011,8 +1019,8 @@ methods:
 
         ```typescript
         async audioCaptionCommand() {
-          this.msgAudio // => {...}
-          this.msgCaption // => "/start"
+          this.msgAudio // {...}
+          this.msgCaption // "/start"
         }
         ```
     isPreview: false
@@ -1031,10 +1039,17 @@ methods:
     summary: Route function for audioCaptionCommandPayload with slash command and payload match intent `this.data.name`
     remarks: Triggered by audio with caption command and payloads.
     example:
-      - >-
-        this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async audioCaptionCommandPayload() { this.msgAudio //
-        =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa" this.msgCaptionPayload //
-        =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
+      - |-
+        this.data.name = "/start 123 aaa"
+
+        ```typescript
+        async audioCaptionCommandPayload() {
+          this.msgAudio // {...}
+          this.msgCaption // "/start 123 aaa"
+          this.msgCaptionPayload // "123"
+          this.msgCaptionPayloads // ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1056,10 +1071,10 @@ methods:
 
         ```typescript
         async audioCaptionPayload() {
-          this.msgAudio // => {...}
-          this.msgCaption // => "start"
-          this.msgCaptionPayload // => "123"
-          this.msgCaptionPayloads // => ["123", "aaa"]
+          this.msgAudio // {...}
+          this.msgCaption // "start"
+          this.msgCaptionPayload // "123"
+          this.msgCaptionPayloads // ["123", "aaa"]
         }
         ```
     isPreview: false
@@ -1079,11 +1094,9 @@ methods:
     remarks: Triggered by any audio not matching other routes, typically used with sessions.
     example:
       - |-
-        msgAudio = &lt;<!-- -->...audio...<!-- -->&gt;
-
         ```typescript
         async audioFree() {
-           this.msgAudio // => {...}
+           this.msgAudio // {...}
         }
         ```
     isPreview: false
@@ -1163,7 +1176,11 @@ methods:
           description: 'Layout format: "cols" or "cols-lastRow". Default: "1".'
           type: <xref uid="gramstax!~IKbCols:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: >-
+            Optional template base ID. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId
+            to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard
+            bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the
+            keyboard configuration.
           type: string | null
         - id: data
           description: Optional template interpolation data.
@@ -1343,7 +1360,7 @@ methods:
 
         ```typescript
         async callback() {
-           this.callbackData // => "start"
+           this.callbackData // "start"
         }
         ```
     isPreview: false
@@ -1367,9 +1384,9 @@ methods:
 
         ```typescript
         async callbackPayload() {
-           this.callbackData // => "start:123"
-           this.callbackDataPayload // => "123"
-           this.callbackDataPayloads // => ["123"]
+           this.callbackData // "start:123"
+           this.callbackDataPayload // "123"
+           this.callbackDataPayloads // ["123"]
         }
         ```
     isPreview: false
@@ -1416,11 +1433,9 @@ methods:
     remarks: Triggered by any contact not matching other routes, typically used with sessions.
     example:
       - |-
-        msgContact = &lt;<!-- -->...contact...<!-- -->&gt;
-
         ```typescript
         async contactFree() {
-           this.msgContact // => {...}
+           this.msgContact // {...}
         }
         ```
     isPreview: false
@@ -1464,8 +1479,8 @@ methods:
 
         ```typescript
         async documentCaption() {
-          this.msgDocument // => {...}
-          this.msgCaption // => "start"
+          this.msgDocument // {...}
+          this.msgCaption // "start"
         }
         ```
     isPreview: false
@@ -1489,8 +1504,8 @@ methods:
 
         ```typescript
         async documentCaptionCommand() {
-          this.msgDocument // => {...}
-          this.msgCaption // => "/start"
+          this.msgDocument // {...}
+          this.msgCaption // "/start"
         }
         ```
     isPreview: false
@@ -1509,10 +1524,17 @@ methods:
     summary: Route function for documentCaptionCommandPayload with slash command and payload match intent `this.data.name`
     remarks: Triggered by document with caption command and payloads.
     example:
-      - >-
-        this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async documentCaptionCommandPayload() {
-        this.msgDocument // =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa"
-        this.msgCaptionPayload // =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
+      - |-
+        this.data.name = "/start 123 aaa"
+
+        ```typescript
+        async documentCaptionCommandPayload() {
+          this.msgDocument // {...}
+          this.msgCaption // "/start 123 aaa"
+          this.msgCaptionPayload // "123"
+          this.msgCaptionPayloads // ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1534,10 +1556,10 @@ methods:
 
         ```typescript
         async documentCaptionPayload() {
-          this.msgDocument // => {...}
-          this.msgCaption // => "start"
-          this.msgCaptionPayload // => "123"
-          this.msgCaptionPayloads // => ["123", "aaa"]
+          this.msgDocument // {...}
+          this.msgCaption // "start"
+          this.msgCaptionPayload // "123"
+          this.msgCaptionPayloads // ["123", "aaa"]
         }
         ```
     isPreview: false
@@ -1557,11 +1579,9 @@ methods:
     remarks: Triggered by any document not matching other routes, typically used with sessions.
     example:
       - |-
-        msgDocument = &lt;<!-- -->...document...<!-- -->&gt;
-
         ```typescript
         async documentFree() {
-           this.msgDocument // => {...}
+           this.msgDocument // {...}
         }
         ```
     isPreview: false
@@ -2249,7 +2269,11 @@ methods:
           description: 'Layout format: "cols" or "cols-lastRow". Default: "1".'
           type: <xref uid="gramstax!~IKbCols:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: >-
+            Optional template base ID. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId
+            to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard
+            bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the
+            keyboard configuration.
           type: string | null
         - id: data
           description: Optional template interpolation data.
@@ -2298,11 +2322,9 @@ methods:
     remarks: Triggered by any location not matching other routes, typically used with sessions.
     example:
       - |-
-        msgLocation = &lt;<!-- -->...location...<!-- -->&gt;
-
         ```typescript
         async locationFree() {
-           this.msgLocation // => {...}
+           this.msgLocation // {...}
         }
         ```
     isPreview: false
@@ -3064,8 +3086,8 @@ methods:
 
         ```typescript
         async photoCaption() {
-          this.msgPhoto // => {...}
-          this.msgCaption // => "start"
+          this.msgPhoto // {...}
+          this.msgCaption // "start"
         }
         ```
     isPreview: false
@@ -3089,8 +3111,8 @@ methods:
 
         ```typescript
         async photoCaptionCommand() {
-          this.msgPhoto // => {...}
-          this.msgCaption // => "/start"
+          this.msgPhoto // {...}
+          this.msgCaption // "/start"
         }
         ```
     isPreview: false
@@ -3109,10 +3131,17 @@ methods:
     summary: Route function for photoCaptionCommandPayload with slash command and payload match intent `this.data.name`
     remarks: Triggered by photo with caption command and payloads.
     example:
-      - >-
-        this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async photoCaptionCommandPayload() { this.msgPhoto //
-        =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa" this.msgCaptionPayload //
-        =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
+      - |-
+        this.data.name = "/start 123 aaa"
+
+        ```typescript
+        async photoCaptionCommandPayload() {
+          this.msgPhoto // {...}
+          this.msgCaption // "/start 123 aaa"
+          this.msgCaptionPayload // "123"
+          this.msgCaptionPayloads // ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -3134,10 +3163,10 @@ methods:
 
         ```typescript
         async photoCaptionPayload() {
-          this.msgPhoto // => {...}
-          this.msgCaption // => "start"
-          this.msgCaptionPayload // => "123"
-          this.msgCaptionPayloads // => ["123", "aaa"]
+          this.msgPhoto // {...}
+          this.msgCaption // "start"
+          this.msgCaptionPayload // "123"
+          this.msgCaptionPayloads // ["123", "aaa"]
         }
         ```
     isPreview: false
@@ -3157,11 +3186,9 @@ methods:
     remarks: Triggered by any photo not matching other routes, typically used with sessions.
     example:
       - |-
-        msgPhoto = &lt;<!-- -->...photo...<!-- -->&gt;
-
         ```typescript
         async photoFree() {
-           this.msgPhoto // => {...}
+           this.msgPhoto // {...}
         }
         ```
     isPreview: false
@@ -5565,11 +5592,9 @@ methods:
     remarks: Triggered by any sticker not matching other routes, typically used with sessions.
     example:
       - |-
-        msgSticker = &lt;<!-- -->...sticker...<!-- -->&gt;
-
         ```typescript
         async stickerFree() {
-           this.msgSticker // => {...}
+           this.msgSticker // {...}
         }
         ```
     isPreview: false
@@ -5593,7 +5618,7 @@ methods:
 
         ```typescript
         async text() {
-           this.msgText // => "start"
+           this.msgText // "start"
         }
         ```
     isPreview: false
@@ -5617,7 +5642,7 @@ methods:
 
         ```typescript
         async textCommand() {
-           this.msgText // => "/start"
+           this.msgText // "/start"
         }
         ```
     isPreview: false
@@ -5641,9 +5666,9 @@ methods:
 
         ```typescript
         async textCommandPayload() {
-           this.msgText // => "/start 123 aaa"
-           this.msgTextPayload // => "123"
-           this.msgTextPayload // => ["123", "aaa"]
+           this.msgText // "/start 123 aaa"
+           this.msgTextPayload // "123"
+           this.msgTextPayload // ["123", "aaa"]
         }
         ```
     isPreview: false
@@ -5667,7 +5692,7 @@ methods:
 
         ```typescript
         async text() {
-           this.msgText // => "hello gramstax"
+           this.msgText // "hello gramstax"
         }
         ```
     isPreview: false
@@ -5691,9 +5716,9 @@ methods:
 
         ```typescript
         async textPayload() {
-           this.msgText // => "start"
-           this.msgTextPayload // => "123"
-           this.msgTextPayloads // => ["123", "aaa"]
+           this.msgText // "start"
+           this.msgTextPayload // "123"
+           this.msgTextPayloads // ["123", "aaa"]
         }
         ```
     isPreview: false
@@ -6579,8 +6604,8 @@ methods:
 
         ```typescript
         async videoCaption() {
-          this.msgVideo // => {...}
-          this.msgCaption // => "start"
+          this.msgVideo // {...}
+          this.msgCaption // "start"
         }
         ```
     isPreview: false
@@ -6604,8 +6629,8 @@ methods:
 
         ```typescript
         async videoCaptionCommand() {
-          this.msgVideo // => {...}
-          this.msgCaption // => "/start"
+          this.msgVideo // {...}
+          this.msgCaption // "/start"
         }
         ```
     isPreview: false
@@ -6624,10 +6649,17 @@ methods:
     summary: Route function for videoCaptionCommandPayload with slash command and payload match intent `this.data.name`
     remarks: Triggered by video with caption command and payloads.
     example:
-      - >-
-        this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async videoCaptionCommandPayload() { this.msgVideo //
-        =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa" this.msgCaptionPayload //
-        =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
+      - |-
+        this.data.name = "/start 123 aaa"
+
+        ```typescript
+        async videoCaptionCommandPayload() {
+          this.msgVideo // {...}
+          this.msgCaption // "/start 123 aaa"
+          this.msgCaptionPayload // "123"
+          this.msgCaptionPayloads // ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6649,10 +6681,10 @@ methods:
 
         ```typescript
         async videoCaptionPayload() {
-          this.msgVideo // => {...}
-          this.msgCaption // => "start"
-          this.msgCaptionPayload // => "123"
-          this.msgCaptionPayloads // => ["123", "aaa"]
+          this.msgVideo // {...}
+          this.msgCaption // "start"
+          this.msgCaptionPayload // "123"
+          this.msgCaptionPayloads // ["123", "aaa"]
         }
         ```
     isPreview: false
@@ -6672,11 +6704,9 @@ methods:
     remarks: Triggered by any video not matching other routes, typically used with sessions.
     example:
       - |-
-        msgVideo = &lt;<!-- -->...video...<!-- -->&gt;
-
         ```typescript
         async videoFree() {
-           this.msgVideo // => {...}
+           this.msgVideo // {...}
         }
         ```
     isPreview: false
@@ -6696,11 +6726,9 @@ methods:
     remarks: Triggered by any video note not matching other routes, typically used with sessions.
     example:
       - |-
-        msgVideoNote = &lt;<!-- -->...video note...<!-- -->&gt;
-
         ```typescript
         async videoNoteFree() {
-           this.msgVideoNote // => {...}
+           this.msgVideoNote // {...}
         }
         ```
     isPreview: false
@@ -6724,8 +6752,8 @@ methods:
 
         ```typescript
         async voiceCaption() {
-          this.msgVoice // => {...}
-          this.msgCaption // => "start"
+          this.msgVoice // {...}
+          this.msgCaption // "start"
         }
         ```
     isPreview: false
@@ -6749,8 +6777,8 @@ methods:
 
         ```typescript
         async voiceCaptionCommand() {
-          this.msgVoice // => {...}
-          this.msgCaption // => "/start"
+          this.msgVoice // {...}
+          this.msgCaption // "/start"
         }
         ```
     isPreview: false
@@ -6769,10 +6797,17 @@ methods:
     summary: Route function for voiceCaptionCommandPayload with slash command and payload match intent `this.data.name`
     remarks: Triggered by voice with caption command and payloads.
     example:
-      - >-
-        this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async voiceCaptionCommandPayload() { this.msgVoice //
-        =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa" this.msgCaptionPayload //
-        =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
+      - |-
+        this.data.name = "/start 123 aaa"
+
+        ```typescript
+        async voiceCaptionCommandPayload() {
+          this.msgVoice // {...}
+          this.msgCaption // "/start 123 aaa"
+          this.msgCaptionPayload // "123"
+          this.msgCaptionPayloads // ["123", "aaa"]
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6794,10 +6829,10 @@ methods:
 
         ```typescript
         async voiceCaptionPayload() {
-          this.msgVoice // => {...}
-          this.msgCaption // => "start"
-          this.msgCaptionPayload // => "123"
-          this.msgCaptionPayloads // => ["123", "aaa"]
+          this.msgVoice // {...}
+          this.msgCaption // "start"
+          this.msgCaptionPayload // "123"
+          this.msgCaptionPayloads // ["123", "aaa"]
         }
         ```
     isPreview: false
@@ -6817,11 +6852,9 @@ methods:
     remarks: Triggered by any voice not matching other routes, typically used with sessions.
     example:
       - |-
-        msgVoice = &lt;<!-- -->...voice...<!-- -->&gt;
-
         ```typescript
         async voiceFree() {
-           this.msgVoice // => {...}
+           this.msgVoice // {...}
         }
         ```
     isPreview: false

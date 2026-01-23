@@ -340,24 +340,10 @@ export class Ctx {
   get userLanguage() {
     return this.ct.from?.language_code as string
   }
-
-  /**
-   * Overrides user's language code from Telegram (e.g., "en", "id").
-   *
-   * @remarks
-   * This property can be both read and written. Setting this value overrides
-   * the language used for template rendering.
-   *
-   * @example
-   * ```typescript
-   * this.userLanguage = "id" // Override to Indonesian
-   * ```
-   *
-   * @public
-   */
   set userLanguage(v: string) {
     this.ct.from!.language_code = v
   }
+
   /**
    * The raw message text from the current update.
    *
@@ -815,24 +801,13 @@ export class Ctx {
   }
 
   /**
-   * Sets the current session data to this.temp.session.
-   *
-   * @param v - The session data to set.
-   *
-   * @public
-   */
-  set session(v: ITemp[`session`]) {
-    this.temp.session = v
-  }
-
-  /**
-   * Gets the current session data.
+   * Gets and setter the current session data.
    *
    * @example
    * ```typescript
    * async textFree() {
    *   const session = this.session
-   *   console.log(session) // => {method: "...", params: ...}
+   *   console.log(session) // {method: "...", params: ...}
    * }
    * ```
    *
@@ -841,6 +816,9 @@ export class Ctx {
    */
   get session() {
     return this.temp.session
+  }
+  set session(v: ITemp[`session`]) {
+    this.temp.session = v
   }
 
   /**
@@ -1955,7 +1933,7 @@ export class Ctx {
    * Shorthand for {@link Ctx.bottomKeyboard} with automatic text button creation.
    *
    * @param layout - Layout format: "cols" or "cols-lastRow". Default: "1".
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
    * @param data - Optional template interpolation data.
    * @returns The bottom keyboard instance.
    *
@@ -1986,7 +1964,7 @@ export class Ctx {
    *
    * @param PageDest - Array of page classes or callback data strings.
    * @param layout - Layout format: "cols" or "cols-lastRow". Default: "1".
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
    * @param data - Optional template interpolation data.
    * @returns The inline keyboard instance.
    *
@@ -2029,7 +2007,7 @@ export class Ctx {
    *
    * @param callback - Builder function that receives keyboard and labels.
    * @param params - Optional parameters.
-   * @param params.baseId - Template base ID.
+   * @param params.baseId - Optional Template base ID. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
    * @param params.data - Template interpolation data.
    * @param params.cache - If true, caches the keyboard by language.
    * @returns The inline keyboard instance.
@@ -2076,7 +2054,7 @@ export class Ctx {
    *
    * @param callback - Builder function that receives keyboard and labels.
    * @param params - Optional parameters.
-   * @param params.baseId - Template base ID.
+   * @param params.baseId - Template base ID. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
    * @param params.data - Template interpolation data.
    * @param params.cache - If true, caches the keyboard by language.
    * @returns The bottom keyboard instance.
@@ -2228,7 +2206,7 @@ export class Ctx {
    * @example callbackData = "start".
    * ```typescript
    * async callback() {
-   *    this.callbackData // => "start"
+   *    this.callbackData // "start"
    * }
    * ```
    *
@@ -2245,9 +2223,9 @@ export class Ctx {
    * @example callbackData = "start:123"
    * ```typescript
    * async callbackPayload() {
-   *    this.callbackData // => "start:123"
-   *    this.callbackDataPayload // => "123"
-   *    this.callbackDataPayloads // => ["123"]
+   *    this.callbackData // "start:123"
+   *    this.callbackDataPayload // "123"
+   *    this.callbackDataPayloads // ["123"]
    * }
    * ```
    *
@@ -2264,7 +2242,7 @@ export class Ctx {
    * @example // msgText = "start"
    * ```typescript
    * async text() {
-   *    this.msgText // => "start"
+   *    this.msgText // "start"
    * }
    * ```
    *
@@ -2281,9 +2259,9 @@ export class Ctx {
    * @example msgText = "start 123 aaa"
    * ```typescript
    * async textPayload() {
-   *    this.msgText // => "start"
-   *    this.msgTextPayload // => "123"
-   *    this.msgTextPayloads // => ["123", "aaa"]
+   *    this.msgText // "start"
+   *    this.msgTextPayload // "123"
+   *    this.msgTextPayloads // ["123", "aaa"]
    * }
    * ```
    *
@@ -2300,7 +2278,7 @@ export class Ctx {
    * @example msgText = "/start"
    * ```typescript
    * async textCommand() {
-   *    this.msgText // => "/start"
+   *    this.msgText // "/start"
    * }
    * ```
    *
@@ -2317,9 +2295,9 @@ export class Ctx {
    * @example msgText = "/start 123 aaa"
    * ```typescript
    * async textCommandPayload() {
-   *    this.msgText // => "/start 123 aaa"
-   *    this.msgTextPayload // => "123"
-   *    this.msgTextPayload // => ["123", "aaa"]
+   *    this.msgText // "/start 123 aaa"
+   *    this.msgTextPayload // "123"
+   *    this.msgTextPayload // ["123", "aaa"]
    * }
    * ```
    *
@@ -2336,7 +2314,7 @@ export class Ctx {
    * @example msgText = "hello gramstax"
    * ```typescript
    * async text() {
-   *    this.msgText // => "hello gramstax"
+   *    this.msgText // "hello gramstax"
    * }
    * ```
    *
@@ -2354,8 +2332,8 @@ export class Ctx {
    * @example this.data.name = "start"
    * ```typescript
    * async photoCaption() {
-   *   this.msgPhoto // => {...}
-   *   this.msgCaption // => "start"
+   *   this.msgPhoto // {...}
+   *   this.msgCaption // "start"
    * }
    * ```
    *
@@ -2372,10 +2350,10 @@ export class Ctx {
    * @example this.data.name = "start 123 aaa"
    * ```typescript
    * async photoCaptionPayload() {
-   *   this.msgPhoto // => {...}
-   *   this.msgCaption // => "start"
-   *   this.msgCaptionPayload // => "123"
-   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   *   this.msgPhoto // {...}
+   *   this.msgCaption // "start"
+   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionPayloads // ["123", "aaa"]
    * }
    * ```
    *
@@ -2392,8 +2370,8 @@ export class Ctx {
    * @example this.data.name = "/start"
    * ```typescript
    * async photoCaptionCommand() {
-   *   this.msgPhoto // => {...}
-   *   this.msgCaption // => "/start"
+   *   this.msgPhoto // {...}
+   *   this.msgCaption // "/start"
    * }
    * ```
    *
@@ -2411,11 +2389,12 @@ export class Ctx {
    * @example this.data.name = "/start 123 aaa"
    * ```typescript
    * async photoCaptionCommandPayload() {
-   *   this.msgPhoto // => {...}
-   *   this.msgCaption // => "/start 123 aaa"
-   *   this.msgCaptionPayload // => "123"
-   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   *   this.msgPhoto // {...}
+   *   this.msgCaption // "/start 123 aaa"
+   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionPayloads // ["123", "aaa"]
    * }
+   * ```
    *
    * @virtual
    * @public */
@@ -2426,10 +2405,10 @@ export class Ctx {
    *
    * @remarks Triggered by any photo not matching other routes, typically used with sessions.
    *
-   * @example msgPhoto = <...photo...>
+   * @example
    * ```typescript
    * async photoFree() {
-   *    this.msgPhoto // => {...}
+   *    this.msgPhoto // {...}
    * }
    * ```
    *
@@ -2447,8 +2426,8 @@ export class Ctx {
    * @example this.data.name = "start"
    * ```typescript
    * async videoCaption() {
-   *   this.msgVideo // => {...}
-   *   this.msgCaption // => "start"
+   *   this.msgVideo // {...}
+   *   this.msgCaption // "start"
    * }
    * ```
    *
@@ -2465,10 +2444,10 @@ export class Ctx {
    * @example this.data.name = "start 123 aaa"
    * ```typescript
    * async videoCaptionPayload() {
-   *   this.msgVideo // => {...}
-   *   this.msgCaption // => "start"
-   *   this.msgCaptionPayload // => "123"
-   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   *   this.msgVideo // {...}
+   *   this.msgCaption // "start"
+   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionPayloads // ["123", "aaa"]
    * }
    * ```
    *
@@ -2485,8 +2464,8 @@ export class Ctx {
    * @example this.data.name = "/start"
    * ```typescript
    * async videoCaptionCommand() {
-   *   this.msgVideo // => {...}
-   *   this.msgCaption // => "/start"
+   *   this.msgVideo // {...}
+   *   this.msgCaption // "/start"
    * }
    * ```
    *
@@ -2504,11 +2483,12 @@ export class Ctx {
    * @example this.data.name = "/start 123 aaa"
    * ```typescript
    * async videoCaptionCommandPayload() {
-   *   this.msgVideo // => {...}
-   *   this.msgCaption // => "/start 123 aaa"
-   *   this.msgCaptionPayload // => "123"
-   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   *   this.msgVideo // {...}
+   *   this.msgCaption // "/start 123 aaa"
+   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionPayloads // ["123", "aaa"]
    * }
+   * ```
    *
    * @virtual
    * @public */
@@ -2519,10 +2499,10 @@ export class Ctx {
    *
    * @remarks Triggered by any video not matching other routes, typically used with sessions.
    *
-   * @example msgVideo = <...video...>
+   * @example
    * ```typescript
    * async videoFree() {
-   *    this.msgVideo // => {...}
+   *    this.msgVideo // {...}
    * }
    * ```
    *
@@ -2540,8 +2520,8 @@ export class Ctx {
    * @example this.data.name = "start"
    * ```typescript
    * async audioCaption() {
-   *   this.msgAudio // => {...}
-   *   this.msgCaption // => "start"
+   *   this.msgAudio // {...}
+   *   this.msgCaption // "start"
    * }
    * ```
    *
@@ -2558,10 +2538,10 @@ export class Ctx {
    * @example this.data.name = "start 123 aaa"
    * ```typescript
    * async audioCaptionPayload() {
-   *   this.msgAudio // => {...}
-   *   this.msgCaption // => "start"
-   *   this.msgCaptionPayload // => "123"
-   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   *   this.msgAudio // {...}
+   *   this.msgCaption // "start"
+   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionPayloads // ["123", "aaa"]
    * }
    * ```
    *
@@ -2578,8 +2558,8 @@ export class Ctx {
    * @example this.data.name = "/start"
    * ```typescript
    * async audioCaptionCommand() {
-   *   this.msgAudio // => {...}
-   *   this.msgCaption // => "/start"
+   *   this.msgAudio // {...}
+   *   this.msgCaption // "/start"
    * }
    * ```
    *
@@ -2597,11 +2577,12 @@ export class Ctx {
    * @example this.data.name = "/start 123 aaa"
    * ```typescript
    * async audioCaptionCommandPayload() {
-   *   this.msgAudio // => {...}
-   *   this.msgCaption // => "/start 123 aaa"
-   *   this.msgCaptionPayload // => "123"
-   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   *   this.msgAudio // {...}
+   *   this.msgCaption // "/start 123 aaa"
+   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionPayloads // ["123", "aaa"]
    * }
+   * ```
    *
    * @virtual
    * @public */
@@ -2612,10 +2593,10 @@ export class Ctx {
    *
    * @remarks Triggered by any audio not matching other routes, typically used with sessions.
    *
-   * @example msgAudio = <...audio...>
+   * @example
    * ```typescript
    * async audioFree() {
-   *    this.msgAudio // => {...}
+   *    this.msgAudio // {...}
    * }
    * ```
    *
@@ -2633,8 +2614,8 @@ export class Ctx {
    * @example this.data.name = "start"
    * ```typescript
    * async documentCaption() {
-   *   this.msgDocument // => {...}
-   *   this.msgCaption // => "start"
+   *   this.msgDocument // {...}
+   *   this.msgCaption // "start"
    * }
    * ```
    *
@@ -2651,10 +2632,10 @@ export class Ctx {
    * @example this.data.name = "start 123 aaa"
    * ```typescript
    * async documentCaptionPayload() {
-   *   this.msgDocument // => {...}
-   *   this.msgCaption // => "start"
-   *   this.msgCaptionPayload // => "123"
-   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   *   this.msgDocument // {...}
+   *   this.msgCaption // "start"
+   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionPayloads // ["123", "aaa"]
    * }
    * ```
    *
@@ -2671,8 +2652,8 @@ export class Ctx {
    * @example this.data.name = "/start"
    * ```typescript
    * async documentCaptionCommand() {
-   *   this.msgDocument // => {...}
-   *   this.msgCaption // => "/start"
+   *   this.msgDocument // {...}
+   *   this.msgCaption // "/start"
    * }
    * ```
    *
@@ -2690,11 +2671,12 @@ export class Ctx {
    * @example this.data.name = "/start 123 aaa"
    * ```typescript
    * async documentCaptionCommandPayload() {
-   *   this.msgDocument // => {...}
-   *   this.msgCaption // => "/start 123 aaa"
-   *   this.msgCaptionPayload // => "123"
-   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   *   this.msgDocument // {...}
+   *   this.msgCaption // "/start 123 aaa"
+   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionPayloads // ["123", "aaa"]
    * }
+   * ```
    *
    * @virtual
    * @public */
@@ -2705,10 +2687,10 @@ export class Ctx {
    *
    * @remarks Triggered by any document not matching other routes, typically used with sessions.
    *
-   * @example msgDocument = <...document...>
+   * @example
    * ```typescript
    * async documentFree() {
-   *    this.msgDocument // => {...}
+   *    this.msgDocument // {...}
    * }
    * ```
    *
@@ -2726,8 +2708,8 @@ export class Ctx {
    * @example this.data.name = "start"
    * ```typescript
    * async animationCaption() {
-   *   this.msgAnimation // => {...}
-   *   this.msgCaption // => "start"
+   *   this.msgAnimation // {...}
+   *   this.msgCaption // "start"
    * }
    * ```
    *
@@ -2744,10 +2726,10 @@ export class Ctx {
    * @example this.data.name = "start 123 aaa"
    * ```typescript
    * async animationCaptionPayload() {
-   *   this.msgAnimation // => {...}
-   *   this.msgCaption // => "start"
-   *   this.msgCaptionPayload // => "123"
-   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   *   this.msgAnimation // {...}
+   *   this.msgCaption // "start"
+   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionPayloads // ["123", "aaa"]
    * }
    * ```
    *
@@ -2764,8 +2746,8 @@ export class Ctx {
    * @example this.data.name = "/start"
    * ```typescript
    * async animationCaptionCommand() {
-   *   this.msgAnimation // => {...}
-   *   this.msgCaption // => "/start"
+   *   this.msgAnimation // {...}
+   *   this.msgCaption // "/start"
    * }
    * ```
    *
@@ -2783,11 +2765,12 @@ export class Ctx {
    * @example this.data.name = "/start 123 aaa"
    * ```typescript
    * async animationCaptionCommandPayload() {
-   *   this.msgAnimation // => {...}
-   *   this.msgCaption // => "/start 123 aaa"
-   *   this.msgCaptionPayload // => "123"
-   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   *   this.msgAnimation // {...}
+   *   this.msgCaption // "/start 123 aaa"
+   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionPayloads // ["123", "aaa"]
    * }
+   * ```
    *
    * @virtual
    * @public */
@@ -2798,10 +2781,10 @@ export class Ctx {
    *
    * @remarks Triggered by any animation not matching other routes, typically used with sessions.
    *
-   * @example msgAnimation = <...animation...>
+   * @example
    * ```typescript
    * async animationFree() {
-   *    this.msgAnimation // => {...}
+   *    this.msgAnimation // {...}
    * }
    * ```
    *
@@ -2819,8 +2802,8 @@ export class Ctx {
    * @example this.data.name = "start"
    * ```typescript
    * async voiceCaption() {
-   *   this.msgVoice // => {...}
-   *   this.msgCaption // => "start"
+   *   this.msgVoice // {...}
+   *   this.msgCaption // "start"
    * }
    * ```
    *
@@ -2837,10 +2820,10 @@ export class Ctx {
    * @example this.data.name = "start 123 aaa"
    * ```typescript
    * async voiceCaptionPayload() {
-   *   this.msgVoice // => {...}
-   *   this.msgCaption // => "start"
-   *   this.msgCaptionPayload // => "123"
-   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   *   this.msgVoice // {...}
+   *   this.msgCaption // "start"
+   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionPayloads // ["123", "aaa"]
    * }
    * ```
    *
@@ -2857,8 +2840,8 @@ export class Ctx {
    * @example this.data.name = "/start"
    * ```typescript
    * async voiceCaptionCommand() {
-   *   this.msgVoice // => {...}
-   *   this.msgCaption // => "/start"
+   *   this.msgVoice // {...}
+   *   this.msgCaption // "/start"
    * }
    * ```
    *
@@ -2876,24 +2859,27 @@ export class Ctx {
    * @example this.data.name = "/start 123 aaa"
    * ```typescript
    * async voiceCaptionCommandPayload() {
-   *   this.msgVoice // => {...}
-   *   this.msgCaption // => "/start 123 aaa"
-   *   this.msgCaptionPayload // => "123"
-   *   this.msgCaptionPayloads // => ["123", "aaa"]
+   *   this.msgVoice // {...}
+   *   this.msgCaption // "/start 123 aaa"
+   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionPayloads // ["123", "aaa"]
    * }
+   * ```
    *
    * @virtual
-   * @public */
+   * @public
+   */
   async voiceCaptionCommandPayload?(): Promise<any>
 
   /**
    * Route handler for free-form voice input.
    *
    * @remarks Triggered by any voice not matching other routes, typically used with sessions.
-   * @example msgVoice = <...voice...>
+   *
+   * @example
    * ```typescript
    * async voiceFree() {
-   *    this.msgVoice // => {...}
+   *    this.msgVoice // {...}
    * }
    * ```
    *
@@ -2905,16 +2891,14 @@ export class Ctx {
   // video_note
   /**
    * Route handler for free-form video note input.
-   *
    * @remarks Triggered by any video note not matching other routes, typically used with sessions.
    *
-   * @example msgVideoNote = <...video note...>
+   * @example
    * ```typescript
    * async videoNoteFree() {
-   *    this.msgVideoNote // => {...}
+   *    this.msgVideoNote // {...}
    * }
    * ```
-   *
    * @virtual
    * @public
    */
@@ -2926,10 +2910,10 @@ export class Ctx {
    *
    * @remarks Triggered by any sticker not matching other routes, typically used with sessions.
    *
-   * @example msgSticker = <...sticker...>
+   * @example
    * ```typescript
    * async stickerFree() {
-   *    this.msgSticker // => {...}
+   *    this.msgSticker // {...}
    * }
    * ```
    *
@@ -2944,10 +2928,10 @@ export class Ctx {
    *
    * @remarks Triggered by any location not matching other routes, typically used with sessions.
    *
-   * @example msgLocation = <...location...>
+   * @example
    * ```typescript
    * async locationFree() {
-   *    this.msgLocation // => {...}
+   *    this.msgLocation // {...}
    * }
    * ```
    *
@@ -2962,10 +2946,10 @@ export class Ctx {
    *
    * @remarks Triggered by any contact not matching other routes, typically used with sessions.
    *
-   * @example msgContact = <...contact...>
+   * @example
    * ```typescript
    * async contactFree() {
-   *    this.msgContact // => {...}
+   *    this.msgContact // {...}
    * }
    * ```
    *

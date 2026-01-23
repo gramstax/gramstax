@@ -22,11 +22,10 @@ Triggered by any animation not matching other routes, typically used with sessio
 
 ## Example
 
-msgAnimation = &lt;<!-- -->...animation...<!-- -->&gt;
 
 ```typescript
 async animationFree() {
-   this.msgAnimation // => {...}
+   this.msgAnimation // {...}
 }
 ```
 

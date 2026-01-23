@@ -26,10 +26,10 @@ this.data.name = "start 123 aaa"
 
 ```typescript
 async photoCaptionPayload() {
-  this.msgPhoto // => {...}
-  this.msgCaption // => "start"
-  this.msgCaptionPayload // => "123"
-  this.msgCaptionPayloads // => ["123", "aaa"]
+  this.msgPhoto // {...}
+  this.msgCaption // "start"
+  this.msgCaptionPayload // "123"
+  this.msgCaptionPayloads // ["123", "aaa"]
 }
 ```
 

@@ -22,11 +22,10 @@ Triggered by any sticker not matching other routes, typically used with sessions
 
 ## Example
 
-msgSticker = &lt;<!-- -->...sticker...<!-- -->&gt;
 
 ```typescript
 async stickerFree() {
-   this.msgSticker // => {...}
+   this.msgSticker // {...}
 }
 ```
 

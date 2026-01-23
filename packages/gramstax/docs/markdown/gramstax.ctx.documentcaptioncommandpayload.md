@@ -22,5 +22,14 @@ Triggered by document with caption command and payloads.
 
 ## Example
 
-this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async documentCaptionCommandPayload() { this.msgDocument // =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa" this.msgCaptionPayload // =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
+this.data.name = "/start 123 aaa"
+
+```typescript
+async documentCaptionCommandPayload() {
+  this.msgDocument // {...}
+  this.msgCaption // "/start 123 aaa"
+  this.msgCaptionPayload // "123"
+  this.msgCaptionPayloads // ["123", "aaa"]
+}
+```
 

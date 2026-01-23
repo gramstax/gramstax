@@ -26,7 +26,7 @@ callbackData = "start".
 
 ```typescript
 async callback() {
-   this.callbackData // => "start"
+   this.callbackData // "start"
 }
 ```
 

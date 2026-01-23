@@ -675,7 +675,7 @@ ITemp\[\`session\`\]
 
 </td><td>
 
-Gets the current session data.
+Gets and setter the current session data.
 
 
 </td></tr>

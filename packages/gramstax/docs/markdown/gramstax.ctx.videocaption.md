@@ -26,8 +26,8 @@ this.data.name = "start"
 
 ```typescript
 async videoCaption() {
-  this.msgVideo // => {...}
-  this.msgCaption // => "start"
+  this.msgVideo // {...}
+  this.msgCaption // "start"
 }
 ```
 

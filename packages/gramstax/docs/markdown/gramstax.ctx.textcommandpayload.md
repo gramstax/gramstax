@@ -26,9 +26,9 @@ msgText = "/start 123 aaa"
 
 ```typescript
 async textCommandPayload() {
-   this.msgText // => "/start 123 aaa"
-   this.msgTextPayload // => "123"
-   this.msgTextPayload // => ["123", "aaa"]
+   this.msgText // "/start 123 aaa"
+   this.msgTextPayload // "123"
+   this.msgTextPayload // ["123", "aaa"]
 }
 ```
 

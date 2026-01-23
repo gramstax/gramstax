@@ -26,7 +26,7 @@ msgText = "hello gramstax"
 
 ```typescript
 async text() {
-   this.msgText // => "hello gramstax"
+   this.msgText // "hello gramstax"
 }
 ```
 

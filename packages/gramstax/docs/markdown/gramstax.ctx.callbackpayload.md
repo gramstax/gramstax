@@ -26,9 +26,9 @@ callbackData = "start:123"
 
 ```typescript
 async callbackPayload() {
-   this.callbackData // => "start:123"
-   this.callbackDataPayload // => "123"
-   this.callbackDataPayloads // => ["123"]
+   this.callbackData // "start:123"
+   this.callbackDataPayload // "123"
+   this.callbackDataPayloads // ["123"]
 }
 ```
 

@@ -26,8 +26,8 @@ this.data.name = "/start"
 
 ```typescript
 async audioCaptionCommand() {
-  this.msgAudio // => {...}
-  this.msgCaption // => "/start"
+  this.msgAudio // {...}
+  this.msgCaption // "/start"
 }
 ```
 

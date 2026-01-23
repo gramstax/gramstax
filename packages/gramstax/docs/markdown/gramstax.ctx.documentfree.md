@@ -22,11 +22,10 @@ Triggered by any document not matching other routes, typically used with session
 
 ## Example
 
-msgDocument = &lt;<!-- -->...document...<!-- -->&gt;
 
 ```typescript
 async documentFree() {
-   this.msgDocument // => {...}
+   this.msgDocument // {...}
 }
 ```
 

@@ -22,11 +22,10 @@ Triggered by any photo not matching other routes, typically used with sessions.
 
 ## Example
 
-msgPhoto = &lt;<!-- -->...photo...<!-- -->&gt;
 
 ```typescript
 async photoFree() {
-   this.msgPhoto // => {...}
+   this.msgPhoto // {...}
 }
 ```
 

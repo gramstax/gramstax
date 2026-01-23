@@ -4,11 +4,13 @@
 
 ## Ctx.session property
 
-Gets the current session data.
+Gets and setter the current session data.
 
 **Signature:**
 
 ```typescript
+get session(): ITemp[`session`];
+
 set session(v: ITemp[`session`]);
 ```
 
@@ -18,7 +20,7 @@ set session(v: ITemp[`session`]);
 ```typescript
 async textFree() {
   const session = this.session
-  console.log(session) // => {method: "...", params: ...}
+  console.log(session) // {method: "...", params: ...}
 }
 ```
 

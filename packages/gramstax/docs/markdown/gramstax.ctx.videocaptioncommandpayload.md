@@ -22,5 +22,14 @@ Triggered by video with caption command and payloads.
 
 ## Example
 
-this.data.name = "/start 123 aaa" \`\`\`<!-- -->typescript async videoCaptionCommandPayload() { this.msgVideo // =<!-- -->&gt; {<!-- -->...<!-- -->} this.msgCaption // =<!-- -->&gt; "/start 123 aaa" this.msgCaptionPayload // =<!-- -->&gt; "123" this.msgCaptionPayloads // =<!-- -->&gt; \["123", "aaa"\] }
+this.data.name = "/start 123 aaa"
+
+```typescript
+async videoCaptionCommandPayload() {
+  this.msgVideo // {...}
+  this.msgCaption // "/start 123 aaa"
+  this.msgCaptionPayload // "123"
+  this.msgCaptionPayloads // ["123", "aaa"]
+}
+```
 

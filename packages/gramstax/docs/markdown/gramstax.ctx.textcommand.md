@@ -26,7 +26,7 @@ msgText = "/start"
 
 ```typescript
 async textCommand() {
-   this.msgText // => "/start"
+   this.msgText // "/start"
 }
 ```
 

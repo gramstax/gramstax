@@ -22,11 +22,10 @@ Triggered by any video note not matching other routes, typically used with sessi
 
 ## Example
 
-msgVideoNote = &lt;<!-- -->...video note...<!-- -->&gt;
 
 ```typescript
 async videoNoteFree() {
-   this.msgVideoNote // => {...}
+   this.msgVideoNote // {...}
 }
 ```
 

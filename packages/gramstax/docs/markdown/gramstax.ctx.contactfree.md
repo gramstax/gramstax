@@ -22,11 +22,10 @@ Triggered by any contact not matching other routes, typically used with sessions
 
 ## Example
 
-msgContact = &lt;<!-- -->...contact...<!-- -->&gt;
 
 ```typescript
 async contactFree() {
-   this.msgContact // => {...}
+   this.msgContact // {...}
 }
 ```
 

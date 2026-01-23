@@ -26,7 +26,7 @@ Triggered by exact text match.
 
 ```typescript
 async text() {
-   this.msgText // => "start"
+   this.msgText // "start"
 }
 ```
 

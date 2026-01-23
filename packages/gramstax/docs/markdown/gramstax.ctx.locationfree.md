@@ -22,11 +22,10 @@ Triggered by any location not matching other routes, typically used with session
 
 ## Example
 
-msgLocation = &lt;<!-- -->...location...<!-- -->&gt;
 
 ```typescript
 async locationFree() {
-   this.msgLocation // => {...}
+   this.msgLocation // {...}
 }
 ```
 

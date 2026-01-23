@@ -308,8 +308,8 @@ export class Ctx {
     replyVideoNote(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVideoNote): Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage | _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage | _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage | _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage | _grammyjs_types.Message.StickerMessage | undefined>;
     replyVoice(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVoice): Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage | _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage | _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage | _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage | _grammyjs_types.Message.StickerMessage | undefined>;
     // Warning: (ae-forgotten-export) The symbol "ITemp" needs to be exported by the entry point index.d.ts
-    set session(v: ITemp[`session`]);
     get session(): ITemp[`session`];
+    set session(v: ITemp[`session`]);
     // (undocumented)
     sessionAnimationCaption(params?: any, name?: string): Promise<boolean | null>;
     // (undocumented)

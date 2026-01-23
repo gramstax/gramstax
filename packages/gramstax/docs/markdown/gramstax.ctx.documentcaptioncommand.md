@@ -26,8 +26,8 @@ this.data.name = "/start"
 
 ```typescript
 async documentCaptionCommand() {
-  this.msgDocument // => {...}
-  this.msgCaption // => "/start"
+  this.msgDocument // {...}
+  this.msgCaption // "/start"
 }
 ```
 

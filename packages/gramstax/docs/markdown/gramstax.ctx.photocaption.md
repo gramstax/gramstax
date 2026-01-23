@@ -26,8 +26,8 @@ this.data.name = "start"
 
 ```typescript
 async photoCaption() {
-  this.msgPhoto // => {...}
-  this.msgCaption // => "start"
+  this.msgPhoto // {...}
+  this.msgCaption // "start"
 }
 ```
 
