@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
-import type {CrudItem} from "~/store/crud"
+import type {MainItem} from "~/db/main"
 
 // Deletes an item by button or ID input.
 export class DeletePage extends PageBase {
@@ -27,7 +27,7 @@ export class DeletePage extends PageBase {
     await this.handleDelete(this.msgText, false)
   }
 
-  buildListKeyboard(items: CrudItem[]) {
+  buildListKeyboard(items: MainItem[]) {
     return this.inlineKeyboard(
       (k, a) => {
         items.forEach((item, index) => {
@@ -51,7 +51,7 @@ export class DeletePage extends PageBase {
 
   private async showList() {
     const {BASE} = DeletePage
-    const items = (await this.crudStore.listItems(this.userId)).slice(0, this.MAX_ITEMS)
+    const items = (await this.db.listItems(this.userId)).slice(0, this.MAX_ITEMS)
     if (items.length === 0) {
       const bi = BASE.empty
       return await this.edit(this.buildSingleKeyboard(bi), {}, bi)
@@ -68,7 +68,7 @@ export class DeletePage extends PageBase {
       return await this.sendWith(this.buildSingleKeyboard(bi), bi, {}, edit)
     }
 
-    const deleted = this.crudStore.deleteItem(this.userId, id)
+    const deleted = this.db.deleteItem(this.userId, id)
     if (!deleted) {
       const bi = BASE.notFound
       return await this.sendWith(this.buildSingleKeyboard(bi), bi, {id}, edit)

@@ -1,12 +1,12 @@
 import {Ctx} from "gramstax"
-import type {CrudStore} from "~/store/crud"
+import type {MainDb} from "~/db/main"
 
 // Shared context for CRUD pages.
 export class CtxCore extends Ctx {
-  crudStore: CrudStore
+  db: MainDb
 
-  constructor(params: ConstructorParameters<typeof Ctx>[0] & {crudStore: CrudStore}) {
+  constructor(params: ConstructorParameters<typeof Ctx>[0] & {db: MainDb}) {
     super({...params})
-    this.crudStore = params.crudStore
+    this.db = params.db
   }
 }

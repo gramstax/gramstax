@@ -1,5 +1,6 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
+import {TimeUt} from "~/utils/time"
 
 // Shows a single item by ID.
 export class DetailPage extends PageBase {
@@ -40,13 +41,13 @@ export class DetailPage extends PageBase {
       return await this.handleInvalid()
     }
 
-    const item = await this.crudStore.getItem(this.userId, id)
+    const item = await this.db.getItem(this.userId, id)
     if (!item) {
       return await this.handleNotFound(id)
     }
 
-    const createdAt = this.crudStore.formatTimestamp(item.createdAt)
-    const updatedAt = this.crudStore.formatTimestamp(item.updatedAt)
+    const createdAt = TimeUt.formatTimestamp(item.createdAt)
+    const updatedAt = TimeUt.formatTimestamp(item.updatedAt)
     await this.replyBase(DetailPage.BASE.detail, {id: item.id, title: item.title, description: item.description, status: item.status, createdAt, updatedAt})
     await this.sessionClear()
   }

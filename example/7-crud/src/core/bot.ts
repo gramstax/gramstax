@@ -1,13 +1,13 @@
-import {Gramstax} from "gramstax"
+import {env} from "~/env"
+import {MainDb} from "~/db/main"
 import {CtxCore} from "./ctx"
-import {CrudStore} from "~/store/crud"
+import {Gramstax} from "gramstax"
 import {CrudGuard} from "~/guards/crud"
 import {GeneralStatusPage} from "~/pages/general-status"
-import {env} from "~/env"
 
 // BotCore wires hooks and shared stores.
 export class BotCore extends Gramstax {
-  crudStore = new CrudStore(env.STORE_PATH)
+  db = new MainDb(env.DB_PATH)
 
   createCtx(ct: Parameters<Gramstax[`createCtx`]>[0]) {
     return new CtxCore({
@@ -15,7 +15,7 @@ export class BotCore extends Gramstax {
       cacheSession: this.cacheSession,
       cacheKeyboard: this.cacheKeyboard,
       templateManager: this.templateManager,
-      crudStore: this.crudStore,
+      db: this.db,
       temp: {
         isAnswer: false,
         session: {},

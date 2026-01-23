@@ -1,6 +1,6 @@
 import {open} from "lmdb"
 
-export type CrudItem = {
+export type MainItem = {
   id: string
   title: string
   description: string
@@ -9,7 +9,7 @@ export type CrudItem = {
   updatedAt: number
 }
 
-export class CrudStore {
+export class MainDb {
   private db: ReturnType<typeof open>
 
   constructor(storePath: string) {
@@ -29,11 +29,11 @@ export class CrudStore {
     }
   }
 
-  async createItem(userId: number, title: string, description: string): Promise<CrudItem> {
+  async createItem(userId: number, title: string, description: string): Promise<MainItem> {
     await this.ensureUser(userId)
     const id = await this.nextId(userId)
     const now = Date.now()
-    const item: CrudItem = {id, title, description, status: `todo`, createdAt: now, updatedAt: now}
+    const item: MainItem = {id, title, description, status: `todo`, createdAt: now, updatedAt: now}
     await this.db.put(this.itemKey(userId, id), item)
     const countKey = this.countKey(userId)
     const currentCount = (this.db.get(countKey) as number) || 0
@@ -41,7 +41,7 @@ export class CrudStore {
     return item
   }
 
-  async listItems(userId: number, options?: {limit?: number; offset?: number}): Promise<CrudItem[]> {
+  async listItems(userId: number, options?: {limit?: number; offset?: number}): Promise<MainItem[]> {
     await this.ensureUser(userId)
     const items = this.listAllItems(userId)
     const limit = options?.limit
@@ -55,15 +55,15 @@ export class CrudStore {
     return (this.db.get(this.countKey(userId)) as number) || 0
   }
 
-  async getItem(userId: number, id: string): Promise<CrudItem | null> {
+  async getItem(userId: number, id: string): Promise<MainItem | null> {
     await this.ensureUser(userId)
-    return (this.db.get(this.itemKey(userId, id)) as CrudItem | undefined) || null
+    return (this.db.get(this.itemKey(userId, id)) as MainItem | undefined) || null
   }
 
-  async updateItem(userId: number, id: string, title: string, description: string, status?: CrudItem[`status`]): Promise<CrudItem | null> {
+  async updateItem(userId: number, id: string, title: string, description: string, status?: MainItem[`status`]): Promise<MainItem | null> {
     const item = await this.getItem(userId, id)
     if (!item) return null
-    const updated: CrudItem = {
+    const updated: MainItem = {
       ...item,
       title,
       description,
@@ -85,10 +85,6 @@ export class CrudStore {
     return removed
   }
 
-  formatTimestamp(ts: number) {
-    return new Date(ts).toISOString().replace(`T`, ` `).slice(0, 19)
-  }
-
   private itemKey(userId: number, id: string) {
     return `item:${userId}:${id}`
   }
@@ -105,11 +101,11 @@ export class CrudStore {
     return `count:${userId}`
   }
 
-  private listAllItems(userId: number): CrudItem[] {
+  private listAllItems(userId: number): MainItem[] {
     const prefix = this.itemPrefix(userId)
-    const items: CrudItem[] = []
+    const items: MainItem[] = []
     for (const {value} of this.db.getRange({start: prefix, end: `${prefix}~`})) {
-      if (value) items.push(value as CrudItem)
+      if (value) items.push(value as MainItem)
     }
     return items.sort((a, b) => a.createdAt - b.createdAt)
   }

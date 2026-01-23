@@ -1,5 +1,6 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
+import {TimeUt} from "~/utils/time"
 
 // Lists all cached items.
 export class ListPage extends PageBase {
@@ -21,7 +22,7 @@ export class ListPage extends PageBase {
 
   async show(page = 0) {
     const {BASE} = ListPage
-    const totalItems = await this.crudStore.countItems(this.userId)
+    const totalItems = await this.db.countItems(this.userId)
     if (totalItems === 0) {
       const bi = BASE.empty
       await this.edit(this.inlineKeyboardT([StartPage], `1`, bi), {}, bi)
@@ -30,10 +31,10 @@ export class ListPage extends PageBase {
     const totalPages = Math.max(Math.ceil(totalItems / this.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const offset = safePage * this.PAGE_SIZE
-    const items = await this.crudStore.listItems(this.userId, {limit: this.PAGE_SIZE, offset})
+    const items = await this.db.listItems(this.userId, {limit: this.PAGE_SIZE, offset})
     const list = items
       .map((item) => {
-        const ts = this.crudStore.formatTimestamp(item.updatedAt)
+        const ts = TimeUt.formatTimestamp(item.updatedAt)
         return `#${item.id} ${item.title} [${item.status}] (updated ${ts})`
       })
       .join(`\n`)

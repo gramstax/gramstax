@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
-import type {CrudItem} from "~/store/crud"
+import type {MainItem} from "~/db/main"
 
 // Updates item status via inline selection.
 export class UpdatePage extends PageBase {
@@ -22,12 +22,12 @@ export class UpdatePage extends PageBase {
       return await this.showStatus(query, true)
     }
     if (action === `status` && query && status) {
-      const item = await this.crudStore.getItem(this.userId, query)
+      const item = await this.db.getItem(this.userId, query)
       if (!item) {
         return await this.showSelect(0)
       }
 
-      const updated = await this.crudStore.updateItem(this.userId, query, item.title, item.description, status as CrudItem[`status`])
+      const updated = await this.db.updateItem(this.userId, query, item.title, item.description, status as MainItem[`status`])
       if (!updated) {
         return await this.showSelect(0)
       }
@@ -39,7 +39,7 @@ export class UpdatePage extends PageBase {
 
   async showSelect(page = 0, edit = true) {
     const {BASE} = UpdatePage
-    const allItems = await this.crudStore.listItems(this.userId)
+    const allItems = await this.db.listItems(this.userId)
     const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const start = safePage * this.PAGE_SIZE
@@ -57,7 +57,7 @@ export class UpdatePage extends PageBase {
 
   async showStatus(id: string, edit = true) {
     const {BASE} = UpdatePage
-    const item = await this.crudStore.getItem(this.userId, id)
+    const item = await this.db.getItem(this.userId, id)
     if (!item) {
       const bi = BASE.notFound
       return await this.sendWith(this.buildSingleKeyboard(bi), bi, {id}, edit)
@@ -66,8 +66,8 @@ export class UpdatePage extends PageBase {
     await this.sendWith(this.buildStatusKeyboard(id), BASE.status, data, edit)
   }
 
-  async buildSelectKeyboard(page: number, items: CrudItem[]) {
-    const allItems = await this.crudStore.listItems(this.userId)
+  async buildSelectKeyboard(page: number, items: MainItem[]) {
+    const allItems = await this.db.listItems(this.userId)
     const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
 

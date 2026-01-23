@@ -48,7 +48,7 @@ export class CreatePage extends PageBase {
     }
 
     await this.sessionClear()
-    const item = await this.crudStore.createItem(this.userId, title, value)
+    const item = await this.db.createItem(this.userId, title, value)
     return await this.replyBase(BASE.success, {id: item.id, title: item.title, description: item.description, status: item.status})
   }
 
