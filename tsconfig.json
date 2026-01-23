@@ -32,6 +32,10 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
+  "files": [],
+  "include": [
+    "*.ts"
+  ],
   "references": [
     {
       "path": "./packages/gramstax"
@@ -53,10 +57,9 @@
     },
     {
       "path": "./example/6-bank-system"
+    },
+    {
+      "path": "./example/7-crud"
     }
   ],
-  "files": [],
-  "include": [
-    "*.ts"
-  ]
 }
