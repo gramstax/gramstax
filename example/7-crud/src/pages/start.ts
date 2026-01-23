@@ -10,7 +10,7 @@ import {HelpPage} from "./help"
 export class StartPage extends PageBase {
   async show(edit: boolean) {
     await this.sessionClear()
-    const kb = this.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`, `menu`)
+    const kb = this.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`)
     if (edit) await this.edit(kb)
     else await this.reply(kb)
   }
@@ -24,12 +24,9 @@ export class StartPage extends PageBase {
   }
 
   static template = `
-    <base id="menu">
+    <base>
       <keyboard>➕ Create, 📋 List, 🔎 Detail, ✅ Update, 🗑️ Delete, ❓ Help</keyboard>
       <keyboard lang="id">➕ Buat, 📋 Daftar, 🔎 Detail, ✅ Perbarui, 🗑️ Hapus, ❓ Bantuan</keyboard>
-    </base>
-
-    <base>
       <message>
         ✅ CRUD Menu
 

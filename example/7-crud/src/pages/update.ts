@@ -93,7 +93,7 @@ export class UpdatePage extends PageBase {
     const [action, query, status] = this.callbackDataPayloads
     if (action === `page`) {
       const page = Number(query)
-      return await this.showSelect(page, true)
+      return await this.showSelect(page)
     }
     if (action === `select` && query) {
       return await this.showStatus(query, true)
@@ -101,12 +101,12 @@ export class UpdatePage extends PageBase {
     if (action === `status` && query && status) {
       const item = await this.crudStore.getItem(this.userId, query)
       if (!item) {
-        return await this.showSelect(0, true)
+        return await this.showSelect(0)
       }
 
       const updated = await this.crudStore.updateItem(this.userId, query, item.title, item.description, status as CrudItem[`status`])
       if (!updated) {
-        return await this.showSelect(0, true)
+        return await this.showSelect(0)
       }
       const bi = `success`
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)

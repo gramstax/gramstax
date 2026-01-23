@@ -11,7 +11,7 @@ export class DeletePage extends PageBase {
     return this.inlineKeyboard(
       (k, a) => {
         items.forEach((item, index) => {
-          k.text(`🗑️ #${item.id} ${item.title}`, this.data.callback(`pick`, item.id))
+          k.text(`🗑️ #${item.id} ${item.title.slice(0, 5)}..`, this.data.callback(`pick`, item.id))
           if (index % 2 === 1) k.row()
         })
         return k.row().text(a[0]!, StartPage.data.callback())

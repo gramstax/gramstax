@@ -22,14 +22,12 @@ export class ListPage extends PageBase {
     )
   }
 
-  async show(page = 0, edit = true) {
+  async show(page = 0) {
     const totalItems = await this.crudStore.countItems(this.userId)
     if (totalItems === 0) {
       const bi = `empty`
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      if (edit) await this.edit(kb, {}, bi)
-      else await this.reply(kb, {}, bi)
-      return
+      await this.edit(kb, {}, bi)
     }
 
     const totalPages = Math.max(Math.ceil(totalItems / this.PAGE_SIZE), 1)
@@ -46,20 +44,19 @@ export class ListPage extends PageBase {
     const kb = this.buildKeyboard(safePage, totalPages)
     const bi = `list`
     const data = {items: list, page: safePage + 1, totalPages}
-    if (edit) await this.edit(kb, data, bi)
-    else await this.reply(kb, data, bi)
+    await this.edit(kb, data, bi)
   }
 
   async callback() {
-    await this.show(0, true)
+    await this.show(0)
   }
 
   async callbackPayload() {
     const [action, value] = this.callbackDataPayloads
-    if (action !== `page`) return await this.show(0, true)
+    if (action !== `page`) return await this.show(0)
+
     const nextPage = Number(value)
-    if (Number.isNaN(nextPage)) return await this.show(0, true)
-    await this.show(nextPage, true)
+    await this.show(Number.isNaN(nextPage) ? 0 : nextPage)
   }
 
   static template = `
