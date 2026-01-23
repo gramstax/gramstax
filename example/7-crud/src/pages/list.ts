@@ -18,15 +18,15 @@ export class ListPage extends PageBase {
         }
         return k.row().text(a[2]!, StartPage.data.callback())
       },
-      {baseId: `navigation`}
+      {baseId: `list`}
     )
   }
 
   async show(page = 0, edit = true) {
     const totalItems = await this.crudStore.countItems(this.userId)
     if (totalItems === 0) {
-      const kb = this.inlineKeyboardT([StartPage], `1`, `empty-kb`)
       const bi = `empty`
+      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
       if (edit) await this.edit(kb, {}, bi)
       else await this.reply(kb, {}, bi)
       return
@@ -64,6 +64,8 @@ export class ListPage extends PageBase {
 
   static template = `
     <base id="list">
+      <keyboard>⬅️ Prev, ➡️ Next, 🏠 Home</keyboard>
+      <keyboard lang="id">⬅️ Sebelumnya, ➡️ Berikutnya, 🏠 Beranda</keyboard>
       <message>
         📋 Cached items
 
@@ -81,6 +83,7 @@ export class ListPage extends PageBase {
     </base>
 
     <base id="empty">
+      ${this.kbk.home()}
       <message>
         📭 No cached items yet.
         Use ➕ Create to add your first item.
@@ -89,15 +92,6 @@ export class ListPage extends PageBase {
         📭 Belum ada item tersimpan.
         Gunakan ➕ Buat untuk menambah item pertama.
       </message>
-    </base>
-
-    <base id="navigation">
-      <keyboard>⬅️ Prev, ➡️ Next, 🏠 Home</keyboard>
-      <keyboard lang="id">⬅️ Sebelumnya, ➡️ Berikutnya, 🏠 Beranda</keyboard>
-    </base>
-
-    <base id="empty-kb">
-      ${this.kbk.home()}
     </base>
   `
 }

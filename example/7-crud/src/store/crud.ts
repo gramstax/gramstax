@@ -21,6 +21,12 @@ export class CrudStore {
     if (this.db.get(counterKey) == null) {
       await this.db.put(counterKey, 0)
     }
+    const countKey = this.countKey(userId)
+    if (this.db.get(countKey) == null) {
+      const prefix = this.itemPrefix(userId)
+      const count = this.db.getKeysCount({start: prefix, end: `${prefix}~`})
+      await this.db.put(countKey, count)
+    }
   }
 
   async createItem(userId: number, title: string, description: string): Promise<CrudItem> {
@@ -29,6 +35,9 @@ export class CrudStore {
     const now = Date.now()
     const item: CrudItem = {id, title, description, status: `todo`, createdAt: now, updatedAt: now}
     await this.db.put(this.itemKey(userId, id), item)
+    const countKey = this.countKey(userId)
+    const currentCount = (this.db.get(countKey) as number) || 0
+    await this.db.put(countKey, currentCount + 1)
     return item
   }
 
@@ -43,9 +52,7 @@ export class CrudStore {
 
   async countItems(userId: number): Promise<number> {
     await this.ensureUser(userId)
-    const prefix = this.itemPrefix(userId)
-    const count = this.db.getKeysCount({start: prefix, end: `${prefix}~`})
-    return count
+    return (this.db.get(this.countKey(userId)) as number) || 0
   }
 
   async getItem(userId: number, id: string): Promise<CrudItem | null> {
@@ -69,7 +76,13 @@ export class CrudStore {
 
   async deleteItem(userId: number, id: string): Promise<boolean> {
     await this.ensureUser(userId)
-    return await this.db.remove(this.itemKey(userId, id))
+    const removed = await this.db.remove(this.itemKey(userId, id))
+    if (removed) {
+      const countKey = this.countKey(userId)
+      const currentCount = (this.db.get(countKey) as number) || 0
+      await this.db.put(countKey, Math.max(0, currentCount - 1))
+    }
+    return removed
   }
 
   formatTimestamp(ts: number) {
@@ -86,6 +99,10 @@ export class CrudStore {
 
   private counterKey(userId: number) {
     return `counter:${userId}`
+  }
+
+  private countKey(userId: number) {
+    return `count:${userId}`
   }
 
   private listAllItems(userId: number): CrudItem[] {
