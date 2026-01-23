@@ -2,9 +2,8 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class InputText2Page extends PageBase {
-  static data = this.buildData({
-    intentTextCommand: `input_text2`
-  })
+  static data = this.buildData({intentTextCommand: `input_text2`})
+  static BASE = {result: `result`}
 
   kb(baseId?: string) {
     return this.inlineKeyboardT([StartPage], `1`, baseId)
@@ -19,9 +18,9 @@ export class InputText2Page extends PageBase {
   }
 
   async textFree() {
-    const baseId = `result`
-    const data = {res: this.msgText}
-    await this.reply(this.kb(baseId), data, baseId)
+    const bi = InputText2Page.BASE.result
+    const da = {res: this.msgText}
+    await this.reply(this.kb(bi), da, bi)
   }
 
   static template = `
@@ -30,7 +29,7 @@ export class InputText2Page extends PageBase {
       <message>Please input text you want view</message>
       <message lang="id">Tolong masukan text yang ingin anda liat</message>
     </base>
-    <base id="result">
+    <base id="${this.BASE.result}">
       ${this.kbk.home()}
       <message>
         Result input text2 (without session): {{res}}

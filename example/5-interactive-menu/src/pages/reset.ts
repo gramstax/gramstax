@@ -4,24 +4,25 @@ import {StartPage} from "./start"
 // Reset state and return to main menu.
 export class ResetPage extends PageBase {
   static data = this.buildData({intentText: `Reset`})
+  static BASE = {reset: `reset`}
 
-  async show(edit = false) {
+  async transition(edit = false) {
     await this.cacheState.delete(`${this.userId}:category`)
     await this.cacheState.delete(`${this.userId}:page`)
     await this.sessionClear()
 
     const kb = this.inlineKeyboardT([StartPage])
-    const bi = `reset`
+    const bi = ResetPage.BASE.reset
     if (edit) await this.edit(kb, {}, bi)
     else await this.reply(kb, {}, bi)
   }
 
   async callback() {
-    await this.show(true)
+    await this.transition(true)
   }
 
   async text() {
-    await this.show(false)
+    await this.transition(false)
   }
 
   static template = `
@@ -32,7 +33,7 @@ export class ResetPage extends PageBase {
       </message>
     </base>
 
-    <base id="reset">
+    <base id="${this.BASE.reset}">
       <message>
         Reset complete. Tap Back to return.
       </message>

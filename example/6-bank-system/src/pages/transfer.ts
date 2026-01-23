@@ -3,13 +3,15 @@ import {StartPage} from "./start"
 
 // Transfer funds to another user.
 export class TransferPage extends PageBase {
+  static BASE = {form: `form`, invalid: `invalid`, success: `success`, insufficient: `insufficient`, unknownUser: `unknown-user`, self: `self`}
+
   kb(baseId?: string) {
     return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
   async callback() {
     await this.sessionTextFree()
-    const bi = `form`
+    const bi = TransferPage.BASE.form
     const kb = this.kb(bi)
     await this.edit(kb, {}, bi)
   }
@@ -22,7 +24,8 @@ export class TransferPage extends PageBase {
 
   private async handleTransfer(payloads: string[], edit = false) {
     const [amountInput, targetInput] = payloads
-    const biInv = `invalid`
+    const {BASE} = TransferPage
+    const biInv = BASE.invalid
     if (!amountInput || !targetInput) {
       return await this.reply(this.kb(biInv), {}, biInv)
     }
@@ -34,18 +37,18 @@ export class TransferPage extends PageBase {
 
     const target = this.resolveTarget(targetInput)
     if (!target) {
-      const bi = `unknown-user`
+      const bi = BASE.unknownUser
       return await this.reply(this.kb(bi), {target: targetInput}, bi)
     }
 
     if (target.id === this.userId) {
-      const bi = `self`
+      const bi = BASE.self
       return await this.reply(this.kb(bi), {}, bi)
     }
 
     const current = this.bankStore.getBalance(this.userId)
     if (current < amount) {
-      const bi = `insufficient`
+      const bi = BASE.insufficient
       return await this.reply(this.kb(bi), {balance: this.bankStore.formatAmount(current)}, bi)
     }
 
@@ -77,7 +80,7 @@ export class TransferPage extends PageBase {
     const data = {amount: amountDisplay, balance, target: target.label}
 
     await this.sessionClear()
-    const biSuc = `success`
+    const biSuc = BASE.success
     const kb = this.kb(biSuc)
     if (edit) await this.edit(kb, data, biSuc)
     else await this.reply(kb, data, biSuc)
@@ -94,8 +97,8 @@ export class TransferPage extends PageBase {
   }
 
   static template = `
-    <base id="form">
-      ${this.kbk.cancel(`default`)}
+    <base id="${this.BASE.form}">
+      ${this.kbk.cancel()}
       <message>
         Enter: [amount] [recipient]
 
@@ -103,40 +106,40 @@ export class TransferPage extends PageBase {
       </message>
     </base>
 
-    <base id="success">
-      ${this.kbk.home(`default`)}
+    <base id="${this.BASE.success}">
+      ${this.kbk.home()}
       <message>
         Transfer completed: {{amount}} to {{target}}
         Updated balance: {{balance}}
       </message>
     </base>
 
-    <base id="insufficient">
-      ${this.kbk.cancel(`default`)}
+    <base id="${this.BASE.insufficient}">
+      ${this.kbk.cancel()}
       <message>
         Insufficient funds for this transfer.
         Available balance: {{balance}}
       </message>
     </base>
 
-    <base id="unknown-user">
-      ${this.kbk.cancel(`default`)}
+    <base id="${this.BASE.unknownUser}">
+      ${this.kbk.cancel()}
       <message>
         Recipient not found: "{{target}}".
         Provide a numeric ID or a registered username.
       </message>
     </base>
 
-    <base id="self">
-      ${this.kbk.cancel(`default`)}
+    <base id="${this.BASE.self}">
+      ${this.kbk.cancel()}
       <message>
         Transfers to your own account are not permitted.
         Please choose a different recipient.
       </message>
     </base>
 
-    <base id="invalid">
-      ${this.kbk.cancel(`default`)}
+    <base id="${this.BASE.invalid}">
+      ${this.kbk.cancel()}
       <message>
         Invalid transfer format.
         Example: 125.000 12345

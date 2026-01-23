@@ -5,6 +5,7 @@ import {StartPage} from "./start"
 // Inline keyboard with page info (no total count).
 export class InlineWithoutCountPage extends PageBase {
   static data = this.buildData((action?: string, page?: string) => [action, page])
+  static BASE = {list: `list`}
 
   buildKb(page: number) {
     const ITEMS_PER_PAGE = 4
@@ -35,7 +36,7 @@ export class InlineWithoutCountPage extends PageBase {
     const safePage = Math.max(page, 0)
     const data = {page: safePage + 1}
     const kb = this.buildKb(safePage)
-    const bi = `list`
+    const bi = InlineWithoutCountPage.BASE.list
     if (edit) await this.edit(kb, data, bi)
     else await this.reply(kb, data, bi)
   }
@@ -66,7 +67,7 @@ export class InlineWithoutCountPage extends PageBase {
       </message>
     </base>
 
-    <base id="list">
+    <base id="${this.BASE.list}">
       <message>
         Select an item from the inline menu.
       </message>

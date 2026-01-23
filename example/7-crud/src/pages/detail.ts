@@ -3,13 +3,11 @@ import {StartPage} from "./start"
 
 // Shows a single item by ID.
 export class DetailPage extends PageBase {
-  kb(baseId?: string) {
-    return this.inlineKeyboardT([StartPage], `1`, baseId)
-  }
+  static BASE = {form: `form`, detail: `detail`, notFound: `not-found`, invalid: `invalid`}
 
   async callback() {
     await this.sessionTextFree()
-    const bi = `form`
+    const bi = DetailPage.BASE.form
     await this.edit(this.kb(bi), {}, bi)
   }
 
@@ -18,32 +16,43 @@ export class DetailPage extends PageBase {
     await this.handleDetail(this.msgText)
   }
 
+  kb(baseId?: string) {
+    return this.inlineKeyboardT([StartPage], `1`, baseId)
+  }
+
+  private replyBase(baseId: string, data: Record<string, unknown> = {}) {
+    return this.reply(this.kb(baseId), data, baseId)
+  }
+
+  private async handleInvalid() {
+    await this.replyBase(DetailPage.BASE.invalid)
+    await this.sessionClear()
+  }
+
+  private async handleNotFound(id: string) {
+    await this.replyBase(DetailPage.BASE.notFound, {id})
+    await this.sessionClear()
+  }
+
   private async handleDetail(input?: string) {
     const id = input?.trim()
     if (!id) {
-      const bi = `invalid`
-      await this.reply(this.kb(bi), {}, bi)
-      await this.sessionClear()
-      return
+      return await this.handleInvalid()
     }
 
     const item = await this.crudStore.getItem(this.userId, id)
     if (!item) {
-      const bi = `not-found`
-      await this.reply(this.kb(bi), {id}, bi)
-      await this.sessionClear()
-      return
+      return await this.handleNotFound(id)
     }
 
     const createdAt = this.crudStore.formatTimestamp(item.createdAt)
     const updatedAt = this.crudStore.formatTimestamp(item.updatedAt)
-    const bi = `detail`
-    await this.reply(this.kb(bi), {id: item.id, title: item.title, description: item.description, status: item.status, createdAt, updatedAt}, bi)
+    await this.replyBase(DetailPage.BASE.detail, {id: item.id, title: item.title, description: item.description, status: item.status, createdAt, updatedAt})
     await this.sessionClear()
   }
 
   static template = `
-    <base id="form">
+    <base id="${this.BASE.form}">
       ${this.kbk.cancel()}
       <message>
         🔎 View item details
@@ -59,7 +68,7 @@ export class DetailPage extends PageBase {
       </message>
     </base>
 
-    <base id="detail">
+    <base id="${this.BASE.detail}">
       ${this.kbk.home()}
       <message>
         📋 Item #{{id}}
@@ -81,7 +90,7 @@ export class DetailPage extends PageBase {
       </message>
     </base>
 
-    <base id="not-found">
+    <base id="${this.BASE.notFound}">
       ${this.kbk.cancel()}
       <message>
         ❌ Item not found: {{id}}
@@ -91,7 +100,7 @@ export class DetailPage extends PageBase {
       </message>
     </base>
 
-    <base id="invalid">
+    <base id="${this.BASE.invalid}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid ID.

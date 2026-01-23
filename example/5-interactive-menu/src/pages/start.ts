@@ -7,12 +7,12 @@ import {InlineWithoutCountPage} from "./inline-without-count"
 // Main menu page for the interactive bot.
 export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Home`})
+  static BASE = {quick: `quick`}
 
   async show(isEdit = false) {
     const ikb = this.inlineKeyboardT([CategoryPage, InlineWithoutCountPage, InlineWithoutCountPage, HelpPage, ResetPage], `2`)
     if (isEdit) {
-      await this.edit(ikb)
-      return
+      return await this.edit(ikb)
     }
 
     // First reply shows the main menu with inline buttons.
@@ -20,7 +20,7 @@ export class StartPage extends PageBase {
 
     // Second reply enables persistent quick actions.
     const bkb = this.bottomKeyboardT(`2`)
-    await this.reply(bkb, {}, `quick-actions`)
+    await this.reply(bkb, {}, StartPage.BASE.quick)
   }
 
   async textCommand() {
@@ -50,7 +50,7 @@ export class StartPage extends PageBase {
       </message>
     </base>
 
-    <base id="quick-actions">
+    <base id="${this.BASE.quick}">
       <message>
         Quick actions enabled. Use the bottom keyboard anytime.
       </message>

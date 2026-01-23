@@ -5,7 +5,27 @@ import type {CrudItem} from "~/store/crud"
 // Deletes an item by button or ID input.
 export class DeletePage extends PageBase {
   static data = this.buildData((action?: string, id?: string) => [action, id])
+  static BASE = {list: `list`, success: `success`, notFound: `not-found`, invalid: `invalid`, empty: `empty`}
   MAX_ITEMS = 5
+
+  async callback() {
+    await this.sessionTextFree({step: `id`})
+    await this.showList()
+  }
+
+  async callbackPayload() {
+    const [action, id] = this.callbackDataPayloads
+    if (action === `pick` && id) {
+      return await this.handleDelete(id, true)
+    }
+    await this.showList()
+  }
+
+  async textFree() {
+    if (!this.validateSessionTextFree()) return null
+    await this.sessionGet()
+    await this.handleDelete(this.msgText, false)
+  }
 
   buildListKeyboard(items: CrudItem[]) {
     return this.inlineKeyboard(
@@ -16,77 +36,50 @@ export class DeletePage extends PageBase {
         })
         return k.row().text(a[0]!, StartPage.data.callback())
       },
-      {baseId: `list`}
+      {baseId: DeletePage.BASE.list}
     )
   }
 
-  async showList(edit = true) {
+  private buildSingleKeyboard(baseId: string) {
+    return this.inlineKeyboardT([StartPage], `1`, baseId)
+  }
+
+  private async sendWith(kb: ReturnType<PageBase[`inlineKeyboardT`]>, baseId: string, data: Record<string, unknown>, edit: boolean) {
+    if (edit) await this.edit(kb, data, baseId)
+    else await this.reply(kb, data, baseId)
+  }
+
+  private async showList() {
+    const {BASE} = DeletePage
     const items = (await this.crudStore.listItems(this.userId)).slice(0, this.MAX_ITEMS)
     if (items.length === 0) {
-      const bi = `empty`
-      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      if (edit) await this.edit(kb, {}, bi)
-      else await this.reply(kb, {}, bi)
-      return
+      const bi = BASE.empty
+      return await this.edit(this.buildSingleKeyboard(bi), {}, bi)
     }
-
-    const kb = this.buildListKeyboard(items)
-    const bi = `list`
-    const data = {count: items.length}
-    if (edit) await this.edit(kb, data, bi)
-    else await this.reply(kb, data, bi)
-  }
-
-  async callback() {
-    await this.sessionTextFree({step: `id`})
-    await this.showList(true)
-  }
-
-  async callbackPayload() {
-    const [action, id] = this.callbackDataPayloads
-    if (action === `pick` && id) {
-      await this.handleDelete(id, true)
-      return
-    }
-
-    await this.showList(true)
-  }
-
-  async textFree() {
-    if (!this.validateSessionTextFree()) return null
-    await this.sessionGet()
-    await this.handleDelete(this.msgText, false)
+    await this.edit(this.buildListKeyboard(items), {count: items.length}, BASE.list)
   }
 
   private async handleDelete(input?: string, edit = false) {
+    const {BASE} = DeletePage
     const id = input?.trim()
     if (!id) {
-      const bi = `invalid`
-      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      if (edit) await this.edit(kb, {}, bi)
-      else await this.reply(kb, {}, bi)
       await this.sessionClear()
-      return
+      const bi = BASE.invalid
+      return await this.sendWith(this.buildSingleKeyboard(bi), bi, {}, edit)
     }
 
     const deleted = this.crudStore.deleteItem(this.userId, id)
     if (!deleted) {
-      const bi = `not-found`
-      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      if (edit) await this.edit(kb, {id}, bi)
-      else await this.reply(kb, {id}, bi)
-      return
+      const bi = BASE.notFound
+      return await this.sendWith(this.buildSingleKeyboard(bi), bi, {id}, edit)
     }
-
     await this.sessionClear()
-    const bi = `success`
-    const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-    if (edit) await this.edit(kb, {id}, bi)
-    else await this.reply(kb, {id}, bi)
+    const bi = BASE.success
+    await this.sendWith(this.buildSingleKeyboard(bi), bi, {id}, edit)
   }
 
   static template = `
-    <base id="list">
+    <base id="${this.BASE.list}">
       ${this.kbk.home()}
       <message>
         🗑️ Select a todo to delete, or type an ID.
@@ -100,7 +93,7 @@ export class DeletePage extends PageBase {
       </message>
     </base>
 
-    <base id="success">
+    <base id="${this.BASE.success}">
       ${this.kbk.home()}
       <message>
         ✅ Item deleted!
@@ -114,7 +107,7 @@ export class DeletePage extends PageBase {
       </message>
     </base>
 
-    <base id="not-found">
+    <base id="${this.BASE.notFound}">
       ${this.kbk.home()}
       <message>
         ❌ Item not found: {{id}}
@@ -128,7 +121,7 @@ export class DeletePage extends PageBase {
       </message>
     </base>
 
-    <base id="invalid">
+    <base id="${this.BASE.invalid}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid ID.
@@ -142,7 +135,7 @@ export class DeletePage extends PageBase {
       </message>
     </base>
 
-    <base id="empty">
+    <base id="${this.BASE.empty}">
       ${this.kbk.home()}
       <message>
         📭 No items available to delete.

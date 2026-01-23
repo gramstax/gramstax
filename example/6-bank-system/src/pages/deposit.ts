@@ -3,13 +3,15 @@ import {StartPage} from "./start"
 
 // Deposits funds into the user's balance.
 export class DepositPage extends PageBase {
+  static BASE = {form: `form`, success: `success`, invalid: `invalid`}
+
   kb(baseId?: string) {
     return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
   async callback() {
     await this.sessionTextFree()
-    await this.edit(this.kb(), {}, `form`)
+    await this.edit(this.kb(), {}, DepositPage.BASE.form)
   }
 
   async textFree() {
@@ -18,7 +20,8 @@ export class DepositPage extends PageBase {
   }
 
   private async handleDeposit(amountInput?: string, edit = false) {
-    const biInv = `invalid`
+    const {BASE} = DepositPage
+    const biInv = BASE.invalid
     if (!amountInput) {
       return await this.reply(this.kb(biInv), {}, biInv)
     }
@@ -43,7 +46,7 @@ export class DepositPage extends PageBase {
     const data = {amount: amountDisplay, balance}
 
     await this.sessionClear()
-    const biSuc = `success`
+    const biSuc = BASE.success
     const kb = this.kb(biSuc)
     if (edit) await this.edit(kb, data, biSuc)
     else await this.reply(kb, data, biSuc)
@@ -51,14 +54,14 @@ export class DepositPage extends PageBase {
 
   static template = `
     <base id="form">
-      ${this.kbk.cancel(`default`)}
+      ${this.kbk.cancel()}
       <message>
         Please enter the deposit amount as a whole number. Dots are accepted for thousand separators.
       </message>
     </base>
 
     <base id="success">
-      ${this.kbk.home(`default`)}
+      ${this.kbk.home()}
       <message>
         Deposit completed: {{amount}}
         Updated balance: {{balance}}
@@ -66,7 +69,7 @@ export class DepositPage extends PageBase {
     </base>
 
     <base id="invalid">
-      ${this.kbk.cancel(`default`)}
+      ${this.kbk.cancel()}
       <message>
         Invalid amount: "{{amount}}".
         Enter a whole number only.

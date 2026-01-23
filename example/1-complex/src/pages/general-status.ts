@@ -3,7 +3,9 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class GeneralStatusPage extends PageBase {
+  static BASE = {error: `error`, notFound: `not-found`}
   constructorName?: string
+
   constructor(p: any) {
     super(p)
     this.constructorName = p?.constructor?.name
@@ -15,17 +17,16 @@ export class GeneralStatusPage extends PageBase {
 
   async toError(funcName: string, error: any, edit = true) {
     log.errorMake(error, this.constructorName, funcName)
+
     await this.sessionClear()
     const kb = this.kb()
-    const bi = `error`
+    const bi = GeneralStatusPage.BASE.error
     if (edit) await this.edit(kb, {}, bi)
     else await this.reply(kb, {}, bi)
   }
 
   async toErrorInputNotFound() {
-    const kb = this.kb()
-    const bi = `error-input-notfound`
-    await this.reply(kb, {}, bi)
+    await this.reply(this.kb(), {}, GeneralStatusPage.BASE.notFound)
   }
 
   static template = `
@@ -33,7 +34,7 @@ export class GeneralStatusPage extends PageBase {
       ${this.kbk.home()}
     </base>
 
-    <base id="error">
+    <base id="${this.BASE.error}">
       <message>
         <b>❌ Error</b>
 
@@ -48,12 +49,16 @@ export class GeneralStatusPage extends PageBase {
       </message>
     </base>
 
-    <base id="error-input-notfound">
+    <base id="${this.BASE.notFound}">
       <message>
         <b>❌ Not Found</b>
+
+        Not maching route.
       </message>
       <message lang="id">
         <b>❌ Tidak Ditemukan</b>
+
+        Tidak ada route terdeteksi.
       </message>
     </base>
   `

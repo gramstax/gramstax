@@ -5,85 +5,8 @@ import type {CrudItem} from "~/store/crud"
 // Updates item status via inline selection.
 export class UpdatePage extends PageBase {
   static data = this.buildData((action?: string, query?: string, status?: string) => [action, query, status])
+  static BASE = {select: `select`, status: `status`, success: `success`, empty: `empty`, notFound: `not-found`}
   PAGE_SIZE = 5
-
-  async buildSelectKeyboard(page: number, items: CrudItem[]) {
-    const allItems = await this.crudStore.listItems(this.userId)
-    const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
-    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-
-    return this.inlineKeyboard(
-      (k, a) => {
-        items.forEach((item, index) => {
-          k.text(`📝 #${item.id} ${item.title.slice(0, 5)}..`, this.data.callback(`select`, item.id))
-          if (index % 2 === 1) k.row()
-        })
-
-        k.row()
-        if (safePage > 0) {
-          k.text(a[0]!, this.data.callback(`page`, `${safePage - 1}`))
-        }
-        if (safePage < totalPages - 1) {
-          k.text(a[1]!, this.data.callback(`page`, `${safePage + 1}`))
-        }
-        return k.row().text(a[2]!, StartPage.data.callback())
-      },
-      {baseId: `select`}
-    )
-  }
-
-  buildStatusKeyboard(id: string) {
-    return this.inlineKeyboardT(
-      [
-        this.data.callback(`status`, id, `todo`), //
-        this.data.callback(`status`, id, `in-progress`),
-        this.data.callback(`status`, id, `done`),
-        StartPage
-      ],
-      `3-1`,
-      `status`
-    )
-  }
-
-  async showSelect(page = 0, edit = true) {
-    const allItems = await this.crudStore.listItems(this.userId)
-    const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
-    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-    const start = safePage * this.PAGE_SIZE
-    const end = start + this.PAGE_SIZE
-    const items = allItems.slice(start, end)
-
-    if (items.length === 0) {
-      const bi = `empty`
-      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      if (edit) await this.edit(kb, {}, bi)
-      else await this.reply(kb, {}, bi)
-      return
-    }
-
-    const kb = await this.buildSelectKeyboard(safePage, items)
-    const bi = `select`
-    const data = {count: allItems.length, page: safePage + 1, totalPages}
-    if (edit) await this.edit(kb, data, bi)
-    else await this.reply(kb, data, bi)
-  }
-
-  async showStatus(id: string, edit = true) {
-    const item = await this.crudStore.getItem(this.userId, id)
-    if (!item) {
-      const bi = `not-found`
-      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      if (edit) await this.edit(kb, {id}, bi)
-      else await this.reply(kb, {id}, bi)
-      return
-    }
-
-    const kb = this.buildStatusKeyboard(id)
-    const bi = `status`
-    const data = {id: item.id, title: item.title, status: item.status}
-    if (edit) await this.edit(kb, data, bi)
-    else await this.reply(kb, data, bi)
-  }
 
   async callback() {
     await this.showSelect(0, true)
@@ -108,15 +31,90 @@ export class UpdatePage extends PageBase {
       if (!updated) {
         return await this.showSelect(0)
       }
-      const bi = `success`
-      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      return await this.edit(kb, {id: updated.id, status: updated.status}, bi)
+      const bi = UpdatePage.BASE.success
+      return await this.sendWith(this.buildSingleKeyboard(bi), bi, {id: updated.id, status: updated.status}, true)
     }
     await this.showSelect(0, true)
   }
 
+  async showSelect(page = 0, edit = true) {
+    const {BASE} = UpdatePage
+    const allItems = await this.crudStore.listItems(this.userId)
+    const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
+    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
+    const start = safePage * this.PAGE_SIZE
+    const end = start + this.PAGE_SIZE
+    const items = allItems.slice(start, end)
+
+    if (items.length === 0) {
+      const bi = BASE.empty
+      return await this.sendWith(this.buildSingleKeyboard(bi), bi, {}, edit)
+    }
+
+    const data = {count: allItems.length, page: safePage + 1, totalPages}
+    await this.sendWith(await this.buildSelectKeyboard(safePage, items), BASE.select, data, edit)
+  }
+
+  async showStatus(id: string, edit = true) {
+    const {BASE} = UpdatePage
+    const item = await this.crudStore.getItem(this.userId, id)
+    if (!item) {
+      const bi = BASE.notFound
+      return await this.sendWith(this.buildSingleKeyboard(bi), bi, {id}, edit)
+    }
+    const data = {id: item.id, title: item.title, status: item.status}
+    await this.sendWith(this.buildStatusKeyboard(id), BASE.status, data, edit)
+  }
+
+  async buildSelectKeyboard(page: number, items: CrudItem[]) {
+    const allItems = await this.crudStore.listItems(this.userId)
+    const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
+    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
+
+    return this.inlineKeyboard(
+      (k, a) => {
+        items.forEach((item, index) => {
+          k.text(`📝 #${item.id} ${item.title.slice(0, 5)}..`, this.data.callback(`select`, item.id))
+          if (index % 2 === 1) k.row()
+        })
+
+        k.row()
+        if (safePage > 0) {
+          k.text(a[0]!, this.data.callback(`page`, `${safePage - 1}`))
+        }
+        if (safePage < totalPages - 1) {
+          k.text(a[1]!, this.data.callback(`page`, `${safePage + 1}`))
+        }
+        return k.row().text(a[2]!, StartPage.data.callback())
+      },
+      {baseId: UpdatePage.BASE.select}
+    )
+  }
+
+  buildStatusKeyboard(id: string) {
+    return this.inlineKeyboardT(
+      [
+        this.data.callback(`status`, id, `todo`), //
+        this.data.callback(`status`, id, `in-progress`),
+        this.data.callback(`status`, id, `done`),
+        StartPage
+      ],
+      `3-1`,
+      UpdatePage.BASE.status
+    )
+  }
+
+  private buildSingleKeyboard(baseId: string) {
+    return this.inlineKeyboardT([StartPage], `1`, baseId)
+  }
+
+  private async sendWith(kb: ReturnType<PageBase[`inlineKeyboardT`]>, baseId: string, data: Record<string, unknown>, edit: boolean) {
+    if (edit) await this.edit(kb, data, baseId)
+    else await this.reply(kb, data, baseId)
+  }
+
   static template = `
-    <base id="select">
+    <base id="${this.BASE.select}">
       <keyboard>⬅️ Prev, ➡️ Next, 🏠 Home</keyboard>
       <keyboard lang="id">⬅️ Sebelumnya, ➡️ Berikutnya, 🏠 Beranda</keyboard>
       <message>
@@ -131,7 +129,7 @@ export class UpdatePage extends PageBase {
       </message>
     </base>
 
-    <base id="status">
+    <base id="${this.BASE.status}">
       <keyboard>📝 Todo, 🔄 In Progress, ✅ Done, 🏠 Home</keyboard>
       <keyboard lang="id">📝 Todo, 🔄 Proses, ✅ Selesai, 🏠 Beranda</keyboard>
       <message>
@@ -150,7 +148,7 @@ export class UpdatePage extends PageBase {
       </message>
     </base>
 
-    <base id="success">
+    <base id="${this.BASE.success}">
       ${this.kbk.home()}
       <message>
         ✅ Status updated!
@@ -164,7 +162,7 @@ export class UpdatePage extends PageBase {
       </message>
     </base>
 
-    <base id="empty">
+    <base id="${this.BASE.empty}">
       ${this.kbk.home()}
       <message>
         📭 No items available to update.
@@ -178,7 +176,7 @@ export class UpdatePage extends PageBase {
       </message>
     </base>
 
-    <base id="not-found">
+    <base id="${this.BASE.notFound}">
       ${this.kbk.home()}
       <message>
         ❌ Item not found: {{id}}

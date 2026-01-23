@@ -6,8 +6,8 @@ export class HistoryPage extends PageBase {
   async callback() {
     const history = this.formatHistory()
     const kb = this.inlineKeyboardT([StartPage])
-    const data = {history}
-    await this.edit(kb, data)
+    const da = {history}
+    await this.edit(kb, da)
   }
 
   private formatHistory() {
@@ -41,7 +41,7 @@ export class HistoryPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbk.back(`default`)}
+      ${this.kbk.back()}
       <message>
         Recent transactions:
 

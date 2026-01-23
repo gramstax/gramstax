@@ -3,6 +3,7 @@ import {StartPage} from "./start"
 
 export class TestAnimationPage extends PageBase {
   static data = this.buildData((swc?: string) => [swc])
+  static BASE = {dynamicAttr: `dynamic-attribute`}
 
   kb(isDynamic = false) {
     return this.inlineKeyboard((k, a) => {
@@ -36,7 +37,7 @@ export class TestAnimationPage extends PageBase {
       <media lang="id" type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">Kaption text untuk media <b>animasi</b></media>
     </base>
     
-    <base id="dynamic-attribute">
+    <base id="${this.BASE.dynamicAttr}">
       <media type="animation" src="{{src}}">
         Supports dynamic variables and exec in attribute, except attribute lang and type. only applies to &lt;media&gt; blocks
 

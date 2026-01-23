@@ -1,6 +1,5 @@
 import {HelpPage} from "./help"
 import {PageBase} from "~/base/page"
-import {KeyboardBottomPage} from "./keyboard-bottom"
 import {CounterPage} from "./counter"
 import {LanguagePage} from "./language"
 import {BlockMapPage} from "./block-map"
@@ -10,6 +9,7 @@ import {TestVoicePage} from "./test-voice"
 import {TestPhotoPage} from "./test-photo"
 import {TestVideoPage} from "./test-video"
 import {TestAudioPage} from "./test-audio"
+import {InputText2Page} from "./input-text-2"
 import {BlockSwitchPage} from "./block-switch"
 import {BlockImportPage} from "./block-import"
 import {TestContactPage} from "./test-contact"
@@ -19,10 +19,11 @@ import {TestDocumentPage} from "./test-document"
 import {CounterThreadPage} from "./counter-thread"
 import {TestAnimationPage} from "./test-animation"
 import {TestVideoNotePage} from "./test-video-note"
-import {InputText2Page} from "./input-text-2"
+import {KeyboardBottomPage} from "./keyboard-bottom"
 
 export class StartPage extends PageBase {
   static data = this.buildData((rdm?: string) => [rdm])
+  static BASE = {kbForImport: `kb-for-block-import`, forImport: `for-block-import`}
 
   kb() {
     return this.inlineKeyboard(
@@ -112,11 +113,12 @@ export class StartPage extends PageBase {
   }
 
   static template = `
-    <base id="kb-for-block-import">
+    <base id="${this.BASE.kbForImport}">
       ${this.kbk.refreshBack()}
     </base>
-    <base id="for-block-import">
-      <import src="start" base="kb-for-block-import" />
+
+    <base id="${this.BASE.forImport}">
+      <import src="start" base="${this.BASE.kbForImport}" />
       <message>
         This message and keyboard import from start.ts for file block-import.ts use block import
 

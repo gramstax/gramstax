@@ -4,8 +4,9 @@ import {StartPage} from "./start"
 
 // Inline keyboard with total page count.
 export class InlineWithCountPage extends PageBase {
-  ITEMS_PER_PAGE = 4
   static data = this.buildData((action?: string, page?: string) => [action, page])
+  static BASE = {list: `list`}
+  ITEMS_PER_PAGE = 4
 
   buildKb(page: number) {
     const totalPages = Math.max(Math.ceil(CatalogMock.menuItems.length / this.ITEMS_PER_PAGE), 1)
@@ -35,7 +36,7 @@ export class InlineWithCountPage extends PageBase {
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const data = {page: safePage + 1, totalPages}
     const kb = this.buildKb(safePage)
-    const bi = `list`
+    const bi = InlineWithCountPage.BASE.list
     if (edit) await this.edit(kb, data, bi)
     else await this.reply(kb, data, bi)
   }
@@ -66,7 +67,7 @@ export class InlineWithCountPage extends PageBase {
       </message>
     </base>
 
-    <base id="list">
+    <base id="${this.BASE.list}">
       <message>
         Select an item from the inline menu.
       </message>

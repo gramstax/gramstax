@@ -6,6 +6,7 @@ import {CategoryPage} from "./category"
 // Item list with pagination and dynamic buttons.
 export class ItemListPage extends PageBase {
   static data = this.buildData((action?: string, value?: string) => [action, value])
+  static BASE = {list: `list`}
 
   buildKeyboard(categoryId: string, page: number, category = CatalogMock.getCategoryById(categoryId)) {
     if (!category) {
@@ -35,11 +36,11 @@ export class ItemListPage extends PageBase {
         }
         return k.row().text(a[2]!, CategoryPage.data.callback())
       },
-      {baseId: `navigation`}
+      {baseId: ItemListPage.BASE.list}
     )
   }
 
-  async to(categoryId: string, page = 0, isEdit = true) {
+  async transition(categoryId: string, page = 0, isEdit = true) {
     await this.cacheState.set(`${this.userId}:category`, categoryId)
     await this.cacheState.set(`${this.userId}:page`, page)
 
@@ -47,7 +48,7 @@ export class ItemListPage extends PageBase {
     const categoryName = category?.name || `Unknown`
     const da = {category: categoryName}
     const kb = this.buildKeyboard(categoryId, page, category)
-    const bi = `list`
+    const bi = ItemListPage.BASE.list
 
     if (isEdit) await this.edit(kb, da, bi)
     else await this.reply(kb, da, bi)
@@ -55,8 +56,8 @@ export class ItemListPage extends PageBase {
 
   async callback() {
     const categoryId = await this.cacheState.get(`${this.userId}:category`)
-    if (!categoryId) await new CategoryPage(this).show(true)
-    else await this.to(categoryId, 0, true)
+    if (!categoryId) await new CategoryPage(this).transition(true)
+    else await this.transition(categoryId, 0, true)
   }
 
   async callbackPayload() {
@@ -66,8 +67,8 @@ export class ItemListPage extends PageBase {
     }
 
     const categoryId = await this.cacheState.get(`${this.userId}:category`)
-    if (!categoryId) await new CategoryPage(this).show(true)
-    else await this.to(categoryId, Number(value), true)
+    if (!categoryId) await new CategoryPage(this).transition(true)
+    else await this.transition(categoryId, Number(value), true)
   }
 
   static template = `
@@ -78,14 +79,11 @@ export class ItemListPage extends PageBase {
       </message>
     </base>
 
-    <base id="list">
+    <base id="${this.BASE.list}">
+      <keyboard>Prev, Next, Back</keyboard>
       <message>
         Items in {{category}}:
       </message>
-    </base>
-
-    <base id="navigation">
-      <keyboard>Prev, Next, Back</keyboard>
     </base>
   `
 }

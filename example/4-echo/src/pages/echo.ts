@@ -3,24 +3,21 @@ import {StartPage} from "./start"
 
 // Echo page responds to any free text input.
 export class EchoPage extends PageBase {
+  static BASE = {text: `r-text`, photo: `r-photo`, video: `r-video`, audio: `r-audio`, document: `r-document`, animation: `r-animation`, voice: `r-voice`, videoNote: `r-video_note`, sticker: `r-sticker`, location: `r-location`, contact: `r-contact`}
+
   kb() {
     return this.inlineKeyboardT([StartPage])
   }
 
-  // Inline button to show echo usage tips.
   async callback() {
-    const kb = this.kb()
-    await this.edit(kb)
+    await this.edit(this.kb())
   }
 
-  // Catch-all for text inputs that are not matched by other pages.
   async textFree() {
     const text = this.msgText
     if (text.startsWith(`/`)) return null
 
-    const kb = this.kb()
-    const data = {text}
-    await this.reply(kb, data, `echo-result-text`)
+    await this.reply(this.kb(), {text}, EchoPage.BASE.text)
   }
 
   async photoFree() {
@@ -28,9 +25,7 @@ export class EchoPage extends PageBase {
     const fileIdLargest = this.msgPhoto[this.msgPhoto.length - 1].file_id
     if (caption?.startsWith(`/`)) return null
 
-    const kb = this.kb()
-    const data = {caption, fileId: fileIdLargest}
-    await this.replyPhoto(kb, data, `echo-result-photo`)
+    await this.replyPhoto(this.kb(), {caption, fileId: fileIdLargest}, EchoPage.BASE.photo)
   }
 
   async videoFree() {
@@ -38,9 +33,7 @@ export class EchoPage extends PageBase {
     const fileId = this.msgVideo.file_id
     if (caption?.startsWith(`/`)) return null
 
-    const kb = this.kb()
-    const data = {caption, fileId}
-    await this.replyVideo(kb, data, `echo-result-video`)
+    await this.replyVideo(this.kb(), {caption, fileId}, EchoPage.BASE.video)
   }
 
   async audioFree() {
@@ -48,9 +41,7 @@ export class EchoPage extends PageBase {
     const fileId = this.msgAudio.file_id
     if (caption?.startsWith(`/`)) return null
 
-    const kb = this.kb()
-    const data = {caption, fileId}
-    await this.replyAudio(kb, data, `echo-result-audio`)
+    await this.replyAudio(this.kb(), {caption, fileId}, EchoPage.BASE.audio)
   }
 
   async documentFree() {
@@ -58,9 +49,7 @@ export class EchoPage extends PageBase {
     const fileId = this.msgDocument.file_id
     if (caption?.startsWith(`/`)) return null
 
-    const kb = this.kb()
-    const data = {caption, fileId}
-    await this.replyDocument(kb, data, `echo-result-document`)
+    await this.replyDocument(this.kb(), {caption, fileId}, EchoPage.BASE.document)
   }
 
   async animationFree() {
@@ -68,9 +57,7 @@ export class EchoPage extends PageBase {
     const fileId = this.msgAnimation.file_id
     if (caption?.startsWith(`/`)) return null
 
-    const kb = this.kb()
-    const data = {caption, fileId}
-    await this.replyAnimation(kb, data, `echo-result-animation`)
+    await this.replyAnimation(this.kb(), {caption, fileId}, EchoPage.BASE.animation)
   }
 
   async voiceFree() {
@@ -78,41 +65,31 @@ export class EchoPage extends PageBase {
     const fileId = this.msgVoice.file_id
     if (caption?.startsWith(`/`)) return null
 
-    const kb = this.kb()
-    const data = {caption, fileId}
-    await this.replyVoice(kb, data, `echo-result-voice`)
+    await this.replyVoice(this.kb(), {caption, fileId}, EchoPage.BASE.voice)
   }
 
   async videoNoteFree() {
     // not support caption
     const fileId = this.msgVideoNote.file_id
-    const kb = this.kb()
-    const data = {fileId}
-    await this.replyVideoNote(kb, data, `echo-result-video_note`)
+    await this.replyVideoNote(this.kb(), {fileId}, EchoPage.BASE.videoNote)
   }
 
   async stickerFree() {
     // not support caption
     const fileId = this.msgSticker.file_id
-    const kb = this.kb()
-    const data = {fileId}
-    await this.replySticker(kb, data, `echo-result-sticker`)
+    await this.replySticker(this.kb(), {fileId}, EchoPage.BASE.sticker)
   }
 
   async locationFree() {
     // not support caption
     const {latitude, longitude} = this.msgLocation
-    const kb = this.kb()
-    const data = {latitude, longitude}
-    await this.replyLocation(kb, data, `echo-result-location`)
+    await this.replyLocation(this.kb(), {latitude, longitude}, EchoPage.BASE.location)
   }
 
   async contactFree() {
     // not support caption
     const {first_name, last_name, phone_number, user_id, vcard} = this.msgContact
-    const kb = this.kb()
-    const data = {first_name, last_name, phone_number, user_id, vcard}
-    await this.replyContact(kb, data, `echo-result-contact`)
+    await this.replyContact(this.kb(), {first_name, last_name, phone_number, user_id, vcard}, EchoPage.BASE.contact)
   }
 
   static template = `
@@ -124,51 +101,51 @@ export class EchoPage extends PageBase {
         - The bot repeats the same message
       </message>
     </base>
-    <base id="echo-result-text">
+    <base id="${this.BASE.text}">
       <message>
         Echo: {{text}}
       </message>
     </base>
-    <base id="echo-result-photo">
+    <base id="${this.BASE.photo}">
       <media type="photo" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
-    <base id="echo-result-video">
+    <base id="${this.BASE.video}">
       <media type="video" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
-    <base id="echo-result-audio">
+    <base id="${this.BASE.audio}">
       <media type="audio" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
-    <base id="echo-result-document">
+    <base id="${this.BASE.document}">
       <media type="document" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
-    <base id="echo-result-animation">
+    <base id="${this.BASE.animation}">
       <media type="animation" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
-    <base id="echo-result-voice">
+    <base id="${this.BASE.voice}">
       <media type="voice" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
-    <base id="echo-result-video_note">
+    <base id="${this.BASE.videoNote}">
       <media type="video_note" src="{{fileId}}"></media>
     </base>
-    <base id="echo-result-sticker">
+    <base id="${this.BASE.sticker}">
       <media type="sticker" src="{{fileId}}"></media>
     </base>
-    <base id="echo-result-location">
+    <base id="${this.BASE.location}">
       <media type="location" latitude="{{latitude}}" longitude="{{longitude}}"></media>
     </base>
-    <base id="echo-result-contact">
+    <base id="${this.BASE.contact}">
       <media type="contact" phone="{{phone_number}}" first_name="{{first_name}}" last_name="{{last_name}}" vcard="{{vcard}}"></media>
     </base>
   `

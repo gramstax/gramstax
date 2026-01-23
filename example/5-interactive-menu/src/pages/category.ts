@@ -9,6 +9,7 @@ export class CategoryPage extends PageBase {
     callback: (action?: string, payload?: string) => [action, payload],
     intentText: `Browse`
   })
+  static BASE = {categories: `categories`}
 
   kb() {
     return this.inlineKeyboard((k, a) => {
@@ -20,40 +21,40 @@ export class CategoryPage extends PageBase {
     })
   }
 
-  async show(edit = true) {
+  async transition(edit = true) {
     const kb = this.kb()
-    const bi = `categories`
+    const bi = CategoryPage.BASE.categories
     if (edit) await this.edit(kb, {}, bi)
     else await this.reply(kb, {}, bi)
   }
 
   async callback() {
-    await this.show(true)
+    await this.transition(true)
   }
 
   async text() {
-    await this.show(false)
+    await this.transition(false)
   }
 
   async callbackPayload() {
     const [action, categoryId] = this.callbackDataPayloads
     if (action !== `category` || !categoryId) {
-      return await this.show(true)
+      return await this.transition(true)
     }
     await this.cacheState.set(`${this.userId}:category`, categoryId)
     await this.cacheState.set(`${this.userId}:page`, 0)
-    await new ItemListPage(this).to(categoryId, 0, true)
+    await new ItemListPage(this).transition(categoryId, 0, true)
   }
 
   static template = `
     <base>
-      ${this.kbk.back(`default`)}
+      ${this.kbk.back()}
       <message>
         Browse Categories
       </message>
     </base>
 
-    <base id="categories">
+    <base id="${this.BASE.categories}">
       <message>
         Choose a category to continue.
       </message>

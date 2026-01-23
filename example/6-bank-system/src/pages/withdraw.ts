@@ -3,13 +3,15 @@ import {StartPage} from "./start"
 
 // Withdraw funds from the user's balance.
 export class WithdrawPage extends PageBase {
+  static BASE = {form: `form`, success: `success`, insufficient: `insufficient`, invalid: `invalid`}
+
   kb(baseId?: string) {
     return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
   async callback() {
     await this.sessionTextFree()
-    const bi = `form`
+    const bi = WithdrawPage.BASE.form
     const kb = this.kb(bi)
     await this.edit(kb, {}, bi)
   }
@@ -20,7 +22,8 @@ export class WithdrawPage extends PageBase {
   }
 
   private async handleWithdraw(amountInput?: string, edit = false) {
-    const biInv = `invalid`
+    const {BASE} = WithdrawPage
+    const biInv = BASE.invalid
     if (!amountInput) {
       return await this.reply(this.kb(biInv), {}, biInv)
     }
@@ -32,7 +35,7 @@ export class WithdrawPage extends PageBase {
 
     const current = this.bankStore.getBalance(this.userId)
     if (current < amount) {
-      const biIns = `insufficient`
+      const biIns = BASE.insufficient
       return await this.reply(this.kb(biInv), {balance: this.bankStore.formatAmount(current)}, biIns)
     }
 
@@ -50,7 +53,7 @@ export class WithdrawPage extends PageBase {
     const data = {amount: amountDisplay, balance}
 
     await this.sessionClear()
-    const biSuc = `success`
+    const biSuc = BASE.success
     const kb = this.kb(biSuc)
     if (edit) await this.edit(kb, data, biSuc)
     else await this.reply(kb, data, biSuc)
@@ -58,14 +61,14 @@ export class WithdrawPage extends PageBase {
 
   static template = `
     <base id="form">
-      ${this.kbk.cancel(`default`)}
+      ${this.kbk.cancel()}
       <message>
         Please enter the withdrawal amount as a whole number. Dots are accepted for thousand separators.
       </message>
     </base>
 
     <base id="success">
-      ${this.kbk.home(`default`)}
+      ${this.kbk.home()}
       <message>
         Withdrawal completed: {{amount}}
         Updated balance: {{balance}}
@@ -73,7 +76,7 @@ export class WithdrawPage extends PageBase {
     </base>
 
     <base id="insufficient">
-      ${this.kbk.cancel(`default`)}
+      ${this.kbk.cancel()}
       <message>
         Insufficient funds for this withdrawal.
         Available balance: {{balance}}
@@ -81,7 +84,7 @@ export class WithdrawPage extends PageBase {
     </base>
 
     <base id="invalid">
-      ${this.kbk.cancel(`default`)}
+      ${this.kbk.cancel()}
       <message>
         Invalid amount: "{{amount}}".
         Enter a whole number only

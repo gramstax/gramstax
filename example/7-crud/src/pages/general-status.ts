@@ -4,7 +4,9 @@ import {StartPage} from "./start"
 
 // Error/fallback page for unified error messaging.
 export class GeneralStatusPage extends PageBase {
+  static BASE = {error: `error`, notfound: `notfound`}
   constructorName?: string
+
   constructor(p: any) {
     super(p)
     this.constructorName = p?.constructor?.name
@@ -35,7 +37,7 @@ export class GeneralStatusPage extends PageBase {
       ${this.kbk.home()}
     </base>
 
-    <base id="error">
+    <base id="${this.BASE.error}">
       <message>
         <b>❌ Error</b>
 
@@ -43,7 +45,7 @@ export class GeneralStatusPage extends PageBase {
       </message>
     </base>
 
-    <base id="error-input-notfound">
+s    <base id="${this.BASE.notfound}">
       <message>
         <b>❌ Not Found</b>
 

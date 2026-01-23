@@ -13,7 +13,7 @@ export class BalancePage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbk.back(`default`)}
+      ${this.kbk.back()}
       <message>
         Account balance: {{balance}}
 

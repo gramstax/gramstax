@@ -3,14 +3,12 @@ import {StartPage} from "./start"
 
 // Creates a new item in cache.
 export class CreatePage extends PageBase {
-  kb(baseId?: string) {
-    return this.inlineKeyboardT([StartPage], `1`, baseId)
-  }
+  static BASE = {title: `form-title`, description: `form-description`, success: `success`, invalid: `invalid`}
 
   async callback() {
     await this.sessionTextFree({step: `title`})
-    const bi = `form-title`
-    await this.edit(this.kb(bi), {}, bi)
+    const baseId = CreatePage.BASE.title
+    await this.edit(this.kb(baseId), {}, baseId)
   }
 
   async textFree() {
@@ -19,36 +17,43 @@ export class CreatePage extends PageBase {
     await this.handleCreate(this.msgText)
   }
 
+  kb(baseId?: string) {
+    return this.inlineKeyboardT([StartPage], `1`, baseId)
+  }
+
+  private getSessionParams() {
+    return (this.session?.params as {step?: `title` | `description`; title?: string} | undefined) ?? {}
+  }
+
+  private replyBase(baseId: string, data: Record<string, unknown> = {}) {
+    return this.reply(this.kb(baseId), data, baseId)
+  }
+
   private async handleCreate(input?: string) {
-    const stepRaw = (this.session?.params as {step?: string; title?: string} | undefined)?.step
-    const step = stepRaw === `description` ? `description` : `title`
+    const {BASE} = CreatePage
+    const {step, title} = this.getSessionParams()
+    const currentStep = step === `description` ? `description` : `title`
     const value = input?.trim()
-    const biInv = `invalid`
     if (!value) {
-      await this.sessionTextFree({step})
-      return await this.reply(this.kb(biInv), {}, biInv)
+      await this.sessionTextFree({step: currentStep})
+      return await this.replyBase(BASE.invalid)
     }
-
-    if (step === `title`) {
+    if (currentStep === `title`) {
       await this.sessionTextFree({step: `description`, title: value})
-      const bi = `form-description`
-      return await this.reply(this.kb(bi), {title: value}, bi)
+      return await this.replyBase(BASE.description, {title: value})
     }
-
-    const title = (this.session?.params as {title?: string} | undefined)?.title
     if (!title) {
       await this.sessionTextFree({step: `title`})
-      return await this.reply(this.kb(biInv), {}, biInv)
+      return await this.replyBase(BASE.invalid)
     }
 
-    const item = await this.crudStore.createItem(this.userId, title, value)
     await this.sessionClear()
-    const bi = `success`
-    await this.reply(this.kb(bi), {id: item.id, title: item.title, description: item.description, status: item.status}, bi)
+    const item = await this.crudStore.createItem(this.userId, title, value)
+    return await this.replyBase(BASE.success, {id: item.id, title: item.title, description: item.description, status: item.status})
   }
 
   static template = `
-    <base id="form-title">
+    <base id="${this.BASE.title}">
       ${this.kbk.cancel()}
       <message>
         ✏️ Create a new item
@@ -64,7 +69,7 @@ export class CreatePage extends PageBase {
       </message>
     </base>
 
-    <base id="form-description">
+    <base id="${this.BASE.description}">
       ${this.kbk.cancel()}
       <message>
         ✅ Title saved: {{title}}
@@ -80,7 +85,7 @@ export class CreatePage extends PageBase {
       </message>
     </base>
 
-    <base id="success">
+    <base id="${this.BASE.success}">
       ${this.kbk.home()}
       <message>
         ✅ Item created (#{{id}})
@@ -98,7 +103,7 @@ export class CreatePage extends PageBase {
       </message>
     </base>
 
-    <base id="invalid">
+    <base id="${this.BASE.invalid}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid input.
