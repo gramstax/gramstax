@@ -887,7 +887,7 @@ export class Ctx {
    * @param languageCode - Array of language codes corresponding to each user.
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block message.
    * @param options - Optional grammY send options.
    * @param throwError - If true, throws errors instead of swallowing them.
    *
@@ -932,7 +932,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup from {@link Ctx.inlineKeyboard} or {@link Ctx.bottomKeyboard}.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block message.
    * @param options - Optional grammY reply options.
    * @returns The sent message object.
    *
@@ -975,7 +975,7 @@ export class Ctx {
    * @param type - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media.
    * @param options - Type-specific options for the media.
    * @returns The sent message object.
    *
@@ -1036,7 +1036,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type photo.
    * @param options - Optional photo-specific options.
    * @returns The sent message object.
    *
@@ -1058,7 +1058,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type video.
    * @param options - Optional video-specific options.
    * @returns The sent message object.
    *
@@ -1080,7 +1080,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type audio.
    * @param options - Optional audio-specific options.
    * @returns The sent message object.
    *
@@ -1102,7 +1102,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type document.
    * @param options - Optional document-specific options.
    * @returns The sent message object.
    *
@@ -1124,7 +1124,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type animation.
    * @param options - Optional animation-specific options.
    * @returns The sent message object.
    *
@@ -1146,7 +1146,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type voice.
    * @param options - Optional voice-specific options.
    * @returns The sent message object.
    *
@@ -1168,7 +1168,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type video_note.
    * @param options - Optional video note-specific options.
    * @returns The sent message object.
    *
@@ -1190,7 +1190,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type sticker.
    * @param options - Optional sticker-specific options.
    * @returns The sent message object.
    *
@@ -1212,7 +1212,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type location.
    * @param options - Optional location-specific options.
    * @returns The sent message object.
    *
@@ -1234,7 +1234,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type contact.
    * @param options - Optional contact-specific options.
    * @returns The sent message object.
    *
@@ -1271,6 +1271,7 @@ export class Ctx {
   async replyAction(type: ITypeReplyAction) {
     return await this.ct.replyWithChatAction(type)
   }
+
   /**
    * Edits an existing message text using the page template.
    *
@@ -1280,7 +1281,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block message.
    * @param options - Optional grammY edit options.
    * @param fallbackReply - If true, sends a reply if edit fails. Default: true.
    * @returns The edited message object.
@@ -1324,7 +1325,7 @@ export class Ctx {
    * @param type - The media type.
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media.
    * @param options1 - Type-specific media options.
    * @param options2 - Additional edit options.
    * @param fallbackReply - If true, sends a reply if edit fails. Default: true.
@@ -1407,7 +1408,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type photo.
    * @param options1 - Optional media options.
    * @param options2 - Optional edit options.
    * @returns The edited message object.
@@ -1430,7 +1431,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type video.
    * @param options1 - Optional media options.
    * @param options2 - Optional edit options.
    * @returns The edited message object.
@@ -1453,7 +1454,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type audio.
    * @param options1 - Optional media options.
    * @param options2 - Optional edit options.
    * @returns The edited message object.
@@ -1476,7 +1477,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type document.
    * @param options1 - Optional media options.
    * @param options2 - Optional edit options.
    * @returns The edited message object.
@@ -1499,7 +1500,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type animation.
    * @param options1 - Optional media options.
    * @param options2 - Optional edit options.
    * @returns The edited message object.
@@ -1525,7 +1526,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type voice.
    * @param options - Optional edit options.
    * @returns The sent message object.
    *
@@ -1543,7 +1544,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type video_note.
    * @param options - Optional edit options.
    * @returns The sent message object.
    *
@@ -1561,7 +1562,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type sticker.
    * @param options - Optional edit options.
    * @returns The sent message object.
    *
@@ -1579,7 +1580,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type location.
    * @param options - Optional edit options.
    * @returns The sent message object.
    *
@@ -1597,7 +1598,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID.
+   * @param baseId - Optional template base ID position for block media type contact.
    * @param options - Optional edit options.
    * @returns The sent message object.
    *
@@ -1933,7 +1934,7 @@ export class Ctx {
    * Shorthand for {@link Ctx.bottomKeyboard} with automatic text button creation.
    *
    * @param layout - Layout format: "cols" or "cols-lastRow". Default: "1".
-   * @param baseId - Optional template base ID. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
+   * @param baseId - Optional template base ID position for block keyboard. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
    * @param data - Optional template interpolation data.
    * @returns The bottom keyboard instance.
    *
@@ -1964,7 +1965,7 @@ export class Ctx {
    *
    * @param PageDest - Array of page classes or callback data strings.
    * @param layout - Layout format: "cols" or "cols-lastRow". Default: "1".
-   * @param baseId - Optional template base ID. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
+   * @param baseId - Optional template base ID position block keyboard. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
    * @param data - Optional template interpolation data.
    * @returns The inline keyboard instance.
    *

@@ -9,7 +9,7 @@ Sends a text message reply using the page template.
 **Signature:**
 
 ```typescript
-reply(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReply): Promise<_grammyjs_types.Message.TextMessage>;
+reply(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReply): Promise<grammy_types.Message.TextMessage>;
 ```
 
 ## Parameters
@@ -74,7 +74,7 @@ string
 
 </td><td>
 
-_(Optional)_ Optional template base ID.
+_(Optional)_ Optional template base ID position for block message.
 
 
 </td></tr>
@@ -98,7 +98,7 @@ _(Optional)_ Optional grammY reply options.
 
 **Returns:**
 
-Promise&lt;\_grammyjs\_types.Message.TextMessage&gt;
+Promise&lt;grammy\_types.Message.TextMessage&gt;
 
 The sent message object.
 

@@ -9,7 +9,7 @@ Gift payload attached to the message.
 **Signature:**
 
 ```typescript
-get msgGift(): _grammyjs_types.GiftInfo | undefined;
+get msgGift(): grammy_types.GiftInfo | undefined;
 ```
 
 ## Example

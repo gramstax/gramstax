@@ -925,7 +925,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#bottomKeyboardT:member(1)",
-              "docComment": "/**\n * Creates a bottom keyboard with template-based text buttons.\n *\n * @remarks\n *\n * Shorthand for {@link Ctx.bottomKeyboard} with automatic text button creation.\n *\n * @param layout - Layout format: \"cols\" or \"cols-lastRow\". Default: \"1\".\n *\n * @param baseId - Optional template base ID. IMPORTANT: If a `<base id=\"...\">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.\n *\n * @param data - Optional template interpolation data.\n *\n * @returns The bottom keyboard instance.\n *\n * @example\n * ```typescript\n * async callback() {\n *   const kb = this.bottomKeyboardT(\"2\")\n *   await this.reply(kb)\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Creates a bottom keyboard with template-based text buttons.\n *\n * @remarks\n *\n * Shorthand for {@link Ctx.bottomKeyboard} with automatic text button creation.\n *\n * @param layout - Layout format: \"cols\" or \"cols-lastRow\". Default: \"1\".\n *\n * @param baseId - Optional template base ID position for block keyboard. IMPORTANT: If a `<base id=\"...\">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.\n *\n * @param data - Optional template interpolation data.\n *\n * @returns The bottom keyboard instance.\n *\n * @example\n * ```typescript\n * async callback() {\n *   const kb = this.bottomKeyboardT(\"2\")\n *   await this.reply(kb)\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1012,7 +1012,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#broadcast:member(1)",
-              "docComment": "/**\n * Sends a message to multiple users in bulk.\n *\n * @remarks\n *\n * Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.\n *\n * @param ids - Array of user IDs to send the message to.\n *\n * @param languageCode - Array of language codes corresponding to each user.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional grammY send options.\n *\n * @param throwError - If true, throws errors instead of swallowing them.\n *\n * @example\n * ```typescript\n * async callback() {\n *   const userIds = [123456, 789012]\n *   const langs = [\"en\", \"id\"]\n *   await this.broadcast(userIds, langs)\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a message to multiple users in bulk.\n *\n * @remarks\n *\n * Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.\n *\n * @param ids - Array of user IDs to send the message to.\n *\n * @param languageCode - Array of language codes corresponding to each user.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block message.\n *\n * @param options - Optional grammY send options.\n *\n * @param throwError - If true, throws errors instead of swallowing them.\n *\n * @example\n * ```typescript\n * async callback() {\n *   const userIds = [123456, 789012]\n *   const langs = [\"en\", \"id\"]\n *   await this.broadcast(userIds, langs)\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1970,7 +1970,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#edit:member(1)",
-              "docComment": "/**\n * Edits an existing message text using the page template.\n *\n * @remarks\n *\n * If editing fails (e.g., message too old), falls back to sending a new reply unless `fallbackReply` is set to false.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional grammY edit options.\n *\n * @param fallbackReply - If true, sends a reply if edit fails. Default: true.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.edit(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message text using the page template.\n *\n * @remarks\n *\n * If editing fails (e.g., message too old), falls back to sending a new reply unless `fallbackReply` is set to false.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block message.\n *\n * @param options - Optional grammY edit options.\n *\n * @param fallbackReply - If true, sends a reply if edit fails. Default: true.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.edit(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2030,7 +2030,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Update.Edited",
+                  "text": "grammy_types.Update.Edited",
                   "canonicalReference": "@grammyjs/types!Update.Edited:interface"
                 },
                 {
@@ -2039,7 +2039,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.CommonMessage",
+                  "text": "grammy_types.Message.CommonMessage",
                   "canonicalReference": "@grammyjs/types!Message.CommonMessage:interface"
                 },
                 {
@@ -2057,7 +2057,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.MessageEntity",
+                  "text": "grammy_types.MessageEntity",
                   "canonicalReference": "@grammyjs/types!MessageEntity:type"
                 },
                 {
@@ -2126,7 +2126,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editAnimation:member(1)",
-              "docComment": "/**\n * Edits an existing message to show an animation.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options1 - Optional media options.\n *\n * @param options2 - Optional edit options.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   await this.editAnimation()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message to show an animation.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type animation.\n *\n * @param options1 - Optional media options.\n *\n * @param options2 - Optional edit options.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   await this.editAnimation()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2187,7 +2187,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -2196,7 +2196,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -2205,7 +2205,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -2214,7 +2214,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -2223,7 +2223,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -2232,7 +2232,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -2241,7 +2241,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -2250,7 +2250,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -2259,7 +2259,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -2268,7 +2268,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Update.Edited",
+                  "text": "grammy_types.Update.Edited",
                   "canonicalReference": "@grammyjs/types!Update.Edited:interface"
                 },
                 {
@@ -2277,7 +2277,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message",
+                  "text": "grammy_types.Message",
                   "canonicalReference": "@grammyjs/types!Message:interface"
                 },
                 {
@@ -2346,7 +2346,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editAudio:member(1)",
-              "docComment": "/**\n * Edits an existing message to show an audio.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options1 - Optional media options.\n *\n * @param options2 - Optional edit options.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   await this.editAudio()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message to show an audio.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type audio.\n *\n * @param options1 - Optional media options.\n *\n * @param options2 - Optional edit options.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   await this.editAudio()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2407,7 +2407,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -2416,7 +2416,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -2425,7 +2425,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -2434,7 +2434,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -2443,7 +2443,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -2452,7 +2452,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -2461,7 +2461,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -2470,7 +2470,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -2479,7 +2479,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -2488,7 +2488,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Update.Edited",
+                  "text": "grammy_types.Update.Edited",
                   "canonicalReference": "@grammyjs/types!Update.Edited:interface"
                 },
                 {
@@ -2497,7 +2497,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message",
+                  "text": "grammy_types.Message",
                   "canonicalReference": "@grammyjs/types!Message:interface"
                 },
                 {
@@ -2566,7 +2566,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editContact:member(1)",
-              "docComment": "/**\n * Replaces the current message with a contact.\n *\n * @remarks\n *\n * Contacts cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional edit options.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a contact.\n *\n * @remarks\n *\n * Contacts cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type contact.\n *\n * @param options - Optional edit options.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2618,7 +2618,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -2627,7 +2627,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -2636,7 +2636,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -2645,7 +2645,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -2654,7 +2654,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -2663,7 +2663,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -2672,7 +2672,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -2681,7 +2681,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -2690,7 +2690,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -2699,7 +2699,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Update.Edited",
+                  "text": "grammy_types.Update.Edited",
                   "canonicalReference": "@grammyjs/types!Update.Edited:interface"
                 },
                 {
@@ -2708,7 +2708,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message",
+                  "text": "grammy_types.Message",
                   "canonicalReference": "@grammyjs/types!Message:interface"
                 },
                 {
@@ -2769,7 +2769,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editDocument:member(1)",
-              "docComment": "/**\n * Edits an existing message to show a document.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options1 - Optional media options.\n *\n * @param options2 - Optional edit options.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   await this.editDocument()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message to show a document.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type document.\n *\n * @param options1 - Optional media options.\n *\n * @param options2 - Optional edit options.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   await this.editDocument()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2830,7 +2830,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -2839,7 +2839,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -2848,7 +2848,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -2857,7 +2857,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -2866,7 +2866,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -2875,7 +2875,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -2884,7 +2884,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -2893,7 +2893,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -2902,7 +2902,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -2911,7 +2911,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Update.Edited",
+                  "text": "grammy_types.Update.Edited",
                   "canonicalReference": "@grammyjs/types!Update.Edited:interface"
                 },
                 {
@@ -2920,7 +2920,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message",
+                  "text": "grammy_types.Message",
                   "canonicalReference": "@grammyjs/types!Message:interface"
                 },
                 {
@@ -2989,7 +2989,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editLocation:member(1)",
-              "docComment": "/**\n * Replaces the current message with a location.\n *\n * @remarks\n *\n * Locations cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional edit options.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a location.\n *\n * @remarks\n *\n * Locations cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type location.\n *\n * @param options - Optional edit options.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3041,7 +3041,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -3050,7 +3050,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -3059,7 +3059,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -3068,7 +3068,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -3077,7 +3077,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -3086,7 +3086,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -3095,7 +3095,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -3104,7 +3104,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -3113,7 +3113,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -3122,7 +3122,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Update.Edited",
+                  "text": "grammy_types.Update.Edited",
                   "canonicalReference": "@grammyjs/types!Update.Edited:interface"
                 },
                 {
@@ -3131,7 +3131,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message",
+                  "text": "grammy_types.Message",
                   "canonicalReference": "@grammyjs/types!Message:interface"
                 },
                 {
@@ -3192,7 +3192,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editMedia:member(1)",
-              "docComment": "/**\n * Edits an existing media message with dynamic type selection.\n *\n * @remarks\n *\n * For media types that cannot be edited (voice, video_note, sticker, location, contact), the original message is deleted and a new one is sent.\n *\n * @param type - The media type.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options1 - Type-specific media options.\n *\n * @param options2 - Additional edit options.\n *\n * @param fallbackReply - If true, sends a reply if edit fails. Default: true.\n *\n * @typeParam T - The media type to edit to.\n *\n * @returns The edited/sent message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   await this.editMedia(\"photo\")\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing media message with dynamic type selection.\n *\n * @remarks\n *\n * For media types that cannot be edited (voice, video_note, sticker, location, contact), the original message is deleted and a new one is sent.\n *\n * @param type - The media type.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media.\n *\n * @param options1 - Type-specific media options.\n *\n * @param options2 - Additional edit options.\n *\n * @param fallbackReply - If true, sends a reply if edit fails. Default: true.\n *\n * @typeParam T - The media type to edit to.\n *\n * @returns The edited/sent message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   await this.editMedia(\"photo\")\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3331,7 +3331,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -3340,7 +3340,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -3349,7 +3349,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -3358,7 +3358,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -3367,7 +3367,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -3376,7 +3376,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -3385,7 +3385,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -3394,7 +3394,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -3403,7 +3403,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -3412,7 +3412,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Update.Edited",
+                  "text": "grammy_types.Update.Edited",
                   "canonicalReference": "@grammyjs/types!Update.Edited:interface"
                 },
                 {
@@ -3421,7 +3421,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message",
+                  "text": "grammy_types.Message",
                   "canonicalReference": "@grammyjs/types!Message:interface"
                 },
                 {
@@ -3519,7 +3519,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editPhoto:member(1)",
-              "docComment": "/**\n * Edits an existing message to show a photo.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options1 - Optional media options.\n *\n * @param options2 - Optional edit options.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   await this.editPhoto()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message to show a photo.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type photo.\n *\n * @param options1 - Optional media options.\n *\n * @param options2 - Optional edit options.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   await this.editPhoto()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3580,7 +3580,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -3589,7 +3589,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -3598,7 +3598,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -3607,7 +3607,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -3616,7 +3616,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -3625,7 +3625,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -3634,7 +3634,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -3643,7 +3643,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -3652,7 +3652,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -3661,7 +3661,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Update.Edited",
+                  "text": "grammy_types.Update.Edited",
                   "canonicalReference": "@grammyjs/types!Update.Edited:interface"
                 },
                 {
@@ -3670,7 +3670,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message",
+                  "text": "grammy_types.Message",
                   "canonicalReference": "@grammyjs/types!Message:interface"
                 },
                 {
@@ -3739,7 +3739,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editSticker:member(1)",
-              "docComment": "/**\n * Replaces the current message with a sticker.\n *\n * @remarks\n *\n * Stickers cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional edit options.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a sticker.\n *\n * @remarks\n *\n * Stickers cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type sticker.\n *\n * @param options - Optional edit options.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3791,7 +3791,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -3800,7 +3800,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -3809,7 +3809,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -3818,7 +3818,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -3827,7 +3827,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -3836,7 +3836,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -3845,7 +3845,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -3854,7 +3854,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -3863,7 +3863,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -3872,7 +3872,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Update.Edited",
+                  "text": "grammy_types.Update.Edited",
                   "canonicalReference": "@grammyjs/types!Update.Edited:interface"
                 },
                 {
@@ -3881,7 +3881,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message",
+                  "text": "grammy_types.Message",
                   "canonicalReference": "@grammyjs/types!Message:interface"
                 },
                 {
@@ -3942,7 +3942,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editVideo:member(1)",
-              "docComment": "/**\n * Edits an existing message to show a video.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options1 - Optional media options.\n *\n * @param options2 - Optional edit options.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   await this.editVideo()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message to show a video.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type video.\n *\n * @param options1 - Optional media options.\n *\n * @param options2 - Optional edit options.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async callbackPayload() {\n *   await this.editVideo()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4003,7 +4003,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -4012,7 +4012,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -4021,7 +4021,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -4030,7 +4030,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -4039,7 +4039,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -4048,7 +4048,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -4057,7 +4057,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -4066,7 +4066,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -4075,7 +4075,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -4084,7 +4084,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Update.Edited",
+                  "text": "grammy_types.Update.Edited",
                   "canonicalReference": "@grammyjs/types!Update.Edited:interface"
                 },
                 {
@@ -4093,7 +4093,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message",
+                  "text": "grammy_types.Message",
                   "canonicalReference": "@grammyjs/types!Message:interface"
                 },
                 {
@@ -4162,7 +4162,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editVideoNote:member(1)",
-              "docComment": "/**\n * Replaces the current message with a video note.\n *\n * @remarks\n *\n * Video notes cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional edit options.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a video note.\n *\n * @remarks\n *\n * Video notes cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type video_note.\n *\n * @param options - Optional edit options.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4214,7 +4214,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -4223,7 +4223,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -4232,7 +4232,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -4241,7 +4241,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -4250,7 +4250,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -4259,7 +4259,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -4268,7 +4268,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -4277,7 +4277,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -4286,7 +4286,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -4295,7 +4295,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Update.Edited",
+                  "text": "grammy_types.Update.Edited",
                   "canonicalReference": "@grammyjs/types!Update.Edited:interface"
                 },
                 {
@@ -4304,7 +4304,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message",
+                  "text": "grammy_types.Message",
                   "canonicalReference": "@grammyjs/types!Message:interface"
                 },
                 {
@@ -4365,7 +4365,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editVoice:member(1)",
-              "docComment": "/**\n * Replaces the current message with a voice message.\n *\n * @remarks\n *\n * Voice messages cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional edit options.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a voice message.\n *\n * @remarks\n *\n * Voice messages cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type voice.\n *\n * @param options - Optional edit options.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4417,7 +4417,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -4426,7 +4426,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -4435,7 +4435,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -4444,7 +4444,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -4453,7 +4453,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -4462,7 +4462,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -4471,7 +4471,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -4480,7 +4480,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -4489,7 +4489,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -4498,7 +4498,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Update.Edited",
+                  "text": "grammy_types.Update.Edited",
                   "canonicalReference": "@grammyjs/types!Update.Edited:interface"
                 },
                 {
@@ -4507,7 +4507,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message",
+                  "text": "grammy_types.Message",
                   "canonicalReference": "@grammyjs/types!Message:interface"
                 },
                 {
@@ -4692,7 +4692,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#inlineKeyboardT:member(1)",
-              "docComment": "/**\n * Creates an inline keyboard with template-based buttons linked to page destinations.\n *\n * @remarks\n *\n * Shorthand for {@link Ctx.inlineKeyboard} with automatic callback data from page destinations.\n *\n * @param PageDest - Array of page classes or callback data strings.\n *\n * @param layout - Layout format: \"cols\" or \"cols-lastRow\". Default: \"1\".\n *\n * @param baseId - Optional template base ID. IMPORTANT: If a `<base id=\"...\">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.\n *\n * @param data - Optional template interpolation data.\n *\n * @returns The inline keyboard instance.\n *\n * @example\n * ```typescript\n * async callback() {\n *   const kb = this.inlineKeyboardT([SettingsPage, HelpPage], \"2\")\n *   await this.reply(kb)\n *\n *   // Or with payload\n *   const kb = this.inlineKeyboardT([SettingsPage.data.callback(1), HelpPage.data.callback(`hi`)], \"2\")\n *   await this.reply(kb)\n *\n *   // Compare with builder for basic but not recomended because very long syntax, only use builder when needed.!\n *   this.inlineKeyboard((k, a) => k.text(SettingsPage.data.callback(), a[0]!).text(HelpPage.data.callback(), a[1]!))\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Creates an inline keyboard with template-based buttons linked to page destinations.\n *\n * @remarks\n *\n * Shorthand for {@link Ctx.inlineKeyboard} with automatic callback data from page destinations.\n *\n * @param PageDest - Array of page classes or callback data strings.\n *\n * @param layout - Layout format: \"cols\" or \"cols-lastRow\". Default: \"1\".\n *\n * @param baseId - Optional template base ID position block keyboard. IMPORTANT: If a `<base id=\"...\">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.\n *\n * @param data - Optional template interpolation data.\n *\n * @returns The inline keyboard instance.\n *\n * @example\n * ```typescript\n * async callback() {\n *   const kb = this.inlineKeyboardT([SettingsPage, HelpPage], \"2\")\n *   await this.reply(kb)\n *\n *   // Or with payload\n *   const kb = this.inlineKeyboardT([SettingsPage.data.callback(1), HelpPage.data.callback(`hi`)], \"2\")\n *   await this.reply(kb)\n *\n *   // Compare with builder for basic but not recomended because very long syntax, only use builder when needed.!\n *   this.inlineKeyboard((k, a) => k.text(SettingsPage.data.callback(), a[0]!).text(HelpPage.data.callback(), a[1]!))\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6930,7 +6930,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Animation",
+                  "text": "grammy_types.Animation",
                   "canonicalReference": "@grammyjs/types!Animation:interface"
                 },
                 {
@@ -6965,7 +6965,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Audio",
+                  "text": "grammy_types.Audio",
                   "canonicalReference": "@grammyjs/types!Audio:interface"
                 },
                 {
@@ -7150,7 +7150,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Contact",
+                  "text": "grammy_types.Contact",
                   "canonicalReference": "@grammyjs/types!Contact:interface"
                 },
                 {
@@ -7185,7 +7185,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Document",
+                  "text": "grammy_types.Document",
                   "canonicalReference": "@grammyjs/types!Document:interface"
                 },
                 {
@@ -7220,7 +7220,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.GiftInfo",
+                  "text": "grammy_types.GiftInfo",
                   "canonicalReference": "@grammyjs/types!GiftInfo:interface"
                 },
                 {
@@ -7255,7 +7255,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Location",
+                  "text": "grammy_types.Location",
                   "canonicalReference": "@grammyjs/types!Location:interface"
                 },
                 {
@@ -7290,7 +7290,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.PhotoSize",
+                  "text": "grammy_types.PhotoSize",
                   "canonicalReference": "@grammyjs/types!PhotoSize:interface"
                 },
                 {
@@ -7325,7 +7325,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Sticker",
+                  "text": "grammy_types.Sticker",
                   "canonicalReference": "@grammyjs/types!Sticker:interface"
                 },
                 {
@@ -7510,7 +7510,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Video",
+                  "text": "grammy_types.Video",
                   "canonicalReference": "@grammyjs/types!Video:interface"
                 },
                 {
@@ -7545,7 +7545,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.VideoNote",
+                  "text": "grammy_types.VideoNote",
                   "canonicalReference": "@grammyjs/types!VideoNote:interface"
                 },
                 {
@@ -7580,7 +7580,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Voice",
+                  "text": "grammy_types.Voice",
                   "canonicalReference": "@grammyjs/types!Voice:interface"
                 },
                 {
@@ -7615,7 +7615,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.WebAppData",
+                  "text": "grammy_types.WebAppData",
                   "canonicalReference": "@grammyjs/types!WebAppData:interface"
                 },
                 {
@@ -7822,7 +7822,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#reply:member(1)",
-              "docComment": "/**\n * Sends a text message reply using the page template.\n *\n * @param keyboard - Optional keyboard markup from {@link Ctx.inlineKeyboard} or {@link Ctx.bottomKeyboard}.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional grammY reply options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   // Automatic reply with content from this.template\n *   await this.reply()\n *\n *   // With keyboard builder and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.reply(kb, {name: \"John\"})\n *\n *   // With keyboard short and custom baseId between reply and keyboard\n *   const kb = this.inlineKeyboardT([StartPage], `1`, \"my-custom-id\")\n *   await this.reply(kb, {name: \"John\"}, \"id-hello-world\")\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a text message reply using the page template.\n *\n * @param keyboard - Optional keyboard markup from {@link Ctx.inlineKeyboard} or {@link Ctx.bottomKeyboard}.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block message.\n *\n * @param options - Optional grammY reply options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   // Automatic reply with content from this.template\n *   await this.reply()\n *\n *   // With keyboard builder and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.reply(kb, {name: \"John\"})\n *\n *   // With keyboard short and custom baseId between reply and keyboard\n *   const kb = this.inlineKeyboardT([StartPage], `1`, \"my-custom-id\")\n *   await this.reply(kb, {name: \"John\"}, \"id-hello-world\")\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7874,7 +7874,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.TextMessage",
+                  "text": "grammy_types.Message.TextMessage",
                   "canonicalReference": "@grammyjs/types!Message.TextMessage:type"
                 },
                 {
@@ -7989,7 +7989,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyAnimation:member(1)",
-              "docComment": "/**\n * Sends an animation/GIF message using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional animation-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyAnimation()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends an animation/GIF message using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type animation.\n *\n * @param options - Optional animation-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyAnimation()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8041,7 +8041,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -8050,7 +8050,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -8059,7 +8059,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -8068,7 +8068,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -8077,7 +8077,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -8086,7 +8086,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -8095,7 +8095,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -8104,7 +8104,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -8113,7 +8113,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -8174,7 +8174,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyAudio:member(1)",
-              "docComment": "/**\n * Sends an audio message using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional audio-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyAudio()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends an audio message using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type audio.\n *\n * @param options - Optional audio-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyAudio()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8226,7 +8226,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -8235,7 +8235,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -8244,7 +8244,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -8253,7 +8253,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -8262,7 +8262,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -8271,7 +8271,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -8280,7 +8280,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -8289,7 +8289,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -8298,7 +8298,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -8359,7 +8359,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyContact:member(1)",
-              "docComment": "/**\n * Sends a contact using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional contact-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyContact()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a contact using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type contact.\n *\n * @param options - Optional contact-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyContact()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8411,7 +8411,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -8420,7 +8420,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -8429,7 +8429,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -8438,7 +8438,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -8447,7 +8447,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -8456,7 +8456,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -8465,7 +8465,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -8474,7 +8474,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -8483,7 +8483,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -8544,7 +8544,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyDocument:member(1)",
-              "docComment": "/**\n * Sends a document message using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional document-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyDocument()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a document message using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type document.\n *\n * @param options - Optional document-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyDocument()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8596,7 +8596,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -8605,7 +8605,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -8614,7 +8614,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -8623,7 +8623,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -8632,7 +8632,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -8641,7 +8641,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -8650,7 +8650,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -8659,7 +8659,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -8668,7 +8668,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -8729,7 +8729,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyLocation:member(1)",
-              "docComment": "/**\n * Sends a location using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional location-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyLocation()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a location using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type location.\n *\n * @param options - Optional location-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyLocation()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8781,7 +8781,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -8790,7 +8790,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -8799,7 +8799,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -8808,7 +8808,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -8817,7 +8817,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -8826,7 +8826,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -8835,7 +8835,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -8844,7 +8844,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -8853,7 +8853,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -8914,7 +8914,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyMedia:member(1)",
-              "docComment": "/**\n * Sends a media message reply with dynamic type selection.\n *\n * @remarks\n *\n * This is the base method for all media reply methods. Use specific methods like {@link Ctx.replyPhoto} or {@link Ctx.replyVideo} for simpler usage.\n *\n * @param type - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Type-specific options for the media.\n *\n * @typeParam T - The media type to send.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyMedia(\"photo\")\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a media message reply with dynamic type selection.\n *\n * @remarks\n *\n * This is the base method for all media reply methods. Use specific methods like {@link Ctx.replyPhoto} or {@link Ctx.replyVideo} for simpler usage.\n *\n * @param type - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media.\n *\n * @param options - Type-specific options for the media.\n *\n * @typeParam T - The media type to send.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyMedia(\"photo\")\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9076,7 +9076,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -9085,7 +9085,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -9094,7 +9094,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -9103,7 +9103,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -9112,7 +9112,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -9121,7 +9121,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -9130,7 +9130,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -9139,7 +9139,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -9148,7 +9148,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -9230,7 +9230,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyPhoto:member(1)",
-              "docComment": "/**\n * Sends a photo message using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional photo-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyPhoto()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a photo message using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type photo.\n *\n * @param options - Optional photo-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyPhoto()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9282,7 +9282,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -9291,7 +9291,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -9300,7 +9300,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -9309,7 +9309,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -9318,7 +9318,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -9327,7 +9327,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -9336,7 +9336,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -9345,7 +9345,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -9354,7 +9354,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -9415,7 +9415,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replySticker:member(1)",
-              "docComment": "/**\n * Sends a sticker using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional sticker-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replySticker()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a sticker using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type sticker.\n *\n * @param options - Optional sticker-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replySticker()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9467,7 +9467,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -9476,7 +9476,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -9485,7 +9485,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -9494,7 +9494,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -9503,7 +9503,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -9512,7 +9512,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -9521,7 +9521,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -9530,7 +9530,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -9539,7 +9539,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -9600,7 +9600,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyVideo:member(1)",
-              "docComment": "/**\n * Sends a video message using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional video-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyVideo()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a video message using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type video.\n *\n * @param options - Optional video-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyVideo()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9652,7 +9652,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -9661,7 +9661,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -9670,7 +9670,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -9679,7 +9679,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -9688,7 +9688,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -9697,7 +9697,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -9706,7 +9706,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -9715,7 +9715,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -9724,7 +9724,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -9785,7 +9785,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyVideoNote:member(1)",
-              "docComment": "/**\n * Sends a video note (circular video) using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional video note-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyVideoNote()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a video note (circular video) using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type video_note.\n *\n * @param options - Optional video note-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyVideoNote()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9837,7 +9837,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -9846,7 +9846,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -9855,7 +9855,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -9864,7 +9864,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -9873,7 +9873,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -9882,7 +9882,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -9891,7 +9891,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -9900,7 +9900,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -9909,7 +9909,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {
@@ -9970,7 +9970,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyVoice:member(1)",
-              "docComment": "/**\n * Sends a voice message using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID.\n *\n * @param options - Optional voice-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyVoice()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a voice message using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type voice.\n *\n * @param options - Optional voice-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async callback() {\n *   await this.replyVoice()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10022,7 +10022,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.LocationMessage",
+                  "text": "grammy_types.Message.LocationMessage",
                   "canonicalReference": "@grammyjs/types!Message.LocationMessage:type"
                 },
                 {
@@ -10031,7 +10031,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.ContactMessage",
+                  "text": "grammy_types.Message.ContactMessage",
                   "canonicalReference": "@grammyjs/types!Message.ContactMessage:type"
                 },
                 {
@@ -10040,7 +10040,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.PhotoMessage",
+                  "text": "grammy_types.Message.PhotoMessage",
                   "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
                 },
                 {
@@ -10049,7 +10049,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoMessage",
+                  "text": "grammy_types.Message.VideoMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
                 },
                 {
@@ -10058,7 +10058,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.AudioMessage",
+                  "text": "grammy_types.Message.AudioMessage",
                   "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
                 },
                 {
@@ -10067,7 +10067,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.DocumentMessage",
+                  "text": "grammy_types.Message.DocumentMessage",
                   "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
                 },
                 {
@@ -10076,7 +10076,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VoiceMessage",
+                  "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
                 {
@@ -10085,7 +10085,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.VideoNoteMessage",
+                  "text": "grammy_types.Message.VideoNoteMessage",
                   "canonicalReference": "@grammyjs/types!Message.VideoNoteMessage:type"
                 },
                 {
@@ -10094,7 +10094,7 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "_grammyjs_types.Message.StickerMessage",
+                  "text": "grammy_types.Message.StickerMessage",
                   "canonicalReference": "@grammyjs/types!Message.StickerMessage:type"
                 },
                 {

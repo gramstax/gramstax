@@ -9,7 +9,7 @@ Animation/GIF payload attached to the message.
 **Signature:**
 
 ```typescript
-get msgAnimation(): _grammyjs_types.Animation | undefined;
+get msgAnimation(): grammy_types.Animation | undefined;
 ```
 
 ## Example

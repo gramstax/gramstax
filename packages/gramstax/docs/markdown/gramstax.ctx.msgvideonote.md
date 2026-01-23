@@ -9,7 +9,7 @@ Video note (circular video) attached to the message.
 **Signature:**
 
 ```typescript
-get msgVideoNote(): _grammyjs_types.VideoNote | undefined;
+get msgVideoNote(): grammy_types.VideoNote | undefined;
 ```
 
 ## Example

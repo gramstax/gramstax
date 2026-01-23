@@ -191,7 +191,7 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'get msgAnimation(): _grammyjs_types.Animation | undefined;'
+      content: 'get msgAnimation(): grammy_types.Animation | undefined;'
       return:
         type: <xref uid="@grammyjs/types!Animation:interface" /> | undefined
   - name: msgAudio
@@ -211,7 +211,7 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'get msgAudio(): _grammyjs_types.Audio | undefined;'
+      content: 'get msgAudio(): grammy_types.Audio | undefined;'
       return:
         type: <xref uid="@grammyjs/types!Audio:interface" /> | undefined
   - name: msgCaption
@@ -330,7 +330,7 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'get msgContact(): _grammyjs_types.Contact | undefined;'
+      content: 'get msgContact(): grammy_types.Contact | undefined;'
       return:
         type: <xref uid="@grammyjs/types!Contact:interface" /> | undefined
   - name: msgDocument
@@ -350,7 +350,7 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'get msgDocument(): _grammyjs_types.Document | undefined;'
+      content: 'get msgDocument(): grammy_types.Document | undefined;'
       return:
         type: <xref uid="@grammyjs/types!Document:interface" /> | undefined
   - name: msgGift
@@ -370,7 +370,7 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'get msgGift(): _grammyjs_types.GiftInfo | undefined;'
+      content: 'get msgGift(): grammy_types.GiftInfo | undefined;'
       return:
         type: <xref uid="@grammyjs/types!GiftInfo:interface" /> | undefined
   - name: msgLocation
@@ -390,7 +390,7 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'get msgLocation(): _grammyjs_types.Location | undefined;'
+      content: 'get msgLocation(): grammy_types.Location | undefined;'
       return:
         type: <xref uid="@grammyjs/types!Location:interface" /> | undefined
   - name: msgPhoto
@@ -410,7 +410,7 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'get msgPhoto(): _grammyjs_types.PhotoSize[] | undefined;'
+      content: 'get msgPhoto(): grammy_types.PhotoSize[] | undefined;'
       return:
         type: <xref uid="@grammyjs/types!PhotoSize:interface" />[] | undefined
   - name: msgSticker
@@ -430,7 +430,7 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'get msgSticker(): _grammyjs_types.Sticker | undefined;'
+      content: 'get msgSticker(): grammy_types.Sticker | undefined;'
       return:
         type: <xref uid="@grammyjs/types!Sticker:interface" /> | undefined
   - name: msgText
@@ -549,7 +549,7 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'get msgVideo(): _grammyjs_types.Video | undefined;'
+      content: 'get msgVideo(): grammy_types.Video | undefined;'
       return:
         type: <xref uid="@grammyjs/types!Video:interface" /> | undefined
   - name: msgVideoNote
@@ -569,7 +569,7 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'get msgVideoNote(): _grammyjs_types.VideoNote | undefined;'
+      content: 'get msgVideoNote(): grammy_types.VideoNote | undefined;'
       return:
         type: <xref uid="@grammyjs/types!VideoNote:interface" /> | undefined
   - name: msgVoice
@@ -589,7 +589,7 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'get msgVoice(): _grammyjs_types.Voice | undefined;'
+      content: 'get msgVoice(): grammy_types.Voice | undefined;'
       return:
         type: <xref uid="@grammyjs/types!Voice:interface" /> | undefined
   - name: msgWebAppData
@@ -609,7 +609,7 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'get msgWebAppData(): _grammyjs_types.WebAppData | undefined;'
+      content: 'get msgWebAppData(): grammy_types.WebAppData | undefined;'
       return:
         type: <xref uid="@grammyjs/types!WebAppData:interface" /> | undefined
   - name: session
@@ -1177,10 +1177,10 @@ methods:
           type: <xref uid="gramstax!~IKbCols:type" />
         - id: baseId
           description: >-
-            Optional template base ID. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId
-            to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard
-            bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the
-            keyboard configuration.
+            Optional template base ID position for block keyboard. IMPORTANT: If a `<base id="...">` is defined in the
+            template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors
+            (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but
+            not reusing it in the keyboard configuration.
           type: string | null
         - id: data
           description: Optional template interpolation data.
@@ -1225,7 +1225,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block message.
           type: string
         - id: options
           description: Optional grammY send options.
@@ -1614,10 +1614,10 @@ methods:
     syntax:
       content: >-
         edit(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEdit, fallbackReply?: boolean):
-        Promise<true | (_grammyjs_types.Update.Edited & _grammyjs_types.Message.CommonMessage & {
+        Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
                 text: string;
             } & Partial<{
-                entities: _grammyjs_types.MessageEntity[];
+                entities: grammy_types.MessageEntity[];
             }>) | undefined>;
       parameters:
         - id: keyboardInline
@@ -1627,7 +1627,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block message.
           type: string
         - id: options
           description: Optional grammY edit options.
@@ -1662,11 +1662,10 @@ methods:
     syntax:
       content: >-
         editAnimation(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?:
-        IOptEditMedia2): Promise<true | _grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage
-        | _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | (_grammyjs_types.Update.Edited & _grammyjs_types.Message) | undefined>;
+        IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1675,7 +1674,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type animation.
           type: string
         - id: options1
           description: Optional media options.
@@ -1712,11 +1711,10 @@ methods:
     syntax:
       content: >-
         editAudio(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?:
-        IOptEditMedia2): Promise<true | _grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage
-        | _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | (_grammyjs_types.Update.Edited & _grammyjs_types.Message) | undefined>;
+        IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1725,7 +1723,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type audio.
           type: string
         - id: options1
           description: Optional media options.
@@ -1756,11 +1754,10 @@ methods:
     syntax:
       content: >-
         editContact(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true |
-        _grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | (_grammyjs_types.Update.Edited & _grammyjs_types.Message) | undefined>;
+        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
+        | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1769,7 +1766,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type contact.
           type: string
         - id: options
           description: Optional edit options.
@@ -1803,11 +1800,10 @@ methods:
     syntax:
       content: >-
         editDocument(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?:
-        IOptEditMedia2): Promise<true | _grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage
-        | _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | (_grammyjs_types.Update.Edited & _grammyjs_types.Message) | undefined>;
+        IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1816,7 +1812,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type document.
           type: string
         - id: options1
           description: Optional media options.
@@ -1847,11 +1843,10 @@ methods:
     syntax:
       content: >-
         editLocation(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true
-        | _grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | (_grammyjs_types.Update.Edited & _grammyjs_types.Message) | undefined>;
+        | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage
+        | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
+        | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1860,7 +1855,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type location.
           type: string
         - id: options
           description: Optional edit options.
@@ -1899,11 +1894,10 @@ methods:
         options1?: T extends `voice` ? IOptReplyVoice : T extends `video_note` ? IOptReplyVideoNote : T extends
         `sticker` ? IOptReplySticker : T extends `location` ? IOptReplyLocation : T extends `contact` ? IOptReplyContact
         : IOptEditMedia1, options2?: IOptEditMedia2, fallbackReply?: boolean): Promise<true |
-        _grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | (_grammyjs_types.Update.Edited & _grammyjs_types.Message) | undefined>;
+        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
+        | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: type
           description: The media type.
@@ -1915,7 +1909,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media.
           type: string
         - id: options1
           description: Type-specific media options.
@@ -1960,11 +1954,10 @@ methods:
     syntax:
       content: >-
         editPhoto(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?:
-        IOptEditMedia2): Promise<true | _grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage
-        | _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | (_grammyjs_types.Update.Edited & _grammyjs_types.Message) | undefined>;
+        IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1973,7 +1966,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type photo.
           type: string
         - id: options1
           description: Optional media options.
@@ -2004,11 +1997,10 @@ methods:
     syntax:
       content: >-
         editSticker(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true |
-        _grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | (_grammyjs_types.Update.Edited & _grammyjs_types.Message) | undefined>;
+        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
+        | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -2017,7 +2009,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type sticker.
           type: string
         - id: options
           description: Optional edit options.
@@ -2051,11 +2043,10 @@ methods:
     syntax:
       content: >-
         editVideo(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?:
-        IOptEditMedia2): Promise<true | _grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage
-        | _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | (_grammyjs_types.Update.Edited & _grammyjs_types.Message) | undefined>;
+        IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -2064,7 +2055,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type video.
           type: string
         - id: options1
           description: Optional media options.
@@ -2095,11 +2086,10 @@ methods:
     syntax:
       content: >-
         editVideoNote(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true
-        | _grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | (_grammyjs_types.Update.Edited & _grammyjs_types.Message) | undefined>;
+        | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage
+        | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
+        | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -2108,7 +2098,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type video\_note.
           type: string
         - id: options
           description: Optional edit options.
@@ -2136,11 +2126,10 @@ methods:
     syntax:
       content: >-
         editVoice(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true |
-        _grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | (_grammyjs_types.Update.Edited & _grammyjs_types.Message) | undefined>;
+        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
+        | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -2149,7 +2138,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type voice.
           type: string
         - id: options
           description: Optional edit options.
@@ -2270,10 +2259,10 @@ methods:
           type: <xref uid="gramstax!~IKbCols:type" />
         - id: baseId
           description: >-
-            Optional template base ID. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId
-            to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard
-            bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the
-            keyboard configuration.
+            Optional template base ID position block keyboard. IMPORTANT: If a `<base id="...">` is defined in the
+            template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors
+            (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but
+            not reusing it in the keyboard configuration.
           type: string | null
         - id: data
           description: Optional template interpolation data.
@@ -3227,7 +3216,7 @@ methods:
     syntax:
       content: >-
         reply(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReply):
-        Promise<_grammyjs_types.Message.TextMessage>;
+        Promise<grammy_types.Message.TextMessage>;
       parameters:
         - id: keyboard
           description: >-
@@ -3238,7 +3227,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block message.
           type: string
         - id: options
           description: Optional grammY reply options.
@@ -3290,11 +3279,10 @@ methods:
     syntax:
       content: >-
         replyAnimation(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyAnimation):
-        Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | undefined>;
+        Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | undefined>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
@@ -3303,7 +3291,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type animation.
           type: string
         - id: options
           description: Optional animation-specific options.
@@ -3336,11 +3324,10 @@ methods:
     syntax:
       content: >-
         replyAudio(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyAudio):
-        Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | undefined>;
+        Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | undefined>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
@@ -3349,7 +3336,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type audio.
           type: string
         - id: options
           description: Optional audio-specific options.
@@ -3382,11 +3369,10 @@ methods:
     syntax:
       content: >-
         replyContact(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyContact):
-        Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | undefined>;
+        Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | undefined>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
@@ -3395,7 +3381,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type contact.
           type: string
         - id: options
           description: Optional contact-specific options.
@@ -3428,11 +3414,10 @@ methods:
     syntax:
       content: >-
         replyDocument(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyDocument):
-        Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | undefined>;
+        Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | undefined>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
@@ -3441,7 +3426,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type document.
           type: string
         - id: options
           description: Optional document-specific options.
@@ -3474,11 +3459,10 @@ methods:
     syntax:
       content: >-
         replyLocation(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyLocation):
-        Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | undefined>;
+        Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | undefined>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
@@ -3487,7 +3471,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type location.
           type: string
         - id: options
           description: Optional location-specific options.
@@ -3527,11 +3511,10 @@ methods:
         extends `document` ? IOptReplyDocument : T extends `animation` ? IOptReplyAnimation : T extends `voice` ?
         IOptReplyVoice : T extends `video_note` ? IOptReplyVideoNote : T extends `sticker` ? IOptReplySticker : T
         extends `location` ? IOptReplyLocation : T extends `contact` ? IOptReplyContact : undefined):
-        Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | undefined>;
+        Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | undefined>;
       parameters:
         - id: type
           description: The media type (photo, video, audio, document, animation, voice, video\_note, sticker, location, contact).
@@ -3543,7 +3526,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media.
           type: string
         - id: options
           description: Type-specific options for the media.
@@ -3584,11 +3567,10 @@ methods:
     syntax:
       content: >-
         replyPhoto(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyPhoto):
-        Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | undefined>;
+        Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | undefined>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
@@ -3597,7 +3579,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type photo.
           type: string
         - id: options
           description: Optional photo-specific options.
@@ -3630,11 +3612,10 @@ methods:
     syntax:
       content: >-
         replySticker(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplySticker):
-        Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | undefined>;
+        Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | undefined>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
@@ -3643,7 +3624,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type sticker.
           type: string
         - id: options
           description: Optional sticker-specific options.
@@ -3676,11 +3657,10 @@ methods:
     syntax:
       content: >-
         replyVideo(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVideo):
-        Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | undefined>;
+        Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | undefined>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
@@ -3689,7 +3669,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type video.
           type: string
         - id: options
           description: Optional video-specific options.
@@ -3722,11 +3702,10 @@ methods:
     syntax:
       content: >-
         replyVideoNote(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVideoNote):
-        Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | undefined>;
+        Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | undefined>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
@@ -3735,7 +3714,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type video\_note.
           type: string
         - id: options
           description: Optional video note-specific options.
@@ -3768,11 +3747,10 @@ methods:
     syntax:
       content: >-
         replyVoice(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVoice):
-        Promise<_grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage |
-        _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage |
-        _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage |
-        _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage |
-        _grammyjs_types.Message.StickerMessage | undefined>;
+        Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | undefined>;
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
@@ -3781,7 +3759,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID.
+          description: Optional template base ID position for block media type voice.
           type: string
         - id: options
           description: Optional voice-specific options.

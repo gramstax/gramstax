@@ -9,7 +9,7 @@ Replaces the current message with a contact.
 **Signature:**
 
 ```typescript
-editContact(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true | _grammyjs_types.Message.LocationMessage | _grammyjs_types.Message.ContactMessage | _grammyjs_types.Message.PhotoMessage | _grammyjs_types.Message.VideoMessage | _grammyjs_types.Message.AudioMessage | _grammyjs_types.Message.DocumentMessage | _grammyjs_types.Message.VoiceMessage | _grammyjs_types.Message.VideoNoteMessage | _grammyjs_types.Message.StickerMessage | (_grammyjs_types.Update.Edited & _grammyjs_types.Message) | undefined>;
+editContact(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
 ```
 
 ## Parameters
@@ -74,7 +74,7 @@ string
 
 </td><td>
 
-_(Optional)_ Optional template base ID.
+_(Optional)_ Optional template base ID position for block media type contact.
 
 
 </td></tr>
@@ -98,7 +98,7 @@ _(Optional)_ Optional edit options.
 
 **Returns:**
 
-Promise&lt;true \| \_grammyjs\_types.Message.LocationMessage \| \_grammyjs\_types.Message.ContactMessage \| \_grammyjs\_types.Message.PhotoMessage \| \_grammyjs\_types.Message.VideoMessage \| \_grammyjs\_types.Message.AudioMessage \| \_grammyjs\_types.Message.DocumentMessage \| \_grammyjs\_types.Message.VoiceMessage \| \_grammyjs\_types.Message.VideoNoteMessage \| \_grammyjs\_types.Message.StickerMessage \| (\_grammyjs\_types.Update.Edited &amp; \_grammyjs\_types.Message) \| undefined&gt;
+Promise&lt;true \| grammy\_types.Message.LocationMessage \| grammy\_types.Message.ContactMessage \| grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.VoiceMessage \| grammy\_types.Message.VideoNoteMessage \| grammy\_types.Message.StickerMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message) \| undefined&gt;
 
 The sent message object.
 

@@ -9,7 +9,7 @@ Photo sizes attached to the message.
 **Signature:**
 
 ```typescript
-get msgPhoto(): _grammyjs_types.PhotoSize[] | undefined;
+get msgPhoto(): grammy_types.PhotoSize[] | undefined;
 ```
 
 ## Example

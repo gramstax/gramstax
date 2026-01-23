@@ -9,7 +9,7 @@ Web app data attached to the message.
 **Signature:**
 
 ```typescript
-get msgWebAppData(): _grammyjs_types.WebAppData | undefined;
+get msgWebAppData(): grammy_types.WebAppData | undefined;
 ```
 
 ## Example

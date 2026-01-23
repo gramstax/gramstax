@@ -9,10 +9,10 @@ Edits an existing message text using the page template.
 **Signature:**
 
 ```typescript
-edit(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEdit, fallbackReply?: boolean): Promise<true | (_grammyjs_types.Update.Edited & _grammyjs_types.Message.CommonMessage & {
+edit(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEdit, fallbackReply?: boolean): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         text: string;
     } & Partial<{
-        entities: _grammyjs_types.MessageEntity[];
+        entities: grammy_types.MessageEntity[];
     }>) | undefined>;
 ```
 
@@ -78,7 +78,7 @@ string
 
 </td><td>
 
-_(Optional)_ Optional template base ID.
+_(Optional)_ Optional template base ID position for block message.
 
 
 </td></tr>
@@ -118,7 +118,7 @@ _(Optional)_ If true, sends a reply if edit fails. Default: true.
 
 **Returns:**
 
-Promise&lt;true \| (\_grammyjs\_types.Update.Edited &amp; \_grammyjs\_types.Message.CommonMessage &amp; { text: string; } &amp; Partial&lt;{ entities: \_grammyjs\_types.MessageEntity\[\]; }&gt;) \| undefined&gt;
+Promise&lt;true \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { text: string; } &amp; Partial&lt;{ entities: grammy\_types.MessageEntity\[\]; }&gt;) \| undefined&gt;
 
 The edited message object.
 

@@ -9,7 +9,7 @@ Sticker payload attached to the message.
 **Signature:**
 
 ```typescript
-get msgSticker(): _grammyjs_types.Sticker | undefined;
+get msgSticker(): grammy_types.Sticker | undefined;
 ```
 
 ## Example

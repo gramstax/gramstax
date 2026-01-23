@@ -9,7 +9,7 @@ Video payload attached to the message.
 **Signature:**
 
 ```typescript
-get msgVideo(): _grammyjs_types.Video | undefined;
+get msgVideo(): grammy_types.Video | undefined;
 ```
 
 ## Example

@@ -106,7 +106,7 @@ string
 
 </td><td>
 
-_(Optional)_ Optional template base ID.
+_(Optional)_ Optional template base ID position for block message.
 
 
 </td></tr>

@@ -9,7 +9,7 @@ Voice message payload attached to the message.
 **Signature:**
 
 ```typescript
-get msgVoice(): _grammyjs_types.Voice | undefined;
+get msgVoice(): grammy_types.Voice | undefined;
 ```
 
 ## Example

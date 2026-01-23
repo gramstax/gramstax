@@ -208,7 +208,7 @@ Page routing data created by .
 
 </td><td>
 
-\_grammyjs\_types.Animation \| undefined
+grammy\_types.Animation \| undefined
 
 
 </td><td>
@@ -229,7 +229,7 @@ Animation/GIF payload attached to the message.
 
 </td><td>
 
-\_grammyjs\_types.Audio \| undefined
+grammy\_types.Audio \| undefined
 
 
 </td><td>
@@ -355,7 +355,7 @@ All payload tokens parsed from caption text.
 
 </td><td>
 
-\_grammyjs\_types.Contact \| undefined
+grammy\_types.Contact \| undefined
 
 
 </td><td>
@@ -376,7 +376,7 @@ Contact payload attached to the message.
 
 </td><td>
 
-\_grammyjs\_types.Document \| undefined
+grammy\_types.Document \| undefined
 
 
 </td><td>
@@ -397,7 +397,7 @@ Document payload attached to the message.
 
 </td><td>
 
-\_grammyjs\_types.GiftInfo \| undefined
+grammy\_types.GiftInfo \| undefined
 
 
 </td><td>
@@ -418,7 +418,7 @@ Gift payload attached to the message.
 
 </td><td>
 
-\_grammyjs\_types.Location \| undefined
+grammy\_types.Location \| undefined
 
 
 </td><td>
@@ -439,7 +439,7 @@ Location payload attached to the message.
 
 </td><td>
 
-\_grammyjs\_types.PhotoSize\[\] \| undefined
+grammy\_types.PhotoSize\[\] \| undefined
 
 
 </td><td>
@@ -460,7 +460,7 @@ Photo sizes attached to the message.
 
 </td><td>
 
-\_grammyjs\_types.Sticker \| undefined
+grammy\_types.Sticker \| undefined
 
 
 </td><td>
@@ -586,7 +586,7 @@ All payload tokens parsed from message text.
 
 </td><td>
 
-\_grammyjs\_types.Video \| undefined
+grammy\_types.Video \| undefined
 
 
 </td><td>
@@ -607,7 +607,7 @@ Video payload attached to the message.
 
 </td><td>
 
-\_grammyjs\_types.VideoNote \| undefined
+grammy\_types.VideoNote \| undefined
 
 
 </td><td>
@@ -628,7 +628,7 @@ Video note (circular video) attached to the message.
 
 </td><td>
 
-\_grammyjs\_types.Voice \| undefined
+grammy\_types.Voice \| undefined
 
 
 </td><td>
@@ -649,7 +649,7 @@ Voice message payload attached to the message.
 
 </td><td>
 
-\_grammyjs\_types.WebAppData \| undefined
+grammy\_types.WebAppData \| undefined
 
 
 </td><td>

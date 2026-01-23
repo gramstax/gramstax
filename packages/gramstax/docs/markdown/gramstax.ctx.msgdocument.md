@@ -9,7 +9,7 @@ Document payload attached to the message.
 **Signature:**
 
 ```typescript
-get msgDocument(): _grammyjs_types.Document | undefined;
+get msgDocument(): grammy_types.Document | undefined;
 ```
 
 ## Example

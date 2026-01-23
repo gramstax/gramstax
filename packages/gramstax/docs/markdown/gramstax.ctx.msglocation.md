@@ -9,7 +9,7 @@ Location payload attached to the message.
 **Signature:**
 
 ```typescript
-get msgLocation(): _grammyjs_types.Location | undefined;
+get msgLocation(): grammy_types.Location | undefined;
 ```
 
 ## Example

@@ -9,7 +9,7 @@ Contact payload attached to the message.
 **Signature:**
 
 ```typescript
-get msgContact(): _grammyjs_types.Contact | undefined;
+get msgContact(): grammy_types.Contact | undefined;
 ```
 
 ## Example
