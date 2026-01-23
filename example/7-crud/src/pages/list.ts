@@ -23,8 +23,8 @@ export class ListPage extends PageBase {
   }
 
   async show(page = 0, edit = true) {
-    const items = await this.crudStore.listItems(this.userId)
-    if (items.length === 0) {
+    const totalItems = await this.crudStore.countItems(this.userId)
+    if (totalItems === 0) {
       const kb = this.inlineKeyboardT([StartPage], `1`, `empty-kb`)
       const bi = `empty`
       if (edit) await this.edit(kb, {}, bi)
@@ -32,12 +32,11 @@ export class ListPage extends PageBase {
       return
     }
 
-    const totalPages = Math.max(Math.ceil(items.length / this.PAGE_SIZE), 1)
+    const totalPages = Math.max(Math.ceil(totalItems / this.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-    const start = safePage * this.PAGE_SIZE
-    const end = start + this.PAGE_SIZE
-    const slice = items.slice(start, end)
-    const list = slice
+    const offset = safePage * this.PAGE_SIZE
+    const items = await this.crudStore.listItems(this.userId, {limit: this.PAGE_SIZE, offset})
+    const list = items
       .map((item) => {
         const ts = this.crudStore.formatTimestamp(item.updatedAt)
         return `#${item.id} ${item.title} [${item.status}] (updated ${ts})`
