@@ -1,7 +1,6 @@
 import {log} from "~/utils/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
-import {KeyboardBlock} from "~/blocks/keyboard"
 
 // Error/fallback page for unified error messaging.
 export class GeneralStatusPage extends PageBase {
@@ -12,7 +11,7 @@ export class GeneralStatusPage extends PageBase {
   }
 
   kb() {
-    return this.inlineKeyboardT([StartPage], `1`, `default-kb`)
+    return this.inlineKeyboardT([StartPage])
   }
 
   async toError(funcName: string, error: any, edit = true) {
@@ -32,7 +31,9 @@ export class GeneralStatusPage extends PageBase {
   }
 
   static template = `
-    <base></base>
+    <base>
+      ${this.kbk.home()}
+    </base>
 
     <base id="error">
       <message>
@@ -48,10 +49,6 @@ export class GeneralStatusPage extends PageBase {
 
         🔎 No matching route found.
       </message>
-    </base>
-
-    <base id="default-kb">
-      <keyboard>${KeyboardBlock.label.home.default}</keyboard>
     </base>
   `
 }
