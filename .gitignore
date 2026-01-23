@@ -1,4 +1,5 @@
 database
+*.mdb
 
 # dependencies (bun install)
 node_modules

@@ -10,7 +10,7 @@ export class CreatePage extends PageBase {
   async callback() {
     await this.sessionTextFree({step: `title`})
     const bi = `form-title`
-    await this.edit(this.kb(`${bi}-kb`), {}, bi)
+    await this.edit(this.kb(bi), {}, bi)
   }
 
   async textFree() {
@@ -26,29 +26,30 @@ export class CreatePage extends PageBase {
     const biInv = `invalid`
     if (!value) {
       await this.sessionTextFree({step})
-      return await this.reply(this.kb(`${biInv}-kb`), {}, biInv)
+      return await this.reply(this.kb(biInv), {}, biInv)
     }
 
     if (step === `title`) {
       await this.sessionTextFree({step: `description`, title: value})
       const bi = `form-description`
-      return await this.reply(this.kb(`${bi}-kb`), {title: value}, bi)
+      return await this.reply(this.kb(bi), {title: value}, bi)
     }
 
     const title = (this.session?.params as {title?: string} | undefined)?.title
     if (!title) {
       await this.sessionTextFree({step: `title`})
-      return await this.reply(this.kb(`${biInv}-kb`), {}, biInv)
+      return await this.reply(this.kb(biInv), {}, biInv)
     }
 
-    const item = this.crudStore.createItem(this.userId, title, value)
+    const item = await this.crudStore.createItem(this.userId, title, value)
     await this.sessionClear()
     const bi = `success`
-    await this.reply(this.kb(`${bi}-kb`), {id: item.id, title: item.title, description: item.description, status: item.status}, bi)
+    await this.reply(this.kb(bi), {id: item.id, title: item.title, description: item.description, status: item.status}, bi)
   }
 
   static template = `
     <base id="form-title">
+      ${this.kbk.cancel()}
       <message>
         ✏️ Create a new item
 
@@ -64,6 +65,7 @@ export class CreatePage extends PageBase {
     </base>
 
     <base id="form-description">
+      ${this.kbk.cancel()}
       <message>
         ✅ Title saved: {{title}}
 
@@ -79,6 +81,7 @@ export class CreatePage extends PageBase {
     </base>
 
     <base id="success">
+      ${this.kbk.home()}
       <message>
         ✅ Item created (#{{id}})
 
@@ -96,6 +99,7 @@ export class CreatePage extends PageBase {
     </base>
 
     <base id="invalid">
+      ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid input.
 
@@ -106,22 +110,6 @@ export class CreatePage extends PageBase {
 
         Mohon kirim nilai yang tidak kosong.
       </message>
-    </base>
-
-    <base id="form-title-kb">
-      ${this.kbk.cancel()}
-    </base>
-
-    <base id="form-description-kb">
-      ${this.kbk.cancel()}
-    </base>
-
-    <base id="success-kb">
-      ${this.kbk.home()}
-    </base>
-
-    <base id="invalid-kb">
-      ${this.kbk.cancel()}
     </base>
   `
 }

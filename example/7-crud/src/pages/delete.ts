@@ -21,10 +21,10 @@ export class DeletePage extends PageBase {
   }
 
   async showList(edit = true) {
-    const items = this.crudStore.listItems(this.userId).slice(0, this.MAX_ITEMS)
+    const items = (await this.crudStore.listItems(this.userId)).slice(0, this.MAX_ITEMS)
     if (items.length === 0) {
-      const kb = this.inlineKeyboardT([StartPage], `1`, `empty-kb`)
       const bi = `empty`
+      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
       if (edit) await this.edit(kb, {}, bi)
       else await this.reply(kb, {}, bi)
       return
@@ -60,11 +60,11 @@ export class DeletePage extends PageBase {
 
   private async handleDelete(input?: string, edit = false) {
     const id = input?.trim()
-    const biInv = `invalid`
     if (!id) {
-      const kb = this.inlineKeyboardT([StartPage], `1`, `${biInv}-kb`)
-      if (edit) await this.edit(kb, {}, biInv)
-      else await this.reply(kb, {}, biInv)
+      const bi = `invalid`
+      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
+      if (edit) await this.edit(kb, {}, bi)
+      else await this.reply(kb, {}, bi)
       await this.sessionClear()
       return
     }
@@ -72,7 +72,7 @@ export class DeletePage extends PageBase {
     const deleted = this.crudStore.deleteItem(this.userId, id)
     if (!deleted) {
       const bi = `not-found`
-      const kb = this.inlineKeyboardT([StartPage], `1`, `${bi}-kb`)
+      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
       if (edit) await this.edit(kb, {id}, bi)
       else await this.reply(kb, {id}, bi)
       return
@@ -80,13 +80,14 @@ export class DeletePage extends PageBase {
 
     await this.sessionClear()
     const bi = `success`
-    const kb = this.inlineKeyboardT([StartPage], `1`, `${bi}-kb`)
+    const kb = this.inlineKeyboardT([StartPage], `1`, bi)
     if (edit) await this.edit(kb, {id}, bi)
     else await this.reply(kb, {id}, bi)
   }
 
   static template = `
     <base id="list">
+      ${this.kbk.home()}
       <message>
         🗑️ Select a todo to delete, or type an ID.
 
@@ -100,6 +101,7 @@ export class DeletePage extends PageBase {
     </base>
 
     <base id="success">
+      ${this.kbk.home()}
       <message>
         ✅ Item deleted!
 
@@ -113,6 +115,7 @@ export class DeletePage extends PageBase {
     </base>
 
     <base id="not-found">
+      ${this.kbk.home()}
       <message>
         ❌ Item not found: {{id}}
 
@@ -126,6 +129,7 @@ export class DeletePage extends PageBase {
     </base>
 
     <base id="invalid">
+      ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid ID.
 
@@ -139,6 +143,7 @@ export class DeletePage extends PageBase {
     </base>
 
     <base id="empty">
+      ${this.kbk.home()}
       <message>
         📭 No items available to delete.
 
@@ -149,26 +154,6 @@ export class DeletePage extends PageBase {
 
         Buat beberapa todo terlebih dahulu.
       </message>
-    </base>
-
-    <base id="list-kb">
-      ${this.kbk.home()}
-    </base>
-
-    <base id="success-kb">
-      ${this.kbk.home()}
-    </base>
-
-    <base id="not-found-kb">
-      ${this.kbk.home()}
-    </base>
-
-    <base id="invalid-kb">
-      ${this.kbk.home()}
-    </base>
-
-    <base id="empty-kb">
-      ${this.kbk.home()}
     </base>
   `
 }

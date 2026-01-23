@@ -10,7 +10,7 @@ export class DetailPage extends PageBase {
   async callback() {
     await this.sessionTextFree()
     const bi = `form`
-    await this.edit(this.kb(`${bi}-kb`), {}, bi)
+    await this.edit(this.kb(bi), {}, bi)
   }
 
   async textFree() {
@@ -22,15 +22,15 @@ export class DetailPage extends PageBase {
     const id = input?.trim()
     if (!id) {
       const bi = `invalid`
-      await this.reply(this.kb(`${bi}-kb`), {}, bi)
+      await this.reply(this.kb(bi), {}, bi)
       await this.sessionClear()
       return
     }
 
-    const item = this.crudStore.getItem(this.userId, id)
+    const item = await this.crudStore.getItem(this.userId, id)
     if (!item) {
       const bi = `not-found`
-      await this.reply(this.kb(`${bi}-kb`), {id}, bi)
+      await this.reply(this.kb(bi), {id}, bi)
       await this.sessionClear()
       return
     }
@@ -38,12 +38,13 @@ export class DetailPage extends PageBase {
     const createdAt = this.crudStore.formatTimestamp(item.createdAt)
     const updatedAt = this.crudStore.formatTimestamp(item.updatedAt)
     const bi = `detail`
-    await this.reply(this.kb(`${bi}-kb`), {id: item.id, title: item.title, description: item.description, status: item.status, createdAt, updatedAt}, bi)
+    await this.reply(this.kb(bi), {id: item.id, title: item.title, description: item.description, status: item.status, createdAt, updatedAt}, bi)
     await this.sessionClear()
   }
 
   static template = `
     <base id="form">
+      ${this.kbk.cancel()}
       <message>
         🔎 View item details
 
@@ -59,6 +60,7 @@ export class DetailPage extends PageBase {
     </base>
 
     <base id="detail">
+      ${this.kbk.home()}
       <message>
         📋 Item #{{id}}
 
@@ -80,6 +82,7 @@ export class DetailPage extends PageBase {
     </base>
 
     <base id="not-found">
+      ${this.kbk.cancel()}
       <message>
         ❌ Item not found: {{id}}
       </message>
@@ -89,6 +92,7 @@ export class DetailPage extends PageBase {
     </base>
 
     <base id="invalid">
+      ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid ID.
 
@@ -99,22 +103,6 @@ export class DetailPage extends PageBase {
 
         Mohon kirim ID item angka.
       </message>
-    </base>
-
-    <base id="form-kb">
-      ${this.kbk.cancel()}
-    </base>
-
-    <base id="detail-kb">
-      ${this.kbk.home()}
-    </base>
-
-    <base id="not-found-kb">
-      ${this.kbk.cancel()}
-    </base>
-
-    <base id="invalid-kb">
-      ${this.kbk.cancel()}
     </base>
   `
 }

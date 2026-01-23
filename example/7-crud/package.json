@@ -6,6 +6,7 @@
     "dev": "bun --watch ./src/index.ts"
   },
   "dependencies": {
-    "gramstax": "workspace:*"
+    "gramstax": "workspace:*",
+    "lmdb": "^3.4.4"
   }
 }

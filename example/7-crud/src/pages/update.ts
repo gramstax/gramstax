@@ -7,8 +7,8 @@ export class UpdatePage extends PageBase {
   static data = this.buildData((action?: string, id?: string, status?: string, page?: string) => [action, id, status, page])
   PAGE_SIZE = 5
 
-  buildSelectKeyboard(page: number, items: CrudItem[]) {
-    const allItems = this.crudStore.listItems(this.userId)
+  async buildSelectKeyboard(page: number, items: CrudItem[]) {
+    const allItems = await this.crudStore.listItems(this.userId)
     const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
 
@@ -28,24 +28,25 @@ export class UpdatePage extends PageBase {
         }
         return k.row().text(a[2]!, StartPage.data.callback())
       },
-      {baseId: `navigation`}
+      {baseId: `select`}
     )
   }
 
   buildStatusKeyboard(id: string) {
-    return this.inlineKeyboard(
-      (k, a) => {
-        k.text(a[0]!, this.data.callback(`status`, id, `todo`))
-        k.text(a[1]!, this.data.callback(`status`, id, `in-progress`))
-        k.text(a[2]!, this.data.callback(`status`, id, `done`))
-        return k.row().text(a[3]!, StartPage.data.callback())
-      },
-      {baseId: `status-kb`}
+    return this.inlineKeyboardT(
+      [
+        this.data.callback(`status`, id, `todo`), //
+        this.data.callback(`status`, id, `in-progress`),
+        this.data.callback(`status`, id, `done`),
+        StartPage
+      ],
+      `3-1`,
+      `status`
     )
   }
 
   async showSelect(page = 0, edit = true) {
-    const allItems = this.crudStore.listItems(this.userId)
+    const allItems = await this.crudStore.listItems(this.userId)
     const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const start = safePage * this.PAGE_SIZE
@@ -53,14 +54,14 @@ export class UpdatePage extends PageBase {
     const items = allItems.slice(start, end)
 
     if (items.length === 0) {
-      const kb = this.inlineKeyboardT([StartPage], `1`, `empty-kb`)
       const bi = `empty`
+      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
       if (edit) await this.edit(kb, {}, bi)
       else await this.reply(kb, {}, bi)
       return
     }
 
-    const kb = this.buildSelectKeyboard(safePage, items)
+    const kb = await this.buildSelectKeyboard(safePage, items)
     const bi = `select`
     const data = {count: allItems.length, page: safePage + 1, totalPages}
     if (edit) await this.edit(kb, data, bi)
@@ -68,10 +69,10 @@ export class UpdatePage extends PageBase {
   }
 
   async showStatus(id: string, edit = true) {
-    const item = this.crudStore.getItem(this.userId, id)
+    const item = await this.crudStore.getItem(this.userId, id)
     if (!item) {
-      const kb = this.inlineKeyboardT([StartPage], `1`, `not-found-kb`)
       const bi = `not-found`
+      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
       if (edit) await this.edit(kb, {id}, bi)
       else await this.reply(kb, {id}, bi)
       return
@@ -103,20 +104,20 @@ export class UpdatePage extends PageBase {
     }
 
     if (action === `status` && id && status) {
-      const item = this.crudStore.getItem(this.userId, id)
+      const item = await this.crudStore.getItem(this.userId, id)
       if (!item) {
         await this.showSelect(0, true)
         return
       }
 
-      const updated = this.crudStore.updateItem(this.userId, id, item.title, item.description, status as CrudItem[`status`])
+      const updated = await this.crudStore.updateItem(this.userId, id, item.title, item.description, status as CrudItem[`status`])
       if (!updated) {
         await this.showSelect(0, true)
         return
       }
 
-      const kb = this.inlineKeyboardT([StartPage], `1`, `success-kb`)
       const bi = `success`
+      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
       await this.edit(kb, {id: updated.id, status: updated.status}, bi)
       return
     }
@@ -126,6 +127,8 @@ export class UpdatePage extends PageBase {
 
   static template = `
     <base id="select">
+      <keyboard>⬅️ Prev, ➡️ Next, 🏠 Home</keyboard>
+      <keyboard lang="id">⬅️ Sebelumnya, ➡️ Berikutnya, 🏠 Beranda</keyboard>
       <message>
         ✏️ Select a todo to update its status.
 
@@ -139,6 +142,8 @@ export class UpdatePage extends PageBase {
     </base>
 
     <base id="status">
+      <keyboard>📝 Todo, 🔄 In Progress, ✅ Done, 🏠 Home</keyboard>
+      <keyboard lang="id">📝 Todo, 🔄 Proses, ✅ Selesai, 🏠 Beranda</keyboard>
       <message>
         📋 Item #{{id}}: {{title}}
 
@@ -156,6 +161,7 @@ export class UpdatePage extends PageBase {
     </base>
 
     <base id="success">
+      ${this.kbk.home()}
       <message>
         ✅ Status updated!
 
@@ -169,6 +175,7 @@ export class UpdatePage extends PageBase {
     </base>
 
     <base id="empty">
+      ${this.kbk.home()}
       <message>
         📭 No items available to update.
 
@@ -182,6 +189,7 @@ export class UpdatePage extends PageBase {
     </base>
 
     <base id="not-found">
+      ${this.kbk.home()}
       <message>
         ❌ Item not found: {{id}}
 
@@ -192,28 +200,6 @@ export class UpdatePage extends PageBase {
 
         Item ini mungkin sudah dihapus atau tidak ada.
       </message>
-    </base>
-
-    <base id="navigation">
-      <keyboard>⬅️ Prev, ➡️ Next, 🏠 Home</keyboard>
-      <keyboard lang="id">⬅️ Sebelumnya, ➡️ Berikutnya, 🏠 Beranda</keyboard>
-    </base>
-
-    <base id="empty-kb">
-      ${this.kbk.home()}
-    </base>
-
-    <base id="status-kb">
-      <keyboard>📝 Todo, 🔄 In Progress, ✅ Done, 🏠 Home</keyboard>
-      <keyboard lang="id">📝 Todo, 🔄 Proses, ✅ Selesai, 🏠 Beranda</keyboard>
-    </base>
-
-    <base id="success-kb">
-      ${this.kbk.home()}
-    </base>
-
-    <base id="not-found-kb">
-      ${this.kbk.home()}
     </base>
   `
 }

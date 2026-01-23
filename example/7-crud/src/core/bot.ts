@@ -3,10 +3,11 @@ import {CtxCore} from "./ctx"
 import {CrudStore} from "~/store/crud"
 import {CrudGuard} from "~/guards/crud"
 import {GeneralStatusPage} from "~/pages/general-status"
+import {env} from "~/env"
 
 // BotCore wires hooks and shared stores.
 export class BotCore extends Gramstax {
-  crudStore = new CrudStore()
+  crudStore = new CrudStore(env.STORE_PATH)
 
   createCtx(ct: Parameters<Gramstax[`createCtx`]>[0]) {
     return new CtxCore({
@@ -24,7 +25,7 @@ export class BotCore extends Gramstax {
   }
 
   async hookBeforeRoute(ctx: CtxCore) {
-    CrudGuard.ensureUser(ctx)
+    await CrudGuard.ensureUser(ctx)
     return true
   }
 

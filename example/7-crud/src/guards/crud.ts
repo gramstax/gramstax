@@ -1,8 +1,8 @@
 import type {CtxCore} from "~/core/ctx"
 
 export class CrudGuard {
-  static ensureUser(ctx: CtxCore) {
-    ctx.crudStore.ensureUser(ctx.userId)
+  static async ensureUser(ctx: CtxCore) {
+    await ctx.crudStore.ensureUser(ctx.userId)
     return true
   }
 }

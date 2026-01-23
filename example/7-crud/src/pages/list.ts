@@ -23,7 +23,7 @@ export class ListPage extends PageBase {
   }
 
   async show(page = 0, edit = true) {
-    const items = this.crudStore.listItems(this.userId)
+    const items = await this.crudStore.listItems(this.userId)
     if (items.length === 0) {
       const kb = this.inlineKeyboardT([StartPage], `1`, `empty-kb`)
       const bi = `empty`

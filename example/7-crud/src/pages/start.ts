@@ -11,8 +11,8 @@ export class StartPage extends PageBase {
   async show(edit: boolean) {
     await this.sessionClear()
     const kb = this.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`, `menu`)
-    if (edit) await this.edit(kb, {}, `default`)
-    else await this.reply(kb, {}, `default`)
+    if (edit) await this.edit(kb)
+    else await this.reply(kb)
   }
 
   async textCommand() {
