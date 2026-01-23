@@ -131,6 +131,11 @@ export class UpdatePage extends PageBase {
 
         Showing {{count}} items • Page {{page}}/{{totalPages}}
       </message>
+      <message lang="id">
+        ✏️ Pilih todo untuk memperbarui status.
+
+        Menampilkan {{count}} item • Halaman {{page}}/{{totalPages}}
+      </message>
     </base>
 
     <base id="status">
@@ -141,6 +146,13 @@ export class UpdatePage extends PageBase {
 
         Choose the next status:
       </message>
+      <message lang="id">
+        📋 Item #{{id}}: {{title}}
+
+        Status saat ini: {{status}}
+
+        Pilih status berikutnya:
+      </message>
     </base>
 
     <base id="success">
@@ -148,6 +160,11 @@ export class UpdatePage extends PageBase {
         ✅ Status updated!
 
         Item #{{id}} is now: {{status}}
+      </message>
+      <message lang="id">
+        ✅ Status diperbarui!
+
+        Item #{{id}} sekarang: {{status}}
       </message>
     </base>
 
@@ -157,6 +174,11 @@ export class UpdatePage extends PageBase {
 
         Create some todos first to manage their status.
       </message>
+      <message lang="id">
+        📭 Tidak ada item untuk diperbarui.
+
+        Buat beberapa todo terlebih dahulu.
+      </message>
     </base>
 
     <base id="not-found">
@@ -165,26 +187,33 @@ export class UpdatePage extends PageBase {
 
         This item may have been deleted or doesn't exist.
       </message>
+      <message lang="id">
+        ❌ Item tidak ditemukan: {{id}}
+
+        Item ini mungkin sudah dihapus atau tidak ada.
+      </message>
     </base>
 
     <base id="navigation">
-      <keyboard>⬅️ Prev, ➡️ Next, ${this.kbl.home.default}</keyboard>
+      <keyboard>⬅️ Prev, ➡️ Next, 🏠 Home</keyboard>
+      <keyboard lang="id">⬅️ Sebelumnya, ➡️ Berikutnya, 🏠 Beranda</keyboard>
     </base>
 
     <base id="empty-kb">
-      <keyboard>${this.kbl.home.default}</keyboard>
+      ${this.kbk.home()}
     </base>
 
     <base id="status-kb">
-      <keyboard>📝 Todo, 🔄 In Progress, ✅ Done, ${this.kbl.home.default}</keyboard>
+      <keyboard>📝 Todo, 🔄 In Progress, ✅ Done, 🏠 Home</keyboard>
+      <keyboard lang="id">📝 Todo, 🔄 Proses, ✅ Selesai, 🏠 Beranda</keyboard>
     </base>
 
     <base id="success-kb">
-      <keyboard>${this.kbl.home.default}</keyboard>
+      ${this.kbk.home()}
     </base>
 
     <base id="not-found-kb">
-      <keyboard>${this.kbl.home.default}</keyboard>
+      ${this.kbk.home()}
     </base>
   `
 }

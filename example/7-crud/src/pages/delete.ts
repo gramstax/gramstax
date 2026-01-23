@@ -65,6 +65,7 @@ export class DeletePage extends PageBase {
       const kb = this.inlineKeyboardT([StartPage], `1`, `${biInv}-kb`)
       if (edit) await this.edit(kb, {}, biInv)
       else await this.reply(kb, {}, biInv)
+      await this.sessionClear()
       return
     }
 
@@ -91,6 +92,11 @@ export class DeletePage extends PageBase {
 
         Showing {{count}} items
       </message>
+      <message lang="id">
+        🗑️ Pilih todo untuk dihapus, atau ketik ID.
+
+        Menampilkan {{count}} item
+      </message>
     </base>
 
     <base id="success">
@@ -98,6 +104,11 @@ export class DeletePage extends PageBase {
         ✅ Item deleted!
 
         Removed item #{{id}} from your todo list.
+      </message>
+      <message lang="id">
+        ✅ Item dihapus!
+
+        Item #{{id}} dihapus dari daftar todo.
       </message>
     </base>
 
@@ -107,6 +118,11 @@ export class DeletePage extends PageBase {
 
         This item may have already been deleted.
       </message>
+      <message lang="id">
+        ❌ Item tidak ditemukan: {{id}}
+
+        Item ini mungkin sudah dihapus.
+      </message>
     </base>
 
     <base id="invalid">
@@ -114,6 +130,11 @@ export class DeletePage extends PageBase {
         ⚠️ Invalid ID.
 
         Please send a numeric item ID (e.g., 1, 2, 3).
+      </message>
+      <message lang="id">
+        ⚠️ ID tidak valid.
+
+        Mohon kirim ID item angka (mis. 1, 2, 3).
       </message>
     </base>
 
@@ -123,26 +144,31 @@ export class DeletePage extends PageBase {
 
         Create some todos first to manage them.
       </message>
+      <message lang="id">
+        📭 Tidak ada item untuk dihapus.
+
+        Buat beberapa todo terlebih dahulu.
+      </message>
     </base>
 
     <base id="list-kb">
-      <keyboard>${this.kbl.home.default}</keyboard>
+      ${this.kbk.home()}
     </base>
 
     <base id="success-kb">
-      <keyboard>${this.kbl.home.default}</keyboard>
+      ${this.kbk.home()}
     </base>
 
     <base id="not-found-kb">
-      <keyboard>${this.kbl.home.default}</keyboard>
+      ${this.kbk.home()}
     </base>
 
     <base id="invalid-kb">
-      <keyboard>${this.kbl.home.default}</keyboard>
+      ${this.kbk.home()}
     </base>
 
     <base id="empty-kb">
-      <keyboard>${this.kbl.home.default}</keyboard>
+      ${this.kbk.home()}
     </base>
   `
 }

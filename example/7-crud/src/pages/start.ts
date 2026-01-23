@@ -9,6 +9,7 @@ import {HelpPage} from "./help"
 // Main menu page for CRUD example.
 export class StartPage extends PageBase {
   async show(edit: boolean) {
+    await this.sessionClear()
     const kb = this.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`, `menu`)
     if (edit) await this.edit(kb, {}, `default`)
     else await this.reply(kb, {}, `default`)
@@ -25,6 +26,7 @@ export class StartPage extends PageBase {
   static template = `
     <base id="menu">
       <keyboard>➕ Create, 📋 List, 🔎 Detail, ✅ Update, 🗑️ Delete, ❓ Help</keyboard>
+      <keyboard lang="id">➕ Buat, 📋 Daftar, 🔎 Detail, ✅ Perbarui, 🗑️ Hapus, ❓ Bantuan</keyboard>
     </base>
 
     <base>
@@ -39,6 +41,18 @@ export class StartPage extends PageBase {
         - ✅ Update
         - 🗑️ Delete
         - ❓ Help
+      </message>
+      <message lang="id">
+        ✅ Menu CRUD Cache
+
+        Pilih aksi untuk mengelola item tersimpan:
+
+        - ➕ Buat
+        - 📋 Daftar
+        - 🔎 Detail
+        - ✅ Perbarui
+        - 🗑️ Hapus
+        - ❓ Bantuan
       </message>
     </base>
   `

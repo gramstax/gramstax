@@ -55,6 +55,12 @@ export class CreatePage extends PageBase {
         Send the title for the item.
         Example: Coffee Beans
       </message>
+      <message lang="id">
+        ✏️ Buat item baru
+
+        Kirim judul item.
+        Contoh: Biji Kopi
+      </message>
     </base>
 
     <base id="form-description">
@@ -63,6 +69,12 @@ export class CreatePage extends PageBase {
 
         Now send the description.
         Example: Medium roast, 250g
+      </message>
+      <message lang="id">
+        ✅ Judul tersimpan: {{title}}
+
+        Sekarang kirim deskripsinya.
+        Contoh: Medium roast, 250g
       </message>
     </base>
 
@@ -74,6 +86,13 @@ export class CreatePage extends PageBase {
         📝 Description: {{description}}
         📌 Status: {{status}}
       </message>
+      <message lang="id">
+        ✅ Item dibuat (#{{id}})
+
+        🏷️ Judul: {{title}}
+        📝 Deskripsi: {{description}}
+        📌 Status: {{status}}
+      </message>
     </base>
 
     <base id="invalid">
@@ -82,22 +101,27 @@ export class CreatePage extends PageBase {
 
         Please send a non-empty value.
       </message>
+      <message lang="id">
+        ⚠️ Input tidak valid.
+
+        Mohon kirim nilai yang tidak kosong.
+      </message>
     </base>
 
     <base id="form-title-kb">
-      <keyboard>${this.kbl.cancel.default}</keyboard>
+      ${this.kbk.cancel()}
     </base>
 
     <base id="form-description-kb">
-      <keyboard>${this.kbl.cancel.default}</keyboard>
+      ${this.kbk.cancel()}
     </base>
 
     <base id="success-kb">
-      <keyboard>${this.kbl.home.default}</keyboard>
+      ${this.kbk.home()}
     </base>
 
     <base id="invalid-kb">
-      <keyboard>${this.kbl.cancel.default}</keyboard>
+      ${this.kbk.cancel()}
     </base>
   `
 }

@@ -19,10 +19,19 @@ export class HelpPage extends PageBase {
         ✅ Update: pick a todo and set its status.
         🗑️ Delete: remove an item by ID.
       </message>
+      <message lang="id">
+        🧭 Bantuan CRUD
+
+        ➕ Buat: tambah judul dan deskripsi dalam dua langkah.
+        📋 Daftar: lihat item tersimpan dengan pagination.
+        🔎 Detail: cek detail item berdasarkan ID.
+        ✅ Perbarui: pilih todo dan ubah statusnya.
+        🗑️ Hapus: hapus item berdasarkan ID.
+      </message>
     </base>
 
     <base id="default-kb">
-      <keyboard>${this.kbl.back.default}</keyboard>
+      ${this.kbk.back()}
     </base>
   `
 }

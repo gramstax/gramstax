@@ -72,6 +72,13 @@ export class ListPage extends PageBase {
 
         {{items}}
       </message>
+      <message lang="id">
+        📋 Daftar item tersimpan
+
+        Halaman {{page}}/{{totalPages}}
+
+        {{items}}
+      </message>
     </base>
 
     <base id="empty">
@@ -79,14 +86,19 @@ export class ListPage extends PageBase {
         📭 No cached items yet.
         Use ➕ Create to add your first item.
       </message>
+      <message lang="id">
+        📭 Belum ada item tersimpan.
+        Gunakan ➕ Buat untuk menambah item pertama.
+      </message>
     </base>
 
     <base id="navigation">
-      <keyboard>⬅️ Prev, ➡️ Next, ${this.kbl.home.default}</keyboard>
+      <keyboard>⬅️ Prev, ➡️ Next, 🏠 Home</keyboard>
+      <keyboard lang="id">⬅️ Sebelumnya, ➡️ Berikutnya, 🏠 Beranda</keyboard>
     </base>
 
     <base id="empty-kb">
-      <keyboard>${this.kbl.home.default}</keyboard>
+      ${this.kbk.home()}
     </base>
   `
 }

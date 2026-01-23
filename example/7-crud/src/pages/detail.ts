@@ -22,19 +22,24 @@ export class DetailPage extends PageBase {
     const id = input?.trim()
     if (!id) {
       const bi = `invalid`
-      return await this.reply(this.kb(`${bi}-kb`), {}, bi)
+      await this.reply(this.kb(`${bi}-kb`), {}, bi)
+      await this.sessionClear()
+      return
     }
 
     const item = this.crudStore.getItem(this.userId, id)
     if (!item) {
       const bi = `not-found`
-      return await this.reply(this.kb(`${bi}-kb`), {id}, bi)
+      await this.reply(this.kb(`${bi}-kb`), {id}, bi)
+      await this.sessionClear()
+      return
     }
 
     const createdAt = this.crudStore.formatTimestamp(item.createdAt)
     const updatedAt = this.crudStore.formatTimestamp(item.updatedAt)
     const bi = `detail`
     await this.reply(this.kb(`${bi}-kb`), {id: item.id, title: item.title, description: item.description, status: item.status, createdAt, updatedAt}, bi)
+    await this.sessionClear()
   }
 
   static template = `
@@ -44,6 +49,12 @@ export class DetailPage extends PageBase {
 
         Enter the item ID.
         Example: 1
+      </message>
+      <message lang="id">
+        🔎 Lihat detail item
+
+        Masukkan ID item.
+        Contoh: 1
       </message>
     </base>
 
@@ -57,11 +68,23 @@ export class DetailPage extends PageBase {
         🕒 Created: {{createdAt}}
         🔄 Updated: {{updatedAt}}
       </message>
+      <message lang="id">
+        📋 Item #{{id}}
+
+        🏷️ Judul: {{title}}
+        📝 Deskripsi: {{description}}
+        📌 Status: {{status}}
+        🕒 Dibuat: {{createdAt}}
+        🔄 Diperbarui: {{updatedAt}}
+      </message>
     </base>
 
     <base id="not-found">
       <message>
         ❌ Item not found: {{id}}
+      </message>
+      <message lang="id">
+        ❌ Item tidak ditemukan: {{id}}
       </message>
     </base>
 
@@ -71,22 +94,27 @@ export class DetailPage extends PageBase {
 
         Please send a numeric item ID.
       </message>
+      <message lang="id">
+        ⚠️ ID tidak valid.
+
+        Mohon kirim ID item angka.
+      </message>
     </base>
 
     <base id="form-kb">
-      <keyboard>${this.kbl.cancel.default}</keyboard>
+      ${this.kbk.cancel()}
     </base>
 
     <base id="detail-kb">
-      <keyboard>${this.kbl.home.default}</keyboard>
+      ${this.kbk.home()}
     </base>
 
     <base id="not-found-kb">
-      <keyboard>${this.kbl.cancel.default}</keyboard>
+      ${this.kbk.cancel()}
     </base>
 
     <base id="invalid-kb">
-      <keyboard>${this.kbl.cancel.default}</keyboard>
+      ${this.kbk.cancel()}
     </base>
   `
 }
