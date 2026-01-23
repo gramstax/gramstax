@@ -43,6 +43,11 @@ import {LabelKeyboard} from "~/labels/keyboard"
  *     </base>
  *   `
  * }
+ *
+ * // understanding example
+ * this.kbk.backNext() // will show all language with block template
+ * this.kbk.backNext("id") // will show all language only (lang="id") with block template
+ * this.kbk.backNext("default") // will show all language only (lang="default" or without lang) with block template
  * ```
  *
  * @public
