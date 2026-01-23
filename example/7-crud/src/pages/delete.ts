@@ -16,7 +16,7 @@ export class DeletePage extends PageBase {
         })
         return k.row().text(a[0]!, StartPage.data.callback())
       },
-      {baseId: `list-kb`}
+      {baseId: `list`}
     )
   }
 

@@ -4,7 +4,7 @@ import type {CrudItem} from "~/store/crud"
 
 // Updates item status via inline selection.
 export class UpdatePage extends PageBase {
-  static data = this.buildData((action?: string, id?: string, status?: string, page?: string) => [action, id, status, page])
+  static data = this.buildData((action?: string, query?: string, status?: string) => [action, query, status])
   PAGE_SIZE = 5
 
   async buildSelectKeyboard(page: number, items: CrudItem[]) {
@@ -15,7 +15,7 @@ export class UpdatePage extends PageBase {
     return this.inlineKeyboard(
       (k, a) => {
         items.forEach((item, index) => {
-          k.text(`📝 #${item.id} ${item.title}`, this.data.callback(`select`, item.id))
+          k.text(`📝 #${item.id} ${item.title.slice(0, 5)}..`, this.data.callback(`select`, item.id))
           if (index % 2 === 1) k.row()
         })
 
@@ -90,38 +90,28 @@ export class UpdatePage extends PageBase {
   }
 
   async callbackPayload() {
-    const [action, id, status, pageStr] = this.callbackDataPayloads
-
-    if (action === `page` && pageStr) {
-      const page = Number(pageStr)
-      await this.showSelect(page, true)
-      return
+    const [action, query, status] = this.callbackDataPayloads
+    if (action === `page`) {
+      const page = Number(query)
+      return await this.showSelect(page, true)
     }
-
-    if (action === `select` && id) {
-      await this.showStatus(id, true)
-      return
+    if (action === `select` && query) {
+      return await this.showStatus(query, true)
     }
-
-    if (action === `status` && id && status) {
-      const item = await this.crudStore.getItem(this.userId, id)
+    if (action === `status` && query && status) {
+      const item = await this.crudStore.getItem(this.userId, query)
       if (!item) {
-        await this.showSelect(0, true)
-        return
+        return await this.showSelect(0, true)
       }
 
-      const updated = await this.crudStore.updateItem(this.userId, id, item.title, item.description, status as CrudItem[`status`])
+      const updated = await this.crudStore.updateItem(this.userId, query, item.title, item.description, status as CrudItem[`status`])
       if (!updated) {
-        await this.showSelect(0, true)
-        return
+        return await this.showSelect(0, true)
       }
-
       const bi = `success`
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      await this.edit(kb, {id: updated.id, status: updated.status}, bi)
-      return
+      return await this.edit(kb, {id: updated.id, status: updated.status}, bi)
     }
-
     await this.showSelect(0, true)
   }
 
