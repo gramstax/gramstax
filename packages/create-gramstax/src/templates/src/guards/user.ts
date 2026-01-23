@@ -8,15 +8,15 @@ export class UserGuard extends GuardBase {
     return null
   }
 
-  async ensureValid(isEdit: boolean) {
+  async ensureUsername(edit: boolean) {
     try {
       if (!this.userName || this.userName.length == 0) {
-        await new UserNameNotFoundPage(this).transition(isEdit)
+        await new UserNameNotFoundPage(this).transition(edit)
         return null
       }
       return {status: true}
     } catch (err) {
-      return await this._catch(err, `ensureValid`, isEdit)
+      return await this._catch(err, `ensureValid`, edit)
     }
   }
 }

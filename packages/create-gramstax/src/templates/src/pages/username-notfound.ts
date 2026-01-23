@@ -12,7 +12,6 @@ export class UserNameNotFoundPage extends PageBase {
     <base>
       ${this.kbk.home()}
       <message>Please set the username first before using the bot.</message>
-      <message lang="it">Prima di utilizzare il bot, imposta prima il nome utente.</message>
       <message lang="id">Tolong set username dulu sebelum memakai bot</message>
     </base>
   `

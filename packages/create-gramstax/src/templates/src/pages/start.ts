@@ -18,22 +18,12 @@ export class StartPage extends PageBase {
   }
 
   static template = `
-    <base id="with-import-and-you-can-use-components">
-      <keyboard>❓ Help</keyboard>
-      <keyboard lang="it">❓ Aiuto</keyboard>
-      <keyboard lang="id">❓ Bantuan</keyboard>
-    </base>
     <base>
       <import src="start" base="with-import-and-you-can-use-components" />
       <message>
         <b>Welcome to the bot {{userName}}</b>
 
         <b>❓ Help</b> - View help
-      </message>
-      <message lang="it">
-        <b>Benvenuto nel Bot di {{userName}}</b>
-
-        <b>❓ Aiuto</b> - Ottieni assistenza e informazioni
       </message>
       <message lang="id">
         <b>Selamat datang di bot {{userName}}</b>

@@ -20,7 +20,6 @@ export class HelpPage extends PageBase {
     <base>
       ${this.kbk.back()}
       <message><b>Help message</b></message>
-      <message lang="it"><b>Ordina aiuto</b></message>
       <message lang="id"><b>Pesan bantuan</b></message>
     </base>
   `
