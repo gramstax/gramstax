@@ -1,0 +1,190 @@
+import {PageBase} from "~/base/page"
+import {StartPage} from "./start"
+import type {CrudItem} from "~/store/crud"
+
+// Updates item status via inline selection.
+export class UpdatePage extends PageBase {
+  static data = this.buildData((action?: string, id?: string, status?: string, page?: string) => [action, id, status, page])
+  PAGE_SIZE = 5
+
+  buildSelectKeyboard(page: number, items: CrudItem[]) {
+    const allItems = this.crudStore.listItems(this.userId)
+    const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
+    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
+
+    return this.inlineKeyboard(
+      (k, a) => {
+        items.forEach((item, index) => {
+          k.text(`📝 #${item.id} ${item.title}`, this.data.callback(`select`, item.id))
+          if (index % 2 === 1) k.row()
+        })
+
+        k.row()
+        if (safePage > 0) {
+          k.text(a[0]!, this.data.callback(`page`, `${safePage - 1}`))
+        }
+        if (safePage < totalPages - 1) {
+          k.text(a[1]!, this.data.callback(`page`, `${safePage + 1}`))
+        }
+        return k.row().text(a[2]!, StartPage.data.callback())
+      },
+      {baseId: `navigation`}
+    )
+  }
+
+  buildStatusKeyboard(id: string) {
+    return this.inlineKeyboard(
+      (k, a) => {
+        k.text(a[0]!, this.data.callback(`status`, id, `todo`))
+        k.text(a[1]!, this.data.callback(`status`, id, `in-progress`))
+        k.text(a[2]!, this.data.callback(`status`, id, `done`))
+        return k.row().text(a[3]!, StartPage.data.callback())
+      },
+      {baseId: `status-kb`}
+    )
+  }
+
+  async showSelect(page = 0, edit = true) {
+    const allItems = this.crudStore.listItems(this.userId)
+    const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
+    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
+    const start = safePage * this.PAGE_SIZE
+    const end = start + this.PAGE_SIZE
+    const items = allItems.slice(start, end)
+
+    if (items.length === 0) {
+      const kb = this.inlineKeyboardT([StartPage], `1`, `empty-kb`)
+      const bi = `empty`
+      if (edit) await this.edit(kb, {}, bi)
+      else await this.reply(kb, {}, bi)
+      return
+    }
+
+    const kb = this.buildSelectKeyboard(safePage, items)
+    const bi = `select`
+    const data = {count: allItems.length, page: safePage + 1, totalPages}
+    if (edit) await this.edit(kb, data, bi)
+    else await this.reply(kb, data, bi)
+  }
+
+  async showStatus(id: string, edit = true) {
+    const item = this.crudStore.getItem(this.userId, id)
+    if (!item) {
+      const kb = this.inlineKeyboardT([StartPage], `1`, `not-found-kb`)
+      const bi = `not-found`
+      if (edit) await this.edit(kb, {id}, bi)
+      else await this.reply(kb, {id}, bi)
+      return
+    }
+
+    const kb = this.buildStatusKeyboard(id)
+    const bi = `status`
+    const data = {id: item.id, title: item.title, status: item.status}
+    if (edit) await this.edit(kb, data, bi)
+    else await this.reply(kb, data, bi)
+  }
+
+  async callback() {
+    await this.showSelect(0, true)
+  }
+
+  async callbackPayload() {
+    const [action, id, status, pageStr] = this.callbackDataPayloads
+
+    if (action === `page` && pageStr) {
+      const page = Number(pageStr)
+      await this.showSelect(page, true)
+      return
+    }
+
+    if (action === `select` && id) {
+      await this.showStatus(id, true)
+      return
+    }
+
+    if (action === `status` && id && status) {
+      const item = this.crudStore.getItem(this.userId, id)
+      if (!item) {
+        await this.showSelect(0, true)
+        return
+      }
+
+      const updated = this.crudStore.updateItem(this.userId, id, item.title, item.description, status as CrudItem[`status`])
+      if (!updated) {
+        await this.showSelect(0, true)
+        return
+      }
+
+      const kb = this.inlineKeyboardT([StartPage], `1`, `success-kb`)
+      const bi = `success`
+      await this.edit(kb, {id: updated.id, status: updated.status}, bi)
+      return
+    }
+
+    await this.showSelect(0, true)
+  }
+
+  static template = `
+    <base id="select">
+      <message>
+        ✏️ Select a todo to update its status.
+
+        Showing {{count}} items • Page {{page}}/{{totalPages}}
+      </message>
+    </base>
+
+    <base id="status">
+      <message>
+        📋 Item #{{id}}: {{title}}
+
+        Current status: {{status}}
+
+        Choose the next status:
+      </message>
+    </base>
+
+    <base id="success">
+      <message>
+        ✅ Status updated!
+
+        Item #{{id}} is now: {{status}}
+      </message>
+    </base>
+
+    <base id="empty">
+      <message>
+        📭 No items available to update.
+
+        Create some todos first to manage their status.
+      </message>
+    </base>
+
+    <base id="not-found">
+      <message>
+        ❌ Item not found: {{id}}
+
+        This item may have been deleted or doesn't exist.
+      </message>
+    </base>
+
+    <base id="navigation">
+      <keyboard>⬅️ Prev, ➡️ Next, ${this.kbl.home.default}</keyboard>
+    </base>
+
+    <base id="empty-kb">
+      <keyboard>${this.kbl.home.default}</keyboard>
+    </base>
+
+    <base id="status-kb">
+      <keyboard>📝 Todo, 🔄 In Progress, ✅ Done, ${this.kbl.home.default}</keyboard>
+    </base>
+
+    <base id="success-kb">
+      <keyboard>${this.kbl.home.default}</keyboard>
+    </base>
+
+    <base id="not-found-kb">
+      <keyboard>${this.kbl.home.default}</keyboard>
+    </base>
+  `
+}
