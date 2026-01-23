@@ -3238,7 +3238,7 @@ methods:
           description: Optional template interpolation data.
           type: <xref uid="gramstax!~IData:type" />
         - id: baseId
-          description: Optional template base ID. Defaults to `default`<!-- -->.
+          description: Optional template base ID.
           type: string
         - id: options
           description: Optional grammY reply options.

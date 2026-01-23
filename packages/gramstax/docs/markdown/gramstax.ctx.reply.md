@@ -74,7 +74,7 @@ string
 
 </td><td>
 
-_(Optional)_ Optional template base ID. Defaults to `default`<!-- -->.
+_(Optional)_ Optional template base ID.
 
 
 </td></tr>

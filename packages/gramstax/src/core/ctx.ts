@@ -932,7 +932,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup from {@link Ctx.inlineKeyboard} or {@link Ctx.bottomKeyboard}.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID. Defaults to `default`.
+   * @param baseId - Optional template base ID.
    * @param options - Optional grammY reply options.
    * @returns The sent message object.
    *
