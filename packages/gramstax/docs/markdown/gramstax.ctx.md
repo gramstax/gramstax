@@ -1070,6 +1070,20 @@ Sends a message to multiple users in bulk.
 </td></tr>
 <tr><td>
 
+[broadcastMedia(ids, languageCode, keyboard, data, baseId, options, throwError)](./gramstax.ctx.broadcastmedia.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a media message to multiple users in bulk.
+
+
+</td></tr>
+<tr><td>
+
 [buildData(callback)](./gramstax.ctx.builddata.md)
 
 

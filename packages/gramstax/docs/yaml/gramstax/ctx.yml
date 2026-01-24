@@ -1236,6 +1236,61 @@ methods:
       return:
         type: Promise&lt;void&gt;
         description: ''
+  - name: broadcastMedia(ids, languageCode, keyboard, data, baseId, options, throwError)
+    uid: gramstax!Ctx#broadcastMedia:member(1)
+    package: gramstax!
+    fullName: broadcastMedia(ids, languageCode, keyboard, data, baseId, options, throwError)
+    summary: Sends a media message to multiple users in bulk.
+    remarks: >-
+      Media type and payload are inferred from the template `<media>` block. Automatically throttles after 30 messages
+      to respect Telegram rate limits. Uses each user's specified language code for template rendering.
+    example:
+      - |-
+        ```typescript
+        async callback() {
+          const userIds = [123456, 789012]
+          const langs = ["en", "id"]
+          await this.broadcastMedia(userIds, langs)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        broadcastMedia(ids: number[], languageCode: string[], keyboard?: IInBoKb, data?: IData, baseId?: string,
+        options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation |
+        IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact, throwError?:
+        boolean): Promise<void>;
+      parameters:
+        - id: ids
+          description: Array of user IDs to send the media to.
+          type: number[]
+        - id: languageCode
+          description: Array of language codes corresponding to each user.
+          type: string[]
+        - id: keyboard
+          description: Optional keyboard markup.
+          type: <xref uid="gramstax!~IInBoKb:type" />
+        - id: data
+          description: Optional template interpolation data.
+          type: <xref uid="gramstax!~IData:type" />
+        - id: baseId
+          description: Optional template base ID position for block media.
+          type: string
+        - id: options
+          description: Optional grammY send options for the inferred media type.
+          type: >-
+            <xref uid="gramstax!~IOptReplyPhoto:type" /> | <xref uid="gramstax!~IOptReplyVideo:type" /> | <xref
+            uid="gramstax!~IOptReplyAudio:type" /> | <xref uid="gramstax!~IOptReplyDocument:type" /> | <xref
+            uid="gramstax!~IOptReplyAnimation:type" /> | <xref uid="gramstax!~IOptReplyVoice:type" /> | <xref
+            uid="gramstax!~IOptReplyVideoNote:type" /> | <xref uid="gramstax!~IOptReplySticker:type" /> | <xref
+            uid="gramstax!~IOptReplyLocation:type" /> | <xref uid="gramstax!~IOptReplyContact:type" />
+        - id: throwError
+          description: If true, throws errors instead of swallowing them.
+          type: boolean
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
   - name: buildData(callback)
     uid: gramstax!Ctx.buildData:member(1)
     package: gramstax!

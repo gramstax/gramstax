@@ -80,6 +80,17 @@ export class Ctx {
     // Warning: (ae-forgotten-export) The symbol "IData" needs to be exported by the entry point index.d.ts
     // Warning: (ae-forgotten-export) The symbol "IOptReply" needs to be exported by the entry point index.d.ts
     broadcast(ids: number[], languageCode: string[], keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReply, throwError?: boolean): Promise<void>;
+    // Warning: (ae-forgotten-export) The symbol "IOptReplyPhoto" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "IOptReplyVideo" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "IOptReplyAudio" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "IOptReplyDocument" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "IOptReplyAnimation" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "IOptReplyVoice" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "IOptReplyVideoNote" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "IOptReplySticker" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "IOptReplyLocation" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "IOptReplyContact" needs to be exported by the entry point index.d.ts
+    broadcastMedia(ids: number[], languageCode: string[], keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation | IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact, throwError?: boolean): Promise<void>;
     static buildData<C extends (...args: any[]) => any>(callback: C): IPageData<Parameters<C>>;
     static buildData<C extends (...args: any[]) => any>(options: {
         name?: string;
@@ -291,16 +302,6 @@ export class Ctx {
     replyContact(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyContact): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     replyDocument(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyDocument): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     replyLocation(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyLocation): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    // Warning: (ae-forgotten-export) The symbol "IOptReplyPhoto" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "IOptReplyVideo" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "IOptReplyAudio" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "IOptReplyDocument" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "IOptReplyAnimation" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "IOptReplyVoice" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "IOptReplyVideoNote" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "IOptReplySticker" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "IOptReplyLocation" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "IOptReplyContact" needs to be exported by the entry point index.d.ts
     replyMedia<T extends IMediaBlock[`type`]>(type: T, keyboard?: IInBoKb, data?: IData, baseId?: string, options?: T extends `photo` ? IOptReplyPhoto : T extends `video` ? IOptReplyVideo : T extends `audio` ? IOptReplyAudio : T extends `document` ? IOptReplyDocument : T extends `animation` ? IOptReplyAnimation : T extends `voice` ? IOptReplyVoice : T extends `video_note` ? IOptReplyVideoNote : T extends `sticker` ? IOptReplySticker : T extends `location` ? IOptReplyLocation : T extends `contact` ? IOptReplyContact : undefined): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     replyPhoto(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyPhoto): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     replySticker(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplySticker): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;

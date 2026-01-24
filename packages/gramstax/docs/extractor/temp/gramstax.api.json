@@ -1163,6 +1163,239 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#broadcastMedia:member(1)",
+              "docComment": "/**\n * Sends a media message to multiple users in bulk.\n *\n * @remarks\n *\n * Media type and payload are inferred from the template `<media>` block. Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.\n *\n * @param ids - Array of user IDs to send the media to.\n *\n * @param languageCode - Array of language codes corresponding to each user.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media.\n *\n * @param options - Optional grammY send options for the inferred media type.\n *\n * @param throwError - If true, throws errors instead of swallowing them.\n *\n * @example\n * ```typescript\n * async callback() {\n *   const userIds = [123456, 789012]\n *   const langs = [\"en\", \"id\"]\n *   await this.broadcastMedia(userIds, langs)\n * }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "broadcastMedia(ids: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", languageCode: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", keyboard?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IInBoKb",
+                  "canonicalReference": "gramstax!~IInBoKb:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IData",
+                  "canonicalReference": "gramstax!~IData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IOptReplyPhoto",
+                  "canonicalReference": "gramstax!~IOptReplyPhoto:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IOptReplyVideo",
+                  "canonicalReference": "gramstax!~IOptReplyVideo:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IOptReplyAudio",
+                  "canonicalReference": "gramstax!~IOptReplyAudio:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IOptReplyDocument",
+                  "canonicalReference": "gramstax!~IOptReplyDocument:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IOptReplyAnimation",
+                  "canonicalReference": "gramstax!~IOptReplyAnimation:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IOptReplyVoice",
+                  "canonicalReference": "gramstax!~IOptReplyVoice:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IOptReplyVideoNote",
+                  "canonicalReference": "gramstax!~IOptReplyVideoNote:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IOptReplySticker",
+                  "canonicalReference": "gramstax!~IOptReplySticker:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IOptReplyLocation",
+                  "canonicalReference": "gramstax!~IOptReplyLocation:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IOptReplyContact",
+                  "canonicalReference": "gramstax!~IOptReplyContact:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", throwError?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 33,
+                "endIndex": 35
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "ids",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "languageCode",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "keyboard",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 9,
+                    "endIndex": 10
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 11,
+                    "endIndex": 30
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "throwError",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 31,
+                    "endIndex": 32
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "broadcastMedia"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx.buildData:member(1)",
               "docComment": "/**\n * Creates page routing data configuration.\n *\n * @remarks\n *\n * This method has multiple overloads: - `buildData()` - Returns default page data with no payloads. - `buildData(callback)` - Returns page data with callback payloads. - `buildData(options)` - Returns page data with custom options.\n *\n * The callback must return an array of payload values that will be joined with the intent using colon separators.\n *\n * @param callback - A function that returns payload values as an array.\n *\n * @typeParam C - The callback function type.\n *\n * @returns The page data configuration object.\n *\n * @example\n * ```typescript\n * class MyPage extends Ctx {\n *   // Simple callback payload\n *   static data = this.buildData((id: string) => [id])\n *\n *   // With custom intents\n *   static data = this.buildData({\n *     callback: (action: string) => [action],\n *     intentText: \"my_page\",\n *     intentTextCommand: \"mycommand\"\n *   })\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
