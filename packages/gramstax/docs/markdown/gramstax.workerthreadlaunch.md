@@ -16,7 +16,7 @@ declare class WorkerThreadLaunch
 
 Automatically registers SIGINT/SIGTERM handlers to terminate workers. Uses promise-based ready detection for synchronization.
 
-## Example
+## Example 1
 
 
 ```typescript
@@ -32,6 +32,46 @@ async function main() {
 
   worker.kill();
 }
+```
+
+## Example 2
+
+Initialization method for handling requests from worker threads. Both can communicate with each other using an example like this, but this is very very rarely used.
+
+```typescript
+import { WorkerThreadLaunch } from "gramstax";
+
+// main.ts
+export class MainThread extends WorkerThreadLaunch {
+  mtdHi() {
+    // called from thread worker
+    return `Hi, this is main thread`
+  }
+}
+
+async function main() {
+  const worker = new MainThread("./jobs/processor.ts", ["config.json"]);
+  await worker.ready();
+  console.log(`Worker ${worker.threadId} is ready`);
+}
+
+// jobs/processor.ts
+import {MainThread} from "./main"
+import {WorkerThreadInit} from "gramstax";
+
+class Worker extends WorkerThreadInit {
+  constructor() {
+    super();
+    log.info(`Worker ${this.id} started`);
+    this.request(`mtdHi`, []).then((res) => {
+      res; // `Hi, this is main thread`
+    })
+  }
+}
+export const MyWorker = WorkerThreadExport.init({
+  path: __filename,
+  WTInit: MainThread,
+});
 ```
 
 ## Constructors
