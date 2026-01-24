@@ -21,34 +21,38 @@ export class BlockSwitchPage extends PageBase {
     <base>
       <keyboard>
         <switch value="status">
-          <case is="1">Off</case>
-          <default>On</default>
+          <case is="1">🔴 Off</case>
+          <default>🟢 On</default>
         </switch>,
         ${this.kbl.back.default}
       </keyboard>
       <keyboard lang="id">
         <switch value="status">
-          <case is="1">Mati</case>
-          <default>Nyala</default>
+          <case is="1">🔴 Mati</case>
+          <default>🟢 Nyala</default>
         </switch>,
         ${this.kbl.back.id}
       </keyboard>
 
       <message>
-        <b>Switch data directly in template</b>
+        <b>🔀 Template switch demo</b>
 
         <switch value="status">
           <case is="1">Active</case>
           <default>Inactive</default>
         </switch>
+
+        Toggle the button to see the template update in real time.
       </message>
       <message lang="id">
-        <b>Pemetaan data langsung di template</b>
+        <b>🔀 Demo switch template</b>
 
         <switch value="status">
           <case is="1">Aktif</case>
           <default>Tidak Aktif</default>
         </switch>
+
+        Tekan tombol untuk melihat pembaruan template secara langsung.
       </message>
     </base>
   `

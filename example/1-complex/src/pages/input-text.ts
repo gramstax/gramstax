@@ -33,20 +33,32 @@ export class InputTextPage extends PageBase {
     return `
       <base>
         ${kc}
-        <message>Please input text you want view</message>
-        <message lang="id">Tolong masukan text yang ingin anda liat</message>
+        <message>
+          ✍️ Input text (with session)
+
+          Send any text and it will be echoed back on the next step.
+        </message>
+        <message lang="id">
+          ✍️ Masukkan teks (dengan session)
+
+          Kirim teks apa pun dan hasilnya akan ditampilkan pada langkah berikutnya.
+        </message>
       </base>
       <base id="result">
         ${kh}
         <message>
-          Result: {{res}}
+          ✅ Result
 
-          Please input other text to see difference result
+          {{res}}
+
+          Send another text to compare results.
         </message>
         <message lang="id">
-          Hasil: {{res}}
+          ✅ Hasil
 
-          Tolong masukan text lain untuk lihat hasil yang berbeda
+          {{res}}
+
+          Kirim teks lain untuk melihat hasil yang berbeda.
         </message>
       </base>
     `

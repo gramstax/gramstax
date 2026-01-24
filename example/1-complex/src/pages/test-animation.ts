@@ -31,22 +31,34 @@ export class TestAnimationPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Dynamic Attr, Static Attr, ${this.kbl.back.default}</keyboard>
-      <keyboard lang="id">Dynamic Attr, Static Attr, ${this.kbl.back.id}</keyboard>
-      <media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">Caption text for media <b>animation</b></media>
-      <media lang="id" type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">Kaption text untuk media <b>animasi</b></media>
+      <keyboard>🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.default}</keyboard>
+      <keyboard lang="id">🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.id}</keyboard>
+      <media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
+        🎞️ Animation demo
+        
+        This animation shows a static media source with caption.
+      </media>
+      <media lang="id" type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
+        🎞️ Demo animasi
+        
+        Animasi ini menunjukkan sumber media statis dengan caption.
+      </media>
     </base>
     
     <base id="${this.BASE.dynamicAttr}">
       <media type="animation" src="{{src}}">
-        Supports dynamic variables and exec in attribute, except attribute lang and type. only applies to &lt;media&gt; blocks
+        🧩 Dynamic attribute demo
 
-        This is a caption text for media <b>animation</b>
+        Supports dynamic variables and exec in attributes (except lang/type) for &lt;media&gt; blocks.
+
+        This is a caption text for media <b>animation</b>.
       </media>
       <media lang="id" type="animation" src="{{src}}">
-        Mendukung semua variables dan exec di attribute, kecuali attribute lang dan type. hanya berlaku untuk blok &lt;media&gt;
+        🧩 Demo atribut dinamis
 
-        Ini adalah caption text untuk media <b>animasi</b>
+        Mendukung variabel dinamis dan exec di atribut (kecuali lang/type) untuk blok &lt;media&gt;.
+
+        Ini adalah caption text untuk media <b>animasi</b>.
       </media>
     </base>
   `

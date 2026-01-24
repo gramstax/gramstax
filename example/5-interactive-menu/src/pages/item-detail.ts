@@ -22,9 +22,9 @@ export class ItemDetailPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Back to List</keyboard>
+      <keyboard>⬅️ Back to List</keyboard>
       <message>
-        {~name || "Unknown"~}
+        📌 {~name || "Unknown"~}
 
         {~description || "No description found."~}
       </message>

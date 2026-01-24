@@ -30,17 +30,21 @@ export class CounterPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Increase, Decrease, ${this.kbl.back.default}</keyboard>
-      <keyboard lang="id">Tambah, Kurang, ${this.kbl.back.id}</keyboard>
+      <keyboard>➕ Increase, ➖ Decrease, ${this.kbl.back.default}</keyboard>
+      <keyboard lang="id">➕ Tambah, ➖ Kurang, ${this.kbl.back.id}</keyboard>
       <message>
-        Count: {{count}}
+        🔢 Counter
 
-        This is test for dynamic condition case counter with cache
+        Current count: {{count}}
+
+        Use Increase or Decrease to update the cached counter value.
       </message>
       <message lang="id">
-        Jumlah: {{count}}
+        🔢 Kounter
 
-        Ini adalah test kondisi dinamis kasus kounter dengan cache
+        Jumlah saat ini: {{count}}
+
+        Gunakan Tambah atau Kurang untuk memperbarui nilai kounter yang tersimpan.
       </message>
     </base>
   `

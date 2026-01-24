@@ -17,19 +17,19 @@ export class BlockMapPage extends PageBase {
     <base>
       ${this.kbk.refreshBack()}
       <message>
-        <b>Mapping data directly in template</b>
+        <b>🧭 Template map demo</b>
 
         <map src="arr" join="\\n\\n">
-          Position: {~i+1~}
+          Position: {~i - -1~}
           Number: {{e.number}}
           Status: {{status}}
         </map>
       </message>
       <message lang="id">
-        <b>Pemetaan data langsung di template</b>
+        <b>🧭 Demo map template</b>
 
         <map src="arr" join="\\n\\n">
-          Posisi: {~i+1~}
+          Posisi: {~i - -1~}
           Nomor: {{e.number}}
           Status: {{status}}
         </map>

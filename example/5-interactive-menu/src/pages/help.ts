@@ -24,16 +24,17 @@ export class HelpPage extends PageBase {
     <base>
       ${this.kbk.back()}
       <message>
-        Help & Navigation
+        ❓ Help & Navigation
 
-        - Use inline buttons to drill into menus.
-        - Use the bottom keyboard for quick actions.
-        - Pagination buttons appear when lists are long.
+        Use inline buttons to explore menus, and the bottom keyboard for quick actions.
+        Pagination buttons appear when lists are long.
       </message>
     </base>
 
     <base id="help">
       <message>
+        ✅ Quick tip
+
         Need a refresher? Choose Menu to start again.
       </message>
     </base>

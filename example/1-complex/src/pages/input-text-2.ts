@@ -26,20 +26,32 @@ export class InputText2Page extends PageBase {
   static template = `
     <base>
       ${this.kbk.cancel()}
-      <message>Please input text you want view</message>
-      <message lang="id">Tolong masukan text yang ingin anda liat</message>
+      <message>
+        📝 Input text (no session)
+
+        Send a message to see an immediate echo response.
+      </message>
+      <message lang="id">
+        📝 Masukkan teks (tanpa session)
+
+        Kirim pesan untuk melihat balasan secara langsung.
+      </message>
     </base>
     <base id="${this.BASE.result}">
       ${this.kbk.home()}
       <message>
-        Result input text2 (without session): {{res}}
+        ✅ Result (no session)
 
-        Please input other text to see difference result
+        {{res}}
+
+        Send another text to see a different result.
       </message>
       <message lang="id">
-        Hasil masukan text2 (tanpa session): {{res}}
+        ✅ Hasil (tanpa session)
 
-        Tolong masukan text lain untuk lihat hasil yang berbeda
+        {{res}}
+
+        Kirim teks lain untuk melihat hasil yang berbeda.
       </message>
     </base>
   `

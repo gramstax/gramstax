@@ -3,10 +3,10 @@ import {BlockKeyboard, LabelKeyboard} from "gramstax"
 // Block template keyboard.
 export class KeyboardBlock extends BlockKeyboard {
   static label = class extends LabelKeyboard {
-    static home = {default: `.. Home`, id: `.. Beranda`}
-    static back = {default: `Back`, id: `Kembali`}
-    static cancel = {default: `Cancel`, id: `Batal`}
-    static refresh = {default: `Refresh`, id: `Segarkan`}
+    static home = {default: `🏠 Home`, id: `🏠 Beranda`}
+    static back = {default: `⬅️ Back`, id: `⬅️ Kembali`}
+    static cancel = {default: `✖️ Cancel`, id: `✖️ Batal`}
+    static refresh = {default: `🔄 Refresh`, id: `🔄 Segarkan`}
     static refreshBack = {
       default: `${this.refresh.default}, ${this.back.default}`,
       id: `${this.refresh.id}, ${this.back.id}`

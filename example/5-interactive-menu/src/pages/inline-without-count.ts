@@ -59,17 +59,19 @@ export class InlineWithoutCountPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Prev, Next, Page, ${this.kbl.home.default}</keyboard>
+      <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, 📄 Page, ${this.kbl.home.default}</keyboard>
       <message>
-        Inline Menu (Without Count)
+        🧾 Inline Menu (Without Count)
 
         Page {{page}}
+
+        Use Prev/Next to navigate, or tap Home to exit.
       </message>
     </base>
 
     <base id="${this.BASE.list}">
       <message>
-        Select an item from the inline menu.
+        Select an item from the inline menu to continue.
       </message>
     </base>
   `

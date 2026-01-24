@@ -29,13 +29,17 @@ export class ResetPage extends PageBase {
     <base>
       ${this.kbk.back()}
       <message>
-        State cleared. You can start fresh.
+        ♻️ State reset
+
+        Your navigation state has been cleared. You can start fresh from the main menu.
       </message>
     </base>
 
     <base id="${this.BASE.reset}">
       <message>
-        Reset complete. Tap Back to return.
+        ✅ Reset complete
+
+        Tap Back to return to the main menu.
       </message>
     </base>
   `

@@ -120,12 +120,16 @@ export class StartPage extends PageBase {
     <base id="${this.BASE.forImport}">
       <import src="start" base="${this.BASE.kbForImport}" />
       <message>
-        This message and keyboard import from start.ts for file block-import.ts use block import
+        🧩 Block import demo
+
+        This message and keyboard are imported from start.ts to demonstrate block import usage.
 
         Random: {{number}}
       </message>
       <message lang="id">
-        Pesan ini dan keyboard di import dari start.ts untuk file block-import.ts menggunakan block import
+        🧩 Demo blok import
+
+        Pesan dan keyboard ini diimpor dari start.ts untuk menunjukkan penggunaan blok import.
 
         Acak: {{number}}
       </message>
@@ -134,21 +138,21 @@ export class StartPage extends PageBase {
       <description>Default description command start</description>
       <description lang="en">[EN] Description command start</description>
       <description lang="id">[ID] Deskripsi perintah start</description>
-      <keyboard>Counter, Counter Thread, Help, Language, Test Photo, Test Video, Test Audio, Test Document, Test Animation, Test Voice, Test VideoN, Test Sticker, Test Location, Test Contact, Test Error, Input Text2, Input Text, Block Map, Block Import, Block Switch, KB Bottom, Refresh</keyboard>
-      <keyboard lang="id">Kounter, Kounter Thread, Bantuan, Bahasa, Test Foto, Test Video, Test Suara, Test Dokumen, Test Animasi, Test Suara, Test VideoN, Test Stiker, Test Lokasi, Test Kontak, Test Salah, Masukkan Teks2, Masukkan Teks, Blok Map, Blok Import, Blok Switch, KB Bottom, Segarkan</keyboard>
+      <keyboard>🔢 Counter, 🧵 Counter Thread, ❓ Help, 🌐 Language, 🖼️ Test Photo, 🎥 Test Video, 🎧 Test Audio, 📄 Test Document, 🎞️ Test Animation, 🎙️ Test Voice, 🎬 Test VideoN, 😀 Test Sticker, 📍 Test Location, 👤 Test Contact, 🧪 Test Error, 📝 Input Text2, ✍️ Input Text, 🧭 Block Map, 📦 Block Import, 🔀 Block Switch, ⌨️ KB Bottom, 🔄 Refresh</keyboard>
+      <keyboard lang="id">🔢 Kounter, 🧵 Kounter Thread, ❓ Bantuan, 🌐 Bahasa, 🖼️ Test Foto, 🎥 Test Video, 🎧 Test Suara, 📄 Test Dokumen, 🎞️ Test Animasi, 🎙️ Test Suara, 🎬 Test VideoN, 😀 Test Stiker, 📍 Test Lokasi, 👤 Test Kontak, 🧪 Test Salah, 📝 Masukkan Teks2, ✍️ Masukkan Teks, 🧭 Blok Map, 📦 Blok Import, 🔀 Blok Switch, ⌨️ KB Bottom, 🔄 Segarkan</keyboard>
       <message>
         {{time}}
 
-        Hi {{firstName}}, welcome to bot.
+        👋 Welcome, {{firstName}}
 
-        This is test gramstax
+        This complex example showcases templates, keyboards, media replies, and worker threads. Choose a module below to explore a specific feature.
       </message>
       <message lang="id">
         {{time}}
 
-        Hi {{firstName}}, selamat datang di bot
+        👋 Selamat datang, {{firstName}}
 
-        Ini adalah test gramstax
+        Contoh kompleks ini menampilkan template, keyboard, balasan media, dan worker thread. Pilih modul di bawah untuk mengeksplorasi fitur tertentu.
       </message>
     </base>
   `

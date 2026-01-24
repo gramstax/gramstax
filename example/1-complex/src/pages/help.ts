@@ -10,8 +10,16 @@ export class HelpPage extends PageBase {
   static template = `
     <base>
       ${this.kbk.back()}
-      <message>Help content page</message>
-      <message lang="id">Bantuan konten halaman</message>
+      <message>
+        ❓ Help & Navigation
+
+        Use the menu to explore each demo page. Most pages can be refreshed, and you can always return Home.
+      </message>
+      <message lang="id">
+        ❓ Bantuan & Navigasi
+
+        Gunakan menu untuk menjelajahi setiap halaman demo. Sebagian besar halaman bisa disegarkan, dan Anda selalu dapat kembali ke Beranda.
+      </message>
     </base>
   `
 }

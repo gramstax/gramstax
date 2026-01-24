@@ -96,14 +96,16 @@ export class EchoPage extends PageBase {
     <base>
       ${this.kbk.home(`default`)}
       <message>
-        Echo Tips:
-        - Send any message
-        - The bot repeats the same message
+        🔁 Echo Tips
+
+        Send any message or media and the bot will echo it back. Use this to test formatting, media handling, or message flow.
       </message>
     </base>
     <base id="${this.BASE.text}">
       <message>
-        Echo: {{text}}
+        💬 Echoed message
+
+        {{text}}
       </message>
     </base>
     <base id="${this.BASE.photo}">

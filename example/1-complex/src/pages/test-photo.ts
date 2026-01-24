@@ -10,8 +10,16 @@ export class TestPhotoPage extends PageBase {
   static template = `
     <base>
       ${this.kbk.back()}
-      <media type="photo" src="https://www.w3schools.com/html/img_girl.jpg">Caption text for media <b>photo</b></media>
-      <media lang="id" type="photo" src="https://www.w3schools.com/html/img_girl.jpg">Kaption text untuk media <b>foto</b></media>
+      <media type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
+        🖼️ Photo demo
+        
+        This is a sample photo media reply with a caption.
+      </media>
+      <media lang="id" type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
+        🖼️ Demo foto
+        
+        Ini adalah contoh balasan media foto dengan caption.
+      </media>
     </base>
   `
 }

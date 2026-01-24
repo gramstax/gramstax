@@ -51,16 +51,40 @@ export class KeyboardBottomPage extends PageBase {
         <keyboard type="bottom">{{first}}, ${lh.default}</keyboard>
         <keyboard lang="id" type="bottom">{{first}}, ${lh.id}</keyboard>
 
-        <message>Use keyboard bottom with emoji and dynamic payload</message>
-        <message lang="id">Gunakan keyboard bottom dengan emoji dan payload dinamis</message>
+        <message>
+          ⌨️ Bottom keyboard
+
+          Use the bottom keyboard with emojis and dynamic payloads for quick actions.
+        </message>
+        <message lang="id">
+          ⌨️ Keyboard bawah
+
+          Gunakan keyboard bawah dengan emoji dan payload dinamis untuk aksi cepat.
+        </message>
       </base>
       <base id="reset">
-        <message>Reset keyboard bottom success</message>
-        <message lang="id">Reset keyboard bawah sukses</message>    
+        <message>
+          ✅ Keyboard reset
+
+          Bottom keyboard has been reset successfully.
+        </message>
+        <message lang="id">
+          ✅ Keyboard direset
+
+          Keyboard bawah berhasil direset.
+        </message>    
       </base>
       <base id="delete">
-        <message>Delete keyboard bottom success</message>
-        <message lang="id">Hapus keyboard bawah sukses</message>    
+        <message>
+          ✅ Keyboard removed
+
+          Bottom keyboard has been removed successfully.
+        </message>
+        <message lang="id">
+          ✅ Keyboard dihapus
+
+          Keyboard bawah berhasil dihapus.
+        </message>    
       </base>
     `
   })()

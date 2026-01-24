@@ -50,13 +50,15 @@ export class CategoryPage extends PageBase {
     <base>
       ${this.kbk.back()}
       <message>
-        Browse Categories
+        🔎 Browse Categories
+
+        Select a category to see its items.
       </message>
     </base>
 
     <base id="${this.BASE.categories}">
       <message>
-        Choose a category to continue.
+        Choose a category to continue browsing.
       </message>
     </base>
   `

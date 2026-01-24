@@ -19,16 +19,20 @@ export class CounterThreadPage extends PageBase {
     <base>
       ${this.kbk.refreshBack()}
       <message>
-        Counter: {{count}}
+        🧵 Worker counter
+
+        Count: {{count}}
         Timestamp: {{timestamp}}
 
-        That value count is from increment jobs thread
+        This counter is updated by a worker thread running in the background.
       </message>
       <message lang="id">
-        Kounter: {{count}}
-        Waktu Stamp: {{timestamp}}
+        🧵 Kounter worker
 
-        Jumlah kounter itu berasal dari penambahan pekerjaan thread
+        Kounter: {{count}}
+        Waktu: {{timestamp}}
+
+        Kounter ini diperbarui oleh worker thread yang berjalan di latar belakang.
       </message>
     </base>
   `

@@ -49,11 +49,19 @@ export class LanguagePage extends PageBase {
     const lb = this.kbl.back
     return `
       <base>
-        <keyboard>EN, ID, ${lb.default}</keyboard>
-        <keyboard lang="id">EN, ID, ${lb.id}</keyboard>
+        <keyboard>🇺🇸 EN, 🇮🇩 ID, ${lb.default}</keyboard>
+        <keyboard lang="id">🇺🇸 EN, 🇮🇩 ID, ${lb.id}</keyboard>
 
-        <message>Choose language below</message>
-        <message lang="id">Pilih bahasa di bawah</message>
+        <message>
+          🌐 Language
+
+          Choose your preferred language. The UI will update immediately.
+        </message>
+        <message lang="id">
+          🌐 Bahasa
+
+          Pilih bahasa yang diinginkan. Antarmuka akan langsung diperbarui.
+        </message>
       </base>
     `
   })()

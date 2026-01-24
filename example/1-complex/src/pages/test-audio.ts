@@ -10,8 +10,16 @@ export class TestAudioPage extends PageBase {
   static template = `
     <base>
       ${this.kbk.back()}
-      <media type="audio" src="https://www.w3schools.com/html/horse.ogg">Caption text for media <b>audio</b></media>
-      <media lang="id" type="audio" src="https://www.w3schools.com/html/horse.ogg">Kaption text untuk media <b>suara</b></media>
+      <media type="audio" src="https://www.w3schools.com/html/horse.ogg">
+        🎧 Audio demo
+        
+        This is a sample audio reply with a caption.
+      </media>
+      <media lang="id" type="audio" src="https://www.w3schools.com/html/horse.ogg">
+        🎧 Demo audio
+        
+        Ini adalah contoh balasan audio dengan caption.
+      </media>
     </base>
   `
 }

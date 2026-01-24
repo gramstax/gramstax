@@ -73,16 +73,20 @@ export class ItemListPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Back to Categories</keyboard>
+      <keyboard>⬅️ Back to Categories</keyboard>
       <message>
-        Choose an item from the catalog.
+        🧾 Catalog Items
+
+        Choose an item to see full details.
       </message>
     </base>
 
     <base id="${this.BASE.list}">
-      <keyboard>Prev, Next, Back</keyboard>
+      <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.back.default}</keyboard>
       <message>
-        Items in {{category}}:
+        📦 Items in {{category}}
+
+        Use Prev/Next to navigate the list.
       </message>
     </base>
   `

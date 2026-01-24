@@ -37,22 +37,25 @@ export class StartPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Browse, Inline Count, Inline Simple, Help, Reset</keyboard>
+      <keyboard>🔎 Browse, 📊 Inline Count, 🧾 Inline Simple, ❓ Help, ♻️ Reset</keyboard>
       <keyboard type="bottom">${this.kbl.home.default}, ${this.kbl.browse.default}, ${this.kbl.help.default}, ${this.kbl.reset.default}</keyboard>
       <message>
-        Main Menu
+        🧭 Main Menu
 
-        - Browse: view categories
-        - Inline Count: inline list with total pages
-        - Inline Simple: inline list without totals
-        - Help: learn navigation
-        - Reset: clear state
+        Choose how you want to explore the catalog:
+        - 🔎 Browse categories and drill into items
+        - 📊 Inline Count for paged lists with totals
+        - 🧾 Inline Simple for quick lists without totals
+        - ❓ Help for navigation tips
+        - ♻️ Reset to clear stored state
       </message>
     </base>
 
     <base id="${this.BASE.quick}">
       <message>
-        Quick actions enabled. Use the bottom keyboard anytime.
+        ✅ Quick actions enabled
+
+        Use the bottom keyboard anytime to jump back to core actions.
       </message>
     </base>
   `

@@ -20,11 +20,11 @@ export class StartPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Help, Echo Tips</keyboard>
+      <keyboard>❓ Help, 🔁 Echo Tips</keyboard>
       <message>
-        Welcome to the Echo Bot!
+        🔊 Echo Bot
 
-        Send any message and I will repeat it back.
+        Send any message and I will repeat it back exactly as received. You can try text, photos, videos, documents, and more.
       </message>
     </base>
   `
