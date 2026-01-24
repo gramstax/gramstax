@@ -3,7 +3,6 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class GeneralStatusPage extends PageBase {
-  static BASE = {error: `error`, notFound: `not-found`}
   constructorName?: string
 
   constructor(p: any) {
@@ -20,45 +19,28 @@ export class GeneralStatusPage extends PageBase {
 
     await this.sessionClear()
     const kb = this.kb()
-    const bi = GeneralStatusPage.BASE.error
-    if (edit) await this.edit(kb, {}, bi)
-    else await this.reply(kb, {}, bi)
+    const data = {isNotFound: false}
+    if (edit) await this.edit(kb, data)
+    else await this.reply(kb, data)
   }
 
   async toErrorInputNotFound() {
-    await this.reply(this.kb(), {}, GeneralStatusPage.BASE.notFound)
+    const kb = this.kb()
+    await this.reply(kb, {isNotFound: true})
   }
 
   static template = `
     <base>
       ${this.kbk.home()}
-    </base>
-
-    <base id="${this.BASE.error}">
       <message>
-        <b>❌ Error</b>
+        <b>{~isNotFound ? "🔎 Route Not Found" : "❌ Error Occurred"~}</b>
 
-        An unexpected error occurred.
-        Please try again later.
+        {~isNotFound ? "The requested route does not exist or is unavailable." : "Something went wrong while processing your request. Please try again."~}
       </message>
       <message lang="id">
-        <b>❌ Kesalahan</b>
+        <b>{~isNotFound ? "🔎 Rute Tidak Ditemukan" : "❌ Terjadi Kesalahan"~}</b>
 
-        Terjadi kesalahan yang tidak diharapkan.
-        Silakan coba lagi nanti.
-      </message>
-    </base>
-
-    <base id="${this.BASE.notFound}">
-      <message>
-        <b>❌ Not Found</b>
-
-        Not maching route.
-      </message>
-      <message lang="id">
-        <b>❌ Tidak Ditemukan</b>
-
-        Tidak ada route terdeteksi.
+        {~isNotFound ? "Rute yang diminta tidak tersedia atau tidak ada." : "Terjadi kesalahan saat memproses permintaan. Silakan coba lagi."~}
       </message>
     </base>
   `

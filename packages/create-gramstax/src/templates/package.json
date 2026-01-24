@@ -35,8 +35,8 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "logging-pretty": "^3.0.0",
-    "gramstax": "gramstax"
+    "gramstax": "gramstax",
+    "dayjs": "^1.11.13"
   },
   "peerDependencies": {
     "typescript": "5.9.3"

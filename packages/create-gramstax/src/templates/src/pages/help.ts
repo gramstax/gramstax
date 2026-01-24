@@ -19,8 +19,16 @@ export class HelpPage extends PageBase {
   static template = `
     <base>
       ${this.kbk.back()}
-      <message><b>Help message</b></message>
-      <message lang="id"><b>Pesan bantuan</b></message>
+      <message>
+        <b>🆘 Help Message</b>
+
+        Use this command to get help and instructions.
+      </message>
+      <message lang="id">
+        <b>🆘 Pesan Bantuan</b>
+
+        Gunakan perintah ini untuk melihat bantuan dan petunjuk.
+      </message>
     </base>
   `
 }
