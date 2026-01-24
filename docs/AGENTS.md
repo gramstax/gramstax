@@ -45,17 +45,6 @@
 - Lifecycle hooks: `hookBeforeStart()`, `hookAfterStart()`, `hookBeforeRoute(ctx, listenerName)`, `hookErrorPage(ctx, listenerName, error, isEdit)`, `hookErrorInputNotFoundPage(ctx)`.
 - Routing priority: `staticSession` → `static` → `staticIntent` → `dynamicSpecific` → `dynamic`.
 
-## Template system essentials
-
-- Templates use `<base>` blocks; missing `id` implies `default`.
-- `<message>` renders text with `{{key}}` interpolation from `data`.
-- `<keyboard>` defines comma-separated labels; `type="bottom"` for reply keyboards.
-- `<media>` is the only supported media block (no `<photo>`, `<video>` tags).
-- `<map src="items" join="\\n">` iterates arrays with `{{e}}`, `{{e.prop}}`, `{{i}}` must be use double slash if join like this \\n not this \n.
-- `<switch value="status">` with `<case is="a,b">` and `<default>` for fallback.
-- `<import src="other" block="message,keyboard" base="default" />` for reuse.
-- `{~ ... ~}` and `<script>` evaluate JS; return empty string on errors.
-
 ## Template best practices
 
 - Use a single `<base>` when keyboards are identical across variants.
@@ -81,12 +70,6 @@
 - Centralize guard/account checks before routing into page handlers.
 - Prefer classes for mandatory flow components and keep state inside classes.
 
-## Template manager notes
-
-- Templates can be defined by static `template` strings or `.html` files.
-- Only `.html`, `.ts`, and `.js` sources are supported; `.tpl` is not.
-- Hot reload uses file watching; ensure paths exist before enabling.
-
 ## Coding style for bot projects
 
 - Use backticks for strings and avoid semicolons.
@@ -94,15 +77,3 @@
 - Use `import type` for type-only imports.
 - Prefer `const` and explicit types at public boundaries.
 - Avoid unused imports/variables; keep exports named.
-
-## Error handling and logging
-
-- Validate inputs early and throw clear `Error` messages.
-- Wrap IO/network work in `try/catch`.
-- Use `log`/`LoggingPretty` utilities for user-visible errors.
-- Use `String(error)` when logging unknown error types.
-
-## Notes for agents
-
-- Treat this file as the primary guide for generated bot projects.
-- Do not modify Gramstax core unless explicitly requested.
