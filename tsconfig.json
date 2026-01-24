@@ -60,6 +60,9 @@
     },
     {
       "path": "./example/7-crud"
+    },
+    {
+      "path": "./example/8-newsletter"
     }
   ],
 }
