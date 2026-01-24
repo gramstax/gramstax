@@ -19,12 +19,12 @@ export class SubscribePage extends PageBase {
       <message>
         {~created ? '✅ Subscription confirmed' : '💚 You are already subscribed.'~}
 
-        {~created ? \`Welcome, \${name}! You will receive future broadcasts.\` : ''~}
+        {~created ? \`Welcome, \${name}! You are now on the newsletter list and will receive announcements, product updates, and important notices.\` : 'You are already on the list, so no changes are needed. Stay tuned for the next update.'~}
       </message>
       <message lang="id">
         {~created ? '✅ Langganan berhasil' : '💚 Anda sudah berlangganan.'~}
 
-        {~created ? \`Selamat datang, \${name}! Anda akan menerima siaran berikutnya.\` : ''~}
+        {~created ? \`Selamat datang, \${name}! Anda sudah terdaftar dan akan menerima pengumuman, pembaruan produk, serta informasi penting berikutnya.\` : 'Anda sudah terdaftar, jadi tidak ada perubahan. Nantikan pembaruan selanjutnya.'~}
       </message>
     </base>
   `

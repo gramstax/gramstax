@@ -18,12 +18,16 @@ export class StatsPage extends PageBase {
 
         Total subscribers: {{count}}
         Your status: {~subscribed ? "Subscribed" : "Not subscribed"~}
+
+        This view helps you confirm whether you are on the list and how large the community is right now.
       </message>
       <message lang="id">
         📊 Statistik Newsletter
 
         Total pelanggan: {{count}}
         Status Anda: {~subscribed ? "Berlangganan" : "Belum berlangganan"~}
+
+        Tampilan ini membantu Anda memastikan status langganan dan melihat total komunitas saat ini.
       </message>
     </base>
   `

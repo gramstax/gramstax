@@ -13,18 +13,20 @@ export class HelpPage extends PageBase {
       <message>
         ❓ Help
 
-        ✅ Subscribe: receive new broadcasts.
-        🚫 Unsubscribe: stop receiving updates.
-        📣 Broadcast: admins only.
-        📊 Stats: check subscriber count and status.
+        ✅ Subscribe: receive new announcements and product updates.
+        🚫 Unsubscribe: stop receiving future broadcasts at any time.
+        📊 Stats: check subscriber count and your current status.
+
+        Use the buttons below to manage your subscription without typing commands.
       </message>
       <message lang="id">
         ❓ Bantuan
 
-        ✅ Langganan: terima siaran baru.
-        🚫 Berhenti: hentikan pembaruan.
-        📣 Siaran: khusus admin.
-        📊 Statistik: cek jumlah pelanggan dan status.
+        ✅ Langganan: terima pengumuman dan pembaruan produk.
+        🚫 Berhenti: hentikan siaran berikutnya kapan saja.
+        📊 Statistik: cek jumlah pelanggan dan status Anda.
+
+        Gunakan tombol di bawah untuk mengelola langganan tanpa mengetik perintah.
       </message>
     </base>
   `

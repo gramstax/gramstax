@@ -126,7 +126,7 @@ export class BroadcastPage extends PageBase {
         {~isEmpty ? "⚠️ Message cannot be empty.\\n" : ""~}
         Current draft: {{draft}}
 
-        Send the announcement text now.
+        Send the announcement text now. This will be delivered to every subscriber who is currently active.
       </message>
       <message lang="id">
         📣 Pesan Siaran
@@ -134,7 +134,7 @@ export class BroadcastPage extends PageBase {
         {~isEmpty ? "⚠️ Pesan tidak boleh kosong.\\n" : ""~}
         Draf saat ini: {{draft}}
 
-        Kirim teks siaran sekarang.
+        Kirim teks siaran sekarang. Pesan ini akan dikirim ke semua pelanggan yang aktif.
       </message>
     </base>
 
@@ -145,11 +145,15 @@ export class BroadcastPage extends PageBase {
         ✅ Confirm broadcast
 
         {{draft}}
+
+        Review the message carefully. Once sent, it will be delivered to all subscribers.
       </message>
       <message lang="id">
         ✅ Konfirmasi siaran
 
         {{draft}}
+
+        Tinjau pesan dengan saksama. Setelah dikirim, pesan akan diterima oleh semua pelanggan.
       </message>
     </base>
 
@@ -158,29 +162,35 @@ export class BroadcastPage extends PageBase {
         🎉 Broadcast sent
 
         Delivered to {{count}} subscribers.
+        You can send another update anytime from the admin route.
       </message>
       <message lang="id">
         🎉 Siaran terkirim
 
         Dikirim ke {{count}} pelanggan.
+        Anda bisa mengirim pembaruan lagi kapan saja lewat rute admin.
       </message>
     </base>
 
     <base id="${this.BASE.empty}">
       <message>
         📭 No subscribers yet.
+        There is no one to broadcast to at the moment.
       </message>
       <message lang="id">
         📭 Belum ada pelanggan.
+        Belum ada penerima untuk siaran saat ini.
       </message>
     </base>
 
     <base id="${this.BASE.cancelled}">
       <message>
         ✖️ Broadcast cancelled.
+        Draft discarded. You can restart the broadcast flow anytime.
       </message>
       <message lang="id">
         ✖️ Siaran dibatalkan.
+        Draf dibatalkan. Anda dapat memulai siaran lagi kapan saja.
       </message>
     </base>
 

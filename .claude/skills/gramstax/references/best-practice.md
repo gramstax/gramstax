@@ -5,6 +5,17 @@ description: Best practices for Gramstax examples and templates.
 
 # Gramstax Best Practices
 
+## Project Structure (official create-gramstax)
+
+- Always bootstrap new projects with the `create-gramstax` CLI; do not create project files manually.
+- `src/base` for shared base classes (`guard.ts`, `page.ts`).
+- `src/blocks` for template block helpers (`keyboard.ts`).
+- `src/core` for runtime entry points (`bot.ts`, `ctx.ts`).
+- `src/guards` for guard checks (`__example.ts` removable once real guards exist).
+- `src/pages` for page handlers (`start.ts`, `general-status.ts`).
+- `src/utils` for logging and helpers (`log.ts`).
+- Optional: `src/db`, `src/repositories`, `src/services`.
+
 ## Routing and Flow
 
 - Prefer inline keyboard navigation and session flows.
@@ -14,16 +25,6 @@ description: Best practices for Gramstax examples and templates.
 - Always clear the session on the start page.
 - Do not call `sessionGet()` inside page handlers; the system fetches session before routing.
 - Prefer class or static methods for project logic.
-
-## Project Structure (official create-gramstax)
-
-- `src/base` for shared base classes (`guard.ts`, `page.ts`).
-- `src/blocks` for template block helpers (`keyboard.ts`).
-- `src/core` for runtime entry points (`bot.ts`, `ctx.ts`).
-- `src/guards` for guard checks (`__example.ts` removable once real guards exist).
-- `src/pages` for page handlers (`start.ts`, `general-status.ts`).
-- `src/utils` for logging and helpers (`log.ts`).
-- Optional: `src/db`, `src/repositories`, `src/services`.
 
 ## Templates and Conditional Rendering
 
@@ -37,11 +38,16 @@ description: Best practices for Gramstax examples and templates.
 - Use `\\n` (double slash) for newlines inside `{~ ... ~}` and `<script></script>` to avoid EOF errors.
 - Use at least a heading + content format for message blocks.
 - Pass template data into `inlineKeyboardT`, `inlineKeyboard`, `bottomKeyboardT` and `bottomKeyboard` when keyboard labels depend on template data.
+- Write production-level message content by default (clear, contextual, user-friendly), not short placeholders.
+- Use production-level emojis in messages (intentional, consistent, and aligned with the content).
+- Adjust emoji placement to lead headings or highlight key actions without overusing them.
 
 ## Keyboard Blocks (this.kbk)
 
 - Only define `this.kbk` blocks when the keyboard block is reused by more than one page.
 - Do not define a `this.kbk` block for a single page.
+- Keyboard labels should be production-ready and short.
+- Use production-level emojis in keyboard labels; place them consistently (e.g., leading the label).
 
 ## Keyboard Labels (this.kbl)
 
