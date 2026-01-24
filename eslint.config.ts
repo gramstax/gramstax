@@ -6,7 +6,7 @@ import {defineConfig} from "eslint/config"
 export default defineConfig([
   tseslint.configs.recommended,
   {
-    ignores: [`node_modules/`, `.nx/`, `**/dist/`]
+    ignores: [`node_modules/`, `.nx/`, `**/dist/`, `.agents/`, `.claude/`, `.trae/`]
   },
   {
     files: [`**/*.{js,mjs,cjs,ts,mts,cts}`],
