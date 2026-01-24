@@ -7,6 +7,8 @@ node_modules
 # output
 out
 dist
+.claude/skills/gramstax/assets/
+docs/plans
 *.tgz
 *.exe
 

@@ -1,6 +1,6 @@
 # Gramstax API Docs Context Finder
 
-Docs root: `packages/gramstax/docs/markdown`
+Docs root: `assets/markdown`
 
 ## Entry points
 
