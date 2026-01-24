@@ -1,6 +1,6 @@
 {
   "name": "gramstax",
-  "version": "0.5.18",
+  "version": "0.5.19",
   "private": false,
   "publishConfig": {
     "access": "public",
