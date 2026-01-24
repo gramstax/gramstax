@@ -2,6 +2,7 @@ import * as fs from "fs"
 import * as path from "path"
 import {fileURLToPath} from "url"
 import {log} from "./utils/log"
+import {FsUt} from "./utils/fs"
 import {spawn} from "child_process"
 import enquirer from "enquirer"
 
@@ -20,9 +21,14 @@ type ProjectConfig = {
 
 export class Create {
   private config: ProjectConfig | undefined
+  private version: string | undefined
 
-  constructor(private projectDirectory?: string) {
+  constructor(
+    private projectDirectory?: string,
+    options?: {version?: string}
+  ) {
     // Constructor hanya menerima parameter, tidak melakukan execution
+    this.version = options?.version
   }
 
   printBanner() {
@@ -33,11 +39,12 @@ $$ /  \\__| $$$$$$\\  $$$$$$\\  $$$$$$\\$$$$\\   $$$$$$$\\ $$$$$$\\    $$$$$$\\ 
 $$ |$$$$\\ $$  __$$\\ \\____$$\\ $$  _$$  _$$\\ $$  _____|\\_$$  _|   \\____$$\\ \\$$\\ $$  |
 $$ |\\_$$ |$$ |  \\__|$$$$$$$ |$$ / $$ / $$ |\\$$$$$$\\    $$ |     $$$$$$$ | \\$$$$  / 
 $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$  $$<  
-\\$$$$$$  |$$ |     \\$$$$$$$ |$$ | $$ | $$ |$$$$$$$  |  \\$$$$  |\\$$$$$$$ |$$  /\\$$\\ 
+ \\$$$$$$  |$$ |     \\$$$$$$$ |$$ | $$ | $$ |$$$$$$$  |  \\$$$$  |\\$$$$$$$ |$$  /\\$$\\ 
  \\______/ \\__|      \\_______|\\__| \\__| \\__|\\_______/    \\____/  \\_______|\\__/  \\__|
-                                                                                                                                            
+                                                                                                                                             
 `
-    console.log(banner)
+    const versionLine = this.version ? `v${this.version}` : `v0.0.0`
+    console.log(`${banner}${versionLine}\n`)
   }
 
   private getPackageManagerCommands(packageManager: PackageManager) {
@@ -181,12 +188,12 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
   private async installDependencies(projectPath: string, packageManager: PackageManager): Promise<boolean> {
     return await new Promise((resolve) => {
-      const installCommand = packageManager
+      const installCommand = FsUt.resolvePackageManagerCommand(packageManager)
       const installArgs = [`install`]
       const installProcess = spawn(installCommand, installArgs, {
         cwd: projectPath,
         stdio: `inherit`,
-        shell: true
+        shell: false
       })
 
       installProcess.on(`close`, (code) => {
@@ -251,8 +258,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     // Validasi setelah semua prompt selesai
     if (useCurrentDir) {
       // Check if current directory is empty
-      const files = fs.readdirSync(projectPath)
-      if (files.length > 0) {
+      if (!FsUt.isDirectoryEffectivelyEmpty(projectPath)) {
         log.error(`Current directory is not empty!`)
         process.exit(1)
       }
@@ -339,7 +345,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     if (setupEslint) {
       log.info(`Installing ESLint dependencies..`)
 
-      const installCmd = packageManager
+      const installCmd = FsUt.resolvePackageManagerCommand(packageManager)
       const installArgs = packageManager === `yarn` ? [`add`, `-D`] : [`install`, `-D`]
       installArgs.push(`eslint`, `@eslint/js`, `globals`, `typescript-eslint`)
 
@@ -347,7 +353,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         const installProcess = spawn(installCmd, installArgs, {
           cwd: projectPath,
           stdio: `inherit`,
-          shell: true
+          shell: false
         })
 
         installProcess.on(`close`, () => resolve())

@@ -1,13 +1,17 @@
 import {defineConfig} from "tsup"
 
-import {cpSync, readFileSync, rmdirSync, writeFileSync} from "node:fs"
+import {cpSync, readFileSync, rmSync, writeFileSync} from "node:fs"
 
 // hard clean
 try {
-  rmdirSync(`./dist`)
+  rmSync(`./dist`, {recursive: true, force: true})
 } catch {
   //
 }
+
+const read = (path: string) => readFileSync(path, `utf-8`)
+const readJson = (path: string) => JSON.parse(read(path)) as Record<any, any>
+const thisPackageJson = readJson(`./package.json`)
 
 export default defineConfig({
   outDir: `./dist/src`,
@@ -25,10 +29,8 @@ export default defineConfig({
   shims: true,
   tsconfig: `./tsconfig.build.json`,
   onSuccess() {
-    const read = (path: string) => readFileSync(path, `utf-8`)
-    const readJson = (path: string) => JSON.parse(read(path)) as Record<any, any>
-
     // copy templates to dist/templates
+    rmSync(`./dist/src/templates`, {recursive: true, force: true})
     cpSync(`./src/templates`, `./dist/src/templates`, {recursive: true})
 
     // path dist/templates
@@ -40,7 +42,6 @@ export default defineConfig({
     let distTsconfigJson = read(pathDistTsconfigJson)
 
     // read from ./package.json and set gramstax to latest number version
-    const thisPackageJson = readJson(`./package.json`)
     distPackageJson.dependencies.gramstax = `^${thisPackageJson.version}`
 
     // delete gramstax from tsconfig.json dist templates, because that is for dev only
@@ -55,6 +56,6 @@ export default defineConfig({
     return undefined as any
   },
   define: {
-    // __PKG_VERSION__: JSON.stringify(version)
+    __PKG_VERSION__: JSON.stringify(thisPackageJson.version)
   }
 })
