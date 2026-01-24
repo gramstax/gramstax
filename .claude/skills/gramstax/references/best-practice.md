@@ -7,7 +7,7 @@ description: Best practices for Gramstax examples and templates.
 
 ## Project Structure (official create-gramstax)
 
-- Always bootstrap new projects with the `create-gramstax@latest` CLI; do not create project files manually.
+- Always bootstrap new projects with the `npx create-gramstax@latest` CLI; do not create project files manually.
 - `src/base` for shared base classes (`guard.ts`, `page.ts`).
 - `src/blocks` for template block helpers (`keyboard.ts`).
 - `src/core` for runtime entry points (`bot.ts`, `ctx.ts`).
