@@ -9,6 +9,7 @@
   "description": "",
   "keywords": [],
   "scripts": {
+    "build": "tsup",
     "nx-release-publish": "npm publish --access public"
   },
   "repository": {
