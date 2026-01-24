@@ -11,15 +11,15 @@ Use the bundled reference to navigate the generated API markdown and locate the 
 
 ## Workflow
 
-1. If the index is stale or missing entries, run the generator script (see Automation) and then read `references/context-finder.md`.
-2. Open `references/context-finder.md` to identify the correct entry point and name.
+1. If the index is stale or missing entries, run the generator script (see Automation) and then read `./references/context-finder.md`.
+2. Open `./references/context-finder.md` to identify the correct entry point and name.
 3. Read the matching markdown file under `./assets/markdown`.
 4. If a member is part of `Ctx`, open `./assets/markdown/gramstax.ctx.md` first, then follow the linked member file.
 5. For example requests (e.g., `inlineKeyboardT`), open the member doc and use its `## Example` section.
 
 ## AI Usage Guide
 
-- Always consult `references/context-finder.md` first for symbol-to-file mapping.
+- Always consult `./references/context-finder.md` first for symbol-to-file mapping.
 - For example requests, prefer the `## Example` section in the member doc.
 - If a symbol is missing from docs, ask the user to regenerate docs or clarify the symbol. Do not search the codebase.
 
@@ -32,7 +32,7 @@ Use the bundled reference to navigate the generated API markdown and locate the 
 
 ## Resources
 
-- `references/context-finder.md`: Full index of package entries and Ctx members.
+- `./references/context-finder.md`: Full index of package entries and Ctx members.
 
 ## Conventions
 
