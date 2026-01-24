@@ -928,6 +928,86 @@ export class Ctx {
   }
 
   /**
+   * Sends a media message to multiple users in bulk.
+   *
+   * @remarks
+   * Media type and payload are inferred from the template `<media>` block.
+   * Automatically throttles after 30 messages to respect Telegram rate limits.
+   * Uses each user's specified language code for template rendering.
+   *
+   * @param ids - Array of user IDs to send the media to.
+   * @param languageCode - Array of language codes corresponding to each user.
+   * @param keyboard - Optional keyboard markup.
+   * @param data - Optional template interpolation data.
+   * @param baseId - Optional template base ID position for block media.
+   * @param options - Optional grammY send options for the inferred media type.
+   * @param throwError - If true, throws errors instead of swallowing them.
+   *
+   * @example
+   * ```typescript
+   * async callback() {
+   *   const userIds = [123456, 789012]
+   *   const langs = ["en", "id"]
+   *   await this.broadcastMedia(userIds, langs)
+   * }
+   * ```
+   *
+   * @public
+   */
+  async broadcastMedia(
+    ids: number[],
+    languageCode: string[],
+    keyboard?: IInBoKb,
+    data?: IData,
+    baseId?: string,
+    options?:
+      | IOptReplyPhoto
+      | IOptReplyVideo
+      | IOptReplyAudio
+      | IOptReplyDocument
+      | IOptReplyAnimation
+      | IOptReplyVoice
+      | IOptReplyVideoNote
+      | IOptReplySticker
+      | IOptReplyLocation
+      | IOptReplyContact,
+    throwError = false
+  ) {
+    try {
+      this.temp.isAnswer = true
+      const limitFree = 30
+      const medias = languageCode.map((it) => this.templateManager.getMedia(this.data.name, baseId, it, data))
+      for (let index = 0; index < ids.length; index++) {
+        const id = ids[index]
+        const med = medias[index]
+        if (!med) {
+          continue
+        }
+        const opt = {parse_mode: `HTML`, reply_markup: keyboard, ...options} as Record<any, any>
+
+        if (med.type == `photo`) await this.ct.api.sendPhoto(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type == `video`) await this.ct.api.sendVideo(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type == `audio`) await this.ct.api.sendAudio(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type == `document`) await this.ct.api.sendDocument(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type == `animation`) await this.ct.api.sendAnimation(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type == `voice`) await this.ct.api.sendVoice(id!, med.src!, opt)
+        if (med.type == `video_note`) await this.ct.api.sendVideoNote(id!, med.src!, opt)
+        if (med.type == `sticker`) await this.ct.api.sendSticker(id!, med.src!, opt)
+        if (med.type == `location`) await this.ct.api.sendLocation(id!, parseInt(med.latitude!), parseInt(med.longitude!), opt)
+        if (med.type == `contact`) await this.ct.api.sendContact(id!, med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
+
+        if (index + 1 == limitFree) {
+          await setTimeout(1200)
+        }
+      }
+    } catch (err) {
+      if (throwError) {
+        throw err
+      }
+    }
+  }
+
+  /**
    * Sends a text message reply using the page template.
    *
    * @param keyboard - Optional keyboard markup from {@link Ctx.inlineKeyboard} or {@link Ctx.bottomKeyboard}.
