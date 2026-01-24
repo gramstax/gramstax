@@ -26,6 +26,11 @@ description: Best practices for Gramstax examples and templates.
 - Do not call `sessionGet()` inside page handlers; the system fetches session before routing.
 - Prefer class or static methods for project logic.
 
+## Production Quality (Gramstax + App Code)
+
+- All Gramstax implementations and app code must be production quality.
+- Apply best production to SQL databases (e.g., PostgreSQL) and NoSQL databases (e.g., LMDB).
+
 ## Templates and Conditional Rendering
 
 - Use `{~ ... ~}`, `<switch>`, or `<script>` for conditional content inside templates.
