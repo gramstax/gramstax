@@ -29,14 +29,14 @@ export class StartPage extends PageBase {
 
         {~subscribed ? "Status: Subscribed" : "Status: Not subscribed"~}
 
-        Manage your subscription with the buttons below.
+        Stay in the loop with curated updates, release notes, and important announcements. Use the button below to manage your subscription or explore more details.
       </message>
       <message lang="id">
         📰 Pusat Newsletter
 
         {~subscribed ? "Status: Berlangganan" : "Status: Belum berlangganan"~}
 
-        Kelola langganan dengan tombol di bawah.
+        Dapatkan pembaruan pilihan, catatan rilis, dan pengumuman penting. Gunakan tombol di bawah untuk mengelola langganan atau melihat informasi lainnya.
       </message>
     </base>
   `

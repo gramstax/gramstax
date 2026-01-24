@@ -2,9 +2,7 @@ import {log} from "~/utils/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-// Error/fallback page for unified error messaging.
 export class GeneralStatusPage extends PageBase {
-  static BASE = {error: `error`, notfound: `notfound`}
   constructorName?: string
 
   constructor(p: any) {
@@ -21,35 +19,21 @@ export class GeneralStatusPage extends PageBase {
 
     await this.sessionClear()
     const kb = this.kb()
-    const bi = `error`
-    if (edit) await this.edit(kb, {}, bi)
-    else await this.reply(kb, {}, bi)
+    const data = {isNotFound: false}
+    if (edit) await this.edit(kb, data)
+    else await this.reply(kb, data)
   }
 
   async toErrorInputNotFound() {
     const kb = this.kb()
-    const bi = `error-input-notfound`
-    await this.reply(kb, {}, bi)
+    await this.reply(kb, {isNotFound: true})
   }
 
   static template = `
     <base>
       ${this.kbk.home()}
-    </base>
-
-    <base id="${this.BASE.error}">
       <message>
-        <b>❌ Error</b>
-
-        ⚠️ Something went wrong. Please try again.
-      </message>
-    </base>
-
-s    <base id="${this.BASE.notfound}">
-      <message>
-        <b>❌ Not Found</b>
-
-        🔎 No matching route found.
+        {~isNotFound ? "🔎 No matching route found." : "❌ Something went wrong. Please try again."~}
       </message>
     </base>
   `

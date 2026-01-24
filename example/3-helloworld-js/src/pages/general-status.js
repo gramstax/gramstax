@@ -3,7 +3,6 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class GeneralStatusPage extends PageBase {
-  static BASE = {error: `error`, notFound: `not-found`}
   constructorName
 
   constructor(p) {
@@ -20,34 +19,21 @@ export class GeneralStatusPage extends PageBase {
 
     await this.sessionClear()
     const kb = this.kb()
-    const bi = GeneralStatusPage.BASE.error
-    if (edit) await this.edit(kb, {}, bi)
-    else await this.reply(kb, {}, bi)
+    const data = {isNotFound: false}
+    if (edit) await this.edit(kb, data)
+    else await this.reply(kb, data)
   }
 
   async toErrorInputNotFound() {
-    await this.reply(this.kb(), {}, GeneralStatusPage.BASE.notFound)
+    const kb = this.kb()
+    await this.reply(kb, {isNotFound: true})
   }
 
   static template = `
     <base>
       ${this.kbk.home()}
-    </base>
-
-    <base id="${this.BASE.error}">
       <message>
-        <b>❌ Error</b>
-
-        An unexpected error occurred.
-        Please try again later.
-      </message>
-    </base>
-
-    <base id="${this.BASE.notFound}">
-      <message>
-        <b>❌ Not Found</b>
-
-        Not maching route.
+        {~isNotFound ? "🔎 No matching route found." : "❌ Something went wrong. Please try again."~}
       </message>
     </base>
   `
