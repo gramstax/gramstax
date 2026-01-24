@@ -18,4 +18,8 @@ export class FsUt {
 
     return `${packageManager}.cmd`
   }
+
+  static resolveInitialWorkingDirectory(currentDirectory = process.cwd(), initCwd = process.env.INIT_CWD): string {
+    return initCwd ?? currentDirectory
+  }
 }

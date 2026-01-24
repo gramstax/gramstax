@@ -55,7 +55,5 @@ export default defineConfig({
 
     return undefined as any
   },
-  define: {
-    __PKG_VERSION__: JSON.stringify(thisPackageJson.version)
-  }
+  define: {}
 })

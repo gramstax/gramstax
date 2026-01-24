@@ -6,20 +6,10 @@ import {readFileSync} from "node:fs"
 import {dirname, join} from "node:path"
 import {fileURLToPath} from "node:url"
 
-declare const __PKG_VERSION__: string | undefined
-
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const readPackageVersion = () => {
-  if (typeof __PKG_VERSION__ !== `undefined`) {
-    return __PKG_VERSION__
-  }
-
-  const packageJsonPath = join(__dirname, `../package.json`)
-  return JSON.parse(readFileSync(packageJsonPath, `utf-8`)).version as string
-}
-
-const packageVersion = readPackageVersion()
+const packageJsonPath = join(__dirname, `../../package.json`)
+const packageVersion = JSON.parse(readFileSync(packageJsonPath, `utf-8`)).version as string
 const program = new Command()
 
 program

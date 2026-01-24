@@ -57,4 +57,9 @@ describe(`create-gramstax utilities`, () => {
     expect(FsUt.resolvePackageManagerCommand(`npm`, `linux`)).toBe(`npm`)
     expect(FsUt.resolvePackageManagerCommand(`bun`, `linux`)).toBe(`bun`)
   })
+
+  it(`prefers INIT_CWD when resolving base directory`, () => {
+    expect(FsUt.resolveInitialWorkingDirectory(`C:\\current`, `C:\\from-init`)).toBe(`C:\\from-init`)
+    expect(FsUt.resolveInitialWorkingDirectory(`/current`, undefined)).toBe(`/current`)
+  })
 })

@@ -224,21 +224,22 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     let projectName = this.projectDirectory
     let projectPath: string
     let useCurrentDir = false
+    const baseWorkingDir = FsUt.resolveInitialWorkingDirectory()
 
     if (!projectName) {
       // PROMPT untuk project name
       projectName = await this.promptForProjectName()
       if (projectName === ``) {
         // Empty name means use current directory
-        projectName = path.basename(process.cwd())
-        projectPath = process.cwd()
+        projectName = path.basename(baseWorkingDir)
+        projectPath = baseWorkingDir
         useCurrentDir = true
       } else {
-        projectPath = path.resolve(process.cwd(), projectName)
+        projectPath = path.resolve(baseWorkingDir, projectName)
         useCurrentDir = false
       }
     } else {
-      projectPath = path.resolve(process.cwd(), projectName)
+      projectPath = path.resolve(baseWorkingDir, projectName)
       useCurrentDir = false
     }
 
