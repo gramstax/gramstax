@@ -3,7 +3,7 @@ import {log} from "./utils/log"
 import {BotCore} from "./core/bot"
 import {CacheExternal} from "gramstax"
 
-log.success(`Bot started..`)
+log.info(`Bot started..`)
 
 const run = () => {
   new BotCore({
