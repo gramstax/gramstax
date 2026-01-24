@@ -5,6 +5,9 @@ import {AdminGuard} from "~/guards/admin"
 type BroadcastSession = {
   step?: `message` | `confirm`
   draft?: string
+  mediaType?: `photo` | `video` | `animation`
+  fileId?: string
+  caption?: string
 }
 
 export class BroadcastPage extends PageBase {
@@ -12,10 +15,16 @@ export class BroadcastPage extends PageBase {
   static BASE = {
     prompt: `prompt`,
     confirm: `confirm`,
+    confirmPhoto: `confirm-photo`,
+    confirmVideo: `confirm-video`,
+    confirmAnimation: `confirm-animation`,
     result: `result`,
     empty: `empty`,
     cancelled: `cancelled`,
-    deliver: `deliver`
+    deliver: `deliver`,
+    deliverPhoto: `deliver-photo`,
+    deliverVideo: `deliver-video`,
+    deliverAnimation: `deliver-animation`
   }
 
   async callback() {
@@ -57,9 +66,55 @@ export class BroadcastPage extends PageBase {
     await this.reply(this.confirmKeyboard(), {draft}, BroadcastPage.BASE.confirm)
   }
 
+  async photoFree() {
+    if (!this.validateSessionTextFree()) return null
+    const {step} = this.getSessionParams()
+    if (step !== `message`) return null
+
+    const caption = this.msgCaption?.trim()
+    if (caption?.startsWith(`/`)) return null
+
+    const photos = this.msgPhoto
+    const lastPhoto = photos?.[photos.length - 1]
+    if (!lastPhoto?.file_id) return null
+
+    await this.sessionTextFree({step: `confirm`, mediaType: `photo`, fileId: lastPhoto.file_id, caption})
+    await this.replyPhoto(this.confirmKeyboard(), {fileId: lastPhoto.file_id, caption}, BroadcastPage.BASE.confirmPhoto)
+  }
+
+  async videoFree() {
+    if (!this.validateSessionTextFree()) return null
+    const {step} = this.getSessionParams()
+    if (step !== `message`) return null
+
+    const caption = this.msgCaption?.trim()
+    if (caption?.startsWith(`/`)) return null
+
+    const fileId = this.msgVideo?.file_id
+    if (!fileId) return null
+
+    await this.sessionTextFree({step: `confirm`, mediaType: `video`, fileId, caption})
+    await this.replyVideo(this.confirmKeyboard(), {fileId, caption}, BroadcastPage.BASE.confirmVideo)
+  }
+
+  async animationFree() {
+    if (!this.validateSessionTextFree()) return null
+    const {step} = this.getSessionParams()
+    if (step !== `message`) return null
+
+    const caption = this.msgCaption?.trim()
+    if (caption?.startsWith(`/`)) return null
+
+    const fileId = this.msgAnimation?.file_id
+    if (!fileId) return null
+
+    await this.sessionTextFree({step: `confirm`, mediaType: `animation`, fileId, caption})
+    await this.replyAnimation(this.confirmKeyboard(), {fileId, caption}, BroadcastPage.BASE.confirmAnimation)
+  }
+
   private async handleSend() {
-    const {draft} = this.getSessionParams()
-    if (!draft) {
+    const {draft, mediaType, fileId, caption} = this.getSessionParams()
+    if (!draft && !mediaType) {
       await this.sessionTextFree({step: `message`})
       return await this.edit(this.promptKeyboard(), {draft: `-`, isEmpty: true}, BroadcastPage.BASE.prompt)
     }
@@ -73,7 +128,12 @@ export class BroadcastPage extends PageBase {
 
     const ids = subscribers.map((item) => item.id)
     const langs = subscribers.map((item) => item.language || `default`)
-    await this.broadcast(ids, langs, undefined, {message: draft}, BroadcastPage.BASE.deliver)
+    if (mediaType && fileId) {
+      const deliverBase = this.getDeliverMediaBase(mediaType)
+      await this.broadcastMedia(ids, langs, undefined, {fileId, caption}, deliverBase)
+    } else {
+      await this.broadcast(ids, langs, undefined, {message: draft}, BroadcastPage.BASE.deliver)
+    }
     await this.sessionClear()
 
     const kb = this.inlineKeyboardT([StartPage])
@@ -81,7 +141,13 @@ export class BroadcastPage extends PageBase {
   }
 
   private async handleEdit() {
-    const {draft} = this.getSessionParams()
+    const {draft, mediaType} = this.getSessionParams()
+    if (mediaType) {
+      await this.sessionTextFree({step: `message`})
+      await this.edit(this.promptKeyboard(), {draft: `-`, isEmpty: false}, BroadcastPage.BASE.prompt)
+      return
+    }
+
     await this.sessionTextFree({step: `message`, draft})
     await this.edit(this.promptKeyboard(), {draft: draft || `-`, isEmpty: false}, BroadcastPage.BASE.prompt)
   }
@@ -112,6 +178,12 @@ export class BroadcastPage extends PageBase {
     return (this.session?.params as BroadcastSession | undefined) ?? {}
   }
 
+  private getDeliverMediaBase(mediaType: BroadcastSession[`mediaType`]) {
+    if (mediaType === `photo`) return BroadcastPage.BASE.deliverPhoto
+    if (mediaType === `video`) return BroadcastPage.BASE.deliverVideo
+    return BroadcastPage.BASE.deliverAnimation
+  }
+
   static template = `
     <base>
       ${this.kbk.home()}
@@ -127,6 +199,7 @@ export class BroadcastPage extends PageBase {
         Current draft: {{draft}}
 
         Send the announcement text now. This will be delivered to every subscriber who is currently active.
+        You can also send a photo, video, or animation with an optional caption.
       </message>
       <message lang="id">
         📣 Pesan Siaran
@@ -135,6 +208,7 @@ export class BroadcastPage extends PageBase {
         Draf saat ini: {{draft}}
 
         Kirim teks siaran sekarang. Pesan ini akan dikirim ke semua pelanggan yang aktif.
+        Anda juga dapat mengirim foto, video, atau animasi dengan caption opsional.
       </message>
     </base>
 
@@ -155,6 +229,45 @@ export class BroadcastPage extends PageBase {
 
         Tinjau pesan dengan saksama. Setelah dikirim, pesan akan diterima oleh semua pelanggan.
       </message>
+    </base>
+
+    <base id="${this.BASE.confirmPhoto}">
+      <media type="photo" src="{{fileId}}">
+        ✅ Confirm broadcast media
+
+        {{caption}}
+      </media>
+      <media lang="id" type="photo" src="{{fileId}}">
+        ✅ Konfirmasi siaran media
+
+        {{caption}}
+      </media>
+    </base>
+
+    <base id="${this.BASE.confirmVideo}">
+      <media type="video" src="{{fileId}}">
+        ✅ Confirm broadcast media
+
+        {{caption}}
+      </media>
+      <media lang="id" type="video" src="{{fileId}}">
+        ✅ Konfirmasi siaran media
+
+        {{caption}}
+      </media>
+    </base>
+
+    <base id="${this.BASE.confirmAnimation}">
+      <media type="animation" src="{{fileId}}">
+        ✅ Confirm broadcast media
+
+        {{caption}}
+      </media>
+      <media lang="id" type="animation" src="{{fileId}}">
+        ✅ Konfirmasi siaran media
+
+        {{caption}}
+      </media>
     </base>
 
     <base id="${this.BASE.result}">
@@ -201,6 +314,45 @@ export class BroadcastPage extends PageBase {
       <message lang="id">
         📣 {{message}}
       </message>
+    </base>
+
+    <base id="${this.BASE.deliverPhoto}">
+      <media type="photo" src="{{fileId}}">
+        📣 Broadcast update
+
+        {{caption}}
+      </media>
+      <media lang="id" type="photo" src="{{fileId}}">
+        📣 Pembaruan siaran
+
+        {{caption}}
+      </media>
+    </base>
+
+    <base id="${this.BASE.deliverVideo}">
+      <media type="video" src="{{fileId}}">
+        📣 Broadcast update
+
+        {{caption}}
+      </media>
+      <media lang="id" type="video" src="{{fileId}}">
+        📣 Pembaruan siaran
+
+        {{caption}}
+      </media>
+    </base>
+
+    <base id="${this.BASE.deliverAnimation}">
+      <media type="animation" src="{{fileId}}">
+        📣 Broadcast update
+
+        {{caption}}
+      </media>
+      <media lang="id" type="animation" src="{{fileId}}">
+        📣 Pembaruan siaran
+
+        {{caption}}
+      </media>
     </base>
   `
 }
