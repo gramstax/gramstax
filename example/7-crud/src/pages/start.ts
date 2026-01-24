@@ -30,26 +30,12 @@ export class StartPage extends PageBase {
       <message>
         ✅ CRUD Menu
 
-        Choose an action to manage your cached items:
-
-        - ➕ Create
-        - 📋 List
-        - 🔎 Detail
-        - ✅ Update
-        - 🗑️ Delete
-        - ❓ Help
+        Manage your items quickly using the actions below. Create new entries, browse the list, view details, update status, or remove items when needed.
       </message>
       <message lang="id">
         ✅ Menu CRUD
 
-        Pilih aksi untuk mengelola item tersimpan:
-
-        - ➕ Buat
-        - 📋 Daftar
-        - 🔎 Detail
-        - ✅ Perbarui
-        - 🗑️ Hapus
-        - ❓ Bantuan
+        Kelola item dengan cepat melalui aksi di bawah. Buat item baru, lihat daftar, cek detail, perbarui status, atau hapus item saat diperlukan.
       </message>
     </base>
   `

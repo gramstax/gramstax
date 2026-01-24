@@ -62,19 +62,19 @@ export class ListPage extends PageBase {
 
   static template = `
     <base id="${this.BASE.list}">
-      <keyboard>⬅️ Prev, ➡️ Next, 🏠 Home</keyboard>
-      <keyboard lang="id">⬅️ Sebelumnya, ➡️ Berikutnya, 🏠 Beranda</keyboard>
+      <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</keyboard>
+      <keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</keyboard>
       <message>
         📋 Cached items
 
-        Page {{page}}/{{totalPages}}
+        Page {{page}}/{{totalPages}} • Browse and select an item by ID.
 
         {{items}}
       </message>
       <message lang="id">
         📋 Daftar item tersimpan
 
-        Halaman {{page}}/{{totalPages}}
+        Halaman {{page}}/{{totalPages}} • Pilih item berdasarkan ID.
 
         {{items}}
       </message>
@@ -84,11 +84,13 @@ export class ListPage extends PageBase {
       ${this.kbk.home()}
       <message>
         📭 No cached items yet.
-        Use ➕ Create to add your first item.
+
+        Start by creating your first item, then come back here to review it.
       </message>
       <message lang="id">
         📭 Belum ada item tersimpan.
-        Gunakan ➕ Buat untuk menambah item pertama.
+
+        Mulailah dengan membuat item pertama, lalu kembali ke sini untuk melihatnya.
       </message>
     </base>
   `

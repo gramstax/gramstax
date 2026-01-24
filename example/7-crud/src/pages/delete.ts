@@ -82,28 +82,28 @@ export class DeletePage extends PageBase {
     <base id="${this.BASE.list}">
       ${this.kbk.home()}
       <message>
-        🗑️ Select a todo to delete, or type an ID.
+        🗑️ Select an item to delete, or type an ID.
 
-        Showing {{count}} items
+        Showing {{count}} items. Deletions are permanent.
       </message>
       <message lang="id">
-        🗑️ Pilih todo untuk dihapus, atau ketik ID.
+        🗑️ Pilih item untuk dihapus, atau ketik ID.
 
-        Menampilkan {{count}} item
+        Menampilkan {{count}} item. Penghapusan bersifat permanen.
       </message>
     </base>
 
     <base id="${this.BASE.success}">
       ${this.kbk.home()}
       <message>
-        ✅ Item deleted!
+        ✅ Item deleted
 
-        Removed item #{{id}} from your todo list.
+        Removed item #{{id}} from your list. You can continue managing the remaining items.
       </message>
       <message lang="id">
-        ✅ Item dihapus!
+        ✅ Item dihapus
 
-        Item #{{id}} dihapus dari daftar todo.
+        Item #{{id}} dihapus dari daftar. Anda dapat melanjutkan pengelolaan item lainnya.
       </message>
     </base>
 
@@ -112,24 +112,24 @@ export class DeletePage extends PageBase {
       <message>
         ❌ Item not found: {{id}}
 
-        This item may have already been deleted.
+        This item may have already been deleted or the ID is incorrect.
       </message>
       <message lang="id">
         ❌ Item tidak ditemukan: {{id}}
 
-        Item ini mungkin sudah dihapus.
+        Item ini mungkin sudah dihapus atau ID tidak sesuai.
       </message>
     </base>
 
     <base id="${this.BASE.invalid}">
       ${this.kbk.cancel()}
       <message>
-        ⚠️ Invalid ID.
+        ⚠️ Invalid ID
 
         Please send a numeric item ID (e.g., 1, 2, 3).
       </message>
       <message lang="id">
-        ⚠️ ID tidak valid.
+        ⚠️ ID tidak valid
 
         Mohon kirim ID item angka (mis. 1, 2, 3).
       </message>
@@ -138,14 +138,14 @@ export class DeletePage extends PageBase {
     <base id="${this.BASE.empty}">
       ${this.kbk.home()}
       <message>
-        📭 No items available to delete.
+        📭 No items available to delete
 
-        Create some todos first to manage them.
+        Create items first, then return here to delete them if needed.
       </message>
       <message lang="id">
-        📭 Tidak ada item untuk dihapus.
+        📭 Tidak ada item untuk dihapus
 
-        Buat beberapa todo terlebih dahulu.
+        Buat item terlebih dahulu, lalu kembali untuk menghapus bila perlu.
       </message>
     </base>
   `

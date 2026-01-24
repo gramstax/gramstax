@@ -115,15 +115,15 @@ export class UpdatePage extends PageBase {
 
   static template = `
     <base id="${this.BASE.select}">
-      <keyboard>⬅️ Prev, ➡️ Next, 🏠 Home</keyboard>
-      <keyboard lang="id">⬅️ Sebelumnya, ➡️ Berikutnya, 🏠 Beranda</keyboard>
+      <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</keyboard>
+      <keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</keyboard>
       <message>
-        ✏️ Select a todo to update its status.
+        ✏️ Select an item to update its status.
 
         Showing {{count}} items • Page {{page}}/{{totalPages}}
       </message>
       <message lang="id">
-        ✏️ Pilih todo untuk memperbarui status.
+        ✏️ Pilih item untuk memperbarui status.
 
         Menampilkan {{count}} item • Halaman {{page}}/{{totalPages}}
       </message>
@@ -137,42 +137,46 @@ export class UpdatePage extends PageBase {
 
         Current status: {{status}}
 
-        Choose the next status:
+        Choose the next status for this item.
       </message>
       <message lang="id">
         📋 Item #{{id}}: {{title}}
 
         Status saat ini: {{status}}
 
-        Pilih status berikutnya:
+        Pilih status berikutnya untuk item ini.
       </message>
     </base>
 
     <base id="${this.BASE.success}">
       ${this.kbk.home()}
       <message>
-        ✅ Status updated!
+        ✅ Status updated
 
         Item #{{id}} is now: {{status}}
+
+        You can keep updating other items from the list.
       </message>
       <message lang="id">
-        ✅ Status diperbarui!
+        ✅ Status diperbarui
 
         Item #{{id}} sekarang: {{status}}
+
+        Anda dapat memperbarui item lain dari daftar.
       </message>
     </base>
 
     <base id="${this.BASE.empty}">
       ${this.kbk.home()}
       <message>
-        📭 No items available to update.
+        📭 No items available to update
 
-        Create some todos first to manage their status.
+        Create items first, then return here to update their status.
       </message>
       <message lang="id">
-        📭 Tidak ada item untuk diperbarui.
+        📭 Tidak ada item untuk diperbarui
 
-        Buat beberapa todo terlebih dahulu.
+        Buat item terlebih dahulu, lalu kembali untuk memperbarui status.
       </message>
     </base>
 
@@ -181,12 +185,12 @@ export class UpdatePage extends PageBase {
       <message>
         ❌ Item not found: {{id}}
 
-        This item may have been deleted or doesn't exist.
+        This item may have been deleted or never existed.
       </message>
       <message lang="id">
         ❌ Item tidak ditemukan: {{id}}
 
-        Item ini mungkin sudah dihapus atau tidak ada.
+        Item ini mungkin sudah dihapus atau memang tidak ada.
       </message>
     </base>
   `

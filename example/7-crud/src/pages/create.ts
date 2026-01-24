@@ -58,13 +58,13 @@ export class CreatePage extends PageBase {
       <message>
         ✏️ Create a new item
 
-        Send the title for the item.
+        Send a clear title for the item.
         Example: Coffee Beans
       </message>
       <message lang="id">
         ✏️ Buat item baru
 
-        Kirim judul item.
+        Kirim judul item yang jelas.
         Contoh: Biji Kopi
       </message>
     </base>
@@ -74,13 +74,13 @@ export class CreatePage extends PageBase {
       <message>
         ✅ Title saved: {{title}}
 
-        Now send the description.
+        Now send a short description or notes.
         Example: Medium roast, 250g
       </message>
       <message lang="id">
         ✅ Judul tersimpan: {{title}}
 
-        Sekarang kirim deskripsinya.
+        Sekarang kirim deskripsi singkat atau catatan.
         Contoh: Medium roast, 250g
       </message>
     </base>
@@ -93,6 +93,8 @@ export class CreatePage extends PageBase {
         🏷️ Title: {{title}}
         📝 Description: {{description}}
         📌 Status: {{status}}
+
+        You can update or delete it anytime from the menu.
       </message>
       <message lang="id">
         ✅ Item dibuat (#{{id}})
@@ -100,20 +102,22 @@ export class CreatePage extends PageBase {
         🏷️ Judul: {{title}}
         📝 Deskripsi: {{description}}
         📌 Status: {{status}}
+
+        Anda dapat memperbarui atau menghapusnya kapan saja dari menu.
       </message>
     </base>
 
     <base id="${this.BASE.invalid}">
       ${this.kbk.cancel()}
       <message>
-        ⚠️ Invalid input.
+        ⚠️ Invalid input
 
-        Please send a non-empty value.
+        Please send a non-empty value so we can continue.
       </message>
       <message lang="id">
-        ⚠️ Input tidak valid.
+        ⚠️ Input tidak valid
 
-        Mohon kirim nilai yang tidak kosong.
+        Mohon kirim nilai yang tidak kosong agar proses bisa dilanjutkan.
       </message>
     </base>
   `

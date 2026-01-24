@@ -58,13 +58,13 @@ export class DetailPage extends PageBase {
       <message>
         🔎 View item details
 
-        Enter the item ID.
+        Enter the item ID to see the full record.
         Example: 1
       </message>
       <message lang="id">
         🔎 Lihat detail item
 
-        Masukkan ID item.
+        Masukkan ID item untuk melihat data lengkap.
         Contoh: 1
       </message>
     </base>
@@ -95,23 +95,27 @@ export class DetailPage extends PageBase {
       ${this.kbk.cancel()}
       <message>
         ❌ Item not found: {{id}}
+
+        Double-check the ID and try again, or return to the list to browse.
       </message>
       <message lang="id">
         ❌ Item tidak ditemukan: {{id}}
+
+        Periksa kembali ID, atau kembali ke daftar untuk melihat item.
       </message>
     </base>
 
     <base id="${this.BASE.invalid}">
       ${this.kbk.cancel()}
       <message>
-        ⚠️ Invalid ID.
+        ⚠️ Invalid ID
 
-        Please send a numeric item ID.
+        Please send a numeric item ID (example: 1).
       </message>
       <message lang="id">
-        ⚠️ ID tidak valid.
+        ⚠️ ID tidak valid
 
-        Mohon kirim ID item angka.
+        Mohon kirim ID item angka (contoh: 1).
       </message>
     </base>
   `

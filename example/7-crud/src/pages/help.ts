@@ -15,19 +15,19 @@ export class HelpPage extends PageBase {
         🧭 CRUD Help
 
         ➕ Create: add a title and description in two steps.
-        📋 List: browse cached items with pagination.
-        🔎 Detail: check item fields by ID.
-        ✅ Update: pick a todo and set its status.
-        🗑️ Delete: remove an item by ID.
+        📋 List: browse saved items with pagination controls.
+        🔎 Detail: view full item data by ID.
+        ✅ Update: change an item status from todo → in progress → done.
+        🗑️ Delete: remove an item by ID with confirmation prompts.
       </message>
       <message lang="id">
         🧭 Bantuan CRUD
 
         ➕ Buat: tambah judul dan deskripsi dalam dua langkah.
-        📋 Daftar: lihat item tersimpan dengan pagination.
-        🔎 Detail: cek detail item berdasarkan ID.
-        ✅ Perbarui: pilih todo dan ubah statusnya.
-        🗑️ Hapus: hapus item berdasarkan ID.
+        📋 Daftar: lihat item tersimpan dengan kontrol halaman.
+        🔎 Detail: tampilkan data lengkap berdasarkan ID.
+        ✅ Perbarui: ubah status item dari todo → proses → selesai.
+        🗑️ Hapus: hapus item berdasarkan ID dengan konfirmasi.
       </message>
     </base>
   `
