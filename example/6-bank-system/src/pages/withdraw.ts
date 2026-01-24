@@ -63,14 +63,19 @@ export class WithdrawPage extends PageBase {
     <base id="form">
       ${this.kbk.cancel()}
       <message>
-        Please enter the withdrawal amount as a whole number. Dots are accepted for thousand separators.
+        ➖ Withdraw funds
+
+        Enter the amount as a whole number. Dots are allowed for thousand separators.
+        Example: 50.000
       </message>
     </base>
 
     <base id="success">
       ${this.kbk.home()}
       <message>
-        Withdrawal completed: {{amount}}
+        ✅ Withdrawal completed
+
+        Amount withdrawn: {{amount}}
         Updated balance: {{balance}}
       </message>
     </base>
@@ -78,16 +83,20 @@ export class WithdrawPage extends PageBase {
     <base id="insufficient">
       ${this.kbk.cancel()}
       <message>
-        Insufficient funds for this withdrawal.
+        ⚠️ Insufficient funds
+
         Available balance: {{balance}}
+        Please enter a smaller amount.
       </message>
     </base>
 
     <base id="invalid">
       ${this.kbk.cancel()}
       <message>
-        Invalid amount: "{{amount}}".
-        Enter a whole number only
+        ⚠️ Invalid amount
+
+        We couldn't read: "{{amount}}".
+        Please enter a whole number only.
       </message>
     </base>
   `

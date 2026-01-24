@@ -100,16 +100,21 @@ export class TransferPage extends PageBase {
     <base id="${this.BASE.form}">
       ${this.kbk.cancel()}
       <message>
-        Enter: [amount] [recipient]
+        🔁 Transfer funds
 
-        Amounts must be whole numbers. Dots are accepted for thousand separators.
+        Enter: [amount] [recipient]
+        Amounts must be whole numbers. Dots are allowed for thousand separators.
+
+        Example: 125.000 12345
       </message>
     </base>
 
     <base id="${this.BASE.success}">
       ${this.kbk.home()}
       <message>
-        Transfer completed: {{amount}} to {{target}}
+        ✅ Transfer completed
+
+        Sent {{amount}} to {{target}}
         Updated balance: {{balance}}
       </message>
     </base>
@@ -117,15 +122,19 @@ export class TransferPage extends PageBase {
     <base id="${this.BASE.insufficient}">
       ${this.kbk.cancel()}
       <message>
-        Insufficient funds for this transfer.
+        ⚠️ Insufficient funds
+
         Available balance: {{balance}}
+        Please enter a smaller amount.
       </message>
     </base>
 
     <base id="${this.BASE.unknownUser}">
       ${this.kbk.cancel()}
       <message>
-        Recipient not found: "{{target}}".
+        ⚠️ Recipient not found
+
+        We couldn't resolve: "{{target}}".
         Provide a numeric ID or a registered username.
       </message>
     </base>
@@ -133,6 +142,8 @@ export class TransferPage extends PageBase {
     <base id="${this.BASE.self}">
       ${this.kbk.cancel()}
       <message>
+        ⚠️ Transfer blocked
+
         Transfers to your own account are not permitted.
         Please choose a different recipient.
       </message>
@@ -141,7 +152,9 @@ export class TransferPage extends PageBase {
     <base id="${this.BASE.invalid}">
       ${this.kbk.cancel()}
       <message>
-        Invalid transfer format.
+        ⚠️ Invalid transfer format
+
+        Use the format: [amount] [recipient]
         Example: 125.000 12345
       </message>
     </base>

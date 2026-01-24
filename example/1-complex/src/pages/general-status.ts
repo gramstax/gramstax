@@ -33,10 +33,9 @@ export class GeneralStatusPage extends PageBase {
     <base>
       ${this.kbk.home()}
       <message>
-        {~isNotFound ? "🔎 No matching route found." : "❌ Something went wrong. Please try again."~}
-      </message>
-      <message lang="id">
-        {~isNotFound ? "🔎 Rute tidak ditemukan." : "❌ Terjadi kesalahan. Silakan coba lagi."~}
+        {~isNotFound ? "🔎 Route not found" : "❌ Something went wrong"~}
+
+        {~isNotFound ? "Use Home to return to the main menu and try a different action." : "Please try again in a moment, or return Home if the issue persists."~}
       </message>
     </base>
   `

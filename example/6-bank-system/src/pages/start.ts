@@ -23,17 +23,11 @@ export class StartPage extends PageBase {
 
   static template = `
     <base>
-      <keyboard>Balance, Deposit, Withdraw, Transfer, History</keyboard>
+      <keyboard>💳 Balance, ➕ Deposit, ➖ Withdraw, 🔁 Transfer, 📜 History</keyboard>
       <message>
-        Banking Menu
+        💼 Banking Menu
 
-        Select a service below to manage your account. You can review balances, move funds, or view recent activity.
-
-        - Balance
-        - Deposit
-        - Withdraw
-        - Transfer
-        - History
+        Manage your account with the actions below. Check your balance, move funds, or review recent activity at any time.
       </message>
     </base>
   `

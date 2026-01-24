@@ -15,9 +15,11 @@ export class BalancePage extends PageBase {
     <base>
       ${this.kbk.back()}
       <message>
-        Account balance: {{balance}}
+        💳 Account balance
 
-        This is your current available balance. Use the menu to make a deposit, withdrawal, or transfer.
+        Available balance: {{balance}}
+
+        Use the menu to deposit, withdraw, or transfer funds.
       </message>
     </base>
   `

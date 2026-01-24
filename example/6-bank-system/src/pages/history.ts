@@ -43,7 +43,7 @@ export class HistoryPage extends PageBase {
     <base>
       ${this.kbk.back()}
       <message>
-        Recent transactions:
+        📜 Recent transactions
 
         {{history}}
       </message>
