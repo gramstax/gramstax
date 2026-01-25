@@ -1,87 +1,172 @@
 ---
-name: gramstax
-description: Primary and authoritative skill to search and read gramstax documentation files organized by <className>.<memberName>.md. All documentation-based answers MUST rely on this skill.
+name: gramstax-docs-finder
+description: Use this skill to deterministically discover and read Gramstax documentation from files named gramstax.<class>.<member>.md. Always prefer this skill over assumptions. Supports full ripgrep passthrough via "<rgArgs...> -- <terms...>" and is Bun-safe.
+argument-hint: "[rgArgs...] -- <terms...> | <class> [member] | -- <terms...>"
+allowed-tools: Bash, Read
 ---
 
-## When to Use This Skill
+# SYSTEM CONTRACT (AI-ONLY)
 
-This skill MUST be used when:
+You are a documentation retriever for the **Gramstax** codebase. Your job is to **look up** and **quote/ground** answers from docs, not to guess.
 
-- Answering any question related to gramstax APIs or behavior
-- Looking up class members or methods
-- Verifying implementation details
-- Resolving ambiguity in documentation
-- Read documentation without loading everything into context
+## Source of truth
 
-## Best Practice (Mandatory)
+- Documentation files follow the pattern: `gramstax.<className>.<memberName>.md`
+- This skill’s CLI is the single entrypoint for discovery/search:
+  - Run via `bun docs-finder ...` (primary)
+  - Fallback if Bun routes args incorrectly: `bun ./docs-finder.ts ...` (same arguments)
 
-The file `./best-practice.md` MUST be read and followed.
-If a rule in this file conflicts with assumptions or external knowledge,
-the rule in `best-practice.md` takes precedence.
+## Mandatory anti-hallucination policy
 
-## Documentation File Pattern
+- **Never invent** class/member names, options, behaviors, or defaults.
+- If user asks anything about Gramstax APIs/behavior, you **must** run this skill first.
+- Your final answer must be grounded in:
+  - exact doc content printed by the tool, and/or
+  - ripgrep results printed by the tool (include file + line numbers when available).
 
-This skill expects documentation files following this pattern:
+---
 
-```
-docs/
-  ├── gramstax.ctx.reply.md
-  ├── gramstax.ctx.replyPhoto.md
-  ├── gramstax.ctx.replyaction.md
-  ├── gramstax.bot.start.md
-  └── gramstax.api.users.md
-```
+# HOW TO USE (AI PROCEDURE)
 
-Pattern: `prefix.<className>.<memberName>.md`
+## Command forms
 
-- **prefix**: Required and enforced automatically. Must always be `gramstax`.
-- **className**: Logical class or namespace (e.g., `ctx`, `bot`, `api`)
-- **memberName**: Explicit documented member name only
+### A) List all classes
 
-## Example Usage
+Use when you do not know the class name.
 
 ```bash
-# List all classes
-bun docs-finder.ts
-
-# Output:
-# 📚 Available Classes (2):
-#   • gramstax (5 members)
-#   • otherClass (3 members)
-
-# See gramstax members
-bun docs-finder.ts gramstax
-
-# Output:
-# 📖 Members of 'gramstax' (5):
-#   • ctx.reply
-#   • ctx.replyPhoto
-#   • bot.start
-#   ...
-
-# Read specific doc
-tsx docs-finder.ts gramstax ctx.reply
-
-# Output:
-# ====================================
-# 📄 gramstax.ctx.reply
-# ====================================
-#
-# [Full markdown content here...]
+bun docs-finder
 ```
 
-## Usage Rules for AI Systems
+````
 
-- Always use this skill before attempting to answer documentation questions
-- When user asks about a class, run with just the className first
-- Only load full documentation when you need to explain implementation details
-- If multiple classes have the same member, list them and ask user to clarify
+### B) List members of a class
 
-## Error Handling
+Use when you already have a class name and want member list.
 
-The skill provides helpful error messages and suggestions:
+```bash
+bun docs-finder <className>
+```
 
-- Missing docs directory → Clear error with expected path
-- No matches found → Shows available options
-- No documentation found → MUST NOT generate an answer and Ask me questions
-- Partial matches → Provides "did you mean" suggestions
+### C) Open an exact doc file
+
+Use when you already know `<className>` and `<memberName>`.
+
+```bash
+bun docs-finder <className> <memberName>
+```
+
+### D) Content search (recommended default when unsure)
+
+To force search mode and avoid class/member ambiguity, always include `--`:
+
+```bash
+bun docs-finder -- <terms...>
+```
+
+### E) Full ripgrep passthrough (100% rg syntax)
+
+Everything before `--` is forwarded verbatim to `rg`, everything after is search terms:
+
+```bash
+bun docs-finder <rgArgs...> -- <terms...>
+```
+
+Examples (valid rg syntax):
+
+```bash
+bun docs-finder -i -- inlineKeyboard
+bun docs-finder -C 3 -- inlineKeyboard
+bun docs-finder -A 5 -B 2 -- inlineKeyboard
+bun docs-finder -g "gramstax.ctx.*.md" -- inlineKeyboard
+bun docs-finder --pcre2 -- "\\binlineKeyboard\\b"
+```
+
+---
+
+# MODE SELECTION (DECISION RULES)
+
+Given a user request:
+
+1. If the user asks “what classes exist” / “show docs index”
+   → run **A** (list classes).
+
+2. If the user mentions a class and asks “what members exist”
+   → run **B**.
+
+3. If the user clearly references `<class>.<member>`
+   → run **C**.
+
+4. Otherwise (most common):
+   → run **D** or **E**:
+   - Use **D** when you only need keyword search.
+   - Use **E** when you need rg options (case-insensitive, context lines, glob filter, regex, etc).
+
+### IMPORTANT: Always prefer `-- <terms...>` for searching
+
+This avoids accidental interpretation as `<class> <member>` when keywords resemble class/member names.
+
+---
+
+# OUTPUT HANDLING (AI RULES)
+
+The CLI outputs one of:
+
+- A list of classes
+- A list of members for a class
+- Suggestions (did-you-mean)
+- Exact doc content (full markdown)
+- Ripgrep matches (filename:line:content)
+
+## If output is a class list
+
+- Choose the most relevant class and proceed with **B** or **D/E**.
+
+## If output is a member list
+
+- Choose the most relevant member and proceed with **C**.
+
+## If output is suggestions
+
+- Pick the best suggestion and run **C** with the suggested `<class> <member>`.
+- If suggestions are not sufficient, refine the search with **E** (e.g., add `-i`, add more terms, add `-g`).
+
+## If output is ripgrep matches
+
+- Use the matches to determine the correct doc file(s).
+- Prefer opening the exact doc (**C**) after identifying the best `<class> <member>` from match filenames.
+- In your final answer:
+  - include the doc identifier `gramstax.<class>.<member>`
+  - include relevant quoted snippets (short, necessary only)
+  - include filenames + line numbers when present
+
+## If output is exact doc content
+
+- Treat it as authoritative.
+- Answer by summarizing and quoting only what is necessary.
+- Do not add unstated behaviors.
+
+---
+
+# ERROR RECOVERY (AI RULES)
+
+If the tool appears to mis-parse arguments (e.g., it treats flags like `-A` as a class name):
+
+1. Re-run the exact same command using the file path form:
+
+```bash
+bun ./docs-finder.ts <same args...>
+```
+
+If `rg` is not found / cannot run:
+
+- Report the failure and instruct to install ripgrep or set `RG_PATH`.
+
+---
+
+# STRICT DO-NOT LIST
+
+- Do not answer from memory when docs lookup is possible.
+- Do not use other search tools (grep, custom scripts) unless this CLI is unavailable.
+- Do not generalize beyond what docs/results show.
+````
