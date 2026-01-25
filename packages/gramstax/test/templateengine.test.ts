@@ -177,7 +177,7 @@ describe(`TemplateEngine`, () => {
           <media type="photo" src="{{avatar}}">Name: {{name}}</media>
         </base>
       `
-      const compiled = TemplateEngine.compileMedia(template)
+      const compiled = TemplateEngine.compileBlockMedia(template)
       const data = {avatar: `http://alice.png`, name: `Alice`}
       const media = compiled.profile!.default!(data)
 
@@ -192,7 +192,7 @@ describe(`TemplateEngine`, () => {
           <media type="location" latitude="{~ lat + 1 ~}" longitude="{{lng}}"></media>
         </base>
       `
-      const compiled = TemplateEngine.compileMedia(template)
+      const compiled = TemplateEngine.compileBlockMedia(template)
       const data = {lat: 10, lng: `20`}
       const media = compiled.loc!.default!(data)
 
@@ -227,7 +227,7 @@ describe(`TemplateEngine`, () => {
           </message>
         </base>
       `
-      const compiled = TemplateEngine.compileMessages(template)
+      const compiled = TemplateEngine.compileBlockMessage(template)
       const fn = compiled[`list`]![`default`]
 
       const data = {users: [{name: `X`}, {name: `Y`}]}

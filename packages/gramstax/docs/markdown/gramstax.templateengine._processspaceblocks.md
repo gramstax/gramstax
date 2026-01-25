@@ -58,6 +58,8 @@ The template with `<space />` lines removed
 
 This internal method identifies lines that contain only a `<space />` tag (with optional surrounding whitespace) and removes the entire line. This is useful for controlling whitespace in templates.
 
+\*\*Attributes:\*\* - none
+
 ## Example
 
 

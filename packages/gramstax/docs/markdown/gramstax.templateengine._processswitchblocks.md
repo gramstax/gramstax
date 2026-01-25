@@ -58,6 +58,8 @@ The template with `<switch>` blocks converted to executable switch expressions
 
 This internal method converts `<switch>` blocks with `<case>` and `<default>` sub-blocks into self-invoking JavaScript switch expressions. The `value` attribute specifies which data key to switch on. Case values can be comma-separated for multiple matches.
 
+\*\*Attributes:\*\* - <switch> - `value` (required): The key name in the `data` object whose value will be used as the switch expression. - <case> - `is` (required): One or more literal match values. Multiple values may be provided as a comma-separated list. - <default> - none
+
 ## Example
 
 

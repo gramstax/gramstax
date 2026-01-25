@@ -104,7 +104,13 @@ Template with all `<import>` blocks resolved and replaced
 
 ## Remarks
 
-This method resolves all `<import>` directives in a template by calling the provided resolver function to fetch external template content. It supports recursive imports with a depth limit of 10 to prevent infinite loops. An optional cache can be provided to avoid redundant resolutions.
+This method resolves all `<import>` placeholders produced by `_processImportBlocks` by invoking a user-provided `resolver` function.
+
+Resolution behavior: - Each `<import>` is resolved by calling `resolver(src)` to obtain raw template content. - The resolved content is filtered using `_extractBlock` based on the import metadata (`blocks`<!-- -->, `base`<!-- -->, `section`<!-- -->, `lang`<!-- -->). - If the resolved content itself contains `<import>` directives, they are processed recursively.
+
+Recursion and safety: - Recursive import resolution is limited to a maximum depth of \*\*10\*\* to prevent infinite import loops. - If the depth limit is exceeded, an empty string is returned.
+
+Output behavior: - `<import>` placeholders (`__IMPORT_N__`<!-- -->) are replaced sequentially. - If the resolver returns `null` or an empty result, the import is replaced with an empty string.
 
 ## Example
 

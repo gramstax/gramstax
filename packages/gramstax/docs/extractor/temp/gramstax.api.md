@@ -969,14 +969,14 @@ export class LoggingUtil extends LoggingPretty {
 
 // @public
 export class TemplateEngine {
-    static compileDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
+    static compileBlockDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
         [baseId: string]: {
             [scope: string]: {
                 [lang: string]: (data?: Record<string, any>) => string;
             };
         };
     };
-    static compileKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
+    static compileBlockKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
         [baseId: string]: {
             [lang: string]: {
                 inline?: (data?: Record<string, any>) => string[];
@@ -984,12 +984,12 @@ export class TemplateEngine {
             };
         };
     };
-    static compileMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
+    static compileBlockMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
         [baseId: string]: {
             [lang: string]: (data?: Record<string, any>) => IMediaBlock;
         };
     };
-    static compileMessages(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
+    static compileBlockMessage(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
         [baseId: string]: {
             [lang: string]: (data?: Record<string, any>) => string;
         };

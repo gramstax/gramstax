@@ -15,13 +15,13 @@ import {TemplateEngine} from "./engine"
  */
 type ICompiledTemplate = {
   /** Compiled media blocks indexed by base ID and language */
-  media: ReturnType<typeof TemplateEngine.compileMedia>
+  media: ReturnType<typeof TemplateEngine.compileBlockMedia>
   /** Compiled message blocks indexed by base ID and language */
-  message: ReturnType<typeof TemplateEngine.compileMessages>
+  message: ReturnType<typeof TemplateEngine.compileBlockMessage>
   /** Compiled keyboard blocks indexed by base ID, language, and type */
-  keyboard: ReturnType<typeof TemplateEngine.compileKeyboards>
+  keyboard: ReturnType<typeof TemplateEngine.compileBlockKeyboards>
   /** Compiled description blocks indexed by base ID, scope, and language */
-  description: ReturnType<typeof TemplateEngine.compileDescription>
+  description: ReturnType<typeof TemplateEngine.compileBlockDescription>
 }
 
 /**
@@ -586,19 +586,19 @@ export class TemplateManager {
     const baseBlocks = TemplateEngine._processBaseBlocks(processedTemplate)
 
     if (keepIfExist === undefined || keepIfExist?.media === false || existing?.media === undefined) {
-      compiled.media = TemplateEngine.compileMedia(processedTemplate, baseBlocks)
+      compiled.media = TemplateEngine.compileBlockMedia(processedTemplate, baseBlocks)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.message === false || existing?.message === undefined) {
-      compiled.message = TemplateEngine.compileMessages(processedTemplate, baseBlocks)
+      compiled.message = TemplateEngine.compileBlockMessage(processedTemplate, baseBlocks)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.keyboard === false || existing?.keyboard === undefined) {
-      compiled.keyboard = TemplateEngine.compileKeyboards(processedTemplate, baseBlocks)
+      compiled.keyboard = TemplateEngine.compileBlockKeyboards(processedTemplate, baseBlocks)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.description === false || existing?.description === undefined) {
-      compiled.description = TemplateEngine.compileDescription(processedTemplate, baseBlocks)
+      compiled.description = TemplateEngine.compileBlockDescription(processedTemplate, baseBlocks)
       updated = true
     }
 

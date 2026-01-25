@@ -58,6 +58,8 @@ The template with `<script>` blocks converted to executable expressions
 
 This internal method converts `<script>` blocks into self-invoking functions that execute with access to the `data` object via `with(data)`<!-- -->. If the script throws an error or `data` is undefined, an empty string is returned.
 
+\*\*Attributes:\*\* - none
+
 ## Example
 
 

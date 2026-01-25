@@ -60,6 +60,8 @@ An object mapping language keys to their cleaned message content
 
 This internal method identifies all `<message>` blocks and extracts their content organized by language. Blocks without a `lang` attribute are stored under `"default"`<!-- -->. Leading whitespace and surrounding newlines are trimmed.
 
+\*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->.
+
 ## Example
 
 

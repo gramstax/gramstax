@@ -58,6 +58,8 @@ The template with `<div>` blocks replaced by their de-indented content
 
 This internal method processes `<div>` blocks and cleans their inner content by removing leading tabs/spaces per line and trimming surrounding newlines. The `<div>` tags themselves are removed from the output.
 
+\*\*Attributes:\*\* - none
+
 ## Example
 
 

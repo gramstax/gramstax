@@ -68,6 +68,8 @@ An object containing the processed template with placeholders and an array of im
 
 This internal method identifies all `<import>` tags in a template and replaces them with placeholders while collecting their metadata (src, blocks, base, lang, section, indent). The placeholders are later resolved by `processImportBlocks`<!-- -->.
 
+\*\*Attributes:\*\* - `src` (required): Import source identifier (e.g., template/page key). If missing, the tag is removed (replaced with an empty string). - `block` (optional): Block selector. Supported forms: - `"all"`<!-- -->: import all supported blocks - `"block1"`<!-- -->: import a single block - `"block1,block2"` / `"block1, block2"`<!-- -->: import multiple blocks (comma-separated) - `base` (optional): Base id selector for the imported template. Defaults to `"default"`<!-- -->. - `lang` (optional): Language selector for the imported content (passed through as metadata). - `section` (optional): Import section selector. Supported values: - `"all"` (default): include block - `"value"`<!-- -->: only value
+
 ## Example
 
 

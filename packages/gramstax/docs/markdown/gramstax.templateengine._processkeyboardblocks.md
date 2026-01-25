@@ -63,6 +63,8 @@ A nested object mapping language keys to keyboard mode configurations
 
 This internal method identifies all `<keyboard>` blocks and extracts their content organized by language and type (inline or bottom). Blocks without a `lang` attribute are stored under `"default"`<!-- -->. The `type` attribute defaults to `"inline"` unless explicitly set to `"bottom"`<!-- -->.
 
+\*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. - `type` (optional): Keyboard type. Supported values: - `"inline"` (default) - `"bottom"`
+
 ## Example
 
 

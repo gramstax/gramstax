@@ -314,7 +314,7 @@ Transforms `<switch>` blocks into JavaScript switch statement expressions.
 </td></tr>
 <tr><td>
 
-[compileDescription(template, baseBlocks)](./gramstax.templateengine.compiledescription.md)
+[compileBlockDescription(template, baseBlocks)](./gramstax.templateengine.compileblockdescription.md)
 
 
 </td><td>
@@ -330,7 +330,7 @@ Compiles description blocks from a template into executable functions.
 </td></tr>
 <tr><td>
 
-[compileKeyboards(template, baseBlocks)](./gramstax.templateengine.compilekeyboards.md)
+[compileBlockKeyboards(template, baseBlocks)](./gramstax.templateengine.compileblockkeyboards.md)
 
 
 </td><td>
@@ -346,7 +346,7 @@ Compiles keyboard blocks from a template into executable functions.
 </td></tr>
 <tr><td>
 
-[compileMedia(template, baseBlocks)](./gramstax.templateengine.compilemedia.md)
+[compileBlockMedia(template, baseBlocks)](./gramstax.templateengine.compileblockmedia.md)
 
 
 </td><td>
@@ -362,7 +362,7 @@ Compiles media blocks from a template into executable functions.
 </td></tr>
 <tr><td>
 
-[compileMessages(template, baseBlocks)](./gramstax.templateengine.compilemessages.md)
+[compileBlockMessage(template, baseBlocks)](./gramstax.templateengine.compileblockmessage.md)
 
 
 </td><td>

@@ -62,6 +62,8 @@ A nested object mapping language keys to scopes to their cleaned content
 
 This internal method identifies all `<description>` blocks and extracts their content organized by language and scope. Blocks without a `lang` attribute are stored under `"default"` language, and blocks without a `scope` attribute are stored under `"default"` scope.
 
+\*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. - `scope` (optional): Scope key for the nested output map. Defaults to `"default"`<!-- -->.
+
 ## Example
 
 

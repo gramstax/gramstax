@@ -158,10 +158,10 @@ export class TemplateEngine {
    * are stored under the key `"default"`. Leading whitespace and surrounding
    * newlines are trimmed from the inner content.
    *
-   * **Supported Attributes:**
-   * - `id` (optional): Identifier for the base block. If not specified,
-   *                    defaults to `"default"`. Used to reference specific base blocks when compiling
-   *                    templates or extracting content.
+   * **Attributes:**
+   *   - `id` (optional): Identifier for the base block. If not specified,
+   *                      defaults to `"default"`. Used to reference specific base blocks when compiling
+   *                      templates or extracting content.
    *
    * @param template - The raw template string containing `<base>` blocks
    * @returns An object mapping base IDs to their cleaned inner content
@@ -217,6 +217,9 @@ export class TemplateEngine {
    * that execute with access to the `data` object via `with(data)`. If the script
    * throws an error or `data` is undefined, an empty string is returned.
    *
+   * **Attributes:**
+   *   - none
+   *
    * @param template - The template string containing `<script>` blocks
    * @returns The template with `<script>` blocks converted to executable expressions
    *
@@ -246,6 +249,9 @@ export class TemplateEngine {
    * (with optional surrounding whitespace) and removes the entire line.
    * This is useful for controlling whitespace in templates.
    *
+   * **Attributes:**
+   *   - none
+   *
    * @param template - The template string containing `<space />` tags
    * @returns The template with `<space />` lines removed
    *
@@ -269,6 +275,9 @@ export class TemplateEngine {
    * This internal method processes `<div>` blocks and cleans their inner content
    * by removing leading tabs/spaces per line and trimming surrounding newlines.
    * The `<div>` tags themselves are removed from the output.
+   *
+   * **Attributes:**
+   *   - none
    *
    * @param template - The template string containing `<div>` blocks
    * @returns The template with `<div>` blocks replaced by their de-indented content
@@ -300,6 +309,14 @@ export class TemplateEngine {
    * sub-blocks into self-invoking JavaScript switch expressions. The `value`
    * attribute specifies which data key to switch on. Case values can be
    * comma-separated for multiple matches.
+   *
+   * **Attributes:**
+   *   - <switch>
+   *      - `value` (required): The key name in the `data` object whose value will be used as the switch expression.
+   *   - <case>
+   *      - `is` (required): One or more literal match values. Multiple values may be provided as a comma-separated list.
+   *   - <default>
+   *      - none
    *
    * @param template - The template string containing `<switch>` blocks
    * @returns The template with `<switch>` blocks converted to executable switch expressions
@@ -371,6 +388,10 @@ export class TemplateEngine {
    * block, `{{e}}` refers to the current element, `{{e.prop}}` to element properties,
    * and `{{i}}` to the current index. The `join` attribute specifies the separator.
    *
+   * **Attributes:**
+   *   - `src` (required): The key name in the `data` object whose value is treated as an array.
+   *   - `join` (optional): Join separator string. Defaults to `"\\n"` (a newline escape sequence).
+   *
    * @param template - The template string containing `<map>` blocks
    * @returns The template with `<map>` blocks converted to map expressions
    *
@@ -432,6 +453,32 @@ export class TemplateEngine {
    * attributes and content. It supports various media types including photo,
    * video, audio, document, animation, voice, video_note, sticker, location,
    * and contact. The inner content becomes the caption for supported types.
+   *
+   * **Attributes:**
+   *   - `lang` (optional): Language key for the output map. Defaults to `"default"`.
+   *   - `type` (required): Media type discriminator. Expected values:
+   *     - `photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`,
+   *     - `sticker`, `location`, `contact`.
+   *   - `src` (optional): File path / URL / file identifier for file-based media.
+   *   - `latitude` (optional): Location latitude (used when `type="location"`).
+   *   - `longitude` (optional): Location longitude (used when `type="location"`).
+   *   - `phone` (optional): Contact phone number (used when `type="contact"`).
+   *   - `first_name` (optional): Contact first name (used when `type="contact"`).
+   *   - `last_name` (optional): Contact last name (used when `type="contact"`).
+   *   - `vcard` (optional): Contact vCard payload (used when `type="contact"`).
+   *
+   * Media rules (based on `type`):
+   * - If `src` exists, it is assigned as `mediaBlock.src` (for any type).
+   * - If caption exists and `type !== "video_note"` and `type !== "sticker"`,
+   *   it is assigned as `mediaBlock.caption`.
+   * - If `type === "location"`, `latitude` and `longitude` are copied if present,
+   *   and caption (if present) is also allowed.
+   * - If `type === "contact"`, `phone`, `first_name`, `last_name`, and `vcard`
+   *   are copied if present, and caption (if present) is also allowed.
+   *
+   * Note:
+   * - If multiple `<media>` blocks share the same `lang`, the last one wins
+   *   (it overwrites the previous entry).
    *
    * @param template - The template string containing `<media>` blocks
    * @returns An object mapping language keys to their corresponding media block configurations
@@ -517,6 +564,9 @@ export class TemplateEngine {
    * content organized by language. Blocks without a `lang` attribute are stored
    * under `"default"`. Leading whitespace and surrounding newlines are trimmed.
    *
+   * **Attributes:**
+   *   - `lang` (optional): Language key for the output map. Defaults to `"default"`.
+   *
    * @param template - The template string containing `<message>` blocks
    * @returns An object mapping language keys to their cleaned message content
    *
@@ -568,6 +618,10 @@ export class TemplateEngine {
    * content organized by language and scope. Blocks without a `lang` attribute
    * are stored under `"default"` language, and blocks without a `scope` attribute
    * are stored under `"default"` scope.
+   *
+   * **Attributes:**
+   *   - `lang` (optional): Language key for the output map. Defaults to `"default"`.
+   *   - `scope` (optional): Scope key for the nested output map. Defaults to `"default"`.
    *
    * @param template - The template string containing `<description>` blocks
    * @returns A nested object mapping language keys to scopes to their cleaned content
@@ -630,6 +684,12 @@ export class TemplateEngine {
    * content organized by language and type (inline or bottom). Blocks without
    * a `lang` attribute are stored under `"default"`. The `type` attribute
    * defaults to `"inline"` unless explicitly set to `"bottom"`.
+   *
+   * **Attributes:**
+   *   - `lang` (optional): Language key for the output map. Defaults to `"default"`.
+   *   - `type` (optional): Keyboard type. Supported values:
+   *     - `"inline"` (default)
+   *     - `"bottom"`
    *
    * @param template - The template string containing `<keyboard>` blocks
    * @returns A nested object mapping language keys to keyboard mode configurations
@@ -751,7 +811,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static compileMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
+  static compileBlockMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
@@ -793,6 +853,19 @@ export class TemplateEngine {
    * functions that generate rendered message strings. The result is organized by
    * base ID and language. Pre-parsed base blocks can be provided for efficiency.
    *
+   * Processing pipeline (in order, per message):
+   * 1. `_processScriptBlocks` - converts `<script>` blocks into executable expressions
+   * 2. `_processMapBlocks` - converts `<map>` blocks into array map expressions
+   * 3. `_processSwitchBlocks` - converts `<switch>` blocks into switch expressions
+   * 4. `_processScopeExec` - evaluates scope execution blocks (implementation-defined)
+   * 5. `_processScopeVariables` - resolves scope variables (implementation-defined)
+   * 6. `_compileToFunction(processed, false)` - produces the final render function
+   *
+   * Output shape:
+   * - First level key: `baseId` (from `<base id="...">`, or `"default"` if omitted)
+   * - Second level key: `lang` (from `<message lang="...">`, or `"default"` if omitted)
+   * - Value: `(data?: Record<string, any>) => string`
+   *
    * @param template - Raw template string containing `<base>` and `<message>` blocks
    * @param baseBlocks - Optional pre-parsed base blocks for reuse
    * @returns Compiled message functions organized by base ID and language
@@ -812,7 +885,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static compileMessages(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
+  static compileBlockMessage(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
@@ -841,6 +914,20 @@ export class TemplateEngine {
    * into functions that generate rendered description strings. The result is organized
    * by base ID, scope, and language. Used for Telegram bot command descriptions.
    *
+   * Processing pipeline (in order, per description):
+   * 1. `_processScriptBlocks` – converts `<script>` blocks into executable expressions
+   * 2. `_processMapBlocks` – converts `<map>` blocks into array map expressions
+   * 3. `_processSwitchBlocks` – converts `<switch>` blocks into switch expressions
+   * 4. `_processScopeExec` – evaluates scope execution blocks (implementation-defined)
+   * 5. `_processScopeVariables` – resolves scope variables (implementation-defined)
+   * 6. `_compileToFunction(processed, false)` – produces the final render function
+   *
+   * Output shape:
+   * - First level key: `baseId` (from `<base id="...">`, or `"default"` if omitted)
+   * - Second level key: `scope` (from `<description scope="...">`, or `"default"` if omitted)
+   * - Third level key: `lang` (from `<description lang="...">`, or `"default"` if omitted)
+   * - Value: `(data?: Record<string, any>) => string`
+   *
    * @param template - Raw template string containing `<base>` and `<description>` blocks
    * @param baseBlocks - Optional pre-parsed base blocks for reuse
    * @returns Compiled description functions organized by base ID, scope, and language
@@ -860,7 +947,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static compileDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
+  static compileBlockDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
@@ -897,6 +984,27 @@ export class TemplateEngine {
    * base ID and language, with separate `inline` and `bottom` keyboard modes.
    * Comma-separated labels are split into individual button strings.
    *
+   * Processing pipeline (in order, per keyboard label):
+   * 1. `_processScriptBlocks` – converts `<script>` blocks into executable expressions
+   * 2. `_processMapBlocks` – converts `<map>` blocks into array map expressions
+   * 3. `_processSwitchBlocks` – converts `<switch>` blocks into switch expressions
+   * 4. `_processScopeExec` – evaluates scope execution blocks (implementation-defined)
+   * 5. `_processScopeVariables` – resolves scope variables (implementation-defined)
+   * 6. `_compileToFunction(processedLabels, true)` – produces the final render function
+   *
+   * Notes:
+   * - Keyboard content is split by commas into individual labels.
+   * - Escaped commas with double backslash (`\\,`) are preserved as literal commas.
+   * - Each label is processed independently through the pipeline.
+   *
+   * Output shape:
+   * - First level key: `baseId` (from `<base id="...">`, or `"default"` if omitted)
+   * - Second level key: `lang` (from `<keyboard lang="...">`, or `"default"` if omitted)
+   * - Third level key: `mode`:
+   *   - `inline` (default)
+   *   - `bottom`
+   * - Value: `(data?: Record<string, any>) => string[]`
+   *
    * @param template - Raw template string containing `<base>` and `<keyboard>` blocks
    * @param baseBlocks - Optional pre-parsed base blocks for reuse
    * @returns Compiled keyboard functions organized by base ID, language, and mode
@@ -916,7 +1024,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static compileKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
+  static compileBlockKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
@@ -1091,6 +1199,18 @@ export class TemplateEngine {
    * them with placeholders while collecting their metadata (src, blocks, base, lang,
    * section, indent). The placeholders are later resolved by `processImportBlocks`.
    *
+   * **Attributes:**
+   *   - `src` (required): Import source identifier (e.g., template/page key). If missing, the tag is removed (replaced with an empty string).
+   *   - `block` (optional): Block selector. Supported forms:
+   *     - `"all"`: import all supported blocks
+   *     - `"block1"`: import a single block
+   *     - `"block1,block2"` / `"block1, block2"`: import multiple blocks (comma-separated)
+   *   - `base` (optional): Base id selector for the imported template. Defaults to `"default"`.
+   *   - `lang` (optional): Language selector for the imported content (passed through as metadata).
+   *   - `section` (optional): Import section selector. Supported values:
+   *     - `"all"` (default): include block
+   *     - `"value"`: only value
+   *
    * @param template - The template string containing `<import>` directives
    * @returns An object containing the processed template with placeholders and an array of import metadata
    *
@@ -1155,10 +1275,24 @@ export class TemplateEngine {
    * Recursively processes and resolves `<import>` blocks in a template.
    *
    * @remarks
-   * This method resolves all `<import>` directives in a template by calling the
-   * provided resolver function to fetch external template content. It supports
-   * recursive imports with a depth limit of 10 to prevent infinite loops.
-   * An optional cache can be provided to avoid redundant resolutions.
+   * This method resolves all `<import>` placeholders produced by `_processImportBlocks` by invoking a user-provided `resolver` function.
+   *
+   * Resolution behavior:
+   * - Each `<import>` is resolved by calling `resolver(src)` to obtain raw template content.
+   * - The resolved content is filtered using `_extractBlock` based on the import metadata
+   *   (`blocks`, `base`, `section`, `lang`).
+   * - If the resolved content itself contains `<import>` directives, they are processed
+   *   recursively.
+   *
+   * Recursion and safety:
+   * - Recursive import resolution is limited to a maximum depth of **10** to prevent
+   *   infinite import loops.
+   * - If the depth limit is exceeded, an empty string is returned.
+   *
+   * Output behavior:
+   * - `<import>` placeholders (`__IMPORT_N__`) are replaced sequentially.
+   * - If the resolver returns `null` or an empty result, the import is replaced with
+   *   an empty string.
    *
    * @param template - Template string containing `<import>` directives
    * @param resolver - Function that resolves import sources to template content
