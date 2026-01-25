@@ -9,5 +9,5 @@ External cache for session storage.
 **Signature:**
 
 ```typescript
-cacheSession: CacheExternal<ICacheRpc>;
+cacheSession: CacheExternal<ITCacheRpc>;
 ```

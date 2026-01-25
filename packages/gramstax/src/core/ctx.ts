@@ -1,8 +1,8 @@
 import {setTimeout} from "node:timers/promises"
 import {TemplateManager} from "~/template/manager"
 import {InlineKeyboard, Keyboard} from "grammy"
-import {CacheExternal, ICacheRpc} from "~/cache/external"
-import type {IMediaBlock} from "~/template/engine"
+import {CacheExternal, ITCacheRpc} from "~/cache/external"
+import type {ITMediaBlock} from "~/template/engine"
 import type {
   ITCt,
   ITInBoKb,
@@ -836,7 +836,7 @@ export class Ctx {
    *
    * @public
    */
-  cacheSession: CacheExternal<ICacheRpc>
+  cacheSession: CacheExternal<ITCacheRpc>
 
   /**
    * Cache for keyboard instances.
@@ -1059,7 +1059,7 @@ export class Ctx {
    *
    * @public
    */
-  async replyMedia<T extends IMediaBlock[`type`]>(
+  async replyMedia<T extends ITMediaBlock[`type`]>(
     type: T,
     keyboard?: ITInBoKb,
     data?: ITData,
@@ -1411,7 +1411,7 @@ export class Ctx {
    *
    * @public
    */
-  async editMedia<T extends IMediaBlock[`type`]>(
+  async editMedia<T extends ITMediaBlock[`type`]>(
     type: T,
     keyboardInline?: ITInlineKb,
     data?: ITData,
@@ -1781,7 +1781,7 @@ export class Ctx {
    *
    * @public
    */
-  async sessionGet(): Promise<ICacheRpc | null> {
+  async sessionGet(): Promise<ITCacheRpc | null> {
     try {
       const result = await this.cacheSession.get(`${this.userId}`)
       if (result) this.session = result

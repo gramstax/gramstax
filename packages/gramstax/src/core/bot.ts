@@ -5,7 +5,7 @@ import {readFileSync} from "node:fs"
 import {fileURLToPath} from "node:url"
 import {dirname, join, parse} from "node:path"
 import {TemplateManager} from "~/template/manager"
-import {CacheExternal, ICacheRpc} from "~/cache/external"
+import {CacheExternal, ITCacheRpc} from "~/cache/external"
 import {Bot, webhookCallback, type BotError, type Context} from "grammy"
 import type {LoggingPretty} from "logging-pretty"
 import type {UserFromGetMe} from "grammy/types"
@@ -62,7 +62,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * External cache for user session data.
    * @public
    */
-  cacheSession: CacheExternal<ICacheRpc>
+  cacheSession: CacheExternal<ITCacheRpc>
 
   /**
    * Loaded and sorted page routes.

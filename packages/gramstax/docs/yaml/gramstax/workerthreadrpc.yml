@@ -56,9 +56,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'map: IMapRpc;'
+      content: 'map: ITMapRpc;'
       return:
-        type: <xref uid="gramstax!IMapRpc:type" />
+        type: <xref uid="gramstax!ITMapRpc:type" />
   - name: register
     uid: gramstax!WorkerThreadRpc#register:member
     package: gramstax!

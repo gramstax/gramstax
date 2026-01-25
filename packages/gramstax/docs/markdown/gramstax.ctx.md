@@ -154,7 +154,7 @@ Cache for keyboard instances.
 
 </td><td>
 
-[CacheExternal](./gramstax.cacheexternal.md)<!-- -->&lt;[ICacheRpc](./gramstax.icacherpc.md)<!-- -->&gt;
+[CacheExternal](./gramstax.cacheexternal.md)<!-- -->&lt;[ITCacheRpc](./gramstax.itcacherpc.md)<!-- -->&gt;
 
 
 </td><td>

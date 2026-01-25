@@ -1,5 +1,5 @@
 import type {Keyboard, Context, InlineKeyboard} from "grammy"
-import type {CacheExternal, ICacheRpc} from "~/cache/external"
+import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {Ctx} from "~/core/ctx"
 import type {TemplateManager} from "~/template/manager"
 
@@ -443,7 +443,7 @@ export type ITPageData<T extends any[] = any[]> = {
  *
  * @public
  */
-export type ITTemp = {isAnswer: boolean; session: Partial<ICacheRpc>; data: Partial<ITPageData<any>>; [key: string]: any}
+export type ITTemp = {isAnswer: boolean; session: Partial<ITCacheRpc>; data: Partial<ITPageData<any>>; [key: string]: any}
 
 /**
  * Parameters for Ctx instance initialization.

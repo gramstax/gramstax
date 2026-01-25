@@ -2,7 +2,7 @@
  * Map type for storing pending RPC request handlers.
  * @public
  */
-export type IMapRpc = Map<any, {reject: (error: any) => any; resolve: (result: any) => any}>
+export type ITMapRpc = Map<any, {reject: (error: any) => any; resolve: (result: any) => any}>
 
 /**
  * Handles JSON-RPC style communication between threads.
@@ -32,7 +32,7 @@ export class WorkerThreadRpc {
   /**
    * Map of pending requests by ID. Stores promise handlers for pending requests.
    */
-  map = new Map() as IMapRpc
+  map = new Map() as ITMapRpc
 
   /**
    * Creates a new WorkerThreadRpc instance.

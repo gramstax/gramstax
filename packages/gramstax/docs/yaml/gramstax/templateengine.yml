@@ -452,7 +452,7 @@ methods:
     syntax:
       content: |-
         static _processMediaBlocks(template: string): {
-                [lang: string]: IMediaBlock;
+                [lang: string]: ITMediaBlock;
             };
       parameters:
         - id: template
@@ -461,7 +461,7 @@ methods:
       return:
         type: |-
           {
-                  [lang: string]: <xref uid="gramstax!IMediaBlock:type" />;
+                  [lang: string]: <xref uid="gramstax!ITMediaBlock:type" />;
               }
         description: An object mapping language keys to their corresponding media block configurations
   - name: _processMessageBlocks(template)
@@ -800,8 +800,9 @@ methods:
     fullName: compileBlockMedia(template, baseBlocks)
     summary: Compiles media blocks from a template into executable functions.
     remarks: >-
-      This method parses `<media>` blocks from the template and compiles them into functions that generate `IMediaBlock`
-      objects. The result is organized by base ID and language. Pre-parsed base blocks can be provided for efficiency.
+      This method parses `<media>` blocks from the template and compiles them into functions that generate
+      `ITMediaBlock` objects. The result is organized by base ID and language. Pre-parsed base blocks can be provided
+      for efficiency.
     example:
       - |-
         ```typescript
@@ -820,7 +821,7 @@ methods:
       content: |-
         static compileBlockMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
                 [baseId: string]: {
-                    [lang: string]: (data?: Record<string, any>) => IMediaBlock;
+                    [lang: string]: (data?: Record<string, any>) => ITMediaBlock;
                 };
             };
       parameters:
@@ -834,7 +835,7 @@ methods:
         type: |-
           {
                   [baseId: string]: {
-                      [lang: string]: (data?: Record&lt;string, any&gt;) =&gt; <xref uid="gramstax!IMediaBlock:type" />;
+                      [lang: string]: (data?: Record&lt;string, any&gt;) =&gt; <xref uid="gramstax!ITMediaBlock:type" />;
                   };
               }
         description: Compiled media functions organized by base ID and language

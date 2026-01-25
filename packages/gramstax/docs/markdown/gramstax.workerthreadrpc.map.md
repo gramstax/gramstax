@@ -9,5 +9,5 @@ Map of pending requests by ID. Stores promise handlers for pending requests.
 **Signature:**
 
 ```typescript
-map: IMapRpc;
+map: ITMapRpc;
 ```

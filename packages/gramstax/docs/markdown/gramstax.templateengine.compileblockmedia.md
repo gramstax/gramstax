@@ -11,7 +11,7 @@ Compiles media blocks from a template into executable functions.
 ```typescript
 static compileBlockMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
         [baseId: string]: {
-            [lang: string]: (data?: Record<string, any>) => IMediaBlock;
+            [lang: string]: (data?: Record<string, any>) => ITMediaBlock;
         };
     };
 ```
@@ -70,13 +70,13 @@ _(Optional)_ Optional pre-parsed base blocks for reuse
 
 **Returns:**
 
-{ \[baseId: string\]: { \[lang: string\]: (data?: Record&lt;string, any&gt;) =&gt; [IMediaBlock](./gramstax.imediablock.md)<!-- -->; }; }
+{ \[baseId: string\]: { \[lang: string\]: (data?: Record&lt;string, any&gt;) =&gt; [ITMediaBlock](./gramstax.itmediablock.md)<!-- -->; }; }
 
 Compiled media functions organized by base ID and language
 
 ## Remarks
 
-This method parses `<media>` blocks from the template and compiles them into functions that generate `IMediaBlock` objects. The result is organized by base ID and language. Pre-parsed base blocks can be provided for efficiency.
+This method parses `<media>` blocks from the template and compiles them into functions that generate `ITMediaBlock` objects. The result is organized by base ID and language. Pre-parsed base blocks can be provided for efficiency.
 
 ## Example
 

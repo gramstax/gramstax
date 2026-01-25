@@ -87,9 +87,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'cacheSession: CacheExternal<ICacheRpc>;'
+      content: 'cacheSession: CacheExternal<ITCacheRpc>;'
       return:
-        type: <xref uid="gramstax!CacheExternal:class" />&lt;<xref uid="gramstax!ICacheRpc:type" />&gt;
+        type: <xref uid="gramstax!CacheExternal:class" />&lt;<xref uid="gramstax!ITCacheRpc:type" />&gt;
   - name: handlerBotUpdate
     uid: gramstax!Gramstax#handlerBotUpdate:member
     package: gramstax!

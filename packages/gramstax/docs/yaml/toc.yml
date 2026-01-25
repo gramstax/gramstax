@@ -13,18 +13,14 @@ items:
             uid: gramstax!Ctx:class
           - name: Gramstax
             uid: gramstax!Gramstax:class
-          - name: ICacheRpc
-            uid: gramstax!ICacheRpc:type
-          - name: IMapRpc
-            uid: gramstax!IMapRpc:type
-          - name: IMediaBlock
-            uid: gramstax!IMediaBlock:type
           - name: ITBottomKb
             uid: gramstax!ITBottomKb:type
           - name: ITBottomKbParams
             uid: gramstax!ITBottomKbParams:type
           - name: ITBuildDataOptions
             uid: gramstax!ITBuildDataOptions:type
+          - name: ITCacheRpc
+            uid: gramstax!ITCacheRpc:type
           - name: ITCt
             uid: gramstax!ITCt:type
           - name: ITCtxParams
@@ -43,6 +39,10 @@ items:
             uid: gramstax!ITKbCols:type
           - name: ITKbDest
             uid: gramstax!ITKbDest:type
+          - name: ITMapRpc
+            uid: gramstax!ITMapRpc:type
+          - name: ITMediaBlock
+            uid: gramstax!ITMediaBlock:type
           - name: ITOptEdit
             uid: gramstax!ITOptEdit:type
           - name: ITOptEditMedia1

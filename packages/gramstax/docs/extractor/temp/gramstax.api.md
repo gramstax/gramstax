@@ -70,7 +70,7 @@ export class Ctx {
     static buildData(options: ITBuildDataOptions): ITPageData<[]>;
     static buildData(): ITPageData<[]>;
     cacheKeyboard: Map<any, any>;
-    cacheSession: CacheExternal<ICacheRpc>;
+    cacheSession: CacheExternal<ITCacheRpc>;
     // @virtual
     callback?(): Promise<any>;
     get callbackData(): string;
@@ -105,7 +105,7 @@ export class Ctx {
     editContact(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
     editDocument(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
     editLocation(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
-    editMedia<T extends IMediaBlock[`type`]>(type: T, keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1, options2?: ITOptEditMedia2, fallbackReply?: boolean): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+    editMedia<T extends ITMediaBlock[`type`]>(type: T, keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1, options2?: ITOptEditMedia2, fallbackReply?: boolean): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
     editPhoto(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
     editSticker(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
     editVideo(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
@@ -286,7 +286,7 @@ export class Ctx {
     replyContact(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyContact): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     replyDocument(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyDocument): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     replyLocation(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyLocation): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    replyMedia<T extends IMediaBlock[`type`]>(type: T, keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    replyMedia<T extends ITMediaBlock[`type`]>(type: T, keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     replyPhoto(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     replySticker(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplySticker): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     replyVideo(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVideo): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
@@ -313,7 +313,7 @@ export class Ctx {
     sessionDocumentCaptionCommandPayload(params?: any, name?: string): Promise<boolean | null>;
     sessionDocumentCaptionPayload(params?: any, name?: string): Promise<boolean | null>;
     sessionDocumentFree(params?: any, name?: string): Promise<boolean | null>;
-    sessionGet(): Promise<ICacheRpc | null>;
+    sessionGet(): Promise<ITCacheRpc | null>;
     sessionLocationFree(params?: any, name?: string): Promise<boolean | null>;
     sessionPhotoCaption(params?: any, name?: string): Promise<boolean | null>;
     sessionPhotoCaptionCommand(params?: any, name?: string): Promise<boolean | null>;
@@ -394,7 +394,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     constructor(params: ITGramstaxParams);
     bot: Bot;
     cacheKeyboard: Map<any, any>;
-    cacheSession: CacheExternal<ICacheRpc>;
+    cacheSession: CacheExternal<ITCacheRpc>;
     createBot(token: string): Bot<Context, grammy.Api<grammy.RawApi>>;
     createCtx(ct: Context): ICtx;
     // (undocumented)
@@ -798,32 +798,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 }
 
 // @public
-export type ICacheRpc = {
-    method: string;
-    params: any;
-    [moreRoot: string]: any;
-};
-
-// @public
-export type IMapRpc = Map<any, {
-    reject: (error: any) => any;
-    resolve: (result: any) => any;
-}>;
-
-// @public
-export type IMediaBlock = {
-    type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact`;
-    src?: string;
-    caption?: string;
-    latitude?: string;
-    longitude?: string;
-    phone?: string;
-    first_name?: string;
-    last_name?: string;
-    vcard?: string;
-};
-
-// @public
 export type ITBottomKb = Keyboard;
 
 // @public
@@ -839,6 +813,13 @@ export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
     callback?: C;
     intentText?: string;
     intentTextCommand?: string;
+};
+
+// @public
+export type ITCacheRpc = {
+    method: string;
+    params: any;
+    [moreRoot: string]: any;
 };
 
 // @public
@@ -887,6 +868,25 @@ export type ITKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${
 
 // @public
 export type ITKbDest = typeof Ctx | Ctx | string;
+
+// @public
+export type ITMapRpc = Map<any, {
+    reject: (error: any) => any;
+    resolve: (result: any) => any;
+}>;
+
+// @public
+export type ITMediaBlock = {
+    type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact`;
+    src?: string;
+    caption?: string;
+    latitude?: string;
+    longitude?: string;
+    phone?: string;
+    first_name?: string;
+    last_name?: string;
+    vcard?: string;
+};
 
 // @public
 export type ITOptEdit = Parameters<Context[`editMessageText`]>[1];
@@ -946,7 +946,7 @@ export type ITReplyAction = Parameters<Context[`replyWithChatAction`]>[0];
 // @public
 export type ITTemp = {
     isAnswer: boolean;
-    session: Partial<ICacheRpc>;
+    session: Partial<ITCacheRpc>;
     data: Partial<ITPageData<any>>;
     [key: string]: any;
 };
@@ -986,7 +986,7 @@ export class TemplateEngine {
     };
     static compileBlockMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
         [baseId: string]: {
-            [lang: string]: (data?: Record<string, any>) => IMediaBlock;
+            [lang: string]: (data?: Record<string, any>) => ITMediaBlock;
         };
     };
     static compileBlockMessage(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
@@ -1026,7 +1026,7 @@ export class TemplateEngine {
     };
     static _processMapBlocks(template: string): string;
     static _processMediaBlocks(template: string): {
-        [lang: string]: IMediaBlock;
+        [lang: string]: ITMediaBlock;
     };
     static _processMessageBlocks(template: string): {
         [lang: string]: string;
@@ -1194,7 +1194,7 @@ export class WorkerThreadRpc {
     make(data: any): Promise<void>;
     makeId(): number;
     makeRequest(method: string, params: any, _wait?: boolean, _others?: Record<string, any>): Promise<any>;
-    map: IMapRpc;
+    map: ITMapRpc;
     // (undocumented)
     register: Record<any, any>;
     // (undocumented)

@@ -1,15 +1,15 @@
 ### YamlMime:TSTypeAlias
-name: ICacheRpc
-uid: gramstax!ICacheRpc:type
+name: ITCacheRpc
+uid: gramstax!ITCacheRpc:type
 package: gramstax!
-fullName: ICacheRpc
+fullName: ITCacheRpc
 summary: RPC cache request structure.
 remarks: ''
 example: []
 isPreview: false
 isDeprecated: false
 syntax: |-
-  type ICacheRpc = {
+  type ITCacheRpc = {
       method: string;
       params: any;
       [moreRoot: string]: any;

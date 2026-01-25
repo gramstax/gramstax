@@ -11,7 +11,7 @@ isDeprecated: false
 syntax: |-
   type ITTemp = {
       isAnswer: boolean;
-      session: Partial<ICacheRpc>;
+      session: Partial<ITCacheRpc>;
       data: Partial<ITPageData<any>>;
       [key: string]: any;
   };

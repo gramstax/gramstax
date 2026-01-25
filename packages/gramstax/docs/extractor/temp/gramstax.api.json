@@ -1921,8 +1921,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ICacheRpc",
-                  "canonicalReference": "gramstax!ICacheRpc:type"
+                  "text": "ITCacheRpc",
+                  "canonicalReference": "gramstax!ITCacheRpc:type"
                 },
                 {
                   "kind": "Content",
@@ -3760,8 +3760,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "IMediaBlock",
-                  "canonicalReference": "gramstax!IMediaBlock:type"
+                  "text": "ITMediaBlock",
+                  "canonicalReference": "gramstax!ITMediaBlock:type"
                 },
                 {
                   "kind": "Content",
@@ -12472,8 +12472,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "IMediaBlock",
-                  "canonicalReference": "gramstax!IMediaBlock:type"
+                  "text": "ITMediaBlock",
+                  "canonicalReference": "gramstax!ITMediaBlock:type"
                 },
                 {
                   "kind": "Content",
@@ -15044,8 +15044,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ICacheRpc",
-                  "canonicalReference": "gramstax!ICacheRpc:type"
+                  "text": "ITCacheRpc",
+                  "canonicalReference": "gramstax!ITCacheRpc:type"
                 },
                 {
                   "kind": "Content",
@@ -20213,8 +20213,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ICacheRpc",
-                  "canonicalReference": "gramstax!ICacheRpc:type"
+                  "text": "ITCacheRpc",
+                  "canonicalReference": "gramstax!ITCacheRpc:type"
                 },
                 {
                   "kind": "Content",
@@ -20884,89 +20884,6 @@
         },
         {
           "kind": "TypeAlias",
-          "canonicalReference": "gramstax!ICacheRpc:type",
-          "docComment": "/**\n * RPC cache request structure.\n *\n * @public\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "type ICacheRpc = "
-            },
-            {
-              "kind": "Content",
-              "text": "{\n    method: string;\n    params: any;\n    [moreRoot: string]: any;\n}"
-            },
-            {
-              "kind": "Content",
-              "text": ";"
-            }
-          ],
-          "fileUrlPath": "dist/src/index.d.ts",
-          "releaseTag": "Public",
-          "name": "ICacheRpc",
-          "typeTokenRange": {
-            "startIndex": 1,
-            "endIndex": 2
-          }
-        },
-        {
-          "kind": "TypeAlias",
-          "canonicalReference": "gramstax!IMapRpc:type",
-          "docComment": "/**\n * Map type for storing pending RPC request handlers.\n *\n * @public\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "type IMapRpc = "
-            },
-            {
-              "kind": "Reference",
-              "text": "Map",
-              "canonicalReference": "!Map:interface"
-            },
-            {
-              "kind": "Content",
-              "text": "<any, {\n    reject: (error: any) => any;\n    resolve: (result: any) => any;\n}>"
-            },
-            {
-              "kind": "Content",
-              "text": ";"
-            }
-          ],
-          "fileUrlPath": "dist/src/index.d.ts",
-          "releaseTag": "Public",
-          "name": "IMapRpc",
-          "typeTokenRange": {
-            "startIndex": 1,
-            "endIndex": 3
-          }
-        },
-        {
-          "kind": "TypeAlias",
-          "canonicalReference": "gramstax!IMediaBlock:type",
-          "docComment": "/**\n * Represents a media block configuration for Telegram messages.\n *\n * @remarks\n *\n * This type defines the structure for various media types supported by Telegram, including file-based media (photo, video, audio, document, animation, voice, video_note, sticker), location, and contact.\n *\n * @example\n * ```typescript\n * const photoMedia: IMediaBlock = {\n *   type: 'photo',\n *   src: 'path/to/image.jpg',\n *   caption: 'A beautiful sunset'\n * };\n *\n * const locationMedia: IMediaBlock = {\n *   type: 'location',\n *   latitude: '37.7749',\n *   longitude: '-122.4194'\n * };\n *\n * const contactMedia: IMediaBlock = {\n *   type: 'contact',\n *   phone: '+1234567890',\n *   first_name: 'John',\n *   last_name: 'Doe'\n * };\n * ```\n *\n * @public\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "type IMediaBlock = "
-            },
-            {
-              "kind": "Content",
-              "text": "{\n    type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact`;\n    src?: string;\n    caption?: string;\n    latitude?: string;\n    longitude?: string;\n    phone?: string;\n    first_name?: string;\n    last_name?: string;\n    vcard?: string;\n}"
-            },
-            {
-              "kind": "Content",
-              "text": ";"
-            }
-          ],
-          "fileUrlPath": "dist/src/index.d.ts",
-          "releaseTag": "Public",
-          "name": "IMediaBlock",
-          "typeTokenRange": {
-            "startIndex": 1,
-            "endIndex": 2
-          }
-        },
-        {
-          "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITBottomKb:type",
           "docComment": "/**\n * Type alias for grammY Keyboard (reply keyboard).\n *\n * @remarks\n *\n * Used to create reply keyboards that replace the user's device keyboard.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -21080,6 +20997,32 @@
           "typeTokenRange": {
             "startIndex": 5,
             "endIndex": 6
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITCacheRpc:type",
+          "docComment": "/**\n * RPC cache request structure.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITCacheRpc = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    method: string;\n    params: any;\n    [moreRoot: string]: any;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITCacheRpc",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
           }
         },
         {
@@ -21439,6 +21382,63 @@
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 6
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMapRpc:type",
+          "docComment": "/**\n * Map type for storing pending RPC request handlers.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMapRpc = "
+            },
+            {
+              "kind": "Reference",
+              "text": "Map",
+              "canonicalReference": "!Map:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<any, {\n    reject: (error: any) => any;\n    resolve: (result: any) => any;\n}>"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMapRpc",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 3
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMediaBlock:type",
+          "docComment": "/**\n * Represents a media block configuration for Telegram messages.\n *\n * @remarks\n *\n * This type defines the structure for various media types supported by Telegram, including file-based media (photo, video, audio, document, animation, voice, video_note, sticker), location, and contact.\n *\n * @example\n * ```typescript\n * const photoMedia: ITMediaBlock = {\n *   type: 'photo',\n *   src: 'path/to/image.jpg',\n *   caption: 'A beautiful sunset'\n * };\n *\n * const locationMedia: ITMediaBlock = {\n *   type: 'location',\n *   latitude: '37.7749',\n *   longitude: '-122.4194'\n * };\n *\n * const contactMedia: ITMediaBlock = {\n *   type: 'contact',\n *   phone: '+1234567890',\n *   first_name: 'John',\n *   last_name: 'Doe'\n * };\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMediaBlock = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact`;\n    src?: string;\n    caption?: string;\n    latitude?: string;\n    longitude?: string;\n    phone?: string;\n    first_name?: string;\n    last_name?: string;\n    vcard?: string;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMediaBlock",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
           }
         },
         {
@@ -22120,8 +22120,8 @@
             },
             {
               "kind": "Reference",
-              "text": "ICacheRpc",
-              "canonicalReference": "gramstax!ICacheRpc:type"
+              "text": "ITCacheRpc",
+              "canonicalReference": "gramstax!ITCacheRpc:type"
             },
             {
               "kind": "Content",
@@ -23119,8 +23119,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "IMediaBlock",
-                  "canonicalReference": "gramstax!IMediaBlock:type"
+                  "text": "ITMediaBlock",
+                  "canonicalReference": "gramstax!ITMediaBlock:type"
                 },
                 {
                   "kind": "Content",
@@ -23627,7 +23627,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.compileBlockMedia:member(1)",
-              "docComment": "/**\n * Compiles media blocks from a template into executable functions.\n *\n * @remarks\n *\n * This method parses `<media>` blocks from the template and compiles them into functions that generate `IMediaBlock` objects. The result is organized by base ID and language. Pre-parsed base blocks can be provided for efficiency.\n *\n * @param template - Raw template string containing `<base>` and `<media>` blocks\n *\n * @param baseBlocks - Optional pre-parsed base blocks for reuse\n *\n * @returns Compiled media functions organized by base ID and language\n *\n * @example\n * ```typescript\n * const template = `\n *   <base>\n *     <media type=\"photo\" src=\"{{image}}\">{{caption}}</media>\n *   </base>\n * `;\n * const media = TemplateEngine.compileMedia(template);\n * const result = media.default.default({ image: 'photo.jpg', caption: 'Hello' });\n * // Result: { type: 'photo', src: 'photo.jpg', caption: 'Hello' }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Compiles media blocks from a template into executable functions.\n *\n * @remarks\n *\n * This method parses `<media>` blocks from the template and compiles them into functions that generate `ITMediaBlock` objects. The result is organized by base ID and language. Pre-parsed base blocks can be provided for efficiency.\n *\n * @param template - Raw template string containing `<base>` and `<media>` blocks\n *\n * @param baseBlocks - Optional pre-parsed base blocks for reuse\n *\n * @returns Compiled media functions organized by base ID and language\n *\n * @example\n * ```typescript\n * const template = `\n *   <base>\n *     <media type=\"photo\" src=\"{{image}}\">{{caption}}</media>\n *   </base>\n * `;\n * const media = TemplateEngine.compileMedia(template);\n * const result = media.default.default({ image: 'photo.jpg', caption: 'Hello' });\n * // Result: { type: 'photo', src: 'photo.jpg', caption: 'Hello' }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23678,8 +23678,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "IMediaBlock",
-                  "canonicalReference": "gramstax!IMediaBlock:type"
+                  "text": "ITMediaBlock",
+                  "canonicalReference": "gramstax!ITMediaBlock:type"
                 },
                 {
                   "kind": "Content",
@@ -28852,8 +28852,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "IMapRpc",
-                  "canonicalReference": "gramstax!IMapRpc:type"
+                  "text": "ITMapRpc",
+                  "canonicalReference": "gramstax!ITMapRpc:type"
                 },
                 {
                   "kind": "Content",

@@ -8,19 +8,19 @@
  *
  * @example
  * ```typescript
- * const photoMedia: IMediaBlock = {
+ * const photoMedia: ITMediaBlock = {
  *   type: 'photo',
  *   src: 'path/to/image.jpg',
  *   caption: 'A beautiful sunset'
  * };
  *
- * const locationMedia: IMediaBlock = {
+ * const locationMedia: ITMediaBlock = {
  *   type: 'location',
  *   latitude: '37.7749',
  *   longitude: '-122.4194'
  * };
  *
- * const contactMedia: IMediaBlock = {
+ * const contactMedia: ITMediaBlock = {
  *   type: 'contact',
  *   phone: '+1234567890',
  *   first_name: 'John',
@@ -30,7 +30,7 @@
  *
  * @public
  */
-export type IMediaBlock = {
+export type ITMediaBlock = {
   type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact`
   src?: string
   caption?: string
@@ -494,7 +494,7 @@ export class TemplateEngine {
    */
   static _processMediaBlocks(template: string) {
     const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
-    const result: {[lang: string]: IMediaBlock} = {}
+    const result: {[lang: string]: ITMediaBlock} = {}
 
     for (const match of template.matchAll(mediaRegex)) {
       const attributesStr = match[1]
@@ -790,7 +790,7 @@ export class TemplateEngine {
    *
    * @remarks
    * This method parses `<media>` blocks from the template and compiles them into
-   * functions that generate `IMediaBlock` objects. The result is organized by
+   * functions that generate `ITMediaBlock` objects. The result is organized by
    * base ID and language. Pre-parsed base blocks can be provided for efficiency.
    *
    * @param template - Raw template string containing `<base>` and `<media>` blocks
@@ -815,7 +815,7 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processBaseBlocks(template)
     const result: {
       [baseId: string]: {
-        [lang: string]: (data?: Record<string, any>) => IMediaBlock
+        [lang: string]: (data?: Record<string, any>) => ITMediaBlock
       }
     } = {}
 

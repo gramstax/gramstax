@@ -20,12 +20,10 @@ classes:
   - gramstax!WorkerThreadPool:class
   - gramstax!WorkerThreadRpc:class
 typeAliases:
-  - gramstax!ICacheRpc:type
-  - gramstax!IMapRpc:type
-  - gramstax!IMediaBlock:type
   - gramstax!ITBottomKb:type
   - gramstax!ITBottomKbParams:type
   - gramstax!ITBuildDataOptions:type
+  - gramstax!ITCacheRpc:type
   - gramstax!ITCt:type
   - gramstax!ITCtxParams:type
   - gramstax!ITData:type
@@ -35,6 +33,8 @@ typeAliases:
   - gramstax!ITInlineKbParams:type
   - gramstax!ITKbCols:type
   - gramstax!ITKbDest:type
+  - gramstax!ITMapRpc:type
+  - gramstax!ITMediaBlock:type
   - gramstax!ITOptEdit:type
   - gramstax!ITOptEditMedia1:type
   - gramstax!ITOptEditMedia2:type

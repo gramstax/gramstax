@@ -225,39 +225,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[ICacheRpc](./gramstax.icacherpc.md)
-
-
-</td><td>
-
-RPC cache request structure.
-
-
-</td></tr>
-<tr><td>
-
-[IMapRpc](./gramstax.imaprpc.md)
-
-
-</td><td>
-
-Map type for storing pending RPC request handlers.
-
-
-</td></tr>
-<tr><td>
-
-[IMediaBlock](./gramstax.imediablock.md)
-
-
-</td><td>
-
-Represents a media block configuration for Telegram messages.
-
-
-</td></tr>
-<tr><td>
-
 [ITBottomKb](./gramstax.itbottomkb.md)
 
 
@@ -286,6 +253,17 @@ Parameters for bottom keyboard configuration.
 </td><td>
 
 Options for building page routing data configuration.
+
+
+</td></tr>
+<tr><td>
+
+[ITCacheRpc](./gramstax.itcacherpc.md)
+
+
+</td><td>
+
+RPC cache request structure.
 
 
 </td></tr>
@@ -385,6 +363,28 @@ Keyboard column configuration.
 </td><td>
 
 Keyboard column configuration pattern.
+
+
+</td></tr>
+<tr><td>
+
+[ITMapRpc](./gramstax.itmaprpc.md)
+
+
+</td><td>
+
+Map type for storing pending RPC request handlers.
+
+
+</td></tr>
+<tr><td>
+
+[ITMediaBlock](./gramstax.itmediablock.md)
+
+
+</td><td>
+
+Represents a media block configuration for Telegram messages.
 
 
 </td></tr>

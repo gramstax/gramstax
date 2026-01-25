@@ -1,15 +1,15 @@
 ### YamlMime:TSTypeAlias
-name: IMapRpc
-uid: gramstax!IMapRpc:type
+name: ITMapRpc
+uid: gramstax!ITMapRpc:type
 package: gramstax!
-fullName: IMapRpc
+fullName: ITMapRpc
 summary: Map type for storing pending RPC request handlers.
 remarks: ''
 example: []
 isPreview: false
 isDeprecated: false
 syntax: |-
-  type IMapRpc = Map<any, {
+  type ITMapRpc = Map<any, {
       reject: (error: any) => any;
       resolve: (result: any) => any;
   }>;

@@ -100,7 +100,7 @@ Description
 
 </td><td>
 
-[IMapRpc](./gramstax.imaprpc.md)
+[ITMapRpc](./gramstax.itmaprpc.md)
 
 
 </td><td>

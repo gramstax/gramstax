@@ -134,7 +134,7 @@ In-memory cache for keyboard instances by language.
 
 </td><td>
 
-[CacheExternal](./gramstax.cacheexternal.md)<!-- -->&lt;[ICacheRpc](./gramstax.icacherpc.md)<!-- -->&gt;
+[CacheExternal](./gramstax.cacheexternal.md)<!-- -->&lt;[ITCacheRpc](./gramstax.itcacherpc.md)<!-- -->&gt;
 
 
 </td><td>

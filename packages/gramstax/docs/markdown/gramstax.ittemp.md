@@ -11,10 +11,10 @@ Temporary state for flow page
 ```typescript
 type ITTemp = {
     isAnswer: boolean;
-    session: Partial<ICacheRpc>;
+    session: Partial<ITCacheRpc>;
     data: Partial<ITPageData<any>>;
     [key: string]: any;
 };
 ```
-**References:** [ICacheRpc](./gramstax.icacherpc.md)<!-- -->, [ITPageData](./gramstax.itpagedata.md)
+**References:** [ITCacheRpc](./gramstax.itcacherpc.md)<!-- -->, [ITPageData](./gramstax.itpagedata.md)
 

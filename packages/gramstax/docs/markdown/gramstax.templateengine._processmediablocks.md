@@ -10,7 +10,7 @@ Extracts and parses `<media>` blocks from a template string.
 
 ```typescript
 static _processMediaBlocks(template: string): {
-        [lang: string]: IMediaBlock;
+        [lang: string]: ITMediaBlock;
     };
 ```
 
@@ -52,7 +52,7 @@ The template string containing `<media>` blocks
 
 **Returns:**
 
-{ \[lang: string\]: [IMediaBlock](./gramstax.imediablock.md)<!-- -->; }
+{ \[lang: string\]: [ITMediaBlock](./gramstax.itmediablock.md)<!-- -->; }
 
 An object mapping language keys to their corresponding media block configurations
 
