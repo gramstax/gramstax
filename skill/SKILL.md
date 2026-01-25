@@ -1,6 +1,6 @@
 ---
 name: gramstax
-description: Efficiently search and read documentation files organized by prefix.className.memberName.md pattern (e.g., gramstax.ctx.reply.md). Use when needing to look up API documentation, class methods, or member documentation without loading entire documentation sets.
+description: Efficiently search and read documentation package gramstax files organized by prefix.className.memberName.md pattern (e.g., gramstax.ctx.reply.md). Use when needing to look up API documentation.
 ---
 
 ## When to Use This Skill
@@ -34,40 +34,6 @@ Pattern: `prefix.<className>.<memberName>.md`
 - **prefix**: Required prefix. already handled automaticly. (default: `gramstax`)
 - **className**: The class name (e.g., `ctx`, `bot`, `api`)
 - **memberName**: The member/method name (e.g., `reply`, `start`, `users`)
-
-## Commands
-
-### List All Classes
-
-```bash
-bun docs-finder.ts
-```
-
-Shows all available classes and member counts.
-
-### List Class Members
-
-```bash
-bun docs-finder.ts <className>
-```
-
-Example: `bun docs-finder.ts gramstax`
-Lists all members of the specified class.
-
-### Find Member Across Classes
-
-```bash
-bun docs-finder.ts <memberName>
-```
-
-Example: `bun docs-finder.ts reply`
-Shows which classes have this member.
-
-### Read Specific Documentation
-
-```bash
-bun docs-finder.ts <className> <memberName>
-```
 
 ## Example Usage
 
