@@ -18,7 +18,8 @@ description: Best practices for Gramstax examples and templates.
 
 ## Routing and Flow
 
-- If use `this.buildData` the code must be at top number 1
+- Dont write template block in function route.
+- If use `this.buildData` the code must be at top number 1.
 - Prefer inline keyboard navigation and session flows.
 - Avoid slash commands when the flow can be fully inline + session driven.
 - Include a `start.ts` page in each example.
