@@ -9,7 +9,7 @@ Edits an existing message text using the page template.
 **Signature:**
 
 ```typescript
-edit(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEdit, fallbackReply?: boolean): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+edit(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEdit, fallbackReply?: boolean): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         text: string;
     } & Partial<{
         entities: grammy_types.MessageEntity[];
@@ -41,7 +41,7 @@ keyboardInline
 
 </td><td>
 
-IInlineKb
+[ITInlineKb](./gramstax.itinlinekb.md)
 
 
 </td><td>
@@ -57,7 +57,7 @@ data
 
 </td><td>
 
-IData
+[ITData](./gramstax.itdata.md)
 
 
 </td><td>
@@ -89,7 +89,7 @@ options
 
 </td><td>
 
-IOptEdit
+[ITOptEdit](./gramstax.itoptedit.md)
 
 
 </td><td>

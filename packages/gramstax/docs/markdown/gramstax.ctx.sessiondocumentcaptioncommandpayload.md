@@ -4,6 +4,8 @@
 
 ## Ctx.sessionDocumentCaptionCommandPayload() method
 
+Session set helper methods.
+
 **Signature:**
 
 ```typescript
@@ -65,4 +67,8 @@ _(Optional)_
 **Returns:**
 
 Promise&lt;boolean \| null&gt;
+
+## Remarks
+
+These methods are shortcuts for [Ctx.sessionSet()](./gramstax.ctx.sessionset.md) with pre-built method names. Each `session*` method sets the session for the corresponding route handler.
 

@@ -9,7 +9,7 @@ Replaces the current message with a voice message.
 **Signature:**
 
 ```typescript
-editVoice(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+editVoice(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ keyboardInline
 
 </td><td>
 
-IInlineKb
+[ITInlineKb](./gramstax.itinlinekb.md)
 
 
 </td><td>
@@ -53,7 +53,7 @@ data
 
 </td><td>
 
-IData
+[ITData](./gramstax.itdata.md)
 
 
 </td><td>
@@ -85,7 +85,7 @@ options
 
 </td><td>
 
-IOptEditMedia2
+[ITOptEditMedia2](./gramstax.itopteditmedia2.md)
 
 
 </td><td>

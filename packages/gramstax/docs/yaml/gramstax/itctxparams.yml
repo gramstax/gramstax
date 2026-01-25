@@ -1,0 +1,18 @@
+### YamlMime:TSTypeAlias
+name: ITCtxParams
+uid: gramstax!ITCtxParams:type
+package: gramstax!
+fullName: ITCtxParams
+summary: Parameters for Ctx instance initialization.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITCtxParams = {
+      ct: ITCt;
+      cacheSession: CacheExternal;
+      cacheKeyboard: Map<any, any>;
+      templateManager: TemplateManager;
+      temp: ITTemp;
+  };

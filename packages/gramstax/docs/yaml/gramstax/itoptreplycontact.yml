@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: ITOptReplyContact
+uid: gramstax!ITOptReplyContact:type
+package: gramstax!
+fullName: ITOptReplyContact
+summary: Options for sending contact messages.
+remarks: Extracted from grammY's `Context.replyWithContact()` method options parameter.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ITOptReplyContact = Parameters<Context[`replyWithContact`]>[2];

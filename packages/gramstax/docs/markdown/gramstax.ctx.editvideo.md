@@ -9,7 +9,7 @@ Edits an existing message to show a video.
 **Signature:**
 
 ```typescript
-editVideo(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+editVideo(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ keyboardInline
 
 </td><td>
 
-IInlineKb
+[ITInlineKb](./gramstax.itinlinekb.md)
 
 
 </td><td>
@@ -53,7 +53,7 @@ data
 
 </td><td>
 
-IData
+[ITData](./gramstax.itdata.md)
 
 
 </td><td>
@@ -85,7 +85,7 @@ options1
 
 </td><td>
 
-IOptEditMedia1
+[ITOptEditMedia1](./gramstax.itopteditmedia1.md)
 
 
 </td><td>
@@ -101,7 +101,7 @@ options2
 
 </td><td>
 
-IOptEditMedia2
+[ITOptEditMedia2](./gramstax.itopteditmedia2.md)
 
 
 </td><td>

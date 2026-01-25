@@ -206,6 +206,38 @@ properties:
       return:
         type: number
 methods:
+  - name: handleOnMessage(data)
+    uid: gramstax!WorkerThreadLaunch#handleOnMessage:member(1)
+    package: gramstax!
+    fullName: handleOnMessage(data)
+    summary: Handle incoming messages from the worker thread.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'handleOnMessage(data: any): Promise<void>;'
+      parameters:
+        - id: data
+          description: Message data from worker.
+          type: any
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: init()
+    uid: gramstax!WorkerThreadLaunch#init:member(1)
+    package: gramstax!
+    fullName: init()
+    summary: Initialize the worker thread and set up message handlers.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'init(): void;'
+      return:
+        type: void
+        description: ''
   - name: kill()
     uid: gramstax!WorkerThreadLaunch#kill:member(1)
     package: gramstax!
@@ -221,6 +253,20 @@ methods:
     isDeprecated: false
     syntax:
       content: 'kill(): void;'
+      return:
+        type: void
+        description: ''
+  - name: mtdReady()
+    uid: gramstax!WorkerThreadLaunch#mtdReady:member(1)
+    package: gramstax!
+    fullName: mtdReady()
+    summary: Internal method called by worker to signal readiness.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'mtdReady(): void;'
       return:
         type: void
         description: ''

@@ -260,6 +260,38 @@ methods:
       return:
         type: Promise&lt;boolean&gt;
         description: Promise that resolves to `true` when gateway is ready.
+  - name: handleOnMessage(data)
+    uid: gramstax!WorkerThreadInit#handleOnMessage:member(1)
+    package: gramstax!
+    fullName: handleOnMessage(data)
+    summary: Handle incoming messages from the main thread.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'handleOnMessage(data: any): void;'
+      parameters:
+        - id: data
+          description: Message data from main thread.
+          type: any
+      return:
+        type: void
+        description: ''
+  - name: init()
+    uid: gramstax!WorkerThreadInit#init:member(1)
+    package: gramstax!
+    fullName: init()
+    summary: Initialize message handling from parent port and register event message from parent.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'init(): void;'
+      return:
+        type: void
+        description: ''
   - name: request(method, params, _wait, _others)
     uid: gramstax!WorkerThreadInit#request:member(1)
     package: gramstax!

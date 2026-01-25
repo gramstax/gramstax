@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: ITOptReplyAnimation
+uid: gramstax!ITOptReplyAnimation:type
+package: gramstax!
+fullName: ITOptReplyAnimation
+summary: Options for sending animation (GIF) messages.
+remarks: Extracted from grammY's `Context.replyWithAnimation()` method options parameter.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ITOptReplyAnimation = Parameters<Context[`replyWithAnimation`]>[1];

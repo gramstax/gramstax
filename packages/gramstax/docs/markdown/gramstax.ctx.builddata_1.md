@@ -9,12 +9,7 @@ Creates page routing data configuration with options.
 **Signature:**
 
 ```typescript
-static buildData<C extends (...args: any[]) => any>(options: {
-        name?: string;
-        callback?: C;
-        intentText?: string;
-        intentTextCommand?: string;
-    }): IPageData<Parameters<C>>;
+static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions): ITPageData<Parameters<C>>;
 ```
 
 ## Parameters
@@ -42,12 +37,12 @@ options
 
 </td><td>
 
-{ name?: string; callback?: C; intentText?: string; intentTextCommand?: string; }
+[ITBuildDataOptions](./gramstax.itbuilddataoptions.md)
 
 
 </td><td>
 
-Configuration options.
+Configuration options. See [ITBuildDataOptions](./gramstax.itbuilddataoptions.md) for details.
 
 
 </td></tr>
@@ -55,7 +50,7 @@ Configuration options.
 
 **Returns:**
 
-IPageData&lt;Parameters&lt;C&gt;&gt;
+[ITPageData](./gramstax.itpagedata.md)<!-- -->&lt;Parameters&lt;C&gt;&gt;
 
 The page data configuration object.
 

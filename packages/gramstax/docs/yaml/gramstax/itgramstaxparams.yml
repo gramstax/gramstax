@@ -1,0 +1,22 @@
+### YamlMime:TSTypeAlias
+name: ITGramstaxParams
+uid: gramstax!ITGramstaxParams:type
+package: gramstax!
+fullName: ITGramstaxParams
+summary: Configuration options for Gramstax bot instance.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITGramstaxParams = {
+      token: string;
+      deploy: string;
+      log?: LoggingPretty$1 | boolean | null;
+      cacheSession?: CacheExternal;
+      cacheKeyboard?: Map<any, any>;
+      templateManager?: TemplateManager;
+      optionsPage?: {
+          shortCallbackData?: boolean;
+      };
+  };

@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: ITOptReplyVideo
+uid: gramstax!ITOptReplyVideo:type
+package: gramstax!
+fullName: ITOptReplyVideo
+summary: Options for sending video messages.
+remarks: Extracted from grammY's `Context.replyWithVideo()` method options parameter.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ITOptReplyVideo = Parameters<Context[`replyWithVideo`]>[1];

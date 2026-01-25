@@ -9,17 +9,7 @@ Creates a new Gramstax bot instance.
 **Signature:**
 
 ```typescript
-constructor(params: {
-        token: string;
-        deploy: string;
-        log?: LoggingPretty | boolean | null;
-        cacheSession?: CacheExternal;
-        cacheKeyboard?: Map<any, any>;
-        templateManager?: TemplateManager;
-        optionsPage?: {
-            shortCallbackData?: boolean;
-        };
-    });
+constructor(params: ITGramstaxParams);
 ```
 
 ## Parameters
@@ -47,12 +37,12 @@ params
 
 </td><td>
 
-{ token: string; deploy: string; log?: LoggingPretty \| boolean \| null; cacheSession?: [CacheExternal](./gramstax.cacheexternal.md)<!-- -->; cacheKeyboard?: Map&lt;any, any&gt;; templateManager?: [TemplateManager](./gramstax.templatemanager.md)<!-- -->; optionsPage?: { shortCallbackData?: boolean; }; }
+[ITGramstaxParams](./gramstax.itgramstaxparams.md)
 
 
 </td><td>
 
-Configuration options.
+Configuration options. See [ITGramstaxParams](./gramstax.itgramstaxparams.md) for all available options.
 
 
 </td></tr>

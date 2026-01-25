@@ -9,7 +9,7 @@ Sends a voice message using the page template.
 **Signature:**
 
 ```typescript
-replyVoice(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVoice): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+replyVoice(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVoice): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ keyboard
 
 </td><td>
 
-IInBoKb
+[ITInBoKb](./gramstax.itinbokb.md)
 
 
 </td><td>
@@ -53,7 +53,7 @@ data
 
 </td><td>
 
-IData
+[ITData](./gramstax.itdata.md)
 
 
 </td><td>
@@ -85,7 +85,7 @@ options
 
 </td><td>
 
-IOptReplyVoice
+[ITOptReplyVoice](./gramstax.itoptreplyvoice.md)
 
 
 </td><td>

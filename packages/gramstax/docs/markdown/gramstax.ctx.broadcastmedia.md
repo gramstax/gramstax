@@ -9,7 +9,7 @@ Sends a media message to multiple users in bulk.
 **Signature:**
 
 ```typescript
-broadcastMedia(ids: number[], languageCode: string[], keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation | IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact, throwError?: boolean): Promise<void>;
+broadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact, throwError?: boolean): Promise<void>;
 ```
 
 ## Parameters
@@ -69,7 +69,7 @@ keyboard
 
 </td><td>
 
-IInBoKb
+[ITInBoKb](./gramstax.itinbokb.md)
 
 
 </td><td>
@@ -85,7 +85,7 @@ data
 
 </td><td>
 
-IData
+[ITData](./gramstax.itdata.md)
 
 
 </td><td>
@@ -117,7 +117,7 @@ options
 
 </td><td>
 
-IOptReplyPhoto \| IOptReplyVideo \| IOptReplyAudio \| IOptReplyDocument \| IOptReplyAnimation \| IOptReplyVoice \| IOptReplyVideoNote \| IOptReplySticker \| IOptReplyLocation \| IOptReplyContact
+[ITOptReplyPhoto](./gramstax.itoptreplyphoto.md) \| [ITOptReplyVideo](./gramstax.itoptreplyvideo.md) \| [ITOptReplyAudio](./gramstax.itoptreplyaudio.md) \| [ITOptReplyDocument](./gramstax.itoptreplydocument.md) \| [ITOptReplyAnimation](./gramstax.itoptreplyanimation.md) \| [ITOptReplyVoice](./gramstax.itoptreplyvoice.md) \| [ITOptReplyVideoNote](./gramstax.itoptreplyvideonote.md) \| [ITOptReplySticker](./gramstax.itoptreplysticker.md) \| [ITOptReplyLocation](./gramstax.itoptreplylocation.md) \| [ITOptReplyContact](./gramstax.itoptreplycontact.md)
 
 
 </td><td>

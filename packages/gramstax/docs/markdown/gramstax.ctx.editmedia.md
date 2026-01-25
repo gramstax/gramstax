@@ -9,7 +9,7 @@ Edits an existing media message with dynamic type selection.
 **Signature:**
 
 ```typescript
-editMedia<T extends IMediaBlock[`type`]>(type: T, keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: T extends `voice` ? IOptReplyVoice : T extends `video_note` ? IOptReplyVideoNote : T extends `sticker` ? IOptReplySticker : T extends `location` ? IOptReplyLocation : T extends `contact` ? IOptReplyContact : IOptEditMedia1, options2?: IOptEditMedia2, fallbackReply?: boolean): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+editMedia<T extends IMediaBlock[`type`]>(type: T, keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1, options2?: ITOptEditMedia2, fallbackReply?: boolean): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ keyboardInline
 
 </td><td>
 
-IInlineKb
+[ITInlineKb](./gramstax.itinlinekb.md)
 
 
 </td><td>
@@ -69,7 +69,7 @@ data
 
 </td><td>
 
-IData
+[ITData](./gramstax.itdata.md)
 
 
 </td><td>
@@ -101,7 +101,7 @@ options1
 
 </td><td>
 
-T extends \`voice\` ? IOptReplyVoice : T extends \`video\_note\` ? IOptReplyVideoNote : T extends \`sticker\` ? IOptReplySticker : T extends \`location\` ? IOptReplyLocation : T extends \`contact\` ? IOptReplyContact : IOptEditMedia1
+T extends \`voice\` ? [ITOptReplyVoice](./gramstax.itoptreplyvoice.md) : T extends \`video\_note\` ? [ITOptReplyVideoNote](./gramstax.itoptreplyvideonote.md) : T extends \`sticker\` ? [ITOptReplySticker](./gramstax.itoptreplysticker.md) : T extends \`location\` ? [ITOptReplyLocation](./gramstax.itoptreplylocation.md) : T extends \`contact\` ? [ITOptReplyContact](./gramstax.itoptreplycontact.md) : [ITOptEditMedia1](./gramstax.itopteditmedia1.md)
 
 
 </td><td>
@@ -117,7 +117,7 @@ options2
 
 </td><td>
 
-IOptEditMedia2
+[ITOptEditMedia2](./gramstax.itopteditmedia2.md)
 
 
 </td><td>

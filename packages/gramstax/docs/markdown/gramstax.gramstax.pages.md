@@ -9,5 +9,5 @@ Loaded and sorted page routes.
 **Signature:**
 
 ```typescript
-pages: ReturnType<typeof this.pageLoads>;
+pages: ReturnType<typeof this._pageLoads>;
 ```

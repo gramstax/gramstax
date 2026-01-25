@@ -9,9 +9,9 @@ Gets and setter the current session data.
 **Signature:**
 
 ```typescript
-get session(): ITemp[`session`];
+get session(): ITTemp[`session`];
 
-set session(v: ITemp[`session`]);
+set session(v: ITTemp[`session`]);
 ```
 
 ## Example

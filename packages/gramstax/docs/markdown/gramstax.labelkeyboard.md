@@ -50,3 +50,55 @@ kbl.threeFour.id // => "Empat, Tiga"
 kbl.threeFour.en // => "Three, Four"
 ```
 
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[\_reverse(input)](./gramstax.labelkeyboard._reverse.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Reverse the order of comma-separated button labels.
+
+
+</td></tr>
+<tr><td>
+
+[\_reverseObj(input)](./gramstax.labelkeyboard._reverseobj.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Reverse button order for all languages in an object.
+
+
+</td></tr>
+</tbody></table>
+

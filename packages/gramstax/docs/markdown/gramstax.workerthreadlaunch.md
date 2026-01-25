@@ -303,6 +303,34 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[handleOnMessage(data)](./gramstax.workerthreadlaunch.handleonmessage.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handle incoming messages from the worker thread.
+
+
+</td></tr>
+<tr><td>
+
+[init()](./gramstax.workerthreadlaunch.init.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Initialize the worker thread and set up message handlers.
+
+
+</td></tr>
+<tr><td>
+
 [kill()](./gramstax.workerthreadlaunch.kill.md)
 
 
@@ -312,6 +340,20 @@ Description
 </td><td>
 
 Terminate the worker thread immediately.
+
+
+</td></tr>
+<tr><td>
+
+[mtdReady()](./gramstax.workerthreadlaunch.mtdready.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Internal method called by worker to signal readiness.
 
 
 </td></tr>

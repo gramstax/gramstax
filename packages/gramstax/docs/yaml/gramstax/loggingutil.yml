@@ -40,6 +40,30 @@ constructors:
           description: LoggingPretty constructor options. Passed through to parent `LoggingPretty`<!-- -->.
           type: ConstructorParameters&lt;typeof <xref uid="logging-pretty!LoggingPretty:class" />&gt;[0]
 methods:
+  - name: _formatErrorObj(pureError)
+    uid: gramstax!LoggingUtil#_formatErrorObj:member(1)
+    package: gramstax!
+    fullName: _formatErrorObj(pureError)
+    summary: Format an error object to a JSON string.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const logger = new LoggingUtil();
+        const formatted = logger._formatErrorObj(new Error("Test"));
+        // => '{\n  "message": "Test",\n  "stack": "...",\n  "name": "Error"\n}'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_formatErrorObj(pureError: any): string;'
+      parameters:
+        - id: pureError
+          description: The error to format. If an `Error` object, extracts message, stack, and name.
+          type: any
+      return:
+        type: string
+        description: JSON string representation of the error.
   - name: errorMake(pureError, constructorName, funcName)
     uid: gramstax!LoggingUtil#errorMake:member(1)
     package: gramstax!

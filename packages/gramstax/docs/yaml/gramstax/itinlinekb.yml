@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: ITInlineKb
+uid: gramstax!ITInlineKb:type
+package: gramstax!
+fullName: ITInlineKb
+summary: Type alias for grammY InlineKeyboard.
+remarks: Used to create inline keyboards that appear below messages with callback buttons.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ITInlineKb = InlineKeyboard;

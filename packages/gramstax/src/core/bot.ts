@@ -9,6 +9,7 @@ import {CacheExternal, ICacheRpc} from "~/cache/external"
 import {Bot, webhookCallback, type BotError, type Context} from "grammy"
 import type {LoggingPretty} from "logging-pretty"
 import type {UserFromGetMe} from "grammy/types"
+import type {ITGramstaxParams} from "~/types/t.bot"
 
 const __dirname = dirname(
   (() => {
@@ -105,15 +106,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   /**
    * Creates a new Gramstax bot instance.
    *
-   * @param params - Configuration options.
-   * @param params.token - Telegram Bot API token.
-   * @param params.deploy - Deployment mode: "polling", "webhook:\<url\>", or "serverless:\<adapter\>".
-   * @param params.log - Logger instance, true for default logger, or null/false to disable.
-   * @param params.cacheSession - Custom session cache implementation.
-   * @param params.cacheKeyboard - Custom keyboard cache.
-   * @param params.templateManager - Custom template manager.
-   * @param params.optionsPage - Page routing options.
-   * @param params.optionsPage.shortCallbackData - Use numeric callback data for smaller payloads.
+   * @param params - Configuration options. See {@link ITGramstaxParams} for all available options.
    *
    * @example
    * ```typescript
@@ -129,17 +122,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  constructor(params: {
-    token: string
-    deploy: string
-    log?: LoggingPretty | boolean | null
-    cacheSession?: CacheExternal
-    cacheKeyboard?: Map<any, any>
-    templateManager?: TemplateManager
-    optionsPage?: {
-      shortCallbackData?: boolean
-    }
-  }) {
+  constructor(params: ITGramstaxParams) {
     if (!params?.token || params?.token?.length == 0) {
       throw new Error(`Token is not valid or empty`)
     }
@@ -1031,43 +1014,43 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   async _onMessageText(ct: Context): Promise<void> {
     await this._onMessage(ct, `text`)
   }
-  /** {@inheritDoc Gramstax#_onMessageText} */
+  /** {@inheritDoc Gramstax._onMessageText} */
   async _onMessagePhoto(ct: Context): Promise<void> {
     await this._onMessage(ct, `photo`)
   }
-  /** {@inheritDoc Gramstax#_onMessageText} */
+  /** {@inheritDoc Gramstax._onMessageText} */
   async _onMessageVideo(ct: Context): Promise<void> {
     await this._onMessage(ct, `video`)
   }
-  /** {@inheritDoc Gramstax#_onMessageText} */
+  /** {@inheritDoc Gramstax._onMessageText} */
   async _onMessageAudio(ct: Context): Promise<void> {
     await this._onMessage(ct, `audio`)
   }
-  /** {@inheritDoc Gramstax#_onMessageText} */
+  /** {@inheritDoc Gramstax._onMessageText} */
   async _onMessageDocument(ct: Context): Promise<void> {
     await this._onMessage(ct, `document`)
   }
-  /** {@inheritDoc Gramstax#_onMessageText} */
+  /** {@inheritDoc Gramstax._onMessageText} */
   async _onMessageAnimation(ct: Context): Promise<void> {
     await this._onMessage(ct, `animation`)
   }
-  /** {@inheritDoc Gramstax#_onMessageText} */
+  /** {@inheritDoc Gramstax._onMessageText} */
   async _onMessageVoice(ct: Context): Promise<void> {
     await this._onMessage(ct, `voice`)
   }
-  /** {@inheritDoc Gramstax#_onMessageText} */
+  /** {@inheritDoc Gramstax._onMessageText} */
   async _onMessageVideoNote(ct: Context): Promise<void> {
     await this._onMessage(ct, `videoNote`)
   }
-  /** {@inheritDoc Gramstax#_onMessageText} */
+  /** {@inheritDoc Gramstax._onMessageText} */
   async _onMessageSticker(ct: Context): Promise<void> {
     await this._onMessage(ct, `sticker`)
   }
-  /** {@inheritDoc Gramstax#_onMessageText} */
+  /** {@inheritDoc Gramstax._onMessageText} */
   async _onMessageLocation(ct: Context): Promise<void> {
     await this._onMessage(ct, `location`)
   }
-  /** {@inheritDoc Gramstax#_onMessageText} */
+  /** {@inheritDoc Gramstax._onMessageText} */
   async _onMessageContact(ct: Context): Promise<void> {
     await this._onMessage(ct, `contact`)
   }
@@ -1084,47 +1067,47 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   _registerOnCallbackQueryData() {
     this.bot.on(`callback_query:data`, this._onCallbackQueryData.bind(this)) // Handle callback queries from inline keyboards
   }
-  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
   _registerOnMessageText() {
     this.bot.on(`message:text`, this._onMessageText.bind(this)) // Handle global text messages
   }
-  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
   _registerOnMessagePhoto() {
     this.bot.on(`message:photo`, this._onMessagePhoto.bind(this)) // Handle global photo messages
   }
-  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
   _registerOnMessageVideo() {
     this.bot.on(`message:video`, this._onMessageVideo.bind(this)) // Handle global video messages
   }
-  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
   _registerOnMessageAudio() {
     this.bot.on(`message:audio`, this._onMessageAudio.bind(this)) // Handle global audio messages
   }
-  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
   _registerOnMessageDocument() {
     this.bot.on(`message:document`, this._onMessageDocument.bind(this)) // Handle global document messages
   }
-  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
   _registerOnMessageAnimation() {
     this.bot.on(`message:animation`, this._onMessageAnimation.bind(this)) // Handle global animation messages
   }
-  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
   _registerOnMessageVoice() {
     this.bot.on(`message:voice`, this._onMessageVoice.bind(this)) // Handle global voice messages
   }
-  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
   _registerOnMessageVideoNote() {
     this.bot.on(`message:video_note`, this._onMessageVideoNote.bind(this)) // Handle global video note messages
   }
-  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
   _registerOnMessageSticker() {
     this.bot.on(`message:sticker`, this._onMessageSticker.bind(this)) // Handle global sticker messages
   }
-  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
   _registerOnMessageLocation() {
     this.bot.on(`message:location`, this._onMessageLocation.bind(this)) // Handle global location messages
   }
-  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
   _registerOnMessageContact() {
     this.bot.on(`message:contact`, this._onMessageContact.bind(this)) // Handle global contact messages
   }

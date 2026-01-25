@@ -58,6 +58,19 @@ constructors:
           description: Configuration options for the template manager
           type: <xref uid="gramstax!~ITemplateOptions:type" />
 properties:
+  - name: _engine
+    uid: gramstax!TemplateManager#_engine:member
+    package: gramstax!
+    fullName: _engine
+    summary: Reference to the TemplateEngine class for compilation
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_engine: typeof TemplateEngine;'
+      return:
+        type: typeof <xref uid="gramstax!TemplateEngine:class" />
   - name: _isWatchEnabled
     uid: gramstax!TemplateManager#_isWatchEnabled:member
     package: gramstax!
@@ -71,6 +84,32 @@ properties:
       content: 'readonly _isWatchEnabled: ITemplateOptions[`enableWatch`];'
       return:
         type: <xref uid="gramstax!~ITemplateOptions:type" />[`enableWatch`]
+  - name: _map
+    uid: gramstax!TemplateManager#_map:member
+    package: gramstax!
+    fullName: _map
+    summary: Map of compiled templates keyed by filename (without extension)
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_map: Map<string, ICompiledTemplate>;'
+      return:
+        type: Map&lt;string, <xref uid="gramstax!~ICompiledTemplate:type" />&gt;
+  - name: _pageManager
+    uid: gramstax!TemplateManager#_pageManager:member
+    package: gramstax!
+    fullName: _pageManager
+    summary: Reference to PageManager for loading page modules
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_pageManager: typeof PageManager;'
+      return:
+        type: typeof <xref uid="gramstax!~PageManager:class" />
   - name: _path
     uid: gramstax!TemplateManager#_path:member
     package: gramstax!
@@ -84,7 +123,192 @@ properties:
       content: 'readonly _path: ITemplateOptions[`path`];'
       return:
         type: <xref uid="gramstax!~ITemplateOptions:type" />[`path`]
+  - name: _supportedExtensions
+    uid: gramstax!TemplateManager#_supportedExtensions:member
+    package: gramstax!
+    fullName: _supportedExtensions
+    summary: Set of supported template file extensions
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_supportedExtensions: Set<string>;'
+      return:
+        type: Set&lt;string&gt;
+  - name: _watcher
+    uid: gramstax!TemplateManager#_watcher:member
+    package: gramstax!
+    fullName: _watcher
+    summary: Active file system watchers for hot-reload
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_watcher: FSWatcher[];'
+      return:
+        type: <xref uid="chokidar!FSWatcher:class" />[]
 methods:
+  - name: _compile(key, template, keepIfExist, importCache, rawCache)
+    uid: gramstax!TemplateManager#_compile:member(1)
+    package: gramstax!
+    fullName: _compile(key, template, keepIfExist, importCache, rawCache)
+    summary: Compiles a raw template string and stores the result in the cache.
+    remarks: >-
+      This method processes import blocks, compiles media, messages, keyboards, and descriptions from the template. It
+      uses `TemplateEngine` for compilation. The `keepIfExist` parameter allows partial recompilation when only specific
+      template parts have changed.
+    example:
+      - |-
+        ```typescript
+        this._compile("welcome", rawHtmlContent)
+
+        const importCache = new Map<string, string>()
+        const rawCache = new Map([["partial", partialHtml]])
+        this._compile("main", mainHtml, undefined, importCache, rawCache)
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        _compile(key: string, template: string, keepIfExist?: Partial<{
+                [K in keyof ICompiledTemplate]: boolean;
+            }>, importCache?: Map<string, string>, rawCache?: Map<string, string>): void;
+      parameters:
+        - id: key
+          description: Template cache key (filename without extension)
+          type: string
+        - id: template
+          description: Raw template HTML string
+          type: string
+        - id: keepIfExist
+          description: Optional flags to preserve existing compiled parts
+          type: |-
+            Partial&lt;{
+                    [K in keyof <xref uid="gramstax!~ICompiledTemplate:type" />]: boolean;
+                }&gt;
+        - id: importCache
+          description: Optional shared cache for import resolution
+          type: Map&lt;string, string&gt;
+        - id: rawCache
+          description: Optional pre-loaded raw template cache for batch loading
+          type: Map&lt;string, string&gt;
+      return:
+        type: void
+        description: ''
+  - name: _getExtension(filename)
+    uid: gramstax!TemplateManager#_getExtension:member(1)
+    package: gramstax!
+    fullName: _getExtension(filename)
+    summary: Extracts the file extension from a filename.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        this._getExtension("welcome.HTML")
+        // => ".html"
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_getExtension(filename: string): string;'
+      parameters:
+        - id: filename
+          description: Filename to extract extension from
+          type: string
+      return:
+        type: string
+        description: Lowercase file extension including the dot (e.g., `.html`<!-- -->)
+  - name: _getKey(filename)
+    uid: gramstax!TemplateManager#_getKey:member(1)
+    package: gramstax!
+    fullName: _getKey(filename)
+    summary: Derives the cache key from a filename by removing the extension.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        this._getKey("start-page.html") // => "start-page"
+        this._getKey("welcome.ts") // => "welcome"
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_getKey(filename: string): string;'
+      parameters:
+        - id: filename
+          description: Filename with extension
+          type: string
+      return:
+        type: string
+        description: Filename without extension (used as template key)
+  - name: _handleFileAdd(filepath)
+    uid: gramstax!TemplateManager#_handleFileAdd:member(1)
+    package: gramstax!
+    fullName: _handleFileAdd(filepath)
+    summary: Handles file add events from the watcher.
+    remarks: Compiles and caches a new template when a file is added. Only processes files with supported extensions.
+    example:
+      - |-
+        ```typescript
+        this._handleFileAdd("/src/pages/new-page.html")
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_handleFileAdd(filepath: string): void;'
+      parameters:
+        - id: filepath
+          description: Full path to the added file
+          type: string
+      return:
+        type: void
+        description: ''
+  - name: _handleFileChange(filepath)
+    uid: gramstax!TemplateManager#_handleFileChange:member(1)
+    package: gramstax!
+    fullName: _handleFileChange(filepath)
+    summary: Handles file change events from the watcher.
+    remarks: Recompiles the template when a watched file is modified. Only processes files with supported extensions.
+    example:
+      - |-
+        ```typescript
+        this._handleFileChange("/src/pages/welcome.html")
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_handleFileChange(filepath: string): void;'
+      parameters:
+        - id: filepath
+          description: Full path to the changed file
+          type: string
+      return:
+        type: void
+        description: ''
+  - name: _handleFileDelete(filepath)
+    uid: gramstax!TemplateManager#_handleFileDelete:member(1)
+    package: gramstax!
+    fullName: _handleFileDelete(filepath)
+    summary: Handles file delete events from the watcher.
+    remarks: Removes the compiled template from cache when its source file is deleted.
+    example:
+      - |-
+        ```typescript
+        this._handleFileDelete("/src/pages/old-page.html")
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_handleFileDelete(filepath: string): void;'
+      parameters:
+        - id: filepath
+          description: Full path to the deleted file
+          type: string
+      return:
+        type: void
+        description: ''
   - name: _handleWatchError(error)
     uid: gramstax!TemplateManager#_handleWatchError:member(1)
     package: gramstax!
@@ -109,6 +333,148 @@ methods:
       return:
         type: void
         description: ''
+  - name: _initializeWatcher(options)
+    uid: gramstax!TemplateManager#_initializeWatcher:member(1)
+    package: gramstax!
+    fullName: _initializeWatcher(options)
+    summary: Initializes file system watchers for hot reloading.
+    remarks: >-
+      This method sets up file system watchers on each path in `_path` when `enableWatch` is true. It listens for
+      `change`<!-- -->, `add`<!-- -->, `unlink`<!-- -->, and `error` events. The watchers are configured with
+      `awaitWriteFinish` to avoid partial file reads.
+    example:
+      - |-
+        ```typescript
+        this._initializeWatcher({
+          ignored: /node_modules/,
+          persistent: true
+        })
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_initializeWatcher(options?: any): void;'
+      parameters:
+        - id: options
+          description: Optional Chokidar watch options to customize watcher behavior
+          type: any
+      return:
+        type: void
+        description: ''
+  - name: _isValidFile(filename)
+    uid: gramstax!TemplateManager#_isValidFile:member(1)
+    package: gramstax!
+    fullName: _isValidFile(filename)
+    summary: Checks if a file has a supported template extension.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        this._isValidFile("welcome.html")
+        // => true
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_isValidFile(filename: string): boolean;'
+      parameters:
+        - id: filename
+          description: Filename to check
+          type: string
+      return:
+        type: boolean
+        description: '`true` if file extension is `.html`<!-- -->, `.ts`<!-- -->, or `.js`'
+  - name: _loadAllFiles()
+    uid: gramstax!TemplateManager#_loadAllFiles:member(1)
+    package: gramstax!
+    fullName: _loadAllFiles()
+    summary: Loads all template files during initialization with batch optimization.
+    remarks: >-
+      This method scans all paths for valid template files (`.html`<!-- -->, `.ts`<!-- -->, `.js`<!-- -->), collects
+      their raw contents, and compiles them in a batch. It uses shared caches for imports to optimize performance. After
+      compilation, raw templates are cleared and `Page.template` properties are set to `undefined` for memory cleanup.
+    example:
+      - |-
+        ```typescript
+        this._loadAllFiles()
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_loadAllFiles(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _loadFile(filename)
+    uid: gramstax!TemplateManager#_loadFile:member(1)
+    package: gramstax!
+    fullName: _loadFile(filename)
+    summary: Loads and compiles a single template file.
+    remarks: >-
+      This method is primarily used by the file watcher for hot-reloading. It searches all paths and compiles the first
+      matching file found.
+    example:
+      - |-
+        ```typescript
+        this._loadFile("welcome.html")
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_loadFile(filename: string): void;'
+      parameters:
+        - id: filename
+          description: Filename with extension to load
+          type: string
+      return:
+        type: void
+        description: ''
+  - name: _readTemplateFile(filename)
+    uid: gramstax!TemplateManager#_readTemplateFile:member(1)
+    package: gramstax!
+    fullName: _readTemplateFile(filename)
+    summary: Reads a template file's content from disk.
+    remarks: >-
+      If no extension is provided, tries `.ts`<!-- -->, `.js`<!-- -->, then `.html` in order. Searches all configured
+      paths until a match is found.
+    example:
+      - |-
+        ```typescript
+        this._readTemplateFile("welcome")
+        // => "<base>...</base>"
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_readTemplateFile(filename: string): string | null;'
+      parameters:
+        - id: filename
+          description: Filename to read (with or without extension)
+          type: string
+      return:
+        type: string | null
+        description: Template content string, or `null` if not found
+  - name: _validatePath()
+    uid: gramstax!TemplateManager#_validatePath:member(1)
+    package: gramstax!
+    fullName: _validatePath()
+    summary: Validates and ensures all template directories exist.
+    remarks: >-
+      This method checks that `_path` is a valid array of strings and that each path exists and is a directory. Called
+      during construction.
+    example:
+      - |-
+        ```typescript
+        this._validatePath()
+        // => true
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_validatePath(): boolean;'
+      return:
+        type: boolean
+        description: '`true` if all paths are valid directories'
   - name: destroy()
     uid: gramstax!TemplateManager#destroy:member(1)
     package: gramstax!

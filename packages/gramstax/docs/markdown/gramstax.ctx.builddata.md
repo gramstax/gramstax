@@ -9,7 +9,7 @@ Creates page routing data configuration.
 **Signature:**
 
 ```typescript
-static buildData<C extends (...args: any[]) => any>(callback: C): IPageData<Parameters<C>>;
+static buildData<C extends (...args: any[]) => any>(callback: C): ITPageData<Parameters<C>>;
 ```
 
 ## Parameters
@@ -50,7 +50,7 @@ A function that returns payload values as an array.
 
 **Returns:**
 
-IPageData&lt;Parameters&lt;C&gt;&gt;
+[ITPageData](./gramstax.itpagedata.md)<!-- -->&lt;Parameters&lt;C&gt;&gt;
 
 The page data configuration object.
 

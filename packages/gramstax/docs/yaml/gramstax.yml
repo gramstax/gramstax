@@ -23,6 +23,35 @@ typeAliases:
   - gramstax!ICacheRpc:type
   - gramstax!IMapRpc:type
   - gramstax!IMediaBlock:type
+  - gramstax!ITBottomKb:type
+  - gramstax!ITBottomKbParams:type
+  - gramstax!ITBuildDataOptions:type
+  - gramstax!ITCt:type
+  - gramstax!ITCtxParams:type
+  - gramstax!ITData:type
+  - gramstax!ITGramstaxParams:type
+  - gramstax!ITInBoKb:type
+  - gramstax!ITInlineKb:type
+  - gramstax!ITInlineKbParams:type
+  - gramstax!ITKbCols:type
+  - gramstax!ITKbDest:type
+  - gramstax!ITOptEdit:type
+  - gramstax!ITOptEditMedia1:type
+  - gramstax!ITOptEditMedia2:type
+  - gramstax!ITOptReply:type
+  - gramstax!ITOptReplyAnimation:type
+  - gramstax!ITOptReplyAudio:type
+  - gramstax!ITOptReplyContact:type
+  - gramstax!ITOptReplyDocument:type
+  - gramstax!ITOptReplyLocation:type
+  - gramstax!ITOptReplyPhoto:type
+  - gramstax!ITOptReplySticker:type
+  - gramstax!ITOptReplyVideo:type
+  - gramstax!ITOptReplyVideoNote:type
+  - gramstax!ITOptReplyVoice:type
+  - gramstax!ITPageData:type
+  - gramstax!ITReplyAction:type
+  - gramstax!ITTemp:type
   - gramstax!WorkerThreadAsyncMethods:type
   - gramstax!WorkerThreadExportOpt:type
   - gramstax!WorkerThreadGatewayProxy:type

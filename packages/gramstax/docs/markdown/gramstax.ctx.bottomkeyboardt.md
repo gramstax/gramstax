@@ -9,7 +9,7 @@ Creates a bottom keyboard with template-based text buttons.
 **Signature:**
 
 ```typescript
-bottomKeyboardT(layout?: IKbCols, baseId?: string | null, data?: Record<any, any>): Keyboard;
+bottomKeyboardT(layout?: ITKbCols, baseId?: string | null, data?: Record<any, any>): Keyboard;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ layout
 
 </td><td>
 
-IKbCols
+[ITKbCols](./gramstax.itkbcols.md)
 
 
 </td><td>

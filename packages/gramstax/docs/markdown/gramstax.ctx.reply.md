@@ -9,7 +9,7 @@ Sends a text message reply using the page template.
 **Signature:**
 
 ```typescript
-reply(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReply): Promise<grammy_types.Message.TextMessage>;
+reply(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply): Promise<grammy_types.Message.TextMessage>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ keyboard
 
 </td><td>
 
-IInBoKb
+[ITInBoKb](./gramstax.itinbokb.md)
 
 
 </td><td>
@@ -53,7 +53,7 @@ data
 
 </td><td>
 
-IData
+[ITData](./gramstax.itdata.md)
 
 
 </td><td>
@@ -85,7 +85,7 @@ options
 
 </td><td>
 
-IOptReply
+[ITOptReply](./gramstax.itoptreply.md)
 
 
 </td><td>

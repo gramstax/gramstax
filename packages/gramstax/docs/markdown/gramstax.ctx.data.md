@@ -4,12 +4,12 @@
 
 ## Ctx.data property
 
-Page routing data created by .
+Page routing data created by `Ctx.buildData`<!-- -->.
 
 **Signature:**
 
 ```typescript
-static data: IPageData<any>;
+static data: ITPageData<any>;
 ```
 
 ## Remarks

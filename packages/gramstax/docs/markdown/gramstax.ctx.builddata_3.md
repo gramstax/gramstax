@@ -9,9 +9,9 @@ Creates default page routing data configuration.
 **Signature:**
 
 ```typescript
-static buildData(): IPageData<[]>;
+static buildData(): ITPageData<[]>;
 ```
 **Returns:**
 
-IPageData&lt;\[\]&gt;
+[ITPageData](./gramstax.itpagedata.md)<!-- -->&lt;\[\]&gt;
 

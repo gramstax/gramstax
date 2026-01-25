@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: ITOptReply
+uid: gramstax!ITOptReply:type
+package: gramstax!
+fullName: ITOptReply
+summary: Options for sending text messages.
+remarks: Extracted from grammY's `Context.reply()` method options parameter.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ITOptReply = Parameters<Context[`reply`]>[1];

@@ -35,6 +35,575 @@ isPreview: false
 isDeprecated: false
 type: class
 methods:
+  - name: _compileToFunction(template, isArray)
+    uid: gramstax!TemplateEngine._compileToFunction:member(1)
+    package: gramstax!
+    fullName: _compileToFunction(template, isArray)
+    summary: Compiles a processed template string into an executable function.
+    remarks: >-
+      This internal method takes a pre-processed template (or array of templates) and compiles it into a JavaScript
+      function that accepts a `data` object and returns the rendered result. The function is created using `new
+      Function()`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const processed = '${(data && data["name"]) ?? ""}';
+        const fn = TemplateEngine._compileToFunction(processed, false);
+        const result = fn({ name: 'John' });
+        // Result: 'John'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): T
+        extends true ? (data?: Record<string, any>) => string[] : (data?: Record<string, any>) => string;
+      parameters:
+        - id: template
+          description: The processed template string or array of strings
+          type: 'T extends true ? string[] : string'
+        - id: isArray
+          description: Whether the template parameter is an array
+          type: T
+      return:
+        type: >-
+          T extends true ? (data?: Record&lt;string, any&gt;) =&gt; string[] : (data?: Record&lt;string, any&gt;) =&gt;
+          string
+        description: A function that accepts optional data and returns the rendered string or string array
+  - name: _escape(str)
+    uid: gramstax!TemplateEngine._escape:member(1)
+    package: gramstax!
+    fullName: _escape(str)
+    summary: Escapes special characters in a string for safe use in template literals.
+    remarks: >-
+      This internal method escapes backslashes and backticks to prevent them from interfering with template literal
+      syntax during compilation.
+    example:
+      - |-
+        ```typescript
+        const escaped = TemplateEngine._escape('Hello `world`');
+        // Result: 'Hello \\`world\\`'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _escape(str: string): string;'
+      parameters:
+        - id: str
+          description: The input string to escape
+          type: string
+      return:
+        type: string
+        description: The escaped string with backslashes and backticks properly escaped
+  - name: _extractBlock(content, blocks, baseId, section, lang)
+    uid: gramstax!TemplateEngine._extractBlock:member(1)
+    package: gramstax!
+    fullName: _extractBlock(content, blocks, baseId, section, lang)
+    summary: Extracts specific blocks from template content with optional filtering.
+    remarks: >-
+      This internal method extracts content from templates based on base ID, block type, language, and section mode. It
+      supports scoped extraction with indentation normalization for clean output.
+    example:
+      - |-
+        ```typescript
+        const template = `
+          <base id="main">
+            <message>Hello</message>
+            <keyboard>Yes, No</keyboard>
+          </base>
+        `;
+        const result = TemplateEngine._extractBlock(template, 'message', 'main', 'value');
+        // Result: 'Hello'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static _extractBlock(content: string, blocks?: string | string[], baseId?: string, section?: `all` | `value`,
+        lang?: string): string;
+      parameters:
+        - id: content
+          description: The template content to extract from
+          type: string
+        - id: blocks
+          description: Block type(s) to extract, or `"all"` for all blocks
+          type: string | string[]
+        - id: baseId
+          description: The base ID to extract from (defaults to `"default"`<!-- -->)
+          type: string
+        - id: section
+          description: Whether to return the full block (`"all"`<!-- -->) or just inner content (`"value"`<!-- -->)
+          type: '`all` | `value`'
+        - id: lang
+          description: Optional language filter for blocks
+          type: string
+      return:
+        type: string
+        description: The extracted content as a string
+  - name: _processBaseBlocks(template)
+    uid: gramstax!TemplateEngine._processBaseBlocks:member(1)
+    package: gramstax!
+    fullName: _processBaseBlocks(template)
+    summary: Extracts and parses `<base>` blocks from a template string.
+    remarks: >-
+      This internal method identifies all `<base>` blocks in the template and extracts their content, organizing them by
+      their `id` attribute. Blocks without an `id` are stored under the key `"default"`<!-- -->. Leading whitespace and
+      surrounding newlines are trimmed from the inner content.
+
+
+      \*\*Supported Attributes:\*\* - `id` (optional): Identifier for the base block. If not specified, defaults to
+      `"default"`<!-- -->. Used to reference specific base blocks when compiling templates or extracting content.
+
+
+      \*\*Note:\*\* While other attributes may be present in the `<base>` tag, they are currently ignored by this
+      function. Only the `id` attribute is processed and used for organizing the extracted blocks.
+    example:
+      - |-
+        ```typescript
+        const template = `
+          <base id="main">
+            <message>Hello World</message>
+          </base>
+          <base id="error">
+            <message>Error occurred</message>
+          </base>
+          <base>
+            <message>Default block</message>
+          </base>
+        `;
+        const bases = TemplateEngine._processBaseBlocks(template);
+        // Result: {
+        //   main: '<message>Hello World</message>',
+        //   error: '<message>Error occurred</message>',
+        //   default: '<message>Default block</message>'
+        // }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processBaseBlocks(template: string): {
+                [baseId: string]: string;
+            };
+      parameters:
+        - id: template
+          description: The raw template string containing `<base>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [baseId: string]: string;
+              }
+        description: An object mapping base IDs to their cleaned inner content
+  - name: _processDescriptionBlocks(template)
+    uid: gramstax!TemplateEngine._processDescriptionBlocks:member(1)
+    package: gramstax!
+    fullName: _processDescriptionBlocks(template)
+    summary: Extracts and parses `<description>` blocks from a template string.
+    remarks: >-
+      This internal method identifies all `<description>` blocks and extracts their content organized by language and
+      scope. Blocks without a `lang` attribute are stored under `"default"` language, and blocks without a `scope`
+      attribute are stored under `"default"` scope.
+    example:
+      - |-
+        ```typescript
+        const template = `
+          <description>Start the bot</description>
+          <description lang="id">Mulai bot</description>
+          <description scope="chat_administrators">Admin command</description>
+        `;
+        const descriptions = TemplateEngine._processDescriptionBlocks(template);
+        // Result: {
+        //   default: { default: 'Start the bot', chat_administrators: 'Admin command' },
+        //   id: { default: 'Mulai bot' }
+        // }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processDescriptionBlocks(template: string): {
+                [lang: string]: {
+                    [scope: string]: string;
+                };
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<description>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: {
+                      [scope: string]: string;
+                  };
+              }
+        description: A nested object mapping language keys to scopes to their cleaned content
+  - name: _processDivBlocks(template)
+    uid: gramstax!TemplateEngine._processDivBlocks:member(1)
+    package: gramstax!
+    fullName: _processDivBlocks(template)
+    summary: Normalizes content within `<div>` blocks by removing indentation.
+    remarks: >-
+      This internal method processes `<div>` blocks and cleans their inner content by removing leading tabs/spaces per
+      line and trimming surrounding newlines. The `<div>` tags themselves are removed from the output.
+    example:
+      - |-
+        ```typescript
+        const template = '<div>\n    Line 1\n    Line 2\n</div>';
+        const processed = TemplateEngine._processDivBlocks(template);
+        // Result: 'Line 1\nLine 2'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _processDivBlocks(template: string): string;'
+      parameters:
+        - id: template
+          description: The template string containing `<div>` blocks
+          type: string
+      return:
+        type: string
+        description: The template with `<div>` blocks replaced by their de-indented content
+  - name: _processImportBlocks(template)
+    uid: gramstax!TemplateEngine._processImportBlocks:member(1)
+    package: gramstax!
+    fullName: _processImportBlocks(template)
+    summary: Parses `<import>` directives from a template and extracts import metadata.
+    remarks: >-
+      This internal method identifies all `<import>` tags in a template and replaces them with placeholders while
+      collecting their metadata (src, blocks, base, lang, section, indent). The placeholders are later resolved by
+      `processImportBlocks`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const template = '<import src="other-page" block="message" />';
+        const { processed, imports } = TemplateEngine._processImportBlocks(template);
+        // processed: '__IMPORT_0__'
+        // imports: [{ src: 'other-page', blocks: 'message', base: 'default', ... }]
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processImportBlocks(template: string): {
+                processed: string;
+                imports: {
+                    src: string;
+                    blocks?: string | string[];
+                    base: string;
+                    lang?: string;
+                    section: `all` | `value`;
+                    indent: string;
+                }[];
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<import>` directives
+          type: string
+      return:
+        type: |-
+          {
+                  processed: string;
+                  imports: {
+                      src: string;
+                      blocks?: string | string[];
+                      base: string;
+                      lang?: string;
+                      section: `all` | `value`;
+                      indent: string;
+                  }[];
+              }
+        description: An object containing the processed template with placeholders and an array of import metadata
+  - name: _processKeyboardBlocks(template)
+    uid: gramstax!TemplateEngine._processKeyboardBlocks:member(1)
+    package: gramstax!
+    fullName: _processKeyboardBlocks(template)
+    summary: Extracts and parses `<keyboard>` blocks from a template string.
+    remarks: >-
+      This internal method identifies all `<keyboard>` blocks and extracts their content organized by language and type
+      (inline or bottom). Blocks without a `lang` attribute are stored under `"default"`<!-- -->. The `type` attribute
+      defaults to `"inline"` unless explicitly set to `"bottom"`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const template = `
+          <keyboard>Yes, No</keyboard>
+          <keyboard type="bottom">Button 1, Button 2</keyboard>
+          <keyboard lang="id">Ya, Tidak</keyboard>
+        `;
+        const keyboards = TemplateEngine._processKeyboardBlocks(template);
+        // Result: {
+        //   default: { inline: 'Yes, No', bottom: 'Button 1, Button 2' },
+        //   id: { inline: 'Ya, Tidak' }
+        // }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processKeyboardBlocks(template: string): {
+                [lang: string]: {
+                    inline?: string;
+                    bottom?: string;
+                };
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<keyboard>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: {
+                      inline?: string;
+                      bottom?: string;
+                  };
+              }
+        description: A nested object mapping language keys to keyboard mode configurations
+  - name: _processMapBlocks(template)
+    uid: gramstax!TemplateEngine._processMapBlocks:member(1)
+    package: gramstax!
+    fullName: _processMapBlocks(template)
+    summary: Transforms `<map>` blocks into JavaScript array map expressions.
+    remarks: >-
+      This internal method converts `<map>` blocks into array mapping operations. The `src` attribute specifies which
+      data key contains the array. Inside the block, `{{e}}` refers to the current element, `{{e.prop}}` to element
+      properties, and `{{i}}` to the current index. The `join` attribute specifies the separator.
+    example:
+      - |-
+        ```typescript
+        const template = '<map src="items" join=", "> - {{e.name}} ({{i}})</map>';
+        const processed = TemplateEngine._processMapBlocks(template);
+        // Result: '${(data && data["items"] || []).map((e, i) => ` - ${e.name} (${i})`).join(", ")}'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _processMapBlocks(template: string): string;'
+      parameters:
+        - id: template
+          description: The template string containing `<map>` blocks
+          type: string
+      return:
+        type: string
+        description: The template with `<map>` blocks converted to map expressions
+  - name: _processMediaBlocks(template)
+    uid: gramstax!TemplateEngine._processMediaBlocks:member(1)
+    package: gramstax!
+    fullName: _processMediaBlocks(template)
+    summary: Extracts and parses `<media>` blocks from a template string.
+    remarks: >-
+      This internal method identifies all `<media>` blocks and extracts their attributes and content. It supports
+      various media types including photo, video, audio, document, animation, voice, video\_note, sticker, location, and
+      contact. The inner content becomes the caption for supported types.
+    example:
+      - |-
+        ```typescript
+        const template = '<media type="photo" src="image.jpg" lang="en">Hello</media>';
+        const media = TemplateEngine._processMediaBlocks(template);
+        // Result: { en: { type: 'photo', src: 'image.jpg', caption: 'Hello' } }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processMediaBlocks(template: string): {
+                [lang: string]: IMediaBlock;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<media>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: <xref uid="gramstax!IMediaBlock:type" />;
+              }
+        description: An object mapping language keys to their corresponding media block configurations
+  - name: _processMessageBlocks(template)
+    uid: gramstax!TemplateEngine._processMessageBlocks:member(1)
+    package: gramstax!
+    fullName: _processMessageBlocks(template)
+    summary: Extracts and parses `<message>` blocks from a template string.
+    remarks: >-
+      This internal method identifies all `<message>` blocks and extracts their content organized by language. Blocks
+      without a `lang` attribute are stored under `"default"`<!-- -->. Leading whitespace and surrounding newlines are
+      trimmed.
+    example:
+      - |-
+        ```typescript
+        const template = `
+          <message>Hello World</message>
+          <message lang="id">Halo Dunia</message>
+        `;
+        const messages = TemplateEngine._processMessageBlocks(template);
+        // Result: { default: 'Hello World', id: 'Halo Dunia' }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processMessageBlocks(template: string): {
+                [lang: string]: string;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<message>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: string;
+              }
+        description: An object mapping language keys to their cleaned message content
+  - name: _processScopeExec(template)
+    uid: gramstax!TemplateEngine._processScopeExec:member(1)
+    package: gramstax!
+    fullName: _processScopeExec(template)
+    summary: Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.
+    remarks: >-
+      This internal method converts inline execution syntax into self-invoking JavaScript expressions. It first attempts
+      direct execution, then falls back to `with(data)` scope. Returns an empty string on any error.
+    example:
+      - >-
+        ```typescript
+
+        const template = 'Total: {~ data?.count ?? 0 ~}';
+
+        const processed = TemplateEngine._processExec(template);
+
+        // Result: 'Total: ${(() => { try { return data?.count ?? 0 } catch(e) { try { with(data || {}) { return
+        data?.count ?? 0 } } catch(ee) { return '' } } })()}'
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _processScopeExec(template: string): string;'
+      parameters:
+        - id: template
+          description: The template string containing `{~ code ~}` expressions
+          type: string
+      return:
+        type: string
+        description: The template with inline execution blocks converted to executable expressions
+  - name: _processScopeVariables(template)
+    uid: gramstax!TemplateEngine._processScopeVariables:member(1)
+    package: gramstax!
+    fullName: _processScopeVariables(template)
+    summary: Converts `{{variable}}` placeholders to JavaScript template literal expressions.
+    remarks: >-
+      This internal method transforms Mustache-like variable syntax into JavaScript template literal interpolation.
+      Variables are accessed from the `data` object, with nullish coalescing to empty string when undefined.
+    example:
+      - |-
+        ```typescript
+        const processed = TemplateEngine._processVariables('Hello {{name}}!');
+        // Result: 'Hello ${(data && data["name"]) ?? ""}!'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _processScopeVariables(template: string): string;'
+      parameters:
+        - id: template
+          description: The template string containing `{{variable}}` placeholders
+          type: string
+      return:
+        type: string
+        description: The processed template with placeholders converted to `${data["key"]}` syntax
+  - name: _processScriptBlocks(template)
+    uid: gramstax!TemplateEngine._processScriptBlocks:member(1)
+    package: gramstax!
+    fullName: _processScriptBlocks(template)
+    summary: Transforms `<script>` blocks into executable JavaScript expressions.
+    remarks: >-
+      This internal method converts `<script>` blocks into self-invoking functions that execute with access to the
+      `data` object via `with(data)`<!-- -->. If the script throws an error or `data` is undefined, an empty string is
+      returned.
+    example:
+      - >-
+        ```typescript
+
+        const template = '<script>return name ? `Hello ${name}` : `Hello`;</script>';
+
+        const processed = TemplateEngine._processScriptBlocks(template);
+
+        // Result: '${(() => { if (!data) return ''; try { with(data) { return name ? `Hello ${name}` : `Hello`; } }
+        catch(e) { return '' } })()}'
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _processScriptBlocks(template: string): string;'
+      parameters:
+        - id: template
+          description: The template string containing `<script>` blocks
+          type: string
+      return:
+        type: string
+        description: The template with `<script>` blocks converted to executable expressions
+  - name: _processSpaceBlocks(template)
+    uid: gramstax!TemplateEngine._processSpaceBlocks:member(1)
+    package: gramstax!
+    fullName: _processSpaceBlocks(template)
+    summary: Removes lines containing self-closing `<space />` tags.
+    remarks: >-
+      This internal method identifies lines that contain only a `<space />` tag (with optional surrounding whitespace)
+      and removes the entire line. This is useful for controlling whitespace in templates.
+    example:
+      - |-
+        ```typescript
+        const template = 'Line 1\n<space />\nLine 2';
+        const processed = TemplateEngine._processSpaceBlocks(template);
+        // Result: 'Line 1\n\nLine 2'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _processSpaceBlocks(template: string): string;'
+      parameters:
+        - id: template
+          description: The template string containing `<space />` tags
+          type: string
+      return:
+        type: string
+        description: The template with `<space />` lines removed
+  - name: _processSwitchBlocks(template)
+    uid: gramstax!TemplateEngine._processSwitchBlocks:member(1)
+    package: gramstax!
+    fullName: _processSwitchBlocks(template)
+    summary: Transforms `<switch>` blocks into JavaScript switch statement expressions.
+    remarks: >-
+      This internal method converts `<switch>` blocks with `<case>` and `<default>` sub-blocks into self-invoking
+      JavaScript switch expressions. The `value` attribute specifies which data key to switch on. Case values can be
+      comma-separated for multiple matches.
+    example:
+      - |-
+        ```typescript
+        const template = `
+          <switch value="status">
+            <case is="active">Active status</case>
+            <case is="pending">Pending status</case>
+            <default>Unknown status</default>
+          </switch>
+        `;
+        const processed = TemplateEngine._processSwitchBlocks(template);
+        // Result: '${(() => { switch((data && data["status"])) { case "active": return `Active status`; ... } })()}'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _processSwitchBlocks(template: string): string;'
+      parameters:
+        - id: template
+          description: The template string containing `<switch>` blocks
+          type: string
+      return:
+        type: string
+        description: The template with `<switch>` blocks converted to executable switch expressions
   - name: compileDescription(template, baseBlocks)
     uid: gramstax!TemplateEngine.compileDescription:member(1)
     package: gramstax!

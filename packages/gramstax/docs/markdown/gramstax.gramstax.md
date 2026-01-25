@@ -212,7 +212,7 @@ Page options configuration.
 
 </td><td>
 
-ReturnType&lt;typeof this.pageLoads&gt;
+ReturnType&lt;typeof this.\_pageLoads&gt;
 
 
 </td><td>
@@ -261,6 +261,482 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[\_onCallbackQueryData(ct)](./gramstax.gramstax._oncallbackquerydata.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming callback queries from inline keyboards and process route.
+
+
+</td></tr>
+<tr><td>
+
+[\_onCatch(error)](./gramstax.gramstax._oncatch.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Global error handler for bot errors.
+
+
+</td></tr>
+<tr><td>
+
+[\_onMessage(ct, listenerName)](./gramstax.gramstax._onmessage.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming messages of a specific type and process route.
+
+
+</td></tr>
+<tr><td>
+
+[\_onMessageAnimation(ct)](./gramstax.gramstax._onmessageanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming messages\*
+
+
+</td></tr>
+<tr><td>
+
+[\_onMessageAudio(ct)](./gramstax.gramstax._onmessageaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming messages\*
+
+
+</td></tr>
+<tr><td>
+
+[\_onMessageContact(ct)](./gramstax.gramstax._onmessagecontact.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming messages\*
+
+
+</td></tr>
+<tr><td>
+
+[\_onMessageDocument(ct)](./gramstax.gramstax._onmessagedocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming messages\*
+
+
+</td></tr>
+<tr><td>
+
+[\_onMessageLocation(ct)](./gramstax.gramstax._onmessagelocation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming messages\*
+
+
+</td></tr>
+<tr><td>
+
+[\_onMessagePhoto(ct)](./gramstax.gramstax._onmessagephoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming messages\*
+
+
+</td></tr>
+<tr><td>
+
+[\_onMessageSticker(ct)](./gramstax.gramstax._onmessagesticker.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming messages\*
+
+
+</td></tr>
+<tr><td>
+
+[\_onMessageText(ct)](./gramstax.gramstax._onmessagetext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming messages\*
+
+
+</td></tr>
+<tr><td>
+
+[\_onMessageVideo(ct)](./gramstax.gramstax._onmessagevideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming messages\*
+
+
+</td></tr>
+<tr><td>
+
+[\_onMessageVideoNote(ct)](./gramstax.gramstax._onmessagevideonote.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming messages\*
+
+
+</td></tr>
+<tr><td>
+
+[\_onMessageVoice(ct)](./gramstax.gramstax._onmessagevoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles incoming messages\*
+
+
+</td></tr>
+<tr><td>
+
+[\_onStart(botInfo, method, data)](./gramstax.gramstax._onstart.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Called when the bot successfully starts.
+
+
+</td></tr>
+<tr><td>
+
+[\_pageBuildData(Page, filePath)](./gramstax.gramstax._pagebuilddata.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Builds page data configuration for a page class.
+
+
+</td></tr>
+<tr><td>
+
+[\_pageLoads()](./gramstax.gramstax._pageloads.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Loads all page classes and builds routing tables.
+
+
+</td></tr>
+<tr><td>
+
+[\_pageRoutes(ctx, fromListener)](./gramstax.gramstax._pageroutes.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Routes an incoming update to the appropriate page handler.
+
+
+</td></tr>
+<tr><td>
+
+[\_pageSorts(Page, pages, indexPage)](./gramstax.gramstax._pagesorts.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sorts and categorizes page routes into routing tables.
+
+
+</td></tr>
+<tr><td>
+
+[\_registerOnCallbackQueryData()](./gramstax.gramstax._registeroncallbackquerydata.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers handlers message\*.
+
+
+</td></tr>
+<tr><td>
+
+[\_registerOnMessageAnimation()](./gramstax.gramstax._registeronmessageanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers handlers message\*.
+
+
+</td></tr>
+<tr><td>
+
+[\_registerOnMessageAudio()](./gramstax.gramstax._registeronmessageaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers handlers message\*.
+
+
+</td></tr>
+<tr><td>
+
+[\_registerOnMessageContact()](./gramstax.gramstax._registeronmessagecontact.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers handlers message\*.
+
+
+</td></tr>
+<tr><td>
+
+[\_registerOnMessageDocument()](./gramstax.gramstax._registeronmessagedocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers handlers message\*.
+
+
+</td></tr>
+<tr><td>
+
+[\_registerOnMessageLocation()](./gramstax.gramstax._registeronmessagelocation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers handlers message\*.
+
+
+</td></tr>
+<tr><td>
+
+[\_registerOnMessagePhoto()](./gramstax.gramstax._registeronmessagephoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers handlers message\*.
+
+
+</td></tr>
+<tr><td>
+
+[\_registerOnMessageSticker()](./gramstax.gramstax._registeronmessagesticker.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers handlers message\*.
+
+
+</td></tr>
+<tr><td>
+
+[\_registerOnMessageText()](./gramstax.gramstax._registeronmessagetext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers handlers message\*.
+
+
+</td></tr>
+<tr><td>
+
+[\_registerOnMessageVideo()](./gramstax.gramstax._registeronmessagevideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers handlers message\*.
+
+
+</td></tr>
+<tr><td>
+
+[\_registerOnMessageVideoNote()](./gramstax.gramstax._registeronmessagevideonote.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers handlers message\*.
+
+
+</td></tr>
+<tr><td>
+
+[\_registerOnMessageVoice()](./gramstax.gramstax._registeronmessagevoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers handlers message\*.
+
+
+</td></tr>
+<tr><td>
+
+[\_runPolling()](./gramstax.gramstax._runpolling.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Starts the bot in long polling mode.
+
+
+</td></tr>
+<tr><td>
+
+[\_runServerless(adapter)](./gramstax.gramstax._runserverless.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Starts the bot in serverless mode.
+
+
+</td></tr>
+<tr><td>
+
+[\_runWebhook(fullUrl)](./gramstax.gramstax._runwebhook.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Starts the bot in webhook mode.
+
+
+</td></tr>
+<tr><td>
 
 [createBot(token)](./gramstax.gramstax.createbot.md)
 
@@ -367,20 +843,6 @@ Hook called when no page handler matches the input.
 </td><td>
 
 Hook called when a page handler throws an error.
-
-
-</td></tr>
-<tr><td>
-
-[onCatch(error)](./gramstax.gramstax.oncatch.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Global error handler for bot errors.
 
 
 </td></tr>

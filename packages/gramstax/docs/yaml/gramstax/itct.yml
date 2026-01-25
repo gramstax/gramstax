@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: ITCt
+uid: gramstax!ITCt:type
+package: gramstax!
+fullName: ITCt
+summary: Type alias for grammY Context.
+remarks: The main context object containing update information and bot methods.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ITCt = Context;

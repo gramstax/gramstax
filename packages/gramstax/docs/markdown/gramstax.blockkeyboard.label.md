@@ -15,5 +15,5 @@ static label: typeof LabelKeyboard;
 
 ## Remarks
 
-Must be set before using .
+Must be set before using [BlockKeyboard.\_build()](./gramstax.blockkeyboard._build.md)<!-- -->.
 

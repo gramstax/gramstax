@@ -158,6 +158,11 @@ export class TemplateEngine {
    * are stored under the key `"default"`. Leading whitespace and surrounding
    * newlines are trimmed from the inner content.
    *
+   * **Supported Attributes:**
+   * - `id` (optional): Identifier for the base block. If not specified,
+   *                    defaults to `"default"`. Used to reference specific base blocks when compiling
+   *                    templates or extracting content.
+   *
    * @param template - The raw template string containing `<base>` blocks
    * @returns An object mapping base IDs to their cleaned inner content
    *
@@ -170,11 +175,15 @@ export class TemplateEngine {
    *   <base id="error">
    *     <message>Error occurred</message>
    *   </base>
+   *   <base>
+   *     <message>Default block</message>
+   *   </base>
    * `;
    * const bases = TemplateEngine._processBaseBlocks(template);
    * // Result: {
    * //   main: '<message>Hello World</message>',
-   * //   error: '<message>Error occurred</message>'
+   * //   error: '<message>Error occurred</message>',
+   * //   default: '<message>Default block</message>'
    * // }
    * ```
    *

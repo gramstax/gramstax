@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: ITTemp
+uid: gramstax!ITTemp:type
+package: gramstax!
+fullName: ITTemp
+summary: Temporary state for flow page
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITTemp = {
+      isAnswer: boolean;
+      session: Partial<ICacheRpc>;
+      data: Partial<ITPageData<any>>;
+      [key: string]: any;
+  };

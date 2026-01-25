@@ -42,3 +42,59 @@ example:
 isPreview: false
 isDeprecated: false
 type: class
+methods:
+  - name: _reverse(input)
+    uid: gramstax!LabelKeyboard._reverse:member(1)
+    package: gramstax!
+    fullName: _reverse(input)
+    summary: Reverse the order of comma-separated button labels.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const reversed = LabelKeyboard._reverse("Back, Next, Submit");
+        // => "Submit, Next, Back"
+
+        // Escaped commas are preserved
+        const preserved = LabelKeyboard._reverse("Option A\\, B, Option C");
+        // => "Option C, Option A\\, B"
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _reverse(input: string): string;'
+      parameters:
+        - id: input
+          description: Comma-separated button labels. Escaped commas (`\,`<!-- -->) are preserved.
+          type: string
+      return:
+        type: string
+        description: Reversed comma-separated labels.
+  - name: _reverseObj(input)
+    uid: gramstax!LabelKeyboard._reverseObj:member(1)
+    package: gramstax!
+    fullName: _reverseObj(input)
+    summary: Reverse button order for all languages in an object.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const reversed = LabelKeyboard._reverseObj({
+          en: "Back, Next",
+          id: "Kembali, Lanjut",
+        });
+        // => { en: "Next, Back", id: "Lanjut, Kembali" }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _reverseObj<T extends Record<any, any>>(input: T): T;'
+      parameters:
+        - id: input
+          description: >-
+            Object with language keys and button values. Applies
+            [LabelKeyboard.\_reverse()](xref:gramstax!LabelKeyboard._reverse:member(1)) to each value.
+          type: T
+      return:
+        type: T
+        description: Object with reversed labels.

@@ -93,6 +93,25 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[\_engine](./gramstax.templatemanager._engine.md)
+
+
+</td><td>
+
+
+</td><td>
+
+typeof [TemplateEngine](./gramstax.templateengine.md)
+
+
+</td><td>
+
+Reference to the TemplateEngine class for compilation
+
+
+</td></tr>
+<tr><td>
+
 [\_isWatchEnabled](./gramstax.templatemanager._iswatchenabled.md)
 
 
@@ -114,6 +133,44 @@ Flag indicating if file watching is enabled
 </td></tr>
 <tr><td>
 
+[\_map](./gramstax.templatemanager._map.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Map&lt;string, ICompiledTemplate&gt;
+
+
+</td><td>
+
+Map of compiled templates keyed by filename (without extension)
+
+
+</td></tr>
+<tr><td>
+
+[\_pageManager](./gramstax.templatemanager._pagemanager.md)
+
+
+</td><td>
+
+
+</td><td>
+
+typeof PageManager
+
+
+</td><td>
+
+Reference to PageManager for loading page modules
+
+
+</td></tr>
+<tr><td>
+
 [\_path](./gramstax.templatemanager._path.md)
 
 
@@ -130,6 +187,44 @@ ITemplateOptions\[\`path\`\]
 </td><td>
 
 Base paths for scanning template files
+
+
+</td></tr>
+<tr><td>
+
+[\_supportedExtensions](./gramstax.templatemanager._supportedextensions.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Set&lt;string&gt;
+
+
+</td><td>
+
+Set of supported template file extensions
+
+
+</td></tr>
+<tr><td>
+
+[\_watcher](./gramstax.templatemanager._watcher.md)
+
+
+</td><td>
+
+
+</td><td>
+
+FSWatcher\[\]
+
+
+</td><td>
+
+Active file system watchers for hot-reload
 
 
 </td></tr>
@@ -155,6 +250,90 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[\_compile(key, template, keepIfExist, importCache, rawCache)](./gramstax.templatemanager._compile.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Compiles a raw template string and stores the result in the cache.
+
+
+</td></tr>
+<tr><td>
+
+[\_getExtension(filename)](./gramstax.templatemanager._getextension.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Extracts the file extension from a filename.
+
+
+</td></tr>
+<tr><td>
+
+[\_getKey(filename)](./gramstax.templatemanager._getkey.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Derives the cache key from a filename by removing the extension.
+
+
+</td></tr>
+<tr><td>
+
+[\_handleFileAdd(filepath)](./gramstax.templatemanager._handlefileadd.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles file add events from the watcher.
+
+
+</td></tr>
+<tr><td>
+
+[\_handleFileChange(filepath)](./gramstax.templatemanager._handlefilechange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles file change events from the watcher.
+
+
+</td></tr>
+<tr><td>
+
+[\_handleFileDelete(filepath)](./gramstax.templatemanager._handlefiledelete.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handles file delete events from the watcher.
+
+
+</td></tr>
+<tr><td>
+
 [\_handleWatchError(error)](./gramstax.templatemanager._handlewatcherror.md)
 
 
@@ -164,6 +343,90 @@ Description
 </td><td>
 
 Handles watcher errors.
+
+
+</td></tr>
+<tr><td>
+
+[\_initializeWatcher(options)](./gramstax.templatemanager._initializewatcher.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Initializes file system watchers for hot reloading.
+
+
+</td></tr>
+<tr><td>
+
+[\_isValidFile(filename)](./gramstax.templatemanager._isvalidfile.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Checks if a file has a supported template extension.
+
+
+</td></tr>
+<tr><td>
+
+[\_loadAllFiles()](./gramstax.templatemanager._loadallfiles.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Loads all template files during initialization with batch optimization.
+
+
+</td></tr>
+<tr><td>
+
+[\_loadFile(filename)](./gramstax.templatemanager._loadfile.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Loads and compiles a single template file.
+
+
+</td></tr>
+<tr><td>
+
+[\_readTemplateFile(filename)](./gramstax.templatemanager._readtemplatefile.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Reads a template file's content from disk.
+
+
+</td></tr>
+<tr><td>
+
+[\_validatePath()](./gramstax.templatemanager._validatepath.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Validates and ensures all template directories exist.
 
 
 </td></tr>

@@ -380,6 +380,34 @@ Create a gateway server for inter-worker communication.
 </td></tr>
 <tr><td>
 
+[handleOnMessage(data)](./gramstax.workerthreadinit.handleonmessage.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Handle incoming messages from the main thread.
+
+
+</td></tr>
+<tr><td>
+
+[init()](./gramstax.workerthreadinit.init.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Initialize message handling from parent port and register event message from parent.
+
+
+</td></tr>
+<tr><td>
+
 [request(method, params, \_wait, \_others)](./gramstax.workerthreadinit.request.md)
 
 

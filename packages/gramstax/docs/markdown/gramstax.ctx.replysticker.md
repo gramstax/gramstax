@@ -9,7 +9,7 @@ Sends a sticker using the page template.
 **Signature:**
 
 ```typescript
-replySticker(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplySticker): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+replySticker(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplySticker): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ keyboard
 
 </td><td>
 
-IInBoKb
+[ITInBoKb](./gramstax.itinbokb.md)
 
 
 </td><td>
@@ -53,7 +53,7 @@ data
 
 </td><td>
 
-IData
+[ITData](./gramstax.itdata.md)
 
 
 </td><td>
@@ -85,7 +85,7 @@ options
 
 </td><td>
 
-IOptReplySticker
+[ITOptReplySticker](./gramstax.itoptreplysticker.md)
 
 
 </td><td>

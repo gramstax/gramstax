@@ -8,11 +8,7 @@ summary: >-
   methods.
 remarks: >-
   Extend this class to create page handlers. Define static `template` property for HTML-like templates and static `data`
-  via  for routing configuration.
-
-
-  The constructor for this class is marked as internal. Third-party code should not call the constructor directly or
-  create subclasses that extend the `Ctx` class.
+  via `Ctx.buildData` for routing configuration.
 example:
   - |-
     Basic Without PageBase
@@ -63,7 +59,52 @@ example:
 isPreview: false
 isDeprecated: false
 type: class
+constructors:
+  - name: (constructor)(params)
+    uid: gramstax!Ctx:constructor(1)
+    package: gramstax!
+    fullName: (constructor)(params)
+    summary: |-
+      Creates a new Ctx instance.
+
+      \*\*note:\*\* For most pages do not define a constructor
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(params: ITCtxParams);'
+      parameters:
+        - id: params
+          description: The initialization parameters. See [ITCtxParams](xref:gramstax!ITCtxParams:type) for details.
+          type: <xref uid="gramstax!ITCtxParams:type" />
 properties:
+  - name: cacheKeyboard
+    uid: gramstax!Ctx#cacheKeyboard:member
+    package: gramstax!
+    fullName: cacheKeyboard
+    summary: Cache for keyboard instances.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'cacheKeyboard: Map<any, any>;'
+      return:
+        type: Map&lt;any, any&gt;
+  - name: cacheSession
+    uid: gramstax!Ctx#cacheSession:member
+    package: gramstax!
+    fullName: cacheSession
+    summary: External cache for session storage.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'cacheSession: CacheExternal<ICacheRpc>;'
+      return:
+        type: <xref uid="gramstax!CacheExternal:class" />&lt;<xref uid="gramstax!ICacheRpc:type" />&gt;
   - name: callbackData
     uid: gramstax!Ctx#callbackData:member
     package: gramstax!
@@ -123,6 +164,19 @@ properties:
       content: 'get callbackDataPayloads(): string[];'
       return:
         type: string[]
+  - name: ct
+    uid: gramstax!Ctx#ct:member
+    package: gramstax!
+    fullName: ct
+    summary: The grammY context object for low-level Telegram API access.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'ct: ITCt;'
+      return:
+        type: <xref uid="gramstax!ITCt:type" />
   - name: data
     uid: gramstax!Ctx#data:member
     package: gramstax!
@@ -142,14 +196,14 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'data: IPageData<any>;'
+      content: 'data: ITPageData<any>;'
       return:
-        type: <xref uid="gramstax!~IPageData:type" />&lt;any&gt;
+        type: <xref uid="gramstax!ITPageData:type" />&lt;any&gt;
   - name: data
     uid: gramstax!Ctx.data:member
     package: gramstax!
     fullName: data
-    summary: Page routing data created by .
+    summary: Page routing data created by `Ctx.buildData`<!-- -->.
     remarks: >-
       Only define when you want to override the intent and have a callback payload. If nothing is needed, let the system
       handle it automatically.
@@ -171,9 +225,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static data: IPageData<any>;'
+      content: 'static data: ITPageData<any>;'
       return:
-        type: <xref uid="gramstax!~IPageData:type" />&lt;any&gt;
+        type: <xref uid="gramstax!ITPageData:type" />&lt;any&gt;
   - name: msgAnimation
     uid: gramstax!Ctx#msgAnimation:member
     package: gramstax!
@@ -630,11 +684,24 @@ properties:
     isDeprecated: false
     syntax:
       content: |-
-        get session(): ITemp[`session`];
+        get session(): ITTemp[`session`];
 
-        set session(v: ITemp[`session`]);
+        set session(v: ITTemp[`session`]);
       return:
-        type: <xref uid="gramstax!~ITemp:type" />[`session`]
+        type: <xref uid="gramstax!ITTemp:type" />[`session`]
+  - name: temp
+    uid: gramstax!Ctx#temp:member
+    package: gramstax!
+    fullName: temp
+    summary: Temporary state storage for the current request.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'temp: ITTemp;'
+      return:
+        type: <xref uid="gramstax!ITTemp:type" />
   - name: template
     uid: gramstax!Ctx.template:member
     package: gramstax!
@@ -695,6 +762,19 @@ properties:
         static template?: string;
       return:
         type: string
+  - name: templateManager
+    uid: gramstax!Ctx#templateManager:member
+    package: gramstax!
+    fullName: templateManager
+    summary: Template manager for message rendering.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'templateManager: TemplateManager;'
+      return:
+        type: <xref uid="gramstax!TemplateManager:class" />
   - name: userFirstName
     uid: gramstax!Ctx#userFirstName:member
     package: gramstax!
@@ -856,6 +936,32 @@ properties:
       return:
         type: string
 methods:
+  - name: addPayloads(str, mtd, pld)
+    uid: gramstax!Ctx#addPayloads:member(1)
+    package: gramstax!
+    fullName: addPayloads(str, mtd, pld)
+    summary: Appends payload values to a string using the specified separator.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        addPayloads(str: string | undefined, mtd: Parameters<typeof this.getSeperatorTag>[0], pld: (string |
+        undefined)[]): string;
+      parameters:
+        - id: str
+          description: The base string.
+          type: string | undefined
+        - id: mtd
+          description: The separator method.
+          type: Parameters&lt;typeof gramstax!Ctx#<xref uid="getSeperatorTag:member" />&gt;[0]
+        - id: pld
+          description: Array of payload values to append.
+          type: (string | undefined)[]
+      return:
+        type: string
+        description: The string with appended payloads.
   - name: animationCaption()
     uid: gramstax!Ctx#animationCaption:member(1)
     package: gramstax!
@@ -1130,26 +1236,16 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: |-
-        bottomKeyboard(callback: (k: IBottomKb, a: string[]) => IBottomKb, params?: {
-                baseId?: string;
-                data?: IData;
-                cache?: boolean;
-            }): IBottomKb;
+      content: 'bottomKeyboard(callback: (k: ITBottomKb, a: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb;'
       parameters:
         - id: callback
           description: Builder function that receives keyboard and labels.
-          type: '(k: <xref uid="gramstax!~IBottomKb:type" />, a: string[]) =&gt; <xref uid="gramstax!~IBottomKb:type" />'
+          type: '(k: <xref uid="gramstax!ITBottomKb:type" />, a: string[]) =&gt; <xref uid="gramstax!ITBottomKb:type" />'
         - id: params
-          description: Optional parameters.
-          type: |-
-            {
-                    baseId?: string;
-                    data?: <xref uid="gramstax!~IData:type" />;
-                    cache?: boolean;
-                }
+          description: Optional parameters. [ITBottomKbParams](xref:gramstax!ITBottomKbParams:type) for details.
+          type: <xref uid="gramstax!ITBottomKbParams:type" />
       return:
-        type: <xref uid="gramstax!~IBottomKb:type" />
+        type: <xref uid="gramstax!ITBottomKb:type" />
         description: The bottom keyboard instance.
   - name: bottomKeyboardT(layout, baseId, data)
     uid: gramstax!Ctx#bottomKeyboardT:member(1)
@@ -1170,11 +1266,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'bottomKeyboardT(layout?: IKbCols, baseId?: string | null, data?: Record<any, any>): Keyboard;'
+      content: 'bottomKeyboardT(layout?: ITKbCols, baseId?: string | null, data?: Record<any, any>): Keyboard;'
       parameters:
         - id: layout
           description: 'Layout format: "cols" or "cols-lastRow". Default: "1".'
-          type: <xref uid="gramstax!~IKbCols:type" />
+          type: <xref uid="gramstax!ITKbCols:type" />
         - id: baseId
           description: >-
             Optional template base ID position for block keyboard. IMPORTANT: If a `<base id="...">` is defined in the
@@ -1209,8 +1305,8 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        broadcast(ids: number[], languageCode: string[], keyboard?: IInBoKb, data?: IData, baseId?: string, options?:
-        IOptReply, throwError?: boolean): Promise<void>;
+        broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?:
+        ITOptReply, throwError?: boolean): Promise<void>;
       parameters:
         - id: ids
           description: Array of user IDs to send the message to.
@@ -1220,16 +1316,16 @@ methods:
           type: string[]
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block message.
           type: string
         - id: options
           description: Optional grammY send options.
-          type: <xref uid="gramstax!~IOptReply:type" />
+          type: <xref uid="gramstax!ITOptReply:type" />
         - id: throwError
           description: If true, throws errors instead of swallowing them.
           type: boolean
@@ -1257,9 +1353,9 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        broadcastMedia(ids: number[], languageCode: string[], keyboard?: IInBoKb, data?: IData, baseId?: string,
-        options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation |
-        IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact, throwError?:
+        broadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string,
+        options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation |
+        ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact, throwError?:
         boolean): Promise<void>;
       parameters:
         - id: ids
@@ -1270,21 +1366,21 @@ methods:
           type: string[]
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media.
           type: string
         - id: options
           description: Optional grammY send options for the inferred media type.
           type: >-
-            <xref uid="gramstax!~IOptReplyPhoto:type" /> | <xref uid="gramstax!~IOptReplyVideo:type" /> | <xref
-            uid="gramstax!~IOptReplyAudio:type" /> | <xref uid="gramstax!~IOptReplyDocument:type" /> | <xref
-            uid="gramstax!~IOptReplyAnimation:type" /> | <xref uid="gramstax!~IOptReplyVoice:type" /> | <xref
-            uid="gramstax!~IOptReplyVideoNote:type" /> | <xref uid="gramstax!~IOptReplySticker:type" /> | <xref
-            uid="gramstax!~IOptReplyLocation:type" /> | <xref uid="gramstax!~IOptReplyContact:type" />
+            <xref uid="gramstax!ITOptReplyPhoto:type" /> | <xref uid="gramstax!ITOptReplyVideo:type" /> | <xref
+            uid="gramstax!ITOptReplyAudio:type" /> | <xref uid="gramstax!ITOptReplyDocument:type" /> | <xref
+            uid="gramstax!ITOptReplyAnimation:type" /> | <xref uid="gramstax!ITOptReplyVoice:type" /> | <xref
+            uid="gramstax!ITOptReplyVideoNote:type" /> | <xref uid="gramstax!ITOptReplySticker:type" /> | <xref
+            uid="gramstax!ITOptReplyLocation:type" /> | <xref uid="gramstax!ITOptReplyContact:type" />
         - id: throwError
           description: If true, throws errors instead of swallowing them.
           type: boolean
@@ -1321,13 +1417,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static buildData<C extends (...args: any[]) => any>(callback: C): IPageData<Parameters<C>>;'
+      content: 'static buildData<C extends (...args: any[]) => any>(callback: C): ITPageData<Parameters<C>>;'
       parameters:
         - id: callback
           description: A function that returns payload values as an array.
           type: C
       return:
-        type: <xref uid="gramstax!~IPageData:type" />&lt;Parameters&lt;C&gt;&gt;
+        type: <xref uid="gramstax!ITPageData:type" />&lt;Parameters&lt;C&gt;&gt;
         description: The page data configuration object.
   - name: buildData(options)
     uid: gramstax!Ctx.buildData:member(2)
@@ -1339,25 +1435,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: |-
-        static buildData<C extends (...args: any[]) => any>(options: {
-                name?: string;
-                callback?: C;
-                intentText?: string;
-                intentTextCommand?: string;
-            }): IPageData<Parameters<C>>;
+      content: 'static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions): ITPageData<Parameters<C>>;'
       parameters:
         - id: options
-          description: Configuration options.
-          type: |-
-            {
-                    name?: string;
-                    callback?: C;
-                    intentText?: string;
-                    intentTextCommand?: string;
-                }
+          description: Configuration options. See [ITBuildDataOptions](xref:gramstax!ITBuildDataOptions:type) for details.
+          type: <xref uid="gramstax!ITBuildDataOptions:type" />
       return:
-        type: <xref uid="gramstax!~IPageData:type" />&lt;Parameters&lt;C&gt;&gt;
+        type: <xref uid="gramstax!ITPageData:type" />&lt;Parameters&lt;C&gt;&gt;
         description: The page data configuration object.
   - name: buildData(options)
     uid: gramstax!Ctx.buildData:member(3)
@@ -1369,26 +1453,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: |-
-        static buildData(options: {
-                name?: string;
-                callback?: any;
-                intentText?: string;
-                intentTextCommand?: string;
-            }): IPageData<[]>;
+      content: 'static buildData(options: ITBuildDataOptions): ITPageData<[]>;'
       parameters:
         - id: options
-          description: ''
-          type: |-
-            {
-                    name?: string;
-                    callback?: any;
-                    intentText?: string;
-                    intentTextCommand?: string;
-                }
+          description: Configuration options. See [ITBuildDataOptions](xref:gramstax!ITBuildDataOptions:type) for details.
+          type: <xref uid="gramstax!ITBuildDataOptions:type" />
       return:
-        type: <xref uid="gramstax!~IPageData:type" />&lt;[]&gt;
-        description: ''
+        type: <xref uid="gramstax!ITPageData:type" />&lt;[]&gt;
+        description: The page data configuration object.
   - name: buildData()
     uid: gramstax!Ctx.buildData:member(4)
     package: gramstax!
@@ -1399,9 +1471,9 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static buildData(): IPageData<[]>;'
+      content: 'static buildData(): ITPageData<[]>;'
       return:
-        type: <xref uid="gramstax!~IPageData:type" />&lt;[]&gt;
+        type: <xref uid="gramstax!ITPageData:type" />&lt;[]&gt;
         description: ''
   - name: callback()
     uid: gramstax!Ctx#callback:member(1)
@@ -1668,7 +1740,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        edit(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEdit, fallbackReply?: boolean):
+        edit(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEdit, fallbackReply?: boolean):
         Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
                 text: string;
             } & Partial<{
@@ -1677,16 +1749,16 @@ methods:
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
-          type: <xref uid="gramstax!~IInlineKb:type" />
+          type: <xref uid="gramstax!ITInlineKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block message.
           type: string
         - id: options
           description: Optional grammY edit options.
-          type: <xref uid="gramstax!~IOptEdit:type" />
+          type: <xref uid="gramstax!ITOptEdit:type" />
         - id: fallbackReply
           description: 'If true, sends a reply if edit fails. Default: true.'
           type: boolean
@@ -1716,27 +1788,28 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editAnimation(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?:
-        IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
-        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
-        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        editAnimation(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1,
+        options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage |
+        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
+        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
+        grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
-          type: <xref uid="gramstax!~IInlineKb:type" />
+          type: <xref uid="gramstax!ITInlineKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type animation.
           type: string
         - id: options1
           description: Optional media options.
-          type: <xref uid="gramstax!~IOptEditMedia1:type" />
+          type: <xref uid="gramstax!ITOptEditMedia1:type" />
         - id: options2
           description: Optional edit options.
-          type: <xref uid="gramstax!~IOptEditMedia2:type" />
+          type: <xref uid="gramstax!ITOptEditMedia2:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -1765,27 +1838,27 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editAudio(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?:
-        IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        editAudio(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?:
+        ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
         | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
-          type: <xref uid="gramstax!~IInlineKb:type" />
+          type: <xref uid="gramstax!ITInlineKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type audio.
           type: string
         - id: options1
           description: Optional media options.
-          type: <xref uid="gramstax!~IOptEditMedia1:type" />
+          type: <xref uid="gramstax!ITOptEditMedia1:type" />
         - id: options2
           description: Optional edit options.
-          type: <xref uid="gramstax!~IOptEditMedia2:type" />
+          type: <xref uid="gramstax!ITOptEditMedia2:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -1808,24 +1881,24 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editContact(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true |
-        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
-        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
-        | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        editContact(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2):
+        Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
-          type: <xref uid="gramstax!~IInlineKb:type" />
+          type: <xref uid="gramstax!ITInlineKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type contact.
           type: string
         - id: options
           description: Optional edit options.
-          type: <xref uid="gramstax!~IOptEditMedia2:type" />
+          type: <xref uid="gramstax!ITOptEditMedia2:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -1854,27 +1927,27 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editDocument(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?:
-        IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        editDocument(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?:
+        ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
         | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
-          type: <xref uid="gramstax!~IInlineKb:type" />
+          type: <xref uid="gramstax!ITInlineKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type document.
           type: string
         - id: options1
           description: Optional media options.
-          type: <xref uid="gramstax!~IOptEditMedia1:type" />
+          type: <xref uid="gramstax!ITOptEditMedia1:type" />
         - id: options2
           description: Optional edit options.
-          type: <xref uid="gramstax!~IOptEditMedia2:type" />
+          type: <xref uid="gramstax!ITOptEditMedia2:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -1897,24 +1970,24 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editLocation(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true
-        | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage
-        | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
-        | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        editLocation(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2):
+        Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
-          type: <xref uid="gramstax!~IInlineKb:type" />
+          type: <xref uid="gramstax!ITInlineKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type location.
           type: string
         - id: options
           description: Optional edit options.
-          type: <xref uid="gramstax!~IOptEditMedia2:type" />
+          type: <xref uid="gramstax!ITOptEditMedia2:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -1945,10 +2018,10 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editMedia<T extends IMediaBlock[`type`]>(type: T, keyboardInline?: IInlineKb, data?: IData, baseId?: string,
-        options1?: T extends `voice` ? IOptReplyVoice : T extends `video_note` ? IOptReplyVideoNote : T extends
-        `sticker` ? IOptReplySticker : T extends `location` ? IOptReplyLocation : T extends `contact` ? IOptReplyContact
-        : IOptEditMedia1, options2?: IOptEditMedia2, fallbackReply?: boolean): Promise<true |
+        editMedia<T extends IMediaBlock[`type`]>(type: T, keyboardInline?: ITInlineKb, data?: ITData, baseId?: string,
+        options1?: T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends
+        `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ?
+        ITOptReplyContact : ITOptEditMedia1, options2?: ITOptEditMedia2, fallbackReply?: boolean): Promise<true |
         grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
         grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
         grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
@@ -1959,24 +2032,24 @@ methods:
           type: T
         - id: keyboardInline
           description: Optional inline keyboard markup.
-          type: <xref uid="gramstax!~IInlineKb:type" />
+          type: <xref uid="gramstax!ITInlineKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media.
           type: string
         - id: options1
           description: Type-specific media options.
           type: >-
-            T extends `voice` ? <xref uid="gramstax!~IOptReplyVoice:type" /> : T extends `video_note` ? <xref
-            uid="gramstax!~IOptReplyVideoNote:type" /> : T extends `sticker` ? <xref
-            uid="gramstax!~IOptReplySticker:type" /> : T extends `location` ? <xref
-            uid="gramstax!~IOptReplyLocation:type" /> : T extends `contact` ? <xref
-            uid="gramstax!~IOptReplyContact:type" /> : <xref uid="gramstax!~IOptEditMedia1:type" />
+            T extends `voice` ? <xref uid="gramstax!ITOptReplyVoice:type" /> : T extends `video_note` ? <xref
+            uid="gramstax!ITOptReplyVideoNote:type" /> : T extends `sticker` ? <xref
+            uid="gramstax!ITOptReplySticker:type" /> : T extends `location` ? <xref
+            uid="gramstax!ITOptReplyLocation:type" /> : T extends `contact` ? <xref
+            uid="gramstax!ITOptReplyContact:type" /> : <xref uid="gramstax!ITOptEditMedia1:type" />
         - id: options2
           description: Additional edit options.
-          type: <xref uid="gramstax!~IOptEditMedia2:type" />
+          type: <xref uid="gramstax!ITOptEditMedia2:type" />
         - id: fallbackReply
           description: 'If true, sends a reply if edit fails. Default: true.'
           type: boolean
@@ -2008,27 +2081,27 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editPhoto(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?:
-        IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        editPhoto(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?:
+        ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
         | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
-          type: <xref uid="gramstax!~IInlineKb:type" />
+          type: <xref uid="gramstax!ITInlineKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type photo.
           type: string
         - id: options1
           description: Optional media options.
-          type: <xref uid="gramstax!~IOptEditMedia1:type" />
+          type: <xref uid="gramstax!ITOptEditMedia1:type" />
         - id: options2
           description: Optional edit options.
-          type: <xref uid="gramstax!~IOptEditMedia2:type" />
+          type: <xref uid="gramstax!ITOptEditMedia2:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -2051,24 +2124,24 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editSticker(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true |
-        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
-        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
-        | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        editSticker(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2):
+        Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
-          type: <xref uid="gramstax!~IInlineKb:type" />
+          type: <xref uid="gramstax!ITInlineKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type sticker.
           type: string
         - id: options
           description: Optional edit options.
-          type: <xref uid="gramstax!~IOptEditMedia2:type" />
+          type: <xref uid="gramstax!ITOptEditMedia2:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -2097,27 +2170,27 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editVideo(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?:
-        IOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        editVideo(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?:
+        ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
         | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
-          type: <xref uid="gramstax!~IInlineKb:type" />
+          type: <xref uid="gramstax!ITInlineKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type video.
           type: string
         - id: options1
           description: Optional media options.
-          type: <xref uid="gramstax!~IOptEditMedia1:type" />
+          type: <xref uid="gramstax!ITOptEditMedia1:type" />
         - id: options2
           description: Optional edit options.
-          type: <xref uid="gramstax!~IOptEditMedia2:type" />
+          type: <xref uid="gramstax!ITOptEditMedia2:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -2140,24 +2213,24 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editVideoNote(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true
-        | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage
-        | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
-        grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
-        | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        editVideoNote(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2):
+        Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
-          type: <xref uid="gramstax!~IInlineKb:type" />
+          type: <xref uid="gramstax!ITInlineKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type video\_note.
           type: string
         - id: options
           description: Optional edit options.
-          type: <xref uid="gramstax!~IOptEditMedia2:type" />
+          type: <xref uid="gramstax!ITOptEditMedia2:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -2180,24 +2253,24 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editVoice(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2): Promise<true |
-        grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
-        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        editVoice(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2): Promise<true
+        | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage
+        | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
         grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
         | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
-          type: <xref uid="gramstax!~IInlineKb:type" />
+          type: <xref uid="gramstax!ITInlineKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type voice.
           type: string
         - id: options
           description: Optional edit options.
-          type: <xref uid="gramstax!~IOptEditMedia2:type" />
+          type: <xref uid="gramstax!ITOptEditMedia2:type" />
       return:
         type: >-
           Promise&lt;true | <xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -2233,6 +2306,102 @@ methods:
       return:
         type: Promise&lt;any&gt;
         description: ''
+  - name: getIntent(str, mtd, positionEnd)
+    uid: gramstax!Ctx#getIntent:member(1)
+    package: gramstax!
+    fullName: getIntent(str, mtd, positionEnd)
+    summary: Extracts the intent portion from a string containing payloads.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const intent = this.getIntent("start:123:456", "colon", 1)
+        console.log(intent) // "start"
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        getIntent(str: string | undefined, mtd: Parameters<typeof this.getSeperatorTag>[0], positionEnd?: number):
+        string;
+      parameters:
+        - id: str
+          description: The string to extract intent from.
+          type: string | undefined
+        - id: mtd
+          description: The separator method.
+          type: Parameters&lt;typeof gramstax!Ctx#<xref uid="getSeperatorTag:member" />&gt;[0]
+        - id: positionEnd
+          description: 'Number of segments to include in the intent. Default: 1.'
+          type: number
+      return:
+        type: string
+        description: The intent string.
+  - name: getPayloads(str, mtd, positionStart)
+    uid: gramstax!Ctx#getPayloads:member(1)
+    package: gramstax!
+    fullName: getPayloads(str, mtd, positionStart)
+    summary: Extracts payload values from a string.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        getPayloads(str: string | undefined, mtd: Parameters<typeof this.getSeperatorTag>[0], positionStart?: number):
+        string[];
+      parameters:
+        - id: str
+          description: The string containing payloads.
+          type: string | undefined
+        - id: mtd
+          description: The separator method.
+          type: Parameters&lt;typeof gramstax!Ctx#<xref uid="getSeperatorTag:member" />&gt;[0]
+        - id: positionStart
+          description: 'Starting position for payload extraction. Default: 1.'
+          type: number
+      return:
+        type: string[]
+        description: Array of extracted payload values.
+  - name: getSeperatorTag(mtd)
+    uid: gramstax!Ctx#getSeperatorTag:member(1)
+    package: gramstax!
+    fullName: getSeperatorTag(mtd)
+    summary: Gets the separator character for the specified method.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'getSeperatorTag(mtd?: `space` | `colon`): " " | ":";'
+      parameters:
+        - id: mtd
+          description: 'The separator method: "space" or "colon". Default: "space".'
+          type: '`space` | `colon`'
+      return:
+        type: '" " | ":"'
+        description: The separator character (" " or ":").
+  - name: havePayloads(str, mtd)
+    uid: gramstax!Ctx#havePayloads:member(1)
+    package: gramstax!
+    fullName: havePayloads(str, mtd)
+    summary: Checks if a string contains payload separators.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'havePayloads(str: string | undefined, mtd: Parameters<typeof this.getSeperatorTag>[0]): boolean;'
+      parameters:
+        - id: str
+          description: The string to check.
+          type: string | undefined
+        - id: mtd
+          description: The separator method.
+          type: Parameters&lt;typeof gramstax!Ctx#<xref uid="getSeperatorTag:member" />&gt;[0]
+      return:
+        type: boolean
+        description: True if the string contains the separator.
   - name: inlineKeyboard(callback, params)
     uid: gramstax!Ctx#inlineKeyboard:member(1)
     package: gramstax!
@@ -2255,26 +2424,16 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: |-
-        inlineKeyboard(callback: (k: IInlineKb, a: string[]) => IInlineKb, params?: {
-                baseId?: string;
-                data?: IData;
-                cache?: boolean;
-            }): IInlineKb;
+      content: 'inlineKeyboard(callback: (k: ITInlineKb, a: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb;'
       parameters:
         - id: callback
           description: Builder function that receives keyboard and labels.
-          type: '(k: <xref uid="gramstax!~IInlineKb:type" />, a: string[]) =&gt; <xref uid="gramstax!~IInlineKb:type" />'
+          type: '(k: <xref uid="gramstax!ITInlineKb:type" />, a: string[]) =&gt; <xref uid="gramstax!ITInlineKb:type" />'
         - id: params
-          description: Optional parameters.
-          type: |-
-            {
-                    baseId?: string;
-                    data?: <xref uid="gramstax!~IData:type" />;
-                    cache?: boolean;
-                }
+          description: Optional parameters. [ITInlineKbParams](xref:gramstax!ITInlineKbParams:type) for details.
+          type: <xref uid="gramstax!ITInlineKbParams:type" />
       return:
-        type: <xref uid="gramstax!~IInlineKb:type" />
+        type: <xref uid="gramstax!ITInlineKb:type" />
         description: The inline keyboard instance.
   - name: inlineKeyboardT(PageDest, layout, baseId, data)
     uid: gramstax!Ctx#inlineKeyboardT:member(1)
@@ -2302,16 +2461,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: >-
-        inlineKeyboardT(PageDest: IKbDest[], layout?: IKbCols, baseId?: string | null, data?: Record<any, any>):
-        InlineKeyboard;
+      content: 'inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, baseId?: string | null, data?: ITData): InlineKeyboard;'
       parameters:
         - id: PageDest
           description: Array of page classes or callback data strings.
-          type: <xref uid="gramstax!~IKbDest:type" />[]
+          type: <xref uid="gramstax!ITKbDest:type" />[]
         - id: layout
           description: 'Layout format: "cols" or "cols-lastRow". Default: "1".'
-          type: <xref uid="gramstax!~IKbCols:type" />
+          type: <xref uid="gramstax!ITKbCols:type" />
         - id: baseId
           description: >-
             Optional template base ID position block keyboard. IMPORTANT: If a `<base id="...">` is defined in the
@@ -2321,10 +2478,999 @@ methods:
           type: string | null
         - id: data
           description: Optional template interpolation data.
-          type: Record&lt;any, any&gt;
+          type: <xref uid="gramstax!ITData:type" />
       return:
         type: <xref uid="grammy!InlineKeyboard:class" />
         description: The inline keyboard instance.
+  - name: isSessionAnimationCaption(method, name)
+    uid: gramstax!Ctx#isSessionAnimationCaption:member(1)
+    package: gramstax!
+    fullName: isSessionAnimationCaption(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionAnimationCaption(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionAnimationCaptionCommand(method, name)
+    uid: gramstax!Ctx#isSessionAnimationCaptionCommand:member(1)
+    package: gramstax!
+    fullName: isSessionAnimationCaptionCommand(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionAnimationCaptionCommand(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionAnimationCaptionCommandPayload(method, name)
+    uid: gramstax!Ctx#isSessionAnimationCaptionCommandPayload:member(1)
+    package: gramstax!
+    fullName: isSessionAnimationCaptionCommandPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionAnimationCaptionCommandPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionAnimationCaptionPayload(method, name)
+    uid: gramstax!Ctx#isSessionAnimationCaptionPayload:member(1)
+    package: gramstax!
+    fullName: isSessionAnimationCaptionPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionAnimationCaptionPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionAnimationFree(method, name)
+    uid: gramstax!Ctx#isSessionAnimationFree:member(1)
+    package: gramstax!
+    fullName: isSessionAnimationFree(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionAnimationFree(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionAudioCaption(method, name)
+    uid: gramstax!Ctx#isSessionAudioCaption:member(1)
+    package: gramstax!
+    fullName: isSessionAudioCaption(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionAudioCaption(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionAudioCaptionCommand(method, name)
+    uid: gramstax!Ctx#isSessionAudioCaptionCommand:member(1)
+    package: gramstax!
+    fullName: isSessionAudioCaptionCommand(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionAudioCaptionCommand(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionAudioCaptionCommandPayload(method, name)
+    uid: gramstax!Ctx#isSessionAudioCaptionCommandPayload:member(1)
+    package: gramstax!
+    fullName: isSessionAudioCaptionCommandPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionAudioCaptionCommandPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionAudioCaptionPayload(method, name)
+    uid: gramstax!Ctx#isSessionAudioCaptionPayload:member(1)
+    package: gramstax!
+    fullName: isSessionAudioCaptionPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionAudioCaptionPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionAudioFree(method, name)
+    uid: gramstax!Ctx#isSessionAudioFree:member(1)
+    package: gramstax!
+    fullName: isSessionAudioFree(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionAudioFree(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionCallback(method, name)
+    uid: gramstax!Ctx#isSessionCallback:member(1)
+    package: gramstax!
+    fullName: isSessionCallback(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example:
+      - |-
+        ```typescript
+        async textFree() {
+          if (this.isSessionTextFree()) {
+            // Handle the expected session flow
+          }
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionCallback(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionCallbackPayload(method, name)
+    uid: gramstax!Ctx#isSessionCallbackPayload:member(1)
+    package: gramstax!
+    fullName: isSessionCallbackPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionCallbackPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionContactFree(method, name)
+    uid: gramstax!Ctx#isSessionContactFree:member(1)
+    package: gramstax!
+    fullName: isSessionContactFree(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionContactFree(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionDocumentCaption(method, name)
+    uid: gramstax!Ctx#isSessionDocumentCaption:member(1)
+    package: gramstax!
+    fullName: isSessionDocumentCaption(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionDocumentCaption(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionDocumentCaptionCommand(method, name)
+    uid: gramstax!Ctx#isSessionDocumentCaptionCommand:member(1)
+    package: gramstax!
+    fullName: isSessionDocumentCaptionCommand(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionDocumentCaptionCommand(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionDocumentCaptionCommandPayload(method, name)
+    uid: gramstax!Ctx#isSessionDocumentCaptionCommandPayload:member(1)
+    package: gramstax!
+    fullName: isSessionDocumentCaptionCommandPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionDocumentCaptionCommandPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionDocumentCaptionPayload(method, name)
+    uid: gramstax!Ctx#isSessionDocumentCaptionPayload:member(1)
+    package: gramstax!
+    fullName: isSessionDocumentCaptionPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionDocumentCaptionPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionDocumentFree(method, name)
+    uid: gramstax!Ctx#isSessionDocumentFree:member(1)
+    package: gramstax!
+    fullName: isSessionDocumentFree(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionDocumentFree(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionLocationFree(method, name)
+    uid: gramstax!Ctx#isSessionLocationFree:member(1)
+    package: gramstax!
+    fullName: isSessionLocationFree(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionLocationFree(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionPhotoCaption(method, name)
+    uid: gramstax!Ctx#isSessionPhotoCaption:member(1)
+    package: gramstax!
+    fullName: isSessionPhotoCaption(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionPhotoCaption(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionPhotoCaptionCommand(method, name)
+    uid: gramstax!Ctx#isSessionPhotoCaptionCommand:member(1)
+    package: gramstax!
+    fullName: isSessionPhotoCaptionCommand(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionPhotoCaptionCommand(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionPhotoCaptionCommandPayload(method, name)
+    uid: gramstax!Ctx#isSessionPhotoCaptionCommandPayload:member(1)
+    package: gramstax!
+    fullName: isSessionPhotoCaptionCommandPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionPhotoCaptionCommandPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionPhotoCaptionPayload(method, name)
+    uid: gramstax!Ctx#isSessionPhotoCaptionPayload:member(1)
+    package: gramstax!
+    fullName: isSessionPhotoCaptionPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionPhotoCaptionPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionPhotoFree(method, name)
+    uid: gramstax!Ctx#isSessionPhotoFree:member(1)
+    package: gramstax!
+    fullName: isSessionPhotoFree(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionPhotoFree(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionStickerFree(method, name)
+    uid: gramstax!Ctx#isSessionStickerFree:member(1)
+    package: gramstax!
+    fullName: isSessionStickerFree(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionStickerFree(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionText(method, name)
+    uid: gramstax!Ctx#isSessionText:member(1)
+    package: gramstax!
+    fullName: isSessionText(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionText(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionTextCommand(method, name)
+    uid: gramstax!Ctx#isSessionTextCommand:member(1)
+    package: gramstax!
+    fullName: isSessionTextCommand(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionTextCommand(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionTextCommandPayload(method, name)
+    uid: gramstax!Ctx#isSessionTextCommandPayload:member(1)
+    package: gramstax!
+    fullName: isSessionTextCommandPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionTextCommandPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionTextFree(method, name)
+    uid: gramstax!Ctx#isSessionTextFree:member(1)
+    package: gramstax!
+    fullName: isSessionTextFree(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionTextFree(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionTextPayload(method, name)
+    uid: gramstax!Ctx#isSessionTextPayload:member(1)
+    package: gramstax!
+    fullName: isSessionTextPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionTextPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionVideoCaption(method, name)
+    uid: gramstax!Ctx#isSessionVideoCaption:member(1)
+    package: gramstax!
+    fullName: isSessionVideoCaption(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionVideoCaption(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionVideoCaptionCommand(method, name)
+    uid: gramstax!Ctx#isSessionVideoCaptionCommand:member(1)
+    package: gramstax!
+    fullName: isSessionVideoCaptionCommand(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionVideoCaptionCommand(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionVideoCaptionCommandPayload(method, name)
+    uid: gramstax!Ctx#isSessionVideoCaptionCommandPayload:member(1)
+    package: gramstax!
+    fullName: isSessionVideoCaptionCommandPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionVideoCaptionCommandPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionVideoCaptionPayload(method, name)
+    uid: gramstax!Ctx#isSessionVideoCaptionPayload:member(1)
+    package: gramstax!
+    fullName: isSessionVideoCaptionPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionVideoCaptionPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionVideoFree(method, name)
+    uid: gramstax!Ctx#isSessionVideoFree:member(1)
+    package: gramstax!
+    fullName: isSessionVideoFree(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionVideoFree(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionVideoNoteFree(method, name)
+    uid: gramstax!Ctx#isSessionVideoNoteFree:member(1)
+    package: gramstax!
+    fullName: isSessionVideoNoteFree(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionVideoNoteFree(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionVoiceCaption(method, name)
+    uid: gramstax!Ctx#isSessionVoiceCaption:member(1)
+    package: gramstax!
+    fullName: isSessionVoiceCaption(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionVoiceCaption(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionVoiceCaptionCommand(method, name)
+    uid: gramstax!Ctx#isSessionVoiceCaptionCommand:member(1)
+    package: gramstax!
+    fullName: isSessionVoiceCaptionCommand(method, name)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionVoiceCaptionCommand(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionVoiceCaptionCommandPayload(method, name)
+    uid: gramstax!Ctx#isSessionVoiceCaptionCommandPayload:member(1)
+    package: gramstax!
+    fullName: isSessionVoiceCaptionCommandPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionVoiceCaptionCommandPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionVoiceCaptionPayload(method, name)
+    uid: gramstax!Ctx#isSessionVoiceCaptionPayload:member(1)
+    package: gramstax!
+    fullName: isSessionVoiceCaptionPayload(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionVoiceCaptionPayload(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
+  - name: isSessionVoiceFree(method, name)
+    uid: gramstax!Ctx#isSessionVoiceFree:member(1)
+    package: gramstax!
+    fullName: isSessionVoiceFree(method, name)
+    summary: Session validation methods.
+    remarks: >-
+      These methods validate whether the current session’s `session.method` matches the value returned by
+      `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding
+      `methodSession*` result.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'isSessionVoiceFree(method?: string, name?: string): boolean;'
+      parameters:
+        - id: method
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: boolean
+        description: ''
   - name: keyboardCols(k, a, layout, cb)
     uid: gramstax!Ctx#keyboardCols:member(1)
     package: gramstax!
@@ -2341,7 +3487,7 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'keyboardCols<T = any>(k: T, a: string[], layout: IKbCols, cb: (e: string, i: number) => any): T;'
+      content: 'keyboardCols<T = any>(k: T, a: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;'
       parameters:
         - id: k
           description: The keyboard instance.
@@ -2351,7 +3497,7 @@ methods:
           type: string[]
         - id: layout
           description: 'Layout format: "cols" or "cols-lastRow" (e.g., "2" or "3-2").'
-          type: <xref uid="gramstax!~IKbCols:type" />
+          type: <xref uid="gramstax!ITKbCols:type" />
         - id: cb
           description: Callback to create each button.
           type: '(e: string, i: number) =&gt; any'
@@ -2379,6 +3525,30 @@ methods:
         locationFree?(): Promise<any>;
       return:
         type: Promise&lt;any&gt;
+        description: ''
+  - name: methodSession(prefix, name)
+    uid: gramstax!Ctx#methodSession:member(1)
+    package: gramstax!
+    fullName: methodSession(prefix, name)
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSession(prefix: string, name: string | undefined): string;'
+      parameters:
+        - id: prefix
+          description: ''
+          type: string
+        - id: name
+          description: ''
+          type: string | undefined
+      return:
+        type: string
         description: ''
   - name: methodSessionAnimationCaption(name)
     uid: gramstax!Ctx#methodSessionAnimationCaption:member(1)
@@ -3270,23 +4440,23 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        reply(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReply):
+        reply(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply):
         Promise<grammy_types.Message.TextMessage>;
       parameters:
         - id: keyboard
           description: >-
             Optional keyboard markup from [Ctx.inlineKeyboard()](xref:gramstax!Ctx%23inlineKeyboard:member(1)) or
             [Ctx.bottomKeyboard()](xref:gramstax!Ctx%23bottomKeyboard:member(1))<!-- -->.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block message.
           type: string
         - id: options
           description: Optional grammY reply options.
-          type: <xref uid="gramstax!~IOptReply:type" />
+          type: <xref uid="gramstax!ITOptReply:type" />
       return:
         type: Promise&lt;<xref uid="@grammyjs/types!Message.TextMessage:type" />&gt;
         description: The sent message object.
@@ -3308,11 +4478,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'replyAction(type: ITypeReplyAction): Promise<true>;'
+      content: 'replyAction(type: ITReplyAction): Promise<true>;'
       parameters:
         - id: type
           description: The action type (typing, upload\_photo, upload\_video, etc.).
-          type: <xref uid="gramstax!~ITypeReplyAction:type" />
+          type: <xref uid="gramstax!ITReplyAction:type" />
       return:
         type: Promise&lt;true&gt;
         description: True if the action was sent successfully.
@@ -3333,7 +4503,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        replyAnimation(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyAnimation):
+        replyAnimation(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyAnimation):
         Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
@@ -3341,16 +4511,16 @@ methods:
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type animation.
           type: string
         - id: options
           description: Optional animation-specific options.
-          type: <xref uid="gramstax!~IOptReplyAnimation:type" />
+          type: <xref uid="gramstax!ITOptReplyAnimation:type" />
       return:
         type: >-
           Promise&lt;<xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -3378,7 +4548,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        replyAudio(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyAudio):
+        replyAudio(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyAudio):
         Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
@@ -3386,16 +4556,16 @@ methods:
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type audio.
           type: string
         - id: options
           description: Optional audio-specific options.
-          type: <xref uid="gramstax!~IOptReplyAudio:type" />
+          type: <xref uid="gramstax!ITOptReplyAudio:type" />
       return:
         type: >-
           Promise&lt;<xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -3423,7 +4593,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        replyContact(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyContact):
+        replyContact(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyContact):
         Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
@@ -3431,16 +4601,16 @@ methods:
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type contact.
           type: string
         - id: options
           description: Optional contact-specific options.
-          type: <xref uid="gramstax!~IOptReplyContact:type" />
+          type: <xref uid="gramstax!ITOptReplyContact:type" />
       return:
         type: >-
           Promise&lt;<xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -3468,7 +4638,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        replyDocument(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyDocument):
+        replyDocument(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyDocument):
         Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
@@ -3476,16 +4646,16 @@ methods:
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type document.
           type: string
         - id: options
           description: Optional document-specific options.
-          type: <xref uid="gramstax!~IOptReplyDocument:type" />
+          type: <xref uid="gramstax!ITOptReplyDocument:type" />
       return:
         type: >-
           Promise&lt;<xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -3513,7 +4683,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        replyLocation(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyLocation):
+        replyLocation(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyLocation):
         Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
@@ -3521,16 +4691,16 @@ methods:
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type location.
           type: string
         - id: options
           description: Optional location-specific options.
-          type: <xref uid="gramstax!~IOptReplyLocation:type" />
+          type: <xref uid="gramstax!ITOptReplyLocation:type" />
       return:
         type: >-
           Promise&lt;<xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -3561,12 +4731,12 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        replyMedia<T extends IMediaBlock[`type`]>(type: T, keyboard?: IInBoKb, data?: IData, baseId?: string, options?:
-        T extends `photo` ? IOptReplyPhoto : T extends `video` ? IOptReplyVideo : T extends `audio` ? IOptReplyAudio : T
-        extends `document` ? IOptReplyDocument : T extends `animation` ? IOptReplyAnimation : T extends `voice` ?
-        IOptReplyVoice : T extends `video_note` ? IOptReplyVideoNote : T extends `sticker` ? IOptReplySticker : T
-        extends `location` ? IOptReplyLocation : T extends `contact` ? IOptReplyContact : undefined):
-        Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
+        replyMedia<T extends IMediaBlock[`type`]>(type: T, keyboard?: ITInBoKb, data?: ITData, baseId?: string,
+        options?: T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ?
+        ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T
+        extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ?
+        ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact :
+        undefined): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
         | grammy_types.Message.StickerMessage | undefined>;
@@ -3576,24 +4746,24 @@ methods:
           type: T
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media.
           type: string
         - id: options
           description: Type-specific options for the media.
           type: >-
-            T extends `photo` ? <xref uid="gramstax!~IOptReplyPhoto:type" /> : T extends `video` ? <xref
-            uid="gramstax!~IOptReplyVideo:type" /> : T extends `audio` ? <xref uid="gramstax!~IOptReplyAudio:type" /> :
-            T extends `document` ? <xref uid="gramstax!~IOptReplyDocument:type" /> : T extends `animation` ? <xref
-            uid="gramstax!~IOptReplyAnimation:type" /> : T extends `voice` ? <xref uid="gramstax!~IOptReplyVoice:type"
-            /> : T extends `video_note` ? <xref uid="gramstax!~IOptReplyVideoNote:type" /> : T extends `sticker` ? <xref
-            uid="gramstax!~IOptReplySticker:type" /> : T extends `location` ? <xref
-            uid="gramstax!~IOptReplyLocation:type" /> : T extends `contact` ? <xref
-            uid="gramstax!~IOptReplyContact:type" /> : undefined
+            T extends `photo` ? <xref uid="gramstax!ITOptReplyPhoto:type" /> : T extends `video` ? <xref
+            uid="gramstax!ITOptReplyVideo:type" /> : T extends `audio` ? <xref uid="gramstax!ITOptReplyAudio:type" /> :
+            T extends `document` ? <xref uid="gramstax!ITOptReplyDocument:type" /> : T extends `animation` ? <xref
+            uid="gramstax!ITOptReplyAnimation:type" /> : T extends `voice` ? <xref uid="gramstax!ITOptReplyVoice:type"
+            /> : T extends `video_note` ? <xref uid="gramstax!ITOptReplyVideoNote:type" /> : T extends `sticker` ? <xref
+            uid="gramstax!ITOptReplySticker:type" /> : T extends `location` ? <xref
+            uid="gramstax!ITOptReplyLocation:type" /> : T extends `contact` ? <xref
+            uid="gramstax!ITOptReplyContact:type" /> : undefined
       return:
         type: >-
           Promise&lt;<xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -3621,7 +4791,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        replyPhoto(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyPhoto):
+        replyPhoto(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto):
         Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
@@ -3629,16 +4799,16 @@ methods:
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type photo.
           type: string
         - id: options
           description: Optional photo-specific options.
-          type: <xref uid="gramstax!~IOptReplyPhoto:type" />
+          type: <xref uid="gramstax!ITOptReplyPhoto:type" />
       return:
         type: >-
           Promise&lt;<xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -3666,7 +4836,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        replySticker(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplySticker):
+        replySticker(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplySticker):
         Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
@@ -3674,16 +4844,16 @@ methods:
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type sticker.
           type: string
         - id: options
           description: Optional sticker-specific options.
-          type: <xref uid="gramstax!~IOptReplySticker:type" />
+          type: <xref uid="gramstax!ITOptReplySticker:type" />
       return:
         type: >-
           Promise&lt;<xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -3711,7 +4881,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        replyVideo(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVideo):
+        replyVideo(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVideo):
         Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
@@ -3719,16 +4889,16 @@ methods:
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type video.
           type: string
         - id: options
           description: Optional video-specific options.
-          type: <xref uid="gramstax!~IOptReplyVideo:type" />
+          type: <xref uid="gramstax!ITOptReplyVideo:type" />
       return:
         type: >-
           Promise&lt;<xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -3756,7 +4926,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        replyVideoNote(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVideoNote):
+        replyVideoNote(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVideoNote):
         Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
@@ -3764,16 +4934,16 @@ methods:
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type video\_note.
           type: string
         - id: options
           description: Optional video note-specific options.
-          type: <xref uid="gramstax!~IOptReplyVideoNote:type" />
+          type: <xref uid="gramstax!ITOptReplyVideoNote:type" />
       return:
         type: >-
           Promise&lt;<xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -3801,7 +4971,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        replyVoice(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVoice):
+        replyVoice(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVoice):
         Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
@@ -3809,16 +4979,16 @@ methods:
       parameters:
         - id: keyboard
           description: Optional keyboard markup.
-          type: <xref uid="gramstax!~IInBoKb:type" />
+          type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
           description: Optional template interpolation data.
-          type: <xref uid="gramstax!~IData:type" />
+          type: <xref uid="gramstax!ITData:type" />
         - id: baseId
           description: Optional template base ID position for block media type voice.
           type: string
         - id: options
           description: Optional voice-specific options.
-          type: <xref uid="gramstax!~IOptReplyVoice:type" />
+          type: <xref uid="gramstax!ITOptReplyVoice:type" />
       return:
         type: >-
           Promise&lt;<xref uid="@grammyjs/types!Message.LocationMessage:type" /> | <xref
@@ -3833,8 +5003,10 @@ methods:
     uid: gramstax!Ctx#sessionAnimationCaption:member(1)
     package: gramstax!
     fullName: sessionAnimationCaption(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3854,8 +5026,10 @@ methods:
     uid: gramstax!Ctx#sessionAnimationCaptionCommand:member(1)
     package: gramstax!
     fullName: sessionAnimationCaptionCommand(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3875,8 +5049,10 @@ methods:
     uid: gramstax!Ctx#sessionAnimationCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: sessionAnimationCaptionCommandPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3896,8 +5072,10 @@ methods:
     uid: gramstax!Ctx#sessionAnimationCaptionPayload:member(1)
     package: gramstax!
     fullName: sessionAnimationCaptionPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3917,8 +5095,10 @@ methods:
     uid: gramstax!Ctx#sessionAnimationFree:member(1)
     package: gramstax!
     fullName: sessionAnimationFree(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3938,8 +5118,10 @@ methods:
     uid: gramstax!Ctx#sessionAudioCaption:member(1)
     package: gramstax!
     fullName: sessionAudioCaption(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3959,8 +5141,10 @@ methods:
     uid: gramstax!Ctx#sessionAudioCaptionCommand:member(1)
     package: gramstax!
     fullName: sessionAudioCaptionCommand(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3980,8 +5164,10 @@ methods:
     uid: gramstax!Ctx#sessionAudioCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: sessionAudioCaptionCommandPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4001,8 +5187,10 @@ methods:
     uid: gramstax!Ctx#sessionAudioCaptionPayload:member(1)
     package: gramstax!
     fullName: sessionAudioCaptionPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4022,8 +5210,10 @@ methods:
     uid: gramstax!Ctx#sessionAudioFree:member(1)
     package: gramstax!
     fullName: sessionAudioFree(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4074,8 +5264,10 @@ methods:
     uid: gramstax!Ctx#sessionCallbackPayload:member(1)
     package: gramstax!
     fullName: sessionCallbackPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4116,8 +5308,10 @@ methods:
     uid: gramstax!Ctx#sessionContactFree:member(1)
     package: gramstax!
     fullName: sessionContactFree(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4137,8 +5331,10 @@ methods:
     uid: gramstax!Ctx#sessionDocumentCaption:member(1)
     package: gramstax!
     fullName: sessionDocumentCaption(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4158,8 +5354,10 @@ methods:
     uid: gramstax!Ctx#sessionDocumentCaptionCommand:member(1)
     package: gramstax!
     fullName: sessionDocumentCaptionCommand(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4179,8 +5377,10 @@ methods:
     uid: gramstax!Ctx#sessionDocumentCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: sessionDocumentCaptionCommandPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4200,8 +5400,10 @@ methods:
     uid: gramstax!Ctx#sessionDocumentCaptionPayload:member(1)
     package: gramstax!
     fullName: sessionDocumentCaptionPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4221,8 +5423,10 @@ methods:
     uid: gramstax!Ctx#sessionDocumentFree:member(1)
     package: gramstax!
     fullName: sessionDocumentFree(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4265,8 +5469,10 @@ methods:
     uid: gramstax!Ctx#sessionLocationFree:member(1)
     package: gramstax!
     fullName: sessionLocationFree(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4286,8 +5492,10 @@ methods:
     uid: gramstax!Ctx#sessionPhotoCaption:member(1)
     package: gramstax!
     fullName: sessionPhotoCaption(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4307,8 +5515,10 @@ methods:
     uid: gramstax!Ctx#sessionPhotoCaptionCommand:member(1)
     package: gramstax!
     fullName: sessionPhotoCaptionCommand(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4328,8 +5538,10 @@ methods:
     uid: gramstax!Ctx#sessionPhotoCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: sessionPhotoCaptionCommandPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4349,8 +5561,10 @@ methods:
     uid: gramstax!Ctx#sessionPhotoCaptionPayload:member(1)
     package: gramstax!
     fullName: sessionPhotoCaptionPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4370,8 +5584,10 @@ methods:
     uid: gramstax!Ctx#sessionPhotoFree:member(1)
     package: gramstax!
     fullName: sessionPhotoFree(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4424,8 +5640,10 @@ methods:
     uid: gramstax!Ctx#sessionStickerFree:member(1)
     package: gramstax!
     fullName: sessionStickerFree(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4445,8 +5663,10 @@ methods:
     uid: gramstax!Ctx#sessionText:member(1)
     package: gramstax!
     fullName: sessionText(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4466,8 +5686,10 @@ methods:
     uid: gramstax!Ctx#sessionTextCommand:member(1)
     package: gramstax!
     fullName: sessionTextCommand(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4487,8 +5709,10 @@ methods:
     uid: gramstax!Ctx#sessionTextCommandPayload:member(1)
     package: gramstax!
     fullName: sessionTextCommandPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4508,8 +5732,10 @@ methods:
     uid: gramstax!Ctx#sessionTextFree:member(1)
     package: gramstax!
     fullName: sessionTextFree(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4529,8 +5755,10 @@ methods:
     uid: gramstax!Ctx#sessionTextPayload:member(1)
     package: gramstax!
     fullName: sessionTextPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4546,852 +5774,14 @@ methods:
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionToAnimationCaption(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToAnimationCaption:member(1)
-    package: gramstax!
-    fullName: sessionToAnimationCaption(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToAnimationCaption(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToAnimationCaptionCommand(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToAnimationCaptionCommand:member(1)
-    package: gramstax!
-    fullName: sessionToAnimationCaptionCommand(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToAnimationCaptionCommand(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToAnimationCaptionCommandPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToAnimationCaptionCommandPayload:member(1)
-    package: gramstax!
-    fullName: sessionToAnimationCaptionCommandPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToAnimationCaptionCommandPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToAnimationCaptionPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToAnimationCaptionPayload:member(1)
-    package: gramstax!
-    fullName: sessionToAnimationCaptionPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToAnimationCaptionPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToAnimationFree(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToAnimationFree:member(1)
-    package: gramstax!
-    fullName: sessionToAnimationFree(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToAnimationFree(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToAudioCaption(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToAudioCaption:member(1)
-    package: gramstax!
-    fullName: sessionToAudioCaption(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToAudioCaption(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToAudioCaptionCommand(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToAudioCaptionCommand:member(1)
-    package: gramstax!
-    fullName: sessionToAudioCaptionCommand(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToAudioCaptionCommand(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToAudioCaptionCommandPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToAudioCaptionCommandPayload:member(1)
-    package: gramstax!
-    fullName: sessionToAudioCaptionCommandPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToAudioCaptionCommandPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToAudioCaptionPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToAudioCaptionPayload:member(1)
-    package: gramstax!
-    fullName: sessionToAudioCaptionPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToAudioCaptionPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToAudioFree(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToAudioFree:member(1)
-    package: gramstax!
-    fullName: sessionToAudioFree(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToAudioFree(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToCallbackPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToCallbackPayload:member(1)
-    package: gramstax!
-    fullName: sessionToCallbackPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToCallbackPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToContactFree(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToContactFree:member(1)
-    package: gramstax!
-    fullName: sessionToContactFree(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToContactFree(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToDocumentCaption(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToDocumentCaption:member(1)
-    package: gramstax!
-    fullName: sessionToDocumentCaption(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToDocumentCaption(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToDocumentCaptionCommand(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToDocumentCaptionCommand:member(1)
-    package: gramstax!
-    fullName: sessionToDocumentCaptionCommand(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToDocumentCaptionCommand(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToDocumentCaptionCommandPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToDocumentCaptionCommandPayload:member(1)
-    package: gramstax!
-    fullName: sessionToDocumentCaptionCommandPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToDocumentCaptionCommandPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToDocumentCaptionPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToDocumentCaptionPayload:member(1)
-    package: gramstax!
-    fullName: sessionToDocumentCaptionPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToDocumentCaptionPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToDocumentFree(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToDocumentFree:member(1)
-    package: gramstax!
-    fullName: sessionToDocumentFree(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToDocumentFree(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToLocationFree(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToLocationFree:member(1)
-    package: gramstax!
-    fullName: sessionToLocationFree(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToLocationFree(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToPhotoCaption(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToPhotoCaption:member(1)
-    package: gramstax!
-    fullName: sessionToPhotoCaption(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToPhotoCaption(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToPhotoCaptionCommand(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToPhotoCaptionCommand:member(1)
-    package: gramstax!
-    fullName: sessionToPhotoCaptionCommand(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToPhotoCaptionCommand(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToPhotoCaptionCommandPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToPhotoCaptionCommandPayload:member(1)
-    package: gramstax!
-    fullName: sessionToPhotoCaptionCommandPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToPhotoCaptionCommandPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToPhotoCaptionPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToPhotoCaptionPayload:member(1)
-    package: gramstax!
-    fullName: sessionToPhotoCaptionPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToPhotoCaptionPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToPhotoFree(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToPhotoFree:member(1)
-    package: gramstax!
-    fullName: sessionToPhotoFree(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToPhotoFree(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToStickerFree(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToStickerFree:member(1)
-    package: gramstax!
-    fullName: sessionToStickerFree(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToStickerFree(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToText(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToText:member(1)
-    package: gramstax!
-    fullName: sessionToText(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToText(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToTextCommand(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToTextCommand:member(1)
-    package: gramstax!
-    fullName: sessionToTextCommand(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToTextCommand(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToTextCommandPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToTextCommandPayload:member(1)
-    package: gramstax!
-    fullName: sessionToTextCommandPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToTextCommandPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToTextFree(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToTextFree:member(1)
-    package: gramstax!
-    fullName: sessionToTextFree(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToTextFree(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToTextPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToTextPayload:member(1)
-    package: gramstax!
-    fullName: sessionToTextPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToTextPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToVideoCaption(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToVideoCaption:member(1)
-    package: gramstax!
-    fullName: sessionToVideoCaption(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToVideoCaption(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToVideoCaptionCommand(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToVideoCaptionCommand:member(1)
-    package: gramstax!
-    fullName: sessionToVideoCaptionCommand(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToVideoCaptionCommand(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToVideoCaptionCommandPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToVideoCaptionCommandPayload:member(1)
-    package: gramstax!
-    fullName: sessionToVideoCaptionCommandPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToVideoCaptionCommandPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToVideoCaptionPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToVideoCaptionPayload:member(1)
-    package: gramstax!
-    fullName: sessionToVideoCaptionPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToVideoCaptionPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToVideoFree(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToVideoFree:member(1)
-    package: gramstax!
-    fullName: sessionToVideoFree(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToVideoFree(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToVideoNoteFree(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToVideoNoteFree:member(1)
-    package: gramstax!
-    fullName: sessionToVideoNoteFree(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToVideoNoteFree(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToVoiceCaption(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToVoiceCaption:member(1)
-    package: gramstax!
-    fullName: sessionToVoiceCaption(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToVoiceCaption(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToVoiceCaptionCommand(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToVoiceCaptionCommand:member(1)
-    package: gramstax!
-    fullName: sessionToVoiceCaptionCommand(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToVoiceCaptionCommand(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToVoiceCaptionCommandPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToVoiceCaptionCommandPayload:member(1)
-    package: gramstax!
-    fullName: sessionToVoiceCaptionCommandPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToVoiceCaptionCommandPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToVoiceCaptionPayload(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToVoiceCaptionPayload:member(1)
-    package: gramstax!
-    fullName: sessionToVoiceCaptionPayload(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToVoiceCaptionPayload(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionToVoiceFree(paramsAdd, name)
-    uid: gramstax!Ctx#sessionToVoiceFree:member(1)
-    package: gramstax!
-    fullName: sessionToVoiceFree(paramsAdd, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionToVoiceFree(paramsAdd?: any, name?: string): Promise<boolean | null>;'
-      parameters:
-        - id: paramsAdd
-          description: ''
-          type: any
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
   - name: sessionVideoCaption(params, name)
     uid: gramstax!Ctx#sessionVideoCaption:member(1)
     package: gramstax!
     fullName: sessionVideoCaption(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -5411,8 +5801,10 @@ methods:
     uid: gramstax!Ctx#sessionVideoCaptionCommand:member(1)
     package: gramstax!
     fullName: sessionVideoCaptionCommand(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -5432,8 +5824,10 @@ methods:
     uid: gramstax!Ctx#sessionVideoCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: sessionVideoCaptionCommandPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -5453,8 +5847,10 @@ methods:
     uid: gramstax!Ctx#sessionVideoCaptionPayload:member(1)
     package: gramstax!
     fullName: sessionVideoCaptionPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -5474,8 +5870,10 @@ methods:
     uid: gramstax!Ctx#sessionVideoFree:member(1)
     package: gramstax!
     fullName: sessionVideoFree(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -5495,8 +5893,10 @@ methods:
     uid: gramstax!Ctx#sessionVideoNoteFree:member(1)
     package: gramstax!
     fullName: sessionVideoNoteFree(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -5516,8 +5916,10 @@ methods:
     uid: gramstax!Ctx#sessionVoiceCaption:member(1)
     package: gramstax!
     fullName: sessionVoiceCaption(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -5537,8 +5939,10 @@ methods:
     uid: gramstax!Ctx#sessionVoiceCaptionCommand:member(1)
     package: gramstax!
     fullName: sessionVoiceCaptionCommand(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -5558,8 +5962,10 @@ methods:
     uid: gramstax!Ctx#sessionVoiceCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: sessionVoiceCaptionCommandPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -5579,8 +5985,10 @@ methods:
     uid: gramstax!Ctx#sessionVoiceCaptionPayload:member(1)
     package: gramstax!
     fullName: sessionVoiceCaptionPayload(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -5600,8 +6008,10 @@ methods:
     uid: gramstax!Ctx#sessionVoiceFree:member(1)
     package: gramstax!
     fullName: sessionVoiceFree(params, name)
-    summary: ''
-    remarks: ''
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -5785,846 +6195,6 @@ methods:
       return:
         type: Promise&lt;any&gt;
         description: Promise resolving when transition is complete.
-  - name: validateSessionAnimationCaption(method, name)
-    uid: gramstax!Ctx#validateSessionAnimationCaption:member(1)
-    package: gramstax!
-    fullName: validateSessionAnimationCaption(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionAnimationCaption(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionAnimationCaptionCommand(method, name)
-    uid: gramstax!Ctx#validateSessionAnimationCaptionCommand:member(1)
-    package: gramstax!
-    fullName: validateSessionAnimationCaptionCommand(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionAnimationCaptionCommand(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionAnimationCaptionCommandPayload(method, name)
-    uid: gramstax!Ctx#validateSessionAnimationCaptionCommandPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionAnimationCaptionCommandPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionAnimationCaptionCommandPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionAnimationCaptionPayload(method, name)
-    uid: gramstax!Ctx#validateSessionAnimationCaptionPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionAnimationCaptionPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionAnimationCaptionPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionAnimationFree(method, name)
-    uid: gramstax!Ctx#validateSessionAnimationFree:member(1)
-    package: gramstax!
-    fullName: validateSessionAnimationFree(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionAnimationFree(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionAudioCaption(method, name)
-    uid: gramstax!Ctx#validateSessionAudioCaption:member(1)
-    package: gramstax!
-    fullName: validateSessionAudioCaption(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionAudioCaption(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionAudioCaptionCommand(method, name)
-    uid: gramstax!Ctx#validateSessionAudioCaptionCommand:member(1)
-    package: gramstax!
-    fullName: validateSessionAudioCaptionCommand(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionAudioCaptionCommand(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionAudioCaptionCommandPayload(method, name)
-    uid: gramstax!Ctx#validateSessionAudioCaptionCommandPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionAudioCaptionCommandPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionAudioCaptionCommandPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionAudioCaptionPayload(method, name)
-    uid: gramstax!Ctx#validateSessionAudioCaptionPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionAudioCaptionPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionAudioCaptionPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionAudioFree(method, name)
-    uid: gramstax!Ctx#validateSessionAudioFree:member(1)
-    package: gramstax!
-    fullName: validateSessionAudioFree(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionAudioFree(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionCallbackPayload(method, name)
-    uid: gramstax!Ctx#validateSessionCallbackPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionCallbackPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionCallbackPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionContactFree(method, name)
-    uid: gramstax!Ctx#validateSessionContactFree:member(1)
-    package: gramstax!
-    fullName: validateSessionContactFree(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionContactFree(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionDocumentCaption(method, name)
-    uid: gramstax!Ctx#validateSessionDocumentCaption:member(1)
-    package: gramstax!
-    fullName: validateSessionDocumentCaption(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionDocumentCaption(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionDocumentCaptionCommand(method, name)
-    uid: gramstax!Ctx#validateSessionDocumentCaptionCommand:member(1)
-    package: gramstax!
-    fullName: validateSessionDocumentCaptionCommand(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionDocumentCaptionCommand(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionDocumentCaptionCommandPayload(method, name)
-    uid: gramstax!Ctx#validateSessionDocumentCaptionCommandPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionDocumentCaptionCommandPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionDocumentCaptionCommandPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionDocumentCaptionPayload(method, name)
-    uid: gramstax!Ctx#validateSessionDocumentCaptionPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionDocumentCaptionPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionDocumentCaptionPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionDocumentFree(method, name)
-    uid: gramstax!Ctx#validateSessionDocumentFree:member(1)
-    package: gramstax!
-    fullName: validateSessionDocumentFree(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionDocumentFree(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionLocationFree(method, name)
-    uid: gramstax!Ctx#validateSessionLocationFree:member(1)
-    package: gramstax!
-    fullName: validateSessionLocationFree(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionLocationFree(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionPhotoCaption(method, name)
-    uid: gramstax!Ctx#validateSessionPhotoCaption:member(1)
-    package: gramstax!
-    fullName: validateSessionPhotoCaption(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionPhotoCaption(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionPhotoCaptionCommand(method, name)
-    uid: gramstax!Ctx#validateSessionPhotoCaptionCommand:member(1)
-    package: gramstax!
-    fullName: validateSessionPhotoCaptionCommand(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionPhotoCaptionCommand(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionPhotoCaptionCommandPayload(method, name)
-    uid: gramstax!Ctx#validateSessionPhotoCaptionCommandPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionPhotoCaptionCommandPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionPhotoCaptionCommandPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionPhotoCaptionPayload(method, name)
-    uid: gramstax!Ctx#validateSessionPhotoCaptionPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionPhotoCaptionPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionPhotoCaptionPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionPhotoFree(method, name)
-    uid: gramstax!Ctx#validateSessionPhotoFree:member(1)
-    package: gramstax!
-    fullName: validateSessionPhotoFree(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionPhotoFree(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionStickerFree(method, name)
-    uid: gramstax!Ctx#validateSessionStickerFree:member(1)
-    package: gramstax!
-    fullName: validateSessionStickerFree(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionStickerFree(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionText(method, name)
-    uid: gramstax!Ctx#validateSessionText:member(1)
-    package: gramstax!
-    fullName: validateSessionText(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionText(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionTextCommand(method, name)
-    uid: gramstax!Ctx#validateSessionTextCommand:member(1)
-    package: gramstax!
-    fullName: validateSessionTextCommand(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionTextCommand(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionTextCommandPayload(method, name)
-    uid: gramstax!Ctx#validateSessionTextCommandPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionTextCommandPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionTextCommandPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionTextFree(method, name)
-    uid: gramstax!Ctx#validateSessionTextFree:member(1)
-    package: gramstax!
-    fullName: validateSessionTextFree(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionTextFree(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionTextPayload(method, name)
-    uid: gramstax!Ctx#validateSessionTextPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionTextPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionTextPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionVideoCaption(method, name)
-    uid: gramstax!Ctx#validateSessionVideoCaption:member(1)
-    package: gramstax!
-    fullName: validateSessionVideoCaption(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionVideoCaption(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionVideoCaptionCommand(method, name)
-    uid: gramstax!Ctx#validateSessionVideoCaptionCommand:member(1)
-    package: gramstax!
-    fullName: validateSessionVideoCaptionCommand(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionVideoCaptionCommand(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionVideoCaptionCommandPayload(method, name)
-    uid: gramstax!Ctx#validateSessionVideoCaptionCommandPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionVideoCaptionCommandPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionVideoCaptionCommandPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionVideoCaptionPayload(method, name)
-    uid: gramstax!Ctx#validateSessionVideoCaptionPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionVideoCaptionPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionVideoCaptionPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionVideoFree(method, name)
-    uid: gramstax!Ctx#validateSessionVideoFree:member(1)
-    package: gramstax!
-    fullName: validateSessionVideoFree(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionVideoFree(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionVideoNoteFree(method, name)
-    uid: gramstax!Ctx#validateSessionVideoNoteFree:member(1)
-    package: gramstax!
-    fullName: validateSessionVideoNoteFree(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionVideoNoteFree(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionVoiceCaption(method, name)
-    uid: gramstax!Ctx#validateSessionVoiceCaption:member(1)
-    package: gramstax!
-    fullName: validateSessionVoiceCaption(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionVoiceCaption(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionVoiceCaptionCommand(method, name)
-    uid: gramstax!Ctx#validateSessionVoiceCaptionCommand:member(1)
-    package: gramstax!
-    fullName: validateSessionVoiceCaptionCommand(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionVoiceCaptionCommand(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionVoiceCaptionCommandPayload(method, name)
-    uid: gramstax!Ctx#validateSessionVoiceCaptionCommandPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionVoiceCaptionCommandPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionVoiceCaptionCommandPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionVoiceCaptionPayload(method, name)
-    uid: gramstax!Ctx#validateSessionVoiceCaptionPayload:member(1)
-    package: gramstax!
-    fullName: validateSessionVoiceCaptionPayload(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionVoiceCaptionPayload(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
-  - name: validateSessionVoiceFree(method, name)
-    uid: gramstax!Ctx#validateSessionVoiceFree:member(1)
-    package: gramstax!
-    fullName: validateSessionVoiceFree(method, name)
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'validateSessionVoiceFree(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
-      return:
-        type: boolean
-        description: ''
   - name: videoCaption()
     uid: gramstax!Ctx#videoCaption:member(1)
     package: gramstax!

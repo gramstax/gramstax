@@ -9,7 +9,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 **Signature:**
 
 ```typescript
-keyboardCols<T = any>(k: T, a: string[], layout: IKbCols, cb: (e: string, i: number) => any): T;
+keyboardCols<T = any>(k: T, a: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;
 ```
 
 ## Parameters
@@ -69,7 +69,7 @@ layout
 
 </td><td>
 
-IKbCols
+[ITKbCols](./gramstax.itkbcols.md)
 
 
 </td><td>

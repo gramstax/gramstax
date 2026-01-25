@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: ITOptReplySticker
+uid: gramstax!ITOptReplySticker:type
+package: gramstax!
+fullName: ITOptReplySticker
+summary: Options for sending sticker messages.
+remarks: Extracted from grammY's `Context.replyWithSticker()` method options parameter.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ITOptReplySticker = Parameters<Context[`replyWithSticker`]>[1];

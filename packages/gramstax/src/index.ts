@@ -13,3 +13,6 @@ export * from "./worker-thread/init"
 export * from "./worker-thread/launch"
 export * from "./worker-thread/pool"
 export * from "./worker-thread/rpc"
+// type
+export * from "./types/t.bot"
+export * from "./types/t.ctx"

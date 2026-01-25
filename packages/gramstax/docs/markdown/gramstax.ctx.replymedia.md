@@ -9,7 +9,7 @@ Sends a media message reply with dynamic type selection.
 **Signature:**
 
 ```typescript
-replyMedia<T extends IMediaBlock[`type`]>(type: T, keyboard?: IInBoKb, data?: IData, baseId?: string, options?: T extends `photo` ? IOptReplyPhoto : T extends `video` ? IOptReplyVideo : T extends `audio` ? IOptReplyAudio : T extends `document` ? IOptReplyDocument : T extends `animation` ? IOptReplyAnimation : T extends `voice` ? IOptReplyVoice : T extends `video_note` ? IOptReplyVideoNote : T extends `sticker` ? IOptReplySticker : T extends `location` ? IOptReplyLocation : T extends `contact` ? IOptReplyContact : undefined): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+replyMedia<T extends IMediaBlock[`type`]>(type: T, keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ keyboard
 
 </td><td>
 
-IInBoKb
+[ITInBoKb](./gramstax.itinbokb.md)
 
 
 </td><td>
@@ -69,7 +69,7 @@ data
 
 </td><td>
 
-IData
+[ITData](./gramstax.itdata.md)
 
 
 </td><td>
@@ -101,7 +101,7 @@ options
 
 </td><td>
 
-T extends \`photo\` ? IOptReplyPhoto : T extends \`video\` ? IOptReplyVideo : T extends \`audio\` ? IOptReplyAudio : T extends \`document\` ? IOptReplyDocument : T extends \`animation\` ? IOptReplyAnimation : T extends \`voice\` ? IOptReplyVoice : T extends \`video\_note\` ? IOptReplyVideoNote : T extends \`sticker\` ? IOptReplySticker : T extends \`location\` ? IOptReplyLocation : T extends \`contact\` ? IOptReplyContact : undefined
+T extends \`photo\` ? [ITOptReplyPhoto](./gramstax.itoptreplyphoto.md) : T extends \`video\` ? [ITOptReplyVideo](./gramstax.itoptreplyvideo.md) : T extends \`audio\` ? [ITOptReplyAudio](./gramstax.itoptreplyaudio.md) : T extends \`document\` ? [ITOptReplyDocument](./gramstax.itoptreplydocument.md) : T extends \`animation\` ? [ITOptReplyAnimation](./gramstax.itoptreplyanimation.md) : T extends \`voice\` ? [ITOptReplyVoice](./gramstax.itoptreplyvoice.md) : T extends \`video\_note\` ? [ITOptReplyVideoNote](./gramstax.itoptreplyvideonote.md) : T extends \`sticker\` ? [ITOptReplySticker](./gramstax.itoptreplysticker.md) : T extends \`location\` ? [ITOptReplyLocation](./gramstax.itoptreplylocation.md) : T extends \`contact\` ? [ITOptReplyContact](./gramstax.itoptreplycontact.md) : undefined
 
 
 </td><td>

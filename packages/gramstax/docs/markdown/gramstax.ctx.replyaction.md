@@ -9,7 +9,7 @@ Sends a chat action indicator (typing, uploading, etc.).
 **Signature:**
 
 ```typescript
-replyAction(type: ITypeReplyAction): Promise<true>;
+replyAction(type: ITReplyAction): Promise<true>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ type
 
 </td><td>
 
-ITypeReplyAction
+[ITReplyAction](./gramstax.itreplyaction.md)
 
 
 </td><td>

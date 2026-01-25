@@ -43,33 +43,13 @@ constructors:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: |-
-        constructor(params: {
-                token: string;
-                deploy: string;
-                log?: LoggingPretty | boolean | null;
-                cacheSession?: CacheExternal;
-                cacheKeyboard?: Map<any, any>;
-                templateManager?: TemplateManager;
-                optionsPage?: {
-                    shortCallbackData?: boolean;
-                };
-            });
+      content: 'constructor(params: ITGramstaxParams);'
       parameters:
         - id: params
-          description: Configuration options.
-          type: |-
-            {
-                    token: string;
-                    deploy: string;
-                    log?: <xref uid="logging-pretty!LoggingPretty:class" /> | boolean | null;
-                    cacheSession?: <xref uid="gramstax!CacheExternal:class" />;
-                    cacheKeyboard?: Map&lt;any, any&gt;;
-                    templateManager?: <xref uid="gramstax!TemplateManager:class" />;
-                    optionsPage?: {
-                        shortCallbackData?: boolean;
-                    };
-                }
+          description: >-
+            Configuration options. See [ITGramstaxParams](xref:gramstax!ITGramstaxParams:type) for all available
+            options.
+          type: <xref uid="gramstax!ITGramstaxParams:type" />
 properties:
   - name: bot
     uid: gramstax!Gramstax#bot:member
@@ -165,9 +145,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'pages: ReturnType<typeof this.pageLoads>;'
+      content: 'pages: ReturnType<typeof this._pageLoads>;'
       return:
-        type: ReturnType&lt;typeof gramstax!Gramstax#<xref uid="pageLoads:member" />&gt;
+        type: ReturnType&lt;typeof gramstax!Gramstax#<xref uid="_pageLoads:member" />&gt;
   - name: templateManager
     uid: gramstax!Gramstax#templateManager:member
     package: gramstax!
@@ -182,6 +162,1311 @@ properties:
       return:
         type: <xref uid="gramstax!TemplateManager:class" />
 methods:
+  - name: _onCallbackQueryData(ct)
+    uid: gramstax!Gramstax#_onCallbackQueryData:member(1)
+    package: gramstax!
+    fullName: _onCallbackQueryData(ct)
+    summary: Handles incoming callback queries from inline keyboards and process route.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onCallbackQueryData(ct: Context): Promise<void>;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onCatch(error)
+    uid: gramstax!Gramstax#_onCatch:member(1)
+    package: gramstax!
+    fullName: _onCatch(error)
+    summary: Global error handler for bot errors.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onCatch(error: BotError<Context>): void;'
+      parameters:
+        - id: error
+          description: The bot error object.
+          type: <xref uid="grammy!BotError:class" />&lt;<xref uid="grammy!Context:class" />&gt;
+      return:
+        type: void
+        description: ''
+  - name: _onMessage(ct, listenerName)
+    uid: gramstax!Gramstax#_onMessage:member(1)
+    package: gramstax!
+    fullName: _onMessage(ct, listenerName)
+    summary: Handles incoming messages of a specific type and process route.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        _onMessage(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific):
+        Promise<void>;
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+        - id: listenerName
+          description: The message type being handled.
+          type: keyof typeof gramstax!~__type#<xref uid="routeDynamicSpesific:member" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onMessageAnimation(ct)
+    uid: gramstax!Gramstax#_onMessageAnimation:member(1)
+    package: gramstax!
+    fullName: _onMessageAnimation(ct)
+    summary: Handles incoming messages\*
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onMessageAnimation(ct: Context): Promise<void>;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onMessageAudio(ct)
+    uid: gramstax!Gramstax#_onMessageAudio:member(1)
+    package: gramstax!
+    fullName: _onMessageAudio(ct)
+    summary: Handles incoming messages\*
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onMessageAudio(ct: Context): Promise<void>;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onMessageContact(ct)
+    uid: gramstax!Gramstax#_onMessageContact:member(1)
+    package: gramstax!
+    fullName: _onMessageContact(ct)
+    summary: Handles incoming messages\*
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onMessageContact(ct: Context): Promise<void>;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onMessageDocument(ct)
+    uid: gramstax!Gramstax#_onMessageDocument:member(1)
+    package: gramstax!
+    fullName: _onMessageDocument(ct)
+    summary: Handles incoming messages\*
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onMessageDocument(ct: Context): Promise<void>;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onMessageLocation(ct)
+    uid: gramstax!Gramstax#_onMessageLocation:member(1)
+    package: gramstax!
+    fullName: _onMessageLocation(ct)
+    summary: Handles incoming messages\*
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onMessageLocation(ct: Context): Promise<void>;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onMessagePhoto(ct)
+    uid: gramstax!Gramstax#_onMessagePhoto:member(1)
+    package: gramstax!
+    fullName: _onMessagePhoto(ct)
+    summary: Handles incoming messages\*
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onMessagePhoto(ct: Context): Promise<void>;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onMessageSticker(ct)
+    uid: gramstax!Gramstax#_onMessageSticker:member(1)
+    package: gramstax!
+    fullName: _onMessageSticker(ct)
+    summary: Handles incoming messages\*
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onMessageSticker(ct: Context): Promise<void>;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onMessageText(ct)
+    uid: gramstax!Gramstax#_onMessageText:member(1)
+    package: gramstax!
+    fullName: _onMessageText(ct)
+    summary: Handles incoming messages\*
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onMessageText(ct: Context): Promise<void>;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onMessageVideo(ct)
+    uid: gramstax!Gramstax#_onMessageVideo:member(1)
+    package: gramstax!
+    fullName: _onMessageVideo(ct)
+    summary: Handles incoming messages\*
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onMessageVideo(ct: Context): Promise<void>;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onMessageVideoNote(ct)
+    uid: gramstax!Gramstax#_onMessageVideoNote:member(1)
+    package: gramstax!
+    fullName: _onMessageVideoNote(ct)
+    summary: Handles incoming messages\*
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onMessageVideoNote(ct: Context): Promise<void>;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onMessageVoice(ct)
+    uid: gramstax!Gramstax#_onMessageVoice:member(1)
+    package: gramstax!
+    fullName: _onMessageVoice(ct)
+    summary: Handles incoming messages\*
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_onMessageVoice(ct: Context): Promise<void>;'
+      parameters:
+        - id: ct
+          description: The grammY Context object.
+          type: <xref uid="grammy!Context:class" />
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _onStart(botInfo, method, data)
+    uid: gramstax!Gramstax#_onStart:member(1)
+    package: gramstax!
+    fullName: _onStart(botInfo, method, data)
+    summary: Called when the bot successfully starts.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        _onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null):
+        Promise<void>;
+      parameters:
+        - id: botInfo
+          description: Information about the bot from Telegram.
+          type: <xref uid="@grammyjs/types!UserFromGetMe:interface" />
+        - id: method
+          description: The deployment method used.
+          type: '`polling` | `webhook` | `serverless`'
+        - id: data
+          description: Additional data (URL for webhook/serverless).
+          type: string | null
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _pageBuildData(Page, filePath)
+    uid: gramstax!Gramstax#_pageBuildData:member(1)
+    package: gramstax!
+    fullName: _pageBuildData(Page, filePath)
+    summary: Builds page data configuration for a page class.
+    remarks: Initializes `Page.data` if undefined and sets default intent values based on the file name.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_pageBuildData(Page: typeof Ctx, filePath: string): void;'
+      parameters:
+        - id: Page
+          description: The page class.
+          type: typeof <xref uid="gramstax!Ctx:class" />
+        - id: filePath
+          description: The file path of the page.
+          type: string
+      return:
+        type: void
+        description: ''
+  - name: _pageLoads()
+    uid: gramstax!Gramstax#_pageLoads:member(1)
+    package: gramstax!
+    fullName: _pageLoads()
+    summary: Loads all page classes and builds routing tables.
+    remarks: Scans the pages directory, processes each page class, and builds optimized routing tables for O(1) lookups.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        _pageLoads(): {
+                all: Record<string, typeof Ctx>;
+                routeDynamic: string[];
+                routeDynamicSpesific: {
+                    text: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    photo: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    video: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    audio: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    document: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    animation: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    voice: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    videoNote: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    sticker: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    location: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    contact: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                };
+                routeStatic: {
+                    text: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    callback: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    textCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    photoCaption: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    photoCaptionCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    videoCaption: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    videoCaptionCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    audioCaption: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    audioCaptionCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    documentCaption: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    documentCaptionCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    animationCaption: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    animationCaptionCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    voiceCaption: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    voiceCaptionCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                };
+                routeStaticIntent: {
+                    callbackPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    textPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    textCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    photoCaptionPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    photoCaptionCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    videoCaptionPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    videoCaptionCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    audioCaptionPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    audioCaptionCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    documentCaptionPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    documentCaptionCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    animationCaptionPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    animationCaptionCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    voiceCaptionPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    voiceCaptionCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                };
+                routeStaticSession: {
+                    text: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    callback: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    textCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    photoCaption: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    photoCaptionCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    videoCaption: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    videoCaptionCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    audioCaption: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    audioCaptionCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    documentCaption: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    documentCaptionCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    animationCaption: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    animationCaptionCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    voiceCaption: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    voiceCaptionCommand: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    callbackPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    textPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    textCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    photoCaptionPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    photoCaptionCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    videoCaptionPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    videoCaptionCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    audioCaptionPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    audioCaptionCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    documentCaptionPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    documentCaptionCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    animationCaptionPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    animationCaptionCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    voiceCaptionPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    voiceCaptionCommandPayload: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    textFree: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    photoFree: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    videoFree: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    audioFree: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    documentFree: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    animationFree: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    voiceFree: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    videoNoteFree: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    stickerFree: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    locationFree: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    contactFree: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                };
+                listRouteStatic: readonly ["callback", "text", "textCommand", "photoCaption", "photoCaptionCommand", "videoCaption", "videoCaptionCommand", "audioCaption", "audioCaptionCommand", "documentCaption", "documentCaptionCommand", "animationCaption", "animationCaptionCommand", "voiceCaption", "voiceCaptionCommand"];
+                listRouteStaticIntent: readonly ["callbackPayload", "textPayload", "textCommandPayload", "photoCaptionPayload", "photoCaptionCommandPayload", "videoCaptionPayload", "videoCaptionCommandPayload", "audioCaptionPayload", "audioCaptionCommandPayload", "documentCaptionPayload", "documentCaptionCommandPayload", "animationCaptionPayload", "animationCaptionCommandPayload", "voiceCaptionPayload", "voiceCaptionCommandPayload"];
+                listRouteStaticSession: readonly ["callback", "text", "textCommand", "photoCaption", "photoCaptionCommand", "videoCaption", "videoCaptionCommand", "audioCaption", "audioCaptionCommand", "documentCaption", "documentCaptionCommand", "animationCaption", "animationCaptionCommand", "voiceCaption", "voiceCaptionCommand", "callbackPayload", "textPayload", "textCommandPayload", "photoCaptionPayload", "photoCaptionCommandPayload", "videoCaptionPayload", "videoCaptionCommandPayload", "audioCaptionPayload", "audioCaptionCommandPayload", "documentCaptionPayload", "documentCaptionCommandPayload", "animationCaptionPayload", "animationCaptionCommandPayload", "voiceCaptionPayload", "voiceCaptionCommandPayload", "textFree", "photoFree", "videoFree", "audioFree", "documentFree", "animationFree", "voiceFree", "videoNoteFree", "stickerFree", "locationFree", "contactFree"];
+                lenListRouteStatic: 15;
+                lenListRouteStaticIntent: 15;
+                lenListRouteStaticSession: 41;
+            };
+      return:
+        type: |-
+          {
+                  all: Record&lt;string, typeof <xref uid="gramstax!Ctx:class" />&gt;;
+                  routeDynamic: string[];
+                  routeDynamicSpesific: {
+                      text: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      photo: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      video: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      audio: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      document: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      animation: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      voice: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      videoNote: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      sticker: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      location: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      contact: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                  };
+                  routeStatic: {
+                      text: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      callback: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      textCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      photoCaption: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      photoCaptionCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      videoCaption: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      videoCaptionCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      audioCaption: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      audioCaptionCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      documentCaption: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      documentCaptionCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      animationCaption: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      animationCaptionCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      voiceCaption: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      voiceCaptionCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                  };
+                  routeStaticIntent: {
+                      callbackPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      textPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      textCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      photoCaptionPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      photoCaptionCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      videoCaptionPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      videoCaptionCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      audioCaptionPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      audioCaptionCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      documentCaptionPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      documentCaptionCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      animationCaptionPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      animationCaptionCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      voiceCaptionPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      voiceCaptionCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                  };
+                  routeStaticSession: {
+                      text: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      callback: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      textCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      photoCaption: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      photoCaptionCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      videoCaption: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      videoCaptionCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      audioCaption: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      audioCaptionCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      documentCaption: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      documentCaptionCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      animationCaption: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      animationCaptionCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      voiceCaption: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      voiceCaptionCommand: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      callbackPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      textPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      textCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      photoCaptionPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      photoCaptionCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      videoCaptionPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      videoCaptionCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      audioCaptionPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      audioCaptionCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      documentCaptionPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      documentCaptionCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      animationCaptionPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      animationCaptionCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      voiceCaptionPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      voiceCaptionCommandPayload: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      textFree: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      photoFree: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      videoFree: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      audioFree: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      documentFree: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      animationFree: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      voiceFree: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      videoNoteFree: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      stickerFree: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      locationFree: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      contactFree: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                  };
+                  listRouteStatic: readonly ["callback", "text", "textCommand", "photoCaption", "photoCaptionCommand", "videoCaption", "videoCaptionCommand", "audioCaption", "audioCaptionCommand", "documentCaption", "documentCaptionCommand", "animationCaption", "animationCaptionCommand", "voiceCaption", "voiceCaptionCommand"];
+                  listRouteStaticIntent: readonly ["callbackPayload", "textPayload", "textCommandPayload", "photoCaptionPayload", "photoCaptionCommandPayload", "videoCaptionPayload", "videoCaptionCommandPayload", "audioCaptionPayload", "audioCaptionCommandPayload", "documentCaptionPayload", "documentCaptionCommandPayload", "animationCaptionPayload", "animationCaptionCommandPayload", "voiceCaptionPayload", "voiceCaptionCommandPayload"];
+                  listRouteStaticSession: readonly ["callback", "text", "textCommand", "photoCaption", "photoCaptionCommand", "videoCaption", "videoCaptionCommand", "audioCaption", "audioCaptionCommand", "documentCaption", "documentCaptionCommand", "animationCaption", "animationCaptionCommand", "voiceCaption", "voiceCaptionCommand", "callbackPayload", "textPayload", "textCommandPayload", "photoCaptionPayload", "photoCaptionCommandPayload", "videoCaptionPayload", "videoCaptionCommandPayload", "audioCaptionPayload", "audioCaptionCommandPayload", "documentCaptionPayload", "documentCaptionCommandPayload", "animationCaptionPayload", "animationCaptionCommandPayload", "voiceCaptionPayload", "voiceCaptionCommandPayload", "textFree", "photoFree", "videoFree", "audioFree", "documentFree", "animationFree", "voiceFree", "videoNoteFree", "stickerFree", "locationFree", "contactFree"];
+                  lenListRouteStatic: 15;
+                  lenListRouteStaticIntent: 15;
+                  lenListRouteStaticSession: 41;
+              }
+        description: The pages routing structure.
+  - name: _pageRoutes(ctx, fromListener)
+    uid: gramstax!Gramstax#_pageRoutes:member(1)
+    package: gramstax!
+    fullName: _pageRoutes(ctx, fromListener)
+    summary: Routes an incoming update to the appropriate page handler.
+    remarks: >-
+      The routing follows a strict \*\*priority hierarchy\*\*. When a match is found at any level, the method executes
+      the handler and returns immediately. If no match is found, it falls through to the next level.
+
+
+      \*\*Routing Priority (executed in order):\*\*
+
+
+      1. \*\*staticSession\*\* - Session-based routes (O(1) lookup) - Checks if user has an active session with a
+      matching method - Skips if the input matches a static or staticIntent route - Example: `textFree` with session
+      method "7-mypage"
+
+
+      2. \*\*static\*\* - Exact intent match routes (O(1) lookup) - Matches exact text/callback data to page intents -
+      Example: "start" → `text()`<!-- -->, "/help" → `textCommand()`
+
+
+      3. \*\*staticIntent\*\* - Intent with payloads routes (O(1) lookup) - Matches intent prefix when payloads are
+      present - Example: "start:123" → `callbackPayload()`<!-- -->, "/add item" → `textCommandPayload()`
+
+
+      4. \*\*dynamicSpesific\*\* - Type-specific free handlers (O(n) iteration) - Runs all `*Free` handlers for the
+      message type - Example: `textFree()`<!-- -->, `photoFree()` - \*\*All matching handlers are executed\*\* (no early
+      return)
+
+
+      5. \*\*dynamic\*\* - Global fallback handlers (O(n) iteration) - Runs all `free()` handlers from pages that define
+      them - Last resort when nothing else matches - \*\*All matching handlers are executed\*\* (no early return)
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        _pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific):
+        Promise<any>;
+      parameters:
+        - id: ctx
+          description: The context instance.
+          type: ICtx
+        - id: fromListener
+          description: The listener type that triggered the route.
+          type: '`callback` | keyof typeof gramstax!~__type#<xref uid="routeDynamicSpesific:member" />'
+      return:
+        type: Promise&lt;any&gt;
+        description: The route handler result, or null if no handler answered.
+  - name: _pageSorts(Page, pages, indexPage)
+    uid: gramstax!Gramstax#_pageSorts:member(1)
+    package: gramstax!
+    fullName: _pageSorts(Page, pages, indexPage)
+    summary: Sorts and categorizes page routes into routing tables.
+    remarks: >-
+      Populates `routeStatic`<!-- -->, `routeStaticIntent`<!-- -->, `routeStaticSession`<!-- -->,
+      `routeDynamicSpesific`<!-- -->, and `routeDynamic` collections based on which route methods exist on the page
+      class.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_pageSorts(Page: typeof Ctx, pages: typeof Gramstax.prototype.pages, indexPage: number): void;'
+      parameters:
+        - id: Page
+          description: The page class.
+          type: typeof <xref uid="gramstax!Ctx:class" />
+        - id: pages
+          description: The pages routing structure.
+          type: typeof gramstax!Gramstax#<xref uid="pages:member" />
+        - id: indexPage
+          description: The page index (used for shortCallbackData).
+          type: number
+      return:
+        type: void
+        description: ''
+  - name: _registerOnCallbackQueryData()
+    uid: gramstax!Gramstax#_registerOnCallbackQueryData:member(1)
+    package: gramstax!
+    fullName: _registerOnCallbackQueryData()
+    summary: Registers handlers message\*.
+    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_registerOnCallbackQueryData(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _registerOnMessageAnimation()
+    uid: gramstax!Gramstax#_registerOnMessageAnimation:member(1)
+    package: gramstax!
+    fullName: _registerOnMessageAnimation()
+    summary: Registers handlers message\*.
+    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_registerOnMessageAnimation(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _registerOnMessageAudio()
+    uid: gramstax!Gramstax#_registerOnMessageAudio:member(1)
+    package: gramstax!
+    fullName: _registerOnMessageAudio()
+    summary: Registers handlers message\*.
+    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_registerOnMessageAudio(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _registerOnMessageContact()
+    uid: gramstax!Gramstax#_registerOnMessageContact:member(1)
+    package: gramstax!
+    fullName: _registerOnMessageContact()
+    summary: Registers handlers message\*.
+    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_registerOnMessageContact(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _registerOnMessageDocument()
+    uid: gramstax!Gramstax#_registerOnMessageDocument:member(1)
+    package: gramstax!
+    fullName: _registerOnMessageDocument()
+    summary: Registers handlers message\*.
+    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_registerOnMessageDocument(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _registerOnMessageLocation()
+    uid: gramstax!Gramstax#_registerOnMessageLocation:member(1)
+    package: gramstax!
+    fullName: _registerOnMessageLocation()
+    summary: Registers handlers message\*.
+    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_registerOnMessageLocation(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _registerOnMessagePhoto()
+    uid: gramstax!Gramstax#_registerOnMessagePhoto:member(1)
+    package: gramstax!
+    fullName: _registerOnMessagePhoto()
+    summary: Registers handlers message\*.
+    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_registerOnMessagePhoto(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _registerOnMessageSticker()
+    uid: gramstax!Gramstax#_registerOnMessageSticker:member(1)
+    package: gramstax!
+    fullName: _registerOnMessageSticker()
+    summary: Registers handlers message\*.
+    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_registerOnMessageSticker(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _registerOnMessageText()
+    uid: gramstax!Gramstax#_registerOnMessageText:member(1)
+    package: gramstax!
+    fullName: _registerOnMessageText()
+    summary: Registers handlers message\*.
+    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_registerOnMessageText(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _registerOnMessageVideo()
+    uid: gramstax!Gramstax#_registerOnMessageVideo:member(1)
+    package: gramstax!
+    fullName: _registerOnMessageVideo()
+    summary: Registers handlers message\*.
+    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_registerOnMessageVideo(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _registerOnMessageVideoNote()
+    uid: gramstax!Gramstax#_registerOnMessageVideoNote:member(1)
+    package: gramstax!
+    fullName: _registerOnMessageVideoNote()
+    summary: Registers handlers message\*.
+    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_registerOnMessageVideoNote(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _registerOnMessageVoice()
+    uid: gramstax!Gramstax#_registerOnMessageVoice:member(1)
+    package: gramstax!
+    fullName: _registerOnMessageVoice()
+    summary: Registers handlers message\*.
+    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_registerOnMessageVoice(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _runPolling()
+    uid: gramstax!Gramstax#_runPolling:member(1)
+    package: gramstax!
+    fullName: _runPolling()
+    summary: Starts the bot in long polling mode.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_runPolling(): void;'
+      return:
+        type: void
+        description: ''
+  - name: _runServerless(adapter)
+    uid: gramstax!Gramstax#_runServerless:member(1)
+    package: gramstax!
+    fullName: _runServerless(adapter)
+    summary: Starts the bot in serverless mode.
+    remarks: Configures the handler for serverless adapters (e.g., AWS Lambda, Cloudflare Workers).
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_runServerless(adapter: string): Promise<void>;'
+      parameters:
+        - id: adapter
+          description: The grammY adapter name (e.g., "std/http", "aws-lambda").
+          type: string
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: _runWebhook(fullUrl)
+    uid: gramstax!Gramstax#_runWebhook:member(1)
+    package: gramstax!
+    fullName: _runWebhook(fullUrl)
+    summary: Starts the bot in webhook mode.
+    remarks: Uses Bun's built-in HTTP server. Automatically sets the webhook URL if needed.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_runWebhook(fullUrl: string): Promise<void>;'
+      parameters:
+        - id: fullUrl
+          description: The full public URL for the webhook.
+          type: string
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
   - name: createBot(token)
     uid: gramstax!Gramstax#createBot:member(1)
     package: gramstax!
@@ -365,22 +1650,4 @@ methods:
           type: boolean
       return:
         type: Promise&lt;void&gt;
-        description: ''
-  - name: onCatch(error)
-    uid: gramstax!Gramstax#onCatch:member(1)
-    package: gramstax!
-    fullName: onCatch(error)
-    summary: Global error handler for bot errors.
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'onCatch(error: BotError<Context>): void;'
-      parameters:
-        - id: error
-          description: The bot error object.
-          type: <xref uid="grammy!BotError:class" />&lt;<xref uid="grammy!Context:class" />&gt;
-      return:
-        type: void
         description: ''

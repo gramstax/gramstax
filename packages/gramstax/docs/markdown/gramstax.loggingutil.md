@@ -85,6 +85,20 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[\_formatErrorObj(pureError)](./gramstax.loggingutil._formaterrorobj.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Format an error object to a JSON string.
+
+
+</td></tr>
+<tr><td>
+
 [errorMake(pureError, constructorName, funcName)](./gramstax.loggingutil.errormake.md)
 
 

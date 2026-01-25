@@ -19,6 +19,64 @@ items:
             uid: gramstax!IMapRpc:type
           - name: IMediaBlock
             uid: gramstax!IMediaBlock:type
+          - name: ITBottomKb
+            uid: gramstax!ITBottomKb:type
+          - name: ITBottomKbParams
+            uid: gramstax!ITBottomKbParams:type
+          - name: ITBuildDataOptions
+            uid: gramstax!ITBuildDataOptions:type
+          - name: ITCt
+            uid: gramstax!ITCt:type
+          - name: ITCtxParams
+            uid: gramstax!ITCtxParams:type
+          - name: ITData
+            uid: gramstax!ITData:type
+          - name: ITGramstaxParams
+            uid: gramstax!ITGramstaxParams:type
+          - name: ITInBoKb
+            uid: gramstax!ITInBoKb:type
+          - name: ITInlineKb
+            uid: gramstax!ITInlineKb:type
+          - name: ITInlineKbParams
+            uid: gramstax!ITInlineKbParams:type
+          - name: ITKbCols
+            uid: gramstax!ITKbCols:type
+          - name: ITKbDest
+            uid: gramstax!ITKbDest:type
+          - name: ITOptEdit
+            uid: gramstax!ITOptEdit:type
+          - name: ITOptEditMedia1
+            uid: gramstax!ITOptEditMedia1:type
+          - name: ITOptEditMedia2
+            uid: gramstax!ITOptEditMedia2:type
+          - name: ITOptReply
+            uid: gramstax!ITOptReply:type
+          - name: ITOptReplyAnimation
+            uid: gramstax!ITOptReplyAnimation:type
+          - name: ITOptReplyAudio
+            uid: gramstax!ITOptReplyAudio:type
+          - name: ITOptReplyContact
+            uid: gramstax!ITOptReplyContact:type
+          - name: ITOptReplyDocument
+            uid: gramstax!ITOptReplyDocument:type
+          - name: ITOptReplyLocation
+            uid: gramstax!ITOptReplyLocation:type
+          - name: ITOptReplyPhoto
+            uid: gramstax!ITOptReplyPhoto:type
+          - name: ITOptReplySticker
+            uid: gramstax!ITOptReplySticker:type
+          - name: ITOptReplyVideo
+            uid: gramstax!ITOptReplyVideo:type
+          - name: ITOptReplyVideoNote
+            uid: gramstax!ITOptReplyVideoNote:type
+          - name: ITOptReplyVoice
+            uid: gramstax!ITOptReplyVoice:type
+          - name: ITPageData
+            uid: gramstax!ITPageData:type
+          - name: ITReplyAction
+            uid: gramstax!ITReplyAction:type
+          - name: ITTemp
+            uid: gramstax!ITTemp:type
           - name: LabelKeyboard
             uid: gramstax!LabelKeyboard:class
           - name: LoggingUtil

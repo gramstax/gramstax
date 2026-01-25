@@ -258,6 +258,325 @@ Represents a media block configuration for Telegram messages.
 </td></tr>
 <tr><td>
 
+[ITBottomKb](./gramstax.itbottomkb.md)
+
+
+</td><td>
+
+Type alias for grammY Keyboard (reply keyboard).
+
+
+</td></tr>
+<tr><td>
+
+[ITBottomKbParams](./gramstax.itbottomkbparams.md)
+
+
+</td><td>
+
+Parameters for bottom keyboard configuration.
+
+
+</td></tr>
+<tr><td>
+
+[ITBuildDataOptions](./gramstax.itbuilddataoptions.md)
+
+
+</td><td>
+
+Options for building page routing data configuration.
+
+
+</td></tr>
+<tr><td>
+
+[ITCt](./gramstax.itct.md)
+
+
+</td><td>
+
+Type alias for grammY Context.
+
+
+</td></tr>
+<tr><td>
+
+[ITCtxParams](./gramstax.itctxparams.md)
+
+
+</td><td>
+
+Parameters for Ctx instance initialization.
+
+
+</td></tr>
+<tr><td>
+
+[ITData](./gramstax.itdata.md)
+
+
+</td><td>
+
+Generic data object for template interpolation.
+
+
+</td></tr>
+<tr><td>
+
+[ITGramstaxParams](./gramstax.itgramstaxparams.md)
+
+
+</td><td>
+
+Configuration options for Gramstax bot instance.
+
+
+</td></tr>
+<tr><td>
+
+[ITInBoKb](./gramstax.itinbokb.md)
+
+
+</td><td>
+
+Union type for both inline and reply keyboards.
+
+
+</td></tr>
+<tr><td>
+
+[ITInlineKb](./gramstax.itinlinekb.md)
+
+
+</td><td>
+
+Type alias for grammY InlineKeyboard.
+
+
+</td></tr>
+<tr><td>
+
+[ITInlineKbParams](./gramstax.itinlinekbparams.md)
+
+
+</td><td>
+
+Parameters for inline keyboard configuration.
+
+
+</td></tr>
+<tr><td>
+
+[ITKbCols](./gramstax.itkbcols.md)
+
+
+</td><td>
+
+Keyboard column configuration.
+
+
+</td></tr>
+<tr><td>
+
+[ITKbDest](./gramstax.itkbdest.md)
+
+
+</td><td>
+
+Keyboard column configuration pattern.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptEdit](./gramstax.itoptedit.md)
+
+
+</td><td>
+
+Options for editing text messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptEditMedia1](./gramstax.itopteditmedia1.md)
+
+
+</td><td>
+
+Media parameter for editing message media.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptEditMedia2](./gramstax.itopteditmedia2.md)
+
+
+</td><td>
+
+Options parameter for editing message media.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptReply](./gramstax.itoptreply.md)
+
+
+</td><td>
+
+Options for sending text messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptReplyAnimation](./gramstax.itoptreplyanimation.md)
+
+
+</td><td>
+
+Options for sending animation (GIF) messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptReplyAudio](./gramstax.itoptreplyaudio.md)
+
+
+</td><td>
+
+Options for sending audio messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptReplyContact](./gramstax.itoptreplycontact.md)
+
+
+</td><td>
+
+Options for sending contact messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptReplyDocument](./gramstax.itoptreplydocument.md)
+
+
+</td><td>
+
+Options for sending document messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptReplyLocation](./gramstax.itoptreplylocation.md)
+
+
+</td><td>
+
+Options for sending location messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptReplyPhoto](./gramstax.itoptreplyphoto.md)
+
+
+</td><td>
+
+Options for sending photo messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptReplySticker](./gramstax.itoptreplysticker.md)
+
+
+</td><td>
+
+Options for sending sticker messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptReplyVideo](./gramstax.itoptreplyvideo.md)
+
+
+</td><td>
+
+Options for sending video messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptReplyVideoNote](./gramstax.itoptreplyvideonote.md)
+
+
+</td><td>
+
+Options for sending video note messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITOptReplyVoice](./gramstax.itoptreplyvoice.md)
+
+
+</td><td>
+
+Options for sending voice messages.
+
+
+</td></tr>
+<tr><td>
+
+[ITPageData](./gramstax.itpagedata.md)
+
+
+</td><td>
+
+Page routing data configuration.
+
+
+</td></tr>
+<tr><td>
+
+[ITReplyAction](./gramstax.itreplyaction.md)
+
+
+</td><td>
+
+Type of chat action to send.
+
+
+</td></tr>
+<tr><td>
+
+[ITTemp](./gramstax.ittemp.md)
+
+
+</td><td>
+
+Temporary state for flow page
+
+
+</td></tr>
+<tr><td>
+
 [WorkerThreadAsyncMethods](./gramstax.workerthreadasyncmethods.md)
 
 

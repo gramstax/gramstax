@@ -14,7 +14,7 @@ declare class BlockKeyboard
 
 ## Remarks
 
-This class generates HTML-like `<keyboard>` blocks for the template engine. Requires `LabelKeyboard` to be set via [BlockKeyboard.label](./gramstax.blockkeyboard.label.md) before using .
+This class generates HTML-like `<keyboard>` blocks for the template engine. Requires `LabelKeyboard` to be set via [BlockKeyboard.label](./gramstax.blockkeyboard.label.md) before using [BlockKeyboard.\_build()](./gramstax.blockkeyboard._build.md)<!-- -->.
 
 ## Example
 
@@ -102,6 +102,42 @@ typeof [LabelKeyboard](./gramstax.labelkeyboard.md)
 </td><td>
 
 Reference to the `LabelKeyboard` class containing keyboard definitions.
+
+
+</td></tr>
+</tbody></table>
+
+## Methods
+
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[\_build(key, lang, type, reverse)](./gramstax.blockkeyboard._build.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Build keyboard blocks by calling a method from the linked `LabelKeyboard`<!-- -->.
 
 
 </td></tr>

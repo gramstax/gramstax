@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: ITBuildDataOptions
+uid: gramstax!ITBuildDataOptions:type
+package: gramstax!
+fullName: ITBuildDataOptions
+summary: Options for building page routing data configuration.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
+      name?: string;
+      callback?: C;
+      intentText?: string;
+      intentTextCommand?: string;
+  };

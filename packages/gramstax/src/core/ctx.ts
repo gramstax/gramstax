@@ -4,32 +4,35 @@ import {InlineKeyboard, Keyboard} from "grammy"
 import {CacheExternal, ICacheRpc} from "~/cache/external"
 import type {IMediaBlock} from "~/template/engine"
 import type {
-  ICt,
-  IInBoKb,
-  IData,
-  IOptEdit,
-  IBottomKb,
-  IInlineKb,
-  IOptReply,
-  IOptReplyVoice,
-  IOptReplyVideo,
-  IOptEditMedia1,
-  IOptEditMedia2,
-  IOptReplyAudio,
-  IOptReplyPhoto,
-  IOptReplyContact,
-  IOptReplySticker,
-  ITypeReplyAction,
-  IOptReplyDocument,
-  IOptReplyLocation,
-  IOptReplyAnimation,
-  IOptReplyVideoNote
-} from "~/types/ctx"
-
-type IPageData<T extends any[] = any[]> = {name: string; callback: (...payloads: T) => string; intentText: string; intentTextCommand: string; _positionPayloadText: number; intentCallback: string}
-type ITemp = {isAnswer: boolean; session: Partial<ICacheRpc>; data: Partial<IPageData<any>>; [key: string]: any}
-type IKbDest = typeof Ctx | Ctx | string
-type IKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${1 | 2 | 3 | 4 | 5 | 6}`
+  ITCt,
+  ITInBoKb,
+  ITData,
+  ITOptEdit,
+  ITBottomKb,
+  ITInlineKb,
+  ITOptReply,
+  ITOptReplyVoice,
+  ITOptReplyVideo,
+  ITOptEditMedia1,
+  ITOptEditMedia2,
+  ITOptReplyAudio,
+  ITOptReplyPhoto,
+  ITOptReplyContact,
+  ITOptReplySticker,
+  ITReplyAction,
+  ITOptReplyDocument,
+  ITOptReplyLocation,
+  ITOptReplyAnimation,
+  ITOptReplyVideoNote,
+  ITBottomKbParams,
+  ITInlineKbParams,
+  ITBuildDataOptions,
+  ITTemp,
+  ITPageData,
+  ITKbCols,
+  ITKbDest,
+  ITCtxParams
+} from "~/types/t.ctx"
 
 /**
  * The context/page base class that provides access to user data, session management,
@@ -37,7 +40,7 @@ type IKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${1 | 2 | 
  *
  * @remarks
  * Extend this class to create page handlers. Define static `template` property for
- * HTML-like templates and static `data` via {@link Ctx.buildData} for routing configuration.
+ * HTML-like templates and static `data` via `Ctx.buildData` for routing configuration.
  *
  * @example Basic Without PageBase
  * ```typescript
@@ -140,7 +143,7 @@ export class Ctx {
   static template?: string
 
   /**
-   * Page routing data created by {@link Ctx.buildData}.
+   * Page routing data created by `Ctx.buildData`.
    *
    * @remarks
    * Only define when you want to override the intent and have a callback payload.
@@ -163,7 +166,7 @@ export class Ctx {
    *
    * @public
    */
-  static data: IPageData<any>
+  static data: ITPageData<any>
 
   /**
    * Instance-level access to the page routing data.
@@ -183,7 +186,7 @@ export class Ctx {
    * @readonly
    * @public
    */
-  data = (this.constructor as Record<any, any>).data as IPageData<any>
+  data = (this.constructor as Record<any, any>).data as ITPageData<any>
 
   /**
    * Indicates whether the current user has Telegram Premium.
@@ -817,7 +820,7 @@ export class Ctx {
   get session() {
     return this.temp.session
   }
-  set session(v: ITemp[`session`]) {
+  set session(v: ITTemp[`session`]) {
     this.temp.session = v
   }
 
@@ -826,7 +829,7 @@ export class Ctx {
    *
    * @public
    */
-  ct: ICt
+  ct: ITCt
 
   /**
    * External cache for session storage.
@@ -854,21 +857,19 @@ export class Ctx {
    *
    * @public
    */
-  temp: ITemp
+  temp: ITTemp
 
   /**
    * Creates a new Ctx instance.
    *
-   * @param params - The initialization parameters.
-   * @param params.ct - The grammY context object.
-   * @param params.cacheSession - External session cache.
-   * @param params.cacheKeyboard - Keyboard cache map.
-   * @param params.templateManager - Template manager instance.
-   * @param params.temp - Temporary state object.
+   * **note:**
+   * For most pages do not define a constructor
+   *
+   * @param params - The initialization parameters. See {@link ITCtxParams} for details.
    *
    * @public
    */
-  constructor(params: {ct: ICt; cacheSession: CacheExternal; cacheKeyboard: Map<any, any>; templateManager: TemplateManager; temp: ITemp}) {
+  constructor(params: ITCtxParams) {
     this.ct = params.ct
     this.cacheSession = params.cacheSession
     this.cacheKeyboard = params.cacheKeyboard
@@ -902,7 +903,7 @@ export class Ctx {
    *
    * @public
    */
-  async broadcast(ids: number[], languageCode: string[], keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReply, throwError = false) {
+  async broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply, throwError = false) {
     try {
       this.temp.isAnswer = true
       const limitFree = 30
@@ -957,10 +958,10 @@ export class Ctx {
   async broadcastMedia(
     ids: number[],
     languageCode: string[],
-    keyboard?: IInBoKb,
-    data?: IData,
+    keyboard?: ITInBoKb,
+    data?: ITData,
     baseId?: string,
-    options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation | IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact,
+    options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact,
     throwError = false
   ) {
     try {
@@ -1024,7 +1025,7 @@ export class Ctx {
    *
    * @public
    */
-  async reply(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReply) {
+  async reply(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply) {
     this.temp.isAnswer = true
     const msg = this.templateManager.getMessage(this.data.name, baseId, this.userLanguage, data)
     return await this.ct.reply(msg, {
@@ -1060,29 +1061,29 @@ export class Ctx {
    */
   async replyMedia<T extends IMediaBlock[`type`]>(
     type: T,
-    keyboard?: IInBoKb,
-    data?: IData,
+    keyboard?: ITInBoKb,
+    data?: ITData,
     baseId?: string,
     options?: T extends `photo`
-      ? IOptReplyPhoto
+      ? ITOptReplyPhoto
       : T extends `video`
-        ? IOptReplyVideo
+        ? ITOptReplyVideo
         : T extends `audio`
-          ? IOptReplyAudio
+          ? ITOptReplyAudio
           : T extends `document`
-            ? IOptReplyDocument
+            ? ITOptReplyDocument
             : T extends `animation`
-              ? IOptReplyAnimation
+              ? ITOptReplyAnimation
               : T extends `voice`
-                ? IOptReplyVoice
+                ? ITOptReplyVoice
                 : T extends `video_note`
-                  ? IOptReplyVideoNote
+                  ? ITOptReplyVideoNote
                   : T extends `sticker`
-                    ? IOptReplySticker
+                    ? ITOptReplySticker
                     : T extends `location`
-                      ? IOptReplyLocation
+                      ? ITOptReplyLocation
                       : T extends `contact`
-                        ? IOptReplyContact
+                        ? ITOptReplyContact
                         : undefined
   ) {
     this.temp.isAnswer = true
@@ -1119,7 +1120,7 @@ export class Ctx {
    *
    * @public
    */
-  async replyPhoto(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyPhoto) {
+  async replyPhoto(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto) {
     return this.replyMedia(`photo`, keyboard, data, baseId, options)
   }
 
@@ -1141,7 +1142,7 @@ export class Ctx {
    *
    * @public
    */
-  async replyVideo(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVideo) {
+  async replyVideo(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVideo) {
     return this.replyMedia(`video`, keyboard, data, baseId, options)
   }
 
@@ -1163,7 +1164,7 @@ export class Ctx {
    *
    * @public
    */
-  async replyAudio(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyAudio) {
+  async replyAudio(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyAudio) {
     return this.replyMedia(`audio`, keyboard, data, baseId, options)
   }
 
@@ -1185,7 +1186,7 @@ export class Ctx {
    *
    * @public
    */
-  async replyDocument(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyDocument) {
+  async replyDocument(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyDocument) {
     return this.replyMedia(`document`, keyboard, data, baseId, options)
   }
 
@@ -1207,7 +1208,7 @@ export class Ctx {
    *
    * @public
    */
-  async replyAnimation(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyAnimation) {
+  async replyAnimation(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyAnimation) {
     return this.replyMedia(`animation`, keyboard, data, baseId, options)
   }
 
@@ -1229,7 +1230,7 @@ export class Ctx {
    *
    * @public
    */
-  async replyVoice(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVoice) {
+  async replyVoice(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVoice) {
     return this.replyMedia(`voice`, keyboard, data, baseId, options)
   }
 
@@ -1251,7 +1252,7 @@ export class Ctx {
    *
    * @public
    */
-  async replyVideoNote(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyVideoNote) {
+  async replyVideoNote(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVideoNote) {
     return this.replyMedia(`video_note`, keyboard, data, baseId, options)
   }
 
@@ -1273,7 +1274,7 @@ export class Ctx {
    *
    * @public
    */
-  async replySticker(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplySticker) {
+  async replySticker(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplySticker) {
     return this.replyMedia(`sticker`, keyboard, data, baseId, options)
   }
 
@@ -1295,7 +1296,7 @@ export class Ctx {
    *
    * @public
    */
-  async replyLocation(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyLocation) {
+  async replyLocation(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyLocation) {
     return this.replyMedia(`location`, keyboard, data, baseId, options)
   }
 
@@ -1317,7 +1318,7 @@ export class Ctx {
    *
    * @public
    */
-  async replyContact(keyboard?: IInBoKb, data?: IData, baseId?: string, options?: IOptReplyContact) {
+  async replyContact(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyContact) {
     return this.replyMedia(`contact`, keyboard, data, baseId, options)
   }
 
@@ -1338,7 +1339,7 @@ export class Ctx {
    *
    * @public
    */
-  async replyAction(type: ITypeReplyAction) {
+  async replyAction(type: ITReplyAction) {
     return await this.ct.replyWithChatAction(type)
   }
 
@@ -1366,7 +1367,7 @@ export class Ctx {
    *
    * @public
    */
-  async edit(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEdit, fallbackReply = true) {
+  async edit(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEdit, fallbackReply = true) {
     try {
       this.temp.isAnswer = true
       const msg = this.templateManager.getMessage(this.data.name, baseId, this.userLanguage, data)
@@ -1412,22 +1413,22 @@ export class Ctx {
    */
   async editMedia<T extends IMediaBlock[`type`]>(
     type: T,
-    keyboardInline?: IInlineKb,
-    data?: IData,
+    keyboardInline?: ITInlineKb,
+    data?: ITData,
     baseId?: string,
     options1?: T extends `voice`
-      ? IOptReplyVoice
+      ? ITOptReplyVoice
       : T extends `video_note`
-        ? IOptReplyVideoNote
+        ? ITOptReplyVideoNote
         : T extends `sticker`
-          ? IOptReplySticker
+          ? ITOptReplySticker
           : T extends `location`
-            ? IOptReplyLocation
+            ? ITOptReplyLocation
             : T extends `contact`
-              ? IOptReplyContact
+              ? ITOptReplyContact
               : //
-                IOptEditMedia1,
-    options2?: IOptEditMedia2,
+                ITOptEditMedia1,
+    options2?: ITOptEditMedia2,
     fallbackReply = true
   ) {
     try {
@@ -1492,7 +1493,7 @@ export class Ctx {
    *
    * @public
    */
-  async editPhoto(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
+  async editPhoto(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
     return await this.editMedia(`photo`, keyboardInline, data, baseId, options1, options2)
   }
 
@@ -1515,7 +1516,7 @@ export class Ctx {
    *
    * @public
    */
-  async editVideo(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
+  async editVideo(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
     return await this.editMedia(`video`, keyboardInline, data, baseId, options1, options2)
   }
 
@@ -1538,7 +1539,7 @@ export class Ctx {
    *
    * @public
    */
-  async editAudio(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
+  async editAudio(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
     return await this.editMedia(`audio`, keyboardInline, data, baseId, options1, options2)
   }
 
@@ -1561,7 +1562,7 @@ export class Ctx {
    *
    * @public
    */
-  async editDocument(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
+  async editDocument(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
     return await this.editMedia(`document`, keyboardInline, data, baseId, options1, options2)
   }
 
@@ -1584,7 +1585,7 @@ export class Ctx {
    *
    * @public
    */
-  async editAnimation(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options1?: IOptEditMedia1, options2?: IOptEditMedia2) {
+  async editAnimation(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
     return await this.editMedia(`animation`, keyboardInline, data, baseId, options1, options2)
   }
 
@@ -1602,7 +1603,7 @@ export class Ctx {
    *
    * @public
    */
-  async editVoice(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
+  async editVoice(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2) {
     return await this.editMedia(`voice`, keyboardInline, data, baseId, options)
   }
 
@@ -1620,7 +1621,7 @@ export class Ctx {
    *
    * @public
    */
-  async editVideoNote(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
+  async editVideoNote(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2) {
     return await this.editMedia(`video_note`, keyboardInline, data, baseId, options)
   }
 
@@ -1638,7 +1639,7 @@ export class Ctx {
    *
    * @public
    */
-  async editSticker(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
+  async editSticker(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2) {
     return await this.editMedia(`sticker`, keyboardInline, data, baseId, options)
   }
 
@@ -1656,7 +1657,7 @@ export class Ctx {
    *
    * @public
    */
-  async editLocation(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
+  async editLocation(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2) {
     return await this.editMedia(`location`, keyboardInline, data, baseId, options)
   }
 
@@ -1674,7 +1675,7 @@ export class Ctx {
    *
    * @public
    */
-  async editContact(keyboardInline?: IInlineKb, data?: IData, baseId?: string, options?: IOptEditMedia2) {
+  async editContact(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2) {
     return await this.editMedia(`contact`, keyboardInline, data, baseId, options)
   }
 
@@ -1852,78 +1853,45 @@ export class Ctx {
    *
    * @public
    */
-  static buildData<C extends (...args: any[]) => any>(callback: C): IPageData<Parameters<C>>
+  static buildData<C extends (...args: any[]) => any>(callback: C): ITPageData<Parameters<C>>
+
   /**
    * Creates page routing data configuration with options.
    *
-   * @param options - Configuration options.
-   * @param options.name - Optional page name override.
-   * @param options.callback - Optional callback function for payloads.
-   * @param options.intentText - Optional text intent override.
-   * @param options.intentTextCommand - Optional text command intent override.
+   * @param options - Configuration options. See {@link ITBuildDataOptions} for details.
    * @returns The page data configuration object.
    *
    * @public
    */
-  static buildData<C extends (...args: any[]) => any>(options: {name?: string; callback?: C; intentText?: string; intentTextCommand?: string}): IPageData<Parameters<C>>
+  static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions): ITPageData<Parameters<C>>
+
   /**
    * Creates page routing data configuration with options (no type inference).
+   *
+   * @param options - Configuration options. See {@link ITBuildDataOptions} for details.
+   * @returns The page data configuration object.
+   *
    * @public
    */
-  static buildData(options: {name?: string; callback?: any; intentText?: string; intentTextCommand?: string}): IPageData<[]>
+  static buildData(options: ITBuildDataOptions): ITPageData<[]>
+
   /**
    * Creates default page routing data configuration.
    * @public
    */
-  static buildData(): IPageData<[]>
-  static buildData(params?: any): IPageData<any> {
+  static buildData(): ITPageData<[]>
+  static buildData(params?: any): ITPageData<any> {
     const isFunc = typeof params === `function`
     const options = isFunc ? {callback: params} : params || {}
     const cbd = options.callback
     const addPld = this.prototype.addPayloads.bind(this.prototype)
 
     const name = options.name || ``
-    const data: IPageData<any> = {
-      /**
-       * Internal value derived from the file name.
-       * This value is used as the default intent.
-       *
-       * important!: Do not set this manually. Let the system handle it.
-       */
+    const data: ITPageData<any> = {
       name,
-      /**
-       * Overrides intent value used to trigger the route function text (besides the ending "free").
-       * This is typically used when you want to trigger the route using a space-separated command, for example "X Start" or "🏠 Home", with a maximum of one space.
-       *
-       * default: this.data.name
-       * important!: Leave this unset unless explicitly needed.
-       */
       intentText: options.intentText || name,
-      /**
-       * Overrides intent value used to trigger the route function textCommand (besides the ending "free").
-       * This is usually required when this.data.name includes a hyphen ("-"), which may interfere with default routing behavior.
-       *
-       * default: this.data.name
-       * important!: Leave this unset unless explicitly needed.
-       */
       intentTextCommand: options.intentTextCommand || name,
-      /**
-       * Internal intent value used to trigger route function callback (besides the ending "free").
-       * if constructorParams.shortCallbackData is set to true, a numeric index value will be used instead.
-       *
-       * default: this.data.name
-       * important!: Do not set this manually. Let the system handle it.
-       */
       intentCallback: name,
-      /**
-       * Add payloads to intentCallback, will trigger only to route function callback (besides the ending "free").
-       * This is usually used when you want to insert a payload into it.
-       *
-       * note: return cbd should use ARRAY only if there is a payload so that the background system can process it into a string
-       *
-       * default: this.data.name
-       * important!: Leave this unset unless explicitly needed.
-       */
       callback: cbd
         ? function (this: {intentCallback: string}, ...payloads: any[]): string {
             return addPld(this.intentCallback, `colon`, cbd(...payloads))
@@ -1931,13 +1899,6 @@ export class Ctx {
         : function (this: {intentCallback: string}): string {
             return this?.intentCallback
           },
-      /**
-       * An internal value that specifies the payload position for the route function text.
-       * The maximum allowed value is 2, which means only single spaces are supported, for example, "🏠 Home".
-       *
-       * default: 1
-       * important!: Do not set this manually. Let the system handle it.
-       */
       _positionPayloadText: options.intentText ? options.intentText.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any)
     }
     return data
@@ -1966,7 +1927,7 @@ export class Ctx {
    *
    * @public
    */
-  keyboardCols<T = any>(k: T, a: string[], layout: IKbCols, cb: (e: string, i: number) => any): T {
+  keyboardCols<T = any>(k: T, a: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T {
     const [colsStr, lastRowStr] = layout.split(`-`)
     const cols = parseInt(colsStr!)
     const lastRow = lastRowStr ? parseInt(lastRowStr) : null
@@ -2019,7 +1980,7 @@ export class Ctx {
    *
    * @public
    */
-  bottomKeyboardT(layout: IKbCols = `1`, baseId?: string | null, data?: Record<any, any>) {
+  bottomKeyboardT(layout: ITKbCols = `1`, baseId?: string | null, data?: Record<any, any>) {
     return this.bottomKeyboard(
       (k, a) => {
         return this.keyboardCols(k, a, layout, (e) => k.text(e))
@@ -2057,7 +2018,7 @@ export class Ctx {
    *
    * @public
    */
-  inlineKeyboardT(PageDest: IKbDest[], layout: IKbCols = `1`, baseId?: string | null, data?: Record<any, any>) {
+  inlineKeyboardT(PageDest: ITKbDest[], layout: ITKbCols = `1`, baseId?: string | null, data?: ITData) {
     return this.inlineKeyboard(
       (k, a) => {
         return this.keyboardCols(k, a, layout, (e, i) => {
@@ -2078,10 +2039,7 @@ export class Ctx {
    * from the template. Supports optional caching for performance.
    *
    * @param callback - Builder function that receives keyboard and labels.
-   * @param params - Optional parameters.
-   * @param params.baseId - Optional Template base ID. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
-   * @param params.data - Template interpolation data.
-   * @param params.cache - If true, caches the keyboard by language.
+   * @param params - Optional parameters. {@link ITInlineKbParams} for details.
    * @returns The inline keyboard instance.
    *
    * @example
@@ -2097,7 +2055,7 @@ export class Ctx {
    *
    * @public
    */
-  inlineKeyboard(callback: (k: IInlineKb, a: string[]) => IInlineKb, params?: {baseId?: string; data?: IData; cache?: boolean}): IInlineKb {
+  inlineKeyboard(callback: (k: ITInlineKb, a: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:i`
@@ -2125,10 +2083,7 @@ export class Ctx {
    * from the template. Automatically applies `resized()` to the keyboard.
    *
    * @param callback - Builder function that receives keyboard and labels.
-   * @param params - Optional parameters.
-   * @param params.baseId - Template base ID. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
-   * @param params.data - Template interpolation data.
-   * @param params.cache - If true, caches the keyboard by language.
+   * @param params - Optional parameters. {@link ITBottomKbParams} for details.
    * @returns The bottom keyboard instance.
    *
    * @example
@@ -2144,7 +2099,7 @@ export class Ctx {
    *
    * @public
    */
-  bottomKeyboard(callback: (k: IBottomKb, a: string[]) => IBottomKb, params?: {baseId?: string; data?: IData; cache?: boolean}): IBottomKb {
+  bottomKeyboard(callback: (k: ITBottomKb, a: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:b`
@@ -3055,9 +3010,8 @@ export class Ctx {
    * Session validation methods.
    *
    * @remarks
-   * These methods validate if the current session `session.method` matches a specific route handler.
-   * Each `isSession*` method compares the session method against the
-   * corresponding `methodSession*` result.
+   * These methods validate whether the current session’s `session.method` matches the value returned by `methodSession*`.
+   * Each isSession* method compares the session method with its corresponding `methodSession*` result.
    *
    * @example
    * ```typescript
@@ -3073,173 +3027,173 @@ export class Ctx {
   isSessionCallback(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionCallback(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionCallbackPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionCallbackPayload(name)
   }
   // text
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionText(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionText(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionTextPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionTextPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionTextCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionTextCommand(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionTextCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionTextCommandPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionTextFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionTextFree(name)
   }
   // photo
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionPhotoCaption(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionPhotoCaption(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionPhotoCaptionPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionPhotoCaptionPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionPhotoCaptionCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionPhotoCaptionCommand(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionPhotoCaptionCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionPhotoCaptionCommandPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionPhotoFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionPhotoFree(name)
   }
   // video
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionVideoCaption(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoCaption(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionVideoCaptionPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoCaptionPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionVideoCaptionCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoCaptionCommand(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionVideoCaptionCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoCaptionCommandPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionVideoFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoFree(name)
   }
   // audio
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionAudioCaption(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAudioCaption(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionAudioCaptionPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAudioCaptionPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionAudioCaptionCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAudioCaptionCommand(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionAudioCaptionCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAudioCaptionCommandPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionAudioFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAudioFree(name)
   }
   // document
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionDocumentCaption(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionDocumentCaption(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionDocumentCaptionPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionDocumentCaptionPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionDocumentCaptionCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionDocumentCaptionCommand(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionDocumentCaptionCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionDocumentCaptionCommandPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionDocumentFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionDocumentFree(name)
   }
   // animation
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionAnimationCaption(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAnimationCaption(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionAnimationCaptionPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAnimationCaptionPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionAnimationCaptionCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAnimationCaptionCommand(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionAnimationCaptionCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAnimationCaptionCommandPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionAnimationFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAnimationFree(name)
   }
   // voice
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionVoiceCaption(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVoiceCaption(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionVoiceCaptionPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVoiceCaptionPayload(name)
   }
   isSessionVoiceCaptionCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVoiceCaptionCommand(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionVoiceCaptionCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVoiceCaptionCommandPayload(name)
   }
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionVoiceFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVoiceFree(name)
   }
   // video note
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionVideoNoteFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoNoteFree(name)
   }
   // sticker
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionStickerFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionStickerFree(name)
   }
   // location
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionLocationFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionLocationFree(name)
   }
   // contact
-  /** {@inheritDoc Ctx#isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallback} */
   isSessionContactFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionContactFree(name)
   }
@@ -3249,7 +3203,7 @@ export class Ctx {
    * Session set helper methods.
    *
    * @remarks
-   * These methods are shortcuts for {@link Ctx#sessionSet} with pre-built method names.
+   * These methods are shortcuts for {@link Ctx.sessionSet} with pre-built method names.
    * Each `session*` method sets the session for the corresponding route handler.
    *
    * @example
@@ -3266,174 +3220,174 @@ export class Ctx {
   sessionCallback(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionCallback(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionCallbackPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionCallbackPayload(name), params)
   }
   // text
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionText(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionText(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionTextPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionTextPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionTextCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionTextCommand(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionTextCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionTextCommandPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionTextFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionTextFree(name), params)
   }
   // photo
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionPhotoCaption(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionPhotoCaption(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionPhotoCaptionPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionPhotoCaptionPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionPhotoCaptionCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionPhotoCaptionCommand(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionPhotoCaptionCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionPhotoCaptionCommandPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionPhotoFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionPhotoFree(name), params)
   }
   // video
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionVideoCaption(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoCaption(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionVideoCaptionPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoCaptionPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionVideoCaptionCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoCaptionCommand(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionVideoCaptionCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoCaptionCommandPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionVideoFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoFree(name), params)
   }
   // audio
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionAudioCaption(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAudioCaption(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionAudioCaptionPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAudioCaptionPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionAudioCaptionCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAudioCaptionCommand(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionAudioCaptionCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAudioCaptionCommandPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionAudioFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAudioFree(name), params)
   }
   // document
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionDocumentCaption(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionDocumentCaption(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionDocumentCaptionPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionDocumentCaptionPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionDocumentCaptionCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionDocumentCaptionCommand(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionDocumentCaptionCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionDocumentCaptionCommandPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionDocumentFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionDocumentFree(name), params)
   }
   // animation
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionAnimationCaption(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAnimationCaption(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionAnimationCaptionPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAnimationCaptionPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionAnimationCaptionCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAnimationCaptionCommand(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionAnimationCaptionCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAnimationCaptionCommandPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionAnimationFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAnimationFree(name), params)
   }
   // voice
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionVoiceCaption(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVoiceCaption(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionVoiceCaptionPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVoiceCaptionPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionVoiceCaptionCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVoiceCaptionCommand(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionVoiceCaptionCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVoiceCaptionCommandPayload(name), params)
   }
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionVoiceFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVoiceFree(name), params)
   }
   // video note
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionVideoNoteFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoNoteFree(name), params)
   }
   // sticker
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionStickerFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionStickerFree(name), params)
   }
   // location
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionLocationFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionLocationFree(name), params)
   }
   // contact
-  /** {@inheritDoc Ctx#sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallback} */
   sessionContactFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionContactFree(name), params)
   }
