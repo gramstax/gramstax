@@ -17,7 +17,7 @@ export class TransferPage extends PageBase {
   }
 
   async textFree() {
-    if (!this.validateSessionTextFree()) return null
+    if (!this.isSessionTextFree()) return null
     const payloads = this.msgText.trim().split(/\s+/)
     await this.handleTransfer(payloads, false)
   }

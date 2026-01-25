@@ -13,7 +13,7 @@ export class DetailPage extends PageBase {
   }
 
   async textFree() {
-    if (!this.validateSessionTextFree()) return null
+    if (!this.isSessionTextFree()) return null
     await this.handleDetail(this.msgText)
   }
 

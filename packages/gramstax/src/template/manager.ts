@@ -11,7 +11,7 @@ import {TemplateEngine} from "./engine"
  * This type represents the cached result of template compilation.
  * Each property holds compiled functions for different template sections.
  *
- * @internal
+ * @public
  */
 type ICompiledTemplate = {
   /** Compiled media blocks indexed by base ID and language */
@@ -81,15 +81,15 @@ type ITemplateOptions = {
  * @public
  */
 export class TemplateManager {
-  /** @internal Map of compiled templates keyed by filename (without extension) */
+  /** @public Map of compiled templates keyed by filename (without extension) */
   _map = new Map<string, ICompiledTemplate>()
-  /** @internal Reference to the TemplateEngine class for compilation */
+  /** @public Reference to the TemplateEngine class for compilation */
   _engine = TemplateEngine
-  /** @internal Active file system watchers for hot-reload */
+  /** @public Active file system watchers for hot-reload */
   _watcher: FSWatcher[] = []
-  /** @internal Reference to PageManager for loading page modules */
+  /** @public Reference to PageManager for loading page modules */
   _pageManager = PageManager
-  /** @internal Set of supported template file extensions */
+  /** @public Set of supported template file extensions */
   _supportedExtensions = new Set([`.html`, `.ts`, `.js`])
   /** @readonly Base paths for scanning template files */
   readonly _path: ITemplateOptions[`path`]
@@ -150,7 +150,7 @@ export class TemplateManager {
    * // => true
    * ```
    *
-   * @internal
+   * @public
    */
   _validatePath(): boolean {
     try {
@@ -196,7 +196,7 @@ export class TemplateManager {
    *
    * @throws Error if watcher is already initialized
    *
-   * @internal
+   * @public
    */
   _initializeWatcher(options?: any): void {
     if (!this._isWatchEnabled) return
@@ -239,7 +239,7 @@ export class TemplateManager {
    * this._handleFileChange("/src/pages/welcome.html")
    * ```
    *
-   * @internal
+   * @public
    */
   _handleFileChange(filepath: string): void {
     const filename = basename(filepath)
@@ -262,7 +262,7 @@ export class TemplateManager {
    * this._handleFileAdd("/src/pages/new-page.html")
    * ```
    *
-   * @internal
+   * @public
    */
   _handleFileAdd(filepath: string): void {
     const fileName = basename(filepath)
@@ -284,7 +284,7 @@ export class TemplateManager {
    * this._handleFileDelete("/src/pages/old-page.html")
    * ```
    *
-   * @internal
+   * @public
    */
   _handleFileDelete(filepath: string): void {
     const fileName = basename(filepath)
@@ -307,6 +307,7 @@ export class TemplateManager {
    * this._handleWatchError(new Error("ENOENT"))
    * ```
    *
+   * @public
    * @virtual
    */
   _handleWatchError(error: any): void {
@@ -329,7 +330,7 @@ export class TemplateManager {
    * this._loadAllFiles()
    * ```
    *
-   * @internal
+   * @public
    */
   _loadAllFiles(): void {
     const rawTemplates = new Map<string, string>()
@@ -390,7 +391,7 @@ export class TemplateManager {
    *
    * @throws Error if the file extension is not supported
    *
-   * @internal
+   * @public
    */
   _loadFile(filename: string): void {
     for (let index = 0; index < this._path.length; index++) {
@@ -426,7 +427,7 @@ export class TemplateManager {
    * // => ".html"
    * ```
    *
-   * @internal
+   * @public
    */
   _getExtension(filename: string): string {
     return extname(filename).toLowerCase()
@@ -448,7 +449,7 @@ export class TemplateManager {
    * // => "<base>...</base>"
    * ```
    *
-   * @internal
+   * @public
    */
   _readTemplateFile(filename: string): string | null {
     for (const importPath of this._path) {
@@ -511,7 +512,7 @@ export class TemplateManager {
    * // => true
    * ```
    *
-   * @internal
+   * @public
    */
   _isValidFile(filename: string): boolean {
     return this._supportedExtensions.has(this._getExtension(filename))
@@ -529,7 +530,7 @@ export class TemplateManager {
    * this._getKey("welcome.ts") // => "welcome"
    * ```
    *
-   * @internal
+   * @public
    */
   _getKey(filename: string): string {
     return filename.replace(/\.[^/.]+$/, ``)
@@ -559,7 +560,7 @@ export class TemplateManager {
    * this._compile("main", mainHtml, undefined, importCache, rawCache)
    * ```
    *
-   * @internal
+   * @public
    */
   _compile(key: string, template: string, keepIfExist?: Partial<{[K in keyof ICompiledTemplate]: boolean}>, importCache?: Map<string, string>, rawCache?: Map<string, string>) {
     const existing = this._map.get(key)

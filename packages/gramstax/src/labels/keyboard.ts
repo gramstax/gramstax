@@ -55,7 +55,7 @@ export class LabelKeyboard {
    * const preserved = LabelKeyboard._reverse("Option A\\, B, Option C");
    * // => "Option C, Option A\\, B"
    * ```
-   * @internal
+   * @public
    */
   static _reverse(input: string) {
     return input
@@ -78,7 +78,7 @@ export class LabelKeyboard {
    * });
    * // => { en: "Next, Back", id: "Lanjut, Kembali" }
    * ```
-   * @internal
+   * @public
    */
   static _reverseObj<T extends Record<any, any>>(input: T): T {
     return Object.keys(input).reduce((acc: any, key: string) => {

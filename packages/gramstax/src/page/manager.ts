@@ -40,7 +40,7 @@ export class PageManager {
    * const mod = await import("./pages/start.ts");
    * const StartPage = PageManager._getFile(mod, "./pages/start.ts", 0);
    * ```
-   * @internal
+   * @public
    */
   static _getFile(mod: Record<any, any>, path: string, positionModule = 0) {
     const exp = Object.values(mod)

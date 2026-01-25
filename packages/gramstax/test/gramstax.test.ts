@@ -9,7 +9,7 @@ const TEST_DIR = join(import.meta.dir, `bot_views`)
 
 // Mock Gramstax to override pageLoads
 class TestGramstax extends Gramstax {
-  override pageLoads() {
+  override _pageLoads() {
     // Return page structure matching our test templates
     return {
       routeStatic: {
@@ -146,7 +146,7 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
     const {bot} = createBot()
 
     // Mock pages to include both commands
-    bot.pageLoads = () =>
+    bot._pageLoads = () =>
       ({
         routeStatic: {
           textCommand: {
@@ -155,8 +155,8 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
           }
         },
         routeDynamic: []
-      } as any)
-    bot.pages = bot.pageLoads()
+      }) as any
+    bot.pages = bot._pageLoads()
 
     const setMyCommands = bot.bot.api.setMyCommands as any as Record<any, any>
     const getMyCommands = bot.bot.api.getMyCommands as any as Record<any, (...args: any) => any>

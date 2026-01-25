@@ -52,7 +52,7 @@ export class BroadcastPage extends PageBase {
   }
 
   async textFree() {
-    if (!this.validateSessionTextFree()) return null
+    if (!this.isSessionTextFree()) return null
     const {step} = this.getSessionParams()
     if (step !== `message`) return null
 
@@ -67,7 +67,7 @@ export class BroadcastPage extends PageBase {
   }
 
   async photoFree() {
-    if (!this.validateSessionTextFree()) return null
+    if (!this.isSessionTextFree()) return null
     const {step} = this.getSessionParams()
     if (step !== `message`) return null
 
@@ -83,7 +83,7 @@ export class BroadcastPage extends PageBase {
   }
 
   async videoFree() {
-    if (!this.validateSessionTextFree()) return null
+    if (!this.isSessionTextFree()) return null
     const {step} = this.getSessionParams()
     if (step !== `message`) return null
 
@@ -98,7 +98,7 @@ export class BroadcastPage extends PageBase {
   }
 
   async animationFree() {
-    if (!this.validateSessionTextFree()) return null
+    if (!this.isSessionTextFree()) return null
     const {step} = this.getSessionParams()
     if (step !== `message`) return null
 

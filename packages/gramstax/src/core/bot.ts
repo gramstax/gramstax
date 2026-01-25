@@ -68,7 +68,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @readonly
    * @public
    */
-  pages: ReturnType<typeof this.pageLoads>
+  pages: ReturnType<typeof this._pageLoads>
 
   /**
    * Page options configuration.
@@ -160,25 +160,25 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       })
 
     this.bot = this.createBot(params.token)
-    this.bot.catch(this.onCatch)
-    this.registerOnCallbackQueryData() // Handle callback queries from inline keyboards
-    this.registerOnMessageText() // Handle global text messages
-    this.registerOnMessagePhoto() // Handle global photo messages
-    this.registerOnMessageVideo() // Handle global video messages
-    this.registerOnMessageAudio() // Handle global audio messages
-    this.registerOnMessageDocument() // Handle global document messages
-    this.registerOnMessageAnimation() // Handle global animation messages
-    this.registerOnMessageVoice() // Handle global voice messages
-    this.registerOnMessageVideoNote() // Handle global video note messages
-    this.registerOnMessageSticker() // Handle global sticker messages
-    this.registerOnMessageLocation() // Handle global location messages
-    this.registerOnMessageContact() // Handle global contact messages
+    this.bot.catch(this._onCatch)
+    this._registerOnCallbackQueryData() // Handle callback queries from inline keyboards
+    this._registerOnMessageText() // Handle global text messages
+    this._registerOnMessagePhoto() // Handle global photo messages
+    this._registerOnMessageVideo() // Handle global video messages
+    this._registerOnMessageAudio() // Handle global audio messages
+    this._registerOnMessageDocument() // Handle global document messages
+    this._registerOnMessageAnimation() // Handle global animation messages
+    this._registerOnMessageVoice() // Handle global voice messages
+    this._registerOnMessageVideoNote() // Handle global video note messages
+    this._registerOnMessageSticker() // Handle global sticker messages
+    this._registerOnMessageLocation() // Handle global location messages
+    this._registerOnMessageContact() // Handle global contact messages
 
     // Default for customize (very rarely used)
     this.handlerBotUpdate = this.bot.handleUpdate
 
     // Load pages AFTER templateManager is initialized
-    this.pages = this.pageLoads()
+    this.pages = this._pageLoads()
 
     // Graceful shutdown
     process.once(`SIGINT`, () => this.bot.stop())
@@ -186,11 +186,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     this.hookBeforeStart()
     if (params.deploy.startsWith(`polling`)) {
-      this.runPolling()
+      this._runPolling()
     } else if (params.deploy.startsWith(`webhook:`)) {
-      this.runWebhook(params.deploy.split(`webhook:`)[1] as string)
+      this._runWebhook(params.deploy.split(`webhook:`)[1] as string)
     } else if (params.deploy.startsWith(`serverless:`)) {
-      this.runServerless(params.deploy.split(`serverless:`)[1] as string)
+      this._runServerless(params.deploy.split(`serverless:`)[1] as string)
     } else if (params.deploy.startsWith(`test`)) {
       // nothing, for test unit internal area
     } else {
@@ -205,7 +205,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  onCatch(error: BotError<Context>) {
+  _onCatch(error: BotError<Context>) {
     if ((this.log as any)?.errorMake) {
       ;(this.log as any)?.errorMake(error, `Bot`, `catch`)
     } else {
@@ -237,9 +237,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param method - The deployment method used.
    * @param data - Additional data (URL for webhook/serverless).
    *
-   * @internal
+   * @public
    */
-  async onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
+  async _onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
     await this.executeSyncBlocksDescription(this.pages)
 
     const {username} = botInfo
@@ -284,12 +284,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   /**
    * Starts the bot in long polling mode.
    *
-   * @internal
+   * @public
    */
-  runPolling(): void {
+  _runPolling(): void {
     this.bot.start({
       onStart: (botInfo) => {
-        this.onStart(botInfo, `polling`, null)
+        this._onStart(botInfo, `polling`, null)
       }
     })
   }
@@ -302,9 +302,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @param fullUrl - The full public URL for the webhook.
    *
-   * @internal
+   * @public
    */
-  async runWebhook(fullUrl: string): Promise<void> {
+  async _runWebhook(fullUrl: string): Promise<void> {
     const {serve} = await import(`bun`) // <==== import in this because this package support node/bun (default use bun)
     const handleUpdate = webhookCallback(this.bot, `bun`)
     this.handlerBotUpdate = handleUpdate
@@ -334,7 +334,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
 
     const botInfo = await this.bot.api.getMe()
-    await this.onStart(botInfo, `webhook`, fullUrl)
+    await this._onStart(botInfo, `webhook`, fullUrl)
   }
 
   /**
@@ -345,12 +345,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @param adapter - The grammY adapter name (e.g., "std/http", "aws-lambda").
    *
-   * @internal
+   * @public
    */
-  async runServerless(adapter: string): Promise<void> {
+  async _runServerless(adapter: string): Promise<void> {
     this.handlerBotUpdate = webhookCallback(this.bot, adapter as any)
     const botInfo = await this.bot.api.getMe()
-    await this.onStart(botInfo, `serverless`, adapter)
+    await this._onStart(botInfo, `serverless`, adapter)
   }
 
   /**
@@ -363,9 +363,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param Page - The page class.
    * @param filePath - The file path of the page.
    *
-   * @internal
+   * @public
    */
-  pageBuildData(Page: typeof Ctx, filePath: string): void {
+  _pageBuildData(Page: typeof Ctx, filePath: string): void {
     if (Page?.data === undefined) {
       Page.data = Page.buildData() as any
     }
@@ -388,9 +388,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param pages - The pages routing structure.
    * @param indexPage - The page index (used for shortCallbackData).
    *
-   * @internal
+   * @public
    */
-  pageSorts(Page: typeof Ctx, pages: typeof Gramstax.prototype.pages, indexPage: number): void {
+  _pageSorts(Page: typeof Ctx, pages: typeof Gramstax.prototype.pages, indexPage: number): void {
     const name = Page.data.name
     const proto = Page.prototype
 
@@ -533,9 +533,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @returns The pages routing structure.
    *
-   * @internal
+   * @public
    */
-  pageLoads() {
+  _pageLoads() {
     this.log?.info?.(`Load pages..`)
 
     const listRouteStatic = [
@@ -647,8 +647,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
 
     PageManager.getFileManySync(undefined).forEach(({path, page}, index) => {
-      this.pageBuildData(page, path) // create if not exist and set name (without ext) according filePath
-      this.pageSorts(page, pages, index) // sort route method
+      this._pageBuildData(page, path) // create if not exist and set name (without ext) according filePath
+      this._pageSorts(page, pages, index) // sort route method
       page.template = undefined // delete template for efficient memory
     })
 
@@ -693,9 +693,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param fromListener - The listener type that triggered the route.
    * @returns The route handler result, or null if no handler answered.
    *
-   * @internal
+   * @public
    */
-  async pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any> {
+  async _pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: {name: string; routeName: string} | undefined
@@ -977,14 +977,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   /**
-   * Handles incoming messages of a specific type.
+   * Handles incoming messages of a specific type and process route.
    *
    * @param ct - The grammY Context object.
    * @param listenerName - The message type being handled.
    *
-   * @internal
+   * @public
    */
-  async onMessage(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<void> {
+  async _onMessage(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<void> {
     const ctx = this.createCtx(ct)
     try {
       const before = await this.hookBeforeRoute(ctx, listenerName)
@@ -992,7 +992,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         return
       }
 
-      const routeResult = await this.pageRoutes(ctx, listenerName)
+      const routeResult = await this._pageRoutes(ctx, listenerName)
       if (routeResult === null) {
         await this.hookErrorInputNotFoundPage(ctx)
       }
@@ -1002,13 +1002,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   /**
-   * Handles incoming callback queries from inline keyboards.
+   * Handles incoming callback queries from inline keyboards and process route.
    *
    * @param ct - The grammY Context object.
-   *
-   * @internal
+   * @public
    */
-  async onCallbackQueryData(ct: Context): Promise<void> {
+  async _onCallbackQueryData(ct: Context): Promise<void> {
     const ctx = this.createCtx(ct)
     try {
       const before = await this.hookBeforeRoute(ctx, `onCallbackQueryData`)
@@ -1017,112 +1016,116 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       // Check all route
-      await this.pageRoutes(ctx, `callback`)
+      await this._pageRoutes(ctx, `callback`)
     } catch (error) {
       await this.hookErrorPage(ctx, `onCallbackQueryData`, error, true)
     }
   }
 
-  /** @internal */
-  async onMessageText(ct: Context): Promise<void> {
-    await this.onMessage(ct, `text`)
+  /**
+   * Handles incoming messages*
+   *
+   * @param ct - The grammY Context object.
+   * @public
+   */
+  async _onMessageText(ct: Context): Promise<void> {
+    await this._onMessage(ct, `text`)
   }
-  /** @internal */
-  async onMessagePhoto(ct: Context): Promise<void> {
-    await this.onMessage(ct, `photo`)
+  /** {@inheritDoc Gramstax#_onMessageText} */
+  async _onMessagePhoto(ct: Context): Promise<void> {
+    await this._onMessage(ct, `photo`)
   }
-  /** @internal */
-  async onMessageVideo(ct: Context): Promise<void> {
-    await this.onMessage(ct, `video`)
+  /** {@inheritDoc Gramstax#_onMessageText} */
+  async _onMessageVideo(ct: Context): Promise<void> {
+    await this._onMessage(ct, `video`)
   }
-  /** @internal */
-  async onMessageAudio(ct: Context): Promise<void> {
-    await this.onMessage(ct, `audio`)
+  /** {@inheritDoc Gramstax#_onMessageText} */
+  async _onMessageAudio(ct: Context): Promise<void> {
+    await this._onMessage(ct, `audio`)
   }
-  /** @internal */
-  async onMessageDocument(ct: Context): Promise<void> {
-    await this.onMessage(ct, `document`)
+  /** {@inheritDoc Gramstax#_onMessageText} */
+  async _onMessageDocument(ct: Context): Promise<void> {
+    await this._onMessage(ct, `document`)
   }
-  /** @internal */
-  async onMessageAnimation(ct: Context): Promise<void> {
-    await this.onMessage(ct, `animation`)
+  /** {@inheritDoc Gramstax#_onMessageText} */
+  async _onMessageAnimation(ct: Context): Promise<void> {
+    await this._onMessage(ct, `animation`)
   }
-  /** @internal */
-  async onMessageVoice(ct: Context): Promise<void> {
-    await this.onMessage(ct, `voice`)
+  /** {@inheritDoc Gramstax#_onMessageText} */
+  async _onMessageVoice(ct: Context): Promise<void> {
+    await this._onMessage(ct, `voice`)
   }
-  /** @internal */
-  async onMessageVideoNote(ct: Context): Promise<void> {
-    await this.onMessage(ct, `videoNote`)
+  /** {@inheritDoc Gramstax#_onMessageText} */
+  async _onMessageVideoNote(ct: Context): Promise<void> {
+    await this._onMessage(ct, `videoNote`)
   }
-  /** @internal */
-  async onMessageSticker(ct: Context): Promise<void> {
-    await this.onMessage(ct, `sticker`)
+  /** {@inheritDoc Gramstax#_onMessageText} */
+  async _onMessageSticker(ct: Context): Promise<void> {
+    await this._onMessage(ct, `sticker`)
   }
-  /** @internal */
-  async onMessageLocation(ct: Context): Promise<void> {
-    await this.onMessage(ct, `location`)
+  /** {@inheritDoc Gramstax#_onMessageText} */
+  async _onMessageLocation(ct: Context): Promise<void> {
+    await this._onMessage(ct, `location`)
   }
-  /** @internal */
-  async onMessageContact(ct: Context): Promise<void> {
-    await this.onMessage(ct, `contact`)
+  /** {@inheritDoc Gramstax#_onMessageText} */
+  async _onMessageContact(ct: Context): Promise<void> {
+    await this._onMessage(ct, `contact`)
   }
 
   /**
-   * Registers message handlers.
+   * Registers handlers message*.
    *
    * @remarks
    * These methods register grammY event handlers for different message types.
    * Override to customize message filtering.
    *
-   * @internal
+   * @public
    */
-  /** @internal */
-  registerOnCallbackQueryData() {
-    this.bot.on(`callback_query:data`, this.onCallbackQueryData.bind(this)) // Handle callback queries from inline keyboards
+  _registerOnCallbackQueryData() {
+    this.bot.on(`callback_query:data`, this._onCallbackQueryData.bind(this)) // Handle callback queries from inline keyboards
   }
-  /** @internal */
-  registerOnMessageText() {
-    this.bot.on(`message:text`, this.onMessageText.bind(this)) // Handle global text messages
+  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  _registerOnMessageText() {
+    this.bot.on(`message:text`, this._onMessageText.bind(this)) // Handle global text messages
   }
-  /** @internal */
-  registerOnMessagePhoto() {
-    this.bot.on(`message:photo`, this.onMessagePhoto.bind(this)) // Handle global photo messages
+  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  _registerOnMessagePhoto() {
+    this.bot.on(`message:photo`, this._onMessagePhoto.bind(this)) // Handle global photo messages
   }
-  /** @internal */
-  registerOnMessageVideo() {
-    this.bot.on(`message:video`, this.onMessageVideo.bind(this)) // Handle global video messages
+  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  _registerOnMessageVideo() {
+    this.bot.on(`message:video`, this._onMessageVideo.bind(this)) // Handle global video messages
   }
-  /** @internal */
-  registerOnMessageAudio() {
-    this.bot.on(`message:audio`, this.onMessageAudio.bind(this)) // Handle global audio messages
+  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  _registerOnMessageAudio() {
+    this.bot.on(`message:audio`, this._onMessageAudio.bind(this)) // Handle global audio messages
   }
-  /** @internal */
-  registerOnMessageDocument() {
-    this.bot.on(`message:document`, this.onMessageDocument.bind(this)) // Handle global document messages
+  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  _registerOnMessageDocument() {
+    this.bot.on(`message:document`, this._onMessageDocument.bind(this)) // Handle global document messages
   }
-  /** @internal */
-  registerOnMessageAnimation() {
-    this.bot.on(`message:animation`, this.onMessageAnimation.bind(this)) // Handle global animation messages
+  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  _registerOnMessageAnimation() {
+    this.bot.on(`message:animation`, this._onMessageAnimation.bind(this)) // Handle global animation messages
   }
-  /** @internal */
-  registerOnMessageVoice() {
-    this.bot.on(`message:voice`, this.onMessageVoice.bind(this)) // Handle global voice messages
+  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  _registerOnMessageVoice() {
+    this.bot.on(`message:voice`, this._onMessageVoice.bind(this)) // Handle global voice messages
   }
-  /** @internal */
-  registerOnMessageVideoNote() {
-    this.bot.on(`message:video_note`, this.onMessageVideoNote.bind(this)) // Handle global video note messages
+  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  _registerOnMessageVideoNote() {
+    this.bot.on(`message:video_note`, this._onMessageVideoNote.bind(this)) // Handle global video note messages
   }
-  /** @internal */
-  registerOnMessageSticker() {
-    this.bot.on(`message:sticker`, this.onMessageSticker.bind(this)) // Handle global sticker messages
+  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  _registerOnMessageSticker() {
+    this.bot.on(`message:sticker`, this._onMessageSticker.bind(this)) // Handle global sticker messages
   }
-  /** @internal */
-  registerOnMessageLocation() {
-    this.bot.on(`message:location`, this.onMessageLocation.bind(this)) // Handle global location messages
+  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  _registerOnMessageLocation() {
+    this.bot.on(`message:location`, this._onMessageLocation.bind(this)) // Handle global location messages
   }
-  /** @internal */
-  registerOnMessageContact() {
-    this.bot.on(`message:contact`, this.onMessageContact.bind(this)) // Handle global contact messages
+  /** {@inheritDoc Gramstax#_registerOnCallbackQueryData} */
+  _registerOnMessageContact() {
+    this.bot.on(`message:contact`, this._onMessageContact.bind(this)) // Handle global contact messages
   }
 }

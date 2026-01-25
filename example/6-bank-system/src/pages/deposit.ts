@@ -15,7 +15,7 @@ export class DepositPage extends PageBase {
   }
 
   async textFree() {
-    if (!this.validateSessionTextFree()) return null
+    if (!this.isSessionTextFree()) return null
     await this.handleDeposit(this.msgText.trim(), false)
   }
 

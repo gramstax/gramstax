@@ -12,7 +12,7 @@ export class CreatePage extends PageBase {
   }
 
   async textFree() {
-    if (!this.validateSessionTextFree()) return null
+    if (!this.isSessionTextFree()) return null
     await this.sessionGet()
     await this.handleCreate(this.msgText)
   }

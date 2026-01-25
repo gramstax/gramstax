@@ -85,7 +85,7 @@ export class BlockKeyboard {
    * kbk._build("backNext", "en", "bottom");
    * // => '<keyboard type="bottom" lang="en">Back, Next</keyboard>'
    * ```
-   * @internal
+   * @public
    */
   static _build(key: string, lang?: string, type?: string, reverse?: boolean) {
     if (!this.label) {

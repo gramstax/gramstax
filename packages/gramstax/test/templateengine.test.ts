@@ -108,8 +108,8 @@ describe(`TemplateEngine`, () => {
     it(`should support nested properties and global variables`, () => {
       const template = `<map src="items">{{e.id}}: {{globalPrefix}}-{{e.value}}</map>`
       let processed = TemplateEngine._processMapBlocks(template)
-      processed = TemplateEngine._processExec(processed)
-      processed = TemplateEngine._processVariables(processed)
+      processed = TemplateEngine._processScopeExec(processed)
+      processed = TemplateEngine._processScopeVariables(processed)
 
       const fn = TemplateEngine._compileToFunction(processed, false)
 
@@ -136,14 +136,14 @@ describe(`TemplateEngine`, () => {
   describe(`_processExec`, () => {
     it(`should execute inline javascript`, () => {
       const template = `Result: {~ 1 + 2 ~}`
-      const processed = TemplateEngine._processExec(template)
+      const processed = TemplateEngine._processScopeExec(template)
       const fn = TemplateEngine._compileToFunction(processed, false)
       expect(fn()).toBe(`Result: 3`)
     })
 
     it(`should execute without spaces {~1+2~}`, () => {
       const template = `Result: {~1+2~}`
-      const processed = TemplateEngine._processExec(template)
+      const processed = TemplateEngine._processScopeExec(template)
       const fn = TemplateEngine._compileToFunction(processed, false)
       expect(fn()).toBe(`Result: 3`)
     })
@@ -151,7 +151,7 @@ describe(`TemplateEngine`, () => {
     it(`should work inside map block`, () => {
       const template = `<map src="nums">{~ e * 2 ~}</map>`
       let processed = TemplateEngine._processMapBlocks(template)
-      processed = TemplateEngine._processExec(processed)
+      processed = TemplateEngine._processScopeExec(processed)
       const fn = TemplateEngine._compileToFunction(processed, false)
 
       const data = {nums: [1, 2, 3]}
@@ -161,7 +161,7 @@ describe(`TemplateEngine`, () => {
     it(`should support index math inside map`, () => {
       const template = `<map src="nums">{~ i + 1 ~}. {{e}}</map>`
       let processed = TemplateEngine._processMapBlocks(template)
-      processed = TemplateEngine._processExec(processed)
+      processed = TemplateEngine._processScopeExec(processed)
 
       const fn = TemplateEngine._compileToFunction(processed, false)
 
@@ -203,11 +203,11 @@ describe(`TemplateEngine`, () => {
     it(`should prioritize local variables for both {{...}} and {~ ... ~} syntax`, () => {
       // Test {{e}}
       const template1 = `<map src="arr">{{e}}</map>`
-      const fn1 = TemplateEngine._compileToFunction(TemplateEngine._processVariables(TemplateEngine._processMapBlocks(template1)), false)
+      const fn1 = TemplateEngine._compileToFunction(TemplateEngine._processScopeVariables(TemplateEngine._processMapBlocks(template1)), false)
 
       // Test {~ e ~}
       const template2 = `<map src="arr">{~ e ~}</map>`
-      const fn2 = TemplateEngine._compileToFunction(TemplateEngine._processExec(TemplateEngine._processMapBlocks(template2)), false)
+      const fn2 = TemplateEngine._compileToFunction(TemplateEngine._processScopeExec(TemplateEngine._processMapBlocks(template2)), false)
 
       const data = {
         arr: [`local`],

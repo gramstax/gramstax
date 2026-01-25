@@ -17,7 +17,7 @@ export class WithdrawPage extends PageBase {
   }
 
   async textFree() {
-    if (!this.validateSessionTextFree()) return null
+    if (!this.isSessionTextFree()) return null
     await this.handleWithdraw(this.msgText.trim(), false)
   }
 

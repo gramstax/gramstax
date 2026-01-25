@@ -68,6 +68,7 @@ export class WorkerThreadLaunch {
   /**
    * Check if currently running in the main thread.
    * Re-exported from `node:worker_threads`.
+   * @public
    */
   static isMainThread = isMainThread
 
@@ -76,21 +77,25 @@ export class WorkerThreadLaunch {
 
   /**
    * The main process ID.
+   * @public
    */
   pid = process.pid
 
   /**
    * The underlying Node.js Worker instance from `node:worker_threads`.
+   * @public
    */
   thread: Worker = {} as any
 
   /**
    * The worker thread ID.
+   * @public
    */
   threadId: number = {} as any
 
   /**
    * RPC handler for method invocations.
+   * @public
    */
   rpc: WorkerThreadRpc = {} as any
 
@@ -100,6 +105,8 @@ export class WorkerThreadLaunch {
    * @param path - Path to the worker file. Must be valid JavaScript/TypeScript file.
    * @param argv - Arguments to pass to worker. Accessible via `process.argv` in worker.
    * @param register - Object with value function to expose. Called by thread worker. Defaults to `this`.
+   *
+   * @public
    */
   constructor(
     public path: string,
@@ -133,7 +140,7 @@ export class WorkerThreadLaunch {
 
   /**
    * Internal method called by worker to signal readiness.
-   * @internal
+   * @public
    */
   mtdReady() {
     this._readyResolve?.()
@@ -141,7 +148,7 @@ export class WorkerThreadLaunch {
 
   /**
    * Initialize the worker thread and set up message handlers.
-   * @internal
+   * @public
    */
   init() {
     this.thread = new Worker(this.path, {argv: this.argv.length == 0 && this.argv[0] === undefined ? undefined : this.argv})
@@ -156,7 +163,7 @@ export class WorkerThreadLaunch {
    * Handle incoming messages from the worker thread.
    *
    * @param data - Message data from worker.
-   * @internal
+   * @public
    */
   async handleOnMessage(data: any) {
     this.rpc.make(data)

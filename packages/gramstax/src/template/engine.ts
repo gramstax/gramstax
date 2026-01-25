@@ -94,7 +94,7 @@ export class TemplateEngine {
    * // Result: 'Hello \\`world\\`'
    * ```
    *
-   * @internal
+   * @public
    */
   static _escape(str: string): string {
     return str
@@ -119,10 +119,34 @@ export class TemplateEngine {
    * // Result: 'Hello ${(data && data["name"]) ?? ""}!'
    * ```
    *
-   * @internal
+   * @public
    */
-  static _processVariables(template: string) {
+  static _processScopeVariables(template: string) {
     return template.replace(/\{\{(\w+)\}\}/g, (_, key) => `\${(data && data["${key}"]) ?? ""}`)
+  }
+
+  /**
+   * Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.
+   *
+   * @remarks
+   * This internal method converts inline execution syntax into self-invoking
+   * JavaScript expressions. It first attempts direct execution, then falls back
+   * to `with(data)` scope. Returns an empty string on any error.
+   *
+   * @param template - The template string containing `{~ code ~}` expressions
+   * @returns The template with inline execution blocks converted to executable expressions
+   *
+   * @example
+   * ```typescript
+   * const template = 'Total: {~ data?.count ?? 0 ~}';
+   * const processed = TemplateEngine._processExec(template);
+   * // Result: 'Total: ${(() => { try { return data?.count ?? 0 } catch(e) { try { with(data || {}) { return data?.count ?? 0 } } catch(ee) { return '' } } })()}'
+   * ```
+   *
+   * @public
+   */
+  static _processScopeExec(template: string) {
+    return template.replace(/{~\s*([\s\S]*?)\s*~}/g, (_, code) => `\${(() => { try { return ${code} } catch(e) { try { with(data || {}) { return ${code} } } catch(ee) { return '' } } })()}`)
   }
 
   /**
@@ -154,7 +178,7 @@ export class TemplateEngine {
    * // }
    * ```
    *
-   * @internal
+   * @public
    */
   static _processBaseBlocks(template: string) {
     const baseRegex = /<base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/base>/g
@@ -194,7 +218,7 @@ export class TemplateEngine {
    * // Result: '${(() => { if (!data) return ''; try { with(data) { return name ? `Hello ${name}` : `Hello`; } } catch(e) { return '' } })()}'
    * ```
    *
-   * @internal
+   * @public
    */
   static _processScriptBlocks(template: string) {
     return template.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, (_, rawCode: string) => {
@@ -223,7 +247,7 @@ export class TemplateEngine {
    * // Result: 'Line 1\n\nLine 2'
    * ```
    *
-   * @internal
+   * @public
    */
   static _processSpaceBlocks(template: string) {
     return template.replace(/^[ \t]*<space\s*\/>[ \t]*$/gim, ``)
@@ -247,7 +271,7 @@ export class TemplateEngine {
    * // Result: 'Line 1\nLine 2'
    * ```
    *
-   * @internal
+   * @public
    */
   static _processDivBlocks(template: string) {
     return template.replace(/<div>([\s\S]*?)<\/div>/gi, (_, inner: string) => {
@@ -284,7 +308,7 @@ export class TemplateEngine {
    * // Result: '${(() => { switch((data && data["status"])) { case "active": return `Active status`; ... } })()}'
    * ```
    *
-   * @internal
+   * @public
    */
   static _processSwitchBlocks(template: string) {
     const switchRegex = /<switch\b(?:\s+value="([^"]+)")?>([\s\S]*?)<\/switch>/gi
@@ -330,30 +354,6 @@ export class TemplateEngine {
   }
 
   /**
-   * Transforms inline execution blocks `{~ code ~}` into JavaScript expressions.
-   *
-   * @remarks
-   * This internal method converts inline execution syntax into self-invoking
-   * JavaScript expressions. It first attempts direct execution, then falls back
-   * to `with(data)` scope. Returns an empty string on any error.
-   *
-   * @param template - The template string containing `{~ code ~}` expressions
-   * @returns The template with inline execution blocks converted to executable expressions
-   *
-   * @example
-   * ```typescript
-   * const template = 'Total: {~ data?.count ?? 0 ~}';
-   * const processed = TemplateEngine._processExec(template);
-   * // Result: 'Total: ${(() => { try { return data?.count ?? 0 } catch(e) { try { with(data || {}) { return data?.count ?? 0 } } catch(ee) { return '' } } })()}'
-   * ```
-   *
-   * @internal
-   */
-  static _processExec(template: string) {
-    return template.replace(/{~\s*([\s\S]*?)\s*~}/g, (_, code) => `\${(() => { try { return ${code} } catch(e) { try { with(data || {}) { return ${code} } } catch(ee) { return '' } } })()}`)
-  }
-
-  /**
    * Transforms `<map>` blocks into JavaScript array map expressions.
    *
    * @remarks
@@ -372,7 +372,7 @@ export class TemplateEngine {
    * // Result: '${(data && data["items"] || []).map((e, i) => ` - ${e.name} (${i})`).join(", ")}'
    * ```
    *
-   * @internal
+   * @public
    */
   static _processMapBlocks(template: string) {
     const mapRegex = /<map(?:\s+([^>]*))?>([\s\S]*?)<\/map>/gi
@@ -434,7 +434,7 @@ export class TemplateEngine {
    * // Result: { en: { type: 'photo', src: 'image.jpg', caption: 'Hello' } }
    * ```
    *
-   * @internal
+   * @public
    */
   static _processMediaBlocks(template: string) {
     const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
@@ -521,7 +521,7 @@ export class TemplateEngine {
    * // Result: { default: 'Hello World', id: 'Halo Dunia' }
    * ```
    *
-   * @internal
+   * @public
    */
   static _processMessageBlocks(template: string) {
     const messageRegex = /<message(?:\s+([^>]*))?>([\s\S]*?)<\/message>/gi
@@ -577,7 +577,7 @@ export class TemplateEngine {
    * // }
    * ```
    *
-   * @internal
+   * @public
    */
   static _processDescriptionBlocks(template: string) {
     const descriptionRegex = /<description(?:\s+([^>]*))?>([\s\S]*?)<\/description>/gi
@@ -639,7 +639,7 @@ export class TemplateEngine {
    * // }
    * ```
    *
-   * @internal
+   * @public
    */
   static _processKeyboardBlocks(template: string) {
     const keyboardRegex = /<keyboard(?:\s+([^>]*))?>([\s\S]*?)<\/keyboard>/gi
@@ -693,7 +693,7 @@ export class TemplateEngine {
    * // Result: 'John'
    * ```
    *
-   * @internal
+   * @public
    */
   static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): T extends true ? (data?: Record<string, any>) => string[] : (data?: Record<string, any>) => string {
     let singleOrCombined: string
@@ -760,7 +760,7 @@ export class TemplateEngine {
         for (const [key, value] of Object.entries(mediaBlock)) {
           if (key === `type` || typeof value !== `string`) continue
 
-          const processed = this._processVariables(this._processExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(value)))))
+          const processed = this._processScopeVariables(this._processScopeExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(value)))))
           compiledProps[key] = this._compileToFunction(processed, false)
         }
 
@@ -816,7 +816,7 @@ export class TemplateEngine {
       result[baseId] = {}
 
       for (const [lang, content] of Object.entries(messages)) {
-        const processed = this._processVariables(this._processExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(content)))))
+        const processed = this._processScopeVariables(this._processScopeExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(content)))))
         result[baseId][lang] = this._compileToFunction(processed, false)
       }
     }
@@ -870,7 +870,7 @@ export class TemplateEngine {
           if (!result[baseId][scope]) {
             result[baseId][scope] = {}
           }
-          const processed = this._processVariables(this._processExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(content)))))
+          const processed = this._processScopeVariables(this._processScopeExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(content)))))
           result[baseId][scope][lang] = this._compileToFunction(processed, false)
         }
       }
@@ -929,7 +929,7 @@ export class TemplateEngine {
           // Seperates label, handle escaped comma
           const labels = content.split(/(?<!\\),\s*/).map((label: string) => label.replace(/\\,/g, `,`).trim())
 
-          const processedLabels = labels.map((label) => this._processVariables(this._processExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(label))))))
+          const processedLabels = labels.map((label) => this._processScopeVariables(this._processScopeExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(label))))))
 
           result[baseId][lang][mode as `inline` | `bottom`] = this._compileToFunction(processedLabels, true)
         }
@@ -966,7 +966,7 @@ export class TemplateEngine {
    * // Result: 'Hello'
    * ```
    *
-   * @internal
+   * @public
    */
   static _extractBlock(content: string, blocks?: string | string[], baseId: string = `default`, section: `all` | `value` = `all`, lang?: string) {
     // 1. Extract Base Block
@@ -1093,7 +1093,7 @@ export class TemplateEngine {
    * // imports: [{ src: 'other-page', blocks: 'message', base: 'default', ... }]
    * ```
    *
-   * @internal
+   * @public
    */
   static _processImportBlocks(template: string) {
     const importRegex = /([ \t]*)<import(?:\s+([^>]*))?\/?>/gi

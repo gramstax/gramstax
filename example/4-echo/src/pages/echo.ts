@@ -101,6 +101,7 @@ export class EchoPage extends PageBase {
         Send any message or media and the bot will echo it back. Use this to test formatting, media handling, or message flow.
       </message>
     </base>
+
     <base id="${this.BASE.text}">
       <message>
         💬 Echoed message
@@ -108,45 +109,55 @@ export class EchoPage extends PageBase {
         {{text}}
       </message>
     </base>
+
     <base id="${this.BASE.photo}">
       <media type="photo" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
+
     <base id="${this.BASE.video}">
       <media type="video" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
+
     <base id="${this.BASE.audio}">
       <media type="audio" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
+
     <base id="${this.BASE.document}">
       <media type="document" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
+
     <base id="${this.BASE.animation}">
       <media type="animation" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
+
     <base id="${this.BASE.voice}">
       <media type="voice" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
+
     <base id="${this.BASE.videoNote}">
       <media type="video_note" src="{{fileId}}"></media>
     </base>
+
     <base id="${this.BASE.sticker}">
       <media type="sticker" src="{{fileId}}"></media>
     </base>
+
     <base id="${this.BASE.location}">
       <media type="location" latitude="{{latitude}}" longitude="{{longitude}}"></media>
     </base>
+
     <base id="${this.BASE.contact}">
       <media type="contact" phone="{{phone_number}}" first_name="{{first_name}}" last_name="{{last_name}}" vcard="{{vcard}}"></media>
     </base>

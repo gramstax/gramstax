@@ -67,7 +67,7 @@ export class LoggingUtil extends LoggingPretty {
    * const formatted = logger._formatErrorObj(new Error("Test"));
    * // => '{\n  "message": "Test",\n  "stack": "...",\n  "name": "Error"\n}'
    * ```
-   * @internal
+   * @public
    */
   _formatErrorObj(pureError: any) {
     const error = JSON.stringify(pureError instanceof Error ? {message: pureError.message, stack: pureError.stack, name: pureError.name} : pureError, null, 2)

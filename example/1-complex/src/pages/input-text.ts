@@ -2,27 +2,26 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class InputTextPage extends PageBase {
-  static data = this.buildData({
-    intentTextCommand: `input_text`
-  })
+  static data = this.buildData({intentTextCommand: `input_text`})
+  static BASE = {result: `result`}
 
   kb(baseId?: string) {
     return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
   async callback() {
-    await this.sessionToTextFree()
+    await this.sessionTextFree()
     await this.edit(this.kb())
   }
 
   async textCommand() {
-    await this.sessionToTextFree()
+    await this.sessionTextFree()
     await this.reply(this.kb())
   }
 
   async textFree() {
-    if (!this.validateSessionTextFree()) return null
-    const bi = `result`
+    if (!this.isSessionTextFree()) return null
+    const bi = InputTextPage.BASE.result
     const da = {res: this.msgText}
     await this.reply(this.kb(bi), da, bi)
   }
@@ -44,7 +43,7 @@ export class InputTextPage extends PageBase {
           Kirim teks apa pun dan hasilnya akan ditampilkan pada langkah berikutnya.
         </message>
       </base>
-      <base id="result">
+      <base id="${this.BASE.result}">
         ${kh}
         <message>
           ✅ Result

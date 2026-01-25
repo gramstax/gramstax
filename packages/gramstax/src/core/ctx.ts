@@ -824,35 +824,35 @@ export class Ctx {
   /**
    * The grammY context object for low-level Telegram API access.
    *
-   * @internal
+   * @public
    */
   ct: ICt
 
   /**
    * External cache for session storage.
    *
-   * @internal
+   * @public
    */
   cacheSession: CacheExternal<ICacheRpc>
 
   /**
    * Cache for keyboard instances.
    *
-   * @internal
+   * @public
    */
   cacheKeyboard: Map<any, any>
 
   /**
    * Template manager for message rendering.
    *
-   * @internal
+   * @public
    */
   templateManager: TemplateManager
 
   /**
    * Temporary state storage for the current request.
    *
-   * @internal
+   * @public
    */
   temp: ITemp
 
@@ -866,7 +866,7 @@ export class Ctx {
    * @param params.templateManager - Template manager instance.
    * @param params.temp - Temporary state object.
    *
-   * @internal
+   * @public
    */
   constructor(params: {ct: ICt; cacheSession: CacheExternal; cacheKeyboard: Map<any, any>; templateManager: TemplateManager; temp: ITemp}) {
     this.ct = params.ct
@@ -960,17 +960,7 @@ export class Ctx {
     keyboard?: IInBoKb,
     data?: IData,
     baseId?: string,
-    options?:
-      | IOptReplyPhoto
-      | IOptReplyVideo
-      | IOptReplyAudio
-      | IOptReplyDocument
-      | IOptReplyAnimation
-      | IOptReplyVoice
-      | IOptReplyVideoNote
-      | IOptReplySticker
-      | IOptReplyLocation
-      | IOptReplyContact,
+    options?: IOptReplyPhoto | IOptReplyVideo | IOptReplyAudio | IOptReplyDocument | IOptReplyAnimation | IOptReplyVoice | IOptReplyVideoNote | IOptReplySticker | IOptReplyLocation | IOptReplyContact,
     throwError = false
   ) {
     try {
@@ -1769,6 +1759,7 @@ export class Ctx {
       return null
     }
   }
+
   /**
    * Retrieves session data for the current user.
    *
@@ -2182,7 +2173,7 @@ export class Ctx {
    * @param mtd - The separator method: "space" or "colon". Default: "space".
    * @returns The separator character (" " or ":").
    *
-   * @internal
+   * @public
    */
   getSeperatorTag(mtd: `space` | `colon` = `space`) {
     return mtd == `space` ? ` ` : `:`
@@ -2195,7 +2186,7 @@ export class Ctx {
    * @param mtd - The separator method.
    * @returns True if the string contains the separator.
    *
-   * @internal
+   * @public
    */
   havePayloads(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0]) {
     return str.includes(this.getSeperatorTag(mtd))
@@ -2209,7 +2200,7 @@ export class Ctx {
    * @param pld - Array of payload values to append.
    * @returns The string with appended payloads.
    *
-   * @internal
+   * @public
    */
   addPayloads(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], pld: (string | undefined)[]) {
     const sep = this.getSeperatorTag(mtd)
@@ -2231,7 +2222,7 @@ export class Ctx {
    * @param positionStart - Starting position for payload extraction. Default: 1.
    * @returns Array of extracted payload values.
    *
-   * @internal
+   * @public
    */
   getPayloads(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], positionStart: number = 1) {
     if (!str) return []
@@ -2253,7 +2244,7 @@ export class Ctx {
    * console.log(intent) // "start"
    * ```
    *
-   * @internal
+   * @public
    */
   getIntent(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], positionEnd: number = 1) {
     if (!str) return ``
@@ -3059,167 +3050,206 @@ export class Ctx {
    */
   async free?(): Promise<any>
 
+  // callback
   /**
    * Session validation methods.
    *
    * @remarks
-   * These methods validate if the current session matches a specific route handler.
-   * Each `validateSession*` method compares the session method against the
+   * These methods validate if the current session `session.method` matches a specific route handler.
+   * Each `isSession*` method compares the session method against the
    * corresponding `methodSession*` result.
    *
    * @example
    * ```typescript
    * async textFree() {
-   *   const session = await this.sessionGet()
-   *   if (this.validateSessionTextFree()) {
+   *   if (this.isSessionTextFree()) {
    *     // Handle the expected session flow
    *   }
    * }
    * ```
    *
-   * @internal
+   * @public
    */
-  // callback
-  validateSessionCallback(method?: string, name?: string) {
+  isSessionCallback(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionCallback(name)
   }
-  validateSessionCallbackPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionCallbackPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionCallbackPayload(name)
   }
   // text
-  validateSessionText(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionText(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionText(name)
   }
-  validateSessionTextPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionTextPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionTextPayload(name)
   }
-  validateSessionTextCommand(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionTextCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionTextCommand(name)
   }
-  validateSessionTextCommandPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionTextCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionTextCommandPayload(name)
   }
-  validateSessionTextFree(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionTextFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionTextFree(name)
   }
   // photo
-  validateSessionPhotoCaption(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionPhotoCaption(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionPhotoCaption(name)
   }
-  validateSessionPhotoCaptionPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionPhotoCaptionPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionPhotoCaptionPayload(name)
   }
-  validateSessionPhotoCaptionCommand(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionPhotoCaptionCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionPhotoCaptionCommand(name)
   }
-  validateSessionPhotoCaptionCommandPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionPhotoCaptionCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionPhotoCaptionCommandPayload(name)
   }
-  validateSessionPhotoFree(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionPhotoFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionPhotoFree(name)
   }
   // video
-  validateSessionVideoCaption(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionVideoCaption(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoCaption(name)
   }
-  validateSessionVideoCaptionPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionVideoCaptionPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoCaptionPayload(name)
   }
-  validateSessionVideoCaptionCommand(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionVideoCaptionCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoCaptionCommand(name)
   }
-  validateSessionVideoCaptionCommandPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionVideoCaptionCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoCaptionCommandPayload(name)
   }
-  validateSessionVideoFree(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionVideoFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoFree(name)
   }
   // audio
-  validateSessionAudioCaption(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionAudioCaption(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAudioCaption(name)
   }
-  validateSessionAudioCaptionPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionAudioCaptionPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAudioCaptionPayload(name)
   }
-  validateSessionAudioCaptionCommand(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionAudioCaptionCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAudioCaptionCommand(name)
   }
-  validateSessionAudioCaptionCommandPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionAudioCaptionCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAudioCaptionCommandPayload(name)
   }
-  validateSessionAudioFree(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionAudioFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAudioFree(name)
   }
   // document
-  validateSessionDocumentCaption(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionDocumentCaption(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionDocumentCaption(name)
   }
-  validateSessionDocumentCaptionPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionDocumentCaptionPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionDocumentCaptionPayload(name)
   }
-  validateSessionDocumentCaptionCommand(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionDocumentCaptionCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionDocumentCaptionCommand(name)
   }
-  validateSessionDocumentCaptionCommandPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionDocumentCaptionCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionDocumentCaptionCommandPayload(name)
   }
-  validateSessionDocumentFree(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionDocumentFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionDocumentFree(name)
   }
   // animation
-  validateSessionAnimationCaption(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionAnimationCaption(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAnimationCaption(name)
   }
-  validateSessionAnimationCaptionPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionAnimationCaptionPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAnimationCaptionPayload(name)
   }
-  validateSessionAnimationCaptionCommand(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionAnimationCaptionCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAnimationCaptionCommand(name)
   }
-  validateSessionAnimationCaptionCommandPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionAnimationCaptionCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAnimationCaptionCommandPayload(name)
   }
-  validateSessionAnimationFree(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionAnimationFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionAnimationFree(name)
   }
   // voice
-  validateSessionVoiceCaption(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionVoiceCaption(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVoiceCaption(name)
   }
-  validateSessionVoiceCaptionPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionVoiceCaptionPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVoiceCaptionPayload(name)
   }
-  validateSessionVoiceCaptionCommand(method?: string, name?: string) {
+  isSessionVoiceCaptionCommand(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVoiceCaptionCommand(name)
   }
-  validateSessionVoiceCaptionCommandPayload(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionVoiceCaptionCommandPayload(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVoiceCaptionCommandPayload(name)
   }
-  validateSessionVoiceFree(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionVoiceFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVoiceFree(name)
   }
   // video note
-  validateSessionVideoNoteFree(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionVideoNoteFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionVideoNoteFree(name)
   }
   // sticker
-  validateSessionStickerFree(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionStickerFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionStickerFree(name)
   }
   // location
-  validateSessionLocationFree(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionLocationFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionLocationFree(name)
   }
   // contact
-  validateSessionContactFree(method?: string, name?: string) {
+  /** {@inheritDoc Ctx#isSessionCallback} */
+  isSessionContactFree(method?: string, name?: string) {
     return (method ?? this.session.method) === this.methodSessionContactFree(name)
   }
 
+  // callback
   /**
    * Session set helper methods.
    *
    * @remarks
-   * These methods are shortcuts for {@link Ctx.sessionSet} with pre-built method names.
+   * These methods are shortcuts for {@link Ctx#sessionSet} with pre-built method names.
    * Each `session*` method sets the session for the corresponding route handler.
    *
    * @example
@@ -3233,293 +3263,179 @@ export class Ctx {
    *
    * @public
    */
-  // callback
   sessionCallback(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionCallback(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionCallbackPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionCallbackPayload(name), params)
   }
   // text
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionText(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionText(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionTextPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionTextPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionTextCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionTextCommand(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionTextCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionTextCommandPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionTextFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionTextFree(name), params)
   }
   // photo
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionPhotoCaption(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionPhotoCaption(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionPhotoCaptionPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionPhotoCaptionPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionPhotoCaptionCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionPhotoCaptionCommand(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionPhotoCaptionCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionPhotoCaptionCommandPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionPhotoFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionPhotoFree(name), params)
   }
   // video
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionVideoCaption(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoCaption(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionVideoCaptionPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoCaptionPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionVideoCaptionCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoCaptionCommand(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionVideoCaptionCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoCaptionCommandPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionVideoFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoFree(name), params)
   }
   // audio
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionAudioCaption(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAudioCaption(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionAudioCaptionPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAudioCaptionPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionAudioCaptionCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAudioCaptionCommand(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionAudioCaptionCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAudioCaptionCommandPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionAudioFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAudioFree(name), params)
   }
   // document
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionDocumentCaption(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionDocumentCaption(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionDocumentCaptionPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionDocumentCaptionPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionDocumentCaptionCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionDocumentCaptionCommand(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionDocumentCaptionCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionDocumentCaptionCommandPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionDocumentFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionDocumentFree(name), params)
   }
   // animation
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionAnimationCaption(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAnimationCaption(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionAnimationCaptionPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAnimationCaptionPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionAnimationCaptionCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAnimationCaptionCommand(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionAnimationCaptionCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAnimationCaptionCommandPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionAnimationFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionAnimationFree(name), params)
   }
   // voice
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionVoiceCaption(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVoiceCaption(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionVoiceCaptionPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVoiceCaptionPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionVoiceCaptionCommand(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVoiceCaptionCommand(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionVoiceCaptionCommandPayload(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVoiceCaptionCommandPayload(name), params)
   }
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionVoiceFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVoiceFree(name), params)
   }
   // video note
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionVideoNoteFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionVideoNoteFree(name), params)
   }
   // sticker
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionStickerFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionStickerFree(name), params)
   }
   // location
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionLocationFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionLocationFree(name), params)
   }
   // contact
+  /** {@inheritDoc Ctx#sessionCallback} */
   sessionContactFree(params?: any, name?: string) {
     return this.sessionSet(this.methodSessionContactFree(name), params)
-  }
-
-  /**
-   * Session update helper methods.
-   *
-   * @remarks
-   * These methods merge additional parameters with existing session params and update
-   * the session for a new route handler. Useful for multi-step flows.
-   *
-   * @example
-   * ```typescript
-   * async textFree() {
-   *   // Add step info to existing session and move to next handler
-   *   await this.sessionToTextFree({inputData: 2})
-   * }
-   * ```
-   *
-   * @internal
-   */
-  // callback
-  sessionToCallback(paramsAdd?: any, name?: string) {
-    return this.sessionCallback({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToCallbackPayload(paramsAdd?: any, name?: string) {
-    return this.sessionCallbackPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  // text
-  sessionToText(paramsAdd?: any, name?: string) {
-    return this.sessionText({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToTextPayload(paramsAdd?: any, name?: string) {
-    return this.sessionTextPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToTextCommand(paramsAdd?: any, name?: string) {
-    return this.sessionTextCommand({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToTextCommandPayload(paramsAdd?: any, name?: string) {
-    return this.sessionTextCommandPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToTextFree(paramsAdd?: any, name?: string) {
-    return this.sessionTextFree({...this.session.params, ...paramsAdd}, name)
-  }
-  // photo
-  sessionToPhotoCaption(paramsAdd?: any, name?: string) {
-    return this.sessionPhotoCaption({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToPhotoCaptionPayload(paramsAdd?: any, name?: string) {
-    return this.sessionPhotoCaptionPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToPhotoCaptionCommand(paramsAdd?: any, name?: string) {
-    return this.sessionPhotoCaptionCommand({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToPhotoCaptionCommandPayload(paramsAdd?: any, name?: string) {
-    return this.sessionPhotoCaptionCommandPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToPhotoFree(paramsAdd?: any, name?: string) {
-    return this.sessionPhotoFree({...this.session.params, ...paramsAdd}, name)
-  }
-  // video
-  sessionToVideoCaption(paramsAdd?: any, name?: string) {
-    return this.sessionVideoCaption({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToVideoCaptionPayload(paramsAdd?: any, name?: string) {
-    return this.sessionVideoCaptionPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToVideoCaptionCommand(paramsAdd?: any, name?: string) {
-    return this.sessionVideoCaptionCommand({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToVideoCaptionCommandPayload(paramsAdd?: any, name?: string) {
-    return this.sessionVideoCaptionCommandPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToVideoFree(paramsAdd?: any, name?: string) {
-    return this.sessionVideoFree({...this.session.params, ...paramsAdd}, name)
-  }
-  // audio
-  sessionToAudioCaption(paramsAdd?: any, name?: string) {
-    return this.sessionAudioCaption({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToAudioCaptionPayload(paramsAdd?: any, name?: string) {
-    return this.sessionAudioCaptionPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToAudioCaptionCommand(paramsAdd?: any, name?: string) {
-    return this.sessionAudioCaptionCommand({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToAudioCaptionCommandPayload(paramsAdd?: any, name?: string) {
-    return this.sessionAudioCaptionCommandPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToAudioFree(paramsAdd?: any, name?: string) {
-    return this.sessionAudioFree({...this.session.params, ...paramsAdd}, name)
-  }
-  // document
-  sessionToDocumentCaption(paramsAdd?: any, name?: string) {
-    return this.sessionDocumentCaption({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToDocumentCaptionPayload(paramsAdd?: any, name?: string) {
-    return this.sessionDocumentCaptionPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToDocumentCaptionCommand(paramsAdd?: any, name?: string) {
-    return this.sessionDocumentCaptionCommand({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToDocumentCaptionCommandPayload(paramsAdd?: any, name?: string) {
-    return this.sessionDocumentCaptionCommandPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToDocumentFree(paramsAdd?: any, name?: string) {
-    return this.sessionDocumentFree({...this.session.params, ...paramsAdd}, name)
-  }
-  // animation
-  sessionToAnimationCaption(paramsAdd?: any, name?: string) {
-    return this.sessionAnimationCaption({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToAnimationCaptionPayload(paramsAdd?: any, name?: string) {
-    return this.sessionAnimationCaptionPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToAnimationCaptionCommand(paramsAdd?: any, name?: string) {
-    return this.sessionAnimationCaptionCommand({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToAnimationCaptionCommandPayload(paramsAdd?: any, name?: string) {
-    return this.sessionAnimationCaptionCommandPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToAnimationFree(paramsAdd?: any, name?: string) {
-    return this.sessionAnimationFree({...this.session.params, ...paramsAdd}, name)
-  }
-  // voice
-  sessionToVoiceCaption(paramsAdd?: any, name?: string) {
-    return this.sessionVoiceCaption({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToVoiceCaptionPayload(paramsAdd?: any, name?: string) {
-    return this.sessionVoiceCaptionPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToVoiceCaptionCommand(paramsAdd?: any, name?: string) {
-    return this.sessionVoiceCaptionCommand({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToVoiceCaptionCommandPayload(paramsAdd?: any, name?: string) {
-    return this.sessionVoiceCaptionCommandPayload({...this.session.params, ...paramsAdd}, name)
-  }
-  sessionToVoiceFree(paramsAdd?: any, name?: string) {
-    return this.sessionVoiceFree({...this.session.params, ...paramsAdd}, name)
-  }
-  // videonote
-  sessionToVideoNoteFree(paramsAdd?: any, name?: string) {
-    return this.sessionVideoNoteFree({...this.session.params, ...paramsAdd}, name)
-  }
-  // sticker
-  sessionToStickerFree(paramsAdd?: any, name?: string) {
-    return this.sessionStickerFree({...this.session.params, ...paramsAdd}, name)
-  }
-  // location
-  sessionToLocationFree(paramsAdd?: any, name?: string) {
-    return this.sessionLocationFree({...this.session.params, ...paramsAdd}, name)
-  }
-  // contact
-  sessionToContactFree(paramsAdd?: any, name?: string) {
-    return this.sessionContactFree({...this.session.params, ...paramsAdd}, name)
   }
 
   /**
@@ -3530,7 +3446,7 @@ export class Ctx {
    * {@link Ctx.sessionSet} and validation methods. Each `methodSession*`
    * returns a prefixed string like `"1-PageName"`.
    *
-   * @internal
+   * @public
    */
   methodSession(prefix: string, name: string | undefined) {
     return `${prefix}-${name || this.data.name}`

@@ -39,41 +39,49 @@ export class WorkerThreadInit {
   /**
    * Command line arguments passed to the worker.
    * Same as `process.argv`. Custom args start at index 3.
+   * @public
    */
   argv = process.argv
 
   /**
    * The worker thread ID from `node:worker_threads` `threadId`.
+   * @public
    */
   id = threadId
 
   /**
    * The process ID. Same as `process.pid`.
+   * @public
    */
   pid = process.pid
 
   /**
    * RPC handler for method invocations.
+   * @public
    */
   rpc: WorkerThreadRpc = {} as any
 
   /**
    * Reference to the parent port for messaging from `node:worker_threads`.
+   * @public
    */
   parentPort = parentPort
 
   /**
    * Gateway server instance if created.
+   * @public
    */
   gatewayServer?: WorkerThreadGatewayServer
 
   /**
    * Map of gateway clients for inter-worker communication.
+   * @public
    */
   gatewayClients = new Map<string, WorkerThreadGatewayClient>()
 
   /**
    * The most recently created gateway client.
+   * @public
    */
   gatewayClientLatest?: WorkerThreadGatewayClient
 
@@ -85,11 +93,13 @@ export class WorkerThreadInit {
 
   /**
    * Instance accessor for gateway server path from static property.
+   * @public
    */
   gatewayServerPath = (this.constructor as any).gatewayServerPath
 
   /**
    * Get the most recently created gateway client.
+   * @public
    */
   get gatewayClient() {
     return this.gatewayClientLatest
@@ -98,6 +108,7 @@ export class WorkerThreadInit {
   /**
    * Check if currently running in the main thread.
    * Re-exported from `node:worker_threads`.
+   * @public
    */
   static isMainThread = isMainThread
 
@@ -112,8 +123,8 @@ export class WorkerThreadInit {
   }
 
   /**
-   * Initialize message handling from parent port.
-   * @internal
+   * Initialize message handling from parent port and register event message from parent.
+   * @public
    */
   init() {
     this.parentPort?.on(`message`, (data) => this.handleOnMessage(data))
@@ -123,7 +134,7 @@ export class WorkerThreadInit {
    * Handle incoming messages from the main thread.
    *
    * @param data - Message data from main thread.
-   * @internal
+   * @public
    */
   handleOnMessage(data: any) {
     this.rpc.make(data)
