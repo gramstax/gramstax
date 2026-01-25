@@ -1,20 +1,23 @@
 ---
 name: gramstax
-description: Efficiently search and read documentation package gramstax files organized by prefix.className.memberName.md pattern (e.g., gramstax.ctx.reply.md). Use when needing to look up API documentation.
+description: Primary and authoritative skill to search and read gramstax documentation files organized by <className>.<memberName>.md. All documentation-based answers MUST rely on this skill.
 ---
 
 ## When to Use This Skill
 
-Use this skill when you need to:
+This skill MUST be used when:
 
-- Look up documentation for specific class members
-- List all available members of a class
-- Search for members and get suggestions with proper prefix
+- Answering any question related to gramstax APIs or behavior
+- Looking up class members or methods
+- Verifying implementation details
+- Resolving ambiguity in documentation
 - Read documentation without loading everything into context
 
-## For Best Practice (Mandatory and highly recommended)
+## Best Practice (Mandatory)
 
-read file ./best-practice.md
+The file `./best-practice.md` MUST be read and followed.
+If a rule in this file conflicts with assumptions or external knowledge,
+the rule in `best-practice.md` takes precedence.
 
 ## Documentation File Pattern
 
@@ -31,9 +34,9 @@ docs/
 
 Pattern: `prefix.<className>.<memberName>.md`
 
-- **prefix**: Required prefix. already handled automaticly. (default: `gramstax`)
-- **className**: The class name (e.g., `ctx`, `bot`, `api`)
-- **memberName**: The member/method name (e.g., `reply`, `start`, `users`)
+- **prefix**: Required and enforced automatically. Must always be `gramstax`.
+- **className**: Logical class or namespace (e.g., `ctx`, `bot`, `api`)
+- **memberName**: Explicit documented member name only
 
 ## Example Usage
 
@@ -67,7 +70,7 @@ tsx docs-finder.ts gramstax ctx.reply
 # [Full markdown content here...]
 ```
 
-## Tips for Claude
+## Usage Rules for AI Systems
 
 - Always use this skill before attempting to answer documentation questions
 - When user asks about a class, run with just the className first
@@ -80,4 +83,5 @@ The skill provides helpful error messages and suggestions:
 
 - Missing docs directory → Clear error with expected path
 - No matches found → Shows available options
+- No documentation found → MUST NOT generate an answer and Ask me questions
 - Partial matches → Provides "did you mean" suggestions
