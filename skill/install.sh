@@ -22,7 +22,7 @@ NAME="gramstax"
 
 if [ "$INSTALL_TYPE" = "personal" ]; then
     SKILL_DIR="$HOME/.claude/skills/$NAME"
-    SKILL_DIR_ANTIGRAVITY="$HOME/.agent/skills/$NAME"
+    SKILL_DIR_ANTIGRAVITY="$HOME/.gemini/antigravity/skills/$NAME"
     SKILL_DIR_TRAE="$HOME/.trae/skills/$NAME"
 
     echo -e "${GREEN}Installing as PERSONAL skill (available in all projects)${NC}"
