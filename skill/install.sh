@@ -37,6 +37,7 @@ mkdir -p "$SKILL_DIR/scripts"
 echo "📋 Copying skill files..."
 cp SKILL.md "$SKILL_DIR/"
 cp docs-finder.ts "$SKILL_DIR/scripts/"
+cp best-practice.md "$SKILL_DIR/"
 
 echo ""
 echo -e "${GREEN}✅ Installation complete!${NC}"

@@ -12,6 +12,10 @@ Use this skill when you need to:
 - Search for members and get suggestions with proper prefix
 - Read documentation without loading everything into context
 
+## For Best Practice (Mandatory and highly recommended)
+
+read file ./best-practice.md
+
 ## Documentation File Pattern
 
 This skill expects documentation files following this pattern:
