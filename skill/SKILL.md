@@ -45,7 +45,7 @@ Do not guess.
 Use when you need discovery.
 
 ```bash
-bun docs-finder
+bun ./scripts/docs-finder
 ```
 
 ## 2) Open a symbol doc (class/type)
@@ -56,8 +56,8 @@ Accepts:
 - UID: `gramstax!BlockKeyboard:class`
 
 ```bash
-bun docs-finder BlockKeyboard
-bun docs-finder "gramstax!BlockKeyboard:class"
+bun ./scripts/docs-finder BlockKeyboard
+bun ./scripts/docs-finder "gramstax!BlockKeyboard:class"
 ```
 
 ## 3) Open a member block (method/property)
@@ -69,9 +69,9 @@ Accepts:
 - UID member: `gramstax!BlockKeyboard._build:member(1)`
 
 ```bash
-bun docs-finder BlockKeyboard _build
-bun docs-finder BlockKeyboard.label
-bun docs-finder "gramstax!BlockKeyboard._build:member(1)"
+bun ./scripts/docs-finder BlockKeyboard _build
+bun ./scripts/docs-finder BlockKeyboard.label
+bun ./scripts/docs-finder "gramstax!BlockKeyboard._build:member(1)"
 ```
 
 Tool behavior:
@@ -85,14 +85,14 @@ Tool behavior:
 To avoid ambiguity with class/member names, always force search mode:
 
 ```bash
-bun docs-finder -- <terms...>
+bun ./scripts/docs-finder -- <terms...>
 ```
 
 Example:
 
 ```bash
-bun docs-finder -- inlineKeyboard
-bun docs-finder -- inlineKeyboard replyMarkup
+bun ./scripts/docs-finder -- inlineKeyboard
+bun ./scripts/docs-finder -- inlineKeyboard replyMarkup
 ```
 
 Search semantics:
@@ -106,17 +106,17 @@ Everything after `--` are search terms.
 This supports flags with separate values (e.g. `-C 3`, `-A 5`, `-g "*.yml"`).
 
 ```bash
-bun docs-finder <rgArgs...> -- <terms...>
+bun ./scripts/docs-finder <rgArgs...> -- <terms...>
 ```
 
 Examples:
 
 ```bash
-bun docs-finder -i -- inlineKeyboard
-bun docs-finder -C 3 -- inlineKeyboard
-bun docs-finder -A 5 -B 2 -- inlineKeyboard
-bun docs-finder -g "gramstax/*.yml" -- BlockKeyboard
-bun docs-finder --pcre2 -- "\\binlineKeyboard\\b"
+bun ./scripts/docs-finder -i -- inlineKeyboard
+bun ./scripts/docs-finder -C 3 -- inlineKeyboard
+bun ./scripts/docs-finder -A 5 -B 2 -- inlineKeyboard
+bun ./scripts/docs-finder -g "gramstax/*.yml" -- BlockKeyboard
+bun ./scripts/docs-finder --pcre2 -- "\\binlineKeyboard\\b"
 ```
 
 ## 6) RAW ripgrep mode (optional)
@@ -124,7 +124,7 @@ bun docs-finder --pcre2 -- "\\binlineKeyboard\\b"
 If no `--` is used and any arg starts with `-`, the tool forwards all args to `rg` directly (still scoped to `*.yml`).
 
 ```bash
-bun docs-finder --pcre2 -n -e "\\binlineKeyboard\\b" .
+bun ./scripts/docs-finder --pcre2 -n -e "\\binlineKeyboard\\b" .
 ```
 
 ---
@@ -134,20 +134,20 @@ bun docs-finder --pcre2 -n -e "\\binlineKeyboard\\b" .
 Given a user request:
 
 1. If user asks “what exists / list APIs / list classes/types”
-   → run `bun docs-finder`
+   → run `bun ./scripts/docs-finder`
 
 2. If user references a specific symbol (class/type)
-   → open symbol: `bun docs-finder <SymbolOrUid>`
+   → open symbol: `bun ./scripts/docs-finder <SymbolOrUid>`
 
 3. If user references a member (method/property)
    → open member:
-   - `bun docs-finder <Symbol> <member>`
-   - or `bun docs-finder "<uidMember>"`
+   - `bun ./scripts/docs-finder <Symbol> <member>`
+   - or `bun ./scripts/docs-finder "<uidMember>"`
 
 4. If user asks about a concept/keyword or you are unsure
    → force search:
-   - `bun docs-finder -- <terms...>`
-   - add rg flags if needed: `bun docs-finder -i -C 3 -- <terms...>`
+   - `bun ./scripts/docs-finder -- <terms...>`
+   - add rg flags if needed: `bun ./scripts/docs-finder -i -C 3 -- <terms...>`
 
 ---
 
@@ -184,5 +184,5 @@ If Bun execution appears to route args incorrectly:
 - Re-run using explicit file path:
 
 ```bash
-bun ./docs-finder.ts <same args...>
+bun ./scripts/docs-finder.ts <same args...>
 ```
