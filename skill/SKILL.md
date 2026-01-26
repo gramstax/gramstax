@@ -1,6 +1,6 @@
 ---
 name: gramstax-docs-finder
-description: Deterministically retrieve Gramstax API docs. Resolve symbols by UID (gramstax!Name:class/type) and members (gramstax!Name.member:member(n)). Always use this skill before answering. Supports full ripgrep passthrough via "<rgArgs...> -- <terms...>".
+description: Deterministically retrieve Gramstax API docs from DocFX/API-Extractor YAML. Resolve symbols by UID (gramstax!Name:class/type) and members (gramstax!Name.member:member(n)). Always use this skill before answering. Supports full ripgrep passthrough via "<rgArgs...> -- <terms...>".
 argument-hint: "[rgArgs...] -- <terms...> | <Symbol> [member] | <Symbol.member> | <uid> | -- <terms...>"
 allowed-tools: Bash, Read
 ---

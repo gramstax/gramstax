@@ -172,27 +172,37 @@ function isProbablyUid(s: string): boolean {
 }
 
 function parseUid(uid: string): {symbol?: string; member?: string; overloadIndex?: number; kind?: SymbolKind} {
-  // Examples:
-  //  - gramstax!BlockKeyboard:class
-  //  - gramstax!ITInlineKb:type
-  //  - gramstax!BlockKeyboard._build:member(1)
+  // Supported UID forms:
+  // - gramstax!BlockKeyboard:class
+  // - gramstax!ITInlineKb:type
+  // - gramstax!BlockKeyboard._build:member(1)
+  // - gramstax!Ctx#inlineKeyboard:member(1)   <-- IMPORTANT (uses '#')
   if (!isProbablyUid(uid)) return {}
 
   const afterBang = uid.split(`!`)[1] || ``
-  // member uid contains "."
-  const memberDotIdx = afterBang.indexOf(`.`)
-  const kindPartIdx = afterBang.indexOf(`:`)
-  if (memberDotIdx >= 0) {
-    const symbol = afterBang.slice(0, memberDotIdx)
-    const afterDot = afterBang.slice(memberDotIdx + 1)
-    const colonIdx = afterDot.indexOf(`:`)
-    const memberName = colonIdx >= 0 ? afterDot.slice(0, colonIdx) : afterDot
-    // overload member(1)
+
+  // Detect member delimiter: '.' or '#'
+  const dotIdx = afterBang.indexOf(`.`)
+  const hashIdx = afterBang.indexOf(`#`)
+
+  const memberDelimIdx = dotIdx >= 0 && hashIdx >= 0 ? Math.min(dotIdx, hashIdx) : dotIdx >= 0 ? dotIdx : hashIdx
+
+  // Member UID
+  if (memberDelimIdx >= 0) {
+    const symbol = afterBang.slice(0, memberDelimIdx)
+    const afterDelim = afterBang.slice(memberDelimIdx + 1)
+
+    const colonIdx = afterDelim.indexOf(`:`)
+    const memberName = colonIdx >= 0 ? afterDelim.slice(0, colonIdx) : afterDelim
+
     const m = uid.match(/:member\((\d+)\)/)
     const overloadIndex = m ? Number(m[1]) : undefined
+
     return {symbol, member: memberName, overloadIndex}
   }
 
+  // Non-member UID (class/type)
+  const kindPartIdx = afterBang.indexOf(`:`)
   if (kindPartIdx >= 0) {
     const symbol = afterBang.slice(0, kindPartIdx)
     const kindRaw = afterBang.slice(kindPartIdx + 1)
@@ -200,7 +210,7 @@ function parseUid(uid: string): {symbol?: string; member?: string; overloadIndex
     return {symbol, kind}
   }
 
-  // fallback
+  // Fallback
   return {symbol: afterBang}
 }
 
@@ -281,11 +291,14 @@ class YmlDocsFinder {
       return {name: p.symbol, member: p.member, overloadIndex: p.overloadIndex}
     }
 
-    // "Class.member" shorthand
+    // "Class.member" OR "Class#member" shorthand
     const dotIdx = s.indexOf(`.`)
-    if (dotIdx > 0) {
-      const name = s.slice(0, dotIdx).trim()
-      const member = s.slice(dotIdx + 1).trim()
+    const hashIdx = s.indexOf(`#`)
+    const splitIdx = dotIdx > 0 && hashIdx > 0 ? Math.min(dotIdx, hashIdx) : dotIdx > 0 ? dotIdx : hashIdx
+
+    if (splitIdx > 0) {
+      const name = s.slice(0, splitIdx).trim()
+      const member = s.slice(splitIdx + 1).trim()
       if (name && member) return {name, member}
     }
 
