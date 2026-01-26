@@ -14,20 +14,21 @@ export class InlineWithCountPage extends PageBase {
     const start = safePage * this.ITEMS_PER_PAGE
     const end = start + this.ITEMS_PER_PAGE
     const items = CatalogMock.menuItems.slice(start, end)
-    return this.inlineKeyboard((k, a) => {
+    return this.inlineKeyboard((k, l) => {
+      const cb = this.data.callback.bind(this)
       items.forEach((item) => {
-        k.text(item.name, this.data.callback(`item`, item.id)).row()
+        k.text(item.name, cb(`item`, item.id)).row()
       })
 
       k.row()
       if (safePage > 0) {
-        k.text(a[0]!, this.data.callback(`page`, safePage - 1))
+        k.text(l[0]!, cb(`page`, safePage - 1))
       }
-      k.text(`${a[2]} ${safePage + 1}/${totalPages}`, `_`)
+      k.text(`${l[2]} ${safePage + 1}/${totalPages}`, `_`)
       if (safePage < totalPages - 1) {
-        k.text(a[1]!, this.data.callback(`page`, safePage + 1))
+        k.text(l[1]!, cb(`page`, safePage + 1))
       }
-      return k.row().text(a[3]!, StartPage.data.callback())
+      return k.row().text(l[3]!, StartPage.data.callback())
     })
   }
 

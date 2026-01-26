@@ -29,12 +29,12 @@ export class DeletePage extends PageBase {
 
   buildListKeyboard(items: MainItem[]) {
     return this.inlineKeyboard(
-      (k, a) => {
+      (k, l) => {
         items.forEach((item, index) => {
           k.text(`🗑️ #${item.id} ${item.title.slice(0, 5)}..`, this.data.callback(`pick`, item.id))
           if (index % 2 === 1) k.row()
         })
-        return k.row().text(a[0]!, StartPage.data.callback())
+        return k.row().text(l[0]!, StartPage.data.callback())
       },
       {baseId: DeletePage.BASE.list}
     )

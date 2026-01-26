@@ -9,11 +9,11 @@ export class KeyboardBottomPage extends PageBase {
 
   async show(count?: number, baseId?: string) {
     const da = {data: {first: this.data.intentText}}
-    const kb = this.bottomKeyboard((k, a) => {
+    const kb = this.bottomKeyboard((k, l) => {
       return k
-        .text(count === undefined ? `${a[0]!} 0` : `${a[0]} ${count + 1}`)
+        .text(count === undefined ? `${l[0]!} 0` : `${l[0]} ${count + 1}`)
         .row()
-        .text(a[1]!)
+        .text(l[1]!)
         .oneTime()
     }, da)
     await this.reply(kb, {}, baseId)

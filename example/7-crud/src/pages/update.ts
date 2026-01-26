@@ -72,7 +72,7 @@ export class UpdatePage extends PageBase {
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
 
     return this.inlineKeyboard(
-      (k, a) => {
+      (k, l) => {
         items.forEach((item, index) => {
           k.text(`📝 #${item.id} ${item.title.slice(0, 5)}..`, this.data.callback(`select`, item.id))
           if (index % 2 === 1) k.row()
@@ -80,12 +80,12 @@ export class UpdatePage extends PageBase {
 
         k.row()
         if (safePage > 0) {
-          k.text(a[0]!, this.data.callback(`page`, `${safePage - 1}`))
+          k.text(l[0]!, this.data.callback(`page`, `${safePage - 1}`))
         }
         if (safePage < totalPages - 1) {
-          k.text(a[1]!, this.data.callback(`page`, `${safePage + 1}`))
+          k.text(l[1]!, this.data.callback(`page`, `${safePage + 1}`))
         }
-        return k.row().text(a[2]!, StartPage.data.callback())
+        return k.row().text(l[2]!, StartPage.data.callback())
       },
       {baseId: UpdatePage.BASE.select}
     )

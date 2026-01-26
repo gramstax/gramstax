@@ -12,12 +12,12 @@ export class CategoryPage extends PageBase {
   static BASE = {categories: `categories`}
 
   kb() {
-    return this.inlineKeyboard((k, a) => {
+    return this.inlineKeyboard((k, l) => {
       CatalogMock.list.forEach((category, index) => {
         k.text(category.name, this.data.callback(`category`, category.id))
         if (index % 2 === 1) k.row()
       })
-      return k.row().text(a[0]!, StartPage.data.callback())
+      return k.row().text(l[0]!, StartPage.data.callback())
     })
   }
 

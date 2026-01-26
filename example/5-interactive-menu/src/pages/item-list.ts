@@ -21,7 +21,7 @@ export class ItemListPage extends PageBase {
     const items = category.items.slice(start, end)
 
     return this.inlineKeyboard(
-      (k, a) => {
+      (k, l) => {
         items.forEach((item, index) => {
           k.text(item.name, ItemDetailPage.data.callback(`detail`, categoryId, item.id))
           if (index % 2 === 1) k.row()
@@ -29,12 +29,12 @@ export class ItemListPage extends PageBase {
 
         k.row()
         if (safePage > 0) {
-          k.text(a[0]!, this.data.callback(`page`, `${safePage - 1}`))
+          k.text(l[0]!, this.data.callback(`page`, `${safePage - 1}`))
         }
         if (safePage < totalPages - 1) {
-          k.text(a[1]!, this.data.callback(`page`, `${safePage - 1}`))
+          k.text(l[1]!, this.data.callback(`page`, `${safePage - 1}`))
         }
-        return k.row().text(a[2]!, CategoryPage.data.callback())
+        return k.row().text(l[2]!, CategoryPage.data.callback())
       },
       {baseId: ItemListPage.BASE.list}
     )

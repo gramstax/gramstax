@@ -15,20 +15,20 @@ export class InlineWithoutCountPage extends PageBase {
     const items = CatalogMock.menuItems.slice(start, end)
     const hasPrevious = safePage > 0
     const hasMore = end < CatalogMock.menuItems.length
-    return this.inlineKeyboard((k, a) => {
+    return this.inlineKeyboard((k, l) => {
       items.forEach((item) => {
         k.text(item.name, this.data.callback(`item`, item.id)).row()
       })
 
       k.row()
       if (hasPrevious) {
-        k.text(a[0]!, this.data.callback(`page`, safePage - 1))
+        k.text(l[0]!, this.data.callback(`page`, safePage - 1))
       }
-      k.text(`${a[2]} ${safePage + 1}`, `_`)
+      k.text(`${l[2]} ${safePage + 1}`, `_`)
       if (hasMore) {
-        k.text(a[1]!, this.data.callback(`page`, safePage + 1))
+        k.text(l[1]!, this.data.callback(`page`, safePage + 1))
       }
-      return k.row().text(a[3]!, StartPage.data.callback())
+      return k.row().text(l[3]!, StartPage.data.callback())
     })
   }
 
