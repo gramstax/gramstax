@@ -1913,7 +1913,7 @@ export class Ctx {
    *
    * @typeParam T - The keyboard type.
    * @param k - The keyboard instance.
-   * @param a - Array of button labels.
+   * @param l - Array of button labels.
    * @param layout - Layout format: "cols" or "cols-lastRow" (e.g., "2" or "3-2").
    * @param cb - Callback to create each button.
    * @returns The keyboard instance with buttons arranged.
@@ -1927,14 +1927,14 @@ export class Ctx {
    *
    * @public
    */
-  keyboardCols<T = any>(k: T, a: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T {
+  keyboardCols<T = any>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T {
     const [colsStr, lastRowStr] = layout.split(`-`)
     const cols = parseInt(colsStr!)
     const lastRow = lastRowStr ? parseInt(lastRowStr) : null
-    const total = a.length
+    const total = l.length
     const kb = k as any
     for (let index = 0; index < total; index++) {
-      const e = a[index]!
+      const e = l[index]!
       cb(e, index)
 
       // Jika tidak ada spesifikasi lastRow, pakai pola normal
@@ -2055,7 +2055,7 @@ export class Ctx {
    *
    * @public
    */
-  inlineKeyboard(callback: (k: ITInlineKb, a: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb {
+  inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:i`
@@ -2099,7 +2099,7 @@ export class Ctx {
    *
    * @public
    */
-  bottomKeyboard(callback: (k: ITBottomKb, a: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb {
+  bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:b`
@@ -3405,137 +3405,178 @@ export class Ctx {
   methodSession(prefix: string, name: string | undefined) {
     return `${prefix}-${name || this.data.name}`
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCallback(name?: string) {
     return this.methodSession(`1`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCallbackPayload(name?: string) {
     return this.methodSession(`2`, name)
   }
   // text method
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionText(name?: string) {
     return this.methodSession(`3`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionTextPayload(name?: string) {
     return this.methodSession(`4`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionTextCommand(name?: string) {
     return this.methodSession(`5`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionTextCommandPayload(name?: string) {
     return this.methodSession(`6`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionTextFree(name?: string) {
     return this.methodSession(`7`, name)
   }
   // photo method
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionPhotoCaption(name?: string) {
     return this.methodSession(`8`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionPhotoCaptionPayload(name?: string) {
     return this.methodSession(`9`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionPhotoCaptionCommand(name?: string) {
     return this.methodSession(`10`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionPhotoCaptionCommandPayload(name?: string) {
     return this.methodSession(`11`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionPhotoFree(name?: string) {
     return this.methodSession(`12`, name)
   }
   // video method
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionVideoCaption(name?: string) {
     return this.methodSession(`13`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionVideoCaptionPayload(name?: string) {
     return this.methodSession(`14`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionVideoCaptionCommand(name?: string) {
     return this.methodSession(`15`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionVideoCaptionCommandPayload(name?: string) {
     return this.methodSession(`16`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionVideoFree(name?: string) {
     return this.methodSession(`17`, name)
   }
   // audio method
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionAudioCaption(name?: string) {
     return this.methodSession(`18`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionAudioCaptionPayload(name?: string) {
     return this.methodSession(`19`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionAudioCaptionCommand(name?: string) {
     return this.methodSession(`20`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionAudioCaptionCommandPayload(name?: string) {
     return this.methodSession(`21`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionAudioFree(name?: string) {
     return this.methodSession(`22`, name)
   }
   // document method
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionDocumentCaption(name?: string) {
     return this.methodSession(`23`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionDocumentCaptionPayload(name?: string) {
     return this.methodSession(`24`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionDocumentCaptionCommand(name?: string) {
     return this.methodSession(`25`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionDocumentCaptionCommandPayload(name?: string) {
     return this.methodSession(`26`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionDocumentFree(name?: string) {
     return this.methodSession(`27`, name)
   }
   // animation method
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionAnimationCaption(name?: string) {
     return this.methodSession(`28`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionAnimationCaptionPayload(name?: string) {
     return this.methodSession(`29`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionAnimationCaptionCommand(name?: string) {
     return this.methodSession(`30`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionAnimationCaptionCommandPayload(name?: string) {
     return this.methodSession(`31`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionAnimationFree(name?: string) {
     return this.methodSession(`32`, name)
   }
   // voice method
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionVoiceCaption(name?: string) {
     return this.methodSession(`33`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionVoiceCaptionPayload(name?: string) {
     return this.methodSession(`34`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionVoiceCaptionCommand(name?: string) {
     return this.methodSession(`35`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionVoiceCaptionCommandPayload(name?: string) {
     return this.methodSession(`36`, name)
   }
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionVoiceFree(name?: string) {
     return this.methodSession(`37`, name)
   }
   // video note method
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionVideoNoteFree(name?: string) {
     return this.methodSession(`38`, name)
   }
   // sticker method
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionStickerFree(name?: string) {
     return this.methodSession(`39`, name)
   }
   // location method
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionLocationFree(name?: string) {
     return this.methodSession(`40`, name)
   }
   // contact method
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionContactFree(name?: string) {
     return this.methodSession(`41`, name)
   }
