@@ -2269,7 +2269,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[keyboardCols(k, a, layout, cb)](./gramstax.ctx.keyboardcols.md)
+[keyboardCols(k, l, layout, cb)](./gramstax.ctx.keyboardcols.md)
 
 
 </td><td>
@@ -2319,6 +2319,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2330,6 +2332,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2343,6 +2347,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2354,6 +2360,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2367,6 +2375,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2378,6 +2388,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2391,6 +2403,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2402,6 +2416,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2415,6 +2431,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2426,6 +2444,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2439,6 +2459,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2450,6 +2472,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2463,6 +2487,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2474,6 +2500,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2487,6 +2515,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2498,6 +2528,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2511,6 +2543,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2522,6 +2556,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2535,6 +2571,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2546,6 +2584,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2559,6 +2599,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2570,6 +2612,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2583,6 +2627,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2594,6 +2640,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2607,6 +2655,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2618,6 +2668,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2631,6 +2683,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2642,6 +2696,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2655,6 +2711,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2666,6 +2724,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2679,6 +2739,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2690,6 +2752,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2703,6 +2767,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2714,6 +2780,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2727,6 +2795,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2738,6 +2808,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2751,6 +2823,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2762,6 +2836,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>
@@ -2775,6 +2851,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2787,6 +2865,8 @@ Session method name builders.
 
 </td><td>
 
+Session method name builders.
+
 
 </td></tr>
 <tr><td>
@@ -2798,6 +2878,8 @@ Session method name builders.
 
 
 </td><td>
+
+Session method name builders.
 
 
 </td></tr>

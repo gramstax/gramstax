@@ -9,7 +9,7 @@ Creates an inline keyboard using a builder callback.
 **Signature:**
 
 ```typescript
-inlineKeyboard(callback: (k: ITInlineKb, a: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb;
+inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ callback
 
 </td><td>
 
-(k: [ITInlineKb](./gramstax.itinlinekb.md)<!-- -->, a: string\[\]) =&gt; [ITInlineKb](./gramstax.itinlinekb.md)
+(k: [ITInlineKb](./gramstax.itinlinekb.md)<!-- -->, l: string\[\]) =&gt; [ITInlineKb](./gramstax.itinlinekb.md)
 
 
 </td><td>

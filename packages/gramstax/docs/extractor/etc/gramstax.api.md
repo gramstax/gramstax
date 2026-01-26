@@ -61,7 +61,7 @@ export class Ctx {
     audioCaptionPayload?(): Promise<any>;
     // @virtual
     audioFree?(): Promise<any>;
-    bottomKeyboard(callback: (k: ITBottomKb, a: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb;
+    bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb;
     bottomKeyboardT(layout?: ITKbCols, baseId?: string | null, data?: Record<any, any>): Keyboard;
     broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply, throwError?: boolean): Promise<void>;
     broadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact, throwError?: boolean): Promise<void>;
@@ -117,7 +117,7 @@ export class Ctx {
     getPayloads(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], positionStart?: number): string[];
     getSeperatorTag(mtd?: `space` | `colon`): " " | ":";
     havePayloads(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0]): boolean;
-    inlineKeyboard(callback: (k: ITInlineKb, a: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb;
+    inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb;
     inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, baseId?: string | null, data?: ITData): InlineKeyboard;
     isSessionAnimationCaption(method?: string, name?: string): boolean;
     isSessionAnimationCaptionCommand(method?: string, name?: string): boolean;
@@ -161,91 +161,50 @@ export class Ctx {
     isSessionVoiceCaptionCommandPayload(method?: string, name?: string): boolean;
     isSessionVoiceCaptionPayload(method?: string, name?: string): boolean;
     isSessionVoiceFree(method?: string, name?: string): boolean;
-    keyboardCols<T = any>(k: T, a: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;
+    keyboardCols<T = any>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;
     // @virtual
     locationFree?(): Promise<any>;
     methodSession(prefix: string, name: string | undefined): string;
-    // (undocumented)
     methodSessionAnimationCaption(name?: string): string;
-    // (undocumented)
     methodSessionAnimationCaptionCommand(name?: string): string;
-    // (undocumented)
     methodSessionAnimationCaptionCommandPayload(name?: string): string;
-    // (undocumented)
     methodSessionAnimationCaptionPayload(name?: string): string;
-    // (undocumented)
     methodSessionAnimationFree(name?: string): string;
-    // (undocumented)
     methodSessionAudioCaption(name?: string): string;
-    // (undocumented)
     methodSessionAudioCaptionCommand(name?: string): string;
-    // (undocumented)
     methodSessionAudioCaptionCommandPayload(name?: string): string;
-    // (undocumented)
     methodSessionAudioCaptionPayload(name?: string): string;
-    // (undocumented)
     methodSessionAudioFree(name?: string): string;
-    // (undocumented)
     methodSessionCallback(name?: string): string;
-    // (undocumented)
     methodSessionCallbackPayload(name?: string): string;
-    // (undocumented)
     methodSessionContactFree(name?: string): string;
-    // (undocumented)
     methodSessionDocumentCaption(name?: string): string;
-    // (undocumented)
     methodSessionDocumentCaptionCommand(name?: string): string;
-    // (undocumented)
     methodSessionDocumentCaptionCommandPayload(name?: string): string;
-    // (undocumented)
     methodSessionDocumentCaptionPayload(name?: string): string;
-    // (undocumented)
     methodSessionDocumentFree(name?: string): string;
-    // (undocumented)
     methodSessionLocationFree(name?: string): string;
-    // (undocumented)
     methodSessionPhotoCaption(name?: string): string;
-    // (undocumented)
     methodSessionPhotoCaptionCommand(name?: string): string;
-    // (undocumented)
     methodSessionPhotoCaptionCommandPayload(name?: string): string;
-    // (undocumented)
     methodSessionPhotoCaptionPayload(name?: string): string;
-    // (undocumented)
     methodSessionPhotoFree(name?: string): string;
-    // (undocumented)
     methodSessionStickerFree(name?: string): string;
-    // (undocumented)
     methodSessionText(name?: string): string;
-    // (undocumented)
     methodSessionTextCommand(name?: string): string;
-    // (undocumented)
     methodSessionTextCommandPayload(name?: string): string;
-    // (undocumented)
     methodSessionTextFree(name?: string): string;
-    // (undocumented)
     methodSessionTextPayload(name?: string): string;
-    // (undocumented)
     methodSessionVideoCaption(name?: string): string;
-    // (undocumented)
     methodSessionVideoCaptionCommand(name?: string): string;
-    // (undocumented)
     methodSessionVideoCaptionCommandPayload(name?: string): string;
-    // (undocumented)
     methodSessionVideoCaptionPayload(name?: string): string;
-    // (undocumented)
     methodSessionVideoFree(name?: string): string;
-    // (undocumented)
     methodSessionVideoNoteFree(name?: string): string;
-    // (undocumented)
     methodSessionVoiceCaption(name?: string): string;
-    // (undocumented)
     methodSessionVoiceCaptionCommand(name?: string): string;
-    // (undocumented)
     methodSessionVoiceCaptionCommandPayload(name?: string): string;
-    // (undocumented)
     methodSessionVoiceCaptionPayload(name?: string): string;
-    // (undocumented)
     methodSessionVoiceFree(name?: string): string;
     get msgAnimation(): grammy_types.Animation | undefined;
     get msgAudio(): grammy_types.Audio | undefined;

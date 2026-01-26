@@ -1077,7 +1077,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", a: string[]) => "
+                  "text": ", l: string[]) => "
                 },
                 {
                   "kind": "Reference",
@@ -5495,7 +5495,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", a: string[]) => "
+                  "text": ", l: string[]) => "
                 },
                 {
                   "kind": "Reference",
@@ -8286,7 +8286,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#keyboardCols:member(1)",
-              "docComment": "/**\n * Helper method to arrange keyboard buttons in a grid layout.\n *\n * @remarks\n *\n * Supports custom column configurations and special handling for the last row.\n *\n * @param k - The keyboard instance.\n *\n * @param a - Array of button labels.\n *\n * @param layout - Layout format: \"cols\" or \"cols-lastRow\" (e.g., \"2\" or \"3-2\").\n *\n * @param cb - Callback to create each button.\n *\n * @typeParam T - The keyboard type.\n *\n * @returns The keyboard instance with buttons arranged.\n *\n * @example\n * ```typescript\n * const kb = this.keyboardCols(new InlineKeyboard(), [\"A\", \"B\", \"C\"], \"2\", (e, i) => {\n *   kb.text(e, `btn:${i}`)\n * })\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Helper method to arrange keyboard buttons in a grid layout.\n *\n * @remarks\n *\n * Supports custom column configurations and special handling for the last row.\n *\n * @param k - The keyboard instance.\n *\n * @param l - Array of button labels.\n *\n * @param layout - Layout format: \"cols\" or \"cols-lastRow\" (e.g., \"2\" or \"3-2\").\n *\n * @param cb - Callback to create each button.\n *\n * @typeParam T - The keyboard type.\n *\n * @returns The keyboard instance with buttons arranged.\n *\n * @example\n * ```typescript\n * const kb = this.keyboardCols(new InlineKeyboard(), [\"A\", \"B\", \"C\"], \"2\", (e, i) => {\n *   kb.text(e, `btn:${i}`)\n * })\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8306,7 +8306,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", a: "
+                  "text": ", l: "
                 },
                 {
                   "kind": "Content",
@@ -8373,7 +8373,7 @@
                   "isOptional": false
                 },
                 {
-                  "parameterName": "a",
+                  "parameterName": "l",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
@@ -8504,7 +8504,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionAnimationCaption:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8552,7 +8552,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionAnimationCaptionCommand:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8600,7 +8600,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionAnimationCaptionCommandPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8648,7 +8648,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionAnimationCaptionPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8696,7 +8696,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionAnimationFree:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8744,7 +8744,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionAudioCaption:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8792,7 +8792,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionAudioCaptionCommand:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8840,7 +8840,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionAudioCaptionCommandPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8888,7 +8888,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionAudioCaptionPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8936,7 +8936,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionAudioFree:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8984,7 +8984,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCallback:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9032,7 +9032,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCallbackPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9080,7 +9080,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionContactFree:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9128,7 +9128,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionDocumentCaption:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9176,7 +9176,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionDocumentCaptionCommand:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9224,7 +9224,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionDocumentCaptionCommandPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9272,7 +9272,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionDocumentCaptionPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9320,7 +9320,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionDocumentFree:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9368,7 +9368,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionLocationFree:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9416,7 +9416,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionPhotoCaption:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9464,7 +9464,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionPhotoCaptionCommand:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9512,7 +9512,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionPhotoCaptionCommandPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9560,7 +9560,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionPhotoCaptionPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9608,7 +9608,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionPhotoFree:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9656,7 +9656,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionStickerFree:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9704,7 +9704,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionText:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9752,7 +9752,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionTextCommand:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9800,7 +9800,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionTextCommandPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9848,7 +9848,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionTextFree:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9896,7 +9896,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionTextPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9944,7 +9944,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionVideoCaption:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9992,7 +9992,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionVideoCaptionCommand:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10040,7 +10040,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionVideoCaptionCommandPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10088,7 +10088,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionVideoCaptionPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10136,7 +10136,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionVideoFree:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10184,7 +10184,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionVideoNoteFree:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10232,7 +10232,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionVoiceCaption:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10280,7 +10280,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionVoiceCaptionCommand:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10328,7 +10328,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionVoiceCaptionCommandPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10376,7 +10376,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionVoiceCaptionPayload:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10424,7 +10424,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionVoiceFree:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.sessionSet} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

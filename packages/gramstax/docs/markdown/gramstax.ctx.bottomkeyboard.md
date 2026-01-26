@@ -9,7 +9,7 @@ Creates a bottom (reply) keyboard using a builder callback.
 **Signature:**
 
 ```typescript
-bottomKeyboard(callback: (k: ITBottomKb, a: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb;
+bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ callback
 
 </td><td>
 
-(k: [ITBottomKb](./gramstax.itbottomkb.md)<!-- -->, a: string\[\]) =&gt; [ITBottomKb](./gramstax.itbottomkb.md)
+(k: [ITBottomKb](./gramstax.itbottomkb.md)<!-- -->, l: string\[\]) =&gt; [ITBottomKb](./gramstax.itbottomkb.md)
 
 
 </td><td>

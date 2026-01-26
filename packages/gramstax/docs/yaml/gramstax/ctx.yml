@@ -1236,11 +1236,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'bottomKeyboard(callback: (k: ITBottomKb, a: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb;'
+      content: 'bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb;'
       parameters:
         - id: callback
           description: Builder function that receives keyboard and labels.
-          type: '(k: <xref uid="gramstax!ITBottomKb:type" />, a: string[]) =&gt; <xref uid="gramstax!ITBottomKb:type" />'
+          type: '(k: <xref uid="gramstax!ITBottomKb:type" />, l: string[]) =&gt; <xref uid="gramstax!ITBottomKb:type" />'
         - id: params
           description: Optional parameters. [ITBottomKbParams](xref:gramstax!ITBottomKbParams:type) for details.
           type: <xref uid="gramstax!ITBottomKbParams:type" />
@@ -2424,11 +2424,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'inlineKeyboard(callback: (k: ITInlineKb, a: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb;'
+      content: 'inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb;'
       parameters:
         - id: callback
           description: Builder function that receives keyboard and labels.
-          type: '(k: <xref uid="gramstax!ITInlineKb:type" />, a: string[]) =&gt; <xref uid="gramstax!ITInlineKb:type" />'
+          type: '(k: <xref uid="gramstax!ITInlineKb:type" />, l: string[]) =&gt; <xref uid="gramstax!ITInlineKb:type" />'
         - id: params
           description: Optional parameters. [ITInlineKbParams](xref:gramstax!ITInlineKbParams:type) for details.
           type: <xref uid="gramstax!ITInlineKbParams:type" />
@@ -3471,10 +3471,10 @@ methods:
       return:
         type: boolean
         description: ''
-  - name: keyboardCols(k, a, layout, cb)
+  - name: keyboardCols(k, l, layout, cb)
     uid: gramstax!Ctx#keyboardCols:member(1)
     package: gramstax!
-    fullName: keyboardCols(k, a, layout, cb)
+    fullName: keyboardCols(k, l, layout, cb)
     summary: Helper method to arrange keyboard buttons in a grid layout.
     remarks: Supports custom column configurations and special handling for the last row.
     example:
@@ -3487,12 +3487,12 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'keyboardCols<T = any>(k: T, a: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;'
+      content: 'keyboardCols<T = any>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;'
       parameters:
         - id: k
           description: The keyboard instance.
           type: T
-        - id: a
+        - id: l
           description: Array of button labels.
           type: string[]
         - id: layout
@@ -3554,8 +3554,11 @@ methods:
     uid: gramstax!Ctx#methodSessionAnimationCaption:member(1)
     package: gramstax!
     fullName: methodSessionAnimationCaption(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3572,8 +3575,11 @@ methods:
     uid: gramstax!Ctx#methodSessionAnimationCaptionCommand:member(1)
     package: gramstax!
     fullName: methodSessionAnimationCaptionCommand(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3590,8 +3596,11 @@ methods:
     uid: gramstax!Ctx#methodSessionAnimationCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: methodSessionAnimationCaptionCommandPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3608,8 +3617,11 @@ methods:
     uid: gramstax!Ctx#methodSessionAnimationCaptionPayload:member(1)
     package: gramstax!
     fullName: methodSessionAnimationCaptionPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3626,8 +3638,11 @@ methods:
     uid: gramstax!Ctx#methodSessionAnimationFree:member(1)
     package: gramstax!
     fullName: methodSessionAnimationFree(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3644,8 +3659,11 @@ methods:
     uid: gramstax!Ctx#methodSessionAudioCaption:member(1)
     package: gramstax!
     fullName: methodSessionAudioCaption(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3662,8 +3680,11 @@ methods:
     uid: gramstax!Ctx#methodSessionAudioCaptionCommand:member(1)
     package: gramstax!
     fullName: methodSessionAudioCaptionCommand(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3680,8 +3701,11 @@ methods:
     uid: gramstax!Ctx#methodSessionAudioCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: methodSessionAudioCaptionCommandPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3698,8 +3722,11 @@ methods:
     uid: gramstax!Ctx#methodSessionAudioCaptionPayload:member(1)
     package: gramstax!
     fullName: methodSessionAudioCaptionPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3716,8 +3743,11 @@ methods:
     uid: gramstax!Ctx#methodSessionAudioFree:member(1)
     package: gramstax!
     fullName: methodSessionAudioFree(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3734,8 +3764,11 @@ methods:
     uid: gramstax!Ctx#methodSessionCallback:member(1)
     package: gramstax!
     fullName: methodSessionCallback(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3752,8 +3785,11 @@ methods:
     uid: gramstax!Ctx#methodSessionCallbackPayload:member(1)
     package: gramstax!
     fullName: methodSessionCallbackPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3770,8 +3806,11 @@ methods:
     uid: gramstax!Ctx#methodSessionContactFree:member(1)
     package: gramstax!
     fullName: methodSessionContactFree(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3788,8 +3827,11 @@ methods:
     uid: gramstax!Ctx#methodSessionDocumentCaption:member(1)
     package: gramstax!
     fullName: methodSessionDocumentCaption(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3806,8 +3848,11 @@ methods:
     uid: gramstax!Ctx#methodSessionDocumentCaptionCommand:member(1)
     package: gramstax!
     fullName: methodSessionDocumentCaptionCommand(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3824,8 +3869,11 @@ methods:
     uid: gramstax!Ctx#methodSessionDocumentCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: methodSessionDocumentCaptionCommandPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3842,8 +3890,11 @@ methods:
     uid: gramstax!Ctx#methodSessionDocumentCaptionPayload:member(1)
     package: gramstax!
     fullName: methodSessionDocumentCaptionPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3860,8 +3911,11 @@ methods:
     uid: gramstax!Ctx#methodSessionDocumentFree:member(1)
     package: gramstax!
     fullName: methodSessionDocumentFree(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3878,8 +3932,11 @@ methods:
     uid: gramstax!Ctx#methodSessionLocationFree:member(1)
     package: gramstax!
     fullName: methodSessionLocationFree(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3896,8 +3953,11 @@ methods:
     uid: gramstax!Ctx#methodSessionPhotoCaption:member(1)
     package: gramstax!
     fullName: methodSessionPhotoCaption(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3914,8 +3974,11 @@ methods:
     uid: gramstax!Ctx#methodSessionPhotoCaptionCommand:member(1)
     package: gramstax!
     fullName: methodSessionPhotoCaptionCommand(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3932,8 +3995,11 @@ methods:
     uid: gramstax!Ctx#methodSessionPhotoCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: methodSessionPhotoCaptionCommandPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3950,8 +4016,11 @@ methods:
     uid: gramstax!Ctx#methodSessionPhotoCaptionPayload:member(1)
     package: gramstax!
     fullName: methodSessionPhotoCaptionPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3968,8 +4037,11 @@ methods:
     uid: gramstax!Ctx#methodSessionPhotoFree:member(1)
     package: gramstax!
     fullName: methodSessionPhotoFree(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -3986,8 +4058,11 @@ methods:
     uid: gramstax!Ctx#methodSessionStickerFree:member(1)
     package: gramstax!
     fullName: methodSessionStickerFree(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4004,8 +4079,11 @@ methods:
     uid: gramstax!Ctx#methodSessionText:member(1)
     package: gramstax!
     fullName: methodSessionText(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4022,8 +4100,11 @@ methods:
     uid: gramstax!Ctx#methodSessionTextCommand:member(1)
     package: gramstax!
     fullName: methodSessionTextCommand(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4040,8 +4121,11 @@ methods:
     uid: gramstax!Ctx#methodSessionTextCommandPayload:member(1)
     package: gramstax!
     fullName: methodSessionTextCommandPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4058,8 +4142,11 @@ methods:
     uid: gramstax!Ctx#methodSessionTextFree:member(1)
     package: gramstax!
     fullName: methodSessionTextFree(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4076,8 +4163,11 @@ methods:
     uid: gramstax!Ctx#methodSessionTextPayload:member(1)
     package: gramstax!
     fullName: methodSessionTextPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4094,8 +4184,11 @@ methods:
     uid: gramstax!Ctx#methodSessionVideoCaption:member(1)
     package: gramstax!
     fullName: methodSessionVideoCaption(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4112,8 +4205,11 @@ methods:
     uid: gramstax!Ctx#methodSessionVideoCaptionCommand:member(1)
     package: gramstax!
     fullName: methodSessionVideoCaptionCommand(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4130,8 +4226,11 @@ methods:
     uid: gramstax!Ctx#methodSessionVideoCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: methodSessionVideoCaptionCommandPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4148,8 +4247,11 @@ methods:
     uid: gramstax!Ctx#methodSessionVideoCaptionPayload:member(1)
     package: gramstax!
     fullName: methodSessionVideoCaptionPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4166,8 +4268,11 @@ methods:
     uid: gramstax!Ctx#methodSessionVideoFree:member(1)
     package: gramstax!
     fullName: methodSessionVideoFree(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4184,8 +4289,11 @@ methods:
     uid: gramstax!Ctx#methodSessionVideoNoteFree:member(1)
     package: gramstax!
     fullName: methodSessionVideoNoteFree(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4202,8 +4310,11 @@ methods:
     uid: gramstax!Ctx#methodSessionVoiceCaption:member(1)
     package: gramstax!
     fullName: methodSessionVoiceCaption(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4220,8 +4331,11 @@ methods:
     uid: gramstax!Ctx#methodSessionVoiceCaptionCommand:member(1)
     package: gramstax!
     fullName: methodSessionVoiceCaptionCommand(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4238,8 +4352,11 @@ methods:
     uid: gramstax!Ctx#methodSessionVoiceCaptionCommandPayload:member(1)
     package: gramstax!
     fullName: methodSessionVoiceCaptionCommandPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4256,8 +4373,11 @@ methods:
     uid: gramstax!Ctx#methodSessionVoiceCaptionPayload:member(1)
     package: gramstax!
     fullName: methodSessionVoiceCaptionPayload(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -4274,8 +4394,11 @@ methods:
     uid: gramstax!Ctx#methodSessionVoiceFree:member(1)
     package: gramstax!
     fullName: methodSessionVoiceFree(name)
-    summary: ''
-    remarks: ''
+    summary: Session method name builders.
+    remarks: >-
+      These methods generate unique session method identifiers used by
+      [Ctx.sessionSet()](xref:gramstax!Ctx%23sessionSet:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false

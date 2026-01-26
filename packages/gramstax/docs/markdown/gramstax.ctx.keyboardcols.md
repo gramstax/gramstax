@@ -9,7 +9,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 **Signature:**
 
 ```typescript
-keyboardCols<T = any>(k: T, a: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;
+keyboardCols<T = any>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;
 ```
 
 ## Parameters
@@ -48,7 +48,7 @@ The keyboard instance.
 </td></tr>
 <tr><td>
 
-a
+l
 
 
 </td><td>
