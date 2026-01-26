@@ -32,6 +32,10 @@ Do not guess.
   - exact YAML content printed by the tool, and/or
   - ripgrep matches printed by the tool.
 
+## Mandatory Structure Project
+
+- PLEASE SEE best-practice.md for structure project and best practice.
+
 ---
 
 # HOW TO USE (AI PROCEDURE)
