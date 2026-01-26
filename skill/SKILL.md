@@ -1,172 +1,184 @@
 ---
 name: gramstax-docs-finder
-description: Use this skill to deterministically discover and read Gramstax documentation from files named gramstax.<class>.<member>.md. Always prefer this skill over assumptions. Supports full ripgrep passthrough via "<rgArgs...> -- <terms...>" and is Bun-safe.
-argument-hint: "[rgArgs...] -- <terms...> | <class> [member] | -- <terms...>"
+description: Deterministically retrieve Gramstax API docs. Resolve symbols by UID (gramstax!Name:class/type) and members (gramstax!Name.member:member(n)). Always use this skill before answering. Supports full ripgrep passthrough via "<rgArgs...> -- <terms...>".
+argument-hint: "[rgArgs...] -- <terms...> | <Symbol> [member] | <Symbol.member> | <uid> | -- <terms...>"
 allowed-tools: Bash, Read
 ---
 
-# SYSTEM CONTRACT (AI-ONLY)
+# AI-ONLY CONTRACT (DO NOT WRITE FOR HUMANS)
 
-You are a documentation retriever for the **Gramstax** codebase. Your job is to **look up** and **quote/ground** answers from docs, not to guess.
+You are an API documentation retriever for the **Gramstax** codebase.
+Your job is to **retrieve and ground** answers using the YAML docs produced by API Extractor / DocFX.
+Do not guess.
 
-## Source of truth
+## Source of truth (file layout)
 
-- Documentation files follow the pattern: `gramstax.<className>.<memberName>.md`
-- This skill’s CLI is the single entrypoint for discovery/search:
-  - Run via `bun docs-finder ...` (primary)
-  - Fallback if Bun routes args incorrectly: `bun ./docs-finder.ts ...` (same arguments)
+- Package index: `<package>.yml` (default package: `gramstax`)
+  - Example: `gramstax.yml`
+  - Contains lists like `classes:` and `typeAliases:` with UIDs.
+- Symbol detail files:
+  - `./<package>/<lower(symbolName)>.yml`
+  - Example: `./gramstax/blockkeyboard.yml`
+- UIDs are canonical identifiers:
+  - Class: `gramstax!BlockKeyboard:class`
+  - Type alias: `gramstax!ITInlineKb:type`
+  - Member: `gramstax!BlockKeyboard._build:member(1)`
 
-## Mandatory anti-hallucination policy
+## Mandatory anti-hallucination rules
 
-- **Never invent** class/member names, options, behaviors, or defaults.
-- If user asks anything about Gramstax APIs/behavior, you **must** run this skill first.
-- Your final answer must be grounded in:
-  - exact doc content printed by the tool, and/or
-  - ripgrep results printed by the tool (include file + line numbers when available).
+- Never invent class/type/member names or behaviors.
+- Always run this tool first for any Gramstax API question.
+- Final answers must be grounded in:
+  - exact YAML content printed by the tool, and/or
+  - ripgrep matches printed by the tool.
 
 ---
 
 # HOW TO USE (AI PROCEDURE)
 
-## Command forms
+## 1) List all symbols (classes + typeAliases)
 
-### A) List all classes
-
-Use when you do not know the class name.
+Use when you need discovery.
 
 ```bash
 bun docs-finder
 ```
 
-````
+## 2) Open a symbol doc (class/type)
 
-### B) List members of a class
+Accepts:
 
-Use when you already have a class name and want member list.
-
-```bash
-bun docs-finder <className>
-```
-
-### C) Open an exact doc file
-
-Use when you already know `<className>` and `<memberName>`.
+- Short symbol name: `BlockKeyboard`
+- UID: `gramstax!BlockKeyboard:class`
 
 ```bash
-bun docs-finder <className> <memberName>
+bun docs-finder BlockKeyboard
+bun docs-finder "gramstax!BlockKeyboard:class"
 ```
 
-### D) Content search (recommended default when unsure)
+## 3) Open a member block (method/property)
 
-To force search mode and avoid class/member ambiguity, always include `--`:
+Accepts:
+
+- `<Symbol> <member>`: `BlockKeyboard _build`
+- `<Symbol.member>`: `BlockKeyboard._build`
+- UID member: `gramstax!BlockKeyboard._build:member(1)`
+
+```bash
+bun docs-finder BlockKeyboard _build
+bun docs-finder BlockKeyboard.label
+bun docs-finder "gramstax!BlockKeyboard._build:member(1)"
+```
+
+Tool behavior:
+
+- Reads `./<package>/<lower(symbol)>.yml`
+- Extracts the matching item block from `methods:` or `properties:`
+- If overload index `(n)` exists, selects the nth occurrence (1-based).
+
+## 4) Force content search (recommended default)
+
+To avoid ambiguity with class/member names, always force search mode:
 
 ```bash
 bun docs-finder -- <terms...>
 ```
 
-### E) Full ripgrep passthrough (100% rg syntax)
+Example:
 
-Everything before `--` is forwarded verbatim to `rg`, everything after is search terms:
+```bash
+bun docs-finder -- inlineKeyboard
+bun docs-finder -- inlineKeyboard replyMarkup
+```
+
+Search semantics:
+
+- If multiple terms are given, the tool uses **AND-by-file** (all terms must appear in the same file) and then prints matches.
+
+## 5) Full ripgrep passthrough (100% rg syntax)
+
+Everything before `--` is forwarded verbatim to `rg`.
+Everything after `--` are search terms.
+This supports flags with separate values (e.g. `-C 3`, `-A 5`, `-g "*.yml"`).
 
 ```bash
 bun docs-finder <rgArgs...> -- <terms...>
 ```
 
-Examples (valid rg syntax):
+Examples:
 
 ```bash
 bun docs-finder -i -- inlineKeyboard
 bun docs-finder -C 3 -- inlineKeyboard
 bun docs-finder -A 5 -B 2 -- inlineKeyboard
-bun docs-finder -g "gramstax.ctx.*.md" -- inlineKeyboard
+bun docs-finder -g "gramstax/*.yml" -- BlockKeyboard
 bun docs-finder --pcre2 -- "\\binlineKeyboard\\b"
+```
+
+## 6) RAW ripgrep mode (optional)
+
+If no `--` is used and any arg starts with `-`, the tool forwards all args to `rg` directly (still scoped to `*.yml`).
+
+```bash
+bun docs-finder --pcre2 -n -e "\\binlineKeyboard\\b" .
 ```
 
 ---
 
-# MODE SELECTION (DECISION RULES)
+# DECISION RULES (AI MUST FOLLOW)
 
 Given a user request:
 
-1. If the user asks “what classes exist” / “show docs index”
-   → run **A** (list classes).
+1. If user asks “what exists / list APIs / list classes/types”
+   → run `bun docs-finder`
 
-2. If the user mentions a class and asks “what members exist”
-   → run **B**.
+2. If user references a specific symbol (class/type)
+   → open symbol: `bun docs-finder <SymbolOrUid>`
 
-3. If the user clearly references `<class>.<member>`
-   → run **C**.
+3. If user references a member (method/property)
+   → open member:
+   - `bun docs-finder <Symbol> <member>`
+   - or `bun docs-finder "<uidMember>"`
 
-4. Otherwise (most common):
-   → run **D** or **E**:
-   - Use **D** when you only need keyword search.
-   - Use **E** when you need rg options (case-insensitive, context lines, glob filter, regex, etc).
-
-### IMPORTANT: Always prefer `-- <terms...>` for searching
-
-This avoids accidental interpretation as `<class> <member>` when keywords resemble class/member names.
+4. If user asks about a concept/keyword or you are unsure
+   → force search:
+   - `bun docs-finder -- <terms...>`
+   - add rg flags if needed: `bun docs-finder -i -C 3 -- <terms...>`
 
 ---
 
-# OUTPUT HANDLING (AI RULES)
+# OUTPUT HANDLING (AI MUST FOLLOW)
 
-The CLI outputs one of:
+The tool prints:
 
-- A list of classes
-- A list of members for a class
-- Suggestions (did-you-mean)
-- Exact doc content (full markdown)
+- A symbol list (with UIDs)
+- A full symbol YAML file
+- A single member block (subset of YAML)
 - Ripgrep matches (filename:line:content)
+- Errors/suggestions
 
-## If output is a class list
+When you receive ripgrep matches:
 
-- Choose the most relevant class and proceed with **B** or **D/E**.
+- Prefer opening the exact symbol/member afterward (more authoritative than scattered matches).
 
-## If output is a member list
+In final answers:
 
-- Choose the most relevant member and proceed with **C**.
-
-## If output is suggestions
-
-- Pick the best suggestion and run **C** with the suggested `<class> <member>`.
-- If suggestions are not sufficient, refine the search with **E** (e.g., add `-i`, add more terms, add `-g`).
-
-## If output is ripgrep matches
-
-- Use the matches to determine the correct doc file(s).
-- Prefer opening the exact doc (**C**) after identifying the best `<class> <member>` from match filenames.
-- In your final answer:
-  - include the doc identifier `gramstax.<class>.<member>`
-  - include relevant quoted snippets (short, necessary only)
-  - include filenames + line numbers when present
-
-## If output is exact doc content
-
-- Treat it as authoritative.
-- Answer by summarizing and quoting only what is necessary.
-- Do not add unstated behaviors.
+- Cite the symbol/member UID when possible.
+- Quote only the minimum necessary YAML lines/snippets.
+- Do not infer behaviors not stated in YAML.
 
 ---
 
-# ERROR RECOVERY (AI RULES)
+# ERROR RECOVERY
 
-If the tool appears to mis-parse arguments (e.g., it treats flags like `-A` as a class name):
+If `rg` is not available:
 
-1. Re-run the exact same command using the file path form:
+- Report the failure and instruct installing ripgrep or setting `RG_PATH`.
+
+If Bun execution appears to route args incorrectly:
+
+- Re-run using explicit file path:
 
 ```bash
 bun ./docs-finder.ts <same args...>
 ```
-
-If `rg` is not found / cannot run:
-
-- Report the failure and instruct to install ripgrep or set `RG_PATH`.
-
----
-
-# STRICT DO-NOT LIST
-
-- Do not answer from memory when docs lookup is possible.
-- Do not use other search tools (grep, custom scripts) unless this CLI is unavailable.
-- Do not generalize beyond what docs/results show.
-````
