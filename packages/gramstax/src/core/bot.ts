@@ -271,6 +271,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    */
   _runPolling(): void {
     this.bot.start({
+      drop_pending_updates: true,
       onStart: (botInfo) => {
         this._onStart(botInfo, `polling`, null)
       }

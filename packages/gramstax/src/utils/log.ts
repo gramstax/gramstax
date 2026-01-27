@@ -5,7 +5,7 @@ import {LoggingPretty} from "logging-pretty"
  *
  * @remarks
  * Inherits all methods from `LoggingPretty` including `info()`, `debug()`, `warn()`, `error()`, and `success()`.
- * Adds helper methods for formatted error logging with class/function context.
+ * Adds helper methods for formatted error logging with class/function context and timing measurements.
  *
  * @example
  * ```typescript
@@ -13,6 +13,12 @@ import {LoggingPretty} from "logging-pretty"
  *
  * // Use the singleton
  * log.info("Application started");
+ *
+ * // Time measurement
+ * log.time("operation", "Starting database query");
+ * // ... do work ...
+ * log.timeEnd("operation", "Query completed");
+ * // Output: (245ms) operation: Query completed
  *
  * // Or create a new instance
  * const logger = new LoggingUtil();
@@ -22,6 +28,12 @@ import {LoggingPretty} from "logging-pretty"
  * @public
  */
 export class LoggingUtil extends LoggingPretty {
+  /**
+   * Internal map to store timing labels and their start timestamps.
+   * @private
+   */
+  private timers: Map<string, number> = new Map()
+
   /**
    * Creates a new LoggingUtil instance.
    *
@@ -73,6 +85,184 @@ export class LoggingUtil extends LoggingPretty {
     const error = JSON.stringify(pureError instanceof Error ? {message: pureError.message, stack: pureError.stack, name: pureError.name} : pureError, null, 2)
     return error
   }
+
+  /**
+   * Start a timer with a custom label and optional message.
+   *
+   * @param label - Unique identifier for this timer. Used with `timeEnd()` to calculate duration.
+   * @param message - Optional custom message to display when starting the timer.
+   *
+   * @example
+   * ```typescript
+   * const logger = new LoggingUtil();
+   *
+   * logger.time("db-query", "Starting database query");
+   * // Logs: db-query: Starting database query
+   *
+   * logger.time("api-call");
+   * // Logs: api-call
+   * ```
+   *
+   * @public
+   */
+  time(label: string, message?: string) {
+    if (message) {
+      this.debug(`${label}: ${message}`)
+    } else {
+      this.debug(`${label}`)
+    }
+    this.timers.set(label, Date.now())
+  }
+
+  /**
+   * End a timer and log the elapsed time with an optional custom message.
+   *
+   * @param label - The timer label to end. Must match a label from `time()`.
+   * @param message - Optional custom message to display with the elapsed time.
+   *
+   * @example
+   * ```typescript
+   * const logger = new LoggingUtil();
+   *
+   * logger.time("db-query", "Fetching users");
+   * // ... perform database query ...
+   * logger.timeEnd("db-query", "Query completed");
+   * // Logs: (245ms) db-query: Query completed
+   *
+   * logger.time("processing");
+   * // ... do work ...
+   * logger.timeEnd("processing");
+   * // Logs: (1523ms) processing
+   * ```
+   *
+   * @public
+   */
+  timeEnd(label: string, message?: string) {
+    const startTime = this.timers.get(label)
+
+    if (startTime === undefined) {
+      this.debug(`${label}: Timer was never started`)
+      return
+    }
+
+    const duration = Date.now() - startTime
+    this.timers.delete(label)
+
+    if (message) {
+      this.debug(`(${duration}ms) ${label}: ${message}`)
+    } else {
+      this.debug(`(${duration}ms) ${label}`)
+    }
+  }
+
+  /**
+   * Get the elapsed time for a running timer without ending it.
+   *
+   * @param label - The timer label to check.
+   * @returns Elapsed time in milliseconds, or `undefined` if timer doesn't exist.
+   *
+   * @example
+   * ```typescript
+   * const logger = new LoggingUtil();
+   *
+   * logger.time("long-process");
+   * // ... do some work ...
+   * const elapsed = logger.timeCheck("long-process");
+   * logger.info(`Progress check: ${elapsed}ms elapsed`);
+   * // ... continue work ...
+   * logger.timeEnd("long-process");
+   * ```
+   *
+   * @public
+   */
+  timeCheck(label: string): number | undefined {
+    const startTime = this.timers.get(label)
+
+    if (startTime === undefined) {
+      return undefined
+    }
+
+    return Date.now() - startTime
+  }
+
+  /**
+   * Log a checkpoint with elapsed time without ending the timer.
+   *
+   * @param label - The timer label to checkpoint.
+   * @param message - Optional custom message for this checkpoint.
+   *
+   * @example
+   * ```typescript
+   * const logger = new LoggingUtil();
+   *
+   * logger.time("data-processing", "Starting data pipeline");
+   * // ... step 1 ...
+   * logger.timeLog("data-processing", "Step 1: Data loaded");
+   * // Logs: (245ms) data-processing: Step 1: Data loaded
+   * // ... step 2 ...
+   * logger.timeLog("data-processing", "Step 2: Data transformed");
+   * // Logs: (589ms) data-processing: Step 2: Data transformed
+   * // ... step 3 ...
+   * logger.timeEnd("data-processing", "Pipeline completed");
+   * // Logs: (1234ms) data-processing: Pipeline completed
+   * ```
+   *
+   * @public
+   */
+  timeLog(label: string, message?: string) {
+    const elapsed = this.timeCheck(label)
+
+    if (elapsed === undefined) {
+      this.debug(`${label}: Timer was never started`)
+      return
+    }
+
+    if (message) {
+      this.debug(`(${elapsed}ms) ${label}: ${message}`)
+    } else {
+      this.debug(`(${elapsed}ms) ${label}`)
+    }
+  }
+
+  /**
+   * Clear all active timers.
+   *
+   * @example
+   * ```typescript
+   * const logger = new LoggingUtil();
+   *
+   * logger.time("task1");
+   * logger.time("task2");
+   * logger.timeClear();
+   * // All timers cleared
+   * ```
+   *
+   * @public
+   */
+  timeClear() {
+    this.timers.clear()
+  }
+
+  /**
+   * Get all active timer labels.
+   *
+   * @returns Array of active timer labels.
+   *
+   * @example
+   * ```typescript
+   * const logger = new LoggingUtil();
+   *
+   * logger.time("task1");
+   * logger.time("task2");
+   * const active = logger.timeActive();
+   * // => ["task1", "task2"]
+   * ```
+   *
+   * @public
+   */
+  timeActive(): string[] {
+    return Array.from(this.timers.keys())
+  }
 }
 
 /**
@@ -82,11 +272,27 @@ export class LoggingUtil extends LoggingPretty {
  * ```typescript
  * import { log } from "gramstax";
  *
+ * // Basic logging
  * log.info("Application started");
  * log.debug("Debug message");
  * log.warn("Warning message");
  * log.error("Error message");
  * log.success("Success message");
+ *
+ * // Timing measurements
+ * log.time("request", "Processing user request");
+ * // ... do work ...
+ * log.timeEnd("request", "Request completed");
+ * // Output: (245ms) request: Request completed
+ *
+ * // Multiple checkpoints
+ * log.time("pipeline", "Starting data pipeline");
+ * log.timeLog("pipeline", "Step 1 complete");
+ * // Output: (150ms) pipeline: Step 1 complete
+ * log.timeLog("pipeline", "Step 2 complete");
+ * // Output: (350ms) pipeline: Step 2 complete
+ * log.timeEnd("pipeline", "All steps complete");
+ * // Output: (500ms) pipeline: All steps complete
  * ```
  *
  * @public
