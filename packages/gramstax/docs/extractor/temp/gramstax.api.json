@@ -6575,23 +6575,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionArgsCallbackData(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionArgsCallbackData(): "
                 },
                 {
                   "kind": "Content",
@@ -6604,30 +6588,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionArgsCallbackData"
@@ -6639,23 +6606,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionArgsText(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionArgsText(): "
                 },
                 {
                   "kind": "Content",
@@ -6668,30 +6619,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionArgsText"
@@ -6703,23 +6637,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCallbackData(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCallbackData(): "
                 },
                 {
                   "kind": "Content",
@@ -6732,30 +6650,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCallbackData"
@@ -6767,23 +6668,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionAnimation(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionAnimation(): "
                 },
                 {
                   "kind": "Content",
@@ -6796,30 +6681,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionAnimation"
@@ -6831,23 +6699,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionArgsAnimation(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionArgsAnimation(): "
                 },
                 {
                   "kind": "Content",
@@ -6860,30 +6712,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionArgsAnimation"
@@ -6895,23 +6730,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionArgsAudio(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionArgsAudio(): "
                 },
                 {
                   "kind": "Content",
@@ -6924,30 +6743,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionArgsAudio"
@@ -6959,23 +6761,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionArgsDocument(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionArgsDocument(): "
                 },
                 {
                   "kind": "Content",
@@ -6988,30 +6774,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionArgsDocument"
@@ -7023,23 +6792,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionArgsPhoto(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionArgsPhoto(): "
                 },
                 {
                   "kind": "Content",
@@ -7052,30 +6805,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionArgsPhoto"
@@ -7087,23 +6823,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionArgsVideo(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionArgsVideo(): "
                 },
                 {
                   "kind": "Content",
@@ -7116,30 +6836,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionArgsVideo"
@@ -7151,23 +6854,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionArgsVoice(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionArgsVoice(): "
                 },
                 {
                   "kind": "Content",
@@ -7180,30 +6867,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionArgsVoice"
@@ -7215,23 +6885,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionAudio(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionAudio(): "
                 },
                 {
                   "kind": "Content",
@@ -7244,30 +6898,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionAudio"
@@ -7279,23 +6916,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionCommandArgsAudio(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionCommandArgsAudio(): "
                 },
                 {
                   "kind": "Content",
@@ -7308,30 +6929,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionCommandArgsAudio"
@@ -7343,23 +6947,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionCommandAudio(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionCommandAudio(): "
                 },
                 {
                   "kind": "Content",
@@ -7372,30 +6960,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionCommandAudio"
@@ -7407,23 +6978,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionDocument(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionDocument(): "
                 },
                 {
                   "kind": "Content",
@@ -7436,30 +6991,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionDocument"
@@ -7471,23 +7009,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionPhoto(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionPhoto(): "
                 },
                 {
                   "kind": "Content",
@@ -7500,30 +7022,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionPhoto"
@@ -7535,23 +7040,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionVideo(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionVideo(): "
                 },
                 {
                   "kind": "Content",
@@ -7564,30 +7053,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionVideo"
@@ -7599,23 +7071,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCaptionVoice(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCaptionVoice(): "
                 },
                 {
                   "kind": "Content",
@@ -7628,30 +7084,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCaptionVoice"
@@ -7663,23 +7102,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCommandArgsText(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCommandArgsText(): "
                 },
                 {
                   "kind": "Content",
@@ -7692,30 +7115,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCommandArgsText"
@@ -7727,23 +7133,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCommandCaptionAnimation(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCommandCaptionAnimation(): "
                 },
                 {
                   "kind": "Content",
@@ -7756,30 +7146,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCommandCaptionAnimation"
@@ -7791,23 +7164,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCommandCaptionArgsAnimation(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCommandCaptionArgsAnimation(): "
                 },
                 {
                   "kind": "Content",
@@ -7820,30 +7177,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCommandCaptionArgsAnimation"
@@ -7855,23 +7195,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCommandCaptionArgsDocument(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCommandCaptionArgsDocument(): "
                 },
                 {
                   "kind": "Content",
@@ -7884,30 +7208,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCommandCaptionArgsDocument"
@@ -7919,23 +7226,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCommandCaptionArgsPhoto(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCommandCaptionArgsPhoto(): "
                 },
                 {
                   "kind": "Content",
@@ -7948,30 +7239,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCommandCaptionArgsPhoto"
@@ -7983,23 +7257,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCommandCaptionArgsVideo(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCommandCaptionArgsVideo(): "
                 },
                 {
                   "kind": "Content",
@@ -8012,30 +7270,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCommandCaptionArgsVideo"
@@ -8047,23 +7288,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCommandCaptionArgsVoice(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCommandCaptionArgsVoice(): "
                 },
                 {
                   "kind": "Content",
@@ -8076,30 +7301,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCommandCaptionArgsVoice"
@@ -8111,23 +7319,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCommandCaptionDocument(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCommandCaptionDocument(): "
                 },
                 {
                   "kind": "Content",
@@ -8140,30 +7332,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCommandCaptionDocument"
@@ -8175,23 +7350,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCommandCaptionPhoto(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCommandCaptionPhoto(): "
                 },
                 {
                   "kind": "Content",
@@ -8204,30 +7363,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCommandCaptionPhoto"
@@ -8239,23 +7381,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCommandCaptionVideo(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCommandCaptionVideo(): "
                 },
                 {
                   "kind": "Content",
@@ -8268,30 +7394,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCommandCaptionVideo"
@@ -8303,23 +7412,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCommandCaptionVoice(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCommandCaptionVoice(): "
                 },
                 {
                   "kind": "Content",
@@ -8332,30 +7425,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCommandCaptionVoice"
@@ -8367,23 +7443,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionCommandText(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionCommandText(): "
                 },
                 {
                   "kind": "Content",
@@ -8396,30 +7456,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionCommandText"
@@ -8431,23 +7474,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionFreeAnimation(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionFreeAnimation(): "
                 },
                 {
                   "kind": "Content",
@@ -8460,30 +7487,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionFreeAnimation"
@@ -8495,23 +7505,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionFreeAudio(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionFreeAudio(): "
                 },
                 {
                   "kind": "Content",
@@ -8524,30 +7518,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionFreeAudio"
@@ -8559,23 +7536,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionFreeContact(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionFreeContact(): "
                 },
                 {
                   "kind": "Content",
@@ -8588,30 +7549,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionFreeContact"
@@ -8623,23 +7567,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionFreeDocument(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionFreeDocument(): "
                 },
                 {
                   "kind": "Content",
@@ -8652,30 +7580,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionFreeDocument"
@@ -8687,23 +7598,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionFreeLocation(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionFreeLocation(): "
                 },
                 {
                   "kind": "Content",
@@ -8716,30 +7611,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionFreeLocation"
@@ -8751,23 +7629,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionFreePhoto(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionFreePhoto(): "
                 },
                 {
                   "kind": "Content",
@@ -8780,30 +7642,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionFreePhoto"
@@ -8815,23 +7660,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionFreeSticker(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionFreeSticker(): "
                 },
                 {
                   "kind": "Content",
@@ -8844,30 +7673,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionFreeSticker"
@@ -8879,23 +7691,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionFreeText(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionFreeText(): "
                 },
                 {
                   "kind": "Content",
@@ -8908,30 +7704,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionFreeText"
@@ -8943,23 +7722,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionFreeVideo(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionFreeVideo(): "
                 },
                 {
                   "kind": "Content",
@@ -8972,30 +7735,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionFreeVideo"
@@ -9007,23 +7753,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionFreeVideoNote(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionFreeVideoNote(): "
                 },
                 {
                   "kind": "Content",
@@ -9036,30 +7766,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionFreeVideoNote"
@@ -9071,23 +7784,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionFreeVoice(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionFreeVoice(): "
                 },
                 {
                   "kind": "Content",
@@ -9100,30 +7797,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionFreeVoice"
@@ -9135,23 +7815,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isSessionText(method?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "isSessionText(): "
                 },
                 {
                   "kind": "Content",
@@ -9164,30 +7828,13 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 1,
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "method",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "isSessionText"
@@ -14454,14 +13101,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -14480,8 +13119,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -14492,14 +13131,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -14523,14 +13154,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -14549,8 +13172,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -14561,14 +13184,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -14592,14 +13207,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -14618,8 +13225,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -14630,14 +13237,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -14661,14 +13260,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -14687,8 +13278,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -14699,14 +13290,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -14730,14 +13313,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -14756,8 +13331,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -14768,14 +13343,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -14799,14 +13366,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -14825,8 +13384,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -14837,14 +13396,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -14868,14 +13419,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -14894,8 +13437,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -14906,14 +13449,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -14937,14 +13472,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -14963,8 +13490,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -14975,14 +13502,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15006,14 +13525,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15032,8 +13543,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15044,14 +13555,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15075,14 +13578,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15101,8 +13596,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15113,14 +13608,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15144,14 +13631,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15170,8 +13649,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15182,14 +13661,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15213,14 +13684,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15239,8 +13702,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15251,14 +13714,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15282,14 +13737,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15308,8 +13755,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15320,14 +13767,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15351,14 +13790,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15377,8 +13808,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15389,14 +13820,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15420,14 +13843,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15446,8 +13861,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15458,14 +13873,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15489,14 +13896,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15515,8 +13914,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15527,14 +13926,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15558,14 +13949,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15584,8 +13967,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15596,14 +13979,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15627,14 +14002,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15653,8 +14020,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15665,14 +14032,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15696,14 +14055,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15722,8 +14073,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15734,14 +14085,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15765,14 +14108,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15791,8 +14126,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15803,14 +14138,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15834,14 +14161,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15860,8 +14179,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15872,14 +14191,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15903,14 +14214,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15929,8 +14232,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15941,14 +14244,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -15972,14 +14267,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -15998,8 +14285,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16010,14 +14297,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16041,14 +14320,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16067,8 +14338,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16079,14 +14350,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16110,14 +14373,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16136,8 +14391,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16148,14 +14403,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16179,14 +14426,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16205,8 +14444,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16217,14 +14456,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16248,14 +14479,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16274,8 +14497,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16286,14 +14509,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16317,14 +14532,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16343,8 +14550,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16355,14 +14562,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16386,14 +14585,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16412,8 +14603,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16424,14 +14615,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16455,14 +14638,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16481,8 +14656,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16493,14 +14668,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16524,14 +14691,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16550,8 +14709,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16562,14 +14721,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16593,14 +14744,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16619,8 +14762,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16631,14 +14774,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16662,14 +14797,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16688,8 +14815,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16700,14 +14827,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16731,14 +14850,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16757,8 +14868,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16769,14 +14880,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16800,14 +14903,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16826,8 +14921,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16838,14 +14933,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16869,14 +14956,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16895,8 +14974,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16907,14 +14986,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -16938,14 +15009,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -16964,8 +15027,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16976,14 +15039,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -17007,14 +15062,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -17033,8 +15080,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -17045,14 +15092,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -17076,14 +15115,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -17102,8 +15133,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -17114,14 +15145,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -17145,14 +15168,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -17171,8 +15186,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -17183,14 +15198,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -17214,14 +15221,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", name?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -17240,8 +15239,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -17252,14 +15251,6 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "name",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": true
                 }
@@ -20142,6 +18133,50 @@
             },
             {
               "kind": "Property",
+              "canonicalReference": "gramstax!Gramstax#botConfig:member",
+              "docComment": "/**\n * Optional grammY bot configuration.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "botConfig?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "BotConfig",
+                  "canonicalReference": "grammy!BotConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Context",
+                  "canonicalReference": "grammy!Context:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "botConfig",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#cacheKeyboard:member",
               "docComment": "/**\n * In-memory cache for keyboard instances by language.\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -20732,8 +18767,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "LoggingPretty",
-                  "canonicalReference": "logging-pretty!LoggingPretty:class"
+                  "text": "LoggingUtil",
+                  "canonicalReference": "gramstax!LoggingUtil:class"
                 },
                 {
                   "kind": "Content",
@@ -21151,12 +19186,30 @@
             },
             {
               "kind": "Reference",
-              "text": "LoggingPretty$1",
-              "canonicalReference": "logging-pretty!LoggingPretty:class"
+              "text": "LoggingUtil",
+              "canonicalReference": "gramstax!LoggingUtil:class"
             },
             {
               "kind": "Content",
-              "text": " | boolean | null;\n    cacheSession?: "
+              "text": " | boolean | null;\n    botConfig?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "BotConfig",
+              "canonicalReference": "grammy!BotConfig:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "Context",
+              "canonicalReference": "grammy!Context:class"
+            },
+            {
+              "kind": "Content",
+              "text": ">;\n    cacheSession?: "
             },
             {
               "kind": "Reference",
@@ -21195,7 +19248,7 @@
           "name": "ITGramstaxParams",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 10
+            "endIndex": 14
           }
         },
         {
@@ -22284,7 +20337,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "gramstax!log:var",
-          "docComment": "/**\n * Pre-instantiated {@link LoggingUtil} singleton for convenience.\n *\n * @example\n * ```typescript\n * import { log } from \"gramstax\";\n *\n * log.info(\"Application started\");\n * log.debug(\"Debug message\");\n * log.warn(\"Warning message\");\n * log.error(\"Error message\");\n * log.success(\"Success message\");\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Pre-instantiated {@link LoggingUtil} singleton for convenience.\n *\n * @example\n * ```typescript\n * import { log } from \"gramstax\";\n *\n * // Basic logging\n * log.info(\"Application started\");\n * log.debug(\"Debug message\");\n * log.warn(\"Warning message\");\n * log.error(\"Error message\");\n * log.success(\"Success message\");\n *\n * // Timing measurements\n * log.time(\"request\", \"Processing user request\");\n * log.timeEnd(\"request\", \"Request completed\");\n * // Output: (245ms) request: Request completed\n *\n * // Multiple checkpoints\n * log.time(\"pipeline\", \"Starting data pipeline\");\n * log.timeLog(\"pipeline\", \"Step 1 complete\");\n * // Output: (150ms) pipeline: Step 1 complete\n * log.timeLog(\"pipeline\", \"Step 2 complete\");\n * // Output: (350ms) pipeline: Step 2 complete\n * log.timeEnd(\"pipeline\", \"All steps complete\");\n * // Output: (500ms) pipeline: All steps complete\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -22308,7 +20361,7 @@
         {
           "kind": "Class",
           "canonicalReference": "gramstax!LoggingUtil:class",
-          "docComment": "/**\n * Extends {@link https://www.npmjs.com/package/logging-pretty | LoggingPretty} to provide enhanced logging functionality.\n *\n * @remarks\n *\n * Inherits all methods from `LoggingPretty` including `info()`, `debug()`, `warn()`, `error()`, and `success()`. Adds helper methods for formatted error logging with class/function context.\n *\n * @example\n * ```typescript\n * import { LoggingUtil, log } from \"gramstax\";\n *\n * // Use the singleton\n * log.info(\"Application started\");\n *\n * // Or create a new instance\n * const logger = new LoggingUtil();\n * logger.errorMake(new Error(\"Oops\"), \"Worker\", \"init\");\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Extends {@link https://www.npmjs.com/package/logging-pretty | LoggingPretty} to provide enhanced logging functionality.\n *\n * @remarks\n *\n * Inherits all methods from `LoggingPretty` including `info()`, `debug()`, `warn()`, `error()`, and `success()`. Adds helper methods for formatted error logging with class/function context and timing measurements.\n *\n * @example\n * ```typescript\n * import { LoggingUtil, log } from \"gramstax\";\n *\n * // Use the singleton\n * log.info(\"Application started\");\n *\n * // Time measurement\n * log.time(\"operation\", \"Starting database query\");\n * // ... do work ...\n * log.timeEnd(\"operation\", \"Query completed\");\n * // Output: (245ms) operation: Query completed\n *\n * // Or create a new instance\n * const logger = new LoggingUtil();\n * logger.errorMake(new Error(\"Oops\"), \"Worker\", \"init\");\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -22503,6 +20556,292 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "errorMake"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!LoggingUtil#time:member(1)",
+              "docComment": "/**\n * Start a timer with a custom label.\n *\n * @param label - Unique identifier for this timer. Used with `timeEnd()` to calculate duration.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * logger.time(\"db-query\");\n * logger.time(\"api-call\");\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "time(label: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "label",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "time"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!LoggingUtil#timeActive:member(1)",
+              "docComment": "/**\n * Get all active timer labels.\n *\n * @returns Array of active timer labels.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * logger.time(\"task1\");\n * logger.time(\"task2\");\n * const active = logger.timeActive();\n * // => [\"task1\", \"task2\"]\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "timeActive(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "timeActive"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!LoggingUtil#timeCheck:member(1)",
+              "docComment": "/**\n * Get the elapsed time for a running timer without ending it.\n *\n * @param label - The timer label to check.\n *\n * @returns Elapsed time in milliseconds, or `undefined` if timer doesn't exist.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * logger.time(\"long-process\");\n * // ... do some work ...\n * const elapsed = logger.timeCheck(\"long-process\");\n * logger.info(`Progress check: ${elapsed}ms elapsed`);\n * // ... continue work ...\n * logger.timeEnd(\"long-process\");\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "timeCheck(label: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "label",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "timeCheck"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!LoggingUtil#timeClear:member(1)",
+              "docComment": "/**\n * Clear all active timers.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * logger.time(\"task1\");\n * logger.time(\"task2\");\n * logger.timeClear();\n * // All timers cleared\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "timeClear(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "timeClear"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!LoggingUtil#timeEnd:member(1)",
+              "docComment": "/**\n * End a timer and log the elapsed time with an optional custom message.\n *\n * @param label - The timer label to end. Must match a label from `time()`.\n *\n * @param message - Optional custom message to display with the elapsed time.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * logger.time(\"db-query\", \"Fetching users\");\n * // ... perform database query ...\n * logger.timeEnd(\"db-query\", \"Query completed\");\n * // Logs: (245ms) db-query: Query completed\n *\n * logger.time(\"processing\");\n * // ... do work ...\n * logger.timeEnd(\"processing\");\n * // Logs: (1523ms) processing\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "timeEnd(label: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", message?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "label",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "message",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "timeEnd"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!LoggingUtil#timeLog:member(1)",
+              "docComment": "/**\n * Log a checkpoint with elapsed time without ending the timer.\n *\n * @param label - The timer label to checkpoint.\n *\n * @param message - Optional custom message for this checkpoint.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * logger.time(\"data-processing\", \"Starting data pipeline\");\n * // ... step 1 ...\n * logger.timeLog(\"data-processing\", \"Step 1: Data loaded\");\n * // Logs: (245ms) data-processing: Step 1: Data loaded\n * // ... step 2 ...\n * logger.timeLog(\"data-processing\", \"Step 2: Data transformed\");\n * // Logs: (589ms) data-processing: Step 2: Data transformed\n * // ... step 3 ...\n * logger.timeEnd(\"data-processing\", \"Pipeline completed\");\n * // Logs: (1234ms) data-processing: Pipeline completed\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "timeLog(label: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", message?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "label",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "message",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "timeLog"
             }
           ],
           "extendsTokenRange": {

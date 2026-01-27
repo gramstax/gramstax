@@ -12,7 +12,8 @@ Configuration options for Gramstax bot instance.
 type ITGramstaxParams = {
     token: string;
     deploy: string;
-    log?: LoggingPretty$1 | boolean | null;
+    log?: LoggingUtil | boolean | null;
+    botConfig?: BotConfig<Context>;
     cacheSession?: CacheExternal;
     cacheKeyboard?: Map<any, any>;
     templateManager?: TemplateManager;
@@ -21,5 +22,5 @@ type ITGramstaxParams = {
     };
 };
 ```
-**References:** [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)
+**References:** [LoggingUtil](./gramstax.loggingutil.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)
 

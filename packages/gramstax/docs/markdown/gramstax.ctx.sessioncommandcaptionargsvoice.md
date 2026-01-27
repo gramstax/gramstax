@@ -9,7 +9,7 @@ Session set helper methods.
 **Signature:**
 
 ```typescript
-sessionCommandCaptionArgsVoice(params?: any, name?: string): Promise<boolean | null>;
+sessionCommandCaptionArgsVoice(params?: any): Promise<boolean | null>;
 ```
 
 ## Parameters
@@ -38,22 +38,6 @@ params
 </td><td>
 
 any
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-name
-
-
-</td><td>
-
-string
 
 
 </td><td>

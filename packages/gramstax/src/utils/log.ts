@@ -30,7 +30,7 @@ import {LoggingPretty} from "logging-pretty"
 export class LoggingUtil extends LoggingPretty {
   /**
    * Internal map to store timing labels and their start timestamps.
-   * @private
+   * @internal
    */
   private timers: Map<string, bigint> = new Map()
 

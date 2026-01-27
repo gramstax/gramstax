@@ -7,7 +7,7 @@ summary: Extends [LoggingPretty](https://www.npmjs.com/package/logging-pretty) t
 remarks: >-
   Inherits all methods from `LoggingPretty` including `info()`<!-- -->, `debug()`<!-- -->, `warn()`<!-- -->,
   `error()`<!-- -->, and `success()`<!-- -->. Adds helper methods for formatted error logging with class/function
-  context.
+  context and timing measurements.
 example:
   - |-
     ```typescript
@@ -15,6 +15,12 @@ example:
 
     // Use the singleton
     log.info("Application started");
+
+    // Time measurement
+    log.time("operation", "Starting database query");
+    // ... do work ...
+    log.timeEnd("operation", "Query completed");
+    // Output: (245ms) operation: Query completed
 
     // Or create a new instance
     const logger = new LoggingUtil();
@@ -95,6 +101,177 @@ methods:
           type: any
         - id: funcName
           description: Method/function name. Format is `[methodName] error` if no class.
+          type: string
+      return:
+        type: void
+        description: ''
+  - name: time(label)
+    uid: gramstax!LoggingUtil#time:member(1)
+    package: gramstax!
+    fullName: time(label)
+    summary: Start a timer with a custom label.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const logger = new LoggingUtil();
+
+        logger.time("db-query");
+        logger.time("api-call");
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'time(label: string): void;'
+      parameters:
+        - id: label
+          description: Unique identifier for this timer. Used with `timeEnd()` to calculate duration.
+          type: string
+      return:
+        type: void
+        description: ''
+  - name: timeActive()
+    uid: gramstax!LoggingUtil#timeActive:member(1)
+    package: gramstax!
+    fullName: timeActive()
+    summary: Get all active timer labels.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const logger = new LoggingUtil();
+
+        logger.time("task1");
+        logger.time("task2");
+        const active = logger.timeActive();
+        // => ["task1", "task2"]
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'timeActive(): string[];'
+      return:
+        type: string[]
+        description: Array of active timer labels.
+  - name: timeCheck(label)
+    uid: gramstax!LoggingUtil#timeCheck:member(1)
+    package: gramstax!
+    fullName: timeCheck(label)
+    summary: Get the elapsed time for a running timer without ending it.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const logger = new LoggingUtil();
+
+        logger.time("long-process");
+        // ... do some work ...
+        const elapsed = logger.timeCheck("long-process");
+        logger.info(`Progress check: ${elapsed}ms elapsed`);
+        // ... continue work ...
+        logger.timeEnd("long-process");
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'timeCheck(label: string): string | undefined;'
+      parameters:
+        - id: label
+          description: The timer label to check.
+          type: string
+      return:
+        type: string | undefined
+        description: Elapsed time in milliseconds, or `undefined` if timer doesn't exist.
+  - name: timeClear()
+    uid: gramstax!LoggingUtil#timeClear:member(1)
+    package: gramstax!
+    fullName: timeClear()
+    summary: Clear all active timers.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const logger = new LoggingUtil();
+
+        logger.time("task1");
+        logger.time("task2");
+        logger.timeClear();
+        // All timers cleared
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'timeClear(): void;'
+      return:
+        type: void
+        description: ''
+  - name: timeEnd(label, message)
+    uid: gramstax!LoggingUtil#timeEnd:member(1)
+    package: gramstax!
+    fullName: timeEnd(label, message)
+    summary: End a timer and log the elapsed time with an optional custom message.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const logger = new LoggingUtil();
+
+        logger.time("db-query", "Fetching users");
+        // ... perform database query ...
+        logger.timeEnd("db-query", "Query completed");
+        // Logs: (245ms) db-query: Query completed
+
+        logger.time("processing");
+        // ... do work ...
+        logger.timeEnd("processing");
+        // Logs: (1523ms) processing
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'timeEnd(label: string, message?: string): void;'
+      parameters:
+        - id: label
+          description: The timer label to end. Must match a label from `time()`<!-- -->.
+          type: string
+        - id: message
+          description: Optional custom message to display with the elapsed time.
+          type: string
+      return:
+        type: void
+        description: ''
+  - name: timeLog(label, message)
+    uid: gramstax!LoggingUtil#timeLog:member(1)
+    package: gramstax!
+    fullName: timeLog(label, message)
+    summary: Log a checkpoint with elapsed time without ending the timer.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const logger = new LoggingUtil();
+
+        logger.time("data-processing", "Starting data pipeline");
+        // ... step 1 ...
+        logger.timeLog("data-processing", "Step 1: Data loaded");
+        // Logs: (245ms) data-processing: Step 1: Data loaded
+        // ... step 2 ...
+        logger.timeLog("data-processing", "Step 2: Data transformed");
+        // Logs: (589ms) data-processing: Step 2: Data transformed
+        // ... step 3 ...
+        logger.timeEnd("data-processing", "Pipeline completed");
+        // Logs: (1234ms) data-processing: Pipeline completed
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'timeLog(label: string, message?: string): void;'
+      parameters:
+        - id: label
+          description: The timer label to checkpoint.
+          type: string
+        - id: message
+          description: Optional custom message for this checkpoint.
           type: string
       return:
         type: void

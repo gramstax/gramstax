@@ -64,6 +64,19 @@ properties:
       content: 'bot: Bot;'
       return:
         type: <xref uid="grammy!Bot:class" />
+  - name: botConfig
+    uid: gramstax!Gramstax#botConfig:member
+    package: gramstax!
+    fullName: botConfig
+    summary: Optional grammY bot configuration.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'botConfig?: BotConfig<Context>;'
+      return:
+        type: <xref uid="grammy!BotConfig:interface" />&lt;<xref uid="grammy!Context:class" />&gt;
   - name: cacheKeyboard
     uid: gramstax!Gramstax#cacheKeyboard:member
     package: gramstax!
@@ -113,9 +126,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'log: LoggingPretty | undefined;'
+      content: 'log: LoggingUtil | undefined;'
       return:
-        type: <xref uid="logging-pretty!LoggingPretty:class" /> | undefined
+        type: <xref uid="gramstax!LoggingUtil:class" /> | undefined
   - name: optionsPage
     uid: gramstax!Gramstax#optionsPage:member
     package: gramstax!

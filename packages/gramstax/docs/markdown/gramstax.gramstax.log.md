@@ -9,5 +9,5 @@ Logger instance for debugging and info output.
 **Signature:**
 
 ```typescript
-log: LoggingPretty | undefined;
+log: LoggingUtil | undefined;
 ```

@@ -107,6 +107,25 @@ The underlying grammY Bot instance.
 </td></tr>
 <tr><td>
 
+[botConfig?](./gramstax.gramstax.botconfig.md)
+
+
+</td><td>
+
+
+</td><td>
+
+BotConfig&lt;Context&gt;
+
+
+</td><td>
+
+_(Optional)_ Optional grammY bot configuration.
+
+
+</td></tr>
+<tr><td>
+
 [cacheKeyboard](./gramstax.gramstax.cachekeyboard.md)
 
 
@@ -172,7 +191,7 @@ Handler function for processing bot updates.
 
 </td><td>
 
-LoggingPretty \| undefined
+[LoggingUtil](./gramstax.loggingutil.md) \| undefined
 
 
 </td><td>

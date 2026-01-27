@@ -12,7 +12,8 @@ syntax: |-
   type ITGramstaxParams = {
       token: string;
       deploy: string;
-      log?: LoggingPretty$1 | boolean | null;
+      log?: LoggingUtil | boolean | null;
+      botConfig?: BotConfig<Context>;
       cacheSession?: CacheExternal;
       cacheKeyboard?: Map<any, any>;
       templateManager?: TemplateManager;

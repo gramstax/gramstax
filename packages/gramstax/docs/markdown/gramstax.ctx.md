@@ -2047,7 +2047,7 @@ Creates an inline keyboard with template-based buttons linked to page destinatio
 </td></tr>
 <tr><td>
 
-[isSessionArgsCallbackData(method, name)](./gramstax.ctx.issessionargscallbackdata.md)
+[isSessionArgsCallbackData()](./gramstax.ctx.issessionargscallbackdata.md)
 
 
 </td><td>
@@ -2061,7 +2061,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionArgsText(method, name)](./gramstax.ctx.issessionargstext.md)
+[isSessionArgsText()](./gramstax.ctx.issessionargstext.md)
 
 
 </td><td>
@@ -2075,7 +2075,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCallbackData(method, name)](./gramstax.ctx.issessioncallbackdata.md)
+[isSessionCallbackData()](./gramstax.ctx.issessioncallbackdata.md)
 
 
 </td><td>
@@ -2089,7 +2089,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionAnimation(method, name)](./gramstax.ctx.issessioncaptionanimation.md)
+[isSessionCaptionAnimation()](./gramstax.ctx.issessioncaptionanimation.md)
 
 
 </td><td>
@@ -2103,7 +2103,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionArgsAnimation(method, name)](./gramstax.ctx.issessioncaptionargsanimation.md)
+[isSessionCaptionArgsAnimation()](./gramstax.ctx.issessioncaptionargsanimation.md)
 
 
 </td><td>
@@ -2117,7 +2117,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionArgsAudio(method, name)](./gramstax.ctx.issessioncaptionargsaudio.md)
+[isSessionCaptionArgsAudio()](./gramstax.ctx.issessioncaptionargsaudio.md)
 
 
 </td><td>
@@ -2131,7 +2131,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionArgsDocument(method, name)](./gramstax.ctx.issessioncaptionargsdocument.md)
+[isSessionCaptionArgsDocument()](./gramstax.ctx.issessioncaptionargsdocument.md)
 
 
 </td><td>
@@ -2145,7 +2145,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionArgsPhoto(method, name)](./gramstax.ctx.issessioncaptionargsphoto.md)
+[isSessionCaptionArgsPhoto()](./gramstax.ctx.issessioncaptionargsphoto.md)
 
 
 </td><td>
@@ -2159,7 +2159,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionArgsVideo(method, name)](./gramstax.ctx.issessioncaptionargsvideo.md)
+[isSessionCaptionArgsVideo()](./gramstax.ctx.issessioncaptionargsvideo.md)
 
 
 </td><td>
@@ -2173,7 +2173,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionArgsVoice(method, name)](./gramstax.ctx.issessioncaptionargsvoice.md)
+[isSessionCaptionArgsVoice()](./gramstax.ctx.issessioncaptionargsvoice.md)
 
 
 </td><td>
@@ -2187,7 +2187,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionAudio(method, name)](./gramstax.ctx.issessioncaptionaudio.md)
+[isSessionCaptionAudio()](./gramstax.ctx.issessioncaptionaudio.md)
 
 
 </td><td>
@@ -2201,7 +2201,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionCommandArgsAudio(method, name)](./gramstax.ctx.issessioncaptioncommandargsaudio.md)
+[isSessionCaptionCommandArgsAudio()](./gramstax.ctx.issessioncaptioncommandargsaudio.md)
 
 
 </td><td>
@@ -2215,7 +2215,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionCommandAudio(method, name)](./gramstax.ctx.issessioncaptioncommandaudio.md)
+[isSessionCaptionCommandAudio()](./gramstax.ctx.issessioncaptioncommandaudio.md)
 
 
 </td><td>
@@ -2229,7 +2229,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionDocument(method, name)](./gramstax.ctx.issessioncaptiondocument.md)
+[isSessionCaptionDocument()](./gramstax.ctx.issessioncaptiondocument.md)
 
 
 </td><td>
@@ -2243,7 +2243,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionPhoto(method, name)](./gramstax.ctx.issessioncaptionphoto.md)
+[isSessionCaptionPhoto()](./gramstax.ctx.issessioncaptionphoto.md)
 
 
 </td><td>
@@ -2257,7 +2257,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionVideo(method, name)](./gramstax.ctx.issessioncaptionvideo.md)
+[isSessionCaptionVideo()](./gramstax.ctx.issessioncaptionvideo.md)
 
 
 </td><td>
@@ -2271,7 +2271,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCaptionVoice(method, name)](./gramstax.ctx.issessioncaptionvoice.md)
+[isSessionCaptionVoice()](./gramstax.ctx.issessioncaptionvoice.md)
 
 
 </td><td>
@@ -2285,7 +2285,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCommandArgsText(method, name)](./gramstax.ctx.issessioncommandargstext.md)
+[isSessionCommandArgsText()](./gramstax.ctx.issessioncommandargstext.md)
 
 
 </td><td>
@@ -2299,7 +2299,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCommandCaptionAnimation(method, name)](./gramstax.ctx.issessioncommandcaptionanimation.md)
+[isSessionCommandCaptionAnimation()](./gramstax.ctx.issessioncommandcaptionanimation.md)
 
 
 </td><td>
@@ -2313,7 +2313,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCommandCaptionArgsAnimation(method, name)](./gramstax.ctx.issessioncommandcaptionargsanimation.md)
+[isSessionCommandCaptionArgsAnimation()](./gramstax.ctx.issessioncommandcaptionargsanimation.md)
 
 
 </td><td>
@@ -2327,7 +2327,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCommandCaptionArgsDocument(method, name)](./gramstax.ctx.issessioncommandcaptionargsdocument.md)
+[isSessionCommandCaptionArgsDocument()](./gramstax.ctx.issessioncommandcaptionargsdocument.md)
 
 
 </td><td>
@@ -2341,7 +2341,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCommandCaptionArgsPhoto(method, name)](./gramstax.ctx.issessioncommandcaptionargsphoto.md)
+[isSessionCommandCaptionArgsPhoto()](./gramstax.ctx.issessioncommandcaptionargsphoto.md)
 
 
 </td><td>
@@ -2355,7 +2355,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCommandCaptionArgsVideo(method, name)](./gramstax.ctx.issessioncommandcaptionargsvideo.md)
+[isSessionCommandCaptionArgsVideo()](./gramstax.ctx.issessioncommandcaptionargsvideo.md)
 
 
 </td><td>
@@ -2369,7 +2369,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCommandCaptionArgsVoice(method, name)](./gramstax.ctx.issessioncommandcaptionargsvoice.md)
+[isSessionCommandCaptionArgsVoice()](./gramstax.ctx.issessioncommandcaptionargsvoice.md)
 
 
 </td><td>
@@ -2383,7 +2383,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCommandCaptionDocument(method, name)](./gramstax.ctx.issessioncommandcaptiondocument.md)
+[isSessionCommandCaptionDocument()](./gramstax.ctx.issessioncommandcaptiondocument.md)
 
 
 </td><td>
@@ -2397,7 +2397,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCommandCaptionPhoto(method, name)](./gramstax.ctx.issessioncommandcaptionphoto.md)
+[isSessionCommandCaptionPhoto()](./gramstax.ctx.issessioncommandcaptionphoto.md)
 
 
 </td><td>
@@ -2411,7 +2411,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCommandCaptionVideo(method, name)](./gramstax.ctx.issessioncommandcaptionvideo.md)
+[isSessionCommandCaptionVideo()](./gramstax.ctx.issessioncommandcaptionvideo.md)
 
 
 </td><td>
@@ -2425,7 +2425,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCommandCaptionVoice(method, name)](./gramstax.ctx.issessioncommandcaptionvoice.md)
+[isSessionCommandCaptionVoice()](./gramstax.ctx.issessioncommandcaptionvoice.md)
 
 
 </td><td>
@@ -2437,7 +2437,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCommandText(method, name)](./gramstax.ctx.issessioncommandtext.md)
+[isSessionCommandText()](./gramstax.ctx.issessioncommandtext.md)
 
 
 </td><td>
@@ -2451,7 +2451,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionFreeAnimation(method, name)](./gramstax.ctx.issessionfreeanimation.md)
+[isSessionFreeAnimation()](./gramstax.ctx.issessionfreeanimation.md)
 
 
 </td><td>
@@ -2465,7 +2465,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionFreeAudio(method, name)](./gramstax.ctx.issessionfreeaudio.md)
+[isSessionFreeAudio()](./gramstax.ctx.issessionfreeaudio.md)
 
 
 </td><td>
@@ -2479,7 +2479,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionFreeContact(method, name)](./gramstax.ctx.issessionfreecontact.md)
+[isSessionFreeContact()](./gramstax.ctx.issessionfreecontact.md)
 
 
 </td><td>
@@ -2493,7 +2493,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionFreeDocument(method, name)](./gramstax.ctx.issessionfreedocument.md)
+[isSessionFreeDocument()](./gramstax.ctx.issessionfreedocument.md)
 
 
 </td><td>
@@ -2507,7 +2507,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionFreeLocation(method, name)](./gramstax.ctx.issessionfreelocation.md)
+[isSessionFreeLocation()](./gramstax.ctx.issessionfreelocation.md)
 
 
 </td><td>
@@ -2521,7 +2521,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionFreePhoto(method, name)](./gramstax.ctx.issessionfreephoto.md)
+[isSessionFreePhoto()](./gramstax.ctx.issessionfreephoto.md)
 
 
 </td><td>
@@ -2535,7 +2535,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionFreeSticker(method, name)](./gramstax.ctx.issessionfreesticker.md)
+[isSessionFreeSticker()](./gramstax.ctx.issessionfreesticker.md)
 
 
 </td><td>
@@ -2549,7 +2549,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionFreeText(method, name)](./gramstax.ctx.issessionfreetext.md)
+[isSessionFreeText()](./gramstax.ctx.issessionfreetext.md)
 
 
 </td><td>
@@ -2563,7 +2563,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionFreeVideo(method, name)](./gramstax.ctx.issessionfreevideo.md)
+[isSessionFreeVideo()](./gramstax.ctx.issessionfreevideo.md)
 
 
 </td><td>
@@ -2577,7 +2577,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionFreeVideoNote(method, name)](./gramstax.ctx.issessionfreevideonote.md)
+[isSessionFreeVideoNote()](./gramstax.ctx.issessionfreevideonote.md)
 
 
 </td><td>
@@ -2591,7 +2591,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionFreeVoice(method, name)](./gramstax.ctx.issessionfreevoice.md)
+[isSessionFreeVoice()](./gramstax.ctx.issessionfreevoice.md)
 
 
 </td><td>
@@ -2605,7 +2605,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionText(method, name)](./gramstax.ctx.issessiontext.md)
+[isSessionText()](./gramstax.ctx.issessiontext.md)
 
 
 </td><td>
@@ -3403,7 +3403,7 @@ Sends a voice message using the page template.
 </td></tr>
 <tr><td>
 
-[sessionArgsCallbackData(params, name)](./gramstax.ctx.sessionargscallbackdata.md)
+[sessionArgsCallbackData(params)](./gramstax.ctx.sessionargscallbackdata.md)
 
 
 </td><td>
@@ -3417,7 +3417,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionArgsText(params, name)](./gramstax.ctx.sessionargstext.md)
+[sessionArgsText(params)](./gramstax.ctx.sessionargstext.md)
 
 
 </td><td>
@@ -3431,7 +3431,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCallbackData(params, name)](./gramstax.ctx.sessioncallbackdata.md)
+[sessionCallbackData(params)](./gramstax.ctx.sessioncallbackdata.md)
 
 
 </td><td>
@@ -3445,7 +3445,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionAnimation(params, name)](./gramstax.ctx.sessioncaptionanimation.md)
+[sessionCaptionAnimation(params)](./gramstax.ctx.sessioncaptionanimation.md)
 
 
 </td><td>
@@ -3459,7 +3459,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionArgsAnimation(params, name)](./gramstax.ctx.sessioncaptionargsanimation.md)
+[sessionCaptionArgsAnimation(params)](./gramstax.ctx.sessioncaptionargsanimation.md)
 
 
 </td><td>
@@ -3473,7 +3473,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionArgsAudio(params, name)](./gramstax.ctx.sessioncaptionargsaudio.md)
+[sessionCaptionArgsAudio(params)](./gramstax.ctx.sessioncaptionargsaudio.md)
 
 
 </td><td>
@@ -3487,7 +3487,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionArgsDocument(params, name)](./gramstax.ctx.sessioncaptionargsdocument.md)
+[sessionCaptionArgsDocument(params)](./gramstax.ctx.sessioncaptionargsdocument.md)
 
 
 </td><td>
@@ -3501,7 +3501,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionArgsPhoto(params, name)](./gramstax.ctx.sessioncaptionargsphoto.md)
+[sessionCaptionArgsPhoto(params)](./gramstax.ctx.sessioncaptionargsphoto.md)
 
 
 </td><td>
@@ -3515,7 +3515,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionArgsVideo(params, name)](./gramstax.ctx.sessioncaptionargsvideo.md)
+[sessionCaptionArgsVideo(params)](./gramstax.ctx.sessioncaptionargsvideo.md)
 
 
 </td><td>
@@ -3529,7 +3529,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionArgsVoice(params, name)](./gramstax.ctx.sessioncaptionargsvoice.md)
+[sessionCaptionArgsVoice(params)](./gramstax.ctx.sessioncaptionargsvoice.md)
 
 
 </td><td>
@@ -3543,7 +3543,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionAudio(params, name)](./gramstax.ctx.sessioncaptionaudio.md)
+[sessionCaptionAudio(params)](./gramstax.ctx.sessioncaptionaudio.md)
 
 
 </td><td>
@@ -3557,7 +3557,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionCommandArgsAudio(params, name)](./gramstax.ctx.sessioncaptioncommandargsaudio.md)
+[sessionCaptionCommandArgsAudio(params)](./gramstax.ctx.sessioncaptioncommandargsaudio.md)
 
 
 </td><td>
@@ -3571,7 +3571,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionCommandAudio(params, name)](./gramstax.ctx.sessioncaptioncommandaudio.md)
+[sessionCaptionCommandAudio(params)](./gramstax.ctx.sessioncaptioncommandaudio.md)
 
 
 </td><td>
@@ -3585,7 +3585,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionDocument(params, name)](./gramstax.ctx.sessioncaptiondocument.md)
+[sessionCaptionDocument(params)](./gramstax.ctx.sessioncaptiondocument.md)
 
 
 </td><td>
@@ -3599,7 +3599,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionPhoto(params, name)](./gramstax.ctx.sessioncaptionphoto.md)
+[sessionCaptionPhoto(params)](./gramstax.ctx.sessioncaptionphoto.md)
 
 
 </td><td>
@@ -3613,7 +3613,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionVideo(params, name)](./gramstax.ctx.sessioncaptionvideo.md)
+[sessionCaptionVideo(params)](./gramstax.ctx.sessioncaptionvideo.md)
 
 
 </td><td>
@@ -3627,7 +3627,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCaptionVoice(params, name)](./gramstax.ctx.sessioncaptionvoice.md)
+[sessionCaptionVoice(params)](./gramstax.ctx.sessioncaptionvoice.md)
 
 
 </td><td>
@@ -3641,7 +3641,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCommandArgsText(params, name)](./gramstax.ctx.sessioncommandargstext.md)
+[sessionCommandArgsText(params)](./gramstax.ctx.sessioncommandargstext.md)
 
 
 </td><td>
@@ -3655,7 +3655,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCommandCaptionAnimation(params, name)](./gramstax.ctx.sessioncommandcaptionanimation.md)
+[sessionCommandCaptionAnimation(params)](./gramstax.ctx.sessioncommandcaptionanimation.md)
 
 
 </td><td>
@@ -3669,7 +3669,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCommandCaptionArgsAnimation(params, name)](./gramstax.ctx.sessioncommandcaptionargsanimation.md)
+[sessionCommandCaptionArgsAnimation(params)](./gramstax.ctx.sessioncommandcaptionargsanimation.md)
 
 
 </td><td>
@@ -3683,7 +3683,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCommandCaptionArgsDocument(params, name)](./gramstax.ctx.sessioncommandcaptionargsdocument.md)
+[sessionCommandCaptionArgsDocument(params)](./gramstax.ctx.sessioncommandcaptionargsdocument.md)
 
 
 </td><td>
@@ -3697,7 +3697,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCommandCaptionArgsPhoto(params, name)](./gramstax.ctx.sessioncommandcaptionargsphoto.md)
+[sessionCommandCaptionArgsPhoto(params)](./gramstax.ctx.sessioncommandcaptionargsphoto.md)
 
 
 </td><td>
@@ -3711,7 +3711,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCommandCaptionArgsVideo(params, name)](./gramstax.ctx.sessioncommandcaptionargsvideo.md)
+[sessionCommandCaptionArgsVideo(params)](./gramstax.ctx.sessioncommandcaptionargsvideo.md)
 
 
 </td><td>
@@ -3725,7 +3725,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCommandCaptionArgsVoice(params, name)](./gramstax.ctx.sessioncommandcaptionargsvoice.md)
+[sessionCommandCaptionArgsVoice(params)](./gramstax.ctx.sessioncommandcaptionargsvoice.md)
 
 
 </td><td>
@@ -3739,7 +3739,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCommandCaptionDocument(params, name)](./gramstax.ctx.sessioncommandcaptiondocument.md)
+[sessionCommandCaptionDocument(params)](./gramstax.ctx.sessioncommandcaptiondocument.md)
 
 
 </td><td>
@@ -3753,7 +3753,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCommandCaptionPhoto(params, name)](./gramstax.ctx.sessioncommandcaptionphoto.md)
+[sessionCommandCaptionPhoto(params)](./gramstax.ctx.sessioncommandcaptionphoto.md)
 
 
 </td><td>
@@ -3767,7 +3767,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCommandCaptionVideo(params, name)](./gramstax.ctx.sessioncommandcaptionvideo.md)
+[sessionCommandCaptionVideo(params)](./gramstax.ctx.sessioncommandcaptionvideo.md)
 
 
 </td><td>
@@ -3781,7 +3781,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCommandCaptionVoice(params, name)](./gramstax.ctx.sessioncommandcaptionvoice.md)
+[sessionCommandCaptionVoice(params)](./gramstax.ctx.sessioncommandcaptionvoice.md)
 
 
 </td><td>
@@ -3795,7 +3795,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCommandText(params, name)](./gramstax.ctx.sessioncommandtext.md)
+[sessionCommandText(params)](./gramstax.ctx.sessioncommandtext.md)
 
 
 </td><td>
@@ -3809,7 +3809,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionFreeAnimation(params, name)](./gramstax.ctx.sessionfreeanimation.md)
+[sessionFreeAnimation(params)](./gramstax.ctx.sessionfreeanimation.md)
 
 
 </td><td>
@@ -3823,7 +3823,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionFreeAudio(params, name)](./gramstax.ctx.sessionfreeaudio.md)
+[sessionFreeAudio(params)](./gramstax.ctx.sessionfreeaudio.md)
 
 
 </td><td>
@@ -3837,7 +3837,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionFreeContact(params, name)](./gramstax.ctx.sessionfreecontact.md)
+[sessionFreeContact(params)](./gramstax.ctx.sessionfreecontact.md)
 
 
 </td><td>
@@ -3851,7 +3851,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionFreeDocument(params, name)](./gramstax.ctx.sessionfreedocument.md)
+[sessionFreeDocument(params)](./gramstax.ctx.sessionfreedocument.md)
 
 
 </td><td>
@@ -3865,7 +3865,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionFreeLocation(params, name)](./gramstax.ctx.sessionfreelocation.md)
+[sessionFreeLocation(params)](./gramstax.ctx.sessionfreelocation.md)
 
 
 </td><td>
@@ -3879,7 +3879,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionFreePhoto(params, name)](./gramstax.ctx.sessionfreephoto.md)
+[sessionFreePhoto(params)](./gramstax.ctx.sessionfreephoto.md)
 
 
 </td><td>
@@ -3893,7 +3893,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionFreeSticker(params, name)](./gramstax.ctx.sessionfreesticker.md)
+[sessionFreeSticker(params)](./gramstax.ctx.sessionfreesticker.md)
 
 
 </td><td>
@@ -3907,7 +3907,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionFreeText(params, name)](./gramstax.ctx.sessionfreetext.md)
+[sessionFreeText(params)](./gramstax.ctx.sessionfreetext.md)
 
 
 </td><td>
@@ -3921,7 +3921,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionFreeVideo(params, name)](./gramstax.ctx.sessionfreevideo.md)
+[sessionFreeVideo(params)](./gramstax.ctx.sessionfreevideo.md)
 
 
 </td><td>
@@ -3935,7 +3935,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionFreeVideoNote(params, name)](./gramstax.ctx.sessionfreevideonote.md)
+[sessionFreeVideoNote(params)](./gramstax.ctx.sessionfreevideonote.md)
 
 
 </td><td>
@@ -3949,7 +3949,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionFreeVoice(params, name)](./gramstax.ctx.sessionfreevoice.md)
+[sessionFreeVoice(params)](./gramstax.ctx.sessionfreevoice.md)
 
 
 </td><td>
@@ -3963,7 +3963,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionText(params, name)](./gramstax.ctx.sessiontext.md)
+[sessionText(params)](./gramstax.ctx.sessiontext.md)
 
 
 </td><td>

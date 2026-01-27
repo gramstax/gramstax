@@ -3104,10 +3104,10 @@ methods:
       return:
         type: <xref uid="grammy!InlineKeyboard:class" />
         description: The inline keyboard instance.
-  - name: isSessionArgsCallbackData(method, name)
+  - name: isSessionArgsCallbackData()
     uid: gramstax!Ctx#isSessionArgsCallbackData:member(1)
     package: gramstax!
-    fullName: isSessionArgsCallbackData(method, name)
+    fullName: isSessionArgsCallbackData()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3117,21 +3117,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionArgsCallbackData(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionArgsCallbackData(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionArgsText(method, name)
+  - name: isSessionArgsText()
     uid: gramstax!Ctx#isSessionArgsText:member(1)
     package: gramstax!
-    fullName: isSessionArgsText(method, name)
+    fullName: isSessionArgsText()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3141,21 +3134,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionArgsText(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionArgsText(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCallbackData(method, name)
+  - name: isSessionCallbackData()
     uid: gramstax!Ctx#isSessionCallbackData:member(1)
     package: gramstax!
-    fullName: isSessionCallbackData(method, name)
+    fullName: isSessionCallbackData()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3173,21 +3159,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCallbackData(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCallbackData(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionAnimation(method, name)
+  - name: isSessionCaptionAnimation()
     uid: gramstax!Ctx#isSessionCaptionAnimation:member(1)
     package: gramstax!
-    fullName: isSessionCaptionAnimation(method, name)
+    fullName: isSessionCaptionAnimation()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3197,21 +3176,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionAnimation(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionAnimation(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionArgsAnimation(method, name)
+  - name: isSessionCaptionArgsAnimation()
     uid: gramstax!Ctx#isSessionCaptionArgsAnimation:member(1)
     package: gramstax!
-    fullName: isSessionCaptionArgsAnimation(method, name)
+    fullName: isSessionCaptionArgsAnimation()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3221,21 +3193,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionArgsAnimation(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionArgsAnimation(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionArgsAudio(method, name)
+  - name: isSessionCaptionArgsAudio()
     uid: gramstax!Ctx#isSessionCaptionArgsAudio:member(1)
     package: gramstax!
-    fullName: isSessionCaptionArgsAudio(method, name)
+    fullName: isSessionCaptionArgsAudio()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3245,21 +3210,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionArgsAudio(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionArgsAudio(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionArgsDocument(method, name)
+  - name: isSessionCaptionArgsDocument()
     uid: gramstax!Ctx#isSessionCaptionArgsDocument:member(1)
     package: gramstax!
-    fullName: isSessionCaptionArgsDocument(method, name)
+    fullName: isSessionCaptionArgsDocument()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3269,21 +3227,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionArgsDocument(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionArgsDocument(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionArgsPhoto(method, name)
+  - name: isSessionCaptionArgsPhoto()
     uid: gramstax!Ctx#isSessionCaptionArgsPhoto:member(1)
     package: gramstax!
-    fullName: isSessionCaptionArgsPhoto(method, name)
+    fullName: isSessionCaptionArgsPhoto()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3293,21 +3244,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionArgsPhoto(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionArgsPhoto(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionArgsVideo(method, name)
+  - name: isSessionCaptionArgsVideo()
     uid: gramstax!Ctx#isSessionCaptionArgsVideo:member(1)
     package: gramstax!
-    fullName: isSessionCaptionArgsVideo(method, name)
+    fullName: isSessionCaptionArgsVideo()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3317,21 +3261,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionArgsVideo(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionArgsVideo(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionArgsVoice(method, name)
+  - name: isSessionCaptionArgsVoice()
     uid: gramstax!Ctx#isSessionCaptionArgsVoice:member(1)
     package: gramstax!
-    fullName: isSessionCaptionArgsVoice(method, name)
+    fullName: isSessionCaptionArgsVoice()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3341,21 +3278,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionArgsVoice(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionArgsVoice(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionAudio(method, name)
+  - name: isSessionCaptionAudio()
     uid: gramstax!Ctx#isSessionCaptionAudio:member(1)
     package: gramstax!
-    fullName: isSessionCaptionAudio(method, name)
+    fullName: isSessionCaptionAudio()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3365,21 +3295,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionAudio(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionAudio(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionCommandArgsAudio(method, name)
+  - name: isSessionCaptionCommandArgsAudio()
     uid: gramstax!Ctx#isSessionCaptionCommandArgsAudio:member(1)
     package: gramstax!
-    fullName: isSessionCaptionCommandArgsAudio(method, name)
+    fullName: isSessionCaptionCommandArgsAudio()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3389,21 +3312,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionCommandArgsAudio(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionCommandArgsAudio(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionCommandAudio(method, name)
+  - name: isSessionCaptionCommandAudio()
     uid: gramstax!Ctx#isSessionCaptionCommandAudio:member(1)
     package: gramstax!
-    fullName: isSessionCaptionCommandAudio(method, name)
+    fullName: isSessionCaptionCommandAudio()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3413,21 +3329,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionCommandAudio(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionCommandAudio(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionDocument(method, name)
+  - name: isSessionCaptionDocument()
     uid: gramstax!Ctx#isSessionCaptionDocument:member(1)
     package: gramstax!
-    fullName: isSessionCaptionDocument(method, name)
+    fullName: isSessionCaptionDocument()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3437,21 +3346,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionDocument(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionDocument(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionPhoto(method, name)
+  - name: isSessionCaptionPhoto()
     uid: gramstax!Ctx#isSessionCaptionPhoto:member(1)
     package: gramstax!
-    fullName: isSessionCaptionPhoto(method, name)
+    fullName: isSessionCaptionPhoto()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3461,21 +3363,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionPhoto(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionPhoto(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionVideo(method, name)
+  - name: isSessionCaptionVideo()
     uid: gramstax!Ctx#isSessionCaptionVideo:member(1)
     package: gramstax!
-    fullName: isSessionCaptionVideo(method, name)
+    fullName: isSessionCaptionVideo()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3485,21 +3380,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionVideo(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionVideo(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCaptionVoice(method, name)
+  - name: isSessionCaptionVoice()
     uid: gramstax!Ctx#isSessionCaptionVoice:member(1)
     package: gramstax!
-    fullName: isSessionCaptionVoice(method, name)
+    fullName: isSessionCaptionVoice()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3509,21 +3397,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCaptionVoice(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCaptionVoice(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCommandArgsText(method, name)
+  - name: isSessionCommandArgsText()
     uid: gramstax!Ctx#isSessionCommandArgsText:member(1)
     package: gramstax!
-    fullName: isSessionCommandArgsText(method, name)
+    fullName: isSessionCommandArgsText()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3533,21 +3414,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCommandArgsText(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCommandArgsText(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCommandCaptionAnimation(method, name)
+  - name: isSessionCommandCaptionAnimation()
     uid: gramstax!Ctx#isSessionCommandCaptionAnimation:member(1)
     package: gramstax!
-    fullName: isSessionCommandCaptionAnimation(method, name)
+    fullName: isSessionCommandCaptionAnimation()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3557,21 +3431,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCommandCaptionAnimation(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCommandCaptionAnimation(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCommandCaptionArgsAnimation(method, name)
+  - name: isSessionCommandCaptionArgsAnimation()
     uid: gramstax!Ctx#isSessionCommandCaptionArgsAnimation:member(1)
     package: gramstax!
-    fullName: isSessionCommandCaptionArgsAnimation(method, name)
+    fullName: isSessionCommandCaptionArgsAnimation()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3581,21 +3448,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCommandCaptionArgsAnimation(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCommandCaptionArgsAnimation(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCommandCaptionArgsDocument(method, name)
+  - name: isSessionCommandCaptionArgsDocument()
     uid: gramstax!Ctx#isSessionCommandCaptionArgsDocument:member(1)
     package: gramstax!
-    fullName: isSessionCommandCaptionArgsDocument(method, name)
+    fullName: isSessionCommandCaptionArgsDocument()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3605,21 +3465,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCommandCaptionArgsDocument(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCommandCaptionArgsDocument(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCommandCaptionArgsPhoto(method, name)
+  - name: isSessionCommandCaptionArgsPhoto()
     uid: gramstax!Ctx#isSessionCommandCaptionArgsPhoto:member(1)
     package: gramstax!
-    fullName: isSessionCommandCaptionArgsPhoto(method, name)
+    fullName: isSessionCommandCaptionArgsPhoto()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3629,21 +3482,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCommandCaptionArgsPhoto(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCommandCaptionArgsPhoto(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCommandCaptionArgsVideo(method, name)
+  - name: isSessionCommandCaptionArgsVideo()
     uid: gramstax!Ctx#isSessionCommandCaptionArgsVideo:member(1)
     package: gramstax!
-    fullName: isSessionCommandCaptionArgsVideo(method, name)
+    fullName: isSessionCommandCaptionArgsVideo()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3653,21 +3499,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCommandCaptionArgsVideo(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCommandCaptionArgsVideo(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCommandCaptionArgsVoice(method, name)
+  - name: isSessionCommandCaptionArgsVoice()
     uid: gramstax!Ctx#isSessionCommandCaptionArgsVoice:member(1)
     package: gramstax!
-    fullName: isSessionCommandCaptionArgsVoice(method, name)
+    fullName: isSessionCommandCaptionArgsVoice()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3677,21 +3516,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCommandCaptionArgsVoice(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCommandCaptionArgsVoice(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCommandCaptionDocument(method, name)
+  - name: isSessionCommandCaptionDocument()
     uid: gramstax!Ctx#isSessionCommandCaptionDocument:member(1)
     package: gramstax!
-    fullName: isSessionCommandCaptionDocument(method, name)
+    fullName: isSessionCommandCaptionDocument()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3701,21 +3533,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCommandCaptionDocument(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCommandCaptionDocument(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCommandCaptionPhoto(method, name)
+  - name: isSessionCommandCaptionPhoto()
     uid: gramstax!Ctx#isSessionCommandCaptionPhoto:member(1)
     package: gramstax!
-    fullName: isSessionCommandCaptionPhoto(method, name)
+    fullName: isSessionCommandCaptionPhoto()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3725,21 +3550,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCommandCaptionPhoto(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCommandCaptionPhoto(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCommandCaptionVideo(method, name)
+  - name: isSessionCommandCaptionVideo()
     uid: gramstax!Ctx#isSessionCommandCaptionVideo:member(1)
     package: gramstax!
-    fullName: isSessionCommandCaptionVideo(method, name)
+    fullName: isSessionCommandCaptionVideo()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3749,42 +3567,28 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCommandCaptionVideo(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCommandCaptionVideo(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCommandCaptionVoice(method, name)
+  - name: isSessionCommandCaptionVoice()
     uid: gramstax!Ctx#isSessionCommandCaptionVoice:member(1)
     package: gramstax!
-    fullName: isSessionCommandCaptionVoice(method, name)
+    fullName: isSessionCommandCaptionVoice()
     summary: ''
     remarks: ''
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCommandCaptionVoice(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCommandCaptionVoice(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionCommandText(method, name)
+  - name: isSessionCommandText()
     uid: gramstax!Ctx#isSessionCommandText:member(1)
     package: gramstax!
-    fullName: isSessionCommandText(method, name)
+    fullName: isSessionCommandText()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3794,21 +3598,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionCommandText(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionCommandText(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionFreeAnimation(method, name)
+  - name: isSessionFreeAnimation()
     uid: gramstax!Ctx#isSessionFreeAnimation:member(1)
     package: gramstax!
-    fullName: isSessionFreeAnimation(method, name)
+    fullName: isSessionFreeAnimation()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3818,21 +3615,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionFreeAnimation(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionFreeAnimation(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionFreeAudio(method, name)
+  - name: isSessionFreeAudio()
     uid: gramstax!Ctx#isSessionFreeAudio:member(1)
     package: gramstax!
-    fullName: isSessionFreeAudio(method, name)
+    fullName: isSessionFreeAudio()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3842,21 +3632,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionFreeAudio(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionFreeAudio(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionFreeContact(method, name)
+  - name: isSessionFreeContact()
     uid: gramstax!Ctx#isSessionFreeContact:member(1)
     package: gramstax!
-    fullName: isSessionFreeContact(method, name)
+    fullName: isSessionFreeContact()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3866,21 +3649,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionFreeContact(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionFreeContact(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionFreeDocument(method, name)
+  - name: isSessionFreeDocument()
     uid: gramstax!Ctx#isSessionFreeDocument:member(1)
     package: gramstax!
-    fullName: isSessionFreeDocument(method, name)
+    fullName: isSessionFreeDocument()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3890,21 +3666,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionFreeDocument(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionFreeDocument(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionFreeLocation(method, name)
+  - name: isSessionFreeLocation()
     uid: gramstax!Ctx#isSessionFreeLocation:member(1)
     package: gramstax!
-    fullName: isSessionFreeLocation(method, name)
+    fullName: isSessionFreeLocation()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3914,21 +3683,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionFreeLocation(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionFreeLocation(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionFreePhoto(method, name)
+  - name: isSessionFreePhoto()
     uid: gramstax!Ctx#isSessionFreePhoto:member(1)
     package: gramstax!
-    fullName: isSessionFreePhoto(method, name)
+    fullName: isSessionFreePhoto()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3938,21 +3700,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionFreePhoto(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionFreePhoto(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionFreeSticker(method, name)
+  - name: isSessionFreeSticker()
     uid: gramstax!Ctx#isSessionFreeSticker:member(1)
     package: gramstax!
-    fullName: isSessionFreeSticker(method, name)
+    fullName: isSessionFreeSticker()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3962,21 +3717,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionFreeSticker(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionFreeSticker(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionFreeText(method, name)
+  - name: isSessionFreeText()
     uid: gramstax!Ctx#isSessionFreeText:member(1)
     package: gramstax!
-    fullName: isSessionFreeText(method, name)
+    fullName: isSessionFreeText()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -3986,21 +3734,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionFreeText(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionFreeText(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionFreeVideo(method, name)
+  - name: isSessionFreeVideo()
     uid: gramstax!Ctx#isSessionFreeVideo:member(1)
     package: gramstax!
-    fullName: isSessionFreeVideo(method, name)
+    fullName: isSessionFreeVideo()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -4010,21 +3751,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionFreeVideo(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionFreeVideo(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionFreeVideoNote(method, name)
+  - name: isSessionFreeVideoNote()
     uid: gramstax!Ctx#isSessionFreeVideoNote:member(1)
     package: gramstax!
-    fullName: isSessionFreeVideoNote(method, name)
+    fullName: isSessionFreeVideoNote()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -4034,21 +3768,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionFreeVideoNote(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionFreeVideoNote(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionFreeVoice(method, name)
+  - name: isSessionFreeVoice()
     uid: gramstax!Ctx#isSessionFreeVoice:member(1)
     package: gramstax!
-    fullName: isSessionFreeVoice(method, name)
+    fullName: isSessionFreeVoice()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -4058,21 +3785,14 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionFreeVoice(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionFreeVoice(): boolean;'
       return:
         type: boolean
         description: ''
-  - name: isSessionText(method, name)
+  - name: isSessionText()
     uid: gramstax!Ctx#isSessionText:member(1)
     package: gramstax!
-    fullName: isSessionText(method, name)
+    fullName: isSessionText()
     summary: Session validation methods.
     remarks: >-
       These methods validate whether the current session’s `session.method` matches the value returned by
@@ -4082,14 +3802,7 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'isSessionText(method?: string, name?: string): boolean;'
-      parameters:
-        - id: method
-          description: ''
-          type: string
-        - id: name
-          description: ''
-          type: string
+      content: 'isSessionText(): boolean;'
       return:
         type: boolean
         description: ''
@@ -5596,10 +5309,10 @@ methods:
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | undefined&gt;
         description: The sent message object.
-  - name: sessionArgsCallbackData(params, name)
+  - name: sessionArgsCallbackData(params)
     uid: gramstax!Ctx#sessionArgsCallbackData:member(1)
     package: gramstax!
-    fullName: sessionArgsCallbackData(params, name)
+    fullName: sessionArgsCallbackData(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5608,21 +5321,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionArgsCallbackData(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionArgsCallbackData(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionArgsText(params, name)
+  - name: sessionArgsText(params)
     uid: gramstax!Ctx#sessionArgsText:member(1)
     package: gramstax!
-    fullName: sessionArgsText(params, name)
+    fullName: sessionArgsText(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5631,21 +5341,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionArgsText(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionArgsText(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCallbackData(params, name)
+  - name: sessionCallbackData(params)
     uid: gramstax!Ctx#sessionCallbackData:member(1)
     package: gramstax!
-    fullName: sessionCallbackData(params, name)
+    fullName: sessionCallbackData(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5662,21 +5369,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCallbackData(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCallbackData(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionAnimation(params, name)
+  - name: sessionCaptionAnimation(params)
     uid: gramstax!Ctx#sessionCaptionAnimation:member(1)
     package: gramstax!
-    fullName: sessionCaptionAnimation(params, name)
+    fullName: sessionCaptionAnimation(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5685,21 +5389,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionAnimation(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionAnimation(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionArgsAnimation(params, name)
+  - name: sessionCaptionArgsAnimation(params)
     uid: gramstax!Ctx#sessionCaptionArgsAnimation:member(1)
     package: gramstax!
-    fullName: sessionCaptionArgsAnimation(params, name)
+    fullName: sessionCaptionArgsAnimation(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5708,21 +5409,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionArgsAnimation(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionArgsAnimation(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionArgsAudio(params, name)
+  - name: sessionCaptionArgsAudio(params)
     uid: gramstax!Ctx#sessionCaptionArgsAudio:member(1)
     package: gramstax!
-    fullName: sessionCaptionArgsAudio(params, name)
+    fullName: sessionCaptionArgsAudio(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5731,21 +5429,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionArgsAudio(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionArgsAudio(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionArgsDocument(params, name)
+  - name: sessionCaptionArgsDocument(params)
     uid: gramstax!Ctx#sessionCaptionArgsDocument:member(1)
     package: gramstax!
-    fullName: sessionCaptionArgsDocument(params, name)
+    fullName: sessionCaptionArgsDocument(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5754,21 +5449,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionArgsDocument(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionArgsDocument(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionArgsPhoto(params, name)
+  - name: sessionCaptionArgsPhoto(params)
     uid: gramstax!Ctx#sessionCaptionArgsPhoto:member(1)
     package: gramstax!
-    fullName: sessionCaptionArgsPhoto(params, name)
+    fullName: sessionCaptionArgsPhoto(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5777,21 +5469,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionArgsPhoto(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionArgsPhoto(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionArgsVideo(params, name)
+  - name: sessionCaptionArgsVideo(params)
     uid: gramstax!Ctx#sessionCaptionArgsVideo:member(1)
     package: gramstax!
-    fullName: sessionCaptionArgsVideo(params, name)
+    fullName: sessionCaptionArgsVideo(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5800,21 +5489,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionArgsVideo(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionArgsVideo(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionArgsVoice(params, name)
+  - name: sessionCaptionArgsVoice(params)
     uid: gramstax!Ctx#sessionCaptionArgsVoice:member(1)
     package: gramstax!
-    fullName: sessionCaptionArgsVoice(params, name)
+    fullName: sessionCaptionArgsVoice(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5823,21 +5509,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionArgsVoice(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionArgsVoice(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionAudio(params, name)
+  - name: sessionCaptionAudio(params)
     uid: gramstax!Ctx#sessionCaptionAudio:member(1)
     package: gramstax!
-    fullName: sessionCaptionAudio(params, name)
+    fullName: sessionCaptionAudio(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5846,21 +5529,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionAudio(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionAudio(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionCommandArgsAudio(params, name)
+  - name: sessionCaptionCommandArgsAudio(params)
     uid: gramstax!Ctx#sessionCaptionCommandArgsAudio:member(1)
     package: gramstax!
-    fullName: sessionCaptionCommandArgsAudio(params, name)
+    fullName: sessionCaptionCommandArgsAudio(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5869,21 +5549,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionCommandArgsAudio(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionCommandArgsAudio(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionCommandAudio(params, name)
+  - name: sessionCaptionCommandAudio(params)
     uid: gramstax!Ctx#sessionCaptionCommandAudio:member(1)
     package: gramstax!
-    fullName: sessionCaptionCommandAudio(params, name)
+    fullName: sessionCaptionCommandAudio(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5892,21 +5569,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionCommandAudio(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionCommandAudio(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionDocument(params, name)
+  - name: sessionCaptionDocument(params)
     uid: gramstax!Ctx#sessionCaptionDocument:member(1)
     package: gramstax!
-    fullName: sessionCaptionDocument(params, name)
+    fullName: sessionCaptionDocument(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5915,21 +5589,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionDocument(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionDocument(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionPhoto(params, name)
+  - name: sessionCaptionPhoto(params)
     uid: gramstax!Ctx#sessionCaptionPhoto:member(1)
     package: gramstax!
-    fullName: sessionCaptionPhoto(params, name)
+    fullName: sessionCaptionPhoto(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5938,21 +5609,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionPhoto(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionPhoto(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionVideo(params, name)
+  - name: sessionCaptionVideo(params)
     uid: gramstax!Ctx#sessionCaptionVideo:member(1)
     package: gramstax!
-    fullName: sessionCaptionVideo(params, name)
+    fullName: sessionCaptionVideo(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5961,21 +5629,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionVideo(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionVideo(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCaptionVoice(params, name)
+  - name: sessionCaptionVoice(params)
     uid: gramstax!Ctx#sessionCaptionVoice:member(1)
     package: gramstax!
-    fullName: sessionCaptionVoice(params, name)
+    fullName: sessionCaptionVoice(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -5984,21 +5649,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCaptionVoice(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCaptionVoice(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCommandArgsText(params, name)
+  - name: sessionCommandArgsText(params)
     uid: gramstax!Ctx#sessionCommandArgsText:member(1)
     package: gramstax!
-    fullName: sessionCommandArgsText(params, name)
+    fullName: sessionCommandArgsText(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6007,21 +5669,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCommandArgsText(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCommandArgsText(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCommandCaptionAnimation(params, name)
+  - name: sessionCommandCaptionAnimation(params)
     uid: gramstax!Ctx#sessionCommandCaptionAnimation:member(1)
     package: gramstax!
-    fullName: sessionCommandCaptionAnimation(params, name)
+    fullName: sessionCommandCaptionAnimation(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6030,21 +5689,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCommandCaptionAnimation(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCommandCaptionAnimation(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCommandCaptionArgsAnimation(params, name)
+  - name: sessionCommandCaptionArgsAnimation(params)
     uid: gramstax!Ctx#sessionCommandCaptionArgsAnimation:member(1)
     package: gramstax!
-    fullName: sessionCommandCaptionArgsAnimation(params, name)
+    fullName: sessionCommandCaptionArgsAnimation(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6053,21 +5709,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCommandCaptionArgsAnimation(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCommandCaptionArgsAnimation(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCommandCaptionArgsDocument(params, name)
+  - name: sessionCommandCaptionArgsDocument(params)
     uid: gramstax!Ctx#sessionCommandCaptionArgsDocument:member(1)
     package: gramstax!
-    fullName: sessionCommandCaptionArgsDocument(params, name)
+    fullName: sessionCommandCaptionArgsDocument(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6076,21 +5729,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCommandCaptionArgsDocument(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCommandCaptionArgsDocument(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCommandCaptionArgsPhoto(params, name)
+  - name: sessionCommandCaptionArgsPhoto(params)
     uid: gramstax!Ctx#sessionCommandCaptionArgsPhoto:member(1)
     package: gramstax!
-    fullName: sessionCommandCaptionArgsPhoto(params, name)
+    fullName: sessionCommandCaptionArgsPhoto(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6099,21 +5749,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCommandCaptionArgsPhoto(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCommandCaptionArgsPhoto(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCommandCaptionArgsVideo(params, name)
+  - name: sessionCommandCaptionArgsVideo(params)
     uid: gramstax!Ctx#sessionCommandCaptionArgsVideo:member(1)
     package: gramstax!
-    fullName: sessionCommandCaptionArgsVideo(params, name)
+    fullName: sessionCommandCaptionArgsVideo(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6122,21 +5769,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCommandCaptionArgsVideo(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCommandCaptionArgsVideo(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCommandCaptionArgsVoice(params, name)
+  - name: sessionCommandCaptionArgsVoice(params)
     uid: gramstax!Ctx#sessionCommandCaptionArgsVoice:member(1)
     package: gramstax!
-    fullName: sessionCommandCaptionArgsVoice(params, name)
+    fullName: sessionCommandCaptionArgsVoice(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6145,21 +5789,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCommandCaptionArgsVoice(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCommandCaptionArgsVoice(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCommandCaptionDocument(params, name)
+  - name: sessionCommandCaptionDocument(params)
     uid: gramstax!Ctx#sessionCommandCaptionDocument:member(1)
     package: gramstax!
-    fullName: sessionCommandCaptionDocument(params, name)
+    fullName: sessionCommandCaptionDocument(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6168,21 +5809,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCommandCaptionDocument(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCommandCaptionDocument(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCommandCaptionPhoto(params, name)
+  - name: sessionCommandCaptionPhoto(params)
     uid: gramstax!Ctx#sessionCommandCaptionPhoto:member(1)
     package: gramstax!
-    fullName: sessionCommandCaptionPhoto(params, name)
+    fullName: sessionCommandCaptionPhoto(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6191,21 +5829,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCommandCaptionPhoto(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCommandCaptionPhoto(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCommandCaptionVideo(params, name)
+  - name: sessionCommandCaptionVideo(params)
     uid: gramstax!Ctx#sessionCommandCaptionVideo:member(1)
     package: gramstax!
-    fullName: sessionCommandCaptionVideo(params, name)
+    fullName: sessionCommandCaptionVideo(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6214,21 +5849,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCommandCaptionVideo(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCommandCaptionVideo(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCommandCaptionVoice(params, name)
+  - name: sessionCommandCaptionVoice(params)
     uid: gramstax!Ctx#sessionCommandCaptionVoice:member(1)
     package: gramstax!
-    fullName: sessionCommandCaptionVoice(params, name)
+    fullName: sessionCommandCaptionVoice(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6237,21 +5869,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCommandCaptionVoice(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCommandCaptionVoice(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionCommandText(params, name)
+  - name: sessionCommandText(params)
     uid: gramstax!Ctx#sessionCommandText:member(1)
     package: gramstax!
-    fullName: sessionCommandText(params, name)
+    fullName: sessionCommandText(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6260,21 +5889,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionCommandText(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionCommandText(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionFreeAnimation(params, name)
+  - name: sessionFreeAnimation(params)
     uid: gramstax!Ctx#sessionFreeAnimation:member(1)
     package: gramstax!
-    fullName: sessionFreeAnimation(params, name)
+    fullName: sessionFreeAnimation(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6283,21 +5909,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionFreeAnimation(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionFreeAnimation(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionFreeAudio(params, name)
+  - name: sessionFreeAudio(params)
     uid: gramstax!Ctx#sessionFreeAudio:member(1)
     package: gramstax!
-    fullName: sessionFreeAudio(params, name)
+    fullName: sessionFreeAudio(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6306,21 +5929,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionFreeAudio(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionFreeAudio(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionFreeContact(params, name)
+  - name: sessionFreeContact(params)
     uid: gramstax!Ctx#sessionFreeContact:member(1)
     package: gramstax!
-    fullName: sessionFreeContact(params, name)
+    fullName: sessionFreeContact(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6329,21 +5949,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionFreeContact(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionFreeContact(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionFreeDocument(params, name)
+  - name: sessionFreeDocument(params)
     uid: gramstax!Ctx#sessionFreeDocument:member(1)
     package: gramstax!
-    fullName: sessionFreeDocument(params, name)
+    fullName: sessionFreeDocument(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6352,21 +5969,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionFreeDocument(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionFreeDocument(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionFreeLocation(params, name)
+  - name: sessionFreeLocation(params)
     uid: gramstax!Ctx#sessionFreeLocation:member(1)
     package: gramstax!
-    fullName: sessionFreeLocation(params, name)
+    fullName: sessionFreeLocation(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6375,21 +5989,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionFreeLocation(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionFreeLocation(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionFreePhoto(params, name)
+  - name: sessionFreePhoto(params)
     uid: gramstax!Ctx#sessionFreePhoto:member(1)
     package: gramstax!
-    fullName: sessionFreePhoto(params, name)
+    fullName: sessionFreePhoto(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6398,21 +6009,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionFreePhoto(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionFreePhoto(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionFreeSticker(params, name)
+  - name: sessionFreeSticker(params)
     uid: gramstax!Ctx#sessionFreeSticker:member(1)
     package: gramstax!
-    fullName: sessionFreeSticker(params, name)
+    fullName: sessionFreeSticker(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6421,21 +6029,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionFreeSticker(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionFreeSticker(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionFreeText(params, name)
+  - name: sessionFreeText(params)
     uid: gramstax!Ctx#sessionFreeText:member(1)
     package: gramstax!
-    fullName: sessionFreeText(params, name)
+    fullName: sessionFreeText(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6444,21 +6049,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionFreeText(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionFreeText(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionFreeVideo(params, name)
+  - name: sessionFreeVideo(params)
     uid: gramstax!Ctx#sessionFreeVideo:member(1)
     package: gramstax!
-    fullName: sessionFreeVideo(params, name)
+    fullName: sessionFreeVideo(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6467,21 +6069,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionFreeVideo(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionFreeVideo(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionFreeVideoNote(params, name)
+  - name: sessionFreeVideoNote(params)
     uid: gramstax!Ctx#sessionFreeVideoNote:member(1)
     package: gramstax!
-    fullName: sessionFreeVideoNote(params, name)
+    fullName: sessionFreeVideoNote(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6490,21 +6089,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionFreeVideoNote(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionFreeVideoNote(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionFreeVoice(params, name)
+  - name: sessionFreeVoice(params)
     uid: gramstax!Ctx#sessionFreeVoice:member(1)
     package: gramstax!
-    fullName: sessionFreeVoice(params, name)
+    fullName: sessionFreeVoice(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6513,21 +6109,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionFreeVoice(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionFreeVoice(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: sessionText(params, name)
+  - name: sessionText(params)
     uid: gramstax!Ctx#sessionText:member(1)
     package: gramstax!
-    fullName: sessionText(params, name)
+    fullName: sessionText(params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -6536,14 +6129,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'sessionText(params?: any, name?: string): Promise<boolean | null>;'
+      content: 'sessionText(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''
           type: any
-        - id: name
-          description: ''
-          type: string
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''

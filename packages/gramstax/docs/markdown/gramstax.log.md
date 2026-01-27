@@ -18,10 +18,25 @@ log: LoggingUtil
 ```typescript
 import { log } from "gramstax";
 
+// Basic logging
 log.info("Application started");
 log.debug("Debug message");
 log.warn("Warning message");
 log.error("Error message");
 log.success("Success message");
+
+// Timing measurements
+log.time("request", "Processing user request");
+log.timeEnd("request", "Request completed");
+// Output: (245ms) request: Request completed
+
+// Multiple checkpoints
+log.time("pipeline", "Starting data pipeline");
+log.timeLog("pipeline", "Step 1 complete");
+// Output: (150ms) pipeline: Step 1 complete
+log.timeLog("pipeline", "Step 2 complete");
+// Output: (350ms) pipeline: Step 2 complete
+log.timeEnd("pipeline", "All steps complete");
+// Output: (500ms) pipeline: All steps complete
 ```
 

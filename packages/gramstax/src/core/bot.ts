@@ -983,9 +983,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         return
       }
 
-      this.log?.time(`call _pageRoutes:${listenerName}`)
+      this.log?.time(`call page routes from listener ${listenerName}`)
       const routeResult = await this._pageRoutes(ctx, listenerName)
-      this.log?.timeEnd(`call _pageRoutes:${listenerName}`)
+      this.log?.timeEnd(`call page routes from listener ${listenerName}`)
       if (routeResult === null) {
         await this.hookErrorInputNotFoundPage(ctx)
       }
@@ -1009,9 +1009,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       // Check all route
-      this.log?.time(`call _pageRoutes:callbackdata`)
+      this.log?.time(`call page routes from listener callbackData`)
       await this._pageRoutes(ctx, `callbackdata`)
-      this.log?.timeEnd(`call _pageRoutes:callbackdata`)
+      this.log?.timeEnd(`call page routes from listener callbackData`)
     } catch (error) {
       await this.hookErrorPage(ctx, `onCallbackQueryData`, error, true)
     }

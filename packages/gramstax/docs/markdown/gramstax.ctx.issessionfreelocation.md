@@ -9,61 +9,8 @@ Session validation methods.
 **Signature:**
 
 ```typescript
-isSessionFreeLocation(method?: string, name?: string): boolean;
+isSessionFreeLocation(): boolean;
 ```
-
-## Parameters
-
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-method
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
-
-name
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-</tbody></table>
-
 **Returns:**
 
 boolean
