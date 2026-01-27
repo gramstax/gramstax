@@ -17,7 +17,6 @@ export class GeneralStatusPage extends PageBase {
   async toError(funcName: string, error: any, edit = true) {
     log.errorMake(error, this.constructorName, funcName)
 
-    console.log(error)
     await this.clearSession()
     const kb = this.kb()
     const data = {isNotFound: false}

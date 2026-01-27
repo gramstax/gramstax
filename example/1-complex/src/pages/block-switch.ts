@@ -5,7 +5,7 @@ export class BlockSwitchPage extends PageBase {
   static data = this.buildData((status?: string) => [status])
 
   async show(status: string) {
-    const kb = this.inlineKeyboardT([this.data.callbackdata(status === `1` ? `0` : `1`), StartPage], `1`, null, {status})
+    const kb = this.inlineKeyboardT([this.data.callbackData(status === `1` ? `0` : `1`), StartPage], `1`, null, {status})
     await this.edit(kb, {status})
   }
 

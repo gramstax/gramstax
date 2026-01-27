@@ -12,7 +12,7 @@ export class ItemDetailPage extends PageBase {
 
     const item = CatalogMock.getItemById(categoryId, itemId)
     const page = Number((await this.cacheState.get(`${this.userId}:page`)) || 0)
-    const kb = this.inlineKeyboardT([ItemListPage.data.callbackdata(`page`, `${page}`)])
+    const kb = this.inlineKeyboardT([ItemListPage.data.callbackData(`page`, `${page}`)])
     const da = {
       name: item?.name,
       description: item?.description

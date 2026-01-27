@@ -167,11 +167,11 @@ export class BroadcastPage extends PageBase {
   }
 
   private promptKeyboard() {
-    return this.inlineKeyboardT([this.data.callbackdata(`cancel`), StartPage], `2`, BroadcastPage.BASE.prompt)
+    return this.inlineKeyboardT([this.data.callbackData(`cancel`), StartPage], `2`, BroadcastPage.BASE.prompt)
   }
 
   private confirmKeyboard() {
-    return this.inlineKeyboardT([this.data.callbackdata(`send`), this.data.callbackdata(`edit`), this.data.callbackdata(`cancel`), StartPage], `2-2`, BroadcastPage.BASE.confirm)
+    return this.inlineKeyboardT([this.data.callbackData(`send`), this.data.callbackData(`edit`), this.data.callbackData(`cancel`), StartPage], `2-2`, BroadcastPage.BASE.confirm)
   }
 
   private getSessionParams() {

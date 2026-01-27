@@ -1896,7 +1896,6 @@ export class Ctx {
       intentCallbackData: name,
       callbackData: cbd
         ? function (this: {intentCallbackData: string}, ...args: any[]): string {
-            console.log({cbd})
             return addPld(this.intentCallbackData, `colon`, cbd(...args))
           }
         : function (this: {intentCallbackData: string}): string {
@@ -2058,7 +2057,7 @@ export class Ctx {
    *
    * @public
    */
-  inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => any, params?: ITInlineKbParams): ITInlineKb {
+  inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:i`
@@ -2102,7 +2101,7 @@ export class Ctx {
    *
    * @public
    */
-  bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => any, params?: ITBottomKbParams): ITBottomKb {
+  bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:b`

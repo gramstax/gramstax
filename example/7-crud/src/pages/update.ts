@@ -74,18 +74,18 @@ export class UpdatePage extends PageBase {
     return this.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
-          k.text(`📝 #${item.id} ${item.title.slice(0, 5)}..`, this.data.callbackdata(`select`, item.id))
+          k.text(`📝 #${item.id} ${item.title.slice(0, 5)}..`, this.data.callbackData(`select`, item.id))
           if (index % 2 === 1) k.row()
         })
 
         k.row()
         if (safePage > 0) {
-          k.text(l[0]!, this.data.callbackdata(`page`, `${safePage - 1}`))
+          k.text(l[0]!, this.data.callbackData(`page`, `${safePage - 1}`))
         }
         if (safePage < totalPages - 1) {
-          k.text(l[1]!, this.data.callbackdata(`page`, `${safePage + 1}`))
+          k.text(l[1]!, this.data.callbackData(`page`, `${safePage + 1}`))
         }
-        return k.row().text(l[2]!, StartPage.data.callbackdata())
+        return k.row().text(l[2]!, StartPage.data.callbackData())
       },
       {baseId: UpdatePage.BASE.select}
     )
@@ -94,9 +94,9 @@ export class UpdatePage extends PageBase {
   buildStatusKeyboard(id: string) {
     return this.inlineKeyboardT(
       [
-        this.data.callbackdata(`status`, id, `todo`), //
-        this.data.callbackdata(`status`, id, `in-progress`),
-        this.data.callbackdata(`status`, id, `done`),
+        this.data.callbackData(`status`, id, `todo`), //
+        this.data.callbackData(`status`, id, `in-progress`),
+        this.data.callbackData(`status`, id, `done`),
         StartPage
       ],
       `3-1`,

@@ -386,10 +386,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const pd = pages.routeDynamic
     const pds = pages.routeDynamicSpesific
 
-    const upFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
-    const getPureRouteName = (func: string) => func.replace(partHandle, ``).replace(partArgs, ``).replace(partCommand, ``).replace(partCaption, ``).replace(partFree, ``).toLowerCase()
-    const methodSession = (func: string, name: any) => (proto as any as Record<any, (...args: any) => string>)[`methodSession${upFirst(func)}`]?.(name)
-
     // all
     pages.all[name] = Page
 
@@ -436,12 +432,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
       // staticSession
       if (pss !== undefined) {
-        pss[methodSession(routeName, name)!] = value
+        const hidePartReplace = routeName.replace(`handle`, ``)
+        const methodName = `methodSession${hidePartReplace}`
+        const methodKey = (proto as any as Record<any, (...args: any) => string>)[methodName]?.(name)
+        pss[methodKey!] = value
       }
 
       // dynamicSpesific
       if (routeName.startsWith(`handleFree`)) {
-        pds[getPureRouteName(routeName) as keyof typeof pds].push(value)
+        const pureName = routeName.replace(partHandle, ``).replace(partArgs, ``).replace(partCommand, ``).replace(partCaption, ``).replace(partFree, ``).toLowerCase()
+        pds[pureName as keyof typeof pds].push(value)
       }
     }
 
@@ -604,7 +604,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     const pages = {
       all: {} as Record<string, typeof Ctx>, // [page.data.name]: Classes Page
-      routeDynamic: [] as string[], // [Page]{ free: (...) => ... }
+      routeDynamic: [] as string[], // [Page]{ handleFree: (...) => ... }
       // <method>: Array<{name: Page.data.name, routeName:routeFunctionName}>
       routeDynamicSpesific: {
         text: initDynamicSpesific(),
@@ -679,7 +679,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  async _pageRoutes(ctx: ICtx, fromListener: `callbackData` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any> {
+  async _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: {name: string; routeName: string} | undefined
@@ -702,7 +702,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const mt = ctx.msgText
         const mc = ctx.msgCaption
         const entity = cd || mt || mc
-        const isCallback = fromListener === `callbackData`
+        const isCallback = fromListener === `callbackdata`
         const separatorMethod = isCallback ? `colon` : `space`
         const intent = entity && ctx.haveArgs(entity, separatorMethod) ? ctx.getIntent(entity, separatorMethod, 1) : undefined
         const intent2 = !isCallback && entity ? ctx.getIntent(entity, `space`, 2) : undefined
@@ -748,7 +748,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const mc = ctx.msgCaption
       const pStatic = this.pages.routeStatic
 
-      // console.log(pStatic)
       for (let index = 0; index < this.pages.lenListRouteStatic; index++) {
         const routeName = this.pages.listRouteStatic[index] as `handleCaptionAnimation`
         if (routeName.toLowerCase().endsWith(fromListener)) {
@@ -773,7 +772,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      */
     if (Page === undefined) {
       const pStaticIntent = this.pages.routeStaticIntent
-      const isCallback = fromListener === `callbackData`
+      const isCallback = fromListener === `callbackdata`
       const seperatorMethod = isCallback ? `colon` : `space`
       const data = isCallback ? ctx.callbackData : ctx.msgText || ctx.msgCaption
       const haveArgs = ctx.haveArgs(data, seperatorMethod)
@@ -819,7 +818,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * type = dynamicSpesific
      * algoritme = O(n)
      * example = handleFreeAnimtion, handleFreeText
-     * description = route with suffix free, can be call without session. example "handleFreeText", "handleFreeAnimation"
+     * description = route with prefix "handleFree*", can be call without session. example "handleFreeText", "handleFreeAnimation"
      *               if have that route in class page you must be add validate session in first line (if use session before)
      *               example: if (!this.isSessionFreeText()) { return null }
      */
@@ -846,7 +845,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * id = 5
      * type = dynamic
      * algoritme = O(n)
-     * example = free
+     * example = handleFree
      * description = route with name "handleFree", if all case before not match
      */
     for (let index = 0; index < this.pages.routeDynamic.length; index++) {
@@ -977,7 +976,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         return
       }
 
+      console.time(`_onMessage:${listenerName}`)
       const routeResult = await this._pageRoutes(ctx, listenerName)
+      console.timeEnd(`_onMessage:${listenerName}`)
       if (routeResult === null) {
         await this.hookErrorInputNotFoundPage(ctx)
       }
@@ -1001,7 +1002,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       // Check all route
-      await this._pageRoutes(ctx, `callbackData`)
+      console.time(`_onCallbackQueryData`)
+      await this._pageRoutes(ctx, `callbackdata`)
+      console.timeEnd(`_onCallbackQueryData`)
     } catch (error) {
       await this.hookErrorPage(ctx, `onCallbackQueryData`, error, true)
     }

@@ -49,12 +49,12 @@ export class ListPage extends PageBase {
     return this.inlineKeyboard(
       (k, l) => {
         if (safePage > 0) {
-          k.text(l[0]!, this.data.callbackdata(`page`, `${safePage - 1}`))
+          k.text(l[0]!, this.data.callbackData(`page`, `${safePage - 1}`))
         }
         if (safePage < totalPages - 1) {
-          k.text(l[1]!, this.data.callbackdata(`page`, `${safePage + 1}`))
+          k.text(l[1]!, this.data.callbackData(`page`, `${safePage + 1}`))
         }
-        return k.row().text(l[2]!, StartPage.data.callbackdata())
+        return k.row().text(l[2]!, StartPage.data.callbackData())
       },
       {baseId: ListPage.BASE.list}
     )

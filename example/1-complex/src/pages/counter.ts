@@ -5,7 +5,7 @@ export class CounterPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
   kb() {
-    return this.inlineKeyboardT([this.data.callbackdata(`I`), this.data.callbackdata(`D`), StartPage], `2`)
+    return this.inlineKeyboardT([this.data.callbackData(`I`), this.data.callbackData(`D`), StartPage], `2`)
   }
 
   async handleCallbackData() {

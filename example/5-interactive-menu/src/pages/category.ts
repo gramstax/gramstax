@@ -14,10 +14,10 @@ export class CategoryPage extends PageBase {
   kb() {
     return this.inlineKeyboard((k, l) => {
       CatalogMock.list.forEach((category, index) => {
-        k.text(category.name, this.data.callbackdata(`category`, category.id))
+        k.text(category.name, this.data.callbackData(`category`, category.id))
         if (index % 2 === 1) k.row()
       })
-      return k.row().text(l[0]!, StartPage.data.callbackdata())
+      return k.row().text(l[0]!, StartPage.data.callbackData())
     })
   }
 

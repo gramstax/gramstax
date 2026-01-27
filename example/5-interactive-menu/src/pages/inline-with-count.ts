@@ -28,7 +28,7 @@ export class InlineWithCountPage extends PageBase {
       if (safePage < totalPages - 1) {
         k.text(l[1]!, cb(`page`, safePage + 1))
       }
-      return k.row().text(l[3]!, StartPage.data.callbackdata())
+      return k.row().text(l[3]!, StartPage.data.callbackData())
     })
   }
 

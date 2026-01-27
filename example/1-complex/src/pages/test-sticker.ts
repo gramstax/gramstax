@@ -3,7 +3,7 @@ import {StartPage} from "./start"
 
 export class TestStickerPage extends PageBase {
   async handleCallbackData() {
-    const kb = this.inlineKeyboardT([StartPage.data.callbackdata(`3`)])
+    const kb = this.inlineKeyboardT([StartPage.data.callbackData(`3`)])
     await this.editSticker(kb)
   }
 

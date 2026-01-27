@@ -6,7 +6,7 @@ export class CounterThreadPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
   async handleCallbackData() {
-    const kb = this.inlineKeyboardT([this.data.callbackdata(`1`), StartPage])
+    const kb = this.inlineKeyboardT([this.data.callbackData(`1`), StartPage])
     const count = await IncrementJob.mtdGetCount()
     await this.edit(kb, {count, timestamp: new Date().getTime()})
   }
