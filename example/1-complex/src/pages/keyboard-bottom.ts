@@ -3,8 +3,8 @@ import {StartPage} from "./start"
 
 export class KeyboardBottomPage extends PageBase {
   static data = this.buildData({
-    intentText: `📚 KBBottom:`, // <===== overrides trigger route function "text" because need emoticon + space, only support 1 space.
-    intentTextCommand: `keyboard_bottom` // <===== overrides trigger route function "textCommand" because file name user "-" that not support command in telegram
+    intentText: `📚 KBBottom:`, // <===== overrides trigger for function "handleText" and "handleArgsText" because need emoticon + space, only support 1 space.
+    intentCommandText: `keyboard_bottom` // <===== overrides trigger for function "handleCommandText" and "handleCommandArgsText*" because file name user "-" that not support command in telegram
   })
 
   async show(count?: number, baseId?: string) {
@@ -19,24 +19,24 @@ export class KeyboardBottomPage extends PageBase {
     await this.reply(kb, {}, baseId)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.show()
   }
 
-  async text() {
+  async handleText() {
     await this.show()
   }
 
-  async textPayload() {
-    await this.show(parseInt(this.msgTextPayload))
+  async handleArgsText() {
+    await this.show(parseInt(this.msgTextArg))
   }
 
-  async textCommand() {
+  async handleCommandText() {
     await this.show()
   }
 
-  async textCommandPayload() {
-    const pl = this.msgTextCommandPayload
+  async handleCommandArgsText() {
+    const pl = this.msgTextCommandArg
     const kb = this.inlineKeyboardT([StartPage])
     if (pl == `reset`) await this.show(kb, pl)
     if (pl == `delete`) await this.reply(kb, {}, pl, {reply_markup: {remove_keyboard: true}})

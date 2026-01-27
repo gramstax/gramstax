@@ -26,41 +26,41 @@ export class StartPage extends PageBase {
   static BASE = {kbForImport: `kb-for-block-import`, forImport: `for-block-import`}
 
   kb() {
+    console.log(14, CounterPage.data.callbackdata())
     return this.inlineKeyboard(
       (k, l) => {
-        return k //
-          .text(l[0]!, CounterPage.data.callback())
-          .text(l[1]!, CounterThreadPage.data.callback())
+        k.text(l[0]!, CounterPage.data.callbackdata()) //
+          .text(l[1]!, CounterThreadPage.data.callbackdata())
           .row()
-          .text(l[2]!, HelpPage.data.callback())
-          .text(l[3]!, LanguagePage.data.callback())
+          .text(l[2]!, HelpPage.data.callbackdata())
+          .text(l[3]!, LanguagePage.data.callbackdata())
           .row()
-          .text(l[4]!, TestPhotoPage.data.callback())
-          .text(l[5]!, TestVideoPage.data.callback())
+          .text(l[4]!, TestPhotoPage.data.callbackdata())
+          .text(l[5]!, TestVideoPage.data.callbackdata())
           .row()
-          .text(l[6]!, TestAudioPage.data.callback())
-          .text(l[7]!, TestDocumentPage.data.callback())
+          .text(l[6]!, TestAudioPage.data.callbackdata())
+          .text(l[7]!, TestDocumentPage.data.callbackdata())
           .row()
-          .text(l[8]!, TestAnimationPage.data.callback())
-          .text(l[9]!, TestVoicePage.data.callback())
+          .text(l[8]!, TestAnimationPage.data.callbackdata())
+          .text(l[9]!, TestVoicePage.data.callbackdata())
           .row()
-          .text(l[10]!, TestVideoNotePage.data.callback())
-          .text(l[11]!, TestStickerPage.data.callback())
+          .text(l[10]!, TestVideoNotePage.data.callbackdata())
+          .text(l[11]!, TestStickerPage.data.callbackdata())
           .row()
-          .text(l[12]!, TestLocationPage.data.callback())
-          .text(l[13]!, TestContactPage.data.callback())
+          .text(l[12]!, TestLocationPage.data.callbackdata())
+          .text(l[13]!, TestContactPage.data.callbackdata())
           .row()
-          .text(l[14]!, TestErrorPage.data.callback())
-          .text(l[15]!, InputText2Page.data.callback())
+          .text(l[14]!, TestErrorPage.data.callbackdata())
+          .text(l[15]!, InputText2Page.data.callbackdata())
           .row()
-          .text(l[16]!, InputTextPage.data.callback())
-          .text(l[17]!, BlockMapPage.data.callback())
+          .text(l[16]!, InputTextPage.data.callbackdata())
+          .text(l[17]!, BlockMapPage.data.callbackdata())
           .row()
-          .text(l[18]!, BlockImportPage.data.callback())
-          .text(l[19]!, BlockSwitchPage.data.callback())
+          .text(l[18]!, BlockImportPage.data.callbackdata())
+          .text(l[19]!, BlockSwitchPage.data.callbackdata())
           .row()
-          .text(l[20]!, KeyboardBottomPage.data.callback())
-          .text(l[21]!, this.data.callback())
+          .text(l[20]!, KeyboardBottomPage.data.callbackdata())
+          .text(l[21]!, this.data.callbackdata())
       },
       {cache: true}
     )
@@ -73,7 +73,7 @@ export class StartPage extends PageBase {
       time: new Date().toString()
     }
 
-    await this.sessionClear()
+    await this.clearSession()
     if (condition == 1) {
       await this.reply(kb, da)
     } else if (condition == 2) {
@@ -88,27 +88,27 @@ export class StartPage extends PageBase {
     await this.show(1)
   }
 
-  async text() {
+  async handleText() {
     await this.show(1)
   }
 
-  async textPayload() {
+  async handleArgsText() {
     await this.show(1)
   }
 
-  async textCommand() {
+  async handleCommandText() {
     await this.show(1)
   }
 
-  async textCommandPayload() {
+  async handleCommandArgsText() {
     await this.show(1)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.show(2)
   }
 
-  async callbackPayload() {
+  async handleArgsCallbackData() {
     await this.show(3)
   }
 

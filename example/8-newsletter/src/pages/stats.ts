@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class StatsPage extends PageBase {
-  async callback() {
+  async handleCallbackData() {
     const count = await this.db.countSubscribers()
     const subscribed = await this.db.isSubscribed(this.userId)
 

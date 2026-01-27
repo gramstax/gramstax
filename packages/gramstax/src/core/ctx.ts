@@ -49,7 +49,7 @@ import type {
  * import {Menu2Page} from "./menu2"
  *
  * class StartPage extends Ctx {
- *   async callback() {
+ *   async handleCallbackData() {
  *     const kb = this.inlineKeyboardT([Menu1Page, Menu2Page])
  *     await this.reply(kb)
  *   }
@@ -70,7 +70,7 @@ import type {
  * import {Menu2Page} from "./menu2"
  *
  * class StartPage extends Ctx {
- *   async callback() {
+ *   async handleCallbackData() {
  *     const kb = this.inlineKeyboardT([Menu1Page, Menu2Page], "2", "special-kb")
  *     await this.reply()
  *   }
@@ -146,20 +146,20 @@ export class Ctx {
    * Page routing data created by `Ctx.buildData`.
    *
    * @remarks
-   * Only define when you want to override the intent and have a callback payload.
+   * Only define when you want to override the intent and have a callback arg.
    * If nothing is needed, let the system handle it automatically.
    *
    * @example
    * ```typescript
    * class MyPage extends Ctx {
-   *   // For callback payload route only
+   *   // For callback arg route only
    *   static data = this.buildData((confirm?: string) => [confirm])
    *
-   *   // For callback payload route and text/textCommand trigger
+   *   // For callback arg route and text/textCommand trigger
    *   static data = this.buildData({
-   *     callback: (confirm?: string) => [confirm],
+   *     callbackData: (confirm?: string) => [confirm],
    *     intentText: `my_page`,
-   *     intentTextCommand: `hello`
+   *     intentCommandText: `hello`
    *   })
    * }
    * ```
@@ -173,13 +173,13 @@ export class Ctx {
    *
    * @remarks
    * This property mirrors the static `data` property but is accessible via `this.data`
-   * within instance methods. Use `this.data.callback()` internally.
+   * within instance methods. Use `this.data.callbackDataData()` internally.
    *
    * @example
    * ```typescript
-   * async callback() {
-   *   const callbackData = this.data.callback("payload1")
-   *   console.log(callbackData) // "page_name:payload1"
+   * async handleCallbackData() {
+   *   const callbackData = this.data.callbackData("argument_1", "args2")
+   *   console.log(callbackData) // "page_name:argument_1:args2"
    * }
    * ```
    *
@@ -196,7 +196,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   if (this.userIsPremium) {
    *     await this.reply(undefined, {tier: "Premium"})
    *   }
@@ -218,7 +218,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   if (this.userIsBot) {
    *     return // Ignore bot messages
    *   }
@@ -237,7 +237,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   console.log(this.userId) // 12345678
    * }
    * ```
@@ -257,7 +257,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   console.log(this.userName) // "gramstax_user"
    * }
    * ```
@@ -274,7 +274,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   console.log(this.userFullName) // "Alya Putri"
    * }
    * ```
@@ -291,7 +291,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   console.log(this.userFirstName) // "Alya"
    * }
    * ```
@@ -311,7 +311,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   console.log(this.userLastName) // "Putri"
    * }
    * ```
@@ -332,7 +332,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   console.log(this.userLanguage) // "en"
    *   this.userLanguage = "id" // Override to Indonesian
    * }
@@ -365,7 +365,7 @@ export class Ctx {
   }
 
   /**
-   * All payload tokens parsed from message text.
+   * All arg tokens parsed from message text.
    *
    * @remarks
    * Splits the message text by space separator starting from the configured position.
@@ -373,38 +373,38 @@ export class Ctx {
    * @example
    * ```typescript
    * // Message: "start 123 456"
-   * async textPayload() {
-   *   console.log(this.msgTextPayloads) // ["123", "456"]
+   * async handleArgsText() {
+   *   console.log(this.msgTextArgs) // ["123", "456"]
    * }
    * ```
    *
    * @readonly
    * @public
    */
-  get msgTextPayloads() {
-    return this.getPayloads(this.msgText, `space`, this.data?._positionPayloadText || this.temp?.data?._positionPayloadText)
+  get msgTextArgs() {
+    return this.getArgs(this.msgText, `space`, this.data?._positionArgText || this.temp?.data?._positionArgText)
   }
 
   /**
-   * The first payload token parsed from message text.
+   * The first arg token parsed from message text.
    *
    * @example
    * ```typescript
    * // Message: "start 123 456"
-   * async textPayload() {
-   *   console.log(this.msgTextPayload) // "123"
+   * async handleArgsText() {
+   *   console.log(this.msgTextArg) // "123"
    * }
    * ```
    *
    * @readonly
    * @public
    */
-  get msgTextPayload() {
-    return this.msgTextPayloads[0] as string
+  get msgTextArg() {
+    return this.msgTextArgs[0] as string
   }
 
   /**
-   * All payload tokens from a command message.
+   * All arg tokens from a command message.
    *
    * @remarks
    * Splits the message text by space separator starting from position 1.
@@ -412,20 +412,20 @@ export class Ctx {
    * @example
    * ```typescript
    * // Message: "/start 123 456"
-   * async textCommandPayload() {
-   *   console.log(this.msgTextCommandPayloads) // ["123", "456"]
+   * async handleCommandArgsText() {
+   *   console.log(this.msgTextCommandArgs) // ["123", "456"]
    * }
    * ```
    *
    * @readonly
    * @public
    */
-  get msgTextCommandPayloads() {
-    return this.getPayloads(this.msgText, `space`)
+  get msgTextCommandArgs() {
+    return this.getArgs(this.msgText, `space`)
   }
 
   /**
-   * The first payload token from a command message.
+   * The first arg token from a command message.
    *
    * @example
    * ```typescript
@@ -438,8 +438,8 @@ export class Ctx {
    * @readonly
    * @public
    */
-  get msgTextCommandPayload() {
-    return this.msgTextCommandPayloads[0] as string
+  get msgTextCommandArg() {
+    return this.msgTextCommandArgs[0] as string
   }
 
   /**
@@ -460,25 +460,25 @@ export class Ctx {
   }
 
   /**
-   * All payload tokens parsed from caption text.
+   * All arg tokens parsed from caption text.
    *
    * @example
    * ```typescript
    * // Caption: "start 123 456"
-   * async photoCaptionPayload() {
-   *   console.log(this.msgCaptionPayloads) // ["123", "456"]
+   * async handleCaptionArgsPhoto() {
+   *   console.log(this.msgCaptionArgs) // ["123", "456"]
    * }
    * ```
    *
    * @readonly
    * @public
    */
-  get msgCaptionPayloads() {
-    return this.getPayloads(this.msgCaption, `space`)
+  get msgCaptionArgs() {
+    return this.getArgs(this.msgCaption, `space`)
   }
 
   /**
-   * The first payload token from caption text.
+   * The first arg token from caption text.
    *
    * @example
    * ```typescript
@@ -491,30 +491,30 @@ export class Ctx {
    * @readonly
    * @public
    */
-  get msgCaptionPayload() {
-    return this.msgCaptionPayloads[0] as string
+  get msgCaptionArg() {
+    return this.msgCaptionArgs[0] as string
   }
 
   /**
-   * All payload tokens from a caption command.
+   * All arg tokens from a caption command.
    *
    * @example
    * ```typescript
    * // Caption: "/photo 123 456"
-   * async photoCaptionCommandPayload() {
-   *   console.log(this.msgCaptionCommandPayloads) // ["123", "456"]
+   * async handleCommandCaptionArgsPhoto() {
+   *   console.log(this.msgCaptionCommandArgs) // ["123", "456"]
    * }
    * ```
    *
    * @readonly
    * @public
    */
-  get msgCaptionCommandPayloads() {
-    return this.getPayloads(this.msgCaption, `space`)
+  get msgCaptionCommandArgs() {
+    return this.getArgs(this.msgCaption, `space`)
   }
 
   /**
-   * The first payload token from a caption command.
+   * The first arg token from a caption command.
    *
    * @example
    * ```typescript
@@ -527,8 +527,8 @@ export class Ctx {
    * @readonly
    * @public
    */
-  get msgCaptionCommandPayload() {
-    return this.msgCaptionCommandPayloads[0] as string
+  get msgCaptionCommandArg() {
+    return this.msgCaptionCommandArgs[0] as string
   }
 
   /**
@@ -550,7 +550,7 @@ export class Ctx {
   }
 
   /**
-   * Video payload attached to the message.
+   * Video arg attached to the message.
    *
    * @example
    * ```typescript
@@ -568,7 +568,7 @@ export class Ctx {
   }
 
   /**
-   * Audio payload attached to the message.
+   * Audio arg attached to the message.
    *
    * @example
    * ```typescript
@@ -586,7 +586,7 @@ export class Ctx {
   }
 
   /**
-   * Document payload attached to the message.
+   * Document arg attached to the message.
    *
    * @example
    * ```typescript
@@ -604,7 +604,7 @@ export class Ctx {
   }
 
   /**
-   * Animation/GIF payload attached to the message.
+   * Animation/GIF arg attached to the message.
    *
    * @example
    * ```typescript
@@ -622,7 +622,7 @@ export class Ctx {
   }
 
   /**
-   * Voice message payload attached to the message.
+   * Voice message arg attached to the message.
    *
    * @example
    * ```typescript
@@ -658,7 +658,7 @@ export class Ctx {
   }
 
   /**
-   * Sticker payload attached to the message.
+   * Sticker arg attached to the message.
    *
    * @example
    * ```typescript
@@ -676,7 +676,7 @@ export class Ctx {
   }
 
   /**
-   * Location payload attached to the message.
+   * Location arg attached to the message.
    *
    * @example
    * ```typescript
@@ -694,7 +694,7 @@ export class Ctx {
   }
 
   /**
-   * Contact payload attached to the message.
+   * Contact arg attached to the message.
    *
    * @example
    * ```typescript
@@ -730,7 +730,7 @@ export class Ctx {
   }
 
   /**
-   * Gift payload attached to the message.
+   * Gift arg attached to the message.
    *
    * @example
    * ```typescript
@@ -752,7 +752,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callbackPayload() {
+   * async handleArgsCallbackData() {
    *   console.log(this.callbackData) // "menu:settings:ok"
    * }
    * ```
@@ -765,7 +765,7 @@ export class Ctx {
   }
 
   /**
-   * All payload tokens parsed from callback data.
+   * All arg tokens parsed from callback data.
    *
    * @remarks
    * Splits the callback data by colon separator.
@@ -773,44 +773,46 @@ export class Ctx {
    * @example
    * ```typescript
    * // Callback: "menu:settings:ok"
-   * async callbackPayload() {
-   *   console.log(this.callbackDataPayloads) // ["settings", "ok"]
+   * async handleArgsCallback() {
+   *   console.log(this.callbackDataArgs) // ["settings", "ok"]
    * }
    * ```
    *
    * @readonly
    * @public
    */
-  get callbackDataPayloads() {
-    return this.getPayloads(this.callbackData, `colon`)
+  get callbackDataArgs() {
+    return this.getArgs(this.callbackData, `colon`)
   }
 
   /**
-   * The first payload token parsed from callback data.
+   * The first arg token parsed from callback data.
    *
    * @example
    * ```typescript
    * // Data: "menu:settings:ok"
-   * async callbackPayload() {
-   *   console.log(this.callbackDataPayload) // "settings"
+   * async handleArgsCallback() {
+   *   console.log(this.callbackDataArg) // "settings"
    * }
    * ```
    *
    * @readonly
    * @public
    */
-  get callbackDataPayload() {
-    return this.callbackDataPayloads?.[0] as string
+  get callbackDataArg() {
+    return this.callbackDataArgs?.[0] as string
   }
 
   /**
-   * Gets and setter the current session data.
+   * Temporary gets and setter the current session data.
+   * @remarks IMPORTANT: this is same as `this.temp.session` if you need set session use session*() or setSession() not from this !
    *
    * @example
    * ```typescript
-   * async textFree() {
-   *   const session = this.session
-   *   console.log(session) // {method: "...", params: ...}
+   * async handleFreeText() {
+   *   // both is same
+   *   console.log(this.temp.session) // {method: "1-start", params: {random: "1234nhsu37"}}
+   *   console.log(this.temp.session) // {method: "1-start", params: {random: "1234nhsu37"}}
    * }
    * ```
    *
@@ -894,7 +896,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   const userIds = [123456, 789012]
    *   const langs = ["en", "id"]
    *   await this.broadcast(userIds, langs)
@@ -932,7 +934,7 @@ export class Ctx {
    * Sends a media message to multiple users in bulk.
    *
    * @remarks
-   * Media type and payload are inferred from the template `<media>` block.
+   * Media type and arg are inferred from the template `<media>` block.
    * Automatically throttles after 30 messages to respect Telegram rate limits.
    * Uses each user's specified language code for template rendering.
    *
@@ -946,7 +948,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   const userIds = [123456, 789012]
    *   const langs = ["en", "id"]
    *   await this.broadcastMedia(userIds, langs)
@@ -1009,7 +1011,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   // Automatic reply with content from this.template
    *   await this.reply()
    *
@@ -1052,7 +1054,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   await this.replyMedia("photo")
    * }
    * ```
@@ -1113,7 +1115,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   await this.replyPhoto()
    * }
    * ```
@@ -1135,7 +1137,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   await this.replyVideo()
    * }
    * ```
@@ -1157,7 +1159,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   await this.replyAudio()
    * }
    * ```
@@ -1179,7 +1181,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   await this.replyDocument()
    * }
    * ```
@@ -1201,7 +1203,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   await this.replyAnimation()
    * }
    * ```
@@ -1223,7 +1225,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   await this.replyVoice()
    * }
    * ```
@@ -1245,7 +1247,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   await this.replyVideoNote()
    * }
    * ```
@@ -1267,7 +1269,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   await this.replySticker()
    * }
    * ```
@@ -1289,7 +1291,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   await this.replyLocation()
    * }
    * ```
@@ -1311,7 +1313,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   await this.replyContact()
    * }
    * ```
@@ -1330,7 +1332,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   await this.replyAction("typing")
    *   // Do some work...
    *   await this.reply()
@@ -1359,7 +1361,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callbackPayload() {
+   * async handleArgsCallback() {
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
    *   await this.edit(kb, {status: "updated"})
    * }
@@ -1404,7 +1406,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callbackPayload() {
+   * async handleArgsCallback() {
    *   await this.editMedia("photo")
    * }
    * ```
@@ -1486,7 +1488,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callbackPayload() {
+   * async handleArgsCallback() {
    *   await this.editPhoto()
    * }
    * ```
@@ -1509,7 +1511,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callbackPayload() {
+   * async handleArgsCallback() {
    *   await this.editVideo()
    * }
    * ```
@@ -1532,7 +1534,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callbackPayload() {
+   * async handleArgsCallback() {
    *   await this.editAudio()
    * }
    * ```
@@ -1555,7 +1557,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callbackPayload() {
+   * async handleArgsCallback() {
    *   await this.editDocument()
    * }
    * ```
@@ -1578,7 +1580,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callbackPayload() {
+   * async handleArgsCallback() {
    *   await this.editAnimation()
    * }
    * ```
@@ -1686,7 +1688,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callbackPayload() {
+   * async handleArgsCallback() {
    *   await this.delete()
    * }
    * ```
@@ -1709,7 +1711,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callbackPayload() {
+   * async handleArgsCallback() {
    *   await this.callbackQueryAnswer({text: "Action completed!"})
    *   await this.edit()
    * }
@@ -1740,20 +1742,20 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
-   *   await this.sessionSet("textFree", {step: "awaiting_name"})
+   * async handleCallbackData() {
+   *   await this.setSession("textFree", {step: "awaiting_name"})
    *   await this.reply()
    * }
    * ```
    *
    * @public
    */
-  async sessionSet(method: string, params: any, moreRoot?: Record<any, any>) {
+  async setSession(method: string, params: any, moreRoot?: Record<any, any>) {
     try {
       const value = {method, params, ...moreRoot}
       const result = await this.cacheSession.set(`${this.userId}`, value)
       if (result) {
-        this.session = value
+        this.temp.session = value
       }
       return result
     } catch {
@@ -1772,7 +1774,7 @@ export class Ctx {
    * @example
    * ```typescript
    * async textFree() {
-   *   const session = await this.sessionGet()
+   *   const session = await this.getSession()
    *   if (session?.params?.step === "awaiting_name") {
    *     // Handle name input
    *   }
@@ -1781,10 +1783,10 @@ export class Ctx {
    *
    * @public
    */
-  async sessionGet(): Promise<ITCacheRpc | null> {
+  async getSession(): Promise<ITCacheRpc | null> {
     try {
       const result = await this.cacheSession.get(`${this.userId}`)
-      if (result) this.session = result
+      if (result) this.temp.session = result
       return result || null
     } catch {
       return null
@@ -1801,18 +1803,18 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
-   *   await this.sessionClear()
+   * async handleCallbackData() {
+   *   await this.clearSession()
    *   await this.reply()
    * }
    * ```
    *
    * @public
    */
-  async sessionClear() {
+  async clearSession() {
     try {
       const result = await this.cacheSession.delete(`${this.userId}`)
-      if (result) this.session = {}
+      if (result) this.temp.session = {}
       return result
     } catch {
       return null
@@ -1825,35 +1827,35 @@ export class Ctx {
    *
    * @remarks
    * This method has multiple overloads:
-   * - `buildData()` - Returns default page data with no payloads.
-   * - `buildData(callback)` - Returns page data with callback payloads.
+   * - `buildData()` - Returns default page data with no args.
+   * - `buildData(callbackData)` - Returns intentCallbackData + args.
    * - `buildData(options)` - Returns page data with custom options.
    *
-   * The callback must return an array of payload values that will be joined
+   * The callback must return an array of arg values that will be joined
    * with the intent using colon separators.
    *
    * @typeParam C - The callback function type.
-   * @param callback - A function that returns payload values as an array.
+   * @param callbackData - A function that returns arg values as an array.
    * @returns The page data configuration object.
    *
    * @example
    * ```typescript
    * class MyPage extends Ctx {
-   *   // Simple callback payload
+   *   // Simple callback arg
    *   static data = this.buildData((id: string) => [id])
    *
    *   // With custom intents
    *   static data = this.buildData({
-   *     callback: (action: string) => [action],
+   *     callbackData: (action: string) => [action],
    *     intentText: "my_page",
-   *     intentTextCommand: "mycommand"
+   *     intentCommandText: "mycommand"
    *   })
    * }
    * ```
    *
    * @public
    */
-  static buildData<C extends (...args: any[]) => any>(callback: C): ITPageData<Parameters<C>>
+  static buildData<C extends (...args: any[]) => any>(callbackData: C): ITPageData<Parameters<C>>
 
   /**
    * Creates page routing data configuration with options.
@@ -1882,24 +1884,25 @@ export class Ctx {
   static buildData(): ITPageData<[]>
   static buildData(params?: any): ITPageData<any> {
     const isFunc = typeof params === `function`
-    const options = isFunc ? {callback: params} : params || {}
-    const cbd = options.callback
-    const addPld = this.prototype.addPayloads.bind(this.prototype)
+    const options = isFunc ? {callbackData: params} : params || {}
+    const cbd = options.callbackData
+    const addPld = this.prototype.addArgs.bind(this.prototype)
 
     const name = options.name || ``
     const data: ITPageData<any> = {
       name,
       intentText: options.intentText || name,
-      intentTextCommand: options.intentTextCommand || name,
-      intentCallback: name,
-      callback: cbd
-        ? function (this: {intentCallback: string}, ...payloads: any[]): string {
-            return addPld(this.intentCallback, `colon`, cbd(...payloads))
+      intentCommandText: options.intentCommandText || name,
+      intentCallbackData: name,
+      callbackData: cbd
+        ? function (this: {intentCallbackData: string}, ...args: any[]): string {
+            console.log({cbd})
+            return addPld(this.intentCallbackData, `colon`, cbd(...args))
           }
-        : function (this: {intentCallback: string}): string {
-            return this?.intentCallback
+        : function (this: {intentCallbackData: string}): string {
+            return this?.intentCallbackData
           },
-      _positionPayloadText: options.intentText ? options.intentText.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any)
+      _positionArgText: options.intentText ? options.intentText.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any)
     }
     return data
   }
@@ -1972,7 +1975,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   const kb = this.bottomKeyboardT("2")
    *   await this.reply(kb)
    * }
@@ -2003,16 +2006,16 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   const kb = this.inlineKeyboardT([SettingsPage, HelpPage], "2")
    *   await this.reply(kb)
    *
-   *   // Or with payload
-   *   const kb = this.inlineKeyboardT([SettingsPage.data.callback(1), HelpPage.data.callback(`hi`)], "2")
+   *   // Or with arg
+   *   const kb = this.inlineKeyboardT([SettingsPage.data.callbackData(1), HelpPage.data.callbackData(`hi`)], "2")
    *   await this.reply(kb)
    *
    *   // Compare with builder for basic but not recomended because very long syntax, only use builder when needed.!
-   *   this.inlineKeyboard((k, a) => k.text(SettingsPage.data.callback(), a[0]!).text(HelpPage.data.callback(), a[1]!))
+   *   this.inlineKeyboard((k, a) => k.text(SettingsPage.data.callbackData(), a[0]!).text(HelpPage.data.callbackData(), a[1]!))
    * }
    * ```
    *
@@ -2023,7 +2026,7 @@ export class Ctx {
       (k, a) => {
         return this.keyboardCols(k, a, layout, (e, i) => {
           const page = PageDest[i]!
-          const data = typeof page == `string` ? page : page.data.callback()
+          const data = typeof page == `string` ? page : page.data.callbackData()
           k.text(e, data)
         })
       },
@@ -2044,7 +2047,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   const kb = this.inlineKeyboard((k, labels) => {
    *     labels.forEach((label, i) => k.text(label, `action:${i}`))
    *     return k
@@ -2055,7 +2058,7 @@ export class Ctx {
    *
    * @public
    */
-  inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb {
+  inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => any, params?: ITInlineKbParams): ITInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:i`
@@ -2088,7 +2091,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   const kb = this.bottomKeyboard((k, labels) => {
    *     labels.forEach(label => k.text(label))
    *     return k
@@ -2099,7 +2102,7 @@ export class Ctx {
    *
    * @public
    */
-  bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb {
+  bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => any, params?: ITBottomKbParams): ITBottomKb {
     const tkey = this.data.name
     if (params?.cache === true) {
       const key = `${tkey}:${this.userLanguage}:b`
@@ -2135,7 +2138,7 @@ export class Ctx {
   }
 
   /**
-   * Checks if a string contains payload separators.
+   * Checks if a string contains arg separators.
    *
    * @param str - The string to check.
    * @param mtd - The separator method.
@@ -2143,21 +2146,21 @@ export class Ctx {
    *
    * @public
    */
-  havePayloads(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0]) {
+  haveArgs(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0]) {
     return str.includes(this.getSeperatorTag(mtd))
   }
 
   /**
-   * Appends payload values to a string using the specified separator.
+   * Appends arg values to a string using the specified separator.
    *
    * @param str - The base string.
    * @param mtd - The separator method.
-   * @param pld - Array of payload values to append.
-   * @returns The string with appended payloads.
+   * @param pld - Array of arg values to append.
+   * @returns The string with appended args.
    *
    * @public
    */
-  addPayloads(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], pld: (string | undefined)[]) {
+  addArgs(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], pld: (string | undefined)[]) {
     const sep = this.getSeperatorTag(mtd)
     let out = ``
     for (let i = 0; i < pld.length; i++) {
@@ -2170,23 +2173,23 @@ export class Ctx {
   }
 
   /**
-   * Extracts payload values from a string.
+   * Extracts arg values from a string.
    *
-   * @param str - The string containing payloads.
+   * @param str - The string containing args.
    * @param mtd - The separator method.
-   * @param positionStart - Starting position for payload extraction. Default: 1.
-   * @returns Array of extracted payload values.
+   * @param positionStart - Starting position for arg extraction. Default: 1.
+   * @returns Array of extracted arg values.
    *
    * @public
    */
-  getPayloads(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], positionStart: number = 1) {
+  getArgs(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], positionStart: number = 1) {
     if (!str) return []
     const tag = this.getSeperatorTag(mtd)
     return str.split(tag).slice(positionStart)
   }
 
   /**
-   * Extracts the intent portion from a string containing payloads.
+   * Extracts the intent portion from a string containing args.
    *
    * @param str - The string to extract intent from.
    * @param mtd - The separator method.
@@ -2226,13 +2229,13 @@ export class Ctx {
 
   // =============== route function
   /**
-   * Route handler for callback queries without payloads matching `intentCallback`.
+   * Route handler for callback queries without args matching `intentCallbackData`.
    *
-   * @remarks Triggered by callback data matching.
+   * @remarks Triggered by callback query data matching.
    *
-   * @example callbackData = "start".
+   * @example this.callbackData = "start".
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *    this.callbackData // "start"
    * }
    * ```
@@ -2240,35 +2243,35 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async callback?(): Promise<any>
+  async handleCallbackData?(): Promise<any>
 
   /**
-   * Route handler for callback queries with payloads matching `intentCallback`.
+   * Route handler for callback queries with args matching `intentCallbackData`.
    *
-   * @remarks Triggered by callback data with payloads.
+   * @remarks Triggered by callback data with args.
    *
-   * @example callbackData = "start:123"
+   * @example this.callbackData = "start:123"
    * ```typescript
-   * async callbackPayload() {
+   * async handleArgsCallbackData() {
    *    this.callbackData // "start:123"
-   *    this.callbackDataPayload // "123"
-   *    this.callbackDataPayloads // ["123"]
+   *    this.callbackDataArg // "123"
+   *    this.callbackDataArgs // ["123"]
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async callbackPayload?(): Promise<any>
+  async handleArgsCallbackData?(): Promise<any>
 
   /**
    * Route handler for text messages matching `intentText`.
    *
    * @remarks Triggered by exact text match.
    *
-   * @example // msgText = "start"
+   * @example this.msgText = "start"
    * ```typescript
-   * async text() {
+   * async handleText() {
    *    this.msgText // "start"
    * }
    * ```
@@ -2276,35 +2279,35 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async text?(): Promise<any>
+  async handleText?(): Promise<any>
 
   /**
-   * Route handler for text messages with payloads match intent `intentText`.
+   * Route handler for text messages with args match intent `intentText`.
    *
-   * @remarks Triggered by text with space-separated payloads.
+   * @remarks Triggered by text with space-separated args.
    *
-   * @example msgText = "start 123 aaa"
+   * @example this.msgText = "start 123 aaa"
    * ```typescript
-   * async textPayload() {
-   *    this.msgText // "start"
-   *    this.msgTextPayload // "123"
-   *    this.msgTextPayloads // ["123", "aaa"]
+   * async handleTextArgs() {
+   *    this.msgText // "start 123 aaa"
+   *    this.msgTextArg // "123"
+   *    this.msgTextArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async textPayload?(): Promise<any>
+  async handleArgsText?(): Promise<any>
 
   /**
-   * Route handler for command messages match intent `intentTextCommand`.
+   * Route handler for command messages match intent `intentCommandText`.
    *
    * @remarks Triggered by text with slash commands.
    *
-   * @example msgText = "/start"
+   * @example this.msgText = "/start"
    * ```typescript
-   * async textCommand() {
+   * async handleCommandText() {
    *    this.msgText // "/start"
    * }
    * ```
@@ -2312,53 +2315,53 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async textCommand?(): Promise<any>
+  async handleCommandText?(): Promise<any>
 
   /**
-   * Route handler for command messages with payloads match intent `intentTextCommand`.
+   * Route handler for command messages with args match intent `intentCommandText`.
    *
-   * @remarks Triggered by text with commands slash with payloads.
+   * @remarks Triggered by text with commands slash with args.
    *
-   * @example msgText = "/start 123 aaa"
+   * @example this.msgText = "/start 123 aaa"
    * ```typescript
-   * async textCommandPayload() {
+   * async handleCommandTextArgs() {
    *    this.msgText // "/start 123 aaa"
-   *    this.msgTextPayload // "123"
-   *    this.msgTextPayload // ["123", "aaa"]
+   *    this.msgTextArg // "123"
+   *    this.msgTextArg // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async textCommandPayload?(): Promise<any>
+  async handleCommandArgsText?(): Promise<any>
 
   /**
    * Route handler for free-form text input.
    *
    * @remarks Triggered by any text not matching other routes, typically used with sessions.
    *
-   * @example msgText = "hello gramstax"
+   * @example this.msgText = "hello gramstax, random: 12848s8283n183m"
    * ```typescript
-   * async text() {
-   *    this.msgText // "hello gramstax"
+   * async handleFreeText() {
+   *    this.msgText // "hello gramstax, random: 12848s8283n183m"
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async textFree?(): Promise<any>
+  async handleFreeText?(): Promise<any>
 
   // photo
   /**
-   * Route function for photoCaption match intent `this.data.name`
+   * Route function for photoCaptio match intent `this.data.name`
    *
    * @remarks Triggered by photo with caption.
    *
-   * @example this.data.name = "start"
+   * @example this.data.name = "start" && this.msgPhoto
    * ```typescript
-   * async photoCaption() {
+   * async handleCaptionPhoto() {
    *   this.msgPhoto // {...}
    *   this.msgCaption // "start"
    * }
@@ -2367,36 +2370,36 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async photoCaption?(): Promise<any>
+  async handleCaptionPhoto?(): Promise<any>
 
   /**
-   * Route function for photoCaption with payload match intent `this.data.name`
+   * Route function for photoCaption with arg match intent `this.data.name`
    *
-   * @remarks Triggered by photo with caption and with payload.
+   * @remarks Triggered by photo with caption and with arg.
    *
-   * @example this.data.name = "start 123 aaa"
+   * @example this.data.name = "start 123 aaa" && this.msgPhoto
    * ```typescript
-   * async photoCaptionPayload() {
+   * async handleCaptionArgsPhoto() {
    *   this.msgPhoto // {...}
    *   this.msgCaption // "start"
    *   this.msgCaptionPayload // "123"
-   *   this.msgCaptionPayloads // ["123", "aaa"]
+   *   this.msgCaptionArgs["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async photoCaptionPayload?(): Promise<any>
+  async handleCaptionArgsPhoto?(): Promise<any>
 
   /**
    * Route function for photoCaption with slash command match intent `this.data.name`
    *
    * @remarks Triggered by photo with caption command.
    *
-   * @example this.data.name = "/start"
+   * @example this.data.name = "/start" && this.msgPhoto
    * ```typescript
-   * async photoCaptionCommand() {
+   * async handleCommandCaptionPhoto() {
    *   this.msgPhoto // {...}
    *   this.msgCaption // "/start"
    * }
@@ -2406,35 +2409,35 @@ export class Ctx {
    * @public
    *
    */
-  async photoCaptionCommand?(): Promise<any>
+  async handleCommandCaptionPhoto?(): Promise<any>
 
   /**
-   * Route function for photoCaptionCommandPayload with slash command and payload match intent `this.data.name`
+   * Route function for photoCaptionCommandPayload with slash command and arg match intent `this.data.name`
    *
-   * @remarks Triggered by photo with caption command and payloads.
+   * @remarks Triggered by photo with caption command and args.
    *
-   * @example this.data.name = "/start 123 aaa"
+   * @example this.data.name = "/start 123 aaa" && this.msgPhoto
    * ```typescript
-   * async photoCaptionCommandPayload() {
+   * async handleCommandCaptionArgsPhoto() {
    *   this.msgPhoto // {...}
    *   this.msgCaption // "/start 123 aaa"
    *   this.msgCaptionPayload // "123"
-   *   this.msgCaptionPayloads // ["123", "aaa"]
+   *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public */
-  async photoCaptionCommandPayload?(): Promise<any>
+  async handleCommandCaptionArgsPhoto?(): Promise<any>
 
   /**
    * Route handler for free-form photo input.
    *
    * @remarks Triggered by any photo not matching other routes, typically used with sessions.
    *
-   * @example
+   * @example this.msgPhoto
    * ```typescript
-   * async photoFree() {
+   * async handleFreePhoto() {
    *    this.msgPhoto // {...}
    * }
    * ```
@@ -2442,7 +2445,7 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async photoFree?(): Promise<any>
+  async handleFreePhoto?(): Promise<any>
 
   // video
   /**
@@ -2450,9 +2453,9 @@ export class Ctx {
    *
    * @remarks Triggered by video with caption.
    *
-   * @example this.data.name = "start"
+   * @example this.data.name = "start" && this.msgVideo
    * ```typescript
-   * async videoCaption() {
+   * async handleCaptionVideo() {
    *   this.msgVideo // {...}
    *   this.msgCaption // "start"
    * }
@@ -2461,36 +2464,36 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async videoCaption?(): Promise<any>
+  async handleCaptionVideo?(): Promise<any>
 
   /**
-   * Route function for videoCaption with payload match intent `this.data.name`
+   * Route function for videoCaption with arg match intent `this.data.name`
    *
-   * @remarks Triggered by video with caption and with payload.
+   * @remarks Triggered by video with caption and with arg.
    *
-   * @example this.data.name = "start 123 aaa"
+   * @example this.data.name = "start 123 aaa" && this.msgVideo
    * ```typescript
-   * async videoCaptionPayload() {
+   * async handleCaptionArgsVideo() {
    *   this.msgVideo // {...}
    *   this.msgCaption // "start"
    *   this.msgCaptionPayload // "123"
-   *   this.msgCaptionPayloads // ["123", "aaa"]
+   *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async videoCaptionPayload?(): Promise<any>
+  async handleCaptionArgsVideo?(): Promise<any>
 
   /**
    * Route function for videoCaption with slash command match intent `this.data.name`
    *
    * @remarks Triggered by video with caption command.
    *
-   * @example this.data.name = "/start"
+   * @example this.data.name = "/start" && this.msgVideo
    * ```typescript
-   * async videoCaptionCommand() {
+   * async handleCommandCaptionVideo() {
    *   this.msgVideo // {...}
    *   this.msgCaption // "/start"
    * }
@@ -2500,35 +2503,35 @@ export class Ctx {
    * @public
    *
    */
-  async videoCaptionCommand?(): Promise<any>
+  async handleCommandCaptionVideo?(): Promise<any>
 
   /**
-   * Route function for videoCaptionCommandPayload with slash command and payload match intent `this.data.name`
+   * Route function for videoCaptionCommandPayload with slash command and arg match intent `this.data.name`
    *
-   * @remarks Triggered by video with caption command and payloads.
+   * @remarks Triggered by video with caption command and args.
    *
-   * @example this.data.name = "/start 123 aaa"
+   * @example this.data.name = "/start 123 aaa" && this.msgVideo
    * ```typescript
-   * async videoCaptionCommandPayload() {
+   * async handleCommandCaptionArgsVideo() {
    *   this.msgVideo // {...}
    *   this.msgCaption // "/start 123 aaa"
    *   this.msgCaptionPayload // "123"
-   *   this.msgCaptionPayloads // ["123", "aaa"]
+   *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public */
-  async videoCaptionCommandPayload?(): Promise<any>
+  async handleCommandCaptionArgsVideo?(): Promise<any>
 
   /**
    * Route handler for free-form video input.
    *
    * @remarks Triggered by any video not matching other routes, typically used with sessions.
    *
-   * @example
+   * @example this.msgVideo
    * ```typescript
-   * async videoFree() {
+   * async handleFreeVideo() {
    *    this.msgVideo // {...}
    * }
    * ```
@@ -2536,7 +2539,7 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async videoFree?(): Promise<any>
+  async handleFreeVideo?(): Promise<any>
 
   // audio
   /**
@@ -2544,9 +2547,9 @@ export class Ctx {
    *
    * @remarks Triggered by audio with caption.
    *
-   * @example this.data.name = "start"
+   * @example this.data.name = "start" && this.msgAudio
    * ```typescript
-   * async audioCaption() {
+   * async handleCaptionAudio() {
    *   this.msgAudio // {...}
    *   this.msgCaption // "start"
    * }
@@ -2555,36 +2558,36 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async audioCaption?(): Promise<any>
+  async handleCaptionAudio?(): Promise<any>
 
   /**
-   * Route function for audioCaption with payload match intent `this.data.name`
+   * Route function for audioCaption with arg match intent `this.data.name`
    *
-   * @remarks Triggered by audio with caption and with payload.
+   * @remarks Triggered by audio with caption and with arg.
    *
-   * @example this.data.name = "start 123 aaa"
+   * @example this.data.name = "start 123 aaa" && this.msgAudio
    * ```typescript
-   * async audioCaptionPayload() {
+   * async handleCaptionArgsAudio() {
    *   this.msgAudio // {...}
    *   this.msgCaption // "start"
    *   this.msgCaptionPayload // "123"
-   *   this.msgCaptionPayloads // ["123", "aaa"]
+   *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async audioCaptionPayload?(): Promise<any>
+  async handleCaptionArgsAudio?(): Promise<any>
 
   /**
    * Route function for audioCaption with slash command match intent `this.data.name`
    *
    * @remarks Triggered by audio with caption command.
    *
-   * @example this.data.name = "/start"
+   * @example this.data.name = "/start" && this.msgAudio
    * ```typescript
-   * async audioCaptionCommand() {
+   * async handleCommandCaptionAudio() {
    *   this.msgAudio // {...}
    *   this.msgCaption // "/start"
    * }
@@ -2594,35 +2597,35 @@ export class Ctx {
    * @public
    *
    */
-  async audioCaptionCommand?(): Promise<any>
+  async handleCommandCaptionAudio?(): Promise<any>
 
   /**
-   * Route function for audioCaptionCommandPayload with slash command and payload match intent `this.data.name`
+   * Route function for audioCaptionCommandPayload with slash command and arg match intent `this.data.name`
    *
-   * @remarks Triggered by audio with caption command and payloads.
+   * @remarks Triggered by audio with caption command and args.
    *
-   * @example this.data.name = "/start 123 aaa"
+   * @example this.data.name = "/start 123 aaa" && this.msgAudio
    * ```typescript
-   * async audioCaptionCommandPayload() {
+   * async handleCommandCaptionArgsAudio() {
    *   this.msgAudio // {...}
    *   this.msgCaption // "/start 123 aaa"
    *   this.msgCaptionPayload // "123"
-   *   this.msgCaptionPayloads // ["123", "aaa"]
+   *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public */
-  async audioCaptionCommandPayload?(): Promise<any>
+  async handleCommandCaptionArgsAudio?(): Promise<any>
 
   /**
    * Route handler for free-form audio input.
    *
    * @remarks Triggered by any audio not matching other routes, typically used with sessions.
    *
-   * @example
+   * @example this.msgAudio
    * ```typescript
-   * async audioFree() {
+   * async handleFreeAudio() {
    *    this.msgAudio // {...}
    * }
    * ```
@@ -2630,7 +2633,7 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async audioFree?(): Promise<any>
+  async handleFreeAudio?(): Promise<any>
 
   // document
   /**
@@ -2638,9 +2641,9 @@ export class Ctx {
    *
    * @remarks Triggered by document with caption.
    *
-   * @example this.data.name = "start"
+   * @example this.data.name = "start" && this.msgDocument
    * ```typescript
-   * async documentCaption() {
+   * async handleCaptionDocument() {
    *   this.msgDocument // {...}
    *   this.msgCaption // "start"
    * }
@@ -2649,36 +2652,36 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async documentCaption?(): Promise<any>
+  async handleCaptionDocument?(): Promise<any>
 
   /**
-   * Route function for documentCaption with payload match intent `this.data.name`
+   * Route function for documentCaption with arg match intent `this.data.name`
    *
-   * @remarks Triggered by document with caption and with payload.
+   * @remarks Triggered by document with caption and with arg.
    *
-   * @example this.data.name = "start 123 aaa"
+   * @example this.data.name = "start 123 aaa" && this.msgDocument
    * ```typescript
-   * async documentCaptionPayload() {
+   * async handleCaptionArgsDocument() {
    *   this.msgDocument // {...}
    *   this.msgCaption // "start"
    *   this.msgCaptionPayload // "123"
-   *   this.msgCaptionPayloads // ["123", "aaa"]
+   *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async documentCaptionPayload?(): Promise<any>
+  async handleCaptionArgsDocument?(): Promise<any>
 
   /**
    * Route function for documentCaption with slash command match intent `this.data.name`
    *
    * @remarks Triggered by document with caption command.
    *
-   * @example this.data.name = "/start"
+   * @example this.data.name = "/start" && this.msgDocument
    * ```typescript
-   * async documentCaptionCommand() {
+   * async handleCommandCaptionDocument() {
    *   this.msgDocument // {...}
    *   this.msgCaption // "/start"
    * }
@@ -2688,26 +2691,26 @@ export class Ctx {
    * @public
    *
    */
-  async documentCaptionCommand?(): Promise<any>
+  async handleCommandCaptionDocument?(): Promise<any>
 
   /**
-   * Route function for documentCaptionCommandPayload with slash command and payload match intent `this.data.name`
+   * Route function for documentCaptionCommandPayload with slash command and arg match intent `this.data.name`
    *
-   * @remarks Triggered by document with caption command and payloads.
+   * @remarks Triggered by document with caption command and args.
    *
    * @example this.data.name = "/start 123 aaa"
    * ```typescript
-   * async documentCaptionCommandPayload() {
+   * async handleCommandCaptionArgsDocument() {
    *   this.msgDocument // {...}
    *   this.msgCaption // "/start 123 aaa"
    *   this.msgCaptionPayload // "123"
-   *   this.msgCaptionPayloads // ["123", "aaa"]
+   *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public */
-  async documentCaptionCommandPayload?(): Promise<any>
+  async handleCommandCaptionArgsDocument?(): Promise<any>
 
   /**
    * Route handler for free-form document input.
@@ -2716,7 +2719,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async documentFree() {
+   * async handleFreeDocument() {
    *    this.msgDocument // {...}
    * }
    * ```
@@ -2724,7 +2727,7 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async documentFree?(): Promise<any>
+  async handleFreeDocument?(): Promise<any>
 
   // animation
   /**
@@ -2734,7 +2737,7 @@ export class Ctx {
    *
    * @example this.data.name = "start"
    * ```typescript
-   * async animationCaption() {
+   * async handleCaptionAnimation() {
    *   this.msgAnimation // {...}
    *   this.msgCaption // "start"
    * }
@@ -2743,27 +2746,27 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async animationCaption?(): Promise<any>
+  async handleCaptionAnimation?(): Promise<any>
 
   /**
-   * Route function for animationCaption with payload match intent `this.data.name`
+   * Route function for animationCaption with arg match intent `this.data.name`
    *
-   * @remarks Triggered by animation with caption and with payload.
+   * @remarks Triggered by animation with caption and with arg.
    *
    * @example this.data.name = "start 123 aaa"
    * ```typescript
-   * async animationCaptionPayload() {
+   * async handleCaptionArgsAnimation() {
    *   this.msgAnimation // {...}
    *   this.msgCaption // "start"
    *   this.msgCaptionPayload // "123"
-   *   this.msgCaptionPayloads // ["123", "aaa"]
+   *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async animationCaptionPayload?(): Promise<any>
+  async handleCaptionArgsAnimation?(): Promise<any>
 
   /**
    * Route function for animationCaption with slash command match intent `this.data.name`
@@ -2772,7 +2775,7 @@ export class Ctx {
    *
    * @example this.data.name = "/start"
    * ```typescript
-   * async animationCaptionCommand() {
+   * async handleCommandCaptionAnimation() {
    *   this.msgAnimation // {...}
    *   this.msgCaption // "/start"
    * }
@@ -2782,26 +2785,26 @@ export class Ctx {
    * @public
    *
    */
-  async animationCaptionCommand?(): Promise<any>
+  async handleCommandCaptionAnimation?(): Promise<any>
 
   /**
-   * Route function for animationCaptionCommandPayload with slash command and payload match intent `this.data.name`
+   * Route function for animationCaptionCommandPayload with slash command and arg match intent `this.data.name`
    *
-   * @remarks Triggered by animation with caption command and payloads.
+   * @remarks Triggered by animation with caption command and args.
    *
    * @example this.data.name = "/start 123 aaa"
    * ```typescript
-   * async animationCaptionCommandPayload() {
+   * async handleCommandCaptionArgsAnimation() {
    *   this.msgAnimation // {...}
    *   this.msgCaption // "/start 123 aaa"
    *   this.msgCaptionPayload // "123"
-   *   this.msgCaptionPayloads // ["123", "aaa"]
+   *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public */
-  async animationCaptionCommandPayload?(): Promise<any>
+  async handleCommandCaptionArgsAnimation?(): Promise<any>
 
   /**
    * Route handler for free-form animation input.
@@ -2810,7 +2813,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async animationFree() {
+   * async handleFreeAnimation() {
    *    this.msgAnimation // {...}
    * }
    * ```
@@ -2818,7 +2821,7 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async animationFree?(): Promise<any>
+  async handleFreeAnimation?(): Promise<any>
 
   // voice
   /**
@@ -2828,7 +2831,7 @@ export class Ctx {
    *
    * @example this.data.name = "start"
    * ```typescript
-   * async voiceCaption() {
+   * async handleCaptionVoice() {
    *   this.msgVoice // {...}
    *   this.msgCaption // "start"
    * }
@@ -2837,27 +2840,27 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async voiceCaption?(): Promise<any>
+  async handleCaptionVoice?(): Promise<any>
 
   /**
-   * Route function for voiceCaption with payload match intent `this.data.name`
+   * Route function for voiceCaption with arg match intent `this.data.name`
    *
-   * @remarks Triggered by voice with caption and with payload.
+   * @remarks Triggered by voice with caption and with arg.
    *
    * @example this.data.name = "start 123 aaa"
    * ```typescript
-   * async voiceCaptionPayload() {
+   * async handleCaptionArgsVoice() {
    *   this.msgVoice // {...}
    *   this.msgCaption // "start"
    *   this.msgCaptionPayload // "123"
-   *   this.msgCaptionPayloads // ["123", "aaa"]
+   *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async voiceCaptionPayload?(): Promise<any>
+  async handleCaptionArgsVoice?(): Promise<any>
 
   /**
    * Route function for voiceCaption with slash command match intent `this.data.name`
@@ -2876,27 +2879,27 @@ export class Ctx {
    * @public
    *
    */
-  async voiceCaptionCommand?(): Promise<any>
+  async handleCommandCaptionVoice?(): Promise<any>
 
   /**
-   * Route function for voiceCaptionCommandPayload with slash command and payload match intent `this.data.name`
+   * Route function for voiceCaptionCommandPayload with slash command and arg match intent `this.data.name`
    *
-   * @remarks Triggered by voice with caption command and payloads.
+   * @remarks Triggered by voice with caption command and args.
    *
    * @example this.data.name = "/start 123 aaa"
    * ```typescript
-   * async voiceCaptionCommandPayload() {
+   * async handleCommandCaptionArgsVoice() {
    *   this.msgVoice // {...}
    *   this.msgCaption // "/start 123 aaa"
    *   this.msgCaptionPayload // "123"
-   *   this.msgCaptionPayloads // ["123", "aaa"]
+   *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async voiceCaptionCommandPayload?(): Promise<any>
+  async handleCommandCaptionArgsVoice?(): Promise<any>
 
   /**
    * Route handler for free-form voice input.
@@ -2905,7 +2908,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async voiceFree() {
+   * async handleFreeVoice() {
    *    this.msgVoice // {...}
    * }
    * ```
@@ -2913,7 +2916,7 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async voiceFree?(): Promise<any>
+  async handleFreeVoice?(): Promise<any>
 
   // video_note
   /**
@@ -2922,14 +2925,14 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async videoNoteFree() {
+   * async handleFreeVideoNote() {
    *    this.msgVideoNote // {...}
    * }
    * ```
    * @virtual
    * @public
    */
-  async videoNoteFree?(): Promise<any>
+  async handleFreeVideoNote?(): Promise<any>
 
   // sticker
   /**
@@ -2939,7 +2942,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async stickerFree() {
+   * async handleFreeSticker() {
    *    this.msgSticker // {...}
    * }
    * ```
@@ -2947,7 +2950,7 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async stickerFree?(): Promise<any>
+  async handleFreeSticker?(): Promise<any>
 
   // location
   /**
@@ -2957,7 +2960,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async locationFree() {
+   * async handleFreeLocation() {
    *    this.msgLocation // {...}
    * }
    * ```
@@ -2965,7 +2968,7 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async locationFree?(): Promise<any>
+  async handleFreeLocation?(): Promise<any>
 
   // contact
   /**
@@ -2975,7 +2978,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async contactFree() {
+   * async handleFreeContact() {
    *    this.msgContact // {...}
    * }
    * ```
@@ -2983,7 +2986,7 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async contactFree?(): Promise<any>
+  async handleFreeContact?(): Promise<any>
 
   // all
   /**
@@ -2991,11 +2994,11 @@ export class Ctx {
    *
    * @remarks
    * Triggered when no other route handler matches the current update. Use this for
-   * global fallback logic, logging, or safety responses.
+   * global fallback logic or safety responses.
    *
    * @example
    * ```typescript
-   * async free() {
+   * async handleFree() {
    *   // handle unexpected updates
    * }
    * ```
@@ -3003,7 +3006,7 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async free?(): Promise<any>
+  async handleFree?(): Promise<any>
 
   // callback
   /**
@@ -3024,178 +3027,178 @@ export class Ctx {
    *
    * @public
    */
-  isSessionCallback(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionCallback(name)
+  isSessionCallbackData(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCallbackData(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionCallbackPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionCallbackPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionArgsCallbackData(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionArgsCallbackData(name)
   }
   // text
-  /** {@inheritDoc Ctx.isSessionCallback} */
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
   isSessionText(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionText(name)
+    return (method ?? this.temp.session.method) === this.methodSessionText(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionTextPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionTextPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionArgsText(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionArgsText(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionTextCommand(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionTextCommand(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCommandText(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCommandText(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionTextCommandPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionTextCommandPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCommandArgsText(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCommandArgsText(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionTextFree(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionTextFree(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionFreeText(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionFreeText(name)
   }
   // photo
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionPhotoCaption(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionPhotoCaption(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionPhoto(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionPhoto(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionPhotoCaptionPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionPhotoCaptionPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionArgsPhoto(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionArgsPhoto(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionPhotoCaptionCommand(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionPhotoCaptionCommand(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCommandCaptionPhoto(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionPhoto(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionPhotoCaptionCommandPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionPhotoCaptionCommandPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCommandCaptionArgsPhoto(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionArgsPhoto(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionPhotoFree(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionPhotoFree(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionFreePhoto(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionFreePhoto(name)
   }
   // video
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionVideoCaption(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVideoCaption(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionVideo(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionVideo(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionVideoCaptionPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVideoCaptionPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionArgsVideo(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionArgsVideo(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionVideoCaptionCommand(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVideoCaptionCommand(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCommandCaptionVideo(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionVideo(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionVideoCaptionCommandPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVideoCaptionCommandPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCommandCaptionArgsVideo(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionArgsVideo(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionVideoFree(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVideoFree(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionFreeVideo(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionFreeVideo(name)
   }
   // audio
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionAudioCaption(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionAudioCaption(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionAudio(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionAudio(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionAudioCaptionPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionAudioCaptionPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionArgsAudio(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionArgsAudio(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionAudioCaptionCommand(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionAudioCaptionCommand(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionCommandAudio(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionCommandAudio(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionAudioCaptionCommandPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionAudioCaptionCommandPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionCommandArgsAudio(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionCommandArgsAudio(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionAudioFree(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionAudioFree(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionFreeAudio(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionFreeAudio(name)
   }
   // document
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionDocumentCaption(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionDocumentCaption(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionDocument(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionDocument(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionDocumentCaptionPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionDocumentCaptionPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionArgsDocument(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionArgsDocument(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionDocumentCaptionCommand(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionDocumentCaptionCommand(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCommandCaptionDocument(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionDocument(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionDocumentCaptionCommandPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionDocumentCaptionCommandPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCommandCaptionArgsDocument(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionArgsDocument(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionDocumentFree(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionDocumentFree(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionFreeDocument(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionFreeDocument(name)
   }
   // animation
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionAnimationCaption(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionAnimationCaption(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionAnimation(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionAnimation(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionAnimationCaptionPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionAnimationCaptionPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionArgsAnimation(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionArgsAnimation(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionAnimationCaptionCommand(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionAnimationCaptionCommand(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCommandCaptionAnimation(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionAnimation(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionAnimationCaptionCommandPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionAnimationCaptionCommandPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCommandCaptionArgsAnimation(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionArgsAnimation(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionAnimationFree(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionAnimationFree(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionFreeAnimation(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionFreeAnimation(name)
   }
   // voice
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionVoiceCaption(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVoiceCaption(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionVoice(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionVoice(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionVoiceCaptionPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVoiceCaptionPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCaptionArgsVoice(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCaptionArgsVoice(name)
   }
-  isSessionVoiceCaptionCommand(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVoiceCaptionCommand(name)
+  isSessionCommandCaptionVoice(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionVoice(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionVoiceCaptionCommandPayload(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVoiceCaptionCommandPayload(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionCommandCaptionArgsVoice(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionArgsVoice(name)
   }
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionVoiceFree(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVoiceFree(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionFreeVoice(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionFreeVoice(name)
   }
   // video note
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionVideoNoteFree(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionVideoNoteFree(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionFreeVideoNote(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionFreeVideoNote(name)
   }
   // sticker
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionStickerFree(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionStickerFree(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionFreeSticker(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionFreeSticker(name)
   }
   // location
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionLocationFree(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionLocationFree(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionFreeLocation(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionFreeLocation(name)
   }
   // contact
-  /** {@inheritDoc Ctx.isSessionCallback} */
-  isSessionContactFree(method?: string, name?: string) {
-    return (method ?? this.session.method) === this.methodSessionContactFree(name)
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionFreeContact(method?: string, name?: string) {
+    return (method ?? this.temp.session.method) === this.methodSessionFreeContact(name)
   }
 
   // callback
@@ -3203,12 +3206,12 @@ export class Ctx {
    * Session set helper methods.
    *
    * @remarks
-   * These methods are shortcuts for {@link Ctx.sessionSet} with pre-built method names.
+   * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names.
    * Each `session*` method sets the session for the corresponding route handler.
    *
    * @example
    * ```typescript
-   * async callback() {
+   * async handleCallbackData() {
    *   // Set session to expect textFree input
    *   await this.sessionTextFree({data: "12345"})
    *   await this.reply()
@@ -3217,179 +3220,179 @@ export class Ctx {
    *
    * @public
    */
-  sessionCallback(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionCallback(name), params)
+  sessionCallbackData(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCallbackData(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionCallbackPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionCallbackPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionArgsCallbackData(params?: any, name?: string) {
+    return this.setSession(this.methodSessionArgsCallbackData(name), params)
   }
   // text
-  /** {@inheritDoc Ctx.sessionCallback} */
+  /** {@inheritDoc Ctx.sessionCallbackData} */
   sessionText(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionText(name), params)
+    return this.setSession(this.methodSessionText(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionTextPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionTextPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionArgsText(params?: any, name?: string) {
+    return this.setSession(this.methodSessionArgsText(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionTextCommand(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionTextCommand(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCommandText(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCommandText(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionTextCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionTextCommandPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCommandArgsText(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCommandArgsText(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionTextFree(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionTextFree(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionFreeText(params?: any, name?: string) {
+    return this.setSession(this.methodSessionFreeText(name), params)
   }
   // photo
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionPhotoCaption(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionPhotoCaption(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionPhoto(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionPhoto(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionPhotoCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionPhotoCaptionPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionArgsPhoto(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionArgsPhoto(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionPhotoCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionPhotoCaptionCommand(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCommandCaptionPhoto(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCommandCaptionPhoto(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionPhotoCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionPhotoCaptionCommandPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCommandCaptionArgsPhoto(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCommandCaptionArgsPhoto(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionPhotoFree(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionPhotoFree(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionFreePhoto(params?: any, name?: string) {
+    return this.setSession(this.methodSessionFreePhoto(name), params)
   }
   // video
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionVideoCaption(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVideoCaption(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionVideo(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionVideo(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionVideoCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVideoCaptionPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionArgsVideo(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionArgsVideo(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionVideoCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVideoCaptionCommand(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCommandCaptionVideo(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCommandCaptionVideo(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionVideoCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVideoCaptionCommandPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCommandCaptionArgsVideo(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCommandCaptionArgsVideo(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionVideoFree(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVideoFree(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionFreeVideo(params?: any, name?: string) {
+    return this.setSession(this.methodSessionFreeVideo(name), params)
   }
   // audio
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionAudioCaption(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionAudioCaption(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionAudio(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionAudio(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionAudioCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionAudioCaptionPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionArgsAudio(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionArgsAudio(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionAudioCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionAudioCaptionCommand(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionCommandAudio(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionCommandAudio(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionAudioCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionAudioCaptionCommandPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionCommandArgsAudio(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionCommandArgsAudio(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionAudioFree(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionAudioFree(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionFreeAudio(params?: any, name?: string) {
+    return this.setSession(this.methodSessionFreeAudio(name), params)
   }
   // document
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionDocumentCaption(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionDocumentCaption(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionDocument(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionDocument(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionDocumentCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionDocumentCaptionPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionArgsDocument(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionArgsDocument(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionDocumentCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionDocumentCaptionCommand(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCommandCaptionDocument(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCommandCaptionDocument(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionDocumentCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionDocumentCaptionCommandPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCommandCaptionArgsDocument(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCommandCaptionArgsDocument(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionDocumentFree(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionDocumentFree(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionFreeDocument(params?: any, name?: string) {
+    return this.setSession(this.methodSessionFreeDocument(name), params)
   }
   // animation
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionAnimationCaption(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionAnimationCaption(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionAnimation(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionAnimation(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionAnimationCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionAnimationCaptionPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionArgsAnimation(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionArgsAnimation(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionAnimationCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionAnimationCaptionCommand(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCommandCaptionAnimation(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCommandCaptionAnimation(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionAnimationCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionAnimationCaptionCommandPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCommandCaptionArgsAnimation(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCommandCaptionArgsAnimation(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionAnimationFree(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionAnimationFree(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionFreeAnimation(params?: any, name?: string) {
+    return this.setSession(this.methodSessionFreeAnimation(name), params)
   }
   // voice
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionVoiceCaption(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVoiceCaption(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionVoice(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionVoice(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionVoiceCaptionPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVoiceCaptionPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCaptionArgsVoice(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCaptionArgsVoice(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionVoiceCaptionCommand(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVoiceCaptionCommand(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCommandCaptionVoice(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCommandCaptionVoice(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionVoiceCaptionCommandPayload(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVoiceCaptionCommandPayload(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionCommandCaptionArgsVoice(params?: any, name?: string) {
+    return this.setSession(this.methodSessionCommandCaptionArgsVoice(name), params)
   }
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionVoiceFree(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVoiceFree(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionFreeVoice(params?: any, name?: string) {
+    return this.setSession(this.methodSessionFreeVoice(name), params)
   }
   // video note
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionVideoNoteFree(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionVideoNoteFree(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionFreeVideoNote(params?: any, name?: string) {
+    return this.setSession(this.methodSessionFreeVideoNote(name), params)
   }
   // sticker
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionStickerFree(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionStickerFree(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionFreeSticker(params?: any, name?: string) {
+    return this.setSession(this.methodSessionFreeSticker(name), params)
   }
   // location
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionLocationFree(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionLocationFree(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionFreeLocation(params?: any, name?: string) {
+    return this.setSession(this.methodSessionFreeLocation(name), params)
   }
   // contact
-  /** {@inheritDoc Ctx.sessionCallback} */
-  sessionContactFree(params?: any, name?: string) {
-    return this.sessionSet(this.methodSessionContactFree(name), params)
+  /** {@inheritDoc Ctx.sessionCallbackData} */
+  sessionFreeContact(params?: any, name?: string) {
+    return this.setSession(this.methodSessionFreeContact(name), params)
   }
 
   /**
@@ -3397,7 +3400,7 @@ export class Ctx {
    *
    * @remarks
    * These methods generate unique session method identifiers used by
-   * {@link Ctx.sessionSet} and validation methods. Each `methodSession*`
+   * {@link Ctx.setSession} and validation methods. Each `methodSession*`
    * returns a prefixed string like `"1-PageName"`.
    *
    * @public
@@ -3406,11 +3409,11 @@ export class Ctx {
     return `${prefix}-${name || this.data.name}`
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionCallback(name?: string) {
+  methodSessionCallbackData(name?: string) {
     return this.methodSession(`1`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionCallbackPayload(name?: string) {
+  methodSessionArgsCallbackData(name?: string) {
     return this.methodSession(`2`, name)
   }
   // text method
@@ -3419,165 +3422,165 @@ export class Ctx {
     return this.methodSession(`3`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionTextPayload(name?: string) {
+  methodSessionArgsText(name?: string) {
     return this.methodSession(`4`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionTextCommand(name?: string) {
+  methodSessionCommandText(name?: string) {
     return this.methodSession(`5`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionTextCommandPayload(name?: string) {
+  methodSessionCommandArgsText(name?: string) {
     return this.methodSession(`6`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionTextFree(name?: string) {
+  methodSessionFreeText(name?: string) {
     return this.methodSession(`7`, name)
   }
   // photo method
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionPhotoCaption(name?: string) {
+  methodSessionCaptionPhoto(name?: string) {
     return this.methodSession(`8`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionPhotoCaptionPayload(name?: string) {
+  methodSessionCaptionArgsPhoto(name?: string) {
     return this.methodSession(`9`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionPhotoCaptionCommand(name?: string) {
+  methodSessionCommandCaptionPhoto(name?: string) {
     return this.methodSession(`10`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionPhotoCaptionCommandPayload(name?: string) {
+  methodSessionCommandCaptionArgsPhoto(name?: string) {
     return this.methodSession(`11`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionPhotoFree(name?: string) {
+  methodSessionFreePhoto(name?: string) {
     return this.methodSession(`12`, name)
   }
   // video method
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionVideoCaption(name?: string) {
+  methodSessionCaptionVideo(name?: string) {
     return this.methodSession(`13`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionVideoCaptionPayload(name?: string) {
+  methodSessionCaptionArgsVideo(name?: string) {
     return this.methodSession(`14`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionVideoCaptionCommand(name?: string) {
+  methodSessionCommandCaptionVideo(name?: string) {
     return this.methodSession(`15`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionVideoCaptionCommandPayload(name?: string) {
+  methodSessionCommandCaptionArgsVideo(name?: string) {
     return this.methodSession(`16`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionVideoFree(name?: string) {
+  methodSessionFreeVideo(name?: string) {
     return this.methodSession(`17`, name)
   }
   // audio method
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionAudioCaption(name?: string) {
+  methodSessionCaptionAudio(name?: string) {
     return this.methodSession(`18`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionAudioCaptionPayload(name?: string) {
+  methodSessionCaptionArgsAudio(name?: string) {
     return this.methodSession(`19`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionAudioCaptionCommand(name?: string) {
+  methodSessionCaptionCommandAudio(name?: string) {
     return this.methodSession(`20`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionAudioCaptionCommandPayload(name?: string) {
+  methodSessionCaptionCommandArgsAudio(name?: string) {
     return this.methodSession(`21`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionAudioFree(name?: string) {
+  methodSessionFreeAudio(name?: string) {
     return this.methodSession(`22`, name)
   }
   // document method
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionDocumentCaption(name?: string) {
+  methodSessionCaptionDocument(name?: string) {
     return this.methodSession(`23`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionDocumentCaptionPayload(name?: string) {
+  methodSessionCaptionArgsDocument(name?: string) {
     return this.methodSession(`24`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionDocumentCaptionCommand(name?: string) {
+  methodSessionCommandCaptionDocument(name?: string) {
     return this.methodSession(`25`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionDocumentCaptionCommandPayload(name?: string) {
+  methodSessionCommandCaptionArgsDocument(name?: string) {
     return this.methodSession(`26`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionDocumentFree(name?: string) {
+  methodSessionFreeDocument(name?: string) {
     return this.methodSession(`27`, name)
   }
   // animation method
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionAnimationCaption(name?: string) {
+  methodSessionCaptionAnimation(name?: string) {
     return this.methodSession(`28`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionAnimationCaptionPayload(name?: string) {
+  methodSessionCaptionArgsAnimation(name?: string) {
     return this.methodSession(`29`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionAnimationCaptionCommand(name?: string) {
+  methodSessionCommandCaptionAnimation(name?: string) {
     return this.methodSession(`30`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionAnimationCaptionCommandPayload(name?: string) {
+  methodSessionCommandCaptionArgsAnimation(name?: string) {
     return this.methodSession(`31`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionAnimationFree(name?: string) {
+  methodSessionFreeAnimation(name?: string) {
     return this.methodSession(`32`, name)
   }
   // voice method
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionVoiceCaption(name?: string) {
+  methodSessionCaptionVoice(name?: string) {
     return this.methodSession(`33`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionVoiceCaptionPayload(name?: string) {
+  methodSessionCaptionArgsVoice(name?: string) {
     return this.methodSession(`34`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionVoiceCaptionCommand(name?: string) {
+  methodSessionCommandCaptionVoice(name?: string) {
     return this.methodSession(`35`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionVoiceCaptionCommandPayload(name?: string) {
+  methodSessionCommandCaptionArgsVoice(name?: string) {
     return this.methodSession(`36`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionVoiceFree(name?: string) {
+  methodSessionFreeVoice(name?: string) {
     return this.methodSession(`37`, name)
   }
   // video note method
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionVideoNoteFree(name?: string) {
+  methodSessionFreeVideoNote(name?: string) {
     return this.methodSession(`38`, name)
   }
   // sticker method
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionStickerFree(name?: string) {
+  methodSessionFreeSticker(name?: string) {
     return this.methodSession(`39`, name)
   }
   // location method
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionLocationFree(name?: string) {
+  methodSessionFreeLocation(name?: string) {
     return this.methodSession(`40`, name)
   }
   // contact method
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionContactFree(name?: string) {
+  methodSessionFreeContact(name?: string) {
     return this.methodSession(`41`, name)
   }
 }

@@ -10,11 +10,11 @@ export class StartPage extends PageBase {
     else await this.reply(kb)
   }
 
-  async textCommand() {
+  async handleCommandText() {
     await this.show(false)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.show(true)
   }
 

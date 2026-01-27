@@ -3,7 +3,7 @@ import {StartPage} from "./start"
 
 // Shows the current user balance.
 export class BalancePage extends PageBase {
-  async callback() {
+  async handleCallbackData() {
     const balance = this.bankStore.getBalance(this.userId)
     const formatted = this.bankStore.formatAmount(balance)
     const data = {balance: formatted}

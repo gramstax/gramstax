@@ -3,7 +3,7 @@ import {StartPage} from "./start"
 
 // Shows recent transaction history.
 export class HistoryPage extends PageBase {
-  async callback() {
+  async handleCallbackData() {
     const history = this.formatHistory()
     const kb = this.inlineKeyboardT([StartPage])
     const da = {history}

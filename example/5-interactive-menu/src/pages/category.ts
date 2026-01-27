@@ -6,7 +6,7 @@ import {StartPage} from "./start"
 // Category list page with dynamic inline buttons.
 export class CategoryPage extends PageBase {
   static data = this.buildData({
-    callback: (action?: string, payload?: string) => [action, payload],
+    callbackData: (action?: string, payload?: string) => [action, payload],
     intentText: `Browse`
   })
   static BASE = {categories: `categories`}
@@ -14,10 +14,10 @@ export class CategoryPage extends PageBase {
   kb() {
     return this.inlineKeyboard((k, l) => {
       CatalogMock.list.forEach((category, index) => {
-        k.text(category.name, this.data.callback(`category`, category.id))
+        k.text(category.name, this.data.callbackdata(`category`, category.id))
         if (index % 2 === 1) k.row()
       })
-      return k.row().text(l[0]!, StartPage.data.callback())
+      return k.row().text(l[0]!, StartPage.data.callbackdata())
     })
   }
 
@@ -28,16 +28,16 @@ export class CategoryPage extends PageBase {
     else await this.reply(kb, {}, bi)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.transition(true)
   }
 
-  async text() {
+  async handleText() {
     await this.transition(false)
   }
 
-  async callbackPayload() {
-    const [action, categoryId] = this.callbackDataPayloads
+  async handleArgsCallbackData() {
+    const [action, categoryId] = this.callbackDataArgs
     if (action !== `category` || !categoryId) {
       return await this.transition(true)
     }

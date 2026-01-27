@@ -2,22 +2,22 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class InputText2Page extends PageBase {
-  static data = this.buildData({intentTextCommand: `input_text2`})
+  static data = this.buildData({intentCommandText: `input_text2`})
   static BASE = {result: `result`}
 
   kb(baseId?: string) {
     return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.edit(this.kb())
   }
 
-  async textCommand() {
+  async handleCommandText() {
     await this.reply(this.kb())
   }
 
-  async textFree() {
+  async handleFreeText() {
     const bi = InputText2Page.BASE.result
     const da = {res: this.msgText}
     await this.reply(this.kb(bi), da, bi)

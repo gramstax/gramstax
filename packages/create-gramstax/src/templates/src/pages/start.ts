@@ -4,20 +4,20 @@ import {RandomNumberPage} from "./random-number"
 import {SumNumberPage} from "./sum-number"
 
 export class StartPage extends PageBase {
+  async handleCallbackData() {
+    await this.show(true)
+  }
+
+  async handleCommandText() {
+    await this.show(false)
+  }
+
   async show(edit = true) {
-    await this.sessionClear()
+    await this.clearSession()
     const kb = this.inlineKeyboardT([RandomNumberPage, SumNumberPage, HelpPage], `2`)
     const data = {userName: this.userName}
     if (edit) await this.edit(kb, data)
     else await this.reply(kb, data)
-  }
-
-  async callback() {
-    await this.show(true)
-  }
-
-  async textCommand() {
-    await this.show(false)
   }
 
   static template = `

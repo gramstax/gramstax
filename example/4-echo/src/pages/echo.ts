@@ -9,18 +9,18 @@ export class EchoPage extends PageBase {
     return this.inlineKeyboardT([StartPage])
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.edit(this.kb())
   }
 
-  async textFree() {
+  async handleFreeText() {
     const text = this.msgText
     if (text.startsWith(`/`)) return null
 
     await this.reply(this.kb(), {text}, EchoPage.BASE.text)
   }
 
-  async photoFree() {
+  async handleFreePhoto() {
     const caption = this.msgCaption
     const fileIdLargest = this.msgPhoto[this.msgPhoto.length - 1].file_id
     if (caption?.startsWith(`/`)) return null
@@ -28,7 +28,7 @@ export class EchoPage extends PageBase {
     await this.replyPhoto(this.kb(), {caption, fileId: fileIdLargest}, EchoPage.BASE.photo)
   }
 
-  async videoFree() {
+  async handleFreeVideo() {
     const caption = this.msgCaption
     const fileId = this.msgVideo.file_id
     if (caption?.startsWith(`/`)) return null
@@ -36,7 +36,7 @@ export class EchoPage extends PageBase {
     await this.replyVideo(this.kb(), {caption, fileId}, EchoPage.BASE.video)
   }
 
-  async audioFree() {
+  async handleFreeAudio() {
     const caption = this.msgCaption
     const fileId = this.msgAudio.file_id
     if (caption?.startsWith(`/`)) return null
@@ -44,7 +44,7 @@ export class EchoPage extends PageBase {
     await this.replyAudio(this.kb(), {caption, fileId}, EchoPage.BASE.audio)
   }
 
-  async documentFree() {
+  async handleFreeDocument() {
     const caption = this.msgCaption
     const fileId = this.msgDocument.file_id
     if (caption?.startsWith(`/`)) return null
@@ -52,7 +52,7 @@ export class EchoPage extends PageBase {
     await this.replyDocument(this.kb(), {caption, fileId}, EchoPage.BASE.document)
   }
 
-  async animationFree() {
+  async handleFreeAnimation() {
     const caption = this.msgCaption
     const fileId = this.msgAnimation.file_id
     if (caption?.startsWith(`/`)) return null
@@ -60,7 +60,7 @@ export class EchoPage extends PageBase {
     await this.replyAnimation(this.kb(), {caption, fileId}, EchoPage.BASE.animation)
   }
 
-  async voiceFree() {
+  async handleFreeVoice() {
     const caption = this.msgCaption
     const fileId = this.msgVoice.file_id
     if (caption?.startsWith(`/`)) return null
@@ -68,25 +68,25 @@ export class EchoPage extends PageBase {
     await this.replyVoice(this.kb(), {caption, fileId}, EchoPage.BASE.voice)
   }
 
-  async videoNoteFree() {
+  async handleFreeVideoNote() {
     // not support caption
     const fileId = this.msgVideoNote.file_id
     await this.replyVideoNote(this.kb(), {fileId}, EchoPage.BASE.videoNote)
   }
 
-  async stickerFree() {
+  async handleFreeSticker() {
     // not support caption
     const fileId = this.msgSticker.file_id
     await this.replySticker(this.kb(), {fileId}, EchoPage.BASE.sticker)
   }
 
-  async locationFree() {
+  async handleFreeLocation() {
     // not support caption
     const {latitude, longitude} = this.msgLocation
     await this.replyLocation(this.kb(), {latitude, longitude}, EchoPage.BASE.location)
   }
 
-  async contactFree() {
+  async handleFreeContact() {
     // not support caption
     const {first_name, last_name, phone_number, user_id, vcard} = this.msgContact
     await this.replyContact(this.kb(), {first_name, last_name, phone_number, user_id, vcard}, EchoPage.BASE.contact)

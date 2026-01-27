@@ -5,7 +5,7 @@ import {HelpPage} from "./help"
 
 export class StartPage extends PageBase {
   async show(edit = true) {
-    await this.sessionClear()
+    await this.clearSession()
     const subscribed = await this.db.isSubscribed(this.userId)
     const data = {subscribed}
     const kb = this.inlineKeyboardT([ToggleSubscriptionPage, StatsPage, HelpPage], `2`, undefined, data)
@@ -13,11 +13,11 @@ export class StartPage extends PageBase {
     else await this.reply(kb, data)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.show(true)
   }
 
-  async textCommand() {
+  async handleCommandText() {
     await this.show(false)
   }
   static template = `

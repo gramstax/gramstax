@@ -19,13 +19,13 @@ export class LanguagePage extends PageBase {
           const langCode = lang.toLowerCase()
           const isSelected = langCode === currentLang
           const displayText = isSelected ? `+ ${lang}` : lang
-          k.text(displayText, LanguagePage.data.callback(langCode))
+          k.text(displayText, LanguagePage.data.callbackdata(langCode))
         })
         k.row()
       }
 
       // Add back button
-      return k.text(backButton, StartPage.data.callback())
+      return k.text(backButton, StartPage.data.callbackdata())
     })
   }
 
@@ -33,12 +33,12 @@ export class LanguagePage extends PageBase {
     await this.edit(this.kb())
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.show()
   }
 
-  async callbackPayload() {
-    const language = this.callbackDataPayload.toLowerCase()
+  async handleArgsCallbackData() {
+    const language = this.callbackDataArg.toLowerCase()
 
     await this.cacheData.set(`${this.userId}:lang`, language)
     this.userLanguage = language

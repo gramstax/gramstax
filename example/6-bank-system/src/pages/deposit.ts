@@ -9,13 +9,13 @@ export class DepositPage extends PageBase {
     return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
-  async callback() {
-    await this.sessionTextFree()
+  async handleCallbackData() {
+    await this.sessionFreeText()
     await this.edit(this.kb(), {}, DepositPage.BASE.form)
   }
 
-  async textFree() {
-    if (!this.isSessionTextFree()) return null
+  async handleFreeText() {
+    if (!this.isSessionFreeText()) return null
     await this.handleDeposit(this.msgText.trim(), false)
   }
 
@@ -45,7 +45,7 @@ export class DepositPage extends PageBase {
     const amountDisplay = this.bankStore.formatAmount(amount)
     const data = {amount: amountDisplay, balance}
 
-    await this.sessionClear()
+    await this.clearSession()
     const biSuc = BASE.success
     const kb = this.kb(biSuc)
     if (edit) await this.edit(kb, data, biSuc)

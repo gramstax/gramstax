@@ -80,7 +80,7 @@ export type ITGramstaxParams = {
    */
   optionsPage?: {
     /**
-     * Use numeric callback data for smaller payloads.
+     * Use numeric callback data for smaller args.
      *
      * @remarks
      * When enabled, callback data uses numeric IDs instead of full strings,

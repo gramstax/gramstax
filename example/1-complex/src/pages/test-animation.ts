@@ -8,19 +8,19 @@ export class TestAnimationPage extends PageBase {
   kb(isDynamic = false) {
     return this.inlineKeyboard((k, l) => {
       return k //
-        .text(isDynamic ? l[1] : l[0]!, this.data.callback(isDynamic ? `static` : `dynamic`))
+        .text(isDynamic ? l[1] : l[0]!, this.data.callbackdata(isDynamic ? `static` : `dynamic`))
         .row()
-        .text(l[2]!, StartPage.data.callback(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the callbackPayload route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
+        .text(l[2]!, StartPage.data.callbackdata(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the callbackPayload route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
     })
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.editAnimation(this.kb())
   }
 
-  async callbackPayload() {
-    const swc = this.callbackDataPayload
-    if (swc == `static`) return await this.callback()
+  async handleArgsCallbackData() {
+    const swc = this.callbackDataArg
+    if (swc == `static`) return await this.handleCallbackData()
     if (swc == `dynamic`) {
       const data = {
         src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.

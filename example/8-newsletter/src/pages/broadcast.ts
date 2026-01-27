@@ -27,16 +27,16 @@ export class BroadcastPage extends PageBase {
     deliverAnimation: `deliver-animation`
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.startBroadcast(true)
   }
 
-  async textCommand() {
+  async handleCommandText() {
     await this.startBroadcast(false)
   }
 
-  async callbackPayload() {
-    const [action] = this.callbackDataPayloads
+  async handleArgsCallbackData() {
+    const [action] = this.callbackDataArgs
     if (!AdminGuard.isAdmin(this)) return null
 
     if (action === `send`) {
@@ -51,23 +51,23 @@ export class BroadcastPage extends PageBase {
     await this.startBroadcast(true)
   }
 
-  async textFree() {
-    if (!this.isSessionTextFree()) return null
+  async handleFreeText() {
+    if (!this.isSessionFreeText()) return null
     const {step} = this.getSessionParams()
     if (step !== `message`) return null
 
     const draft = this.msgText?.trim()
     if (!draft) {
-      await this.sessionTextFree({step: `message`})
+      await this.sessionFreeText({step: `message`})
       return await this.reply(this.promptKeyboard(), {draft: `-`, isEmpty: true}, BroadcastPage.BASE.prompt)
     }
 
-    await this.sessionTextFree({step: `confirm`, draft})
+    await this.sessionFreeText({step: `confirm`, draft})
     await this.reply(this.confirmKeyboard(), {draft}, BroadcastPage.BASE.confirm)
   }
 
-  async photoFree() {
-    if (!this.isSessionTextFree()) return null
+  async handleFreePhoto() {
+    if (!this.isSessionFreeText()) return null
     const {step} = this.getSessionParams()
     if (step !== `message`) return null
 
@@ -78,12 +78,12 @@ export class BroadcastPage extends PageBase {
     const lastPhoto = photos?.[photos.length - 1]
     if (!lastPhoto?.file_id) return null
 
-    await this.sessionTextFree({step: `confirm`, mediaType: `photo`, fileId: lastPhoto.file_id, caption})
+    await this.sessionFreeText({step: `confirm`, mediaType: `photo`, fileId: lastPhoto.file_id, caption})
     await this.replyPhoto(this.confirmKeyboard(), {fileId: lastPhoto.file_id, caption}, BroadcastPage.BASE.confirmPhoto)
   }
 
-  async videoFree() {
-    if (!this.isSessionTextFree()) return null
+  async handleFreeVideo() {
+    if (!this.isSessionFreeText()) return null
     const {step} = this.getSessionParams()
     if (step !== `message`) return null
 
@@ -93,12 +93,12 @@ export class BroadcastPage extends PageBase {
     const fileId = this.msgVideo?.file_id
     if (!fileId) return null
 
-    await this.sessionTextFree({step: `confirm`, mediaType: `video`, fileId, caption})
+    await this.sessionFreeText({step: `confirm`, mediaType: `video`, fileId, caption})
     await this.replyVideo(this.confirmKeyboard(), {fileId, caption}, BroadcastPage.BASE.confirmVideo)
   }
 
-  async animationFree() {
-    if (!this.isSessionTextFree()) return null
+  async handleFreeAnimation() {
+    if (!this.isSessionFreeText()) return null
     const {step} = this.getSessionParams()
     if (step !== `message`) return null
 
@@ -108,20 +108,20 @@ export class BroadcastPage extends PageBase {
     const fileId = this.msgAnimation?.file_id
     if (!fileId) return null
 
-    await this.sessionTextFree({step: `confirm`, mediaType: `animation`, fileId, caption})
+    await this.sessionFreeText({step: `confirm`, mediaType: `animation`, fileId, caption})
     await this.replyAnimation(this.confirmKeyboard(), {fileId, caption}, BroadcastPage.BASE.confirmAnimation)
   }
 
   private async handleSend() {
     const {draft, mediaType, fileId, caption} = this.getSessionParams()
     if (!draft && !mediaType) {
-      await this.sessionTextFree({step: `message`})
+      await this.sessionFreeText({step: `message`})
       return await this.edit(this.promptKeyboard(), {draft: `-`, isEmpty: true}, BroadcastPage.BASE.prompt)
     }
 
     const subscribers = await this.db.listSubscribers()
     if (subscribers.length === 0) {
-      await this.sessionClear()
+      await this.clearSession()
       const kb = this.inlineKeyboardT([StartPage])
       return await this.edit(kb, {}, BroadcastPage.BASE.empty)
     }
@@ -134,7 +134,7 @@ export class BroadcastPage extends PageBase {
     } else {
       await this.broadcast(ids, langs, undefined, {message: draft}, BroadcastPage.BASE.deliver)
     }
-    await this.sessionClear()
+    await this.clearSession()
 
     const kb = this.inlineKeyboardT([StartPage])
     await this.edit(kb, {count: subscribers.length}, BroadcastPage.BASE.result)
@@ -143,39 +143,39 @@ export class BroadcastPage extends PageBase {
   private async handleEdit() {
     const {draft, mediaType} = this.getSessionParams()
     if (mediaType) {
-      await this.sessionTextFree({step: `message`})
+      await this.sessionFreeText({step: `message`})
       await this.edit(this.promptKeyboard(), {draft: `-`, isEmpty: false}, BroadcastPage.BASE.prompt)
       return
     }
 
-    await this.sessionTextFree({step: `message`, draft})
+    await this.sessionFreeText({step: `message`, draft})
     await this.edit(this.promptKeyboard(), {draft: draft || `-`, isEmpty: false}, BroadcastPage.BASE.prompt)
   }
 
   private async handleCancel() {
-    await this.sessionClear()
+    await this.clearSession()
     const kb = this.inlineKeyboardT([StartPage])
     await this.edit(kb, {}, BroadcastPage.BASE.cancelled)
   }
 
   private async startBroadcast(edit: boolean) {
     if (!AdminGuard.isAdmin(this)) return null
-    await this.sessionTextFree({step: `message`})
+    await this.sessionFreeText({step: `message`})
     const kb = this.promptKeyboard()
     if (edit) await this.edit(kb, {draft: `-`, isEmpty: false}, BroadcastPage.BASE.prompt)
     else await this.reply(kb, {draft: `-`, isEmpty: false}, BroadcastPage.BASE.prompt)
   }
 
   private promptKeyboard() {
-    return this.inlineKeyboardT([this.data.callback(`cancel`), StartPage], `2`, BroadcastPage.BASE.prompt)
+    return this.inlineKeyboardT([this.data.callbackdata(`cancel`), StartPage], `2`, BroadcastPage.BASE.prompt)
   }
 
   private confirmKeyboard() {
-    return this.inlineKeyboardT([this.data.callback(`send`), this.data.callback(`edit`), this.data.callback(`cancel`), StartPage], `2-2`, BroadcastPage.BASE.confirm)
+    return this.inlineKeyboardT([this.data.callbackdata(`send`), this.data.callbackdata(`edit`), this.data.callbackdata(`cancel`), StartPage], `2-2`, BroadcastPage.BASE.confirm)
   }
 
   private getSessionParams() {
-    return (this.session?.params as BroadcastSession | undefined) ?? {}
+    return (this.temp.session?.params as BroadcastSession | undefined) ?? {}
   }
 
   private getDeliverMediaBase(mediaType: BroadcastSession[`mediaType`]) {

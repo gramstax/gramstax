@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class BlockImportPage extends PageBase {
-  async callback() {
+  async handleCallbackData() {
     const number = Math.random()
     const kb = this.inlineKeyboardT([this, StartPage])
     await this.edit(kb, {number})

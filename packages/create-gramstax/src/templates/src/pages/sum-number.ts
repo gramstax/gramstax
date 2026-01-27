@@ -4,52 +4,55 @@ import {StartPage} from "./start"
 export class SumNumberPage extends PageBase {
   static BASE = {pleft: `pleft`, pright: `pright`, result: `result`}
 
-  async callback() {
+  async handleCallbackData() {
     await this.first(true)
   }
 
-  async textCommand() {
+  async handleCommandText() {
     await this.first(false)
   }
 
-  async textFree() {
-    if (!this.validateSessionTextFree()) return null
+  async handleFreeText() {
+    if (!this.isSessionFreeText()) return null
+    const {BASE} = SumNumberPage
     const {step, left} = this.getSessionParams()
     const input = this.msgText?.trim()
     const value = input ? Number(input) : NaN
 
     if (step === `left`) {
       if (!Number.isFinite(value)) {
-        await this.sessionTextFree({step: `left`})
-        return await this.reply(this.kb(SumNumberPage.BASE.pleft), {}, SumNumberPage.BASE.pleft)
+        await this.sessionFreeText({step: `left`})
+        return await this.reply(this.kb(BASE.pleft), {}, BASE.pleft)
       }
 
-      await this.sessionTextFree({step: `right`, left: value})
-      return await this.reply(this.kb(SumNumberPage.BASE.pright), {}, SumNumberPage.BASE.pright)
+      await this.sessionFreeText({step: `right`, left: value})
+      return await this.reply(this.kb(BASE.pright), {}, BASE.pright)
     }
 
     if (step === `right`) {
       if (!Number.isFinite(value)) {
-        await this.sessionTextFree({step: `right`, left})
-        return await this.reply(this.kb(SumNumberPage.BASE.pright), {}, SumNumberPage.BASE.pright)
+        await this.sessionFreeText({step: `right`, left})
+        return await this.reply(this.kb(BASE.pright), {}, BASE.pright)
       }
 
       if (!Number.isFinite(left ?? NaN)) {
-        await this.sessionClear()
+        await this.clearSession()
         return await this.first(false)
       }
 
       const result = left! + value
-      await this.sessionClear()
-      return await this.reply(this.kb(SumNumberPage.BASE.result), {result}, SumNumberPage.BASE.result)
+      await this.clearSession()
+      return await this.reply(this.kb(BASE.result), {result}, BASE.result)
     }
   }
 
   private async first(edit: boolean) {
-    await this.sessionTextFree({step: `left`})
-    const kb = this.kb(SumNumberPage.BASE.pleft)
-    if (edit) await this.edit(kb, {}, SumNumberPage.BASE.pleft)
-    else await this.reply(kb, {}, SumNumberPage.BASE.pleft)
+    await this.sessionFreeText({step: `left`})
+    const {BASE} = SumNumberPage
+    const kb = this.kb(BASE.pleft)
+
+    if (edit) await this.edit(kb, {}, BASE.pleft)
+    else await this.reply(kb, {}, BASE.pleft)
   }
 
   private kb(baseId: string) {
@@ -57,7 +60,7 @@ export class SumNumberPage extends PageBase {
   }
 
   private getSessionParams() {
-    return (this.session?.params as {step?: `left` | `right`; left?: number} | undefined) ?? {}
+    return (this.temp.session?.params as {step?: `left` | `right`; left?: number} | undefined) ?? {}
   }
 
   static template = `

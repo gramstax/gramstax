@@ -9,15 +9,15 @@ export class TransferPage extends PageBase {
     return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
-  async callback() {
-    await this.sessionTextFree()
+  async handleCallbackData() {
+    await this.sessionFreeText()
     const bi = TransferPage.BASE.form
     const kb = this.kb(bi)
     await this.edit(kb, {}, bi)
   }
 
-  async textFree() {
-    if (!this.isSessionTextFree()) return null
+  async handleFreeText() {
+    if (!this.isSessionFreeText()) return null
     const payloads = this.msgText.trim().split(/\s+/)
     await this.handleTransfer(payloads, false)
   }
@@ -79,7 +79,7 @@ export class TransferPage extends PageBase {
     const balance = this.bankStore.formatAmount(nextSender)
     const data = {amount: amountDisplay, balance, target: target.label}
 
-    await this.sessionClear()
+    await this.clearSession()
     const biSuc = BASE.success
     const kb = this.kb(biSuc)
     if (edit) await this.edit(kb, data, biSuc)

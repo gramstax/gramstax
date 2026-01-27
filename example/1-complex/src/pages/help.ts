@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class HelpPage extends PageBase {
-  async callback() {
+  async handleCallbackData() {
     const kb = this.inlineKeyboardT([StartPage])
     await this.edit(kb)
   }

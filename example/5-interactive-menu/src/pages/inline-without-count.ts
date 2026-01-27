@@ -17,18 +17,18 @@ export class InlineWithoutCountPage extends PageBase {
     const hasMore = end < CatalogMock.menuItems.length
     return this.inlineKeyboard((k, l) => {
       items.forEach((item) => {
-        k.text(item.name, this.data.callback(`item`, item.id)).row()
+        k.text(item.name, this.data.callbackdata(`item`, item.id)).row()
       })
 
       k.row()
       if (hasPrevious) {
-        k.text(l[0]!, this.data.callback(`page`, safePage - 1))
+        k.text(l[0]!, this.data.callbackdata(`page`, safePage - 1))
       }
       k.text(`${l[2]} ${safePage + 1}`, `_`)
       if (hasMore) {
-        k.text(l[1]!, this.data.callback(`page`, safePage + 1))
+        k.text(l[1]!, this.data.callbackdata(`page`, safePage + 1))
       }
-      return k.row().text(l[3]!, StartPage.data.callback())
+      return k.row().text(l[3]!, StartPage.data.callbackdata())
     })
   }
 
@@ -41,12 +41,12 @@ export class InlineWithoutCountPage extends PageBase {
     else await this.reply(kb, data, bi)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.show(0, true)
   }
 
-  async callbackPayload() {
-    const [action, value] = this.callbackDataPayloads
+  async handleArgsCallbackData() {
+    const [action, value] = this.callbackDataArgs
     if (!action) return
 
     if (action === `page`) {

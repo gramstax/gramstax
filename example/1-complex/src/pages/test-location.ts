@@ -2,8 +2,8 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class TestLocationPage extends PageBase {
-  async callback() {
-    const kb = this.inlineKeyboardT([StartPage.data.callback(`3`)])
+  async handleCallbackData() {
+    const kb = this.inlineKeyboardT([StartPage.data.callbackdata(`3`)])
     await this.editLocation(kb)
   }
 

@@ -8,12 +8,12 @@ export class ListPage extends PageBase {
   static BASE = {list: `list`, empty: `empty`}
   PAGE_SIZE = 5
 
-  async callback() {
+  async handleCallbackData() {
     await this.show(0)
   }
 
-  async callbackPayload() {
-    const [action, value] = this.callbackDataPayloads
+  async handleArgsCallbackData() {
+    const [action, value] = this.callbackDataArgs
     if (action !== `page`) return await this.show(0)
 
     const nextPage = Number(value)
@@ -49,12 +49,12 @@ export class ListPage extends PageBase {
     return this.inlineKeyboard(
       (k, l) => {
         if (safePage > 0) {
-          k.text(l[0]!, this.data.callback(`page`, `${safePage - 1}`))
+          k.text(l[0]!, this.data.callbackdata(`page`, `${safePage - 1}`))
         }
         if (safePage < totalPages - 1) {
-          k.text(l[1]!, this.data.callback(`page`, `${safePage + 1}`))
+          k.text(l[1]!, this.data.callbackdata(`page`, `${safePage + 1}`))
         }
-        return k.row().text(l[2]!, StartPage.data.callback())
+        return k.row().text(l[2]!, StartPage.data.callbackdata())
       },
       {baseId: ListPage.BASE.list}
     )

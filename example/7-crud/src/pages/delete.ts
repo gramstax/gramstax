@@ -8,22 +8,22 @@ export class DeletePage extends PageBase {
   static BASE = {list: `list`, success: `success`, notFound: `not-found`, invalid: `invalid`, empty: `empty`}
   MAX_ITEMS = 5
 
-  async callback() {
-    await this.sessionTextFree({step: `id`})
+  async handleCallbackData() {
+    await this.sessionFreeText({step: `id`})
     await this.showList()
   }
 
-  async callbackPayload() {
-    const [action, id] = this.callbackDataPayloads
+  async handleArgsCallbackData() {
+    const [action, id] = this.callbackDataArgs
     if (action === `pick` && id) {
       return await this.handleDelete(id, true)
     }
     await this.showList()
   }
 
-  async textFree() {
-    if (!this.isSessionTextFree()) return null
-    await this.sessionGet()
+  async handleFreeText() {
+    if (!this.isSessionFreeText()) return null
+    await this.getSession()
     await this.handleDelete(this.msgText, false)
   }
 
@@ -31,10 +31,10 @@ export class DeletePage extends PageBase {
     return this.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
-          k.text(`🗑️ #${item.id} ${item.title.slice(0, 5)}..`, this.data.callback(`pick`, item.id))
+          k.text(`🗑️ #${item.id} ${item.title.slice(0, 5)}..`, this.data.callbackdata(`pick`, item.id))
           if (index % 2 === 1) k.row()
         })
-        return k.row().text(l[0]!, StartPage.data.callback())
+        return k.row().text(l[0]!, StartPage.data.callbackdata())
       },
       {baseId: DeletePage.BASE.list}
     )
@@ -63,7 +63,7 @@ export class DeletePage extends PageBase {
     const {BASE} = DeletePage
     const id = input?.trim()
     if (!id) {
-      await this.sessionClear()
+      await this.clearSession()
       const bi = BASE.invalid
       return await this.sendWith(this.buildSingleKeyboard(bi), bi, {}, edit)
     }
@@ -73,7 +73,7 @@ export class DeletePage extends PageBase {
       const bi = BASE.notFound
       return await this.sendWith(this.buildSingleKeyboard(bi), bi, {id}, edit)
     }
-    await this.sessionClear()
+    await this.clearSession()
     const bi = BASE.success
     await this.sendWith(this.buildSingleKeyboard(bi), bi, {id}, edit)
   }

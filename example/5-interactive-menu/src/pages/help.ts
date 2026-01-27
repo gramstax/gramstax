@@ -12,11 +12,11 @@ export class HelpPage extends PageBase {
     else await this.reply(kb, {}, bi)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.show(true)
   }
 
-  async text() {
+  async handleText() {
     await this.show(false)
   }
 

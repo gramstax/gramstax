@@ -355,8 +355,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const {name} = parse(filePath)
     if (!Page.data.name) Page.data.name = name
     if (!Page.data.intentText) Page.data.intentText = Page.data.name
-    if (!Page.data.intentTextCommand) Page.data.intentTextCommand = Page.data.name
-    if (!Page.data.intentCallback) Page.data.intentCallback = Page.data.name
+    if (!Page.data.intentCommandText) Page.data.intentCommandText = Page.data.name
+    if (!Page.data.intentCallbackData) Page.data.intentCallbackData = Page.data.name
   }
 
   /**
@@ -377,7 +377,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const name = Page.data.name
     const proto = Page.prototype
 
-    const partPayload = `Payload`
+    const partHandle = `handle`
+    const partArgs = `Args`
     const partCommand = `Command`
     const partCaption = `Caption`
     const partFree = `Free`
@@ -386,7 +387,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const pds = pages.routeDynamicSpesific
 
     const upFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
-    const getPureRouteName = (func: string) => func.replace(partPayload, ``).replace(partCommand, ``).replace(partCaption, ``).replace(partFree, ``)
+    const getPureRouteName = (func: string) => func.replace(partHandle, ``).replace(partArgs, ``).replace(partCommand, ``).replace(partCaption, ``).replace(partFree, ``).toLowerCase()
     const methodSession = (func: string, name: any) => (proto as any as Record<any, (...args: any) => string>)[`methodSession${upFirst(func)}`]?.(name)
 
     // all
@@ -408,18 +409,18 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const p = ps || psi
       if (p !== undefined) {
         const _isCommand = routeName.includes(partCommand)
-        const _isCallback = routeName.includes(`callback`)
-        const _isText = routeName.startsWith(`text`)
+        const _isCallbackData = routeName.endsWith(`CallbackData`)
+        const _isText = routeName.endsWith(`Text`)
 
         let key: string | undefined
         if (_isCommand) {
-          const _key = Page.data.intentTextCommand
+          const _key = Page.data.intentCommandText
           key = _key ? `/${_key}` : undefined
-        } else if (_isCallback) {
-          let _key = Page.data.intentCallback
+        } else if (_isCallbackData) {
+          let _key = Page.data.intentCallbackData
           if (this.optionsPage.shortCallbackData === true) {
             _key = String(indexPage)
-            Page.data.intentCallback = _key
+            Page.data.intentCallbackData = _key
           }
           key = _key
         } else if (_isText) {
@@ -439,13 +440,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       // dynamicSpesific
-      if (routeName.toLowerCase().endsWith(`free`)) {
+      if (routeName.startsWith(`handleFree`)) {
         pds[getPureRouteName(routeName) as keyof typeof pds].push(value)
       }
     }
 
     // all
-    if (proto.free) {
+    if (proto.handleFree) {
       pd.push(name)
     }
   }
@@ -453,7 +454,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   async executeSyncBlocksDescription(pages: typeof Gramstax.prototype.pages) {
     // 1. Collect all unique (scope, language) pairs
     const targets = new Map<string, Set<string>>() // scope -> Set<language>
-    const allCommands = pages.routeStatic.textCommand
+    const allCommands = pages.routeStatic.handleCommandText
 
     for (const [, page] of Object.entries(allCommands)) {
       const name = page.name
@@ -523,79 +524,79 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     const listRouteStatic = [
       // callback
-      `callback`,
+      `handleCallbackData`,
       // text
-      `text`,
-      `textCommand`,
+      `handleText`,
+      `handleCommandText`,
       // photo
-      `photoCaption`,
-      `photoCaptionCommand`,
+      `handleCaptionPhoto`,
+      `handleCommandCaptionPhoto`,
       // video
-      `videoCaption`,
-      `videoCaptionCommand`,
+      `handleCaptionVideo`,
+      `handleCommandCaptionVideo`,
       // audio
-      `audioCaption`,
-      `audioCaptionCommand`,
+      `handleCaptionAudio`,
+      `handleCommandCaptionAudio`,
       // document
-      `documentCaption`,
-      `documentCaptionCommand`,
+      `handleCaptionDocument`,
+      `handleCommandCaptionDocument`,
       // animation
-      `animationCaption`,
-      `animationCaptionCommand`,
+      `handleCaptionAnimation`,
+      `handleCommandCaptionAnimation`,
       // voice
-      `voiceCaption`,
-      `voiceCaptionCommand`
+      `handleCaptionVoice`,
+      `handleCommandCaptionVoice`
     ] as const
     const listRouteStaticIntent = [
       // callback
-      `callbackPayload`,
+      `handleArgsCallbackData`,
       // text
-      `textPayload`,
-      `textCommandPayload`,
+      `handleArgsText`,
+      `handleCommandArgsText`,
       // photo
-      `photoCaptionPayload`,
-      `photoCaptionCommandPayload`,
+      `handleCaptionArgsPhoto`,
+      `handleCommandCaptionArgsPhoto`,
       // video
-      `videoCaptionPayload`,
-      `videoCaptionCommandPayload`,
+      `handleCaptionArgsVideo`,
+      `handleCommandCaptionArgsVideo`,
       // audio
-      `audioCaptionPayload`,
-      `audioCaptionCommandPayload`,
+      `handleCaptionArgsAudio`,
+      `handleCommandCaptionArgsAudio`,
       // document
-      `documentCaptionPayload`,
-      `documentCaptionCommandPayload`,
+      `handleCaptionArgsDocument`,
+      `handleCommandCaptionArgsDocument`,
       // animation
-      `animationCaptionPayload`,
-      `animationCaptionCommandPayload`,
+      `handleCaptionArgsAnimation`,
+      `handleCommandCaptionArgsAnimation`,
       // voice
-      `voiceCaptionPayload`,
-      `voiceCaptionCommandPayload`
+      `handleCaptionArgsVoice`,
+      `handleCommandCaptionArgsAnimation`
     ] as const
     const listRouteStaticSession = [
       ...listRouteStatic,
       ...listRouteStaticIntent,
       // text
-      `textFree`,
+      `handleFreeText`,
       // photo
-      `photoFree`,
+      `handleFreePhoto`,
       // video
-      `videoFree`,
+      `handleFreeVideo`,
       // audio
-      `audioFree`,
+      `handleFreeAudio`,
       // document
-      `documentFree`,
+      `handleFreeDocument`,
       // animation
-      `animationFree`,
+      `handleFreeAnimation`,
       // voice
-      `voiceFree`,
+      `handleFreeVoice`,
       // videoNote
-      `videoNoteFree`,
+      `handleFreeVideoNote`,
       // sticker
-      `stickerFree`,
+      `handleFreeSticker`,
       // location
-      `locationFree`,
+      `handleFreeLocation`,
       // contact
-      `contactFree`
+      `handleFreeContact`
     ] as const
 
     const makeObject = <const T extends readonly string[], V extends () => any>(keys: T, val: V): {[K in T[number]]: ReturnType<V>} => Object.fromEntries(keys.map((k) => [k, val()])) as {[K in T[number]]: ReturnType<V>}
@@ -656,19 +657,19 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * 2. **static** - Exact intent match routes (O(1) lookup)
    *    - Matches exact text/callback data to page intents
-   *    - Example: "start" → `text()`, "/help" → `textCommand()`
+   *    - Example: "start" → `handleText()`, "/help" → `handleCommandText()`
    *
-   * 3. **staticIntent** - Intent with payloads routes (O(1) lookup)
-   *    - Matches intent prefix when payloads are present
-   *    - Example: "start:123" → `callbackPayload()`, "/add item" → `textCommandPayload()`
+   * 3. **staticIntent** - Intent with args routes (O(1) lookup)
+   *    - Matches intent prefix when args are present
+   *    - Example: "start:123" → `handleArgsCallbackData()`, "/add item" → `handleCommandArgsText()`
    *
    * 4. **dynamicSpesific** - Type-specific free handlers (O(n) iteration)
-   *    - Runs all `*Free` handlers for the message type
-   *    - Example: `textFree()`, `photoFree()`
+   *    - Runs all `handleFree*` handlers for the message type
+   *    - Example: `handleFreeText()`, `handleFreePhoto()`
    *    - **All matching handlers are executed** (no early return)
    *
    * 5. **dynamic** - Global fallback handlers (O(n) iteration)
-   *    - Runs all `free()` handlers from pages that define them
+   *    - Runs all `handleFree()` handlers from pages that define them
    *    - Last resort when nothing else matches
    *    - **All matching handlers are executed** (no early return)
    *
@@ -678,7 +679,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  async _pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any> {
+  async _pageRoutes(ctx: ICtx, fromListener: `callbackData` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: {name: string; routeName: string} | undefined
@@ -687,11 +688,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * id = 1
      * type = staticSession
      * algoritme = x = session method; O(x)
-     * example = animationCaption, callback, textCommand
+     * example = all
      * description = all route function but if have session only
      */
     if (Page === undefined) {
-      const session = await ctx.sessionGet()
+      const session = await ctx.getSession()
       if (session) {
         const mtd = session.method
         const pStaticSession = this.pages.routeStaticSession
@@ -701,14 +702,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const mt = ctx.msgText
         const mc = ctx.msgCaption
         const entity = cd || mt || mc
-        const isCallback = fromListener === `callback`
+        const isCallback = fromListener === `callbackData`
         const separatorMethod = isCallback ? `colon` : `space`
-        const intent = entity && ctx.havePayloads(entity, separatorMethod) ? ctx.getIntent(entity, separatorMethod, 1) : undefined
+        const intent = entity && ctx.haveArgs(entity, separatorMethod) ? ctx.getIntent(entity, separatorMethod, 1) : undefined
         const intent2 = !isCallback && entity ? ctx.getIntent(entity, `space`, 2) : undefined
 
         for (let index = 0; index < this.pages.lenListRouteStaticSession; index++) {
-          const routeName = this.pages.listRouteStaticSession[index] as `animationCaption`
-          if (routeName.startsWith(fromListener)) {
+          const routeName = this.pages.listRouteStaticSession[index] as `handleCaptionAnimation`
+          if (routeName.toLowerCase().endsWith(fromListener)) {
             // O(1) check: skip session-based routing if entity has its own route
             if (entity) {
               // Check in routeStatic (direct O(1) lookup)
@@ -738,7 +739,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * id = 2
      * type = static
      * algoritme = O(1)
-     * example = animationCaption, callback, textCommand
+     * example = handleCaptionAnimation, handleCallbackData, handleCommandText
      * description = route only intent, example "/start", "start", "take-photo-live-in-indonesia"
      */
     if (Page === undefined) {
@@ -747,9 +748,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const mc = ctx.msgCaption
       const pStatic = this.pages.routeStatic
 
+      // console.log(pStatic)
       for (let index = 0; index < this.pages.lenListRouteStatic; index++) {
-        const routeName = this.pages.listRouteStatic[index] as `animationCaption`
-        if (routeName.startsWith(fromListener)) {
+        const routeName = this.pages.listRouteStatic[index] as `handleCaptionAnimation`
+        if (routeName.toLowerCase().endsWith(fromListener)) {
           res = pStatic[routeName][cd || mt || mc]
         }
 
@@ -765,21 +767,21 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * id = 3
      * type = staticIntent
      * algoritme = x = startsWith; O(x)
-     * example = animationCaptionCommandPayload, callbackCommandPayload, textCommandPayload
-     * description = route with intent and payloads, example "/start helloworld", "start helloworld", "/add item1", "/add item1 item2"
+     * example = handleCommandCaptionArgsAnimation, handleCommandArgsCallbackData, handleCommandArgsText
+     * description = route with intent and args, example "/start helloworld", "start helloworld", "/add item1", "/add item1 item2"
      *               "wallet:123", "wallet:123:kkk"
      */
     if (Page === undefined) {
       const pStaticIntent = this.pages.routeStaticIntent
-      const isCallback = fromListener === `callback`
+      const isCallback = fromListener === `callbackData`
       const seperatorMethod = isCallback ? `colon` : `space`
       const data = isCallback ? ctx.callbackData : ctx.msgText || ctx.msgCaption
-      const havePayloads = ctx.havePayloads(data, seperatorMethod)
+      const haveArgs = ctx.haveArgs(data, seperatorMethod)
 
-      if (data && havePayloads) {
+      if (data && haveArgs) {
         for (let index = 0; index < this.pages.lenListRouteStaticIntent; index++) {
-          const routeName = this.pages.listRouteStaticIntent[index] as `textPayload`
-          if (!routeName.startsWith(fromListener)) {
+          const routeName = this.pages.listRouteStaticIntent[index] as `handleArgsText`
+          if (!routeName.toLowerCase().endsWith(fromListener)) {
             continue
           }
 
@@ -816,10 +818,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * id = 4
      * type = dynamicSpesific
      * algoritme = O(n)
-     * example = animationFree, textFree
-     * description = route with suffix free, can be call without session. example "textFree", "animationFree"
+     * example = handleFreeAnimtion, handleFreeText
+     * description = route with suffix free, can be call without session. example "handleFreeText", "handleFreeAnimation"
      *               if have that route in class page you must be add validate session in first line (if use session before)
-     *               example: if (!this.validateSessionTextFree()) { return null }
+     *               example: if (!this.isSessionFreeText()) { return null }
      */
     const arrFree = this.pages.routeDynamicSpesific[fromListener as `animation`] || []
     for (let index = 0; index < arrFree.length; index++) {
@@ -845,7 +847,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * type = dynamic
      * algoritme = O(n)
      * example = free
-     * description = route with name "free", if all case before not match
+     * description = route with name "handleFree", if all case before not match
      */
     for (let index = 0; index < this.pages.routeDynamic.length; index++) {
       const name = this.pages.routeDynamic[index]
@@ -859,9 +861,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       // check first is have route function or not for best performance. if not continue
-      if (typeof Page.prototype.free == `function`) {
+      if (typeof Page.prototype.handleFree == `function`) {
         const initPage = new Page(ctx)
-        await initPage.free!()
+        await initPage.handleFree!()
       }
     }
 
@@ -999,7 +1001,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       // Check all route
-      await this._pageRoutes(ctx, `callback`)
+      await this._pageRoutes(ctx, `callbackData`)
     } catch (error) {
       await this.hookErrorPage(ctx, `onCallbackQueryData`, error, true)
     }

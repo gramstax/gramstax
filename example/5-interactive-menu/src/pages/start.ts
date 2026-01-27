@@ -23,15 +23,15 @@ export class StartPage extends PageBase {
     await this.reply(bkb, {}, StartPage.BASE.quick)
   }
 
-  async textCommand() {
+  async handleCommandText() {
     await this.show(false)
   }
 
-  async text() {
+  async handleText() {
     await this.show(false)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.show(true)
   }
 

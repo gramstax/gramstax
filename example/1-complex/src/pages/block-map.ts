@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class BlockMapPage extends PageBase {
-  async callback() {
+  async handleCallbackData() {
     const kb = this.inlineKeyboardT([this, StartPage])
     const data = {
       arr: Array.from({length: Math.floor(Math.random() * 4) + 3}, () => ({number: Math.random()})),

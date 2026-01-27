@@ -2,19 +2,19 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class RandomNumberPage extends PageBase {
+  async handleCallbackData() {
+    await this.show(true)
+  }
+
+  async handleCommandText() {
+    await this.show(false)
+  }
+
   async show(edit = true) {
     const kb = this.inlineKeyboardT([this, StartPage])
     const da = {result: Math.random() * 10 ** 18}
     if (edit) await this.edit(kb, da)
     else await this.reply(kb, da)
-  }
-
-  async callback() {
-    await this.show(true)
-  }
-
-  async textCommand() {
-    await this.show(false)
   }
 
   static template = `

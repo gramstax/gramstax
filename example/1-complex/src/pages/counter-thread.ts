@@ -5,14 +5,14 @@ import {IncrementJob} from "~/jobs/increment"
 export class CounterThreadPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
-  async callback() {
-    const kb = this.inlineKeyboardT([this.data.callback(`1`), StartPage])
+  async handleCallbackData() {
+    const kb = this.inlineKeyboardT([this.data.callbackdata(`1`), StartPage])
     const count = await IncrementJob.mtdGetCount()
     await this.edit(kb, {count, timestamp: new Date().getTime()})
   }
 
-  async callbackPayload() {
-    await this.callback()
+  async handleArgsCallbackData() {
+    await this.handleCallbackData()
   }
 
   static template = `

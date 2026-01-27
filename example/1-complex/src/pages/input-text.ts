@@ -2,25 +2,25 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class InputTextPage extends PageBase {
-  static data = this.buildData({intentTextCommand: `input_text`})
+  static data = this.buildData({intentCommandText: `input_text`})
   static BASE = {result: `result`}
 
   kb(baseId?: string) {
     return this.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
-  async callback() {
-    await this.sessionTextFree()
+  async handleCallbackData() {
+    await this.sessionFreeText()
     await this.edit(this.kb())
   }
 
-  async textCommand() {
-    await this.sessionTextFree()
+  async handleCommandText() {
+    await this.sessionFreeText()
     await this.reply(this.kb())
   }
 
-  async textFree() {
-    if (!this.isSessionTextFree()) return null
+  async handleFreeText() {
+    if (!this.isSessionFreeText()) return null
     const bi = InputTextPage.BASE.result
     const da = {res: this.msgText}
     await this.reply(this.kb(bi), da, bi)

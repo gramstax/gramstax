@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class ToggleSubscriptionPage extends PageBase {
-  async callback() {
+  async handleCallbackData() {
     const subscribed = await this.db.isSubscribed(this.userId)
     if (subscribed) {
       await this.db.unsubscribe(this.userId)

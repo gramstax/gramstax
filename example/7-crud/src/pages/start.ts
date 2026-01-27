@@ -9,17 +9,17 @@ import {HelpPage} from "./help"
 // Main menu page for CRUD example.
 export class StartPage extends PageBase {
   async show(edit: boolean) {
-    await this.sessionClear()
+    await this.clearSession()
     const kb = this.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`)
     if (edit) await this.edit(kb)
     else await this.reply(kb)
   }
 
-  async textCommand() {
+  async handleCommandText() {
     await this.show(false)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.show(true)
   }
 

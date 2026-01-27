@@ -268,12 +268,12 @@ export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
   name?: string
 
   /**
-   * Optional callback function for payloads.
+   * Optional callback function for args.
    *
    * @remarks
    * Used to define the callback handler for this page route.
    */
-  callback?: C
+  callbackData?: C
 
   /**
    * Optional text intent override.
@@ -347,7 +347,7 @@ export type ITKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${
  * This type defines the internal structure used by the routing system to match
  * incoming updates to the appropriate page handlers.
  *
- * @typeParam T - Tuple type representing the callback payload parameters.
+ * @typeParam T - Tuple type representing the callback arg parameters.
  *
  * @public
  */
@@ -363,23 +363,23 @@ export type ITPageData<T extends any[] = any[]> = {
   name: string
 
   /**
-   * Callback function that processes payloads and returns route data.
+   * Callback function that processes args and returns route data.
    *
    * @remarks
-   * Add payloads to intentCallback, will trigger only to route function callback (besides the ending "free").
-   * This is usually used when you want to insert a payload into it.
+   * Add args to `intentCallbackData`, will trigger only to route function "*Callback*" (besides the match "free").
+   * This is usually used when you want to insert a arg into it.
    *
-   * **Note:** Return value should use ARRAY only if there is a payload so that the background
+   * **Note:** Return value should use ARRAY only if there is a arg so that the background
    * system can process it into a string.
    *
    * **Default:** `this.data.name`
    *
    * **IMPORTANT:** Leave this unset unless explicitly needed.
    *
-   * @param payloads - The payload parameters passed to the callback.
+   * @param args - The args parameters passed to the callback.
    * @returns Route data string.
    */
-  callback: (...payloads: T) => string
+  callbackData: (...args: T) => string
 
   /**
    * Text intent pattern for matching incoming text messages.
@@ -407,21 +407,26 @@ export type ITPageData<T extends any[] = any[]> = {
    *
    * **IMPORTANT:** Leave this unset unless explicitly needed.
    */
-  intentTextCommand: string
+  intentCommandText: string
 
   /**
-   * Position index for payload extraction from text messages.
+   * Position index for arg extraction from text messages.
    *
    * @remarks
-   * An internal value that specifies the payload position for the route function text.
-   * The maximum allowed value is 2, which means only single spaces are supported,
-   * for example, "🏠 Home".
+   * An internal value that specifies the arg position for the route function "handleText" and "handleArgsText".
+   * The maximum allowed value is "2", which means only single spaces are supported,
+   * for example:
+   * ```ts
+   *  // - "1" -> intent:"Home", args:"123 aaa", raw:"Home 123 aaa"
+   *  // - "2" -> intent:"🏠 Home", args:"123 aaa", raw:"🏠 Home 123 aaa"
+   *  // - (NOT WORKING) "3" -> intent:"🏠 Home Land", args:"123 aaa", raw:"🏠 Home Land 123 aaa"
+   * ```
    *
    * **Default:** `1`
    *
    * **IMPORTANT:** Do not set this manually. Let the system handle it.
    */
-  _positionPayloadText: number
+  _positionArgText: number
 
   /**
    * Callback intent pattern for matching callback query data.
@@ -435,7 +440,7 @@ export type ITPageData<T extends any[] = any[]> = {
    *
    * **IMPORTANT:** Do not set this manually. Let the system handle it.
    */
-  intentCallback: string
+  intentCallbackData: string
 }
 
 /**

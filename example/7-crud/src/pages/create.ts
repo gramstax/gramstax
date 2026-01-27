@@ -5,15 +5,15 @@ import {StartPage} from "./start"
 export class CreatePage extends PageBase {
   static BASE = {title: `form-title`, description: `form-description`, success: `success`, invalid: `invalid`}
 
-  async callback() {
-    await this.sessionTextFree({step: `title`})
+  async handleCallbackData() {
+    await this.sessionFreeText({step: `title`})
     const baseId = CreatePage.BASE.title
     await this.edit(this.kb(baseId), {}, baseId)
   }
 
-  async textFree() {
-    if (!this.isSessionTextFree()) return null
-    await this.sessionGet()
+  async handleFreeText() {
+    if (!this.isSessionFreeText()) return null
+    await this.getSession()
     await this.handleCreate(this.msgText)
   }
 
@@ -22,7 +22,7 @@ export class CreatePage extends PageBase {
   }
 
   private getSessionParams() {
-    return (this.session?.params as {step?: `title` | `description`; title?: string} | undefined) ?? {}
+    return (this.temp.session?.params as {step?: `title` | `description`; title?: string} | undefined) ?? {}
   }
 
   private replyBase(baseId: string, data: Record<string, unknown> = {}) {
@@ -35,19 +35,19 @@ export class CreatePage extends PageBase {
     const currentStep = step === `description` ? `description` : `title`
     const value = input?.trim()
     if (!value) {
-      await this.sessionTextFree({step: currentStep})
+      await this.sessionFreeText({step: currentStep})
       return await this.replyBase(BASE.invalid)
     }
     if (currentStep === `title`) {
-      await this.sessionTextFree({step: `description`, title: value})
+      await this.sessionFreeText({step: `description`, title: value})
       return await this.replyBase(BASE.description, {title: value})
     }
     if (!title) {
-      await this.sessionTextFree({step: `title`})
+      await this.sessionFreeText({step: `title`})
       return await this.replyBase(BASE.invalid)
     }
 
-    await this.sessionClear()
+    await this.clearSession()
     const item = await this.db.createItem(this.userId, title, value)
     return await this.replyBase(BASE.success, {id: item.id, title: item.title, description: item.description, status: item.status})
   }

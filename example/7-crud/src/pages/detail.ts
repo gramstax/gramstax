@@ -6,14 +6,14 @@ import {TimeUt} from "~/utils/time"
 export class DetailPage extends PageBase {
   static BASE = {form: `form`, detail: `detail`, notFound: `not-found`, invalid: `invalid`}
 
-  async callback() {
-    await this.sessionTextFree()
+  async handleCallbackData() {
+    await this.sessionFreeText()
     const bi = DetailPage.BASE.form
     await this.edit(this.kb(bi), {}, bi)
   }
 
-  async textFree() {
-    if (!this.isSessionTextFree()) return null
+  async handleFreeText() {
+    if (!this.isSessionFreeText()) return null
     await this.handleDetail(this.msgText)
   }
 
@@ -27,12 +27,12 @@ export class DetailPage extends PageBase {
 
   private async handleInvalid() {
     await this.replyBase(DetailPage.BASE.invalid)
-    await this.sessionClear()
+    await this.clearSession()
   }
 
   private async handleNotFound(id: string) {
     await this.replyBase(DetailPage.BASE.notFound, {id})
-    await this.sessionClear()
+    await this.clearSession()
   }
 
   private async handleDetail(input?: string) {
@@ -49,7 +49,7 @@ export class DetailPage extends PageBase {
     const createdAt = TimeUt.formatTimestamp(item.createdAt)
     const updatedAt = TimeUt.formatTimestamp(item.updatedAt)
     await this.replyBase(DetailPage.BASE.detail, {id: item.id, title: item.title, description: item.description, status: item.status, createdAt, updatedAt})
-    await this.sessionClear()
+    await this.clearSession()
   }
 
   static template = `

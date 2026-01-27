@@ -23,18 +23,18 @@ export class ItemListPage extends PageBase {
     return this.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
-          k.text(item.name, ItemDetailPage.data.callback(`detail`, categoryId, item.id))
+          k.text(item.name, ItemDetailPage.data.callbackdata(`detail`, categoryId, item.id))
           if (index % 2 === 1) k.row()
         })
 
         k.row()
         if (safePage > 0) {
-          k.text(l[0]!, this.data.callback(`page`, `${safePage - 1}`))
+          k.text(l[0]!, this.data.callbackdata(`page`, `${safePage - 1}`))
         }
         if (safePage < totalPages - 1) {
-          k.text(l[1]!, this.data.callback(`page`, `${safePage - 1}`))
+          k.text(l[1]!, this.data.callbackdata(`page`, `${safePage - 1}`))
         }
-        return k.row().text(l[2]!, CategoryPage.data.callback())
+        return k.row().text(l[2]!, CategoryPage.data.callbackdata())
       },
       {baseId: ItemListPage.BASE.list}
     )
@@ -54,16 +54,16 @@ export class ItemListPage extends PageBase {
     else await this.reply(kb, da, bi)
   }
 
-  async callback() {
+  async handleCallbackData() {
     const categoryId = await this.cacheState.get(`${this.userId}:category`)
     if (!categoryId) await new CategoryPage(this).transition(true)
     else await this.transition(categoryId, 0, true)
   }
 
-  async callbackPayload() {
-    const [action, value] = this.callbackDataPayloads
+  async handleArgsCallbackData() {
+    const [action, value] = this.callbackDataArgs
     if (action !== `page`) {
-      return await this.callback()
+      return await this.handleCallbackData()
     }
 
     const categoryId = await this.cacheState.get(`${this.userId}:category`)

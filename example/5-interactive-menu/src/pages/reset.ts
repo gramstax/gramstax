@@ -9,7 +9,7 @@ export class ResetPage extends PageBase {
   async transition(edit = false) {
     await this.cacheState.delete(`${this.userId}:category`)
     await this.cacheState.delete(`${this.userId}:page`)
-    await this.sessionClear()
+    await this.clearSession()
 
     const kb = this.inlineKeyboardT([StartPage])
     const bi = ResetPage.BASE.reset
@@ -17,11 +17,11 @@ export class ResetPage extends PageBase {
     else await this.reply(kb, {}, bi)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.transition(true)
   }
 
-  async text() {
+  async handleText() {
     await this.transition(false)
   }
 

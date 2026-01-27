@@ -9,11 +9,11 @@ export class HelpPage extends PageBase {
     else this.reply(kb)
   }
 
-  async textCommand() {
+  async handleCommandText() {
     await this.show(false)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.show(true)
   }
 

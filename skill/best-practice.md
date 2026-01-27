@@ -43,7 +43,7 @@ description: Best practices for Gramstax real project structure.
 - Avoid inline error strings in handlers; render via template conditional or a base variant.
 - Do not use `+` inside `{~ ... ~}` and `<script></script>`; use template literals or other non-`+` composition.
 - When using template literals inside `{~ ... ~}`, escape backticks and `${}`.
-- Use `\\n` (double slash) for newlines inside `{~ ... ~}` and `<script></script>` to avoid EOF errors.
+- IMPORTANT!: Always use `\\n` (double slash) in template string when used.
 - Use at least a heading + content format for message blocks.
 - Pass template data into `inlineKeyboardT`, `inlineKeyboard`, `bottomKeyboardT` and `bottomKeyboard` when keyboard labels depend on template data.
 - Write production-level message content by default (clear, contextual, user-friendly), not short placeholders.

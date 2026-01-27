@@ -6,13 +6,13 @@ import {ItemListPage} from "./item-list"
 export class ItemDetailPage extends PageBase {
   static data = this.buildData((action?: string, categoryId?: string, itemId?: string) => [action, categoryId, itemId])
 
-  async callbackPayload() {
-    const [action, categoryId, itemId] = this.callbackDataPayloads
+  async handleArgsCallbackData() {
+    const [action, categoryId, itemId] = this.callbackDataArgs
     if (action !== `detail` || !categoryId || !itemId) return null
 
     const item = CatalogMock.getItemById(categoryId, itemId)
     const page = Number((await this.cacheState.get(`${this.userId}:page`)) || 0)
-    const kb = this.inlineKeyboardT([ItemListPage.data.callback(`page`, `${page}`)])
+    const kb = this.inlineKeyboardT([ItemListPage.data.callbackdata(`page`, `${page}`)])
     const da = {
       name: item?.name,
       description: item?.description
