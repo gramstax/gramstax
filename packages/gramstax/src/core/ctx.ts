@@ -3027,178 +3027,178 @@ export class Ctx {
    *
    * @public
    */
-  isSessionCallbackData(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCallbackData(name)
+  isSessionCallbackData() {
+    return this.temp.session.method === this.methodSessionCallbackData()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionArgsCallbackData(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionArgsCallbackData(name)
+  isSessionArgsCallbackData() {
+    return this.temp.session.method === this.methodSessionArgsCallbackData()
   }
   // text
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionText(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionText(name)
+  isSessionText() {
+    return this.temp.session.method === this.methodSessionText()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionArgsText(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionArgsText(name)
+  isSessionArgsText() {
+    return this.temp.session.method === this.methodSessionArgsText()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCommandText(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCommandText(name)
+  isSessionCommandText() {
+    return this.temp.session.method === this.methodSessionCommandText()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCommandArgsText(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCommandArgsText(name)
+  isSessionCommandArgsText() {
+    return this.temp.session.method === this.methodSessionCommandArgsText()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionFreeText(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionFreeText(name)
+  isSessionFreeText() {
+    return this.temp.session.method === this.methodSessionFreeText()
   }
   // photo
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionPhoto(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionPhoto(name)
+  isSessionCaptionPhoto() {
+    return this.temp.session.method === this.methodSessionCaptionPhoto()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionArgsPhoto(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionArgsPhoto(name)
+  isSessionCaptionArgsPhoto() {
+    return this.temp.session.method === this.methodSessionCaptionArgsPhoto()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCommandCaptionPhoto(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionPhoto(name)
+  isSessionCommandCaptionPhoto() {
+    return this.temp.session.method === this.methodSessionCommandCaptionPhoto()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCommandCaptionArgsPhoto(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionArgsPhoto(name)
+  isSessionCommandCaptionArgsPhoto() {
+    return this.temp.session.method === this.methodSessionCommandCaptionArgsPhoto()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionFreePhoto(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionFreePhoto(name)
+  isSessionFreePhoto() {
+    return this.temp.session.method === this.methodSessionFreePhoto()
   }
   // video
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionVideo(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionVideo(name)
+  isSessionCaptionVideo() {
+    return this.temp.session.method === this.methodSessionCaptionVideo()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionArgsVideo(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionArgsVideo(name)
+  isSessionCaptionArgsVideo() {
+    return this.temp.session.method === this.methodSessionCaptionArgsVideo()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCommandCaptionVideo(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionVideo(name)
+  isSessionCommandCaptionVideo() {
+    return this.temp.session.method === this.methodSessionCommandCaptionVideo()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCommandCaptionArgsVideo(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionArgsVideo(name)
+  isSessionCommandCaptionArgsVideo() {
+    return this.temp.session.method === this.methodSessionCommandCaptionArgsVideo()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionFreeVideo(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionFreeVideo(name)
+  isSessionFreeVideo() {
+    return this.temp.session.method === this.methodSessionFreeVideo()
   }
   // audio
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionAudio(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionAudio(name)
+  isSessionCaptionAudio() {
+    return this.temp.session.method === this.methodSessionCaptionAudio()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionArgsAudio(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionArgsAudio(name)
+  isSessionCaptionArgsAudio() {
+    return this.temp.session.method === this.methodSessionCaptionArgsAudio()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionCommandAudio(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionCommandAudio(name)
+  isSessionCaptionCommandAudio() {
+    return this.temp.session.method === this.methodSessionCaptionCommandAudio()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionCommandArgsAudio(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionCommandArgsAudio(name)
+  isSessionCaptionCommandArgsAudio() {
+    return this.temp.session.method === this.methodSessionCaptionCommandArgsAudio()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionFreeAudio(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionFreeAudio(name)
+  isSessionFreeAudio() {
+    return this.temp.session.method === this.methodSessionFreeAudio()
   }
   // document
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionDocument(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionDocument(name)
+  isSessionCaptionDocument() {
+    return this.temp.session.method === this.methodSessionCaptionDocument()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionArgsDocument(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionArgsDocument(name)
+  isSessionCaptionArgsDocument() {
+    return this.temp.session.method === this.methodSessionCaptionArgsDocument()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCommandCaptionDocument(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionDocument(name)
+  isSessionCommandCaptionDocument() {
+    return this.temp.session.method === this.methodSessionCommandCaptionDocument()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCommandCaptionArgsDocument(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionArgsDocument(name)
+  isSessionCommandCaptionArgsDocument() {
+    return this.temp.session.method === this.methodSessionCommandCaptionArgsDocument()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionFreeDocument(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionFreeDocument(name)
+  isSessionFreeDocument() {
+    return this.temp.session.method === this.methodSessionFreeDocument()
   }
   // animation
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionAnimation(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionAnimation(name)
+  isSessionCaptionAnimation() {
+    return this.temp.session.method === this.methodSessionCaptionAnimation()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionArgsAnimation(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionArgsAnimation(name)
+  isSessionCaptionArgsAnimation() {
+    return this.temp.session.method === this.methodSessionCaptionArgsAnimation()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCommandCaptionAnimation(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionAnimation(name)
+  isSessionCommandCaptionAnimation() {
+    return this.temp.session.method === this.methodSessionCommandCaptionAnimation()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCommandCaptionArgsAnimation(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionArgsAnimation(name)
+  isSessionCommandCaptionArgsAnimation() {
+    return this.temp.session.method === this.methodSessionCommandCaptionArgsAnimation()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionFreeAnimation(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionFreeAnimation(name)
+  isSessionFreeAnimation() {
+    return this.temp.session.method === this.methodSessionFreeAnimation()
   }
   // voice
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionVoice(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionVoice(name)
+  isSessionCaptionVoice() {
+    return this.temp.session.method === this.methodSessionCaptionVoice()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionArgsVoice(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCaptionArgsVoice(name)
+  isSessionCaptionArgsVoice() {
+    return this.temp.session.method === this.methodSessionCaptionArgsVoice()
   }
-  isSessionCommandCaptionVoice(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionVoice(name)
-  }
-  /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCommandCaptionArgsVoice(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionCommandCaptionArgsVoice(name)
+  isSessionCommandCaptionVoice() {
+    return this.temp.session.method === this.methodSessionCommandCaptionVoice()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionFreeVoice(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionFreeVoice(name)
+  isSessionCommandCaptionArgsVoice() {
+    return this.temp.session.method === this.methodSessionCommandCaptionArgsVoice()
+  }
+  /** {@inheritDoc Ctx.isSessionCallbackData} */
+  isSessionFreeVoice() {
+    return this.temp.session.method === this.methodSessionFreeVoice()
   }
   // video note
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionFreeVideoNote(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionFreeVideoNote(name)
+  isSessionFreeVideoNote() {
+    return this.temp.session.method === this.methodSessionFreeVideoNote()
   }
   // sticker
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionFreeSticker(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionFreeSticker(name)
+  isSessionFreeSticker() {
+    return this.temp.session.method === this.methodSessionFreeSticker()
   }
   // location
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionFreeLocation(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionFreeLocation(name)
+  isSessionFreeLocation() {
+    return this.temp.session.method === this.methodSessionFreeLocation()
   }
   // contact
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionFreeContact(method?: string, name?: string) {
-    return (method ?? this.temp.session.method) === this.methodSessionFreeContact(name)
+  isSessionFreeContact() {
+    return this.temp.session.method === this.methodSessionFreeContact()
   }
 
   // callback
@@ -3220,179 +3220,179 @@ export class Ctx {
    *
    * @public
    */
-  sessionCallbackData(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCallbackData(name), params)
+  sessionCallbackData(params?: any) {
+    return this.setSession(this.methodSessionCallbackData(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionArgsCallbackData(params?: any, name?: string) {
-    return this.setSession(this.methodSessionArgsCallbackData(name), params)
+  sessionArgsCallbackData(params?: any) {
+    return this.setSession(this.methodSessionArgsCallbackData(), params)
   }
   // text
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionText(params?: any, name?: string) {
-    return this.setSession(this.methodSessionText(name), params)
+  sessionText(params?: any) {
+    return this.setSession(this.methodSessionText(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionArgsText(params?: any, name?: string) {
-    return this.setSession(this.methodSessionArgsText(name), params)
+  sessionArgsText(params?: any) {
+    return this.setSession(this.methodSessionArgsText(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCommandText(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCommandText(name), params)
+  sessionCommandText(params?: any) {
+    return this.setSession(this.methodSessionCommandText(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCommandArgsText(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCommandArgsText(name), params)
+  sessionCommandArgsText(params?: any) {
+    return this.setSession(this.methodSessionCommandArgsText(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionFreeText(params?: any, name?: string) {
-    return this.setSession(this.methodSessionFreeText(name), params)
+  sessionFreeText(params?: any) {
+    return this.setSession(this.methodSessionFreeText(), params)
   }
   // photo
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionPhoto(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionPhoto(name), params)
+  sessionCaptionPhoto(params?: any) {
+    return this.setSession(this.methodSessionCaptionPhoto(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionArgsPhoto(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionArgsPhoto(name), params)
+  sessionCaptionArgsPhoto(params?: any) {
+    return this.setSession(this.methodSessionCaptionArgsPhoto(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCommandCaptionPhoto(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCommandCaptionPhoto(name), params)
+  sessionCommandCaptionPhoto(params?: any) {
+    return this.setSession(this.methodSessionCommandCaptionPhoto(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCommandCaptionArgsPhoto(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCommandCaptionArgsPhoto(name), params)
+  sessionCommandCaptionArgsPhoto(params?: any) {
+    return this.setSession(this.methodSessionCommandCaptionArgsPhoto(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionFreePhoto(params?: any, name?: string) {
-    return this.setSession(this.methodSessionFreePhoto(name), params)
+  sessionFreePhoto(params?: any) {
+    return this.setSession(this.methodSessionFreePhoto(), params)
   }
   // video
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionVideo(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionVideo(name), params)
+  sessionCaptionVideo(params?: any) {
+    return this.setSession(this.methodSessionCaptionVideo(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionArgsVideo(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionArgsVideo(name), params)
+  sessionCaptionArgsVideo(params?: any) {
+    return this.setSession(this.methodSessionCaptionArgsVideo(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCommandCaptionVideo(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCommandCaptionVideo(name), params)
+  sessionCommandCaptionVideo(params?: any) {
+    return this.setSession(this.methodSessionCommandCaptionVideo(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCommandCaptionArgsVideo(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCommandCaptionArgsVideo(name), params)
+  sessionCommandCaptionArgsVideo(params?: any) {
+    return this.setSession(this.methodSessionCommandCaptionArgsVideo(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionFreeVideo(params?: any, name?: string) {
-    return this.setSession(this.methodSessionFreeVideo(name), params)
+  sessionFreeVideo(params?: any) {
+    return this.setSession(this.methodSessionFreeVideo(), params)
   }
   // audio
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionAudio(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionAudio(name), params)
+  sessionCaptionAudio(params?: any) {
+    return this.setSession(this.methodSessionCaptionAudio(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionArgsAudio(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionArgsAudio(name), params)
+  sessionCaptionArgsAudio(params?: any) {
+    return this.setSession(this.methodSessionCaptionArgsAudio(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionCommandAudio(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionCommandAudio(name), params)
+  sessionCaptionCommandAudio(params?: any) {
+    return this.setSession(this.methodSessionCaptionCommandAudio(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionCommandArgsAudio(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionCommandArgsAudio(name), params)
+  sessionCaptionCommandArgsAudio(params?: any) {
+    return this.setSession(this.methodSessionCaptionCommandArgsAudio(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionFreeAudio(params?: any, name?: string) {
-    return this.setSession(this.methodSessionFreeAudio(name), params)
+  sessionFreeAudio(params?: any) {
+    return this.setSession(this.methodSessionFreeAudio(), params)
   }
   // document
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionDocument(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionDocument(name), params)
+  sessionCaptionDocument(params?: any) {
+    return this.setSession(this.methodSessionCaptionDocument(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionArgsDocument(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionArgsDocument(name), params)
+  sessionCaptionArgsDocument(params?: any) {
+    return this.setSession(this.methodSessionCaptionArgsDocument(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCommandCaptionDocument(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCommandCaptionDocument(name), params)
+  sessionCommandCaptionDocument(params?: any) {
+    return this.setSession(this.methodSessionCommandCaptionDocument(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCommandCaptionArgsDocument(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCommandCaptionArgsDocument(name), params)
+  sessionCommandCaptionArgsDocument(params?: any) {
+    return this.setSession(this.methodSessionCommandCaptionArgsDocument(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionFreeDocument(params?: any, name?: string) {
-    return this.setSession(this.methodSessionFreeDocument(name), params)
+  sessionFreeDocument(params?: any) {
+    return this.setSession(this.methodSessionFreeDocument(), params)
   }
   // animation
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionAnimation(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionAnimation(name), params)
+  sessionCaptionAnimation(params?: any) {
+    return this.setSession(this.methodSessionCaptionAnimation(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionArgsAnimation(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionArgsAnimation(name), params)
+  sessionCaptionArgsAnimation(params?: any) {
+    return this.setSession(this.methodSessionCaptionArgsAnimation(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCommandCaptionAnimation(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCommandCaptionAnimation(name), params)
+  sessionCommandCaptionAnimation(params?: any) {
+    return this.setSession(this.methodSessionCommandCaptionAnimation(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCommandCaptionArgsAnimation(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCommandCaptionArgsAnimation(name), params)
+  sessionCommandCaptionArgsAnimation(params?: any) {
+    return this.setSession(this.methodSessionCommandCaptionArgsAnimation(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionFreeAnimation(params?: any, name?: string) {
-    return this.setSession(this.methodSessionFreeAnimation(name), params)
+  sessionFreeAnimation(params?: any) {
+    return this.setSession(this.methodSessionFreeAnimation(), params)
   }
   // voice
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionVoice(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionVoice(name), params)
+  sessionCaptionVoice(params?: any) {
+    return this.setSession(this.methodSessionCaptionVoice(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCaptionArgsVoice(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCaptionArgsVoice(name), params)
+  sessionCaptionArgsVoice(params?: any) {
+    return this.setSession(this.methodSessionCaptionArgsVoice(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCommandCaptionVoice(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCommandCaptionVoice(name), params)
+  sessionCommandCaptionVoice(params?: any) {
+    return this.setSession(this.methodSessionCommandCaptionVoice(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionCommandCaptionArgsVoice(params?: any, name?: string) {
-    return this.setSession(this.methodSessionCommandCaptionArgsVoice(name), params)
+  sessionCommandCaptionArgsVoice(params?: any) {
+    return this.setSession(this.methodSessionCommandCaptionArgsVoice(), params)
   }
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionFreeVoice(params?: any, name?: string) {
-    return this.setSession(this.methodSessionFreeVoice(name), params)
+  sessionFreeVoice(params?: any) {
+    return this.setSession(this.methodSessionFreeVoice(), params)
   }
   // video note
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionFreeVideoNote(params?: any, name?: string) {
-    return this.setSession(this.methodSessionFreeVideoNote(name), params)
+  sessionFreeVideoNote(params?: any) {
+    return this.setSession(this.methodSessionFreeVideoNote(), params)
   }
   // sticker
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionFreeSticker(params?: any, name?: string) {
-    return this.setSession(this.methodSessionFreeSticker(name), params)
+  sessionFreeSticker(params?: any) {
+    return this.setSession(this.methodSessionFreeSticker(), params)
   }
   // location
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionFreeLocation(params?: any, name?: string) {
-    return this.setSession(this.methodSessionFreeLocation(name), params)
+  sessionFreeLocation(params?: any) {
+    return this.setSession(this.methodSessionFreeLocation(), params)
   }
   // contact
   /** {@inheritDoc Ctx.sessionCallbackData} */
-  sessionFreeContact(params?: any, name?: string) {
-    return this.setSession(this.methodSessionFreeContact(name), params)
+  sessionFreeContact(params?: any) {
+    return this.setSession(this.methodSessionFreeContact(), params)
   }
 
   /**

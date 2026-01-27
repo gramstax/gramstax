@@ -1,6 +1,7 @@
-import type LoggingPretty from "logging-pretty"
+import type {BotConfig, Context} from "grammy"
 import type {CacheExternal} from "~/cache/external"
 import type {TemplateManager} from "~/template/manager"
+import type {LoggingUtil} from "~/utils/log"
 
 /**
  * Configuration options for Gramstax bot instance.
@@ -49,7 +50,15 @@ export type ITGramstaxParams = {
    *
    * @defaultValue `false`
    */
-  log?: LoggingPretty | boolean | null
+  log?: LoggingUtil | boolean | null
+
+  /**
+   * grammY Bot configuration options.
+   *
+   * @remarks
+   * Use this to customize API client settings like apiRoot.
+   */
+  botConfig?: BotConfig<Context>
 
   /**
    * Custom session cache implementation.

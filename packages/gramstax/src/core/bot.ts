@@ -1,13 +1,12 @@
 import {Ctx} from "./ctx"
-import {log} from "~/utils/log"
+import {log, type LoggingUtil} from "~/utils/log"
 import {PageManager} from "~/page/manager"
 import {readFileSync} from "node:fs"
 import {fileURLToPath} from "node:url"
 import {dirname, join, parse} from "node:path"
 import {TemplateManager} from "~/template/manager"
 import {CacheExternal, ITCacheRpc} from "~/cache/external"
-import {Bot, webhookCallback, type BotError, type Context} from "grammy"
-import type {LoggingPretty} from "logging-pretty"
+import {Bot, webhookCallback, type BotConfig, type BotError, type Context} from "grammy"
 import type {UserFromGetMe} from "grammy/types"
 import type {ITGramstaxParams} from "~/types/t.bot"
 
@@ -87,13 +86,19 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Logger instance for debugging and info output.
    * @public
    */
-  log: LoggingPretty | undefined
+  log: LoggingUtil | undefined
 
   /**
    * The underlying grammY Bot instance.
    * @public
    */
   bot: Bot
+
+  /**
+   * Optional grammY bot configuration.
+   * @public
+   */
+  botConfig?: BotConfig<Context>
 
   /**
    * Handler function for processing bot updates.
@@ -136,6 +141,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     this.cacheSession = params.cacheSession || new CacheExternal(`memory`)
     this.cacheKeyboard = params.cacheKeyboard || new Map()
+    this.botConfig = params.botConfig
     this.templateManager =
       params.templateManager ||
       new TemplateManager({
@@ -239,7 +245,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   createBot(token: string) {
-    return new Bot(token)
+    return new Bot(token, this.botConfig)
   }
 
   /**
@@ -977,9 +983,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         return
       }
 
-      console.time(`_onMessage:${listenerName}`)
+      this.log?.time(`call _pageRoutes:${listenerName}`)
       const routeResult = await this._pageRoutes(ctx, listenerName)
-      console.timeEnd(`_onMessage:${listenerName}`)
+      this.log?.timeEnd(`call _pageRoutes:${listenerName}`)
       if (routeResult === null) {
         await this.hookErrorInputNotFoundPage(ctx)
       }
@@ -1003,9 +1009,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       // Check all route
-      console.time(`_onCallbackQueryData`)
+      this.log?.time(`call _pageRoutes:callbackdata`)
       await this._pageRoutes(ctx, `callbackdata`)
-      console.timeEnd(`_onCallbackQueryData`)
+      this.log?.timeEnd(`call _pageRoutes:callbackdata`)
     } catch (error) {
       await this.hookErrorPage(ctx, `onCallbackQueryData`, error, true)
     }

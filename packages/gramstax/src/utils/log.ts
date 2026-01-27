@@ -32,7 +32,7 @@ export class LoggingUtil extends LoggingPretty {
    * Internal map to store timing labels and their start timestamps.
    * @private
    */
-  private timers: Map<string, number> = new Map()
+  private timers: Map<string, bigint> = new Map()
 
   /**
    * Creates a new LoggingUtil instance.
@@ -87,31 +87,22 @@ export class LoggingUtil extends LoggingPretty {
   }
 
   /**
-   * Start a timer with a custom label and optional message.
+   * Start a timer with a custom label.
    *
    * @param label - Unique identifier for this timer. Used with `timeEnd()` to calculate duration.
-   * @param message - Optional custom message to display when starting the timer.
    *
    * @example
    * ```typescript
    * const logger = new LoggingUtil();
    *
-   * logger.time("db-query", "Starting database query");
-   * // Logs: db-query: Starting database query
-   *
+   * logger.time("db-query");
    * logger.time("api-call");
-   * // Logs: api-call
    * ```
    *
    * @public
    */
-  time(label: string, message?: string) {
-    if (message) {
-      this.debug(`${label}: ${message}`)
-    } else {
-      this.debug(`${label}`)
-    }
-    this.timers.set(label, Date.now())
+  time(label: string) {
+    this.timers.set(label, process.hrtime.bigint())
   }
 
   /**
@@ -139,19 +130,17 @@ export class LoggingUtil extends LoggingPretty {
    */
   timeEnd(label: string, message?: string) {
     const startTime = this.timers.get(label)
-
     if (startTime === undefined) {
       this.debug(`${label}: Timer was never started`)
       return
     }
 
-    const duration = Date.now() - startTime
+    const duration = (Number(process.hrtime.bigint() - startTime) / 1e6).toFixed(3)
     this.timers.delete(label)
-
     if (message) {
-      this.debug(`(${duration}ms) ${label}: ${message}`)
+      this.debug(`${message} (took ${duration}ms)`)
     } else {
-      this.debug(`(${duration}ms) ${label}`)
+      this.debug(`${label} (took ${duration}ms)`)
     }
   }
 
@@ -175,14 +164,12 @@ export class LoggingUtil extends LoggingPretty {
    *
    * @public
    */
-  timeCheck(label: string): number | undefined {
+  timeCheck(label: string): string | undefined {
     const startTime = this.timers.get(label)
-
     if (startTime === undefined) {
       return undefined
     }
-
-    return Date.now() - startTime
+    return (Number(process.hrtime.bigint() - startTime) / 1e6).toFixed(3)
   }
 
   /**
@@ -211,16 +198,15 @@ export class LoggingUtil extends LoggingPretty {
    */
   timeLog(label: string, message?: string) {
     const elapsed = this.timeCheck(label)
-
     if (elapsed === undefined) {
       this.debug(`${label}: Timer was never started`)
       return
     }
 
     if (message) {
-      this.debug(`(${elapsed}ms) ${label}: ${message}`)
+      this.debug(`${message} (${elapsed}ms)`)
     } else {
-      this.debug(`(${elapsed}ms) ${label}`)
+      this.debug(`${label} (${elapsed}ms)`)
     }
   }
 
@@ -281,7 +267,6 @@ export class LoggingUtil extends LoggingPretty {
  *
  * // Timing measurements
  * log.time("request", "Processing user request");
- * // ... do work ...
  * log.timeEnd("request", "Request completed");
  * // Output: (245ms) request: Request completed
  *

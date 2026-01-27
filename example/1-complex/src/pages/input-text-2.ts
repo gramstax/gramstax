@@ -18,7 +18,6 @@ export class InputText2Page extends PageBase {
   }
 
   async handleFreeText() {
-    // if (!this.isSessionFreeText()) return null
     const bi = InputText2Page.BASE.result
     const da = {res: this.msgText}
     await this.reply(this.kb(bi), da, bi)

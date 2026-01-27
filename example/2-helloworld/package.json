@@ -1,6 +1,5 @@
 {
   "name": "example-2-helloworld",
-
   "private": false,
   "scripts": {
     "start": "bun ./src/index.ts",
