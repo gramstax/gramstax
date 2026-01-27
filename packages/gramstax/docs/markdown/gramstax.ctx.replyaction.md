@@ -58,7 +58,7 @@ True if the action was sent successfully.
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   await this.replyAction("typing")
   // Do some work...
   await this.reply()

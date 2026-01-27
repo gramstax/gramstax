@@ -4,7 +4,7 @@
 
 ## Ctx.msgGift property
 
-Gift payload attached to the message.
+Gift arg attached to the message.
 
 **Signature:**
 

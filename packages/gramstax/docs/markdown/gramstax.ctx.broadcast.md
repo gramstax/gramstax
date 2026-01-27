@@ -156,7 +156,7 @@ Automatically throttles after 30 messages to respect Telegram rate limits. Uses 
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   const userIds = [123456, 789012]
   const langs = ["en", "id"]
   await this.broadcast(userIds, langs)

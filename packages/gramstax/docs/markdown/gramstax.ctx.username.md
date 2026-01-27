@@ -20,7 +20,7 @@ May be `undefined` if the user has not set a username.
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   console.log(this.userName) // "gramstax_user"
 }
 ```

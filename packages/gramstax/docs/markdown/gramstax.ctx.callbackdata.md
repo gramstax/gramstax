@@ -16,7 +16,7 @@ get callbackData(): string;
 
 
 ```typescript
-async callbackPayload() {
+async handleArgsCallbackData() {
   console.log(this.callbackData) // "menu:settings:ok"
 }
 ```

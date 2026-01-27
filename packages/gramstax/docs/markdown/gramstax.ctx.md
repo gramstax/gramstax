@@ -26,7 +26,7 @@ import {Menu1Page} from "./menu1"
 import {Menu2Page} from "./menu2"
 
 class StartPage extends Ctx {
-  async callback() {
+  async handleCallbackData() {
     const kb = this.inlineKeyboardT([Menu1Page, Menu2Page])
     await this.reply(kb)
   }
@@ -50,7 +50,7 @@ import {Menu1Page} from "./menu1"
 import {Menu2Page} from "./menu2"
 
 class StartPage extends Ctx {
-  async callback() {
+  async handleCallbackData() {
     const kb = this.inlineKeyboardT([Menu1Page, Menu2Page], "2", "special-kb")
     await this.reply()
   }
@@ -186,7 +186,7 @@ Raw callback query data from inline keyboard interactions.
 </td></tr>
 <tr><td>
 
-[callbackDataPayload](./gramstax.ctx.callbackdatapayload.md)
+[callbackDataArg](./gramstax.ctx.callbackdataarg.md)
 
 
 </td><td>
@@ -201,13 +201,13 @@ string
 
 </td><td>
 
-The first payload token parsed from callback data.
+The first arg token parsed from callback data.
 
 
 </td></tr>
 <tr><td>
 
-[callbackDataPayloads](./gramstax.ctx.callbackdatapayloads.md)
+[callbackDataArgs](./gramstax.ctx.callbackdataargs.md)
 
 
 </td><td>
@@ -222,7 +222,7 @@ string\[\]
 
 </td><td>
 
-All payload tokens parsed from callback data.
+All arg tokens parsed from callback data.
 
 
 </td></tr>
@@ -304,7 +304,7 @@ grammy\_types.Animation \| undefined
 
 </td><td>
 
-Animation/GIF payload attached to the message.
+Animation/GIF arg attached to the message.
 
 
 </td></tr>
@@ -325,7 +325,7 @@ grammy\_types.Audio \| undefined
 
 </td><td>
 
-Audio payload attached to the message.
+Audio arg attached to the message.
 
 
 </td></tr>
@@ -352,7 +352,7 @@ The caption text for media messages.
 </td></tr>
 <tr><td>
 
-[msgCaptionCommandPayload](./gramstax.ctx.msgcaptioncommandpayload.md)
+[msgCaptionArg](./gramstax.ctx.msgcaptionarg.md)
 
 
 </td><td>
@@ -367,13 +367,13 @@ string
 
 </td><td>
 
-The first payload token from a caption command.
+The first arg token from caption text.
 
 
 </td></tr>
 <tr><td>
 
-[msgCaptionCommandPayloads](./gramstax.ctx.msgcaptioncommandpayloads.md)
+[msgCaptionArgs](./gramstax.ctx.msgcaptionargs.md)
 
 
 </td><td>
@@ -388,13 +388,13 @@ string\[\]
 
 </td><td>
 
-All payload tokens from a caption command.
+All arg tokens parsed from caption text.
 
 
 </td></tr>
 <tr><td>
 
-[msgCaptionPayload](./gramstax.ctx.msgcaptionpayload.md)
+[msgCaptionCommandArg](./gramstax.ctx.msgcaptioncommandarg.md)
 
 
 </td><td>
@@ -409,13 +409,13 @@ string
 
 </td><td>
 
-The first payload token from caption text.
+The first arg token from a caption command.
 
 
 </td></tr>
 <tr><td>
 
-[msgCaptionPayloads](./gramstax.ctx.msgcaptionpayloads.md)
+[msgCaptionCommandArgs](./gramstax.ctx.msgcaptioncommandargs.md)
 
 
 </td><td>
@@ -430,7 +430,7 @@ string\[\]
 
 </td><td>
 
-All payload tokens parsed from caption text.
+All arg tokens from a caption command.
 
 
 </td></tr>
@@ -451,7 +451,7 @@ grammy\_types.Contact \| undefined
 
 </td><td>
 
-Contact payload attached to the message.
+Contact arg attached to the message.
 
 
 </td></tr>
@@ -472,7 +472,7 @@ grammy\_types.Document \| undefined
 
 </td><td>
 
-Document payload attached to the message.
+Document arg attached to the message.
 
 
 </td></tr>
@@ -493,7 +493,7 @@ grammy\_types.GiftInfo \| undefined
 
 </td><td>
 
-Gift payload attached to the message.
+Gift arg attached to the message.
 
 
 </td></tr>
@@ -514,7 +514,7 @@ grammy\_types.Location \| undefined
 
 </td><td>
 
-Location payload attached to the message.
+Location arg attached to the message.
 
 
 </td></tr>
@@ -556,7 +556,7 @@ grammy\_types.Sticker \| undefined
 
 </td><td>
 
-Sticker payload attached to the message.
+Sticker arg attached to the message.
 
 
 </td></tr>
@@ -583,7 +583,7 @@ The raw message text from the current update.
 </td></tr>
 <tr><td>
 
-[msgTextCommandPayload](./gramstax.ctx.msgtextcommandpayload.md)
+[msgTextArg](./gramstax.ctx.msgtextarg.md)
 
 
 </td><td>
@@ -598,13 +598,13 @@ string
 
 </td><td>
 
-The first payload token from a command message.
+The first arg token parsed from message text.
 
 
 </td></tr>
 <tr><td>
 
-[msgTextCommandPayloads](./gramstax.ctx.msgtextcommandpayloads.md)
+[msgTextArgs](./gramstax.ctx.msgtextargs.md)
 
 
 </td><td>
@@ -619,13 +619,13 @@ string\[\]
 
 </td><td>
 
-All payload tokens from a command message.
+All arg tokens parsed from message text.
 
 
 </td></tr>
 <tr><td>
 
-[msgTextPayload](./gramstax.ctx.msgtextpayload.md)
+[msgTextCommandArg](./gramstax.ctx.msgtextcommandarg.md)
 
 
 </td><td>
@@ -640,13 +640,13 @@ string
 
 </td><td>
 
-The first payload token parsed from message text.
+The first arg token from a command message.
 
 
 </td></tr>
 <tr><td>
 
-[msgTextPayloads](./gramstax.ctx.msgtextpayloads.md)
+[msgTextCommandArgs](./gramstax.ctx.msgtextcommandargs.md)
 
 
 </td><td>
@@ -661,7 +661,7 @@ string\[\]
 
 </td><td>
 
-All payload tokens parsed from message text.
+All arg tokens from a command message.
 
 
 </td></tr>
@@ -682,7 +682,7 @@ grammy\_types.Video \| undefined
 
 </td><td>
 
-Video payload attached to the message.
+Video arg attached to the message.
 
 
 </td></tr>
@@ -724,7 +724,7 @@ grammy\_types.Voice \| undefined
 
 </td><td>
 
-Voice message payload attached to the message.
+Voice message arg attached to the message.
 
 
 </td></tr>
@@ -766,7 +766,7 @@ Web app data attached to the message.
 
 </td><td>
 
-Gets and setter the current session data.
+Temporary gets and setter the current session data.
 
 
 </td></tr>
@@ -1017,7 +1017,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[addPayloads(str, mtd, pld)](./gramstax.ctx.addpayloads.md)
+[addArgs(str, mtd, pld)](./gramstax.ctx.addargs.md)
 
 
 </td><td>
@@ -1025,147 +1025,7 @@ Description
 
 </td><td>
 
-Appends payload values to a string using the specified separator.
-
-
-</td></tr>
-<tr><td>
-
-[animationCaption()?](./gramstax.ctx.animationcaption.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for animationCaption match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[animationCaptionCommand()?](./gramstax.ctx.animationcaptioncommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for animationCaption with slash command match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[animationCaptionCommandPayload()?](./gramstax.ctx.animationcaptioncommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for animationCaptionCommandPayload with slash command and payload match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[animationCaptionPayload()?](./gramstax.ctx.animationcaptionpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for animationCaption with payload match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[animationFree()?](./gramstax.ctx.animationfree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for free-form animation input.
-
-
-</td></tr>
-<tr><td>
-
-[audioCaption()?](./gramstax.ctx.audiocaption.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for audioCaption match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[audioCaptionCommand()?](./gramstax.ctx.audiocaptioncommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for audioCaption with slash command match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[audioCaptionCommandPayload()?](./gramstax.ctx.audiocaptioncommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for audioCaptionCommandPayload with slash command and payload match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[audioCaptionPayload()?](./gramstax.ctx.audiocaptionpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for audioCaption with payload match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[audioFree()?](./gramstax.ctx.audiofree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for free-form audio input.
+Appends arg values to a string using the specified separator.
 
 
 </td></tr>
@@ -1227,7 +1087,7 @@ Sends a media message to multiple users in bulk.
 </td></tr>
 <tr><td>
 
-[buildData(callback)](./gramstax.ctx.builddata.md)
+[buildData(callbackData)](./gramstax.ctx.builddata.md)
 
 
 </td><td>
@@ -1291,34 +1151,6 @@ Creates default page routing data configuration.
 </td></tr>
 <tr><td>
 
-[callback()?](./gramstax.ctx.callback.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for callback queries without payloads matching `intentCallback`<!-- -->.
-
-
-</td></tr>
-<tr><td>
-
-[callbackPayload()?](./gramstax.ctx.callbackpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for callback queries with payloads matching `intentCallback`<!-- -->.
-
-
-</td></tr>
-<tr><td>
-
 [callbackQueryAnswer(options)](./gramstax.ctx.callbackqueryanswer.md)
 
 
@@ -1333,7 +1165,7 @@ Answers a callback query with an optional notification.
 </td></tr>
 <tr><td>
 
-[contactFree()?](./gramstax.ctx.contactfree.md)
+[clearSession()](./gramstax.ctx.clearsession.md)
 
 
 </td><td>
@@ -1341,7 +1173,7 @@ Answers a callback query with an optional notification.
 
 </td><td>
 
-_(Optional)_ Route handler for free-form contact input.
+Clears session data for the current user.
 
 
 </td></tr>
@@ -1356,76 +1188,6 @@ _(Optional)_ Route handler for free-form contact input.
 </td><td>
 
 Deletes the current message.
-
-
-</td></tr>
-<tr><td>
-
-[documentCaption()?](./gramstax.ctx.documentcaption.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for documentCaption match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[documentCaptionCommand()?](./gramstax.ctx.documentcaptioncommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for documentCaption with slash command match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[documentCaptionCommandPayload()?](./gramstax.ctx.documentcaptioncommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for documentCaptionCommandPayload with slash command and payload match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[documentCaptionPayload()?](./gramstax.ctx.documentcaptionpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for documentCaption with payload match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[documentFree()?](./gramstax.ctx.documentfree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for free-form document input.
 
 
 </td></tr>
@@ -1599,7 +1361,7 @@ Replaces the current message with a voice message.
 </td></tr>
 <tr><td>
 
-[free()?](./gramstax.ctx.free.md)
+[getArgs(str, mtd, positionStart)](./gramstax.ctx.getargs.md)
 
 
 </td><td>
@@ -1607,7 +1369,7 @@ Replaces the current message with a voice message.
 
 </td><td>
 
-_(Optional)_ Fallback route handler for any unmatched update.
+Extracts arg values from a string.
 
 
 </td></tr>
@@ -1621,21 +1383,7 @@ _(Optional)_ Fallback route handler for any unmatched update.
 
 </td><td>
 
-Extracts the intent portion from a string containing payloads.
-
-
-</td></tr>
-<tr><td>
-
-[getPayloads(str, mtd, positionStart)](./gramstax.ctx.getpayloads.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Extracts payload values from a string.
+Extracts the intent portion from a string containing args.
 
 
 </td></tr>
@@ -1655,7 +1403,7 @@ Gets the separator character for the specified method.
 </td></tr>
 <tr><td>
 
-[havePayloads(str, mtd)](./gramstax.ctx.havepayloads.md)
+[getSession()](./gramstax.ctx.getsession.md)
 
 
 </td><td>
@@ -1663,7 +1411,609 @@ Gets the separator character for the specified method.
 
 </td><td>
 
-Checks if a string contains payload separators.
+Retrieves session data for the current user.
+
+
+</td></tr>
+<tr><td>
+
+[handleArgsCallbackData()?](./gramstax.ctx.handleargscallbackdata.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for callback queries with args matching `intentCallbackData`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[handleArgsText()?](./gramstax.ctx.handleargstext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for text messages with args match intent `intentText`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[handleCallbackData()?](./gramstax.ctx.handlecallbackdata.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for callback queries without args matching `intentCallbackData`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[handleCaptionAnimation()?](./gramstax.ctx.handlecaptionanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for animationCaption match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCaptionArgsAnimation()?](./gramstax.ctx.handlecaptionargsanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for animationCaption with arg match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCaptionArgsAudio()?](./gramstax.ctx.handlecaptionargsaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for audioCaption with arg match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCaptionArgsDocument()?](./gramstax.ctx.handlecaptionargsdocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for documentCaption with arg match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCaptionArgsPhoto()?](./gramstax.ctx.handlecaptionargsphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for photoCaption with arg match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCaptionArgsVideo()?](./gramstax.ctx.handlecaptionargsvideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for videoCaption with arg match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCaptionArgsVoice()?](./gramstax.ctx.handlecaptionargsvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for voiceCaption with arg match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCaptionAudio()?](./gramstax.ctx.handlecaptionaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for audioCaption match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCaptionDocument()?](./gramstax.ctx.handlecaptiondocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for documentCaption match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCaptionPhoto()?](./gramstax.ctx.handlecaptionphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for photoCaptio match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCaptionVideo()?](./gramstax.ctx.handlecaptionvideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for videoCaption match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCaptionVoice()?](./gramstax.ctx.handlecaptionvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for voiceCaption match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandArgsText()?](./gramstax.ctx.handlecommandargstext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for command messages with args match intent `intentCommandText`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandCaptionAnimation()?](./gramstax.ctx.handlecommandcaptionanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for animationCaption with slash command match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandCaptionArgsAnimation()?](./gramstax.ctx.handlecommandcaptionargsanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for animationCaptionCommandPayload with slash command and arg match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandCaptionArgsAudio()?](./gramstax.ctx.handlecommandcaptionargsaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for audioCaptionCommandPayload with slash command and arg match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandCaptionArgsDocument()?](./gramstax.ctx.handlecommandcaptionargsdocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for documentCaptionCommandPayload with slash command and arg match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandCaptionArgsPhoto()?](./gramstax.ctx.handlecommandcaptionargsphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for photoCaptionCommandPayload with slash command and arg match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandCaptionArgsVideo()?](./gramstax.ctx.handlecommandcaptionargsvideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for videoCaptionCommandPayload with slash command and arg match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandCaptionArgsVoice()?](./gramstax.ctx.handlecommandcaptionargsvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for voiceCaptionCommandPayload with slash command and arg match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandCaptionAudio()?](./gramstax.ctx.handlecommandcaptionaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for audioCaption with slash command match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandCaptionDocument()?](./gramstax.ctx.handlecommandcaptiondocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for documentCaption with slash command match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandCaptionPhoto()?](./gramstax.ctx.handlecommandcaptionphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for photoCaption with slash command match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandCaptionVideo()?](./gramstax.ctx.handlecommandcaptionvideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for videoCaption with slash command match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandCaptionVoice()?](./gramstax.ctx.handlecommandcaptionvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route function for voiceCaption with slash command match intent `this.data.name`
+
+
+</td></tr>
+<tr><td>
+
+[handleCommandText()?](./gramstax.ctx.handlecommandtext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for command messages match intent `intentCommandText`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[handleFree()?](./gramstax.ctx.handlefree.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Fallback route handler for any unmatched update.
+
+
+</td></tr>
+<tr><td>
+
+[handleFreeAnimation()?](./gramstax.ctx.handlefreeanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for free-form animation input.
+
+
+</td></tr>
+<tr><td>
+
+[handleFreeAudio()?](./gramstax.ctx.handlefreeaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for free-form audio input.
+
+
+</td></tr>
+<tr><td>
+
+[handleFreeContact()?](./gramstax.ctx.handlefreecontact.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for free-form contact input.
+
+
+</td></tr>
+<tr><td>
+
+[handleFreeDocument()?](./gramstax.ctx.handlefreedocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for free-form document input.
+
+
+</td></tr>
+<tr><td>
+
+[handleFreeLocation()?](./gramstax.ctx.handlefreelocation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for free-form location input.
+
+
+</td></tr>
+<tr><td>
+
+[handleFreePhoto()?](./gramstax.ctx.handlefreephoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for free-form photo input.
+
+
+</td></tr>
+<tr><td>
+
+[handleFreeSticker()?](./gramstax.ctx.handlefreesticker.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for free-form sticker input.
+
+
+</td></tr>
+<tr><td>
+
+[handleFreeText()?](./gramstax.ctx.handlefreetext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for free-form text input.
+
+
+</td></tr>
+<tr><td>
+
+[handleFreeVideo()?](./gramstax.ctx.handlefreevideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for free-form video input.
+
+
+</td></tr>
+<tr><td>
+
+[handleFreeVideoNote()?](./gramstax.ctx.handlefreevideonote.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for free-form video note input.
+
+
+</td></tr>
+<tr><td>
+
+[handleFreeVoice()?](./gramstax.ctx.handlefreevoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for free-form voice input.
+
+
+</td></tr>
+<tr><td>
+
+[handleText()?](./gramstax.ctx.handletext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Route handler for text messages matching `intentText`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[haveArgs(str, mtd)](./gramstax.ctx.haveargs.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Checks if a string contains arg separators.
 
 
 </td></tr>
@@ -1697,7 +2047,7 @@ Creates an inline keyboard with template-based buttons linked to page destinatio
 </td></tr>
 <tr><td>
 
-[isSessionAnimationCaption(method, name)](./gramstax.ctx.issessionanimationcaption.md)
+[isSessionArgsCallbackData(method, name)](./gramstax.ctx.issessionargscallbackdata.md)
 
 
 </td><td>
@@ -1711,7 +2061,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionAnimationCaptionCommand(method, name)](./gramstax.ctx.issessionanimationcaptioncommand.md)
+[isSessionArgsText(method, name)](./gramstax.ctx.issessionargstext.md)
 
 
 </td><td>
@@ -1725,7 +2075,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionAnimationCaptionCommandPayload(method, name)](./gramstax.ctx.issessionanimationcaptioncommandpayload.md)
+[isSessionCallbackData(method, name)](./gramstax.ctx.issessioncallbackdata.md)
 
 
 </td><td>
@@ -1739,7 +2089,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionAnimationCaptionPayload(method, name)](./gramstax.ctx.issessionanimationcaptionpayload.md)
+[isSessionCaptionAnimation(method, name)](./gramstax.ctx.issessioncaptionanimation.md)
 
 
 </td><td>
@@ -1753,7 +2103,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionAnimationFree(method, name)](./gramstax.ctx.issessionanimationfree.md)
+[isSessionCaptionArgsAnimation(method, name)](./gramstax.ctx.issessioncaptionargsanimation.md)
 
 
 </td><td>
@@ -1767,7 +2117,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionAudioCaption(method, name)](./gramstax.ctx.issessionaudiocaption.md)
+[isSessionCaptionArgsAudio(method, name)](./gramstax.ctx.issessioncaptionargsaudio.md)
 
 
 </td><td>
@@ -1781,7 +2131,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionAudioCaptionCommand(method, name)](./gramstax.ctx.issessionaudiocaptioncommand.md)
+[isSessionCaptionArgsDocument(method, name)](./gramstax.ctx.issessioncaptionargsdocument.md)
 
 
 </td><td>
@@ -1795,7 +2145,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionAudioCaptionCommandPayload(method, name)](./gramstax.ctx.issessionaudiocaptioncommandpayload.md)
+[isSessionCaptionArgsPhoto(method, name)](./gramstax.ctx.issessioncaptionargsphoto.md)
 
 
 </td><td>
@@ -1809,7 +2159,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionAudioCaptionPayload(method, name)](./gramstax.ctx.issessionaudiocaptionpayload.md)
+[isSessionCaptionArgsVideo(method, name)](./gramstax.ctx.issessioncaptionargsvideo.md)
 
 
 </td><td>
@@ -1823,7 +2173,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionAudioFree(method, name)](./gramstax.ctx.issessionaudiofree.md)
+[isSessionCaptionArgsVoice(method, name)](./gramstax.ctx.issessioncaptionargsvoice.md)
 
 
 </td><td>
@@ -1837,7 +2187,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCallback(method, name)](./gramstax.ctx.issessioncallback.md)
+[isSessionCaptionAudio(method, name)](./gramstax.ctx.issessioncaptionaudio.md)
 
 
 </td><td>
@@ -1851,7 +2201,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionCallbackPayload(method, name)](./gramstax.ctx.issessioncallbackpayload.md)
+[isSessionCaptionCommandArgsAudio(method, name)](./gramstax.ctx.issessioncaptioncommandargsaudio.md)
 
 
 </td><td>
@@ -1865,7 +2215,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionContactFree(method, name)](./gramstax.ctx.issessioncontactfree.md)
+[isSessionCaptionCommandAudio(method, name)](./gramstax.ctx.issessioncaptioncommandaudio.md)
 
 
 </td><td>
@@ -1879,7 +2229,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionDocumentCaption(method, name)](./gramstax.ctx.issessiondocumentcaption.md)
+[isSessionCaptionDocument(method, name)](./gramstax.ctx.issessioncaptiondocument.md)
 
 
 </td><td>
@@ -1893,7 +2243,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionDocumentCaptionCommand(method, name)](./gramstax.ctx.issessiondocumentcaptioncommand.md)
+[isSessionCaptionPhoto(method, name)](./gramstax.ctx.issessioncaptionphoto.md)
 
 
 </td><td>
@@ -1907,7 +2257,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionDocumentCaptionCommandPayload(method, name)](./gramstax.ctx.issessiondocumentcaptioncommandpayload.md)
+[isSessionCaptionVideo(method, name)](./gramstax.ctx.issessioncaptionvideo.md)
 
 
 </td><td>
@@ -1921,7 +2271,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionDocumentCaptionPayload(method, name)](./gramstax.ctx.issessiondocumentcaptionpayload.md)
+[isSessionCaptionVoice(method, name)](./gramstax.ctx.issessioncaptionvoice.md)
 
 
 </td><td>
@@ -1935,7 +2285,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionDocumentFree(method, name)](./gramstax.ctx.issessiondocumentfree.md)
+[isSessionCommandArgsText(method, name)](./gramstax.ctx.issessioncommandargstext.md)
 
 
 </td><td>
@@ -1949,7 +2299,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionLocationFree(method, name)](./gramstax.ctx.issessionlocationfree.md)
+[isSessionCommandCaptionAnimation(method, name)](./gramstax.ctx.issessioncommandcaptionanimation.md)
 
 
 </td><td>
@@ -1963,7 +2313,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionPhotoCaption(method, name)](./gramstax.ctx.issessionphotocaption.md)
+[isSessionCommandCaptionArgsAnimation(method, name)](./gramstax.ctx.issessioncommandcaptionargsanimation.md)
 
 
 </td><td>
@@ -1977,7 +2327,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionPhotoCaptionCommand(method, name)](./gramstax.ctx.issessionphotocaptioncommand.md)
+[isSessionCommandCaptionArgsDocument(method, name)](./gramstax.ctx.issessioncommandcaptionargsdocument.md)
 
 
 </td><td>
@@ -1991,7 +2341,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionPhotoCaptionCommandPayload(method, name)](./gramstax.ctx.issessionphotocaptioncommandpayload.md)
+[isSessionCommandCaptionArgsPhoto(method, name)](./gramstax.ctx.issessioncommandcaptionargsphoto.md)
 
 
 </td><td>
@@ -2005,7 +2355,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionPhotoCaptionPayload(method, name)](./gramstax.ctx.issessionphotocaptionpayload.md)
+[isSessionCommandCaptionArgsVideo(method, name)](./gramstax.ctx.issessioncommandcaptionargsvideo.md)
 
 
 </td><td>
@@ -2019,7 +2369,7 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionPhotoFree(method, name)](./gramstax.ctx.issessionphotofree.md)
+[isSessionCommandCaptionArgsVoice(method, name)](./gramstax.ctx.issessioncommandcaptionargsvoice.md)
 
 
 </td><td>
@@ -2033,7 +2383,215 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionStickerFree(method, name)](./gramstax.ctx.issessionstickerfree.md)
+[isSessionCommandCaptionDocument(method, name)](./gramstax.ctx.issessioncommandcaptiondocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionCommandCaptionPhoto(method, name)](./gramstax.ctx.issessioncommandcaptionphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionCommandCaptionVideo(method, name)](./gramstax.ctx.issessioncommandcaptionvideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionCommandCaptionVoice(method, name)](./gramstax.ctx.issessioncommandcaptionvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[isSessionCommandText(method, name)](./gramstax.ctx.issessioncommandtext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionFreeAnimation(method, name)](./gramstax.ctx.issessionfreeanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionFreeAudio(method, name)](./gramstax.ctx.issessionfreeaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionFreeContact(method, name)](./gramstax.ctx.issessionfreecontact.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionFreeDocument(method, name)](./gramstax.ctx.issessionfreedocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionFreeLocation(method, name)](./gramstax.ctx.issessionfreelocation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionFreePhoto(method, name)](./gramstax.ctx.issessionfreephoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionFreeSticker(method, name)](./gramstax.ctx.issessionfreesticker.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionFreeText(method, name)](./gramstax.ctx.issessionfreetext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionFreeVideo(method, name)](./gramstax.ctx.issessionfreevideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionFreeVideoNote(method, name)](./gramstax.ctx.issessionfreevideonote.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation methods.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionFreeVoice(method, name)](./gramstax.ctx.issessionfreevoice.md)
 
 
 </td><td>
@@ -2061,214 +2619,6 @@ Session validation methods.
 </td></tr>
 <tr><td>
 
-[isSessionTextCommand(method, name)](./gramstax.ctx.issessiontextcommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionTextCommandPayload(method, name)](./gramstax.ctx.issessiontextcommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionTextFree(method, name)](./gramstax.ctx.issessiontextfree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionTextPayload(method, name)](./gramstax.ctx.issessiontextpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionVideoCaption(method, name)](./gramstax.ctx.issessionvideocaption.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionVideoCaptionCommand(method, name)](./gramstax.ctx.issessionvideocaptioncommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionVideoCaptionCommandPayload(method, name)](./gramstax.ctx.issessionvideocaptioncommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionVideoCaptionPayload(method, name)](./gramstax.ctx.issessionvideocaptionpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionVideoFree(method, name)](./gramstax.ctx.issessionvideofree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionVideoNoteFree(method, name)](./gramstax.ctx.issessionvideonotefree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionVoiceCaption(method, name)](./gramstax.ctx.issessionvoicecaption.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionVoiceCaptionCommand(method, name)](./gramstax.ctx.issessionvoicecaptioncommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[isSessionVoiceCaptionCommandPayload(method, name)](./gramstax.ctx.issessionvoicecaptioncommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionVoiceCaptionPayload(method, name)](./gramstax.ctx.issessionvoicecaptionpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionVoiceFree(method, name)](./gramstax.ctx.issessionvoicefree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
 [keyboardCols(k, l, layout, cb)](./gramstax.ctx.keyboardcols.md)
 
 
@@ -2278,20 +2628,6 @@ Session validation methods.
 </td><td>
 
 Helper method to arrange keyboard buttons in a grid layout.
-
-
-</td></tr>
-<tr><td>
-
-[locationFree()?](./gramstax.ctx.locationfree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for free-form location input.
 
 
 </td></tr>
@@ -2311,7 +2647,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionAnimationCaption(name)](./gramstax.ctx.methodsessionanimationcaption.md)
+[methodSessionArgsCallbackData(name)](./gramstax.ctx.methodsessionargscallbackdata.md)
 
 
 </td><td>
@@ -2325,7 +2661,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionAnimationCaptionCommand(name)](./gramstax.ctx.methodsessionanimationcaptioncommand.md)
+[methodSessionArgsText(name)](./gramstax.ctx.methodsessionargstext.md)
 
 
 </td><td>
@@ -2339,7 +2675,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionAnimationCaptionCommandPayload(name)](./gramstax.ctx.methodsessionanimationcaptioncommandpayload.md)
+[methodSessionCallbackData(name)](./gramstax.ctx.methodsessioncallbackdata.md)
 
 
 </td><td>
@@ -2353,7 +2689,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionAnimationCaptionPayload(name)](./gramstax.ctx.methodsessionanimationcaptionpayload.md)
+[methodSessionCaptionAnimation(name)](./gramstax.ctx.methodsessioncaptionanimation.md)
 
 
 </td><td>
@@ -2367,7 +2703,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionAnimationFree(name)](./gramstax.ctx.methodsessionanimationfree.md)
+[methodSessionCaptionArgsAnimation(name)](./gramstax.ctx.methodsessioncaptionargsanimation.md)
 
 
 </td><td>
@@ -2381,7 +2717,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionAudioCaption(name)](./gramstax.ctx.methodsessionaudiocaption.md)
+[methodSessionCaptionArgsAudio(name)](./gramstax.ctx.methodsessioncaptionargsaudio.md)
 
 
 </td><td>
@@ -2395,7 +2731,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionAudioCaptionCommand(name)](./gramstax.ctx.methodsessionaudiocaptioncommand.md)
+[methodSessionCaptionArgsDocument(name)](./gramstax.ctx.methodsessioncaptionargsdocument.md)
 
 
 </td><td>
@@ -2409,7 +2745,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionAudioCaptionCommandPayload(name)](./gramstax.ctx.methodsessionaudiocaptioncommandpayload.md)
+[methodSessionCaptionArgsPhoto(name)](./gramstax.ctx.methodsessioncaptionargsphoto.md)
 
 
 </td><td>
@@ -2423,7 +2759,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionAudioCaptionPayload(name)](./gramstax.ctx.methodsessionaudiocaptionpayload.md)
+[methodSessionCaptionArgsVideo(name)](./gramstax.ctx.methodsessioncaptionargsvideo.md)
 
 
 </td><td>
@@ -2437,7 +2773,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionAudioFree(name)](./gramstax.ctx.methodsessionaudiofree.md)
+[methodSessionCaptionArgsVoice(name)](./gramstax.ctx.methodsessioncaptionargsvoice.md)
 
 
 </td><td>
@@ -2451,7 +2787,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionCallback(name)](./gramstax.ctx.methodsessioncallback.md)
+[methodSessionCaptionAudio(name)](./gramstax.ctx.methodsessioncaptionaudio.md)
 
 
 </td><td>
@@ -2465,7 +2801,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionCallbackPayload(name)](./gramstax.ctx.methodsessioncallbackpayload.md)
+[methodSessionCaptionCommandArgsAudio(name)](./gramstax.ctx.methodsessioncaptioncommandargsaudio.md)
 
 
 </td><td>
@@ -2479,7 +2815,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionContactFree(name)](./gramstax.ctx.methodsessioncontactfree.md)
+[methodSessionCaptionCommandAudio(name)](./gramstax.ctx.methodsessioncaptioncommandaudio.md)
 
 
 </td><td>
@@ -2493,7 +2829,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionDocumentCaption(name)](./gramstax.ctx.methodsessiondocumentcaption.md)
+[methodSessionCaptionDocument(name)](./gramstax.ctx.methodsessioncaptiondocument.md)
 
 
 </td><td>
@@ -2507,7 +2843,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionDocumentCaptionCommand(name)](./gramstax.ctx.methodsessiondocumentcaptioncommand.md)
+[methodSessionCaptionPhoto(name)](./gramstax.ctx.methodsessioncaptionphoto.md)
 
 
 </td><td>
@@ -2521,7 +2857,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionDocumentCaptionCommandPayload(name)](./gramstax.ctx.methodsessiondocumentcaptioncommandpayload.md)
+[methodSessionCaptionVideo(name)](./gramstax.ctx.methodsessioncaptionvideo.md)
 
 
 </td><td>
@@ -2535,7 +2871,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionDocumentCaptionPayload(name)](./gramstax.ctx.methodsessiondocumentcaptionpayload.md)
+[methodSessionCaptionVoice(name)](./gramstax.ctx.methodsessioncaptionvoice.md)
 
 
 </td><td>
@@ -2549,7 +2885,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionDocumentFree(name)](./gramstax.ctx.methodsessiondocumentfree.md)
+[methodSessionCommandArgsText(name)](./gramstax.ctx.methodsessioncommandargstext.md)
 
 
 </td><td>
@@ -2563,7 +2899,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionLocationFree(name)](./gramstax.ctx.methodsessionlocationfree.md)
+[methodSessionCommandCaptionAnimation(name)](./gramstax.ctx.methodsessioncommandcaptionanimation.md)
 
 
 </td><td>
@@ -2577,7 +2913,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionPhotoCaption(name)](./gramstax.ctx.methodsessionphotocaption.md)
+[methodSessionCommandCaptionArgsAnimation(name)](./gramstax.ctx.methodsessioncommandcaptionargsanimation.md)
 
 
 </td><td>
@@ -2591,7 +2927,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionPhotoCaptionCommand(name)](./gramstax.ctx.methodsessionphotocaptioncommand.md)
+[methodSessionCommandCaptionArgsDocument(name)](./gramstax.ctx.methodsessioncommandcaptionargsdocument.md)
 
 
 </td><td>
@@ -2605,7 +2941,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionPhotoCaptionCommandPayload(name)](./gramstax.ctx.methodsessionphotocaptioncommandpayload.md)
+[methodSessionCommandCaptionArgsPhoto(name)](./gramstax.ctx.methodsessioncommandcaptionargsphoto.md)
 
 
 </td><td>
@@ -2619,7 +2955,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionPhotoCaptionPayload(name)](./gramstax.ctx.methodsessionphotocaptionpayload.md)
+[methodSessionCommandCaptionArgsVideo(name)](./gramstax.ctx.methodsessioncommandcaptionargsvideo.md)
 
 
 </td><td>
@@ -2633,7 +2969,7 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionPhotoFree(name)](./gramstax.ctx.methodsessionphotofree.md)
+[methodSessionCommandCaptionArgsVoice(name)](./gramstax.ctx.methodsessioncommandcaptionargsvoice.md)
 
 
 </td><td>
@@ -2647,7 +2983,217 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionStickerFree(name)](./gramstax.ctx.methodsessionstickerfree.md)
+[methodSessionCommandCaptionDocument(name)](./gramstax.ctx.methodsessioncommandcaptiondocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionCommandCaptionPhoto(name)](./gramstax.ctx.methodsessioncommandcaptionphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionCommandCaptionVideo(name)](./gramstax.ctx.methodsessioncommandcaptionvideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionCommandCaptionVoice(name)](./gramstax.ctx.methodsessioncommandcaptionvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionCommandText(name)](./gramstax.ctx.methodsessioncommandtext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeAnimation(name)](./gramstax.ctx.methodsessionfreeanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeAudio(name)](./gramstax.ctx.methodsessionfreeaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeContact(name)](./gramstax.ctx.methodsessionfreecontact.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeDocument(name)](./gramstax.ctx.methodsessionfreedocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeLocation(name)](./gramstax.ctx.methodsessionfreelocation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreePhoto(name)](./gramstax.ctx.methodsessionfreephoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeSticker(name)](./gramstax.ctx.methodsessionfreesticker.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeText(name)](./gramstax.ctx.methodsessionfreetext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeVideo(name)](./gramstax.ctx.methodsessionfreevideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeVideoNote(name)](./gramstax.ctx.methodsessionfreevideonote.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionFreeVoice(name)](./gramstax.ctx.methodsessionfreevoice.md)
 
 
 </td><td>
@@ -2670,286 +3216,6 @@ Session method name builders.
 </td><td>
 
 Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionTextCommand(name)](./gramstax.ctx.methodsessiontextcommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionTextCommandPayload(name)](./gramstax.ctx.methodsessiontextcommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionTextFree(name)](./gramstax.ctx.methodsessiontextfree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionTextPayload(name)](./gramstax.ctx.methodsessiontextpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionVideoCaption(name)](./gramstax.ctx.methodsessionvideocaption.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionVideoCaptionCommand(name)](./gramstax.ctx.methodsessionvideocaptioncommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionVideoCaptionCommandPayload(name)](./gramstax.ctx.methodsessionvideocaptioncommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionVideoCaptionPayload(name)](./gramstax.ctx.methodsessionvideocaptionpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionVideoFree(name)](./gramstax.ctx.methodsessionvideofree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionVideoNoteFree(name)](./gramstax.ctx.methodsessionvideonotefree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionVoiceCaption(name)](./gramstax.ctx.methodsessionvoicecaption.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionVoiceCaptionCommand(name)](./gramstax.ctx.methodsessionvoicecaptioncommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionVoiceCaptionCommandPayload(name)](./gramstax.ctx.methodsessionvoicecaptioncommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionVoiceCaptionPayload(name)](./gramstax.ctx.methodsessionvoicecaptionpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionVoiceFree(name)](./gramstax.ctx.methodsessionvoicefree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[photoCaption()?](./gramstax.ctx.photocaption.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for photoCaption match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[photoCaptionCommand()?](./gramstax.ctx.photocaptioncommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for photoCaption with slash command match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[photoCaptionCommandPayload()?](./gramstax.ctx.photocaptioncommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for photoCaptionCommandPayload with slash command and payload match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[photoCaptionPayload()?](./gramstax.ctx.photocaptionpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for photoCaption with payload match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[photoFree()?](./gramstax.ctx.photofree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for free-form photo input.
 
 
 </td></tr>
@@ -3137,7 +3403,7 @@ Sends a voice message using the page template.
 </td></tr>
 <tr><td>
 
-[sessionAnimationCaption(params, name)](./gramstax.ctx.sessionanimationcaption.md)
+[sessionArgsCallbackData(params, name)](./gramstax.ctx.sessionargscallbackdata.md)
 
 
 </td><td>
@@ -3151,7 +3417,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionAnimationCaptionCommand(params, name)](./gramstax.ctx.sessionanimationcaptioncommand.md)
+[sessionArgsText(params, name)](./gramstax.ctx.sessionargstext.md)
 
 
 </td><td>
@@ -3165,7 +3431,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionAnimationCaptionCommandPayload(params, name)](./gramstax.ctx.sessionanimationcaptioncommandpayload.md)
+[sessionCallbackData(params, name)](./gramstax.ctx.sessioncallbackdata.md)
 
 
 </td><td>
@@ -3179,7 +3445,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionAnimationCaptionPayload(params, name)](./gramstax.ctx.sessionanimationcaptionpayload.md)
+[sessionCaptionAnimation(params, name)](./gramstax.ctx.sessioncaptionanimation.md)
 
 
 </td><td>
@@ -3193,7 +3459,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionAnimationFree(params, name)](./gramstax.ctx.sessionanimationfree.md)
+[sessionCaptionArgsAnimation(params, name)](./gramstax.ctx.sessioncaptionargsanimation.md)
 
 
 </td><td>
@@ -3207,7 +3473,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionAudioCaption(params, name)](./gramstax.ctx.sessionaudiocaption.md)
+[sessionCaptionArgsAudio(params, name)](./gramstax.ctx.sessioncaptionargsaudio.md)
 
 
 </td><td>
@@ -3221,7 +3487,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionAudioCaptionCommand(params, name)](./gramstax.ctx.sessionaudiocaptioncommand.md)
+[sessionCaptionArgsDocument(params, name)](./gramstax.ctx.sessioncaptionargsdocument.md)
 
 
 </td><td>
@@ -3235,7 +3501,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionAudioCaptionCommandPayload(params, name)](./gramstax.ctx.sessionaudiocaptioncommandpayload.md)
+[sessionCaptionArgsPhoto(params, name)](./gramstax.ctx.sessioncaptionargsphoto.md)
 
 
 </td><td>
@@ -3249,7 +3515,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionAudioCaptionPayload(params, name)](./gramstax.ctx.sessionaudiocaptionpayload.md)
+[sessionCaptionArgsVideo(params, name)](./gramstax.ctx.sessioncaptionargsvideo.md)
 
 
 </td><td>
@@ -3263,7 +3529,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionAudioFree(params, name)](./gramstax.ctx.sessionaudiofree.md)
+[sessionCaptionArgsVoice(params, name)](./gramstax.ctx.sessioncaptionargsvoice.md)
 
 
 </td><td>
@@ -3277,7 +3543,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCallback(params, name)](./gramstax.ctx.sessioncallback.md)
+[sessionCaptionAudio(params, name)](./gramstax.ctx.sessioncaptionaudio.md)
 
 
 </td><td>
@@ -3291,7 +3557,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionCallbackPayload(params, name)](./gramstax.ctx.sessioncallbackpayload.md)
+[sessionCaptionCommandArgsAudio(params, name)](./gramstax.ctx.sessioncaptioncommandargsaudio.md)
 
 
 </td><td>
@@ -3305,21 +3571,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionClear()](./gramstax.ctx.sessionclear.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Clears session data for the current user.
-
-
-</td></tr>
-<tr><td>
-
-[sessionContactFree(params, name)](./gramstax.ctx.sessioncontactfree.md)
+[sessionCaptionCommandAudio(params, name)](./gramstax.ctx.sessioncaptioncommandaudio.md)
 
 
 </td><td>
@@ -3333,7 +3585,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionDocumentCaption(params, name)](./gramstax.ctx.sessiondocumentcaption.md)
+[sessionCaptionDocument(params, name)](./gramstax.ctx.sessioncaptiondocument.md)
 
 
 </td><td>
@@ -3347,7 +3599,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionDocumentCaptionCommand(params, name)](./gramstax.ctx.sessiondocumentcaptioncommand.md)
+[sessionCaptionPhoto(params, name)](./gramstax.ctx.sessioncaptionphoto.md)
 
 
 </td><td>
@@ -3361,7 +3613,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionDocumentCaptionCommandPayload(params, name)](./gramstax.ctx.sessiondocumentcaptioncommandpayload.md)
+[sessionCaptionVideo(params, name)](./gramstax.ctx.sessioncaptionvideo.md)
 
 
 </td><td>
@@ -3375,7 +3627,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionDocumentCaptionPayload(params, name)](./gramstax.ctx.sessiondocumentcaptionpayload.md)
+[sessionCaptionVoice(params, name)](./gramstax.ctx.sessioncaptionvoice.md)
 
 
 </td><td>
@@ -3389,7 +3641,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionDocumentFree(params, name)](./gramstax.ctx.sessiondocumentfree.md)
+[sessionCommandArgsText(params, name)](./gramstax.ctx.sessioncommandargstext.md)
 
 
 </td><td>
@@ -3403,21 +3655,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionGet()](./gramstax.ctx.sessionget.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Retrieves session data for the current user.
-
-
-</td></tr>
-<tr><td>
-
-[sessionLocationFree(params, name)](./gramstax.ctx.sessionlocationfree.md)
+[sessionCommandCaptionAnimation(params, name)](./gramstax.ctx.sessioncommandcaptionanimation.md)
 
 
 </td><td>
@@ -3431,7 +3669,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionPhotoCaption(params, name)](./gramstax.ctx.sessionphotocaption.md)
+[sessionCommandCaptionArgsAnimation(params, name)](./gramstax.ctx.sessioncommandcaptionargsanimation.md)
 
 
 </td><td>
@@ -3445,7 +3683,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionPhotoCaptionCommand(params, name)](./gramstax.ctx.sessionphotocaptioncommand.md)
+[sessionCommandCaptionArgsDocument(params, name)](./gramstax.ctx.sessioncommandcaptionargsdocument.md)
 
 
 </td><td>
@@ -3459,7 +3697,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionPhotoCaptionCommandPayload(params, name)](./gramstax.ctx.sessionphotocaptioncommandpayload.md)
+[sessionCommandCaptionArgsPhoto(params, name)](./gramstax.ctx.sessioncommandcaptionargsphoto.md)
 
 
 </td><td>
@@ -3473,7 +3711,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionPhotoCaptionPayload(params, name)](./gramstax.ctx.sessionphotocaptionpayload.md)
+[sessionCommandCaptionArgsVideo(params, name)](./gramstax.ctx.sessioncommandcaptionargsvideo.md)
 
 
 </td><td>
@@ -3487,7 +3725,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionPhotoFree(params, name)](./gramstax.ctx.sessionphotofree.md)
+[sessionCommandCaptionArgsVoice(params, name)](./gramstax.ctx.sessioncommandcaptionargsvoice.md)
 
 
 </td><td>
@@ -3501,7 +3739,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionSet(method, params, moreRoot)](./gramstax.ctx.sessionset.md)
+[sessionCommandCaptionDocument(params, name)](./gramstax.ctx.sessioncommandcaptiondocument.md)
 
 
 </td><td>
@@ -3509,13 +3747,209 @@ Session set helper methods.
 
 </td><td>
 
-Sets session data for the current user.
+Session set helper methods.
 
 
 </td></tr>
 <tr><td>
 
-[sessionStickerFree(params, name)](./gramstax.ctx.sessionstickerfree.md)
+[sessionCommandCaptionPhoto(params, name)](./gramstax.ctx.sessioncommandcaptionphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionCommandCaptionVideo(params, name)](./gramstax.ctx.sessioncommandcaptionvideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionCommandCaptionVoice(params, name)](./gramstax.ctx.sessioncommandcaptionvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionCommandText(params, name)](./gramstax.ctx.sessioncommandtext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionFreeAnimation(params, name)](./gramstax.ctx.sessionfreeanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionFreeAudio(params, name)](./gramstax.ctx.sessionfreeaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionFreeContact(params, name)](./gramstax.ctx.sessionfreecontact.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionFreeDocument(params, name)](./gramstax.ctx.sessionfreedocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionFreeLocation(params, name)](./gramstax.ctx.sessionfreelocation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionFreePhoto(params, name)](./gramstax.ctx.sessionfreephoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionFreeSticker(params, name)](./gramstax.ctx.sessionfreesticker.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionFreeText(params, name)](./gramstax.ctx.sessionfreetext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionFreeVideo(params, name)](./gramstax.ctx.sessionfreevideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionFreeVideoNote(params, name)](./gramstax.ctx.sessionfreevideonote.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[sessionFreeVoice(params, name)](./gramstax.ctx.sessionfreevoice.md)
 
 
 </td><td>
@@ -3543,7 +3977,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[sessionTextCommand(params, name)](./gramstax.ctx.sessiontextcommand.md)
+[setSession(method, params, moreRoot)](./gramstax.ctx.setsession.md)
 
 
 </td><td>
@@ -3551,287 +3985,7 @@ Session set helper methods.
 
 </td><td>
 
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionTextCommandPayload(params, name)](./gramstax.ctx.sessiontextcommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionTextFree(params, name)](./gramstax.ctx.sessiontextfree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionTextPayload(params, name)](./gramstax.ctx.sessiontextpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionVideoCaption(params, name)](./gramstax.ctx.sessionvideocaption.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionVideoCaptionCommand(params, name)](./gramstax.ctx.sessionvideocaptioncommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionVideoCaptionCommandPayload(params, name)](./gramstax.ctx.sessionvideocaptioncommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionVideoCaptionPayload(params, name)](./gramstax.ctx.sessionvideocaptionpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionVideoFree(params, name)](./gramstax.ctx.sessionvideofree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionVideoNoteFree(params, name)](./gramstax.ctx.sessionvideonotefree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionVoiceCaption(params, name)](./gramstax.ctx.sessionvoicecaption.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionVoiceCaptionCommand(params, name)](./gramstax.ctx.sessionvoicecaptioncommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionVoiceCaptionCommandPayload(params, name)](./gramstax.ctx.sessionvoicecaptioncommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionVoiceCaptionPayload(params, name)](./gramstax.ctx.sessionvoicecaptionpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[sessionVoiceFree(params, name)](./gramstax.ctx.sessionvoicefree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[stickerFree()?](./gramstax.ctx.stickerfree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for free-form sticker input.
-
-
-</td></tr>
-<tr><td>
-
-[text()?](./gramstax.ctx.text.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for text messages matching `intentText`<!-- -->.
-
-
-</td></tr>
-<tr><td>
-
-[textCommand()?](./gramstax.ctx.textcommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for command messages match intent `intentTextCommand`<!-- -->.
-
-
-</td></tr>
-<tr><td>
-
-[textCommandPayload()?](./gramstax.ctx.textcommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for command messages with payloads match intent `intentTextCommand`<!-- -->.
-
-
-</td></tr>
-<tr><td>
-
-[textFree()?](./gramstax.ctx.textfree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for free-form text input.
-
-
-</td></tr>
-<tr><td>
-
-[textPayload()?](./gramstax.ctx.textpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for text messages with payloads match intent `intentText`<!-- -->.
+Sets session data for the current user.
 
 
 </td></tr>
@@ -3846,160 +4000,6 @@ _(Optional)_ Route handler for text messages with payloads match intent `intentT
 </td><td>
 
 _(Optional)_ Transition method for navigating between pages.
-
-
-</td></tr>
-<tr><td>
-
-[videoCaption()?](./gramstax.ctx.videocaption.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for videoCaption match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[videoCaptionCommand()?](./gramstax.ctx.videocaptioncommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for videoCaption with slash command match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[videoCaptionCommandPayload()?](./gramstax.ctx.videocaptioncommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for videoCaptionCommandPayload with slash command and payload match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[videoCaptionPayload()?](./gramstax.ctx.videocaptionpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for videoCaption with payload match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[videoFree()?](./gramstax.ctx.videofree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for free-form video input.
-
-
-</td></tr>
-<tr><td>
-
-[videoNoteFree()?](./gramstax.ctx.videonotefree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for free-form video note input.
-
-
-</td></tr>
-<tr><td>
-
-[voiceCaption()?](./gramstax.ctx.voicecaption.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for voiceCaption match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[voiceCaptionCommand()?](./gramstax.ctx.voicecaptioncommand.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for voiceCaption with slash command match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[voiceCaptionCommandPayload()?](./gramstax.ctx.voicecaptioncommandpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for voiceCaptionCommandPayload with slash command and payload match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[voiceCaptionPayload()?](./gramstax.ctx.voicecaptionpayload.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route function for voiceCaption with payload match intent `this.data.name`
-
-
-</td></tr>
-<tr><td>
-
-[voiceFree()?](./gramstax.ctx.voicefree.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Route handler for free-form voice input.
 
 
 </td></tr>

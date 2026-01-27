@@ -4,7 +4,7 @@
 
 ## Ctx.msgVideo property
 
-Video payload attached to the message.
+Video arg attached to the message.
 
 **Signature:**
 

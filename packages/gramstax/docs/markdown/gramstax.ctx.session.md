@@ -4,7 +4,7 @@
 
 ## Ctx.session property
 
-Gets and setter the current session data.
+Temporary gets and setter the current session data.
 
 **Signature:**
 
@@ -14,13 +14,18 @@ get session(): ITTemp[`session`];
 set session(v: ITTemp[`session`]);
 ```
 
+## Remarks
+
+IMPORTANT: this is same as `this.temp.session` if you need set session use session\*() or setSession() not from this !
+
 ## Example
 
 
 ```typescript
-async textFree() {
-  const session = this.session
-  console.log(session) // {method: "...", params: ...}
+async handleFreeText() {
+  // both is same
+  console.log(this.temp.session) // {method: "1-start", params: {random: "1234nhsu37"}}
+  console.log(this.temp.session) // {method: "1-start", params: {random: "1234nhsu37"}}
 }
 ```
 

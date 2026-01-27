@@ -126,7 +126,7 @@ This is the base method for all media reply methods. Use specific methods like [
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   await this.replyMedia("photo")
 }
 ```

@@ -62,7 +62,7 @@ Should be called in callback handlers to acknowledge the callback query. Errors 
 
 
 ```typescript
-async callbackPayload() {
+async handleArgsCallback() {
   await this.callbackQueryAnswer({text: "Action completed!"})
   await this.edit()
 }

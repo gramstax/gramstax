@@ -16,7 +16,7 @@ get userId(): number;
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   console.log(this.userId) // 12345678
 }
 ```

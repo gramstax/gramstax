@@ -11,7 +11,7 @@ Options for building page routing data configuration.
 ```typescript
 type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
     name?: string;
-    callback?: C;
+    callbackData?: C;
     intentText?: string;
     intentTextCommand?: string;
 };

@@ -59,298 +59,290 @@ _pageLoads(): {
             }[];
         };
         routeStatic: {
-            text: Record<string, {
+            handleCallbackData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            callback: Record<string, {
+            handleText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textCommand: Record<string, {
+            handleCommandText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaption: Record<string, {
+            handleCaptionPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaptionCommand: Record<string, {
+            handleCommandCaptionPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaption: Record<string, {
+            handleCaptionVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaptionCommand: Record<string, {
+            handleCommandCaptionVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaption: Record<string, {
+            handleCaptionAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaptionCommand: Record<string, {
+            handleCommandCaptionAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaption: Record<string, {
+            handleCaptionDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaptionCommand: Record<string, {
+            handleCommandCaptionDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaption: Record<string, {
+            handleCaptionAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaptionCommand: Record<string, {
+            handleCommandCaptionAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaption: Record<string, {
+            handleCaptionVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaptionCommand: Record<string, {
+            handleCommandCaptionVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
         };
         routeStaticIntent: {
-            callbackPayload: Record<string, {
+            handleArgsCallbackData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textPayload: Record<string, {
+            handleArgsText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textCommandPayload: Record<string, {
+            handleCommandArgsText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaptionPayload: Record<string, {
+            handleCaptionArgsPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaptionPayload: Record<string, {
+            handleCaptionArgsVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaptionPayload: Record<string, {
+            handleCaptionArgsAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaptionPayload: Record<string, {
+            handleCaptionArgsDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaptionPayload: Record<string, {
+            handleCaptionArgsAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaptionPayload: Record<string, {
-                name: string;
-                routeName: string;
-            }>;
-            voiceCaptionCommandPayload: Record<string, {
+            handleCaptionArgsVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
         };
         routeStaticSession: {
-            text: Record<string, {
+            handleCallbackData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            callback: Record<string, {
+            handleText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textCommand: Record<string, {
+            handleCommandText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaption: Record<string, {
+            handleCaptionPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaptionCommand: Record<string, {
+            handleCommandCaptionPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaption: Record<string, {
+            handleCaptionVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaptionCommand: Record<string, {
+            handleCommandCaptionVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaption: Record<string, {
+            handleCaptionAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaptionCommand: Record<string, {
+            handleCommandCaptionAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaption: Record<string, {
+            handleCaptionDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaptionCommand: Record<string, {
+            handleCommandCaptionDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaption: Record<string, {
+            handleCaptionAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaptionCommand: Record<string, {
+            handleCommandCaptionAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaption: Record<string, {
+            handleCaptionVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaptionCommand: Record<string, {
+            handleCommandCaptionVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            callbackPayload: Record<string, {
+            handleArgsCallbackData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textPayload: Record<string, {
+            handleArgsText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textCommandPayload: Record<string, {
+            handleCommandArgsText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaptionPayload: Record<string, {
+            handleCaptionArgsPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaptionPayload: Record<string, {
+            handleCaptionArgsVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaptionPayload: Record<string, {
+            handleCaptionArgsAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaptionPayload: Record<string, {
+            handleCaptionArgsDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaptionPayload: Record<string, {
+            handleCaptionArgsAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaptionPayload: Record<string, {
+            handleCaptionArgsVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaptionCommandPayload: Record<string, {
+            handleFreeText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textFree: Record<string, {
+            handleFreePhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoFree: Record<string, {
+            handleFreeVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoFree: Record<string, {
+            handleFreeAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioFree: Record<string, {
+            handleFreeDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentFree: Record<string, {
+            handleFreeAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationFree: Record<string, {
+            handleFreeVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceFree: Record<string, {
+            handleFreeVideoNote: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoNoteFree: Record<string, {
+            handleFreeSticker: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            stickerFree: Record<string, {
+            handleFreeLocation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            locationFree: Record<string, {
-                name: string;
-                routeName: string;
-            }>;
-            contactFree: Record<string, {
+            handleFreeContact: Record<string, {
                 name: string;
                 routeName: string;
             }>;
         };
-        listRouteStatic: readonly ["callback", "text", "textCommand", "photoCaption", "photoCaptionCommand", "videoCaption", "videoCaptionCommand", "audioCaption", "audioCaptionCommand", "documentCaption", "documentCaptionCommand", "animationCaption", "animationCaptionCommand", "voiceCaption", "voiceCaptionCommand"];
-        listRouteStaticIntent: readonly ["callbackPayload", "textPayload", "textCommandPayload", "photoCaptionPayload", "photoCaptionCommandPayload", "videoCaptionPayload", "videoCaptionCommandPayload", "audioCaptionPayload", "audioCaptionCommandPayload", "documentCaptionPayload", "documentCaptionCommandPayload", "animationCaptionPayload", "animationCaptionCommandPayload", "voiceCaptionPayload", "voiceCaptionCommandPayload"];
-        listRouteStaticSession: readonly ["callback", "text", "textCommand", "photoCaption", "photoCaptionCommand", "videoCaption", "videoCaptionCommand", "audioCaption", "audioCaptionCommand", "documentCaption", "documentCaptionCommand", "animationCaption", "animationCaptionCommand", "voiceCaption", "voiceCaptionCommand", "callbackPayload", "textPayload", "textCommandPayload", "photoCaptionPayload", "photoCaptionCommandPayload", "videoCaptionPayload", "videoCaptionCommandPayload", "audioCaptionPayload", "audioCaptionCommandPayload", "documentCaptionPayload", "documentCaptionCommandPayload", "animationCaptionPayload", "animationCaptionCommandPayload", "voiceCaptionPayload", "voiceCaptionCommandPayload", "textFree", "photoFree", "videoFree", "audioFree", "documentFree", "animationFree", "voiceFree", "videoNoteFree", "stickerFree", "locationFree", "contactFree"];
+        listRouteStatic: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
+        listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsAnimation"];
+        listRouteStaticSession: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice", "handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsAnimation", "handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
         lenListRouteStatic: 15;
         lenListRouteStaticIntent: 15;
         lenListRouteStaticSession: 41;
@@ -358,7 +350,7 @@ _pageLoads(): {
 ```
 **Returns:**
 
-{ all: Record&lt;string, typeof [Ctx](./gramstax.ctx.md)<!-- -->&gt;; routeDynamic: string\[\]; routeDynamicSpesific: { text: { name: string; routeName: string; }\[\]; photo: { name: string; routeName: string; }\[\]; video: { name: string; routeName: string; }\[\]; audio: { name: string; routeName: string; }\[\]; document: { name: string; routeName: string; }\[\]; animation: { name: string; routeName: string; }\[\]; voice: { name: string; routeName: string; }\[\]; videoNote: { name: string; routeName: string; }\[\]; sticker: { name: string; routeName: string; }\[\]; location: { name: string; routeName: string; }\[\]; contact: { name: string; routeName: string; }\[\]; }; routeStatic: { text: Record&lt;string, { name: string; routeName: string; }&gt;; callback: Record&lt;string, { name: string; routeName: string; }&gt;; textCommand: Record&lt;string, { name: string; routeName: string; }&gt;; photoCaption: Record&lt;string, { name: string; routeName: string; }&gt;; photoCaptionCommand: Record&lt;string, { name: string; routeName: string; }&gt;; videoCaption: Record&lt;string, { name: string; routeName: string; }&gt;; videoCaptionCommand: Record&lt;string, { name: string; routeName: string; }&gt;; audioCaption: Record&lt;string, { name: string; routeName: string; }&gt;; audioCaptionCommand: Record&lt;string, { name: string; routeName: string; }&gt;; documentCaption: Record&lt;string, { name: string; routeName: string; }&gt;; documentCaptionCommand: Record&lt;string, { name: string; routeName: string; }&gt;; animationCaption: Record&lt;string, { name: string; routeName: string; }&gt;; animationCaptionCommand: Record&lt;string, { name: string; routeName: string; }&gt;; voiceCaption: Record&lt;string, { name: string; routeName: string; }&gt;; voiceCaptionCommand: Record&lt;string, { name: string; routeName: string; }&gt;; }; routeStaticIntent: { callbackPayload: Record&lt;string, { name: string; routeName: string; }&gt;; textPayload: Record&lt;string, { name: string; routeName: string; }&gt;; textCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; photoCaptionPayload: Record&lt;string, { name: string; routeName: string; }&gt;; photoCaptionCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; videoCaptionPayload: Record&lt;string, { name: string; routeName: string; }&gt;; videoCaptionCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; audioCaptionPayload: Record&lt;string, { name: string; routeName: string; }&gt;; audioCaptionCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; documentCaptionPayload: Record&lt;string, { name: string; routeName: string; }&gt;; documentCaptionCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; animationCaptionPayload: Record&lt;string, { name: string; routeName: string; }&gt;; animationCaptionCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; voiceCaptionPayload: Record&lt;string, { name: string; routeName: string; }&gt;; voiceCaptionCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; }; routeStaticSession: { text: Record&lt;string, { name: string; routeName: string; }&gt;; callback: Record&lt;string, { name: string; routeName: string; }&gt;; textCommand: Record&lt;string, { name: string; routeName: string; }&gt;; photoCaption: Record&lt;string, { name: string; routeName: string; }&gt;; photoCaptionCommand: Record&lt;string, { name: string; routeName: string; }&gt;; videoCaption: Record&lt;string, { name: string; routeName: string; }&gt;; videoCaptionCommand: Record&lt;string, { name: string; routeName: string; }&gt;; audioCaption: Record&lt;string, { name: string; routeName: string; }&gt;; audioCaptionCommand: Record&lt;string, { name: string; routeName: string; }&gt;; documentCaption: Record&lt;string, { name: string; routeName: string; }&gt;; documentCaptionCommand: Record&lt;string, { name: string; routeName: string; }&gt;; animationCaption: Record&lt;string, { name: string; routeName: string; }&gt;; animationCaptionCommand: Record&lt;string, { name: string; routeName: string; }&gt;; voiceCaption: Record&lt;string, { name: string; routeName: string; }&gt;; voiceCaptionCommand: Record&lt;string, { name: string; routeName: string; }&gt;; callbackPayload: Record&lt;string, { name: string; routeName: string; }&gt;; textPayload: Record&lt;string, { name: string; routeName: string; }&gt;; textCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; photoCaptionPayload: Record&lt;string, { name: string; routeName: string; }&gt;; photoCaptionCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; videoCaptionPayload: Record&lt;string, { name: string; routeName: string; }&gt;; videoCaptionCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; audioCaptionPayload: Record&lt;string, { name: string; routeName: string; }&gt;; audioCaptionCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; documentCaptionPayload: Record&lt;string, { name: string; routeName: string; }&gt;; documentCaptionCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; animationCaptionPayload: Record&lt;string, { name: string; routeName: string; }&gt;; animationCaptionCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; voiceCaptionPayload: Record&lt;string, { name: string; routeName: string; }&gt;; voiceCaptionCommandPayload: Record&lt;string, { name: string; routeName: string; }&gt;; textFree: Record&lt;string, { name: string; routeName: string; }&gt;; photoFree: Record&lt;string, { name: string; routeName: string; }&gt;; videoFree: Record&lt;string, { name: string; routeName: string; }&gt;; audioFree: Record&lt;string, { name: string; routeName: string; }&gt;; documentFree: Record&lt;string, { name: string; routeName: string; }&gt;; animationFree: Record&lt;string, { name: string; routeName: string; }&gt;; voiceFree: Record&lt;string, { name: string; routeName: string; }&gt;; videoNoteFree: Record&lt;string, { name: string; routeName: string; }&gt;; stickerFree: Record&lt;string, { name: string; routeName: string; }&gt;; locationFree: Record&lt;string, { name: string; routeName: string; }&gt;; contactFree: Record&lt;string, { name: string; routeName: string; }&gt;; }; listRouteStatic: readonly \["callback", "text", "textCommand", "photoCaption", "photoCaptionCommand", "videoCaption", "videoCaptionCommand", "audioCaption", "audioCaptionCommand", "documentCaption", "documentCaptionCommand", "animationCaption", "animationCaptionCommand", "voiceCaption", "voiceCaptionCommand"\]; listRouteStaticIntent: readonly \["callbackPayload", "textPayload", "textCommandPayload", "photoCaptionPayload", "photoCaptionCommandPayload", "videoCaptionPayload", "videoCaptionCommandPayload", "audioCaptionPayload", "audioCaptionCommandPayload", "documentCaptionPayload", "documentCaptionCommandPayload", "animationCaptionPayload", "animationCaptionCommandPayload", "voiceCaptionPayload", "voiceCaptionCommandPayload"\]; listRouteStaticSession: readonly \["callback", "text", "textCommand", "photoCaption", "photoCaptionCommand", "videoCaption", "videoCaptionCommand", "audioCaption", "audioCaptionCommand", "documentCaption", "documentCaptionCommand", "animationCaption", "animationCaptionCommand", "voiceCaption", "voiceCaptionCommand", "callbackPayload", "textPayload", "textCommandPayload", "photoCaptionPayload", "photoCaptionCommandPayload", "videoCaptionPayload", "videoCaptionCommandPayload", "audioCaptionPayload", "audioCaptionCommandPayload", "documentCaptionPayload", "documentCaptionCommandPayload", "animationCaptionPayload", "animationCaptionCommandPayload", "voiceCaptionPayload", "voiceCaptionCommandPayload", "textFree", "photoFree", "videoFree", "audioFree", "documentFree", "animationFree", "voiceFree", "videoNoteFree", "stickerFree", "locationFree", "contactFree"\]; lenListRouteStatic: 15; lenListRouteStaticIntent: 15; lenListRouteStaticSession: 41; }
+{ all: Record&lt;string, typeof [Ctx](./gramstax.ctx.md)<!-- -->&gt;; routeDynamic: string\[\]; routeDynamicSpesific: { text: { name: string; routeName: string; }\[\]; photo: { name: string; routeName: string; }\[\]; video: { name: string; routeName: string; }\[\]; audio: { name: string; routeName: string; }\[\]; document: { name: string; routeName: string; }\[\]; animation: { name: string; routeName: string; }\[\]; voice: { name: string; routeName: string; }\[\]; videoNote: { name: string; routeName: string; }\[\]; sticker: { name: string; routeName: string; }\[\]; location: { name: string; routeName: string; }\[\]; contact: { name: string; routeName: string; }\[\]; }; routeStatic: { handleCallbackData: Record&lt;string, { name: string; routeName: string; }&gt;; handleText: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandText: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionPhoto: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionPhoto: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionVideo: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionVideo: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionAudio: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionAudio: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionDocument: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionDocument: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionAnimation: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionAnimation: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionVoice: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionVoice: Record&lt;string, { name: string; routeName: string; }&gt;; }; routeStaticIntent: { handleArgsCallbackData: Record&lt;string, { name: string; routeName: string; }&gt;; handleArgsText: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandArgsText: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionArgsPhoto: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionArgsPhoto: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionArgsVideo: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionArgsVideo: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionArgsAudio: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionArgsAudio: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionArgsDocument: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionArgsDocument: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionArgsAnimation: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionArgsAnimation: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionArgsVoice: Record&lt;string, { name: string; routeName: string; }&gt;; }; routeStaticSession: { handleCallbackData: Record&lt;string, { name: string; routeName: string; }&gt;; handleText: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandText: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionPhoto: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionPhoto: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionVideo: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionVideo: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionAudio: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionAudio: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionDocument: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionDocument: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionAnimation: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionAnimation: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionVoice: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionVoice: Record&lt;string, { name: string; routeName: string; }&gt;; handleArgsCallbackData: Record&lt;string, { name: string; routeName: string; }&gt;; handleArgsText: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandArgsText: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionArgsPhoto: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionArgsPhoto: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionArgsVideo: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionArgsVideo: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionArgsAudio: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionArgsAudio: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionArgsDocument: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionArgsDocument: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionArgsAnimation: Record&lt;string, { name: string; routeName: string; }&gt;; handleCommandCaptionArgsAnimation: Record&lt;string, { name: string; routeName: string; }&gt;; handleCaptionArgsVoice: Record&lt;string, { name: string; routeName: string; }&gt;; handleFreeText: Record&lt;string, { name: string; routeName: string; }&gt;; handleFreePhoto: Record&lt;string, { name: string; routeName: string; }&gt;; handleFreeVideo: Record&lt;string, { name: string; routeName: string; }&gt;; handleFreeAudio: Record&lt;string, { name: string; routeName: string; }&gt;; handleFreeDocument: Record&lt;string, { name: string; routeName: string; }&gt;; handleFreeAnimation: Record&lt;string, { name: string; routeName: string; }&gt;; handleFreeVoice: Record&lt;string, { name: string; routeName: string; }&gt;; handleFreeVideoNote: Record&lt;string, { name: string; routeName: string; }&gt;; handleFreeSticker: Record&lt;string, { name: string; routeName: string; }&gt;; handleFreeLocation: Record&lt;string, { name: string; routeName: string; }&gt;; handleFreeContact: Record&lt;string, { name: string; routeName: string; }&gt;; }; listRouteStatic: readonly \["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"\]; listRouteStaticIntent: readonly \["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsAnimation"\]; listRouteStaticSession: readonly \["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice", "handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsAnimation", "handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"\]; lenListRouteStatic: 15; lenListRouteStaticIntent: 15; lenListRouteStaticSession: 41; }
 
 The pages routing structure.
 

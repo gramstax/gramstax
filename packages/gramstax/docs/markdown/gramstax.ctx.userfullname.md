@@ -16,7 +16,7 @@ get userFullName(): string;
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   console.log(this.userFullName) // "Alya Putri"
 }
 ```

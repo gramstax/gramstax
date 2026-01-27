@@ -158,7 +158,7 @@ For media types that cannot be edited (voice, video\_note, sticker, location, co
 
 
 ```typescript
-async callbackPayload() {
+async handleArgsCallback() {
   await this.editMedia("photo")
 }
 ```

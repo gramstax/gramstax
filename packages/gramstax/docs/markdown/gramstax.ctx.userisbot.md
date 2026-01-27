@@ -20,7 +20,7 @@ Returns `false` if the bot status is not available.
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   if (this.userIsBot) {
     return // Ignore bot messages
   }

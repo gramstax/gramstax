@@ -150,13 +150,13 @@ Promise&lt;void&gt;
 
 ## Remarks
 
-Media type and payload are inferred from the template `<media>` block. Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.
+Media type and arg are inferred from the template `<media>` block. Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.
 
 ## Example
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   const userIds = [123456, 789012]
   const langs = ["en", "id"]
   await this.broadcastMedia(userIds, langs)

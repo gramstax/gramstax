@@ -78,7 +78,7 @@ The callback receives the keyboard instance and an array of button labels from t
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   const kb = this.inlineKeyboard((k, labels) => {
     labels.forEach((label, i) => k.text(label, `action:${i}`))
     return k

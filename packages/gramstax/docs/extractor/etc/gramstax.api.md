@@ -40,61 +40,26 @@ export class CacheExternal<V = any> extends Keyv<V> {
 // @public
 export class Ctx {
     constructor(params: ITCtxParams);
-    addPayloads(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], pld: (string | undefined)[]): string;
-    // @virtual
-    animationCaption?(): Promise<any>;
-    // @virtual
-    animationCaptionCommand?(): Promise<any>;
-    // @virtual
-    animationCaptionCommandPayload?(): Promise<any>;
-    // @virtual
-    animationCaptionPayload?(): Promise<any>;
-    // @virtual
-    animationFree?(): Promise<any>;
-    // @virtual
-    audioCaption?(): Promise<any>;
-    // @virtual
-    audioCaptionCommand?(): Promise<any>;
-    // @virtual
-    audioCaptionCommandPayload?(): Promise<any>;
-    // @virtual
-    audioCaptionPayload?(): Promise<any>;
-    // @virtual
-    audioFree?(): Promise<any>;
+    addArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], pld: (string | undefined)[]): string;
     bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb;
     bottomKeyboardT(layout?: ITKbCols, baseId?: string | null, data?: Record<any, any>): Keyboard;
     broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply, throwError?: boolean): Promise<void>;
     broadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact, throwError?: boolean): Promise<void>;
-    static buildData<C extends (...args: any[]) => any>(callback: C): ITPageData<Parameters<C>>;
+    static buildData<C extends (...args: any[]) => any>(callbackData: C): ITPageData<Parameters<C>>;
     static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions): ITPageData<Parameters<C>>;
     static buildData(options: ITBuildDataOptions): ITPageData<[]>;
     static buildData(): ITPageData<[]>;
     cacheKeyboard: Map<any, any>;
     cacheSession: CacheExternal<ITCacheRpc>;
-    // @virtual
-    callback?(): Promise<any>;
     get callbackData(): string;
-    get callbackDataPayload(): string;
-    get callbackDataPayloads(): string[];
-    // @virtual
-    callbackPayload?(): Promise<any>;
+    get callbackDataArg(): string;
+    get callbackDataArgs(): string[];
     callbackQueryAnswer(options?: Parameters<typeof Ctx.prototype.ct.answerCallbackQuery>[0]): Promise<true | null>;
-    // @virtual
-    contactFree?(): Promise<any>;
+    clearSession(): Promise<boolean | null>;
     ct: ITCt;
     static data: ITPageData<any>;
     data: ITPageData<any>;
     delete(): Promise<true>;
-    // @virtual
-    documentCaption?(): Promise<any>;
-    // @virtual
-    documentCaptionCommand?(): Promise<any>;
-    // @virtual
-    documentCaptionCommandPayload?(): Promise<any>;
-    // @virtual
-    documentCaptionPayload?(): Promise<any>;
-    // @virtual
-    documentFree?(): Promise<any>;
     edit(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEdit, fallbackReply?: boolean): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         text: string;
     } & Partial<{
@@ -111,108 +76,189 @@ export class Ctx {
     editVideo(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
     editVideoNote(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
     editVoice(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
-    // @virtual
-    free?(): Promise<any>;
+    getArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], positionStart?: number): string[];
     getIntent(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], positionEnd?: number): string;
-    getPayloads(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], positionStart?: number): string[];
     getSeperatorTag(mtd?: `space` | `colon`): " " | ":";
-    havePayloads(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0]): boolean;
+    getSession(): Promise<ITCacheRpc | null>;
+    // @virtual
+    handleArgsCallbackData?(): Promise<any>;
+    // @virtual
+    handleArgsText?(): Promise<any>;
+    // @virtual
+    handleCallbackData?(): Promise<any>;
+    // @virtual
+    handleCaptionAnimation?(): Promise<any>;
+    // @virtual
+    handleCaptionArgsAnimation?(): Promise<any>;
+    // @virtual
+    handleCaptionArgsAudio?(): Promise<any>;
+    // @virtual
+    handleCaptionArgsDocument?(): Promise<any>;
+    // @virtual
+    handleCaptionArgsPhoto?(): Promise<any>;
+    // @virtual
+    handleCaptionArgsVideo?(): Promise<any>;
+    // @virtual
+    handleCaptionArgsVoice?(): Promise<any>;
+    // @virtual
+    handleCaptionAudio?(): Promise<any>;
+    // @virtual
+    handleCaptionDocument?(): Promise<any>;
+    // @virtual
+    handleCaptionPhoto?(): Promise<any>;
+    // @virtual
+    handleCaptionVideo?(): Promise<any>;
+    // @virtual
+    handleCaptionVoice?(): Promise<any>;
+    // @virtual
+    handleCommandArgsText?(): Promise<any>;
+    // @virtual
+    handleCommandCaptionAnimation?(): Promise<any>;
+    // @virtual
+    handleCommandCaptionArgsAnimation?(): Promise<any>;
+    // @virtual
+    handleCommandCaptionArgsAudio?(): Promise<any>;
+    // @virtual
+    handleCommandCaptionArgsDocument?(): Promise<any>;
+    // @virtual
+    handleCommandCaptionArgsPhoto?(): Promise<any>;
+    // @virtual
+    handleCommandCaptionArgsVideo?(): Promise<any>;
+    // @virtual
+    handleCommandCaptionArgsVoice?(): Promise<any>;
+    // @virtual
+    handleCommandCaptionAudio?(): Promise<any>;
+    // @virtual
+    handleCommandCaptionDocument?(): Promise<any>;
+    // @virtual
+    handleCommandCaptionPhoto?(): Promise<any>;
+    // @virtual
+    handleCommandCaptionVideo?(): Promise<any>;
+    // @virtual
+    handleCommandCaptionVoice?(): Promise<any>;
+    // @virtual
+    handleCommandText?(): Promise<any>;
+    // @virtual
+    handleFree?(): Promise<any>;
+    // @virtual
+    handleFreeAnimation?(): Promise<any>;
+    // @virtual
+    handleFreeAudio?(): Promise<any>;
+    // @virtual
+    handleFreeContact?(): Promise<any>;
+    // @virtual
+    handleFreeDocument?(): Promise<any>;
+    // @virtual
+    handleFreeLocation?(): Promise<any>;
+    // @virtual
+    handleFreePhoto?(): Promise<any>;
+    // @virtual
+    handleFreeSticker?(): Promise<any>;
+    // @virtual
+    handleFreeText?(): Promise<any>;
+    // @virtual
+    handleFreeVideo?(): Promise<any>;
+    // @virtual
+    handleFreeVideoNote?(): Promise<any>;
+    // @virtual
+    handleFreeVoice?(): Promise<any>;
+    // @virtual
+    handleText?(): Promise<any>;
+    haveArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0]): boolean;
     inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb;
     inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, baseId?: string | null, data?: ITData): InlineKeyboard;
-    isSessionAnimationCaption(method?: string, name?: string): boolean;
-    isSessionAnimationCaptionCommand(method?: string, name?: string): boolean;
-    isSessionAnimationCaptionCommandPayload(method?: string, name?: string): boolean;
-    isSessionAnimationCaptionPayload(method?: string, name?: string): boolean;
-    isSessionAnimationFree(method?: string, name?: string): boolean;
-    isSessionAudioCaption(method?: string, name?: string): boolean;
-    isSessionAudioCaptionCommand(method?: string, name?: string): boolean;
-    isSessionAudioCaptionCommandPayload(method?: string, name?: string): boolean;
-    isSessionAudioCaptionPayload(method?: string, name?: string): boolean;
-    isSessionAudioFree(method?: string, name?: string): boolean;
-    isSessionCallback(method?: string, name?: string): boolean;
-    isSessionCallbackPayload(method?: string, name?: string): boolean;
-    isSessionContactFree(method?: string, name?: string): boolean;
-    isSessionDocumentCaption(method?: string, name?: string): boolean;
-    isSessionDocumentCaptionCommand(method?: string, name?: string): boolean;
-    isSessionDocumentCaptionCommandPayload(method?: string, name?: string): boolean;
-    isSessionDocumentCaptionPayload(method?: string, name?: string): boolean;
-    isSessionDocumentFree(method?: string, name?: string): boolean;
-    isSessionLocationFree(method?: string, name?: string): boolean;
-    isSessionPhotoCaption(method?: string, name?: string): boolean;
-    isSessionPhotoCaptionCommand(method?: string, name?: string): boolean;
-    isSessionPhotoCaptionCommandPayload(method?: string, name?: string): boolean;
-    isSessionPhotoCaptionPayload(method?: string, name?: string): boolean;
-    isSessionPhotoFree(method?: string, name?: string): boolean;
-    isSessionStickerFree(method?: string, name?: string): boolean;
-    isSessionText(method?: string, name?: string): boolean;
-    isSessionTextCommand(method?: string, name?: string): boolean;
-    isSessionTextCommandPayload(method?: string, name?: string): boolean;
-    isSessionTextFree(method?: string, name?: string): boolean;
-    isSessionTextPayload(method?: string, name?: string): boolean;
-    isSessionVideoCaption(method?: string, name?: string): boolean;
-    isSessionVideoCaptionCommand(method?: string, name?: string): boolean;
-    isSessionVideoCaptionCommandPayload(method?: string, name?: string): boolean;
-    isSessionVideoCaptionPayload(method?: string, name?: string): boolean;
-    isSessionVideoFree(method?: string, name?: string): boolean;
-    isSessionVideoNoteFree(method?: string, name?: string): boolean;
-    isSessionVoiceCaption(method?: string, name?: string): boolean;
+    isSessionArgsCallbackData(method?: string, name?: string): boolean;
+    isSessionArgsText(method?: string, name?: string): boolean;
+    isSessionCallbackData(method?: string, name?: string): boolean;
+    isSessionCaptionAnimation(method?: string, name?: string): boolean;
+    isSessionCaptionArgsAnimation(method?: string, name?: string): boolean;
+    isSessionCaptionArgsAudio(method?: string, name?: string): boolean;
+    isSessionCaptionArgsDocument(method?: string, name?: string): boolean;
+    isSessionCaptionArgsPhoto(method?: string, name?: string): boolean;
+    isSessionCaptionArgsVideo(method?: string, name?: string): boolean;
+    isSessionCaptionArgsVoice(method?: string, name?: string): boolean;
+    isSessionCaptionAudio(method?: string, name?: string): boolean;
+    isSessionCaptionCommandArgsAudio(method?: string, name?: string): boolean;
+    isSessionCaptionCommandAudio(method?: string, name?: string): boolean;
+    isSessionCaptionDocument(method?: string, name?: string): boolean;
+    isSessionCaptionPhoto(method?: string, name?: string): boolean;
+    isSessionCaptionVideo(method?: string, name?: string): boolean;
+    isSessionCaptionVoice(method?: string, name?: string): boolean;
+    isSessionCommandArgsText(method?: string, name?: string): boolean;
+    isSessionCommandCaptionAnimation(method?: string, name?: string): boolean;
+    isSessionCommandCaptionArgsAnimation(method?: string, name?: string): boolean;
+    isSessionCommandCaptionArgsDocument(method?: string, name?: string): boolean;
+    isSessionCommandCaptionArgsPhoto(method?: string, name?: string): boolean;
+    isSessionCommandCaptionArgsVideo(method?: string, name?: string): boolean;
+    isSessionCommandCaptionArgsVoice(method?: string, name?: string): boolean;
+    isSessionCommandCaptionDocument(method?: string, name?: string): boolean;
+    isSessionCommandCaptionPhoto(method?: string, name?: string): boolean;
+    isSessionCommandCaptionVideo(method?: string, name?: string): boolean;
     // (undocumented)
-    isSessionVoiceCaptionCommand(method?: string, name?: string): boolean;
-    isSessionVoiceCaptionCommandPayload(method?: string, name?: string): boolean;
-    isSessionVoiceCaptionPayload(method?: string, name?: string): boolean;
-    isSessionVoiceFree(method?: string, name?: string): boolean;
+    isSessionCommandCaptionVoice(method?: string, name?: string): boolean;
+    isSessionCommandText(method?: string, name?: string): boolean;
+    isSessionFreeAnimation(method?: string, name?: string): boolean;
+    isSessionFreeAudio(method?: string, name?: string): boolean;
+    isSessionFreeContact(method?: string, name?: string): boolean;
+    isSessionFreeDocument(method?: string, name?: string): boolean;
+    isSessionFreeLocation(method?: string, name?: string): boolean;
+    isSessionFreePhoto(method?: string, name?: string): boolean;
+    isSessionFreeSticker(method?: string, name?: string): boolean;
+    isSessionFreeText(method?: string, name?: string): boolean;
+    isSessionFreeVideo(method?: string, name?: string): boolean;
+    isSessionFreeVideoNote(method?: string, name?: string): boolean;
+    isSessionFreeVoice(method?: string, name?: string): boolean;
+    isSessionText(method?: string, name?: string): boolean;
     keyboardCols<T = any>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;
-    // @virtual
-    locationFree?(): Promise<any>;
     methodSession(prefix: string, name: string | undefined): string;
-    methodSessionAnimationCaption(name?: string): string;
-    methodSessionAnimationCaptionCommand(name?: string): string;
-    methodSessionAnimationCaptionCommandPayload(name?: string): string;
-    methodSessionAnimationCaptionPayload(name?: string): string;
-    methodSessionAnimationFree(name?: string): string;
-    methodSessionAudioCaption(name?: string): string;
-    methodSessionAudioCaptionCommand(name?: string): string;
-    methodSessionAudioCaptionCommandPayload(name?: string): string;
-    methodSessionAudioCaptionPayload(name?: string): string;
-    methodSessionAudioFree(name?: string): string;
-    methodSessionCallback(name?: string): string;
-    methodSessionCallbackPayload(name?: string): string;
-    methodSessionContactFree(name?: string): string;
-    methodSessionDocumentCaption(name?: string): string;
-    methodSessionDocumentCaptionCommand(name?: string): string;
-    methodSessionDocumentCaptionCommandPayload(name?: string): string;
-    methodSessionDocumentCaptionPayload(name?: string): string;
-    methodSessionDocumentFree(name?: string): string;
-    methodSessionLocationFree(name?: string): string;
-    methodSessionPhotoCaption(name?: string): string;
-    methodSessionPhotoCaptionCommand(name?: string): string;
-    methodSessionPhotoCaptionCommandPayload(name?: string): string;
-    methodSessionPhotoCaptionPayload(name?: string): string;
-    methodSessionPhotoFree(name?: string): string;
-    methodSessionStickerFree(name?: string): string;
+    methodSessionArgsCallbackData(name?: string): string;
+    methodSessionArgsText(name?: string): string;
+    methodSessionCallbackData(name?: string): string;
+    methodSessionCaptionAnimation(name?: string): string;
+    methodSessionCaptionArgsAnimation(name?: string): string;
+    methodSessionCaptionArgsAudio(name?: string): string;
+    methodSessionCaptionArgsDocument(name?: string): string;
+    methodSessionCaptionArgsPhoto(name?: string): string;
+    methodSessionCaptionArgsVideo(name?: string): string;
+    methodSessionCaptionArgsVoice(name?: string): string;
+    methodSessionCaptionAudio(name?: string): string;
+    methodSessionCaptionCommandArgsAudio(name?: string): string;
+    methodSessionCaptionCommandAudio(name?: string): string;
+    methodSessionCaptionDocument(name?: string): string;
+    methodSessionCaptionPhoto(name?: string): string;
+    methodSessionCaptionVideo(name?: string): string;
+    methodSessionCaptionVoice(name?: string): string;
+    methodSessionCommandArgsText(name?: string): string;
+    methodSessionCommandCaptionAnimation(name?: string): string;
+    methodSessionCommandCaptionArgsAnimation(name?: string): string;
+    methodSessionCommandCaptionArgsDocument(name?: string): string;
+    methodSessionCommandCaptionArgsPhoto(name?: string): string;
+    methodSessionCommandCaptionArgsVideo(name?: string): string;
+    methodSessionCommandCaptionArgsVoice(name?: string): string;
+    methodSessionCommandCaptionDocument(name?: string): string;
+    methodSessionCommandCaptionPhoto(name?: string): string;
+    methodSessionCommandCaptionVideo(name?: string): string;
+    methodSessionCommandCaptionVoice(name?: string): string;
+    methodSessionCommandText(name?: string): string;
+    methodSessionFreeAnimation(name?: string): string;
+    methodSessionFreeAudio(name?: string): string;
+    methodSessionFreeContact(name?: string): string;
+    methodSessionFreeDocument(name?: string): string;
+    methodSessionFreeLocation(name?: string): string;
+    methodSessionFreePhoto(name?: string): string;
+    methodSessionFreeSticker(name?: string): string;
+    methodSessionFreeText(name?: string): string;
+    methodSessionFreeVideo(name?: string): string;
+    methodSessionFreeVideoNote(name?: string): string;
+    methodSessionFreeVoice(name?: string): string;
     methodSessionText(name?: string): string;
-    methodSessionTextCommand(name?: string): string;
-    methodSessionTextCommandPayload(name?: string): string;
-    methodSessionTextFree(name?: string): string;
-    methodSessionTextPayload(name?: string): string;
-    methodSessionVideoCaption(name?: string): string;
-    methodSessionVideoCaptionCommand(name?: string): string;
-    methodSessionVideoCaptionCommandPayload(name?: string): string;
-    methodSessionVideoCaptionPayload(name?: string): string;
-    methodSessionVideoFree(name?: string): string;
-    methodSessionVideoNoteFree(name?: string): string;
-    methodSessionVoiceCaption(name?: string): string;
-    methodSessionVoiceCaptionCommand(name?: string): string;
-    methodSessionVoiceCaptionCommandPayload(name?: string): string;
-    methodSessionVoiceCaptionPayload(name?: string): string;
-    methodSessionVoiceFree(name?: string): string;
     get msgAnimation(): grammy_types.Animation | undefined;
     get msgAudio(): grammy_types.Audio | undefined;
     get msgCaption(): string;
-    get msgCaptionCommandPayload(): string;
-    get msgCaptionCommandPayloads(): string[];
-    get msgCaptionPayload(): string;
-    get msgCaptionPayloads(): string[];
+    get msgCaptionArg(): string;
+    get msgCaptionArgs(): string[];
+    get msgCaptionCommandArg(): string;
+    get msgCaptionCommandArgs(): string[];
     get msgContact(): grammy_types.Contact | undefined;
     get msgDocument(): grammy_types.Document | undefined;
     get msgGift(): grammy_types.GiftInfo | undefined;
@@ -220,24 +266,14 @@ export class Ctx {
     get msgPhoto(): grammy_types.PhotoSize[] | undefined;
     get msgSticker(): grammy_types.Sticker | undefined;
     get msgText(): string;
-    get msgTextCommandPayload(): string;
-    get msgTextCommandPayloads(): string[];
-    get msgTextPayload(): string;
-    get msgTextPayloads(): string[];
+    get msgTextArg(): string;
+    get msgTextArgs(): string[];
+    get msgTextCommandArg(): string;
+    get msgTextCommandArgs(): string[];
     get msgVideo(): grammy_types.Video | undefined;
     get msgVideoNote(): grammy_types.VideoNote | undefined;
     get msgVoice(): grammy_types.Voice | undefined;
     get msgWebAppData(): grammy_types.WebAppData | undefined;
-    // @virtual
-    photoCaption?(): Promise<any>;
-    // @virtual
-    photoCaptionCommand?(): Promise<any>;
-    // @virtual
-    photoCaptionCommandPayload?(): Promise<any>;
-    // @virtual
-    photoCaptionPayload?(): Promise<any>;
-    // @virtual
-    photoFree?(): Promise<any>;
     reply(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply): Promise<grammy_types.Message.TextMessage>;
     replyAction(type: ITReplyAction): Promise<true>;
     replyAnimation(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyAnimation): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
@@ -253,66 +289,52 @@ export class Ctx {
     replyVoice(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVoice): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     get session(): ITTemp[`session`];
     set session(v: ITTemp[`session`]);
-    sessionAnimationCaption(params?: any, name?: string): Promise<boolean | null>;
-    sessionAnimationCaptionCommand(params?: any, name?: string): Promise<boolean | null>;
-    sessionAnimationCaptionCommandPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionAnimationCaptionPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionAnimationFree(params?: any, name?: string): Promise<boolean | null>;
-    sessionAudioCaption(params?: any, name?: string): Promise<boolean | null>;
-    sessionAudioCaptionCommand(params?: any, name?: string): Promise<boolean | null>;
-    sessionAudioCaptionCommandPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionAudioCaptionPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionAudioFree(params?: any, name?: string): Promise<boolean | null>;
-    sessionCallback(params?: any, name?: string): Promise<boolean | null>;
-    sessionCallbackPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionClear(): Promise<boolean | null>;
-    sessionContactFree(params?: any, name?: string): Promise<boolean | null>;
-    sessionDocumentCaption(params?: any, name?: string): Promise<boolean | null>;
-    sessionDocumentCaptionCommand(params?: any, name?: string): Promise<boolean | null>;
-    sessionDocumentCaptionCommandPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionDocumentCaptionPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionDocumentFree(params?: any, name?: string): Promise<boolean | null>;
-    sessionGet(): Promise<ITCacheRpc | null>;
-    sessionLocationFree(params?: any, name?: string): Promise<boolean | null>;
-    sessionPhotoCaption(params?: any, name?: string): Promise<boolean | null>;
-    sessionPhotoCaptionCommand(params?: any, name?: string): Promise<boolean | null>;
-    sessionPhotoCaptionCommandPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionPhotoCaptionPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionPhotoFree(params?: any, name?: string): Promise<boolean | null>;
-    sessionSet(method: string, params: any, moreRoot?: Record<any, any>): Promise<boolean | null>;
-    sessionStickerFree(params?: any, name?: string): Promise<boolean | null>;
+    sessionArgsCallbackData(params?: any, name?: string): Promise<boolean | null>;
+    sessionArgsText(params?: any, name?: string): Promise<boolean | null>;
+    sessionCallbackData(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionAnimation(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionArgsAnimation(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionArgsAudio(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionArgsDocument(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionArgsPhoto(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionArgsVideo(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionArgsVoice(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionAudio(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionCommandArgsAudio(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionCommandAudio(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionDocument(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionPhoto(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionVideo(params?: any, name?: string): Promise<boolean | null>;
+    sessionCaptionVoice(params?: any, name?: string): Promise<boolean | null>;
+    sessionCommandArgsText(params?: any, name?: string): Promise<boolean | null>;
+    sessionCommandCaptionAnimation(params?: any, name?: string): Promise<boolean | null>;
+    sessionCommandCaptionArgsAnimation(params?: any, name?: string): Promise<boolean | null>;
+    sessionCommandCaptionArgsDocument(params?: any, name?: string): Promise<boolean | null>;
+    sessionCommandCaptionArgsPhoto(params?: any, name?: string): Promise<boolean | null>;
+    sessionCommandCaptionArgsVideo(params?: any, name?: string): Promise<boolean | null>;
+    sessionCommandCaptionArgsVoice(params?: any, name?: string): Promise<boolean | null>;
+    sessionCommandCaptionDocument(params?: any, name?: string): Promise<boolean | null>;
+    sessionCommandCaptionPhoto(params?: any, name?: string): Promise<boolean | null>;
+    sessionCommandCaptionVideo(params?: any, name?: string): Promise<boolean | null>;
+    sessionCommandCaptionVoice(params?: any, name?: string): Promise<boolean | null>;
+    sessionCommandText(params?: any, name?: string): Promise<boolean | null>;
+    sessionFreeAnimation(params?: any, name?: string): Promise<boolean | null>;
+    sessionFreeAudio(params?: any, name?: string): Promise<boolean | null>;
+    sessionFreeContact(params?: any, name?: string): Promise<boolean | null>;
+    sessionFreeDocument(params?: any, name?: string): Promise<boolean | null>;
+    sessionFreeLocation(params?: any, name?: string): Promise<boolean | null>;
+    sessionFreePhoto(params?: any, name?: string): Promise<boolean | null>;
+    sessionFreeSticker(params?: any, name?: string): Promise<boolean | null>;
+    sessionFreeText(params?: any, name?: string): Promise<boolean | null>;
+    sessionFreeVideo(params?: any, name?: string): Promise<boolean | null>;
+    sessionFreeVideoNote(params?: any, name?: string): Promise<boolean | null>;
+    sessionFreeVoice(params?: any, name?: string): Promise<boolean | null>;
     sessionText(params?: any, name?: string): Promise<boolean | null>;
-    sessionTextCommand(params?: any, name?: string): Promise<boolean | null>;
-    sessionTextCommandPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionTextFree(params?: any, name?: string): Promise<boolean | null>;
-    sessionTextPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionVideoCaption(params?: any, name?: string): Promise<boolean | null>;
-    sessionVideoCaptionCommand(params?: any, name?: string): Promise<boolean | null>;
-    sessionVideoCaptionCommandPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionVideoCaptionPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionVideoFree(params?: any, name?: string): Promise<boolean | null>;
-    sessionVideoNoteFree(params?: any, name?: string): Promise<boolean | null>;
-    sessionVoiceCaption(params?: any, name?: string): Promise<boolean | null>;
-    sessionVoiceCaptionCommand(params?: any, name?: string): Promise<boolean | null>;
-    sessionVoiceCaptionCommandPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionVoiceCaptionPayload(params?: any, name?: string): Promise<boolean | null>;
-    sessionVoiceFree(params?: any, name?: string): Promise<boolean | null>;
-    // @virtual
-    stickerFree?(): Promise<any>;
+    setSession(method: string, params: any, moreRoot?: Record<any, any>): Promise<boolean | null>;
     temp: ITTemp;
     // @virtual
     static template?: string;
     templateManager: TemplateManager;
-    // @virtual
-    text?(): Promise<any>;
-    // @virtual
-    textCommand?(): Promise<any>;
-    // @virtual
-    textCommandPayload?(): Promise<any>;
-    // @virtual
-    textFree?(): Promise<any>;
-    // @virtual
-    textPayload?(): Promise<any>;
     // @virtual
     transition?(...args: any): Promise<any>;
     get userFirstName(): string;
@@ -324,28 +346,6 @@ export class Ctx {
     set userLanguage(v: string);
     get userLastName(): string;
     get userName(): string;
-    // @virtual
-    videoCaption?(): Promise<any>;
-    // @virtual
-    videoCaptionCommand?(): Promise<any>;
-    // @virtual
-    videoCaptionCommandPayload?(): Promise<any>;
-    // @virtual
-    videoCaptionPayload?(): Promise<any>;
-    // @virtual
-    videoFree?(): Promise<any>;
-    // @virtual
-    videoNoteFree?(): Promise<any>;
-    // @virtual
-    voiceCaption?(): Promise<any>;
-    // @virtual
-    voiceCaptionCommand?(): Promise<any>;
-    // @virtual
-    voiceCaptionCommandPayload?(): Promise<any>;
-    // @virtual
-    voiceCaptionPayload?(): Promise<any>;
-    // @virtual
-    voiceFree?(): Promise<any>;
 }
 
 // @public
@@ -439,303 +439,295 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
             }[];
         };
         routeStatic: {
-            text: Record<string, {
+            handleCallbackData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            callback: Record<string, {
+            handleText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textCommand: Record<string, {
+            handleCommandText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaption: Record<string, {
+            handleCaptionPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaptionCommand: Record<string, {
+            handleCommandCaptionPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaption: Record<string, {
+            handleCaptionVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaptionCommand: Record<string, {
+            handleCommandCaptionVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaption: Record<string, {
+            handleCaptionAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaptionCommand: Record<string, {
+            handleCommandCaptionAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaption: Record<string, {
+            handleCaptionDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaptionCommand: Record<string, {
+            handleCommandCaptionDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaption: Record<string, {
+            handleCaptionAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaptionCommand: Record<string, {
+            handleCommandCaptionAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaption: Record<string, {
+            handleCaptionVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaptionCommand: Record<string, {
+            handleCommandCaptionVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
         };
         routeStaticIntent: {
-            callbackPayload: Record<string, {
+            handleArgsCallbackData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textPayload: Record<string, {
+            handleArgsText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textCommandPayload: Record<string, {
+            handleCommandArgsText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaptionPayload: Record<string, {
+            handleCaptionArgsPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaptionPayload: Record<string, {
+            handleCaptionArgsVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaptionPayload: Record<string, {
+            handleCaptionArgsAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaptionPayload: Record<string, {
+            handleCaptionArgsDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaptionPayload: Record<string, {
+            handleCaptionArgsAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaptionPayload: Record<string, {
-                name: string;
-                routeName: string;
-            }>;
-            voiceCaptionCommandPayload: Record<string, {
+            handleCaptionArgsVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
         };
         routeStaticSession: {
-            text: Record<string, {
+            handleCallbackData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            callback: Record<string, {
+            handleText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textCommand: Record<string, {
+            handleCommandText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaption: Record<string, {
+            handleCaptionPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaptionCommand: Record<string, {
+            handleCommandCaptionPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaption: Record<string, {
+            handleCaptionVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaptionCommand: Record<string, {
+            handleCommandCaptionVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaption: Record<string, {
+            handleCaptionAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaptionCommand: Record<string, {
+            handleCommandCaptionAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaption: Record<string, {
+            handleCaptionDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaptionCommand: Record<string, {
+            handleCommandCaptionDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaption: Record<string, {
+            handleCaptionAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaptionCommand: Record<string, {
+            handleCommandCaptionAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaption: Record<string, {
+            handleCaptionVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaptionCommand: Record<string, {
+            handleCommandCaptionVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            callbackPayload: Record<string, {
+            handleArgsCallbackData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textPayload: Record<string, {
+            handleArgsText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textCommandPayload: Record<string, {
+            handleCommandArgsText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaptionPayload: Record<string, {
+            handleCaptionArgsPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaptionPayload: Record<string, {
+            handleCaptionArgsVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaptionPayload: Record<string, {
+            handleCaptionArgsAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaptionPayload: Record<string, {
+            handleCaptionArgsDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaptionPayload: Record<string, {
+            handleCaptionArgsAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationCaptionCommandPayload: Record<string, {
+            handleCommandCaptionArgsAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaptionPayload: Record<string, {
+            handleCaptionArgsVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceCaptionCommandPayload: Record<string, {
+            handleFreeText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            textFree: Record<string, {
+            handleFreePhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            photoFree: Record<string, {
+            handleFreeVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoFree: Record<string, {
+            handleFreeAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            audioFree: Record<string, {
+            handleFreeDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            documentFree: Record<string, {
+            handleFreeAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            animationFree: Record<string, {
+            handleFreeVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            voiceFree: Record<string, {
+            handleFreeVideoNote: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            videoNoteFree: Record<string, {
+            handleFreeSticker: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            stickerFree: Record<string, {
+            handleFreeLocation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            locationFree: Record<string, {
-                name: string;
-                routeName: string;
-            }>;
-            contactFree: Record<string, {
+            handleFreeContact: Record<string, {
                 name: string;
                 routeName: string;
             }>;
         };
-        listRouteStatic: readonly ["callback", "text", "textCommand", "photoCaption", "photoCaptionCommand", "videoCaption", "videoCaptionCommand", "audioCaption", "audioCaptionCommand", "documentCaption", "documentCaptionCommand", "animationCaption", "animationCaptionCommand", "voiceCaption", "voiceCaptionCommand"];
-        listRouteStaticIntent: readonly ["callbackPayload", "textPayload", "textCommandPayload", "photoCaptionPayload", "photoCaptionCommandPayload", "videoCaptionPayload", "videoCaptionCommandPayload", "audioCaptionPayload", "audioCaptionCommandPayload", "documentCaptionPayload", "documentCaptionCommandPayload", "animationCaptionPayload", "animationCaptionCommandPayload", "voiceCaptionPayload", "voiceCaptionCommandPayload"];
-        listRouteStaticSession: readonly ["callback", "text", "textCommand", "photoCaption", "photoCaptionCommand", "videoCaption", "videoCaptionCommand", "audioCaption", "audioCaptionCommand", "documentCaption", "documentCaptionCommand", "animationCaption", "animationCaptionCommand", "voiceCaption", "voiceCaptionCommand", "callbackPayload", "textPayload", "textCommandPayload", "photoCaptionPayload", "photoCaptionCommandPayload", "videoCaptionPayload", "videoCaptionCommandPayload", "audioCaptionPayload", "audioCaptionCommandPayload", "documentCaptionPayload", "documentCaptionCommandPayload", "animationCaptionPayload", "animationCaptionCommandPayload", "voiceCaptionPayload", "voiceCaptionCommandPayload", "textFree", "photoFree", "videoFree", "audioFree", "documentFree", "animationFree", "voiceFree", "videoNoteFree", "stickerFree", "locationFree", "contactFree"];
+        listRouteStatic: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
+        listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsAnimation"];
+        listRouteStaticSession: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice", "handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsAnimation", "handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
         lenListRouteStatic: 15;
         lenListRouteStaticIntent: 15;
         lenListRouteStaticSession: 41;
     };
-    _pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any>;
+    _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any>;
     pages: ReturnType<typeof Gramstax._pageLoads>;
     _pageSorts(Page: typeof Ctx, pages: typeof Gramstax.prototype.pages, indexPage: number): void;
     _registerOnCallbackQueryData(): void;
@@ -769,7 +761,7 @@ export type ITBottomKbParams = {
 // @public
 export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
     name?: string;
-    callback?: C;
+    callbackData?: C;
     intentText?: string;
     intentTextCommand?: string;
 };
@@ -892,11 +884,11 @@ export type ITOptReplyVoice = Parameters<Context[`replyWithVoice`]>[1];
 // @public
 export type ITPageData<T extends any[] = any[]> = {
     name: string;
-    callback: (...payloads: T) => string;
+    callbackData: (...args: T) => string;
     intentText: string;
-    intentTextCommand: string;
-    _positionPayloadText: number;
-    intentCallback: string;
+    intentCommandText: string;
+    _positionArgText: number;
+    intentCallbackData: string;
 };
 
 // @public

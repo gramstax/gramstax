@@ -9,7 +9,7 @@ Routes an incoming update to the appropriate page handler.
 **Signature:**
 
 ```typescript
-_pageRoutes(ctx: ICtx, fromListener: `callback` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any>;
+_pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any>;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ fromListener
 
 </td><td>
 
-\`callback\` \| keyof typeof Gramstax.prototype.pages.routeDynamicSpesific
+\`callbackdata\` \| keyof typeof Gramstax.prototype.pages.routeDynamicSpesific
 
 
 </td><td>
@@ -78,11 +78,11 @@ The routing follows a strict \*\*priority hierarchy\*\*. When a match is found a
 
 1. \*\*staticSession\*\* - Session-based routes (O(1) lookup) - Checks if user has an active session with a matching method - Skips if the input matches a static or staticIntent route - Example: `textFree` with session method "7-mypage"
 
-2. \*\*static\*\* - Exact intent match routes (O(1) lookup) - Matches exact text/callback data to page intents - Example: "start" → `text()`<!-- -->, "/help" → `textCommand()`
+2. \*\*static\*\* - Exact intent match routes (O(1) lookup) - Matches exact text/callback data to page intents - Example: "start" → `handleText()`<!-- -->, "/help" → `handleCommandText()`
 
-3. \*\*staticIntent\*\* - Intent with payloads routes (O(1) lookup) - Matches intent prefix when payloads are present - Example: "start:123" → `callbackPayload()`<!-- -->, "/add item" → `textCommandPayload()`
+3. \*\*staticIntent\*\* - Intent with args routes (O(1) lookup) - Matches intent prefix when args are present - Example: "start:123" → `handleArgsCallbackData()`<!-- -->, "/add item" → `handleCommandArgsText()`
 
-4. \*\*dynamicSpesific\*\* - Type-specific free handlers (O(n) iteration) - Runs all `*Free` handlers for the message type - Example: `textFree()`<!-- -->, `photoFree()` - \*\*All matching handlers are executed\*\* (no early return)
+4. \*\*dynamicSpesific\*\* - Type-specific free handlers (O(n) iteration) - Runs all `handleFree*` handlers for the message type - Example: `handleFreeText()`<!-- -->, `handleFreePhoto()` - \*\*All matching handlers are executed\*\* (no early return)
 
-5. \*\*dynamic\*\* - Global fallback handlers (O(n) iteration) - Runs all `free()` handlers from pages that define them - Last resort when nothing else matches - \*\*All matching handlers are executed\*\* (no early return)
+5. \*\*dynamic\*\* - Global fallback handlers (O(n) iteration) - Runs all `handleFree()` handlers from pages that define them - Last resort when nothing else matches - \*\*All matching handlers are executed\*\* (no early return)
 

@@ -21,7 +21,7 @@ True if the message was deleted successfully.
 
 
 ```typescript
-async callbackPayload() {
+async handleArgsCallback() {
   await this.delete()
 }
 ```

@@ -4,7 +4,7 @@
 
 ## Ctx.msgAudio property
 
-Audio payload attached to the message.
+Audio arg attached to the message.
 
 **Signature:**
 

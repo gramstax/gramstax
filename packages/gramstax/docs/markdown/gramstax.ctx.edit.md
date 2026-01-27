@@ -130,7 +130,7 @@ If editing fails (e.g., message too old), falls back to sending a new reply unle
 
 
 ```typescript
-async callbackPayload() {
+async handleArgsCallback() {
   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
   await this.edit(kb, {status: "updated"})
 }

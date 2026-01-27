@@ -122,7 +122,7 @@ The edited message object.
 
 
 ```typescript
-async callbackPayload() {
+async handleArgsCallback() {
   await this.editPhoto()
 }
 ```

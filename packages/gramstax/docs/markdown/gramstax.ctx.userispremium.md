@@ -20,7 +20,7 @@ Returns `false` if the premium status is not available.
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   if (this.userIsPremium) {
     await this.reply(undefined, {tier: "Premium"})
   }

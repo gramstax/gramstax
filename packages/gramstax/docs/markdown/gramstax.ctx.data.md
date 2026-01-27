@@ -14,21 +14,22 @@ static data: ITPageData<any>;
 
 ## Remarks
 
-Only define when you want to override the intent and have a callback payload. If nothing is needed, let the system handle it automatically.
+Only define when you want to override the intent and have a callback arg. If nothing is needed, let the system handle it automatically.
 
 ## Example
 
 
 ```typescript
 class MyPage extends Ctx {
-  // For callback payload route only
+  // For args `handle*CallbackData`
   static data = this.buildData((confirm?: string) => [confirm])
 
-  // For callback payload route and text/textCommand trigger
+  // For callback args route and text/textCommand trigger
+  // For args `handle*CallbackData` and `handle*Text` and `handle*CommandText` (Besides "handleFree*")
   static data = this.buildData({
-    callback: (confirm?: string) => [confirm],
+    callbackData: (confirm?: string) => [confirm],
     intentText: `my_page`,
-    intentTextCommand: `hello`
+    intentCommandText: `hello`
   })
 }
 ```

@@ -94,7 +94,7 @@ Shorthand for [Ctx.bottomKeyboard()](./gramstax.ctx.bottomkeyboard.md) with auto
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   const kb = this.bottomKeyboardT("2")
   await this.reply(kb)
 }

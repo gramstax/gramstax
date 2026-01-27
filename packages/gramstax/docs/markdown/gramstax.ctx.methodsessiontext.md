@@ -54,5 +54,5 @@ string
 
 ## Remarks
 
-These methods generate unique session method identifiers used by [Ctx.sessionSet()](./gramstax.ctx.sessionset.md) and validation methods. Each `methodSession*` returns a prefixed string like `"1-PageName"`<!-- -->.
+These methods generate unique session method identifiers used by [Ctx.setSession()](./gramstax.ctx.setsession.md) and validation methods. Each `methodSession*` returns a prefixed string like `"1-PageName"`<!-- -->.
 

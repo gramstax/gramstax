@@ -4,7 +4,7 @@
 
 ## Ctx.msgContact property
 
-Contact payload attached to the message.
+Contact arg attached to the message.
 
 **Signature:**
 

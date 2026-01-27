@@ -4,7 +4,7 @@
 
 ## Ctx.msgVoice property
 
-Voice message payload attached to the message.
+Voice message arg attached to the message.
 
 **Signature:**
 

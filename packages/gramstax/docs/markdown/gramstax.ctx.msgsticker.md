@@ -4,7 +4,7 @@
 
 ## Ctx.msgSticker property
 
-Sticker payload attached to the message.
+Sticker arg attached to the message.
 
 **Signature:**
 

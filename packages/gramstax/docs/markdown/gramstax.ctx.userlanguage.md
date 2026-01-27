@@ -22,7 +22,7 @@ This property can be both read and written. Setting this value overrides the lan
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   console.log(this.userLanguage) // "en"
   this.userLanguage = "id" // Override to Indonesian
 }

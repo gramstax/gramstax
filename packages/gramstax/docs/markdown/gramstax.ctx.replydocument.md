@@ -106,7 +106,7 @@ The sent message object.
 
 
 ```typescript
-async callback() {
+async handleCallbackData() {
   await this.replyDocument()
 }
 ```

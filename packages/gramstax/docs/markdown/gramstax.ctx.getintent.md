@@ -4,7 +4,7 @@
 
 ## Ctx.getIntent() method
 
-Extracts the intent portion from a string containing payloads.
+Extracts the intent portion from a string containing args.
 
 **Signature:**
 

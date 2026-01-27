@@ -9,7 +9,7 @@ Creates page routing data configuration.
 **Signature:**
 
 ```typescript
-static buildData<C extends (...args: any[]) => any>(callback: C): ITPageData<Parameters<C>>;
+static buildData<C extends (...args: any[]) => any>(callbackData: C): ITPageData<Parameters<C>>;
 ```
 
 ## Parameters
@@ -32,7 +32,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-callback
+callbackData
 
 
 </td><td>
@@ -42,7 +42,7 @@ C
 
 </td><td>
 
-A function that returns payload values as an array.
+A function that returns arg values as an array.
 
 
 </td></tr>
@@ -56,23 +56,23 @@ The page data configuration object.
 
 ## Remarks
 
-This method has multiple overloads: - `buildData()` - Returns default page data with no payloads. - `buildData(callback)` - Returns page data with callback payloads. - `buildData(options)` - Returns page data with custom options.
+This method has multiple overloads: - `buildData()` - Returns default page data with no args. - `buildData(callbackData)` - Returns intentCallbackData + args. - `buildData(options)` - Returns page data with custom options.
 
-The callback must return an array of payload values that will be joined with the intent using colon separators.
+The callback must return an array of arg values that will be joined with the intent using colon separators.
 
 ## Example
 
 
 ```typescript
 class MyPage extends Ctx {
-  // Simple callback payload
+  // Simple callback arg
   static data = this.buildData((id: string) => [id])
 
   // With custom intents
   static data = this.buildData({
-    callback: (action: string) => [action],
+    callbackData: (action: string) => [action],
     intentText: "my_page",
-    intentTextCommand: "mycommand"
+    intentCommandText: "mycommand"
   })
 }
 ```

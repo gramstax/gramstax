@@ -4,7 +4,7 @@
 
 ## Ctx.msgAnimation property
 
-Animation/GIF payload attached to the message.
+Animation/GIF arg attached to the message.
 
 **Signature:**
 

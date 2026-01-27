@@ -4,7 +4,7 @@
 
 ## Ctx.msgLocation property
 
-Location payload attached to the message.
+Location arg attached to the message.
 
 **Signature:**
 

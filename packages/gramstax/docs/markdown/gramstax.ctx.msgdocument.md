@@ -4,7 +4,7 @@
 
 ## Ctx.msgDocument property
 
-Document payload attached to the message.
+Document arg attached to the message.
 
 **Signature:**
 
