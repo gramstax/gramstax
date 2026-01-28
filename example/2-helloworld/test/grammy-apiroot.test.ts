@@ -1,13 +1,14 @@
 import {describe, it, expect} from "bun:test"
 import {join} from "node:path"
 import {env} from "../src/env"
-import {createMockTelegramServer} from "../src/telegram-mock-server"
+import {MockTelegramServer} from "gramstax"
 import {BotCore} from "../src/core/bot"
 import {TemplateManager} from "gramstax"
 
 describe(`grammy apiRoot override`, () => {
   it(`routes API calls to local mock server`, async () => {
-    const {apiRoot, close} = createMockTelegramServer(env.TELEGRAM_BOT_TOKEN)
+    const mockServer = new MockTelegramServer({token: env.TELEGRAM_BOT_TOKEN})
+    await mockServer.start()
     const templateManager = new TemplateManager({path: [join(import.meta.dir, `../src/pages`)]})
     const cwd = process.cwd()
     process.chdir(join(import.meta.dir, `..`))
@@ -17,7 +18,7 @@ describe(`grammy apiRoot override`, () => {
       token: env.TELEGRAM_BOT_TOKEN,
       log: false,
       templateManager,
-      botConfig: {client: {apiRoot}}
+      botConfig: {client: {apiRoot: mockServer.apiRoot}}
     })
 
     const data = await botCore.bot.api.getMe()
@@ -30,6 +31,6 @@ describe(`grammy apiRoot override`, () => {
     )
 
     process.chdir(cwd)
-    close()
+    await mockServer.stop()
   })
 })

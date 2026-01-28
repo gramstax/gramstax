@@ -3,7 +3,8 @@
   "private": false,
   "scripts": {
     "start": "bun ./src/index.ts",
-    "dev": "bun --watch ./src/index.ts"
+    "dev": "bun --watch ./src/index.ts",
+    "bench:webhook": "bun ./src/bench/webhook-server.ts"
   },
   "dependencies": {
     "gramstax": "workspace:*"

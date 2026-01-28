@@ -31,11 +31,17 @@ import type {WorkerThreadLaunch} from "./launch"
 export class WorkerThreadPool {
   /**
    * Map of all worker instances by thread ID.
+   *
+   * @remarks
+   * Values are {@link WorkerThreadLaunch} instances keyed by thread ID.
    */
   thread = new Map<number, WorkerThreadLaunch>()
 
   /**
    * Current number of workers in the pool.
+   *
+   * @remarks
+   * Incremented on add and decremented on kill.
    */
   threadCount = 0
 

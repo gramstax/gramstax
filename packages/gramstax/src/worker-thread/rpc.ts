@@ -31,6 +31,9 @@ export type ITMapRpc = Map<any, {reject: (error: any) => any; resolve: (result: 
 export class WorkerThreadRpc {
   /**
    * Map of pending requests by ID. Stores promise handlers for pending requests.
+   *
+   * @remarks
+   * Uses {@link ITMapRpc} for the map value shape.
    */
   map = new Map() as ITMapRpc
 

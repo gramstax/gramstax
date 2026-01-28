@@ -25,16 +25,25 @@ import {WorkerThreadRpc} from "./rpc"
 export class WorkerThreadGatewayServer {
   /**
    * The underlying `net-ipc` Server instance.
+   *
+   * @remarks
+   * Uses {@link Server} for IPC transport.
    */
   server = new Server()
 
   /**
    * Map of RPC handlers per connection. Key is the connection ID.
+   *
+   * @remarks
+   * Values are {@link WorkerThreadRpc} instances scoped per connection.
    */
   rpc = new Map<string, WorkerThreadRpc>()
 
   /**
    * Object exposed to clients.
+   *
+   * @remarks
+   * Properties become RPC-callable methods.
    */
   register: any = {}
 

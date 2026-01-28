@@ -13,6 +13,7 @@ export * from "./worker-thread/init"
 export * from "./worker-thread/launch"
 export * from "./worker-thread/pool"
 export * from "./worker-thread/rpc"
+export * from "./mock/telegram-server"
 // type
 export * from "./types/t.bot"
 export * from "./types/t.ctx"

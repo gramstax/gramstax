@@ -22,11 +22,17 @@ import {WorkerThreadRpc} from "./rpc"
 export class WorkerThreadGatewayClient {
   /**
    * The underlying `net-ipc` Client instance.
+   *
+   * @remarks
+   * Uses {@link Client} for IPC transport.
    */
   client = new Client()
 
   /**
    * RPC handler for messaging.
+   *
+   * @remarks
+   * Uses {@link WorkerThreadRpc} to encode and dispatch RPC calls.
    */
   rpc: WorkerThreadRpc
 

@@ -8,7 +8,8 @@ import {TemplateManager} from "~/template/manager"
 import {CacheExternal, ITCacheRpc} from "~/cache/external"
 import {Bot, webhookCallback, type BotConfig, type BotError, type Context} from "grammy"
 import type {UserFromGetMe} from "grammy/types"
-import type {ITGramstaxParams} from "~/types/t.bot"
+import type {ITGramstaxParams, ITWebhookQueueConfig} from "~/types/t.bot"
+import {WebhookQueue} from "~/webhook/queue"
 
 const __dirname = dirname(
   (() => {
@@ -47,32 +48,42 @@ const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.j
 export class Gramstax<ICtx extends Ctx = Ctx> {
   /**
    * Manages template loading and rendering for pages.
-   * @public
+   *
+   * @remarks
+   * Uses {@link TemplateManager} to load page templates from disk.
    */
   templateManager: TemplateManager
 
   /**
    * In-memory cache for keyboard instances by language.
-   * @public
+   *
+   * @remarks
+   * Cached values are built from {@link BlockKeyboard} and reused per language.
    */
   cacheKeyboard: Map<any, any>
 
   /**
    * External cache for user session data.
-   * @public
+   *
+   * @remarks
+   * Uses {@link CacheExternal} with {@link ITCacheRpc} transport for persistence.
    */
   cacheSession: CacheExternal<ITCacheRpc>
 
   /**
    * Loaded and sorted page routes.
+   *
+   * @remarks
+   * Derived from page definitions loaded by {@link PageManager}.
    * @readonly
-   * @public
    */
   pages: ReturnType<typeof this._pageLoads>
 
   /**
    * Page options configuration.
-   * @public
+   *
+   * @remarks
+   * Controls callback data strategy for page routing.
    */
   optionsPage = {
     /**
@@ -84,27 +95,52 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
   /**
    * Logger instance for debugging and info output.
-   * @public
+   *
+   * @remarks
+   * Uses {@link LoggingUtil} for formatted log output.
    */
   log: LoggingUtil | undefined
 
   /**
    * The underlying grammY Bot instance.
-   * @public
+   *
+   * @remarks
+   * Instance of {@link Bot} from the grammY library.
    */
   bot: Bot
 
   /**
    * Optional grammY bot configuration.
-   * @public
+   *
+   * @remarks
+   * Configuration object for {@link BotConfig} and {@link Context}.
    */
   botConfig?: BotConfig<Context>
+
+  /**
+   * Webhook queue configuration.
+   *
+   * @remarks
+   * See {@link ITWebhookQueueConfig} for queue settings.
+   */
+  webhookQueue?: ITWebhookQueueConfig
+
+  /**
+   * Active webhook queue instance.
+   * @protected
+   */
+  protected webhookQueueInstance?: WebhookQueue<any>
+
+  /**
+   * Active webhook server instance.
+   * @protected
+   */
+  protected webhookServer?: {stop: () => void}
 
   /**
    * Handler function for processing bot updates.
    * @remarks
    * Can be customized for serverless or webhook deployments.
-   * @public
    */
   handlerBotUpdate: any
 
@@ -142,6 +178,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.cacheSession = params.cacheSession || new CacheExternal(`memory`)
     this.cacheKeyboard = params.cacheKeyboard || new Map()
     this.botConfig = params.botConfig
+    this.webhookQueue = params.webhookQueue
     this.templateManager =
       params.templateManager ||
       new TemplateManager({
@@ -297,16 +334,98 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   async _runWebhook(fullUrl: string): Promise<void> {
     const {serve} = await import(`bun`) // <==== import in this because this package support node/bun (default use bun)
     const handleUpdate = webhookCallback(this.bot, `bun`)
-    this.handlerBotUpdate = handleUpdate
+    const queueConfig = this.webhookQueue
+    const queueEnabled = queueConfig?.enabled === true
+    this.handlerBotUpdate = queueEnabled ? this.bot.handleUpdate.bind(this.bot) : handleUpdate
+
+    const queue = queueEnabled ? new WebhookQueue<any>(queueConfig?.maxQueueSize ?? 5000) : undefined
+    const workerCount = queueConfig?.workerCount ?? 8
+    const perChatConcurrency = queueConfig?.perChatConcurrency ?? 1
+    const blockWhenFull = queueConfig?.blockWhenFull !== false
+    const activeChats = new Map<string, number>()
+    const waitChats = new Map<string, Array<() => void>>()
+
+    this.webhookQueueInstance = queue
+
+    const getChatId = (update: any) => {
+      return (
+        update?.message?.chat?.id ??
+        update?.edited_message?.chat?.id ??
+        update?.channel_post?.chat?.id ??
+        update?.edited_channel_post?.chat?.id ??
+        update?.callback_query?.message?.chat?.id ??
+        update?.callback_query?.from?.id ??
+        update?.inline_query?.from?.id ??
+        update?.chosen_inline_result?.from?.id
+      )
+    }
+
+    const acquireChat = async (chatId: any) => {
+      if (!queueEnabled || perChatConcurrency <= 0 || chatId === undefined || chatId === null) {
+        return () => {}
+      }
+
+      const key = String(chatId)
+      const current = activeChats.get(key) || 0
+      if (current < perChatConcurrency) {
+        activeChats.set(key, current + 1)
+        return () => this._releaseWebhookChat(key, activeChats, waitChats)
+      }
+
+      await new Promise<void>((resolve) => {
+        const waiters = waitChats.get(key) || []
+        waiters.push(resolve)
+        waitChats.set(key, waiters)
+      })
+
+      const next = (activeChats.get(key) || 0) + 1
+      activeChats.set(key, next)
+      return () => this._releaseWebhookChat(key, activeChats, waitChats)
+    }
+
+    if (queueEnabled && queue) {
+      await this.bot.init()
+      for (let index = 0; index < workerCount; index++) {
+        this._startWebhookWorker(queue, acquireChat, getChatId)
+      }
+    }
 
     const pathUrl = new URL(fullUrl).pathname
-    serve({
-      fetch(req) {
+    const logger = this.log
+    this.webhookServer?.stop()
+    const server = serve({
+      async fetch(req) {
         const {pathname} = new URL(req.url)
         if (req.method == `POST` && pathname == pathUrl) {
-          return handleUpdate(req)
+          if (!queueEnabled || !queue) {
+            return handleUpdate(req)
+          }
+
+          if (!blockWhenFull && queue.length >= (queueConfig?.maxQueueSize ?? 5000)) {
+            return new Response(`Queue full`, {status: 429})
+          }
+
+          try {
+            const update = await req.json()
+            await queue.enqueue(update)
+            return new Response(`OK`, {status: 200})
+          } catch (error) {
+            logger?.error?.(`Webhook queue error: ${String(error)}`)
+            return new Response(`Bad Request`, {status: 400})
+          }
         }
 
+        if (req.method == `GET` && pathname == `/stats_queue`) {
+          const stats = queue?.getStats() || {}
+          return new Response(
+            JSON.stringify({
+              enabled: queueEnabled,
+              ...stats,
+              activeChats: activeChats.size
+            }),
+            {status: 200, headers: {"Content-Type": `application/json`}}
+          )
+        }
         if (req.method == `GET` && pathname == `/`) {
           const timestamp = new Date().toISOString()
           return new Response(JSON.stringify({status: `OK`, timestamp}), {
@@ -317,6 +436,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         return new Response(`Not found`, {status: 404})
       }
     })
+    this.webhookServer = server
+
+    const stopServer = () => {
+      this.webhookServer?.stop()
+      this.webhookServer = undefined
+    }
+    process.once(`SIGINT`, stopServer)
+    process.once(`SIGTERM`, stopServer)
 
     const data = await this.bot.api.getWebhookInfo()
     if (data.url != fullUrl) {
@@ -325,6 +452,86 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     const botInfo = await this.bot.api.getMe()
     await this._onStart(botInfo, `webhook`, fullUrl)
+  }
+
+  /**
+   * Start a webhook worker loop for processing updates.
+   *
+   * @param queue - Webhook queue instance.
+   * @param acquireChat - Chat concurrency gate.
+   * @param getChatId - Extracts chat ID from update.
+   * @internal
+   */
+  _startWebhookWorker(queue: WebhookQueue<any>, acquireChat: (chatId: any) => Promise<() => void>, getChatId: (update: any) => any) {
+    const run = async () => {
+      while (true) {
+        const update = await queue.dequeue()
+        const release = await acquireChat(getChatId(update))
+        try {
+          await this.bot.handleUpdate(update)
+        } catch (error) {
+          this.log?.error?.(`Webhook worker error: ${String(error)}`)
+        } finally {
+          release()
+        }
+      }
+    }
+
+    run()
+  }
+
+  /**
+   * Release a chat slot and wake the next waiter if needed.
+   *
+   * @param key - Chat identifier.
+   * @param activeChats - Active chat counter map.
+   * @param waitChats - Waiting callbacks by chat ID.
+   * @internal
+   */
+  _releaseWebhookChat(key: string, activeChats: Map<string, number>, waitChats: Map<string, Array<() => void>>) {
+    const current = activeChats.get(key) || 0
+    const next = Math.max(0, current - 1)
+    if (next === 0) {
+      activeChats.delete(key)
+    } else {
+      activeChats.set(key, next)
+    }
+
+    const waiters = waitChats.get(key)
+    if (waiters && waiters.length > 0) {
+      const resolve = waiters.shift()!
+      resolve()
+      if (waiters.length === 0) {
+        waitChats.delete(key)
+      }
+    }
+  }
+
+  /**
+   * Get current webhook queue statistics.
+   *
+   * @returns Stats object when queue is enabled, otherwise `null`.
+   * @public
+   */
+  getWebhookQueueStats() {
+    if (!this.webhookQueue?.enabled || !this.webhookQueueInstance) {
+      return null
+    }
+
+    const queueStats = this.webhookQueueInstance.getStats()
+    const maxQueueSize = this.webhookQueue.maxQueueSize ?? 5000
+    const workerCount = this.webhookQueue.workerCount ?? 8
+    const perChatConcurrency = this.webhookQueue.perChatConcurrency ?? 1
+    const blockWhenFull = this.webhookQueue.blockWhenFull !== false
+
+    return {
+      enabled: true,
+      maxQueueSize,
+      workerCount,
+      perChatConcurrency,
+      blockWhenFull,
+      ...queueStats
+    }
   }
 
   /**
@@ -983,9 +1190,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         return
       }
 
-      this.log?.time(`call page routes from listener ${listenerName}`)
+      // this.log?.time(`1`)
       const routeResult = await this._pageRoutes(ctx, listenerName)
-      this.log?.timeEnd(`call page routes from listener ${listenerName}`)
+      // this.log?.timeEnd(`1`, `call page routes from listener ${listenerName}`)
       if (routeResult === null) {
         await this.hookErrorInputNotFoundPage(ctx)
       }
@@ -1009,9 +1216,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       // Check all route
-      this.log?.time(`call page routes from listener callbackData`)
+      // this.log?.time(`1`)
       await this._pageRoutes(ctx, `callbackdata`)
-      this.log?.timeEnd(`call page routes from listener callbackData`)
+      // this.log?.timeEnd(`1`, `call page routes from listener callbackData`)
     } catch (error) {
       await this.hookErrorPage(ctx, `onCallbackQueryData`, error, true)
     }

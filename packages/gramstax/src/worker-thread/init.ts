@@ -39,67 +39,90 @@ export class WorkerThreadInit {
   /**
    * Command line arguments passed to the worker.
    * Same as `process.argv`. Custom args start at index 3.
-   * @public
+   *
+   * @remarks
+   * Use this for worker-specific flags and configuration.
    */
   argv = process.argv
 
   /**
    * The worker thread ID from `node:worker_threads` `threadId`.
-   * @public
+   *
+   * @remarks
+   * Useful for logging or indexing worker state.
    */
   id = threadId
 
   /**
    * The process ID. Same as `process.pid`.
-   * @public
+   *
+   * @remarks
+   * Shared across worker threads in the same process.
    */
   pid = process.pid
 
   /**
    * RPC handler for method invocations.
-   * @public
+   *
+   * @remarks
+   * Uses {@link WorkerThreadRpc} for dispatching requests.
    */
   rpc: WorkerThreadRpc = {} as any
 
   /**
    * Reference to the parent port for messaging from `node:worker_threads`.
-   * @public
+   *
+   * @remarks
+   * Uses {@link parentPort} to send and receive messages.
    */
   parentPort = parentPort
 
   /**
    * Gateway server instance if created.
-   * @public
+   *
+   * @remarks
+   * Uses {@link WorkerThreadGatewayServer} for IPC server routing.
    */
   gatewayServer?: WorkerThreadGatewayServer
 
   /**
    * Map of gateway clients for inter-worker communication.
-   * @public
+   *
+   * @remarks
+   * Values are {@link WorkerThreadGatewayClient} instances keyed by server path.
    */
   gatewayClients = new Map<string, WorkerThreadGatewayClient>()
 
   /**
    * The most recently created gateway client.
-   * @public
+   *
+   * @remarks
+   * Uses {@link WorkerThreadGatewayClient} for IPC requests.
    */
   gatewayClientLatest?: WorkerThreadGatewayClient
 
   /**
    * Path for gateway server. Override in subclass if needed.
    * @virtual
+   *
+   * @remarks
+   * Used by {@link WorkerThreadGatewayServer} when binding.
    */
   static gatewayServerPath?: string
 
   /**
    * Instance accessor for gateway server path from static property.
-   * @public
+   *
+   * @remarks
+   * Reads from {@link WorkerThreadInit.gatewayServerPath}.
    */
   gatewayServerPath = (this.constructor as any).gatewayServerPath
 
   /**
    * Get the most recently created gateway client.
-   * @public
+   *
+   * @remarks
+   * Alias for {@link WorkerThreadInit.gatewayClientLatest}.
    */
   get gatewayClient() {
     return this.gatewayClientLatest
@@ -108,7 +131,9 @@ export class WorkerThreadInit {
   /**
    * Check if currently running in the main thread.
    * Re-exported from `node:worker_threads`.
-   * @public
+   *
+   * @remarks
+   * Use {@link isMainThread} to branch between main and worker logic.
    */
   static isMainThread = isMainThread
 

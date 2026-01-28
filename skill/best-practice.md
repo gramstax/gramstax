@@ -24,7 +24,7 @@ description: Best practices for Gramstax real project structure.
 - Prefer inline keyboard navigation and session flows.
 - Avoid slash commands when the flow can be fully inline + session driven.
 - Include a `start.ts` page in each example.
-- Use the `textCommand` route function for the start page.
+- Use the `handleCommandText` route function for the start page.
 - Always clear the session on the start page.
 - Do not call `sessionGet()` inside page handlers; the system fetches session before routing.
 - Prefer class or static methods for project logic.

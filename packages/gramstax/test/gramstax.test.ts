@@ -13,7 +13,7 @@ class TestGramstax extends Gramstax {
     // Return page structure matching our test templates
     return {
       routeStatic: {
-        textCommand: {
+        handleCommandText: {
           cmd1: {name: `cmd1`}
         }
       },
@@ -149,7 +149,7 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
     bot._pageLoads = () =>
       ({
         routeStatic: {
-          textCommand: {
+          handleCommandText: {
             cmd1: {name: `cmd1`},
             cmd2: {name: `cmd2`}
           }

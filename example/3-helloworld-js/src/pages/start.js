@@ -8,11 +8,11 @@ export class StartPage extends Ctx {
     else await this.reply(kb, data)
   }
 
-  async textCommand() {
+  async handleCommandText() {
     await this.show(false)
   }
 
-  async callback() {
+  async handleCallbackData() {
     await this.show(true)
   }
 

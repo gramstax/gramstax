@@ -81,19 +81,56 @@ type ITemplateOptions = {
  * @public
  */
 export class TemplateManager {
-  /** @public Map of compiled templates keyed by filename (without extension) */
+  /**
+   * Map of compiled templates keyed by filename (without extension).
+   *
+   * @remarks
+   * Values are {@link ICompiledTemplate} compiled results.
+   */
   _map = new Map<string, ICompiledTemplate>()
-  /** @public Reference to the TemplateEngine class for compilation */
+  /**
+   * Reference to the TemplateEngine class for compilation.
+   *
+   * @remarks
+   * Uses {@link TemplateEngine} static compile helpers.
+   */
   _engine = TemplateEngine
-  /** @public Active file system watchers for hot-reload */
+  /**
+   * Active file system watchers for hot-reload.
+   *
+   * @remarks
+   * Uses {@link FSWatcher} instances from Chokidar.
+   */
   _watcher: FSWatcher[] = []
-  /** @public Reference to PageManager for loading page modules */
+  /**
+   * Reference to PageManager for loading page modules.
+   *
+   * @remarks
+   * Uses {@link PageManager} to load page templates from .ts/.js.
+   */
   _pageManager = PageManager
-  /** @public Set of supported template file extensions */
+  /**
+   * Set of supported template file extensions.
+   *
+   * @remarks
+   * Defaults to `.html`, `.ts`, and `.js`.
+   */
   _supportedExtensions = new Set([`.html`, `.ts`, `.js`])
-  /** @readonly Base paths for scanning template files */
+  /**
+   * Base paths for scanning template files.
+   *
+   * @remarks
+   * Derived from {@link ITemplateOptions.path}.
+   * @readonly
+   */
   readonly _path: ITemplateOptions[`path`]
-  /** @readonly Flag indicating if file watching is enabled */
+  /**
+   * Flag indicating if file watching is enabled.
+   *
+   * @remarks
+   * Derived from {@link ITemplateOptions.enableWatch}.
+   * @readonly
+   */
   readonly _isWatchEnabled: ITemplateOptions[`enableWatch`]
 
   /**

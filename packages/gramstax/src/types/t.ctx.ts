@@ -366,7 +366,7 @@ export type ITPageData<T extends any[] = any[]> = {
    * Callback function that processes args and returns route data.
    *
    * @remarks
-   * Add args to `intentCallbackData`, will trigger only to route function "*Callback*" (besides the match "free").
+   * Add args to `intentCallbackData`, will trigger only to route function "handle*Callback*" (besides the "handleFree*").
    * This is usually used when you want to insert a arg into it.
    *
    * **Note:** Return value should use ARRAY only if there is a arg so that the background
@@ -385,7 +385,7 @@ export type ITPageData<T extends any[] = any[]> = {
    * Text intent pattern for matching incoming text messages.
    *
    * @remarks
-   * Overrides intent value used to trigger the route function text (besides the ending "free").
+   * Overrides intent value used to trigger the route function `handle*Text` (besides the `handleFree*`).
    * This is typically used when you want to trigger the route using a space-separated command,
    * for example "X Start" or "🏠 Home", with a maximum of one space.
    *
@@ -399,7 +399,7 @@ export type ITPageData<T extends any[] = any[]> = {
    * Text command intent pattern for matching incoming command messages.
    *
    * @remarks
-   * Overrides intent value used to trigger the route function textCommand (besides the ending "free").
+   * Overrides intent value used to trigger the route function `handleCommand*Text` (besides the `handleFree*`).
    * This is usually required when `this.data.name` includes a hyphen ("-"), which may interfere
    * with default routing behavior.
    *
@@ -413,7 +413,7 @@ export type ITPageData<T extends any[] = any[]> = {
    * Position index for arg extraction from text messages.
    *
    * @remarks
-   * An internal value that specifies the arg position for the route function "handleText" and "handleArgsText".
+   * An internal value that specifies the arg position for the route function "handle*Text" and "handle*ArgsText".
    * The maximum allowed value is "2", which means only single spaces are supported,
    * for example:
    * ```ts
@@ -432,7 +432,7 @@ export type ITPageData<T extends any[] = any[]> = {
    * Callback intent pattern for matching callback query data.
    *
    * @remarks
-   * Internal intent value used to trigger route function callback (besides the ending "free").
+   * Internal intent value used to trigger route function `handle*CallbackData` (besides the `handleFree*`).
    * If `constructorParams.shortCallbackData` is set to true, a numeric index value will be
    * used instead.
    *
