@@ -103,6 +103,7 @@ export class TemplateEngine {
   }
 
   /**
+   * Scope: {{}}
    * Converts `{{variable}}` placeholders to JavaScript template literal expressions.
    *
    * @remarks
@@ -126,6 +127,7 @@ export class TemplateEngine {
   }
 
   /**
+   * Scope: {~~}
    * Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.
    *
    * @remarks
@@ -150,6 +152,7 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: base
    * Extracts and parses `<base>` blocks from a template string.
    *
    * @remarks
@@ -210,6 +213,7 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: script
    * Transforms `<script>` blocks into executable JavaScript expressions.
    *
    * @remarks
@@ -242,6 +246,7 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: space
    * Removes lines containing self-closing `<space />` tags.
    *
    * @remarks
@@ -269,6 +274,7 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: div
    * Normalizes content within `<div>` blocks by removing indentation.
    *
    * @remarks
@@ -302,6 +308,7 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: switch
    * Transforms `<switch>` blocks into JavaScript switch statement expressions.
    *
    * @remarks
@@ -380,6 +387,7 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: map
    * Transforms `<map>` blocks into JavaScript array map expressions.
    *
    * @remarks
@@ -441,11 +449,12 @@ export class TemplateEngine {
       // We need to escape the join string for the JS code
       const safeJoin = join.replace(/"/g, `\\"`)
 
-      return `\${(data && data["${src}"] || []).map((e, i) => \`${content}\`).join("${safeJoin}")}`
+      return `\${(() => { const __arr = (data && data["${src}"]) || []; let __out = ""; for (let i = 0; i < __arr.length; i++) { const e = __arr[i]; if (i > 0) { __out += "${safeJoin}" } __out += \`${content}\`; } return __out; })()}`
     })
   }
 
   /**
+   * Block: media
    * Extracts and parses `<media>` blocks from a template string.
    *
    * @remarks
@@ -557,6 +566,7 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: message
    * Extracts and parses `<message>` blocks from a template string.
    *
    * @remarks
@@ -611,6 +621,7 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: description
    * Extracts and parses `<description>` blocks from a template string.
    *
    * @remarks
@@ -677,6 +688,7 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: keyboard
    * Extracts and parses `<keyboard>` blocks from a template string.
    *
    * @remarks
