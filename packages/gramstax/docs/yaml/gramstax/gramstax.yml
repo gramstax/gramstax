@@ -56,7 +56,7 @@ properties:
     package: gramstax!
     fullName: bot
     summary: The underlying grammY Bot instance.
-    remarks: ''
+    remarks: Instance of  from the grammY library.
     example: []
     isPreview: false
     isDeprecated: false
@@ -69,7 +69,7 @@ properties:
     package: gramstax!
     fullName: botConfig
     summary: Optional grammY bot configuration.
-    remarks: ''
+    remarks: Configuration object for  and .
     example: []
     isPreview: false
     isDeprecated: false
@@ -82,7 +82,7 @@ properties:
     package: gramstax!
     fullName: cacheKeyboard
     summary: In-memory cache for keyboard instances by language.
-    remarks: ''
+    remarks: Cached values are built from [BlockKeyboard](xref:gramstax!BlockKeyboard:class) and reused per language.
     example: []
     isPreview: false
     isDeprecated: false
@@ -95,7 +95,9 @@ properties:
     package: gramstax!
     fullName: cacheSession
     summary: External cache for user session data.
-    remarks: ''
+    remarks: >-
+      Uses [CacheExternal](xref:gramstax!CacheExternal:class) with [ITCacheRpc](xref:gramstax!ITCacheRpc:type) transport
+      for persistence.
     example: []
     isPreview: false
     isDeprecated: false
@@ -121,7 +123,7 @@ properties:
     package: gramstax!
     fullName: log
     summary: Logger instance for debugging and info output.
-    remarks: ''
+    remarks: Uses [LoggingUtil](xref:gramstax!LoggingUtil:class) for formatted log output.
     example: []
     isPreview: false
     isDeprecated: false
@@ -134,7 +136,7 @@ properties:
     package: gramstax!
     fullName: optionsPage
     summary: Page options configuration.
-    remarks: ''
+    remarks: Controls callback data strategy for page routing.
     example: []
     isPreview: false
     isDeprecated: false
@@ -153,7 +155,7 @@ properties:
     package: gramstax!
     fullName: pages
     summary: Loaded and sorted page routes.
-    remarks: ''
+    remarks: Derived from page definitions loaded by .
     example: []
     isPreview: false
     isDeprecated: false
@@ -166,7 +168,7 @@ properties:
     package: gramstax!
     fullName: templateManager
     summary: Manages template loading and rendering for pages.
-    remarks: ''
+    remarks: Uses [TemplateManager](xref:gramstax!TemplateManager:class) to load page templates from disk.
     example: []
     isPreview: false
     isDeprecated: false
@@ -174,6 +176,51 @@ properties:
       content: 'templateManager: TemplateManager;'
       return:
         type: <xref uid="gramstax!TemplateManager:class" />
+  - name: webhookQueue
+    uid: gramstax!Gramstax#webhookQueue:member
+    package: gramstax!
+    fullName: webhookQueue
+    summary: Webhook queue configuration.
+    remarks: See [ITWebhookQueueConfig](xref:gramstax!ITWebhookQueueConfig:type) for queue settings.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'webhookQueue?: ITWebhookQueueConfig;'
+      return:
+        type: <xref uid="gramstax!ITWebhookQueueConfig:type" />
+  - name: webhookQueueInstance
+    uid: gramstax!Gramstax#webhookQueueInstance:member
+    package: gramstax!
+    fullName: webhookQueueInstance
+    summary: Active webhook queue instance.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'protected webhookQueueInstance?: WebhookQueue<any>;'
+      return:
+        type: <xref uid="gramstax!~WebhookQueue:class" />&lt;any&gt;
+  - name: webhookServer
+    uid: gramstax!Gramstax#webhookServer:member
+    package: gramstax!
+    fullName: webhookServer
+    summary: Active webhook server instance.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        protected webhookServer?: {
+                stop: () => void;
+            };
+      return:
+        type: |-
+          {
+                  stop: () =&gt; void;
+              }
 methods:
   - name: _onCallbackQueryData(ct)
     uid: gramstax!Gramstax#_onCallbackQueryData:member(1)
@@ -1520,6 +1567,42 @@ methods:
       return:
         type: Promise&lt;void&gt;
         description: ''
+  - name: getWebhookQueueStats()
+    uid: gramstax!Gramstax#getWebhookQueueStats:member(1)
+    package: gramstax!
+    fullName: getWebhookQueueStats()
+    summary: Get current webhook queue statistics.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        getWebhookQueueStats(): {
+                length: number;
+                maxSize: number;
+                waitingEnqueue: number;
+                waitingDequeue: number;
+                enabled: boolean;
+                maxQueueSize: number;
+                workerCount: number;
+                perChatConcurrency: number;
+                blockWhenFull: boolean;
+            } | null;
+      return:
+        type: |-
+          {
+                  length: number;
+                  maxSize: number;
+                  waitingEnqueue: number;
+                  waitingDequeue: number;
+                  enabled: boolean;
+                  maxQueueSize: number;
+                  workerCount: number;
+                  perChatConcurrency: number;
+                  blockWhenFull: boolean;
+              } | null
+        description: Stats object when queue is enabled, otherwise `null`<!-- -->.
   - name: hookAfterStart()
     uid: gramstax!Gramstax#hookAfterStart:member(1)
     package: gramstax!

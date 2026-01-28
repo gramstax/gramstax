@@ -106,7 +106,7 @@ typeof [TemplateEngine](./gramstax.templateengine.md)
 
 </td><td>
 
-Reference to the TemplateEngine class for compilation
+Reference to the TemplateEngine class for compilation.
 
 
 </td></tr>
@@ -127,7 +127,7 @@ ITemplateOptions\[\`enableWatch\`\]
 
 </td><td>
 
-Flag indicating if file watching is enabled
+Flag indicating if file watching is enabled.
 
 
 </td></tr>
@@ -146,7 +146,7 @@ Map&lt;string, ICompiledTemplate&gt;
 
 </td><td>
 
-Map of compiled templates keyed by filename (without extension)
+Map of compiled templates keyed by filename (without extension).
 
 
 </td></tr>
@@ -165,7 +165,7 @@ typeof PageManager
 
 </td><td>
 
-Reference to PageManager for loading page modules
+Reference to PageManager for loading page modules.
 
 
 </td></tr>
@@ -186,7 +186,7 @@ ITemplateOptions\[\`path\`\]
 
 </td><td>
 
-Base paths for scanning template files
+Base paths for scanning template files.
 
 
 </td></tr>
@@ -205,7 +205,7 @@ Set&lt;string&gt;
 
 </td><td>
 
-Set of supported template file extensions
+Set of supported template file extensions.
 
 
 </td></tr>
@@ -224,7 +224,7 @@ FSWatcher\[\]
 
 </td><td>
 
-Active file system watchers for hot-reload
+Active file system watchers for hot-reload.
 
 
 </td></tr>

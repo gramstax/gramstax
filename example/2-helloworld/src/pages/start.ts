@@ -1,6 +1,6 @@
-import {Ctx} from "gramstax"
+import {PageBase} from "~/base/page"
 
-export class StartPage extends Ctx {
+export class StartPage extends PageBase {
   async show(edit = true) {
     const kb = this.inlineKeyboardT([this])
     const data = {time: new Date().toString()}

@@ -51,7 +51,7 @@ properties:
     package: gramstax!
     fullName: map
     summary: Map of pending requests by ID. Stores promise handlers for pending requests.
-    remarks: ''
+    remarks: Uses [ITMapRpc](xref:gramstax!ITMapRpc:type) for the map value shape.
     example: []
     isPreview: false
     isDeprecated: false

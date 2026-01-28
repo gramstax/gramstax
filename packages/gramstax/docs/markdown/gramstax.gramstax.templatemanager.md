@@ -11,3 +11,8 @@ Manages template loading and rendering for pages.
 ```typescript
 templateManager: TemplateManager;
 ```
+
+## Remarks
+
+Uses [TemplateManager](./gramstax.templatemanager.md) to load page templates from disk.
+

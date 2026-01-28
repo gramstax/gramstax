@@ -13,7 +13,7 @@ import {TemplateEngine} from "./engine"
  *
  * @public
  */
-type ICompiledTemplate = {
+type ITCompiledTemplate = {
   /** Compiled media blocks indexed by base ID and language */
   media: ReturnType<typeof TemplateEngine.compileBlockMedia>
   /** Compiled message blocks indexed by base ID and language */
@@ -33,7 +33,7 @@ type ICompiledTemplate = {
  *
  * @example
  * ```typescript
- * const options: ITemplateOptions = {
+ * const options = {
  *   path: [join(process.cwd(), "src", "pages")],
  *   enableWatch: true,
  *   watchOptions: {ignored: /node_modules/}
@@ -42,7 +42,7 @@ type ICompiledTemplate = {
  *
  * @public
  */
-type ITemplateOptions = {
+type ITTemplateOptions = {
   /** Array of directory paths to scan for template files */
   path: string[]
   /** Enable file watching for hot-reloading during development */
@@ -85,9 +85,9 @@ export class TemplateManager {
    * Map of compiled templates keyed by filename (without extension).
    *
    * @remarks
-   * Values are {@link ICompiledTemplate} compiled results.
+   * Values are {@link ITCompiledTemplate} compiled results.
    */
-  _map = new Map<string, ICompiledTemplate>()
+  _map = new Map<string, ITCompiledTemplate>()
   /**
    * Reference to the TemplateEngine class for compilation.
    *
@@ -120,18 +120,18 @@ export class TemplateManager {
    * Base paths for scanning template files.
    *
    * @remarks
-   * Derived from {@link ITemplateOptions.path}.
+   * Derived from {@link ITTemplateOptions.path}.
    * @readonly
    */
-  readonly _path: ITemplateOptions[`path`]
+  readonly _path: ITTemplateOptions[`path`]
   /**
    * Flag indicating if file watching is enabled.
    *
    * @remarks
-   * Derived from {@link ITemplateOptions.enableWatch}.
+   * Derived from {@link ITTemplateOptions.enableWatch}.
    * @readonly
    */
-  readonly _isWatchEnabled: ITemplateOptions[`enableWatch`]
+  readonly _isWatchEnabled: ITTemplateOptions[`enableWatch`]
 
   /**
    * Creates a new TemplateManager instance.
@@ -157,7 +157,7 @@ export class TemplateManager {
    * @throws Error if path is not a valid string array
    * @throws Error if any path does not exist or is not a directory
    */
-  constructor(options: ITemplateOptions) {
+  constructor(options: ITTemplateOptions) {
     const {path, enableWatch = false} = options
 
     this._path = path
@@ -599,9 +599,9 @@ export class TemplateManager {
    *
    * @public
    */
-  _compile(key: string, template: string, keepIfExist?: Partial<{[K in keyof ICompiledTemplate]: boolean}>, importCache?: Map<string, string>, rawCache?: Map<string, string>) {
+  _compile(key: string, template: string, keepIfExist?: Partial<{[K in keyof ITCompiledTemplate]: boolean}>, importCache?: Map<string, string>, rawCache?: Map<string, string>) {
     const existing = this._map.get(key)
-    const compiled = existing || ({} as ICompiledTemplate)
+    const compiled = existing || ({} as ITCompiledTemplate)
     let updated = false
 
     // Process Imports
@@ -665,7 +665,7 @@ export class TemplateManager {
    *
    * @public
    */
-  getMedia(key: string, baseId = `default`, language = `default`, data?: Record<string, any>): ReturnType<ICompiledTemplate[`media`][`default`][`default`]> {
+  getMedia(key: string, baseId = `default`, language = `default`, data?: Record<string, any>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]> {
     const map = this._map.get(key)
     const one = map?.media?.[baseId]
     const func = one?.[language] || one?.[`default`]

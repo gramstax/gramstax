@@ -13,3 +13,8 @@ optionsPage: {
         shortCallbackData: boolean;
     };
 ```
+
+## Remarks
+
+Controls callback data strategy for page routing.
+

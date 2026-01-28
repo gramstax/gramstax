@@ -4,10 +4,15 @@
 
 ## TemplateManager.\_watcher property
 
-Active file system watchers for hot-reload
+Active file system watchers for hot-reload.
 
 **Signature:**
 
 ```typescript
 _watcher: FSWatcher[];
 ```
+
+## Remarks
+
+Uses  instances from Chokidar.
+

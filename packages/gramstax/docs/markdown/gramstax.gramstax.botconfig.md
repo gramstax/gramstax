@@ -11,3 +11,8 @@ Optional grammY bot configuration.
 ```typescript
 botConfig?: BotConfig<Context>;
 ```
+
+## Remarks
+
+Configuration object for  and .
+

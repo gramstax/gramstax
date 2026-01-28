@@ -11,3 +11,8 @@ The underlying `net-ipc` Client instance.
 ```typescript
 client: Client;
 ```
+
+## Remarks
+
+Uses  for IPC transport.
+

@@ -11,3 +11,8 @@ The worker thread ID.
 ```typescript
 threadId: number;
 ```
+
+## Remarks
+
+Matches .
+

@@ -1847,7 +1847,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx.data:member",
-              "docComment": "/**\n * Page routing data created by `Ctx.buildData`.\n *\n * @remarks\n *\n * Only define when you want to override the intent and have a callback arg. If nothing is needed, let the system handle it automatically.\n *\n * @example\n * ```typescript\n * class MyPage extends Ctx {\n *   // For args `handle*CallbackData`\n *   static data = this.buildData((confirm?: string) => [confirm])\n *\n *   // For callback args route and text/textCommand trigger\n *   // For args `handle*CallbackData` and `handle*Text` and `handle*CommandText` (Besides \"handleFree*\")\n *   static data = this.buildData({\n *     callbackData: (confirm?: string) => [confirm],\n *     intentText: `my_page`,\n *     intentCommandText: `hello`\n *   })\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Page routing data created by `Ctx.buildData`.\n *\n * @remarks\n *\n * Only define when you want to override the intent and have a callback arg. If nothing is needed, let the system handle it automatically.\n *\n * @example\n * ```typescript\n * class MyPage extends Ctx {\n *   // For args `handle*CallbackData`\n *   static data = this.buildData((confirm?: string) => [confirm])\n *\n *   // For args `handle*CallbackData` and `handle*Text` and `handle*CommandText` (Besides \"handleFree*\")\n *   static data = this.buildData({\n *     callbackData: (confirm?: string) => [confirm],\n *     intentText: `my_page`,\n *     intentCommandText: `hello`\n *   })\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18103,7 +18103,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#bot:member",
-              "docComment": "/**\n * The underlying grammY Bot instance.\n *\n * @public\n */\n",
+              "docComment": "/**\n * The underlying grammY Bot instance.\n *\n * @remarks\n *\n * Instance of {@link Bot} from the grammY library.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18134,7 +18134,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#botConfig:member",
-              "docComment": "/**\n * Optional grammY bot configuration.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Optional grammY bot configuration.\n *\n * @remarks\n *\n * Configuration object for {@link BotConfig} and {@link Context}.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18178,7 +18178,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#cacheKeyboard:member",
-              "docComment": "/**\n * In-memory cache for keyboard instances by language.\n *\n * @public\n */\n",
+              "docComment": "/**\n * In-memory cache for keyboard instances by language.\n *\n * @remarks\n *\n * Cached values are built from {@link BlockKeyboard} and reused per language.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18213,7 +18213,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#cacheSession:member",
-              "docComment": "/**\n * External cache for user session data.\n *\n * @public\n */\n",
+              "docComment": "/**\n * External cache for user session data.\n *\n * @remarks\n *\n * Uses {@link CacheExternal} with {@link ITCacheRpc} transport for persistence.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18442,9 +18442,40 @@
               "name": "executeSyncBlocksDescription"
             },
             {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Gramstax#getWebhookQueueStats:member(1)",
+              "docComment": "/**\n * Get current webhook queue statistics.\n *\n * @returns Stats object when queue is enabled, otherwise `null`.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getWebhookQueueStats(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        length: number;\n        maxSize: number;\n        waitingEnqueue: number;\n        waitingDequeue: number;\n        enabled: boolean;\n        maxQueueSize: number;\n        workerCount: number;\n        perChatConcurrency: number;\n        blockWhenFull: boolean;\n    } | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getWebhookQueueStats"
+            },
+            {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#handlerBotUpdate:member",
-              "docComment": "/**\n * Handler function for processing bot updates.\n *\n * @remarks\n *\n * Can be customized for serverless or webhook deployments.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Handler function for processing bot updates.\n *\n * @remarks\n *\n * Can be customized for serverless or webhook deployments.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18759,7 +18790,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#log:member",
-              "docComment": "/**\n * Logger instance for debugging and info output.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Logger instance for debugging and info output.\n *\n * @remarks\n *\n * Uses {@link LoggingUtil} for formatted log output.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18794,7 +18825,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#optionsPage:member",
-              "docComment": "/**\n * Page options configuration.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Page options configuration.\n *\n * @remarks\n *\n * Controls callback data strategy for page routing.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18824,7 +18855,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#pages:member",
-              "docComment": "/**\n * Loaded and sorted page routes.\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Loaded and sorted page routes.\n *\n * @remarks\n *\n * Derived from page definitions loaded by {@link PageManager}.\n *\n * @readonly\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18868,7 +18899,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#templateManager:member",
-              "docComment": "/**\n * Manages template loading and rendering for pages.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Manages template loading and rendering for pages.\n *\n * @remarks\n *\n * Uses {@link TemplateManager} to load page templates from disk.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18894,6 +18925,102 @@
               },
               "isStatic": false,
               "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Gramstax#webhookQueue:member",
+              "docComment": "/**\n * Webhook queue configuration.\n *\n * @remarks\n *\n * See {@link ITWebhookQueueConfig} for queue settings.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "webhookQueue?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITWebhookQueueConfig",
+                  "canonicalReference": "gramstax!ITWebhookQueueConfig:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "webhookQueue",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Gramstax#webhookQueueInstance:member",
+              "docComment": "/**\n * Active webhook queue instance.  @protected\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "protected webhookQueueInstance?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "WebhookQueue",
+                  "canonicalReference": "gramstax!~WebhookQueue:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "webhookQueueInstance",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": false,
+              "isProtected": true,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Gramstax#webhookServer:member",
+              "docComment": "/**\n * Active webhook server instance.  @protected\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "protected webhookServer?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        stop: () => void;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "webhookServer",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": true,
               "isAbstract": false
             }
           ],
@@ -19209,7 +19336,16 @@
             },
             {
               "kind": "Content",
-              "text": ">;\n    cacheSession?: "
+              "text": ">;\n    webhookQueue?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITWebhookQueueConfig",
+              "canonicalReference": "gramstax!ITWebhookQueueConfig:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    cacheSession?: "
             },
             {
               "kind": "Reference",
@@ -19248,7 +19384,7 @@
           "name": "ITGramstaxParams",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 14
+            "endIndex": 16
           }
         },
         {
@@ -19474,6 +19610,143 @@
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMockTelegramHandler:type",
+          "docComment": "/**\n * Handler signature for mock Telegram methods.\n *\n * @remarks\n *\n * Return a Bot API-like JSON object. `method` is the Telegram method name extracted from the URL path (e.g. `getMe`, `setWebhook`).\n *\n * @example\n * ```typescript\n * const handler: ITMockTelegramHandler = ({method}) => ({ok: true, result: {method}})\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMockTelegramHandler = "
+            },
+            {
+              "kind": "Content",
+              "text": "(payload: {\n    method: string;\n    request: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Request",
+              "canonicalReference": "!Request:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n}) => "
+            },
+            {
+              "kind": "Reference",
+              "text": "Promise",
+              "canonicalReference": "!Promise:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "ITMockTelegramJson",
+              "canonicalReference": "gramstax!ITMockTelegramJson:type"
+            },
+            {
+              "kind": "Content",
+              "text": "> | "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITMockTelegramJson",
+              "canonicalReference": "gramstax!ITMockTelegramJson:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMockTelegramHandler",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 9
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMockTelegramJson:type",
+          "docComment": "/**\n * Telegram JSON response shape for mock server responses.\n *\n * @remarks\n *\n * This is the minimal Bot API response contract used by the mock server: `ok` indicates success and `result` contains the payload.\n *\n * @example\n * ```typescript\n * const response: ITTelegramJson = {ok: true, result: {foo: `bar`}}\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMockTelegramJson = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    ok: boolean;\n    result: unknown;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMockTelegramJson",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMockTelegramServerOptions:type",
+          "docComment": "/**\n * Options for configuring the mock Telegram server.\n *\n * @remarks\n *\n * `token` is required. Use `handlers` to override specific methods, and `defaultHandler` as a fallback for any unmatched method.\n *\n * @example\n * ```typescript\n * const options: ITMockTelegramServerOptions = {\n *   token: `BOT_TOKEN`,\n *   port: 0,\n *   handlers: {\n *     getMe: () => ({ok: true, result: {is_bot: true}})\n *   }\n * }\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMockTelegramServerOptions = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    token: string;\n    hostname?: string;\n    port?: number;\n    handlers?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Record",
+              "canonicalReference": "!Record:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<string, "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITMockTelegramHandler",
+              "canonicalReference": "gramstax!ITMockTelegramHandler:type"
+            },
+            {
+              "kind": "Content",
+              "text": ">;\n    defaultHandler?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITMockTelegramHandler",
+              "canonicalReference": "gramstax!ITMockTelegramHandler:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMockTelegramServerOptions",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 8
           }
         },
         {
@@ -20194,6 +20467,32 @@
           }
         },
         {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITWebhookQueueConfig:type",
+          "docComment": "/**\n * Webhook queue configuration for backpressure and worker pooling.\n *\n * @remarks\n *\n * Enable this only for webhook deployments. The queue buffers incoming updates and dispatches them to a worker pool, decoupling HTTP latency from handler work.\n *\n * @example\n * ```typescript\n * webhookQueue: {\n *   enabled: true,\n *   maxQueueSize: 5000,\n *   workerCount: 8,\n *   perChatConcurrency: 1,\n *   blockWhenFull: true\n * }\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITWebhookQueueConfig = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    enabled?: boolean;\n    maxQueueSize?: number;\n    workerCount?: number;\n    perChatConcurrency?: number;\n    blockWhenFull?: boolean;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITWebhookQueueConfig",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
           "kind": "Class",
           "canonicalReference": "gramstax!LabelKeyboard:class",
           "docComment": "/**\n * Provides static utilities for keyboard data manipulation, specifically for reversing keyboard button order.\n *\n * @remarks\n *\n * Used as base class for user-defined keyboard data classes. Provides button order manipulation for multi-language keyboards.\n *\n * @example\n * ```typescript\n * import { LabelKeyboard } from \"gramstax\";\n *\n * export class KeyboardLabel extends LabelKeyboard {\n *   static home = {\n *     id: \"Rumah\",\n *     en: \"Home\"\n *   }\n *   static backNext = {\n *     id: \"Kembali, Lanjut\",\n *     en: \"Back, Next\"\n *   }\n *   static oneTwo = this._reverseObj({\n *     id: \"Satu, Dua\",\n *     en: \"One, Two\"\n *   })\n *   static threeFour = {\n *     id: this._reverse(\"Tiga, Empat\"),\n *     en: \"Three, Four\"\n *   }\n * }\n *\n * const kbl = KeyboardLabel\n * kbl.home.id // => \"Rumah\"\n * kbl.backNext.id // => \"Kembali, Lanjut\"\n * kbl.oneTwo.id // => \"Dua, Satu\"\n * kbl.oneTwo.en // => \"Two, One\"\n * kbl.threeFour.id // => \"Empat, Tiga\"\n * kbl.threeFour.en // => \"Three, Four\"\n * ```\n *\n * @public\n */\n",
@@ -20848,6 +21147,355 @@
             "startIndex": 1,
             "endIndex": 2
           },
+          "implementsTokenRanges": []
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "gramstax!MockTelegramServer:class",
+          "docComment": "/**\n * In-process mock Telegram API server for local testing.\n *\n * @remarks\n *\n * Provides a minimal subset of the Telegram Bot API for local development. It does not emulate network delays, rate limits, or full Telegram behavior.\n *\n * @example\n * ```typescript\n * const server = new MockTelegramServer({token: \"BOT_TOKEN\"})\n * await server.start()\n * console.log(server.apiRoot)\n * await server.stop()\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare class MockTelegramServer "
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "isAbstract": false,
+          "name": "MockTelegramServer",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "Constructor",
+              "canonicalReference": "gramstax!MockTelegramServer:constructor(1)",
+              "docComment": "/**\n * Create a new mock server instance.\n *\n * @remarks\n *\n * Use `port: 0` to let Bun select a free port automatically.\n *\n * @param options - Server options.\n *\n * @example\n * ```typescript\n * const server = new MockTelegramServer({token: `BOT_TOKEN`, port: 0})\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "constructor(options: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramServerOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramServerOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ");"
+                }
+              ],
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ]
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MockTelegramServer#apiRoot:member",
+              "docComment": "/**\n * Base URL for API calls (e.g. http://127.0.0.1:1234).\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "apiRoot: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "apiRoot",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MockTelegramServer#defaultHandler:member",
+              "docComment": "/**\n * Default handler when a method has no specific handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "defaultHandler?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramHandler",
+                  "canonicalReference": "gramstax!ITMockTelegramHandler:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "defaultHandler",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MockTelegramServer#handlers:member",
+              "docComment": "/**\n * Custom handlers for specific Telegram methods (e.g. getMe).\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "handlers: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramHandler",
+                  "canonicalReference": "gramstax!ITMockTelegramHandler:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "handlers",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MockTelegramServer#hostname:member",
+              "docComment": "/**\n * Hostname for the local server (defaults to 127.0.0.1).\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "hostname: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "hostname",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MockTelegramServer#port:member",
+              "docComment": "/**\n * Port for the local server (0 selects a random free port).\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "port: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "port",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MockTelegramServer#server:member",
+              "docComment": "/**\n * Underlying Bun server instance (set after start).\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "server?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        port?: number;\n        stop: () => void;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "server",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#start:member(1)",
+              "docComment": "/**\n * Start the mock server.\n *\n * @remarks\n *\n * If already started, returns the existing `apiRoot` without restarting.\n *\n * @returns The base API URL.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "start(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "start"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#stop:member(1)",
+              "docComment": "/**\n * Stop the mock server.\n *\n * @remarks\n *\n * After calling this, the server is no longer reachable and must be started again with `start()`.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "stop(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "stop"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MockTelegramServer#token:member",
+              "docComment": "/**\n * Bot token used in the URL path (e.g. /bot<token>/getMe).\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "token: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "token",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            }
+          ],
           "implementsTokenRanges": []
         },
         {
@@ -22387,7 +23035,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateManager#_engine:member",
-              "docComment": "/**\n * Reference to the TemplateEngine class for compilation\n *\n * @public\n */\n",
+              "docComment": "/**\n * Reference to the TemplateEngine class for compilation.\n *\n * @remarks\n *\n * Uses {@link TemplateEngine} static compile helpers.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22806,7 +23454,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateManager#_isWatchEnabled:member",
-              "docComment": "/**\n * Flag indicating if file watching is enabled\n *\n * @readonly\n */\n",
+              "docComment": "/**\n * Flag indicating if file watching is enabled.\n *\n * @remarks\n *\n * Derived from {@link ITemplateOptions.enableWatch}.\n *\n * @readonly\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22920,7 +23568,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateManager#_map:member",
-              "docComment": "/**\n * Map of compiled templates keyed by filename (without extension)\n *\n * @public\n */\n",
+              "docComment": "/**\n * Map of compiled templates keyed by filename (without extension).\n *\n * @remarks\n *\n * Values are {@link ICompiledTemplate} compiled results.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22964,7 +23612,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateManager#_pageManager:member",
-              "docComment": "/**\n * Reference to PageManager for loading page modules\n *\n * @public\n */\n",
+              "docComment": "/**\n * Reference to PageManager for loading page modules.\n *\n * @remarks\n *\n * Uses {@link PageManager} to load page templates from .ts/.js.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22999,7 +23647,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateManager#_path:member",
-              "docComment": "/**\n * Base paths for scanning template files\n *\n * @readonly\n */\n",
+              "docComment": "/**\n * Base paths for scanning template files.\n *\n * @remarks\n *\n * Derived from {@link ITemplateOptions.path}.\n *\n * @readonly\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23082,7 +23730,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateManager#_supportedExtensions:member",
-              "docComment": "/**\n * Set of supported template file extensions\n *\n * @public\n */\n",
+              "docComment": "/**\n * Set of supported template file extensions.\n *\n * @remarks\n *\n * Defaults to `.html`, `.ts`, and `.js`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23148,7 +23796,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateManager#_watcher:member",
-              "docComment": "/**\n * Active file system watchers for hot-reload\n *\n * @public\n */\n",
+              "docComment": "/**\n * Active file system watchers for hot-reload.\n *\n * @remarks\n *\n * Uses {@link FSWatcher} instances from Chokidar.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -24418,7 +25066,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadGatewayClient#client:member",
-              "docComment": "/**\n * The underlying `net-ipc` Client instance.\n */\n",
+              "docComment": "/**\n * The underlying `net-ipc` Client instance.\n *\n * @remarks\n *\n * Uses {@link Client} for IPC transport.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -24603,7 +25251,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadGatewayClient#rpc:member",
-              "docComment": "/**\n * RPC handler for messaging.\n */\n",
+              "docComment": "/**\n * RPC handler for messaging.\n *\n * @remarks\n *\n * Uses {@link WorkerThreadRpc} to encode and dispatch RPC calls.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -24743,7 +25391,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadGatewayServer#register:member",
-              "docComment": "/**\n * Object exposed to clients.\n */\n",
+              "docComment": "/**\n * Object exposed to clients.\n *\n * @remarks\n *\n * Properties become RPC-callable methods.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -24773,7 +25421,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadGatewayServer#rpc:member",
-              "docComment": "/**\n * Map of RPC handlers per connection. Key is the connection ID.\n */\n",
+              "docComment": "/**\n * Map of RPC handlers per connection. Key is the connection ID.\n *\n * @remarks\n *\n * Values are {@link WorkerThreadRpc} instances scoped per connection.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -24817,7 +25465,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadGatewayServer#server:member",
-              "docComment": "/**\n * The underlying `net-ipc` Server instance.\n */\n",
+              "docComment": "/**\n * The underlying `net-ipc` Server instance.\n *\n * @remarks\n *\n * Uses {@link Server} for IPC transport.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -24951,7 +25599,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit#argv:member",
-              "docComment": "/**\n * Command line arguments passed to the worker. Same as `process.argv`. Custom args start at index 3.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Command line arguments passed to the worker. Same as `process.argv`. Custom args start at index 3.\n *\n * @remarks\n *\n * Use this for worker-specific flags and configuration.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25112,7 +25760,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit#gatewayClient:member",
-              "docComment": "/**\n * Get the most recently created gateway client.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Get the most recently created gateway client.\n *\n * @remarks\n *\n * Alias for {@link WorkerThreadInit.gatewayClientLatest}.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25147,7 +25795,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit#gatewayClientLatest:member",
-              "docComment": "/**\n * The most recently created gateway client.\n *\n * @public\n */\n",
+              "docComment": "/**\n * The most recently created gateway client.\n *\n * @remarks\n *\n * Uses {@link WorkerThreadGatewayClient} for IPC requests.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25178,7 +25826,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit#gatewayClients:member",
-              "docComment": "/**\n * Map of gateway clients for inter-worker communication.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Map of gateway clients for inter-worker communication.\n *\n * @remarks\n *\n * Values are {@link WorkerThreadGatewayClient} instances keyed by server path.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25222,7 +25870,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit#gatewayServer:member",
-              "docComment": "/**\n * Gateway server instance if created.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Gateway server instance if created.\n *\n * @remarks\n *\n * Uses {@link WorkerThreadGatewayServer} for IPC server routing.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25253,7 +25901,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit#gatewayServerPath:member",
-              "docComment": "/**\n * Instance accessor for gateway server path from static property.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Instance accessor for gateway server path from static property.\n *\n * @remarks\n *\n * Reads from {@link WorkerThreadInit.gatewayServerPath}.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25283,7 +25931,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit.gatewayServerPath:member",
-              "docComment": "/**\n * Path for gateway server. Override in subclass if needed.\n *\n * @virtual\n */\n",
+              "docComment": "/**\n * Path for gateway server. Override in subclass if needed.\n *\n * @remarks\n *\n * Used by {@link WorkerThreadGatewayServer} when binding.\n *\n * @virtual\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25361,7 +26009,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit#id:member",
-              "docComment": "/**\n * The worker thread ID from `node:worker_threads` `threadId`.\n *\n * @public\n */\n",
+              "docComment": "/**\n * The worker thread ID from `node:worker_threads` `threadId`.\n *\n * @remarks\n *\n * Useful for logging or indexing worker state.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25422,7 +26070,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit.isMainThread:member",
-              "docComment": "/**\n * Check if currently running in the main thread. Re-exported from `node:worker_threads`.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Check if currently running in the main thread. Re-exported from `node:worker_threads`.\n *\n * @remarks\n *\n * Use {@link isMainThread} to branch between main and worker logic.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25452,7 +26100,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit#parentPort:member",
-              "docComment": "/**\n * Reference to the parent port for messaging from `node:worker_threads`.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Reference to the parent port for messaging from `node:worker_threads`.\n *\n * @remarks\n *\n * Uses {@link parentPort} to send and receive messages.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25487,7 +26135,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit#pid:member",
-              "docComment": "/**\n * The process ID. Same as `process.pid`.\n *\n * @public\n */\n",
+              "docComment": "/**\n * The process ID. Same as `process.pid`.\n *\n * @remarks\n *\n * Shared across worker threads in the same process.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25618,7 +26266,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit#rpc:member",
-              "docComment": "/**\n * RPC handler for method invocations.\n *\n * @public\n */\n",
+              "docComment": "/**\n * RPC handler for method invocations.\n *\n * @remarks\n *\n * Uses {@link WorkerThreadRpc} for dispatching requests.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25894,7 +26542,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadLaunch.isMainThread:member",
-              "docComment": "/**\n * Check if currently running in the main thread. Re-exported from `node:worker_threads`.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Check if currently running in the main thread. Re-exported from `node:worker_threads`.\n *\n * @remarks\n *\n * Uses {@link isMainThread} to guard main-thread only logic.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -26016,7 +26664,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadLaunch#pid:member",
-              "docComment": "/**\n * The main process ID.\n *\n * @public\n */\n",
+              "docComment": "/**\n * The main process ID.\n *\n * @remarks\n *\n * Mirrors {@link process.pid} in the main thread.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -26213,7 +26861,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadLaunch#rpc:member",
-              "docComment": "/**\n * RPC handler for method invocations.\n *\n * @public\n */\n",
+              "docComment": "/**\n * RPC handler for method invocations.\n *\n * @remarks\n *\n * Uses {@link WorkerThreadRpc} for request/response messaging.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -26292,7 +26940,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadLaunch#thread:member",
-              "docComment": "/**\n * The underlying Node.js Worker instance from `node:worker_threads`.\n *\n * @public\n */\n",
+              "docComment": "/**\n * The underlying Node.js Worker instance from `node:worker_threads`.\n *\n * @remarks\n *\n * Instance of {@link Worker} used to communicate with the worker thread.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -26323,7 +26971,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadLaunch#threadId:member",
-              "docComment": "/**\n * The worker thread ID.\n *\n * @public\n */\n",
+              "docComment": "/**\n * The worker thread ID.\n *\n * @remarks\n *\n * Matches {@link Worker.threadId}.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -26829,7 +27477,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadPool#thread:member",
-              "docComment": "/**\n * Map of all worker instances by thread ID.\n */\n",
+              "docComment": "/**\n * Map of all worker instances by thread ID.\n *\n * @remarks\n *\n * Values are {@link WorkerThreadLaunch} instances keyed by thread ID.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -26873,7 +27521,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadPool#threadCount:member",
-              "docComment": "/**\n * Current number of workers in the pool.\n */\n",
+              "docComment": "/**\n * Current number of workers in the pool.\n *\n * @remarks\n *\n * Incremented on add and decremented on kill.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -27165,7 +27813,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadRpc#map:member",
-              "docComment": "/**\n * Map of pending requests by ID. Stores promise handlers for pending requests.\n */\n",
+              "docComment": "/**\n * Map of pending requests by ID. Stores promise handlers for pending requests.\n *\n * @remarks\n *\n * Uses {@link ITMapRpc} for the map value shape.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

@@ -42,7 +42,7 @@ properties:
     package: gramstax!
     fullName: register
     summary: Object exposed to clients.
-    remarks: ''
+    remarks: Properties become RPC-callable methods.
     example: []
     isPreview: false
     isDeprecated: false
@@ -55,7 +55,7 @@ properties:
     package: gramstax!
     fullName: rpc
     summary: Map of RPC handlers per connection. Key is the connection ID.
-    remarks: ''
+    remarks: Values are [WorkerThreadRpc](xref:gramstax!WorkerThreadRpc:class) instances scoped per connection.
     example: []
     isPreview: false
     isDeprecated: false
@@ -68,7 +68,7 @@ properties:
     package: gramstax!
     fullName: server
     summary: The underlying `net-ipc` Server instance.
-    remarks: ''
+    remarks: Uses  for IPC transport.
     example: []
     isPreview: false
     isDeprecated: false

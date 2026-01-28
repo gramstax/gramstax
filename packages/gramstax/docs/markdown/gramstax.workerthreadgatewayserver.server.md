@@ -11,3 +11,8 @@ The underlying `net-ipc` Server instance.
 ```typescript
 server: Server;
 ```
+
+## Remarks
+
+Uses  for IPC transport.
+

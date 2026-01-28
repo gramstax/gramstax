@@ -11,3 +11,8 @@ Reference to the parent port for messaging from `node:worker_threads`<!-- -->.
 ```typescript
 parentPort: worker_threads.MessagePort | null;
 ```
+
+## Remarks
+
+Uses  to send and receive messages.
+

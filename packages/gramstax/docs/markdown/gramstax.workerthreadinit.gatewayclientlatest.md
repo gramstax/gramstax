@@ -11,3 +11,8 @@ The most recently created gateway client.
 ```typescript
 gatewayClientLatest?: WorkerThreadGatewayClient;
 ```
+
+## Remarks
+
+Uses [WorkerThreadGatewayClient](./gramstax.workerthreadgatewayclient.md) for IPC requests.
+

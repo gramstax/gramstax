@@ -11,3 +11,8 @@ The underlying grammY Bot instance.
 ```typescript
 bot: Bot;
 ```
+
+## Remarks
+
+Instance of  from the grammY library.
+

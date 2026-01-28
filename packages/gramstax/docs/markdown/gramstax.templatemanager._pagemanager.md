@@ -4,10 +4,15 @@
 
 ## TemplateManager.\_pageManager property
 
-Reference to PageManager for loading page modules
+Reference to PageManager for loading page modules.
 
 **Signature:**
 
 ```typescript
 _pageManager: typeof PageManager;
 ```
+
+## Remarks
+
+Uses  to load page templates from .ts/.js.
+

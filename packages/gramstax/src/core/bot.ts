@@ -127,13 +127,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
   /**
    * Active webhook queue instance.
-   * @protected
+   * @internal
    */
   protected webhookQueueInstance?: WebhookQueue<any>
 
   /**
    * Active webhook server instance.
-   * @protected
+   * @internal
    */
   protected webhookServer?: {stop: () => void}
 

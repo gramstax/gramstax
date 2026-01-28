@@ -11,3 +11,8 @@ Map of pending requests by ID. Stores promise handlers for pending requests.
 ```typescript
 map: ITMapRpc;
 ```
+
+## Remarks
+
+Uses [ITMapRpc](./gramstax.itmaprpc.md) for the map value shape.
+

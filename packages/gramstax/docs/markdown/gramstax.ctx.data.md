@@ -24,7 +24,6 @@ class MyPage extends Ctx {
   // For args `handle*CallbackData`
   static data = this.buildData((confirm?: string) => [confirm])
 
-  // For callback args route and text/textCommand trigger
   // For args `handle*CallbackData` and `handle*Text` and `handle*CommandText` (Besides "handleFree*")
   static data = this.buildData({
     callbackData: (confirm?: string) => [confirm],

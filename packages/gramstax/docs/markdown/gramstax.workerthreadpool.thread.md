@@ -11,3 +11,8 @@ Map of all worker instances by thread ID.
 ```typescript
 thread: Map<number, WorkerThreadLaunch>;
 ```
+
+## Remarks
+
+Values are [WorkerThreadLaunch](./gramstax.workerthreadlaunch.md) instances keyed by thread ID.
+

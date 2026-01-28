@@ -43,6 +43,12 @@ items:
             uid: gramstax!ITMapRpc:type
           - name: ITMediaBlock
             uid: gramstax!ITMediaBlock:type
+          - name: ITMockTelegramHandler
+            uid: gramstax!ITMockTelegramHandler:type
+          - name: ITMockTelegramJson
+            uid: gramstax!ITMockTelegramJson:type
+          - name: ITMockTelegramServerOptions
+            uid: gramstax!ITMockTelegramServerOptions:type
           - name: ITOptEdit
             uid: gramstax!ITOptEdit:type
           - name: ITOptEditMedia1
@@ -77,10 +83,14 @@ items:
             uid: gramstax!ITReplyAction:type
           - name: ITTemp
             uid: gramstax!ITTemp:type
+          - name: ITWebhookQueueConfig
+            uid: gramstax!ITWebhookQueueConfig:type
           - name: LabelKeyboard
             uid: gramstax!LabelKeyboard:class
           - name: LoggingUtil
             uid: gramstax!LoggingUtil:class
+          - name: MockTelegramServer
+            uid: gramstax!MockTelegramServer:class
           - name: TemplateEngine
             uid: gramstax!TemplateEngine:class
           - name: TemplateManager

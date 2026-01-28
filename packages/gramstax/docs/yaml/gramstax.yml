@@ -10,6 +10,7 @@ classes:
   - gramstax!Gramstax:class
   - gramstax!LabelKeyboard:class
   - gramstax!LoggingUtil:class
+  - gramstax!MockTelegramServer:class
   - gramstax!TemplateEngine:class
   - gramstax!TemplateManager:class
   - gramstax!WorkerThreadExport:class
@@ -35,6 +36,9 @@ typeAliases:
   - gramstax!ITKbDest:type
   - gramstax!ITMapRpc:type
   - gramstax!ITMediaBlock:type
+  - gramstax!ITMockTelegramHandler:type
+  - gramstax!ITMockTelegramJson:type
+  - gramstax!ITMockTelegramServerOptions:type
   - gramstax!ITOptEdit:type
   - gramstax!ITOptEditMedia1:type
   - gramstax!ITOptEditMedia2:type
@@ -52,6 +56,7 @@ typeAliases:
   - gramstax!ITPageData:type
   - gramstax!ITReplyAction:type
   - gramstax!ITTemp:type
+  - gramstax!ITWebhookQueueConfig:type
   - gramstax!WorkerThreadAsyncMethods:type
   - gramstax!WorkerThreadExportOpt:type
   - gramstax!WorkerThreadGatewayProxy:type

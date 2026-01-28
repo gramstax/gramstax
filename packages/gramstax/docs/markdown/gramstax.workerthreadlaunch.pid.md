@@ -11,3 +11,8 @@ The main process ID.
 ```typescript
 pid: number;
 ```
+
+## Remarks
+
+Mirrors  in the main thread.
+

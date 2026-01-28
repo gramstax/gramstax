@@ -4,10 +4,15 @@
 
 ## TemplateManager.\_path property
 
-Base paths for scanning template files
+Base paths for scanning template files.
 
 **Signature:**
 
 ```typescript
 readonly _path: ITemplateOptions[`path`];
 ```
+
+## Remarks
+
+Derived from .
+

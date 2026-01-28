@@ -39,7 +39,7 @@ properties:
     package: gramstax!
     fullName: client
     summary: The underlying `net-ipc` Client instance.
-    remarks: ''
+    remarks: Uses  for IPC transport.
     example: []
     isPreview: false
     isDeprecated: false
@@ -52,7 +52,7 @@ properties:
     package: gramstax!
     fullName: rpc
     summary: RPC handler for messaging.
-    remarks: ''
+    remarks: Uses [WorkerThreadRpc](xref:gramstax!WorkerThreadRpc:class) to encode and dispatch RPC calls.
     example: []
     isPreview: false
     isDeprecated: false

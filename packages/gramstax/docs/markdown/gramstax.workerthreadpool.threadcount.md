@@ -11,3 +11,8 @@ Current number of workers in the pool.
 ```typescript
 threadCount: number;
 ```
+
+## Remarks
+
+Incremented on add and decremented on kill.
+

@@ -85,6 +85,17 @@ Extends [LoggingPretty](https://www.npmjs.com/package/logging-pretty) to provide
 </td></tr>
 <tr><td>
 
+[MockTelegramServer](./gramstax.mocktelegramserver.md)
+
+
+</td><td>
+
+In-process mock Telegram API server for local testing.
+
+
+</td></tr>
+<tr><td>
+
 [TemplateEngine](./gramstax.templateengine.md)
 
 
@@ -390,6 +401,39 @@ Represents a media block configuration for Telegram messages.
 </td></tr>
 <tr><td>
 
+[ITMockTelegramHandler](./gramstax.itmocktelegramhandler.md)
+
+
+</td><td>
+
+Handler signature for mock Telegram methods.
+
+
+</td></tr>
+<tr><td>
+
+[ITMockTelegramJson](./gramstax.itmocktelegramjson.md)
+
+
+</td><td>
+
+Telegram JSON response shape for mock server responses.
+
+
+</td></tr>
+<tr><td>
+
+[ITMockTelegramServerOptions](./gramstax.itmocktelegramserveroptions.md)
+
+
+</td><td>
+
+Options for configuring the mock Telegram server.
+
+
+</td></tr>
+<tr><td>
+
 [ITOptEdit](./gramstax.itoptedit.md)
 
 
@@ -572,6 +616,17 @@ Type of chat action to send.
 </td><td>
 
 Temporary state for flow page
+
+
+</td></tr>
+<tr><td>
+
+[ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)
+
+
+</td><td>
+
+Webhook queue configuration for backpressure and worker pooling.
 
 
 </td></tr>

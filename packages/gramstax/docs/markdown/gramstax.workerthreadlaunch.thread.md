@@ -11,3 +11,8 @@ The underlying Node.js Worker instance from `node:worker_threads`<!-- -->.
 ```typescript
 thread: Worker;
 ```
+
+## Remarks
+
+Instance of  used to communicate with the worker thread.
+

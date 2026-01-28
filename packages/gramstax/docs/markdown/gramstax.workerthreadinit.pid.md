@@ -11,3 +11,8 @@ The process ID. Same as `process.pid`<!-- -->.
 ```typescript
 pid: number;
 ```
+
+## Remarks
+
+Shared across worker threads in the same process.
+

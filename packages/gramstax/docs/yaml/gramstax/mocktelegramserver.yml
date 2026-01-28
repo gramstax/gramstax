@@ -1,0 +1,169 @@
+### YamlMime:TSType
+name: MockTelegramServer
+uid: gramstax!MockTelegramServer:class
+package: gramstax!
+fullName: MockTelegramServer
+summary: In-process mock Telegram API server for local testing.
+remarks: >-
+  Provides a minimal subset of the Telegram Bot API for local development. It does not emulate network delays, rate
+  limits, or full Telegram behavior.
+example:
+  - |-
+    ```typescript
+    const server = new MockTelegramServer({token: "BOT_TOKEN"})
+    await server.start()
+    console.log(server.apiRoot)
+    await server.stop()
+    ```
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(options)
+    uid: gramstax!MockTelegramServer:constructor(1)
+    package: gramstax!
+    fullName: (constructor)(options)
+    summary: Create a new mock server instance.
+    remarks: 'Use `port: 0` to let Bun select a free port automatically.'
+    example:
+      - |-
+        ```typescript
+        const server = new MockTelegramServer({token: `BOT_TOKEN`, port: 0})
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(options: ITMockTelegramServerOptions);'
+      parameters:
+        - id: options
+          description: Server options.
+          type: <xref uid="gramstax!ITMockTelegramServerOptions:type" />
+properties:
+  - name: apiRoot
+    uid: gramstax!MockTelegramServer#apiRoot:member
+    package: gramstax!
+    fullName: apiRoot
+    summary: Base URL for API calls (e.g. http://127.0.0.1:1234).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'apiRoot: string;'
+      return:
+        type: string
+  - name: defaultHandler
+    uid: gramstax!MockTelegramServer#defaultHandler:member
+    package: gramstax!
+    fullName: defaultHandler
+    summary: Default handler when a method has no specific handler.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'defaultHandler?: ITMockTelegramHandler;'
+      return:
+        type: <xref uid="gramstax!ITMockTelegramHandler:type" />
+  - name: handlers
+    uid: gramstax!MockTelegramServer#handlers:member
+    package: gramstax!
+    fullName: handlers
+    summary: Custom handlers for specific Telegram methods (e.g. getMe).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'handlers: Record<string, ITMockTelegramHandler>;'
+      return:
+        type: Record&lt;string, <xref uid="gramstax!ITMockTelegramHandler:type" />&gt;
+  - name: hostname
+    uid: gramstax!MockTelegramServer#hostname:member
+    package: gramstax!
+    fullName: hostname
+    summary: Hostname for the local server (defaults to 127.0.0.1).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'hostname: string;'
+      return:
+        type: string
+  - name: port
+    uid: gramstax!MockTelegramServer#port:member
+    package: gramstax!
+    fullName: port
+    summary: Port for the local server (0 selects a random free port).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'port: number;'
+      return:
+        type: number
+  - name: server
+    uid: gramstax!MockTelegramServer#server:member
+    package: gramstax!
+    fullName: server
+    summary: Underlying Bun server instance (set after start).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        server?: {
+                port?: number;
+                stop: () => void;
+            };
+      return:
+        type: |-
+          {
+                  port?: number;
+                  stop: () =&gt; void;
+              }
+  - name: token
+    uid: gramstax!MockTelegramServer#token:member
+    package: gramstax!
+    fullName: token
+    summary: Bot token used in the URL path (e.g. /bot<token>/getMe).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'token: string;'
+      return:
+        type: string
+methods:
+  - name: start()
+    uid: gramstax!MockTelegramServer#start:member(1)
+    package: gramstax!
+    fullName: start()
+    summary: Start the mock server.
+    remarks: If already started, returns the existing `apiRoot` without restarting.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'start(): Promise<string>;'
+      return:
+        type: Promise&lt;string&gt;
+        description: The base API URL.
+  - name: stop()
+    uid: gramstax!MockTelegramServer#stop:member(1)
+    package: gramstax!
+    fullName: stop()
+    summary: Stop the mock server.
+    remarks: After calling this, the server is no longer reachable and must be started again with `start()`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'stop(): Promise<void>;'
+      return:
+        type: Promise&lt;void&gt;
+        description: ''

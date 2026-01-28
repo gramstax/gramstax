@@ -11,3 +11,8 @@ Command line arguments passed to the worker. Same as `process.argv`<!-- -->. Cus
 ```typescript
 argv: string[];
 ```
+
+## Remarks
+
+Use this for worker-specific flags and configuration.
+

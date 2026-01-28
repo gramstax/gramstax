@@ -11,3 +11,8 @@ Check if currently running in the main thread. Re-exported from `node:worker_thr
 ```typescript
 static isMainThread: boolean;
 ```
+
+## Remarks
+
+Uses  to guard main-thread only logic.
+

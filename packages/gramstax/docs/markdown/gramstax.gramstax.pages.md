@@ -11,3 +11,8 @@ Loaded and sorted page routes.
 ```typescript
 pages: ReturnType<typeof this._pageLoads>;
 ```
+
+## Remarks
+
+Derived from page definitions loaded by .
+

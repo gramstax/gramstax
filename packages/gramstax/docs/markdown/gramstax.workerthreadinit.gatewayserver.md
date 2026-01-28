@@ -11,3 +11,8 @@ Gateway server instance if created.
 ```typescript
 gatewayServer?: WorkerThreadGatewayServer;
 ```
+
+## Remarks
+
+Uses [WorkerThreadGatewayServer](./gramstax.workerthreadgatewayserver.md) for IPC server routing.
+

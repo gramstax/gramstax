@@ -12,3 +12,8 @@ Path for gateway server. Override in subclass if needed.
 /** @virtual */
 static gatewayServerPath?: string;
 ```
+
+## Remarks
+
+Used by [WorkerThreadGatewayServer](./gramstax.workerthreadgatewayserver.md) when binding.
+

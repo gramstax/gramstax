@@ -4,10 +4,15 @@
 
 ## TemplateManager.\_supportedExtensions property
 
-Set of supported template file extensions
+Set of supported template file extensions.
 
 **Signature:**
 
 ```typescript
 _supportedExtensions: Set<string>;
 ```
+
+## Remarks
+
+Defaults to `.html`<!-- -->, `.ts`<!-- -->, and `.js`<!-- -->.
+

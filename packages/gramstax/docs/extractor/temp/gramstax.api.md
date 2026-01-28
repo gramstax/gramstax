@@ -359,6 +359,17 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     createCtx(ct: Context): ICtx;
     // (undocumented)
     executeSyncBlocksDescription(pages: typeof Gramstax.prototype.pages): Promise<void>;
+    getWebhookQueueStats(): {
+        length: number;
+        maxSize: number;
+        waitingEnqueue: number;
+        waitingDequeue: number;
+        enabled: boolean;
+        maxQueueSize: number;
+        workerCount: number;
+        perChatConcurrency: number;
+        blockWhenFull: boolean;
+    } | null;
     handlerBotUpdate: any;
     // @virtual
     hookAfterStart(): void;
@@ -743,10 +754,20 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     _registerOnMessageVideo(): void;
     _registerOnMessageVideoNote(): void;
     _registerOnMessageVoice(): void;
+    // @internal
+    _releaseWebhookChat(key: string, activeChats: Map<string, number>, waitChats: Map<string, Array<() => void>>): void;
     _runPolling(): void;
     _runServerless(adapter: string): Promise<void>;
     _runWebhook(fullUrl: string): Promise<void>;
+    // @internal
+    _startWebhookWorker(queue: WebhookQueue<any>, acquireChat: (chatId: any) => Promise<() => void>, getChatId: (update: any) => any): void;
     templateManager: TemplateManager;
+    webhookQueue?: ITWebhookQueueConfig;
+    // Warning: (ae-forgotten-export) The symbol "WebhookQueue" needs to be exported by the entry point index.d.ts
+    protected webhookQueueInstance?: WebhookQueue<any>;
+    protected webhookServer?: {
+        stop: () => void;
+    };
 }
 
 // @public
@@ -795,6 +816,7 @@ export type ITGramstaxParams = {
     deploy: string;
     log?: LoggingUtil | boolean | null;
     botConfig?: BotConfig<Context>;
+    webhookQueue?: ITWebhookQueueConfig;
     cacheSession?: CacheExternal;
     cacheKeyboard?: Map<any, any>;
     templateManager?: TemplateManager;
@@ -839,6 +861,27 @@ export type ITMediaBlock = {
     first_name?: string;
     last_name?: string;
     vcard?: string;
+};
+
+// @public
+export type ITMockTelegramHandler = (payload: {
+    method: string;
+    request: Request;
+}) => Promise<ITMockTelegramJson> | ITMockTelegramJson;
+
+// @public
+export type ITMockTelegramJson = {
+    ok: boolean;
+    result: unknown;
+};
+
+// @public
+export type ITMockTelegramServerOptions = {
+    token: string;
+    hostname?: string;
+    port?: number;
+    handlers?: Record<string, ITMockTelegramHandler>;
+    defaultHandler?: ITMockTelegramHandler;
 };
 
 // @public
@@ -905,6 +948,15 @@ export type ITTemp = {
 };
 
 // @public
+export type ITWebhookQueueConfig = {
+    enabled?: boolean;
+    maxQueueSize?: number;
+    workerCount?: number;
+    perChatConcurrency?: number;
+    blockWhenFull?: boolean;
+};
+
+// @public
 export class LabelKeyboard {
     static _reverse(input: string): string;
     static _reverseObj<T extends Record<any, any>>(input: T): T;
@@ -924,6 +976,23 @@ export class LoggingUtil extends LoggingPretty {
     timeClear(): void;
     timeEnd(label: string, message?: string): void;
     timeLog(label: string, message?: string): void;
+}
+
+// @public
+export class MockTelegramServer {
+    constructor(options: ITMockTelegramServerOptions);
+    apiRoot: string;
+    defaultHandler?: ITMockTelegramHandler;
+    handlers: Record<string, ITMockTelegramHandler>;
+    hostname: string;
+    port: number;
+    server?: {
+        port?: number;
+        stop: () => void;
+    };
+    start(): Promise<string>;
+    stop(): Promise<void>;
+    token: string;
 }
 
 // @public

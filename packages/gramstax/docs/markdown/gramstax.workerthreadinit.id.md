@@ -11,3 +11,8 @@ The worker thread ID from `node:worker_threads` `threadId`<!-- -->.
 ```typescript
 id: number;
 ```
+
+## Remarks
+
+Useful for logging or indexing worker state.
+

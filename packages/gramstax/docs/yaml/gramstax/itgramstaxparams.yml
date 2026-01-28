@@ -14,6 +14,7 @@ syntax: |-
       deploy: string;
       log?: LoggingUtil | boolean | null;
       botConfig?: BotConfig<Context>;
+      webhookQueue?: ITWebhookQueueConfig;
       cacheSession?: CacheExternal;
       cacheKeyboard?: Map<any, any>;
       templateManager?: TemplateManager;

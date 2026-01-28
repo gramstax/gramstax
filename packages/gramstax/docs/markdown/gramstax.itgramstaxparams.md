@@ -14,6 +14,7 @@ type ITGramstaxParams = {
     deploy: string;
     log?: LoggingUtil | boolean | null;
     botConfig?: BotConfig<Context>;
+    webhookQueue?: ITWebhookQueueConfig;
     cacheSession?: CacheExternal;
     cacheKeyboard?: Map<any, any>;
     templateManager?: TemplateManager;
@@ -22,5 +23,5 @@ type ITGramstaxParams = {
     };
 };
 ```
-**References:** [LoggingUtil](./gramstax.loggingutil.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)
+**References:** [LoggingUtil](./gramstax.loggingutil.md)<!-- -->, [ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)
 

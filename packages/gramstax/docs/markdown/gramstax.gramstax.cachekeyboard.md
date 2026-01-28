@@ -11,3 +11,8 @@ In-memory cache for keyboard instances by language.
 ```typescript
 cacheKeyboard: Map<any, any>;
 ```
+
+## Remarks
+
+Cached values are built from [BlockKeyboard](./gramstax.blockkeyboard.md) and reused per language.
+

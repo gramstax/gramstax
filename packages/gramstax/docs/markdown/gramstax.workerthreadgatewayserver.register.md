@@ -11,3 +11,8 @@ Object exposed to clients.
 ```typescript
 register: any;
 ```
+
+## Remarks
+
+Properties become RPC-callable methods.
+

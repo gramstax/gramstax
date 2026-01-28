@@ -4,10 +4,15 @@
 
 ## TemplateManager.\_isWatchEnabled property
 
-Flag indicating if file watching is enabled
+Flag indicating if file watching is enabled.
 
 **Signature:**
 
 ```typescript
 readonly _isWatchEnabled: ITemplateOptions[`enableWatch`];
 ```
+
+## Remarks
+
+Derived from .
+

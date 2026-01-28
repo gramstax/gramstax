@@ -11,3 +11,8 @@ Map of RPC handlers per connection. Key is the connection ID.
 ```typescript
 rpc: Map<string, WorkerThreadRpc>;
 ```
+
+## Remarks
+
+Values are [WorkerThreadRpc](./gramstax.workerthreadrpc.md) instances scoped per connection.
+

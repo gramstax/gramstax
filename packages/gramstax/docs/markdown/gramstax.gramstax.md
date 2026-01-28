@@ -259,6 +259,67 @@ Manages template loading and rendering for pages.
 
 
 </td></tr>
+<tr><td>
+
+[webhookQueue?](./gramstax.gramstax.webhookqueue.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)
+
+
+</td><td>
+
+_(Optional)_ Webhook queue configuration.
+
+
+</td></tr>
+<tr><td>
+
+[webhookQueueInstance?](./gramstax.gramstax.webhookqueueinstance.md)
+
+
+</td><td>
+
+`protected`
+
+
+</td><td>
+
+WebhookQueue&lt;any&gt;
+
+
+</td><td>
+
+_(Optional)_ Active webhook queue instance. 
+
+
+</td></tr>
+<tr><td>
+
+[webhookServer?](./gramstax.gramstax.webhookserver.md)
+
+
+</td><td>
+
+`protected`
+
+
+</td><td>
+
+{ stop: () =&gt; void; }
+
+
+</td><td>
+
+_(Optional)_ Active webhook server instance. 
+
+
+</td></tr>
 </tbody></table>
 
 ## Methods
@@ -792,6 +853,20 @@ Creates a context instance for handling an update.
 
 
 </td><td>
+
+
+</td></tr>
+<tr><td>
+
+[getWebhookQueueStats()](./gramstax.gramstax.getwebhookqueuestats.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Get current webhook queue statistics.
 
 
 </td></tr>

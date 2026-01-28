@@ -4,10 +4,15 @@
 
 ## TemplateManager.\_map property
 
-Map of compiled templates keyed by filename (without extension)
+Map of compiled templates keyed by filename (without extension).
 
 **Signature:**
 
 ```typescript
 _map: Map<string, ICompiledTemplate>;
 ```
+
+## Remarks
+
+Values are  compiled results.
+

@@ -11,3 +11,8 @@ RPC handler for method invocations.
 ```typescript
 rpc: WorkerThreadRpc;
 ```
+
+## Remarks
+
+Uses [WorkerThreadRpc](./gramstax.workerthreadrpc.md) for dispatching requests.
+

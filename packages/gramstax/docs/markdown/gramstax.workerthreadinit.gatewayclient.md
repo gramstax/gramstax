@@ -11,3 +11,8 @@ Get the most recently created gateway client.
 ```typescript
 get gatewayClient(): WorkerThreadGatewayClient | undefined;
 ```
+
+## Remarks
+
+Alias for [WorkerThreadInit.gatewayClientLatest](./gramstax.workerthreadinit.gatewayclientlatest.md)<!-- -->.
+

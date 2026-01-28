@@ -51,7 +51,7 @@ properties:
     package: gramstax!
     fullName: argv
     summary: Command line arguments passed to the worker. Same as `process.argv`<!-- -->. Custom args start at index 3.
-    remarks: ''
+    remarks: Use this for worker-specific flags and configuration.
     example: []
     isPreview: false
     isDeprecated: false
@@ -64,7 +64,9 @@ properties:
     package: gramstax!
     fullName: gatewayClient
     summary: Get the most recently created gateway client.
-    remarks: ''
+    remarks: >-
+      Alias for [WorkerThreadInit.gatewayClientLatest](xref:gramstax!WorkerThreadInit%23gatewayClientLatest:member)<!--
+      -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -77,7 +79,7 @@ properties:
     package: gramstax!
     fullName: gatewayClientLatest
     summary: The most recently created gateway client.
-    remarks: ''
+    remarks: Uses [WorkerThreadGatewayClient](xref:gramstax!WorkerThreadGatewayClient:class) for IPC requests.
     example: []
     isPreview: false
     isDeprecated: false
@@ -90,7 +92,9 @@ properties:
     package: gramstax!
     fullName: gatewayClients
     summary: Map of gateway clients for inter-worker communication.
-    remarks: ''
+    remarks: >-
+      Values are [WorkerThreadGatewayClient](xref:gramstax!WorkerThreadGatewayClient:class) instances keyed by server
+      path.
     example: []
     isPreview: false
     isDeprecated: false
@@ -103,7 +107,7 @@ properties:
     package: gramstax!
     fullName: gatewayServer
     summary: Gateway server instance if created.
-    remarks: ''
+    remarks: Uses [WorkerThreadGatewayServer](xref:gramstax!WorkerThreadGatewayServer:class) for IPC server routing.
     example: []
     isPreview: false
     isDeprecated: false
@@ -116,7 +120,7 @@ properties:
     package: gramstax!
     fullName: gatewayServerPath
     summary: Instance accessor for gateway server path from static property.
-    remarks: ''
+    remarks: Reads from .
     example: []
     isPreview: false
     isDeprecated: false
@@ -129,7 +133,7 @@ properties:
     package: gramstax!
     fullName: gatewayServerPath
     summary: Path for gateway server. Override in subclass if needed.
-    remarks: ''
+    remarks: Used by [WorkerThreadGatewayServer](xref:gramstax!WorkerThreadGatewayServer:class) when binding.
     example: []
     isPreview: false
     isDeprecated: false
@@ -144,7 +148,7 @@ properties:
     package: gramstax!
     fullName: id
     summary: The worker thread ID from `node:worker_threads` `threadId`<!-- -->.
-    remarks: ''
+    remarks: Useful for logging or indexing worker state.
     example: []
     isPreview: false
     isDeprecated: false
@@ -157,7 +161,7 @@ properties:
     package: gramstax!
     fullName: isMainThread
     summary: Check if currently running in the main thread. Re-exported from `node:worker_threads`<!-- -->.
-    remarks: ''
+    remarks: Use  to branch between main and worker logic.
     example: []
     isPreview: false
     isDeprecated: false
@@ -170,7 +174,7 @@ properties:
     package: gramstax!
     fullName: parentPort
     summary: Reference to the parent port for messaging from `node:worker_threads`<!-- -->.
-    remarks: ''
+    remarks: Uses  to send and receive messages.
     example: []
     isPreview: false
     isDeprecated: false
@@ -183,7 +187,7 @@ properties:
     package: gramstax!
     fullName: pid
     summary: The process ID. Same as `process.pid`<!-- -->.
-    remarks: ''
+    remarks: Shared across worker threads in the same process.
     example: []
     isPreview: false
     isDeprecated: false
@@ -196,7 +200,7 @@ properties:
     package: gramstax!
     fullName: rpc
     summary: RPC handler for method invocations.
-    remarks: ''
+    remarks: Uses [WorkerThreadRpc](xref:gramstax!WorkerThreadRpc:class) for dispatching requests.
     example: []
     isPreview: false
     isDeprecated: false

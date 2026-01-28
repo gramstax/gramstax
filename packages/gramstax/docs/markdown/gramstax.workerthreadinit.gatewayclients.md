@@ -11,3 +11,8 @@ Map of gateway clients for inter-worker communication.
 ```typescript
 gatewayClients: Map<string, WorkerThreadGatewayClient>;
 ```
+
+## Remarks
+
+Values are [WorkerThreadGatewayClient](./gramstax.workerthreadgatewayclient.md) instances keyed by server path.
+

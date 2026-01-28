@@ -49,7 +49,7 @@ properties:
     package: gramstax!
     fullName: thread
     summary: Map of all worker instances by thread ID.
-    remarks: ''
+    remarks: Values are [WorkerThreadLaunch](xref:gramstax!WorkerThreadLaunch:class) instances keyed by thread ID.
     example: []
     isPreview: false
     isDeprecated: false
@@ -62,7 +62,7 @@ properties:
     package: gramstax!
     fullName: threadCount
     summary: Current number of workers in the pool.
-    remarks: ''
+    remarks: Incremented on add and decremented on kill.
     example: []
     isPreview: false
     isDeprecated: false

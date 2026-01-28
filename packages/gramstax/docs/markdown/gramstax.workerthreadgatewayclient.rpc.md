@@ -11,3 +11,8 @@ RPC handler for messaging.
 ```typescript
 rpc: WorkerThreadRpc;
 ```
+
+## Remarks
+
+Uses [WorkerThreadRpc](./gramstax.workerthreadrpc.md) to encode and dispatch RPC calls.
+

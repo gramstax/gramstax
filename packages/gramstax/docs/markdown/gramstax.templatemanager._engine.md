@@ -4,10 +4,15 @@
 
 ## TemplateManager.\_engine property
 
-Reference to the TemplateEngine class for compilation
+Reference to the TemplateEngine class for compilation.
 
 **Signature:**
 
 ```typescript
 _engine: typeof TemplateEngine;
 ```
+
+## Remarks
+
+Uses [TemplateEngine](./gramstax.templateengine.md) static compile helpers.
+

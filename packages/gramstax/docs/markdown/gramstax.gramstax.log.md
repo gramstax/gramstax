@@ -11,3 +11,8 @@ Logger instance for debugging and info output.
 ```typescript
 log: LoggingUtil | undefined;
 ```
+
+## Remarks
+
+Uses [LoggingUtil](./gramstax.loggingutil.md) for formatted log output.
+
