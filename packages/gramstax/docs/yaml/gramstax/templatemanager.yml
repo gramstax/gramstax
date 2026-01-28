@@ -52,11 +52,11 @@ constructors:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'constructor(options: ITemplateOptions);'
+      content: 'constructor(options: ITTemplateOptions);'
       parameters:
         - id: options
           description: Configuration options for the template manager
-          type: <xref uid="gramstax!~ITemplateOptions:type" />
+          type: <xref uid="gramstax!ITTemplateOptions:type" />
 properties:
   - name: _engine
     uid: gramstax!TemplateManager#_engine:member
@@ -76,53 +76,53 @@ properties:
     package: gramstax!
     fullName: _isWatchEnabled
     summary: Flag indicating if file watching is enabled.
-    remarks: Derived from .
+    remarks: Derived from `ITTemplateOptions.enableWatch`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'readonly _isWatchEnabled: ITemplateOptions[`enableWatch`];'
+      content: 'readonly _isWatchEnabled: ITTemplateOptions[`enableWatch`];'
       return:
-        type: <xref uid="gramstax!~ITemplateOptions:type" />[`enableWatch`]
+        type: <xref uid="gramstax!ITTemplateOptions:type" />[`enableWatch`]
   - name: _map
     uid: gramstax!TemplateManager#_map:member
     package: gramstax!
     fullName: _map
     summary: Map of compiled templates keyed by filename (without extension).
-    remarks: Values are  compiled results.
+    remarks: Values are [ITCompiledTemplate](xref:gramstax!ITCompiledTemplate:type) compiled results.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: '_map: Map<string, ICompiledTemplate>;'
+      content: '_map: Map<string, ITCompiledTemplate>;'
       return:
-        type: Map&lt;string, <xref uid="gramstax!~ICompiledTemplate:type" />&gt;
+        type: Map&lt;string, <xref uid="gramstax!ITCompiledTemplate:type" />&gt;
   - name: _pageManager
     uid: gramstax!TemplateManager#_pageManager:member
     package: gramstax!
     fullName: _pageManager
     summary: Reference to PageManager for loading page modules.
-    remarks: Uses  to load page templates from .ts/.js.
+    remarks: Uses [PageManager](xref:gramstax!PageManager:class) to load page templates from .ts/.js.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
       content: '_pageManager: typeof PageManager;'
       return:
-        type: typeof <xref uid="gramstax!~PageManager:class" />
+        type: typeof <xref uid="gramstax!PageManager:class" />
   - name: _path
     uid: gramstax!TemplateManager#_path:member
     package: gramstax!
     fullName: _path
     summary: Base paths for scanning template files.
-    remarks: Derived from .
+    remarks: Derived from `ITTemplateOptions.path`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'readonly _path: ITemplateOptions[`path`];'
+      content: 'readonly _path: ITTemplateOptions[`path`];'
       return:
-        type: <xref uid="gramstax!~ITemplateOptions:type" />[`path`]
+        type: <xref uid="gramstax!ITTemplateOptions:type" />[`path`]
   - name: _supportedExtensions
     uid: gramstax!TemplateManager#_supportedExtensions:member
     package: gramstax!
@@ -141,7 +141,7 @@ properties:
     package: gramstax!
     fullName: _watcher
     summary: Active file system watchers for hot-reload.
-    remarks: Uses  instances from Chokidar.
+    remarks: Uses Chokidar `FSWatcher` instances for hot reload.
     example: []
     isPreview: false
     isDeprecated: false
@@ -173,7 +173,7 @@ methods:
     syntax:
       content: |-
         _compile(key: string, template: string, keepIfExist?: Partial<{
-                [K in keyof ICompiledTemplate]: boolean;
+                [K in keyof ITCompiledTemplate]: boolean;
             }>, importCache?: Map<string, string>, rawCache?: Map<string, string>): void;
       parameters:
         - id: key
@@ -186,7 +186,7 @@ methods:
           description: Optional flags to preserve existing compiled parts
           type: |-
             Partial&lt;{
-                    [K in keyof <xref uid="gramstax!~ICompiledTemplate:type" />]: boolean;
+                    [K in keyof <xref uid="gramstax!ITCompiledTemplate:type" />]: boolean;
                 }&gt;
         - id: importCache
           description: Optional shared cache for import resolution
@@ -651,7 +651,7 @@ methods:
     syntax:
       content: >-
         getMedia(key: string, baseId?: string, language?: string, data?: Record<string, any>):
-        ReturnType<ICompiledTemplate[`media`][`default`][`default`]>;
+        ReturnType<ITCompiledTemplate[`media`][`default`][`default`]>;
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -666,7 +666,7 @@ methods:
           description: Template variables for interpolation
           type: Record&lt;string, any&gt;
       return:
-        type: ReturnType&lt;<xref uid="gramstax!~ICompiledTemplate:type" />[`media`][`default`][`default`]&gt;
+        type: ReturnType&lt;<xref uid="gramstax!ITCompiledTemplate:type" />[`media`][`default`][`default`]&gt;
         description: Media object containing type, src, and caption
   - name: getMessage(key, baseId, language, data)
     uid: gramstax!TemplateManager#getMessage:member(1)

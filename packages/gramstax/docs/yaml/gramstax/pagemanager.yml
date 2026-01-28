@@ -1,0 +1,184 @@
+### YamlMime:TSType
+name: PageManager
+uid: gramstax!PageManager:class
+package: gramstax!
+fullName: PageManager
+summary: Provides static utilities for loading and managing page modules dynamically.
+remarks: >-
+  Used internally by Gramstax to load page classes from the `src/pages` directory. Pages must export a class (not
+  default export) that extends [Ctx](xref:gramstax!Ctx:class)<!-- -->.
+example:
+  - |-
+    ```typescript
+    import { PageManager } from "gramstax";
+
+    const pagesPath = PageManager.getFilePath();
+    const page = PageManager.getFileSync(`${pagesPath}/start.ts`);
+    const pages = PageManager.getFileManySync(pagesPath);
+
+    console.log(page.name);
+    console.log(`Loaded pages: ${pages.length}`);
+    ```
+isPreview: false
+isDeprecated: false
+type: class
+methods:
+  - name: _getFile(mod, path, positionModule)
+    uid: gramstax!PageManager._getFile:member(1)
+    package: gramstax!
+    fullName: _getFile(mod, path, positionModule)
+    summary: Extract a page class from a module's exports.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const mod = await import("./pages/start.ts");
+        const StartPage = PageManager._getFile(mod, "./pages/start.ts", 0);
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _getFile(mod: Record<any, any>, path: string, positionModule?: number): typeof Ctx;'
+      parameters:
+        - id: mod
+          description: The module object containing exports.
+          type: Record&lt;any, any&gt;
+        - id: path
+          description: Path to the file (used in error messages).
+          type: string
+        - id: positionModule
+          description: Index of the exported class. Defaults to `0`<!-- -->.
+          type: number
+      return:
+        type: typeof <xref uid="gramstax!Ctx:class" />
+        description: The page class at the specified position.
+  - name: clearCacheRequire(path)
+    uid: gramstax!PageManager.clearCacheRequire:member(1)
+    package: gramstax!
+    fullName: clearCacheRequire(path)
+    summary: Clear the require cache for all page modules.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        PageManager.clearCacheRequire();
+        // Clears cache for all pages in default directory
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static clearCacheRequire(path?: string): boolean;'
+      parameters:
+        - id: path
+          description: Path to the pages directory. Enables hot-reloading of pages.
+          type: string
+      return:
+        type: boolean
+        description: '`true` when cache is cleared.'
+  - name: getFile(path, positionModule)
+    uid: gramstax!PageManager.getFile:member(1)
+    package: gramstax!
+    fullName: getFile(path, positionModule)
+    summary: Asynchronously load a single page module with cache busting.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const StartPage = await PageManager.getFile(
+          "/path/to/project/src/pages/start.ts"
+        );
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static getFile(path?: string, positionModule?: number): Promise<typeof Ctx>;'
+      parameters:
+        - id: path
+          description: Path to the page file. Uses default pages directory when omitted.
+          type: string
+        - id: positionModule
+          description: Index of the exported class. Appends timestamp for cache busting. Defaults to `0`<!-- -->.
+          type: number
+      return:
+        type: Promise&lt;typeof <xref uid="gramstax!Ctx:class" />&gt;
+        description: Promise resolving to the loaded page class.
+  - name: getFileManySync(path, positionModule)
+    uid: gramstax!PageManager.getFileManySync:member(1)
+    package: gramstax!
+    fullName: getFileManySync(path, positionModule)
+    summary: Synchronously load all page modules from a directory.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const pages = PageManager.getFileManySync();
+        // => [{ path: "/path/to/start.ts", page: StartPage }, ...]
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static getFileManySync(path?: string, positionModule?: number): {
+                path: string;
+                page: typeof Ctx;
+            }[];
+      parameters:
+        - id: path
+          description: Path to the pages directory. Uses default pages directory when omitted.
+          type: string
+        - id: positionModule
+          description: Index of the exported class. Used when files have multiple exports. Defaults to `0`<!-- -->.
+          type: number
+      return:
+        type: |-
+          {
+                  path: string;
+                  page: typeof <xref uid="gramstax!Ctx:class" />;
+              }[]
+        description: Array of page records containing `path` and `page` properties.
+  - name: getFilePath()
+    uid: gramstax!PageManager.getFilePath:member(1)
+    package: gramstax!
+    fullName: getFilePath()
+    summary: Returns the default pages directory path.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const pagesPath = PageManager.getFilePath();
+        // => "/path/to/project/src/pages"
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static getFilePath(): string;'
+      return:
+        type: string
+        description: Path to `src/pages` relative to `process.cwd()`<!-- -->.
+  - name: getFileSync(path, positionModule)
+    uid: gramstax!PageManager.getFileSync:member(1)
+    package: gramstax!
+    fullName: getFileSync(path, positionModule)
+    summary: Synchronously load a single page module.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const StartPage = PageManager.getFileSync(
+          "/path/to/project/src/pages/start.ts"
+        );
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static getFileSync(path?: string, positionModule?: number): typeof Ctx;'
+      parameters:
+        - id: path
+          description: Path to the page file. Uses default pages directory when omitted.
+          type: string
+        - id: positionModule
+          description: Index of the exported class. Used when file has multiple exports. Defaults to `0`<!-- -->.
+          type: number
+      return:
+        type: typeof <xref uid="gramstax!Ctx:class" />
+        description: The first exported page class.

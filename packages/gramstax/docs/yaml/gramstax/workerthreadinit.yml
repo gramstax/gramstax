@@ -120,7 +120,7 @@ properties:
     package: gramstax!
     fullName: gatewayServerPath
     summary: Instance accessor for gateway server path from static property.
-    remarks: Reads from .
+    remarks: Reads from `this.constructor.gatewayServerPath`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -161,7 +161,7 @@ properties:
     package: gramstax!
     fullName: isMainThread
     summary: Check if currently running in the main thread. Re-exported from `node:worker_threads`<!-- -->.
-    remarks: Use  to branch between main and worker logic.
+    remarks: Use `node:worker_threads:isMainThread` to branch between main and worker logic.
     example: []
     isPreview: false
     isDeprecated: false
@@ -174,7 +174,7 @@ properties:
     package: gramstax!
     fullName: parentPort
     summary: Reference to the parent port for messaging from `node:worker_threads`<!-- -->.
-    remarks: Uses  to send and receive messages.
+    remarks: Uses `parentPort` to send and receive messages.
     example: []
     isPreview: false
     isDeprecated: false

@@ -9,7 +9,7 @@ Creates a new TemplateManager instance.
 **Signature:**
 
 ```typescript
-constructor(options: ITemplateOptions);
+constructor(options: ITTemplateOptions);
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-ITemplateOptions
+[ITTemplateOptions](./gramstax.ittemplateoptions.md)
 
 
 </td><td>

@@ -14,5 +14,5 @@ threadId: number;
 
 ## Remarks
 
-Matches .
+Matches `new node:worker_threads:worker().threadId`<!-- -->.
 

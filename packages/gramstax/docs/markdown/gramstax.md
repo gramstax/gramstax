@@ -96,6 +96,17 @@ In-process mock Telegram API server for local testing.
 </td></tr>
 <tr><td>
 
+[PageManager](./gramstax.pagemanager.md)
+
+
+</td><td>
+
+Provides static utilities for loading and managing page modules dynamically.
+
+
+</td></tr>
+<tr><td>
+
 [TemplateEngine](./gramstax.templateengine.md)
 
 
@@ -113,6 +124,17 @@ Static utility class for parsing and compiling HTML-like templates.
 </td><td>
 
 Manages template loading, compilation, caching, and hot-reloading from page files.
+
+
+</td></tr>
+<tr><td>
+
+[WebhookQueue](./gramstax.webhookqueue.md)
+
+
+</td><td>
+
+In-memory bounded queue for webhook updates.
 
 
 </td></tr>
@@ -275,6 +297,17 @@ Options for building page routing data configuration.
 </td><td>
 
 RPC cache request structure.
+
+
+</td></tr>
+<tr><td>
+
+[ITCompiledTemplate](./gramstax.itcompiledtemplate.md)
+
+
+</td><td>
+
+Compiled template structure containing all parsed template components.
 
 
 </td></tr>
@@ -616,6 +649,17 @@ Type of chat action to send.
 </td><td>
 
 Temporary state for flow page
+
+
+</td></tr>
+<tr><td>
+
+[ITTemplateOptions](./gramstax.ittemplateoptions.md)
+
+
+</td><td>
+
+Configuration options for TemplateManager initialization.
 
 
 </td></tr>

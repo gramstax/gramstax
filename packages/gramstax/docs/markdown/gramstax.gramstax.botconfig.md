@@ -14,5 +14,5 @@ botConfig?: BotConfig<Context>;
 
 ## Remarks
 
-Configuration object for  and .
+Configuration object for grammY `BotConfig` and `Context`<!-- -->.
 

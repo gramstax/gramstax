@@ -9,10 +9,10 @@ Map of compiled templates keyed by filename (without extension).
 **Signature:**
 
 ```typescript
-_map: Map<string, ICompiledTemplate>;
+_map: Map<string, ITCompiledTemplate>;
 ```
 
 ## Remarks
 
-Values are  compiled results.
+Values are [ITCompiledTemplate](./gramstax.itcompiledtemplate.md) compiled results.
 

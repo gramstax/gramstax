@@ -278,48 +278,6 @@ _(Optional)_ Webhook queue configuration.
 
 
 </td></tr>
-<tr><td>
-
-[webhookQueueInstance?](./gramstax.gramstax.webhookqueueinstance.md)
-
-
-</td><td>
-
-`protected`
-
-
-</td><td>
-
-WebhookQueue&lt;any&gt;
-
-
-</td><td>
-
-_(Optional)_ Active webhook queue instance. 
-
-
-</td></tr>
-<tr><td>
-
-[webhookServer?](./gramstax.gramstax.webhookserver.md)
-
-
-</td><td>
-
-`protected`
-
-
-</td><td>
-
-{ stop: () =&gt; void; }
-
-
-</td><td>
-
-_(Optional)_ Active webhook server instance. 
-
-
-</td></tr>
 </tbody></table>
 
 ## Methods

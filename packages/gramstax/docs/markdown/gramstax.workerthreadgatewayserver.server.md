@@ -14,5 +14,5 @@ server: Server;
 
 ## Remarks
 
-Uses  for IPC transport.
+Uses `Server` from net-ipc for IPC transport.
 

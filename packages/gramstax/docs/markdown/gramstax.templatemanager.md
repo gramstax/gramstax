@@ -122,7 +122,7 @@ Reference to the TemplateEngine class for compilation.
 
 </td><td>
 
-ITemplateOptions\[\`enableWatch\`\]
+[ITTemplateOptions](./gramstax.ittemplateoptions.md)<!-- -->\[\`enableWatch\`\]
 
 
 </td><td>
@@ -141,7 +141,7 @@ Flag indicating if file watching is enabled.
 
 </td><td>
 
-Map&lt;string, ICompiledTemplate&gt;
+Map&lt;string, [ITCompiledTemplate](./gramstax.itcompiledtemplate.md)<!-- -->&gt;
 
 
 </td><td>
@@ -160,7 +160,7 @@ Map of compiled templates keyed by filename (without extension).
 
 </td><td>
 
-typeof PageManager
+typeof [PageManager](./gramstax.pagemanager.md)
 
 
 </td><td>
@@ -181,7 +181,7 @@ Reference to PageManager for loading page modules.
 
 </td><td>
 
-ITemplateOptions\[\`path\`\]
+[ITTemplateOptions](./gramstax.ittemplateoptions.md)<!-- -->\[\`path\`\]
 
 
 </td><td>

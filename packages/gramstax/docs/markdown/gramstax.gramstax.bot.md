@@ -14,5 +14,5 @@ bot: Bot;
 
 ## Remarks
 
-Instance of  from the grammY library.
+Instance of the grammY `Bot`<!-- -->.
 

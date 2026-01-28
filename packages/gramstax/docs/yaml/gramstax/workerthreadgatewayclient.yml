@@ -39,7 +39,7 @@ properties:
     package: gramstax!
     fullName: client
     summary: The underlying `net-ipc` Client instance.
-    remarks: Uses  for IPC transport.
+    remarks: Uses the net-ipc `Client` for IPC transport.
     example: []
     isPreview: false
     isDeprecated: false

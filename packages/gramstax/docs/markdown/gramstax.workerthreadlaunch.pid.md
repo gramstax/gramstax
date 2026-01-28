@@ -14,5 +14,5 @@ pid: number;
 
 ## Remarks
 
-Mirrors  in the main thread.
+Mirrors `process.pid` in the main thread.
 

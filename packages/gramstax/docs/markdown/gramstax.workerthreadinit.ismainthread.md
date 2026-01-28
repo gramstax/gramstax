@@ -14,5 +14,5 @@ static isMainThread: boolean;
 
 ## Remarks
 
-Use  to branch between main and worker logic.
+Use `node:worker_threads:isMainThread` to branch between main and worker logic.
 

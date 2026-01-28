@@ -9,7 +9,7 @@ Gets compiled media template data.
 **Signature:**
 
 ```typescript
-getMedia(key: string, baseId?: string, language?: string, data?: Record<string, any>): ReturnType<ICompiledTemplate[`media`][`default`][`default`]>;
+getMedia(key: string, baseId?: string, language?: string, data?: Record<string, any>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]>;
 ```
 
 ## Parameters
@@ -98,7 +98,7 @@ _(Optional)_ Template variables for interpolation
 
 **Returns:**
 
-ReturnType&lt;ICompiledTemplate\[\`media\`\]\[\`default\`\]\[\`default\`\]&gt;
+ReturnType&lt;[ITCompiledTemplate](./gramstax.itcompiledtemplate.md)<!-- -->\[\`media\`\]\[\`default\`\]\[\`default\`\]&gt;
 
 Media object containing type, src, and caption
 

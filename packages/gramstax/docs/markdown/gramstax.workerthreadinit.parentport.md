@@ -14,5 +14,5 @@ parentPort: worker_threads.MessagePort | null;
 
 ## Remarks
 
-Uses  to send and receive messages.
+Uses `parentPort` to send and receive messages.
 

@@ -10,7 +10,7 @@ Compiles a raw template string and stores the result in the cache.
 
 ```typescript
 _compile(key: string, template: string, keepIfExist?: Partial<{
-        [K in keyof ICompiledTemplate]: boolean;
+        [K in keyof ITCompiledTemplate]: boolean;
     }>, importCache?: Map<string, string>, rawCache?: Map<string, string>): void;
 ```
 
@@ -71,7 +71,7 @@ keepIfExist
 
 </td><td>
 
-Partial&lt;{ \[K in keyof ICompiledTemplate\]: boolean; }&gt;
+Partial&lt;{ \[K in keyof [ITCompiledTemplate](./gramstax.itcompiledtemplate.md)<!-- -->\]: boolean; }&gt;
 
 
 </td><td>

@@ -30,8 +30,8 @@ export class BlockKeyboard {
 
 // @public
 export class CacheExternal<V = any> extends Keyv<V> {
-    // Warning: (ae-forgotten-export) The symbol "IMore" needs to be exported by the entry point index.d.ts
-    constructor(url?: string, ttl?: number, namespace?: string, more?: IMore);
+    // Warning: (ae-forgotten-export) The symbol "ITMore" needs to be exported by the entry point index.d.ts
+    constructor(url?: string, ttl?: number, namespace?: string, more?: ITMore);
     refreshLruCache(maxLength?: number): void;
     // (undocumented)
     url: string;
@@ -763,8 +763,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     _startWebhookWorker(queue: WebhookQueue<any>, acquireChat: (chatId: any) => Promise<() => void>, getChatId: (update: any) => any): void;
     templateManager: TemplateManager;
     webhookQueue?: ITWebhookQueueConfig;
-    // Warning: (ae-forgotten-export) The symbol "WebhookQueue" needs to be exported by the entry point index.d.ts
+    // @internal
     protected webhookQueueInstance?: WebhookQueue<any>;
+    // @internal
     protected webhookServer?: {
         stop: () => void;
     };
@@ -793,6 +794,14 @@ export type ITCacheRpc = {
     method: string;
     params: any;
     [moreRoot: string]: any;
+};
+
+// @public
+export type ITCompiledTemplate = {
+    media: ReturnType<typeof TemplateEngine.compileBlockMedia>;
+    message: ReturnType<typeof TemplateEngine.compileBlockMessage>;
+    keyboard: ReturnType<typeof TemplateEngine.compileBlockKeyboards>;
+    description: ReturnType<typeof TemplateEngine.compileBlockDescription>;
 };
 
 // @public
@@ -948,6 +957,13 @@ export type ITTemp = {
 };
 
 // @public
+export type ITTemplateOptions = {
+    path: string[];
+    enableWatch?: boolean;
+    watchOptions?: any;
+};
+
+// @public
 export type ITWebhookQueueConfig = {
     enabled?: boolean;
     maxQueueSize?: number;
@@ -993,6 +1009,19 @@ export class MockTelegramServer {
     start(): Promise<string>;
     stop(): Promise<void>;
     token: string;
+}
+
+// @public
+export class PageManager {
+    static clearCacheRequire(path?: string): boolean;
+    static getFile(path?: string, positionModule?: number): Promise<typeof Ctx>;
+    static _getFile(mod: Record<any, any>, path: string, positionModule?: number): typeof Ctx;
+    static getFileManySync(path?: string, positionModule?: number): {
+        path: string;
+        page: typeof Ctx;
+    }[];
+    static getFilePath(): string;
+    static getFileSync(path?: string, positionModule?: number): typeof Ctx;
 }
 
 // @public
@@ -1068,9 +1097,9 @@ export class TemplateEngine {
 
 // @public
 export class TemplateManager {
-    constructor(options: ITemplateOptions);
+    constructor(options: ITTemplateOptions);
     _compile(key: string, template: string, keepIfExist?: Partial<{
-        [K in keyof ICompiledTemplate]: boolean;
+        [K in keyof ITCompiledTemplate]: boolean;
     }>, importCache?: Map<string, string>, rawCache?: Map<string, string>): void;
     destroy(): Promise<void>;
     _engine: typeof TemplateEngine;
@@ -1080,7 +1109,7 @@ export class TemplateManager {
     _getExtension(filename: string): string;
     _getKey(filename: string): string;
     getKeyboard(key: string, baseId?: string, language?: string, type?: `inline` | `bottom`, data?: Record<string, any>): string[];
-    getMedia(key: string, baseId?: string, language?: string, data?: Record<string, any>): ReturnType<ICompiledTemplate[`media`][`default`][`default`]>;
+    getMedia(key: string, baseId?: string, language?: string, data?: Record<string, any>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]>;
     getMessage(key: string, baseId?: string, language?: string, data?: Record<string, any>): string;
     _handleFileAdd(filepath: string): void;
     _handleFileChange(filepath: string): void;
@@ -1090,20 +1119,31 @@ export class TemplateManager {
     has(key: string): boolean;
     _initializeWatcher(options?: any): void;
     _isValidFile(filename: string): boolean;
-    readonly _isWatchEnabled: ITemplateOptions[`enableWatch`];
+    readonly _isWatchEnabled: ITTemplateOptions[`enableWatch`];
     _loadAllFiles(): void;
     _loadFile(filename: string): void;
-    // Warning: (ae-forgotten-export) The symbol "ICompiledTemplate" needs to be exported by the entry point index.d.ts
-    _map: Map<string, ICompiledTemplate>;
-    // Warning: (ae-forgotten-export) The symbol "PageManager" needs to be exported by the entry point index.d.ts
+    _map: Map<string, ITCompiledTemplate>;
     _pageManager: typeof PageManager;
-    // Warning: (ae-forgotten-export) The symbol "ITemplateOptions" needs to be exported by the entry point index.d.ts
-    readonly _path: ITemplateOptions[`path`];
+    readonly _path: ITTemplateOptions[`path`];
     _readTemplateFile(filename: string): string | null;
     _supportedExtensions: Set<string>;
     _validatePath(): boolean;
     _watcher: FSWatcher[];
     write(filename: string, template: string): Promise<boolean | null>;
+}
+
+// @public
+export class WebhookQueue<T = unknown> {
+    constructor(maxSize: number);
+    dequeue(): Promise<T>;
+    enqueue(value: T): Promise<void>;
+    getStats(): {
+        length: number;
+        maxSize: number;
+        waitingEnqueue: number;
+        waitingDequeue: number;
+    };
+    get length(): number;
 }
 
 // @public

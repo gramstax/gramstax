@@ -1,0 +1,24 @@
+### YamlMime:TSTypeAlias
+name: ITTemplateOptions
+uid: gramstax!ITTemplateOptions:type
+package: gramstax!
+fullName: ITTemplateOptions
+summary: Configuration options for TemplateManager initialization.
+remarks: Pass this object to the TemplateManager constructor to configure template paths, hot-reloading, and watcher behavior.
+example:
+  - |-
+    ```typescript
+    const options = {
+      path: [join(process.cwd(), "src", "pages")],
+      enableWatch: true,
+      watchOptions: {ignored: /node_modules/}
+    }
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITTemplateOptions = {
+      path: string[];
+      enableWatch?: boolean;
+      watchOptions?: any;
+  };

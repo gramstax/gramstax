@@ -14,5 +14,5 @@ _watcher: FSWatcher[];
 
 ## Remarks
 
-Uses  instances from Chokidar.
+Uses Chokidar `FSWatcher` instances for hot reload.
 

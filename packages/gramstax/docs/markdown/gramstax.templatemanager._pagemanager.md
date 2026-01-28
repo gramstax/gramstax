@@ -14,5 +14,5 @@ _pageManager: typeof PageManager;
 
 ## Remarks
 
-Uses  to load page templates from .ts/.js.
+Uses [PageManager](./gramstax.pagemanager.md) to load page templates from .ts/.js.
 

@@ -1,0 +1,100 @@
+### YamlMime:TSType
+name: WebhookQueue
+uid: gramstax!WebhookQueue:class
+package: gramstax!
+fullName: WebhookQueue
+summary: In-memory bounded queue for webhook updates.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(maxSize)
+    uid: gramstax!WebhookQueue:constructor(1)
+    package: gramstax!
+    fullName: (constructor)(maxSize)
+    summary: Create a new queue with a maximum size.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(maxSize: number);'
+      parameters:
+        - id: maxSize
+          description: Maximum number of items allowed in the queue.
+          type: number
+properties:
+  - name: length
+    uid: gramstax!WebhookQueue#length:member
+    package: gramstax!
+    fullName: length
+    summary: Get current queue length.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get length(): number;'
+      return:
+        type: number
+methods:
+  - name: dequeue()
+    uid: gramstax!WebhookQueue#dequeue:member(1)
+    package: gramstax!
+    fullName: dequeue()
+    summary: Dequeue a value, blocking when the queue is empty.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'dequeue(): Promise<T>;'
+      return:
+        type: Promise&lt;T&gt;
+        description: Promise resolved with the next value.
+  - name: enqueue(value)
+    uid: gramstax!WebhookQueue#enqueue:member(1)
+    package: gramstax!
+    fullName: enqueue(value)
+    summary: Enqueue a value, blocking when the queue is full.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'enqueue(value: T): Promise<void>;'
+      parameters:
+        - id: value
+          description: Value to enqueue.
+          type: T
+      return:
+        type: Promise&lt;void&gt;
+        description: Promise resolved when enqueued.
+  - name: getStats()
+    uid: gramstax!WebhookQueue#getStats:member(1)
+    package: gramstax!
+    fullName: getStats()
+    summary: Get current queue statistics.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        getStats(): {
+                length: number;
+                maxSize: number;
+                waitingEnqueue: number;
+                waitingDequeue: number;
+            };
+      return:
+        type: |-
+          {
+                  length: number;
+                  maxSize: number;
+                  waitingEnqueue: number;
+                  waitingDequeue: number;
+              }
+        description: Queue stats including length and waiters.

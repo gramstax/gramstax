@@ -14,5 +14,5 @@ client: Client;
 
 ## Remarks
 
-Uses  for IPC transport.
+Uses the net-ipc `Client` for IPC transport.
 

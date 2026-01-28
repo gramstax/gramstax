@@ -9,10 +9,10 @@ Flag indicating if file watching is enabled.
 **Signature:**
 
 ```typescript
-readonly _isWatchEnabled: ITemplateOptions[`enableWatch`];
+readonly _isWatchEnabled: ITTemplateOptions[`enableWatch`];
 ```
 
 ## Remarks
 
-Derived from .
+Derived from `ITTemplateOptions.enableWatch`<!-- -->.
 

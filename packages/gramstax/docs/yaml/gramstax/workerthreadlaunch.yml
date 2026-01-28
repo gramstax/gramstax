@@ -119,7 +119,7 @@ properties:
     package: gramstax!
     fullName: isMainThread
     summary: Check if currently running in the main thread. Re-exported from `node:worker_threads`<!-- -->.
-    remarks: Uses  to guard main-thread only logic.
+    remarks: Uses `node:worker_threads:isMainThread` to guard main-thread only logic.
     example: []
     isPreview: false
     isDeprecated: false
@@ -145,7 +145,7 @@ properties:
     package: gramstax!
     fullName: pid
     summary: The main process ID.
-    remarks: Mirrors  in the main thread.
+    remarks: Mirrors `process.pid` in the main thread.
     example: []
     isPreview: false
     isDeprecated: false
@@ -184,7 +184,7 @@ properties:
     package: gramstax!
     fullName: thread
     summary: The underlying Node.js Worker instance from `node:worker_threads`<!-- -->.
-    remarks: Instance of  used to communicate with the worker thread.
+    remarks: Instance of `node:worker_threads:Worker` used to communicate with the worker thread.
     example: []
     isPreview: false
     isDeprecated: false
@@ -197,7 +197,7 @@ properties:
     package: gramstax!
     fullName: threadId
     summary: The worker thread ID.
-    remarks: Matches .
+    remarks: Matches `new node:worker_threads:worker().threadId`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false

@@ -21,6 +21,8 @@ items:
             uid: gramstax!ITBuildDataOptions:type
           - name: ITCacheRpc
             uid: gramstax!ITCacheRpc:type
+          - name: ITCompiledTemplate
+            uid: gramstax!ITCompiledTemplate:type
           - name: ITCt
             uid: gramstax!ITCt:type
           - name: ITCtxParams
@@ -83,6 +85,8 @@ items:
             uid: gramstax!ITReplyAction:type
           - name: ITTemp
             uid: gramstax!ITTemp:type
+          - name: ITTemplateOptions
+            uid: gramstax!ITTemplateOptions:type
           - name: ITWebhookQueueConfig
             uid: gramstax!ITWebhookQueueConfig:type
           - name: LabelKeyboard
@@ -91,10 +95,14 @@ items:
             uid: gramstax!LoggingUtil:class
           - name: MockTelegramServer
             uid: gramstax!MockTelegramServer:class
+          - name: PageManager
+            uid: gramstax!PageManager:class
           - name: TemplateEngine
             uid: gramstax!TemplateEngine:class
           - name: TemplateManager
             uid: gramstax!TemplateManager:class
+          - name: WebhookQueue
+            uid: gramstax!WebhookQueue:class
           - name: WorkerThreadAsyncMethods
             uid: gramstax!WorkerThreadAsyncMethods:type
           - name: WorkerThreadExport

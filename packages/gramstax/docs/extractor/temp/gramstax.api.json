@@ -423,8 +423,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "IMore",
-                  "canonicalReference": "gramstax!~IMore:type"
+                  "text": "ITMore",
+                  "canonicalReference": "gramstax!~ITMore:type"
                 },
                 {
                   "kind": "Content",
@@ -18103,7 +18103,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#bot:member",
-              "docComment": "/**\n * The underlying grammY Bot instance.\n *\n * @remarks\n *\n * Instance of {@link Bot} from the grammY library.\n */\n",
+              "docComment": "/**\n * The underlying grammY Bot instance.\n *\n * @remarks\n *\n * Instance of the grammY `Bot`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18134,7 +18134,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#botConfig:member",
-              "docComment": "/**\n * Optional grammY bot configuration.\n *\n * @remarks\n *\n * Configuration object for {@link BotConfig} and {@link Context}.\n */\n",
+              "docComment": "/**\n * Optional grammY bot configuration.\n *\n * @remarks\n *\n * Configuration object for grammY `BotConfig` and `Context`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18957,71 +18957,6 @@
               "isStatic": false,
               "isProtected": false,
               "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!Gramstax#webhookQueueInstance:member",
-              "docComment": "/**\n * Active webhook queue instance.  @protected\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "protected webhookQueueInstance?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "WebhookQueue",
-                  "canonicalReference": "gramstax!~WebhookQueue:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<any>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "webhookQueueInstance",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 3
-              },
-              "isStatic": false,
-              "isProtected": true,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "gramstax!Gramstax#webhookServer:member",
-              "docComment": "/**\n * Active webhook server instance.  @protected\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "protected webhookServer?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "{\n        stop: () => void;\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "webhookServer",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": true,
-              "isAbstract": false
             }
           ],
           "implementsTokenRanges": []
@@ -19167,6 +19102,104 @@
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITCompiledTemplate:type",
+          "docComment": "/**\n * Compiled template structure containing all parsed template components.\n *\n * @remarks\n *\n * This type represents the cached result of template compilation. Each property holds compiled functions for different template sections.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITCompiledTemplate = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    media: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ReturnType",
+              "canonicalReference": "!ReturnType:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<typeof "
+            },
+            {
+              "kind": "Reference",
+              "text": "TemplateEngine.compileBlockMedia",
+              "canonicalReference": "gramstax!TemplateEngine.compileBlockMedia:member"
+            },
+            {
+              "kind": "Content",
+              "text": ">;\n    message: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ReturnType",
+              "canonicalReference": "!ReturnType:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<typeof "
+            },
+            {
+              "kind": "Reference",
+              "text": "TemplateEngine.compileBlockMessage",
+              "canonicalReference": "gramstax!TemplateEngine.compileBlockMessage:member"
+            },
+            {
+              "kind": "Content",
+              "text": ">;\n    keyboard: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ReturnType",
+              "canonicalReference": "!ReturnType:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<typeof "
+            },
+            {
+              "kind": "Reference",
+              "text": "TemplateEngine.compileBlockKeyboards",
+              "canonicalReference": "gramstax!TemplateEngine.compileBlockKeyboards:member"
+            },
+            {
+              "kind": "Content",
+              "text": ">;\n    description: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ReturnType",
+              "canonicalReference": "!ReturnType:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<typeof "
+            },
+            {
+              "kind": "Reference",
+              "text": "TemplateEngine.compileBlockDescription",
+              "canonicalReference": "gramstax!TemplateEngine.compileBlockDescription:member"
+            },
+            {
+              "kind": "Content",
+              "text": ">;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITCompiledTemplate",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 18
           }
         },
         {
@@ -20468,6 +20501,32 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITTemplateOptions:type",
+          "docComment": "/**\n * Configuration options for TemplateManager initialization.\n *\n * @remarks\n *\n * Pass this object to the TemplateManager constructor to configure template paths, hot-reloading, and watcher behavior.\n *\n * @example\n * ```typescript\n * const options = {\n *   path: [join(process.cwd(), \"src\", \"pages\")],\n *   enableWatch: true,\n *   watchOptions: {ignored: /node_modules/}\n * }\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITTemplateOptions = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    path: string[];\n    enableWatch?: boolean;\n    watchOptions?: any;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITTemplateOptions",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITWebhookQueueConfig:type",
           "docComment": "/**\n * Webhook queue configuration for backpressure and worker pooling.\n *\n * @remarks\n *\n * Enable this only for webhook deployments. The queue buffers incoming updates and dispatches them to a worker pool, decoupling HTTP latency from handler work.\n *\n * @example\n * ```typescript\n * webhookQueue: {\n *   enabled: true,\n *   maxQueueSize: 5000,\n *   workerCount: 8,\n *   perChatConcurrency: 1,\n *   blockWhenFull: true\n * }\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -21494,6 +21553,414 @@
               "isStatic": false,
               "isProtected": false,
               "isAbstract": false
+            }
+          ],
+          "implementsTokenRanges": []
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "gramstax!PageManager:class",
+          "docComment": "/**\n * Provides static utilities for loading and managing page modules dynamically.\n *\n * @remarks\n *\n * Used internally by Gramstax to load page classes from the `src/pages` directory. Pages must export a class (not default export) that extends {@link Ctx}.\n *\n * @example\n * ```typescript\n * import { PageManager } from \"gramstax\";\n *\n * const pagesPath = PageManager.getFilePath();\n * const page = PageManager.getFileSync(`${pagesPath}/start.ts`);\n * const pages = PageManager.getFileManySync(pagesPath);\n *\n * console.log(page.name);\n * console.log(`Loaded pages: ${pages.length}`);\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare class PageManager "
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "isAbstract": false,
+          "name": "PageManager",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!PageManager._getFile:member(1)",
+              "docComment": "/**\n * Extract a page class from a module's exports.\n *\n * @param mod - The module object containing exports.\n *\n * @param path - Path to the file (used in error messages).\n *\n * @param positionModule - Index of the exported class. Defaults to `0`.\n *\n * @returns The page class at the specified position.\n *\n * @throws\n *\n * Error if file has no exports at the specified position.\n *\n * @example\n * ```typescript\n * const mod = await import(\"./pages/start.ts\");\n * const StartPage = PageManager._getFile(mod, \"./pages/start.ts\", 0);\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static _getFile(mod: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<any, any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", path: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", positionModule?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "typeof "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 8,
+                "endIndex": 10
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "mod",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "path",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "positionModule",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 6,
+                    "endIndex": 7
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_getFile"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!PageManager.clearCacheRequire:member(1)",
+              "docComment": "/**\n * Clear the require cache for all page modules.\n *\n * @param path - Path to the pages directory. Enables hot-reloading of pages.\n *\n * @returns `true` when cache is cleared.\n *\n * @throws\n *\n * Error if directory does not exist.\n *\n * @example\n * ```typescript\n * PageManager.clearCacheRequire();\n * // Clears cache for all pages in default directory\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static clearCacheRequire(path?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "path",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "clearCacheRequire"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!PageManager.getFile:member(1)",
+              "docComment": "/**\n * Asynchronously load a single page module with cache busting.\n *\n * @param path - Path to the page file. Uses default pages directory when omitted.\n *\n * @param positionModule - Index of the exported class. Appends timestamp for cache busting. Defaults to `0`.\n *\n * @returns Promise resolving to the loaded page class.\n *\n * @example\n * ```typescript\n * const StartPage = await PageManager.getFile(\n *   \"/path/to/project/src/pages/start.ts\"\n * );\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static getFile(path?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", positionModule?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<typeof "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 9
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "path",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "positionModule",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getFile"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!PageManager.getFileManySync:member(1)",
+              "docComment": "/**\n * Synchronously load all page modules from a directory.\n *\n * @param path - Path to the pages directory. Uses default pages directory when omitted.\n *\n * @param positionModule - Index of the exported class. Used when files have multiple exports. Defaults to `0`.\n *\n * @returns Array of page records containing `path` and `page` properties.\n *\n * @throws\n *\n * Error if directory does not exist.\n *\n * @example\n * ```typescript\n * const pages = PageManager.getFileManySync();\n * // => [{ path: \"/path/to/start.ts\", page: StartPage }, ...]\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static getFileManySync(path?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", positionModule?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        path: string;\n        page: typeof "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n    }[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "path",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "positionModule",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getFileManySync"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!PageManager.getFilePath:member(1)",
+              "docComment": "/**\n * Returns the default pages directory path.\n *\n * @returns Path to `src/pages` relative to `process.cwd()`.\n *\n * @example\n * ```typescript\n * const pagesPath = PageManager.getFilePath();\n * // => \"/path/to/project/src/pages\"\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static getFilePath(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getFilePath"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!PageManager.getFileSync:member(1)",
+              "docComment": "/**\n * Synchronously load a single page module.\n *\n * @param path - Path to the page file. Uses default pages directory when omitted.\n *\n * @param positionModule - Index of the exported class. Used when file has multiple exports. Defaults to `0`.\n *\n * @returns The first exported page class.\n *\n * @throws\n *\n * Error if file has no exports.\n *\n * @example\n * ```typescript\n * const StartPage = PageManager.getFileSync(\n *   \"/path/to/project/src/pages/start.ts\"\n * );\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static getFileSync(path?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", positionModule?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "typeof "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "path",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "positionModule",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getFileSync"
             }
           ],
           "implementsTokenRanges": []
@@ -22932,8 +23399,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ICompiledTemplate",
-                  "canonicalReference": "gramstax!~ICompiledTemplate:type"
+                  "text": "ITCompiledTemplate",
+                  "canonicalReference": "gramstax!ITCompiledTemplate:type"
                 },
                 {
                   "kind": "Content",
@@ -23454,7 +23921,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateManager#_isWatchEnabled:member",
-              "docComment": "/**\n * Flag indicating if file watching is enabled.\n *\n * @remarks\n *\n * Derived from {@link ITemplateOptions.enableWatch}.\n *\n * @readonly\n */\n",
+              "docComment": "/**\n * Flag indicating if file watching is enabled.\n *\n * @remarks\n *\n * Derived from `ITTemplateOptions.enableWatch`.\n *\n * @readonly\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23462,8 +23929,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ITemplateOptions",
-                  "canonicalReference": "gramstax!~ITemplateOptions:type"
+                  "text": "ITTemplateOptions",
+                  "canonicalReference": "gramstax!ITTemplateOptions:type"
                 },
                 {
                   "kind": "Content",
@@ -23568,7 +24035,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateManager#_map:member",
-              "docComment": "/**\n * Map of compiled templates keyed by filename (without extension).\n *\n * @remarks\n *\n * Values are {@link ICompiledTemplate} compiled results.\n */\n",
+              "docComment": "/**\n * Map of compiled templates keyed by filename (without extension).\n *\n * @remarks\n *\n * Values are {@link ITCompiledTemplate} compiled results.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23585,8 +24052,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ICompiledTemplate",
-                  "canonicalReference": "gramstax!~ICompiledTemplate:type"
+                  "text": "ITCompiledTemplate",
+                  "canonicalReference": "gramstax!ITCompiledTemplate:type"
                 },
                 {
                   "kind": "Content",
@@ -23625,7 +24092,7 @@
                 {
                   "kind": "Reference",
                   "text": "PageManager",
-                  "canonicalReference": "gramstax!~PageManager:class"
+                  "canonicalReference": "gramstax!PageManager:class"
                 },
                 {
                   "kind": "Content",
@@ -23647,7 +24114,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateManager#_path:member",
-              "docComment": "/**\n * Base paths for scanning template files.\n *\n * @remarks\n *\n * Derived from {@link ITemplateOptions.path}.\n *\n * @readonly\n */\n",
+              "docComment": "/**\n * Base paths for scanning template files.\n *\n * @remarks\n *\n * Derived from `ITTemplateOptions.path`.\n *\n * @readonly\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23655,8 +24122,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ITemplateOptions",
-                  "canonicalReference": "gramstax!~ITemplateOptions:type"
+                  "text": "ITTemplateOptions",
+                  "canonicalReference": "gramstax!ITTemplateOptions:type"
                 },
                 {
                   "kind": "Content",
@@ -23796,7 +24263,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateManager#_watcher:member",
-              "docComment": "/**\n * Active file system watchers for hot-reload.\n *\n * @remarks\n *\n * Uses {@link FSWatcher} instances from Chokidar.\n */\n",
+              "docComment": "/**\n * Active file system watchers for hot-reload.\n *\n * @remarks\n *\n * Uses Chokidar `FSWatcher` instances for hot reload.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23839,8 +24306,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ITemplateOptions",
-                  "canonicalReference": "gramstax!~ITemplateOptions:type"
+                  "text": "ITTemplateOptions",
+                  "canonicalReference": "gramstax!ITTemplateOptions:type"
                 },
                 {
                   "kind": "Content",
@@ -24332,8 +24799,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ICompiledTemplate",
-                  "canonicalReference": "gramstax!~ICompiledTemplate:type"
+                  "text": "ITCompiledTemplate",
+                  "canonicalReference": "gramstax!ITCompiledTemplate:type"
                 },
                 {
                   "kind": "Content",
@@ -24607,6 +25074,228 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "write"
+            }
+          ],
+          "implementsTokenRanges": []
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "gramstax!WebhookQueue:class",
+          "docComment": "/**\n * In-memory bounded queue for webhook updates.\n *\n * @typeParam T - Queue item type.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare class WebhookQueue<T = "
+            },
+            {
+              "kind": "Content",
+              "text": "unknown"
+            },
+            {
+              "kind": "Content",
+              "text": "> "
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "typeParameters": [
+            {
+              "typeParameterName": "T",
+              "constraintTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "isAbstract": false,
+          "name": "WebhookQueue",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "Constructor",
+              "canonicalReference": "gramstax!WebhookQueue:constructor(1)",
+              "docComment": "/**\n * Create a new queue with a maximum size.\n *\n * @param maxSize - Maximum number of items allowed in the queue.\n *\n * @throws\n *\n * Error if maxSize is not a positive number.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "constructor(maxSize: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ");"
+                }
+              ],
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "maxSize",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ]
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!WebhookQueue#dequeue:member(1)",
+              "docComment": "/**\n * Dequeue a value, blocking when the queue is empty.\n *\n * @returns Promise resolved with the next value.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "dequeue(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<T>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "dequeue"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!WebhookQueue#enqueue:member(1)",
+              "docComment": "/**\n * Enqueue a value, blocking when the queue is full.\n *\n * @param value - Value to enqueue.\n *\n * @returns Promise resolved when enqueued.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "enqueue(value: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "T"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "value",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "enqueue"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!WebhookQueue#getStats:member(1)",
+              "docComment": "/**\n * Get current queue statistics.\n *\n * @returns Queue stats including length and waiters.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getStats(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        length: number;\n        maxSize: number;\n        waitingEnqueue: number;\n        waitingDequeue: number;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getStats"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!WebhookQueue#length:member",
+              "docComment": "/**\n * Get current queue length.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "get length(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "length",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
             }
           ],
           "implementsTokenRanges": []
@@ -25066,7 +25755,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadGatewayClient#client:member",
-              "docComment": "/**\n * The underlying `net-ipc` Client instance.\n *\n * @remarks\n *\n * Uses {@link Client} for IPC transport.\n */\n",
+              "docComment": "/**\n * The underlying `net-ipc` Client instance.\n *\n * @remarks\n *\n * Uses the net-ipc `Client` for IPC transport.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25465,7 +26154,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadGatewayServer#server:member",
-              "docComment": "/**\n * The underlying `net-ipc` Server instance.\n *\n * @remarks\n *\n * Uses {@link Server} for IPC transport.\n */\n",
+              "docComment": "/**\n * The underlying `net-ipc` Server instance.\n *\n * @remarks\n *\n * Uses `Server` from net-ipc for IPC transport.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25901,7 +26590,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit#gatewayServerPath:member",
-              "docComment": "/**\n * Instance accessor for gateway server path from static property.\n *\n * @remarks\n *\n * Reads from {@link WorkerThreadInit.gatewayServerPath}.\n */\n",
+              "docComment": "/**\n * Instance accessor for gateway server path from static property.\n *\n * @remarks\n *\n * Reads from `this.constructor.gatewayServerPath`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -26070,7 +26759,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit.isMainThread:member",
-              "docComment": "/**\n * Check if currently running in the main thread. Re-exported from `node:worker_threads`.\n *\n * @remarks\n *\n * Use {@link isMainThread} to branch between main and worker logic.\n */\n",
+              "docComment": "/**\n * Check if currently running in the main thread. Re-exported from `node:worker_threads`.\n *\n * @remarks\n *\n * Use `node:worker_threads:isMainThread` to branch between main and worker logic.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -26100,7 +26789,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadInit#parentPort:member",
-              "docComment": "/**\n * Reference to the parent port for messaging from `node:worker_threads`.\n *\n * @remarks\n *\n * Uses {@link parentPort} to send and receive messages.\n */\n",
+              "docComment": "/**\n * Reference to the parent port for messaging from `node:worker_threads`.\n *\n * @remarks\n *\n * Uses `parentPort` to send and receive messages.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -26542,7 +27231,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadLaunch.isMainThread:member",
-              "docComment": "/**\n * Check if currently running in the main thread. Re-exported from `node:worker_threads`.\n *\n * @remarks\n *\n * Uses {@link isMainThread} to guard main-thread only logic.\n */\n",
+              "docComment": "/**\n * Check if currently running in the main thread. Re-exported from `node:worker_threads`.\n *\n * @remarks\n *\n * Uses `node:worker_threads:isMainThread` to guard main-thread only logic.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -26664,7 +27353,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadLaunch#pid:member",
-              "docComment": "/**\n * The main process ID.\n *\n * @remarks\n *\n * Mirrors {@link process.pid} in the main thread.\n */\n",
+              "docComment": "/**\n * The main process ID.\n *\n * @remarks\n *\n * Mirrors `process.pid` in the main thread.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -26940,7 +27629,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadLaunch#thread:member",
-              "docComment": "/**\n * The underlying Node.js Worker instance from `node:worker_threads`.\n *\n * @remarks\n *\n * Instance of {@link Worker} used to communicate with the worker thread.\n */\n",
+              "docComment": "/**\n * The underlying Node.js Worker instance from `node:worker_threads`.\n *\n * @remarks\n *\n * Instance of `node:worker_threads:Worker` used to communicate with the worker thread.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -26971,7 +27660,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadLaunch#threadId:member",
-              "docComment": "/**\n * The worker thread ID.\n *\n * @remarks\n *\n * Matches {@link Worker.threadId}.\n */\n",
+              "docComment": "/**\n * The worker thread ID.\n *\n * @remarks\n *\n * Matches `new node:worker_threads:worker().threadId`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

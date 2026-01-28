@@ -14,5 +14,5 @@ static isMainThread: boolean;
 
 ## Remarks
 
-Uses  to guard main-thread only logic.
+Uses `node:worker_threads:isMainThread` to guard main-thread only logic.
 

@@ -56,7 +56,7 @@ properties:
     package: gramstax!
     fullName: bot
     summary: The underlying grammY Bot instance.
-    remarks: Instance of  from the grammY library.
+    remarks: Instance of the grammY `Bot`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -69,7 +69,7 @@ properties:
     package: gramstax!
     fullName: botConfig
     summary: Optional grammY bot configuration.
-    remarks: Configuration object for  and .
+    remarks: Configuration object for grammY `BotConfig` and `Context`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -155,7 +155,7 @@ properties:
     package: gramstax!
     fullName: pages
     summary: Loaded and sorted page routes.
-    remarks: Derived from page definitions loaded by .
+    remarks: Derived from page definitions loaded by [PageManager](xref:gramstax!PageManager:class)<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -189,38 +189,6 @@ properties:
       content: 'webhookQueue?: ITWebhookQueueConfig;'
       return:
         type: <xref uid="gramstax!ITWebhookQueueConfig:type" />
-  - name: webhookQueueInstance
-    uid: gramstax!Gramstax#webhookQueueInstance:member
-    package: gramstax!
-    fullName: webhookQueueInstance
-    summary: Active webhook queue instance.
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'protected webhookQueueInstance?: WebhookQueue<any>;'
-      return:
-        type: <xref uid="gramstax!~WebhookQueue:class" />&lt;any&gt;
-  - name: webhookServer
-    uid: gramstax!Gramstax#webhookServer:member
-    package: gramstax!
-    fullName: webhookServer
-    summary: Active webhook server instance.
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: |-
-        protected webhookServer?: {
-                stop: () => void;
-            };
-      return:
-        type: |-
-          {
-                  stop: () =&gt; void;
-              }
 methods:
   - name: _onCallbackQueryData(ct)
     uid: gramstax!Gramstax#_onCallbackQueryData:member(1)

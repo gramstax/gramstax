@@ -68,7 +68,7 @@ properties:
     package: gramstax!
     fullName: server
     summary: The underlying `net-ipc` Server instance.
-    remarks: Uses  for IPC transport.
+    remarks: Uses `Server` from net-ipc for IPC transport.
     example: []
     isPreview: false
     isDeprecated: false

@@ -14,5 +14,5 @@ thread: Worker;
 
 ## Remarks
 
-Instance of  used to communicate with the worker thread.
+Instance of `node:worker_threads:Worker` used to communicate with the worker thread.
 

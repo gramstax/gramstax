@@ -9,10 +9,10 @@ Base paths for scanning template files.
 **Signature:**
 
 ```typescript
-readonly _path: ITemplateOptions[`path`];
+readonly _path: ITTemplateOptions[`path`];
 ```
 
 ## Remarks
 
-Derived from .
+Derived from `ITTemplateOptions.path`<!-- -->.
 

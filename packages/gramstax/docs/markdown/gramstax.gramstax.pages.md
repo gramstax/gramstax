@@ -14,5 +14,5 @@ pages: ReturnType<typeof this._pageLoads>;
 
 ## Remarks
 
-Derived from page definitions loaded by .
+Derived from page definitions loaded by [PageManager](./gramstax.pagemanager.md)<!-- -->.
 
