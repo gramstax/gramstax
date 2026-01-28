@@ -24,7 +24,7 @@ export class WorkerThreadGatewayClient {
    * The underlying `net-ipc` Client instance.
    *
    * @remarks
-   * Uses {@link Client} for IPC transport.
+   * Uses the net-ipc `Client` for IPC transport.
    */
   client = new Client()
 

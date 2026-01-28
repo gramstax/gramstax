@@ -73,7 +73,7 @@ export class WorkerThreadInit {
    * Reference to the parent port for messaging from `node:worker_threads`.
    *
    * @remarks
-   * Uses {@link parentPort} to send and receive messages.
+   * Uses `parentPort` to send and receive messages.
    */
   parentPort = parentPort
 
@@ -103,10 +103,10 @@ export class WorkerThreadInit {
 
   /**
    * Path for gateway server. Override in subclass if needed.
-   * @virtual
    *
    * @remarks
    * Used by {@link WorkerThreadGatewayServer} when binding.
+   * @virtual
    */
   static gatewayServerPath?: string
 
@@ -114,7 +114,7 @@ export class WorkerThreadInit {
    * Instance accessor for gateway server path from static property.
    *
    * @remarks
-   * Reads from {@link WorkerThreadInit.gatewayServerPath}.
+   * Reads from `this.constructor.gatewayServerPath`.
    */
   gatewayServerPath = (this.constructor as any).gatewayServerPath
 
@@ -133,7 +133,7 @@ export class WorkerThreadInit {
    * Re-exported from `node:worker_threads`.
    *
    * @remarks
-   * Use {@link isMainThread} to branch between main and worker logic.
+   * Use `node:worker_threads:isMainThread` to branch between main and worker logic.
    */
   static isMainThread = isMainThread
 

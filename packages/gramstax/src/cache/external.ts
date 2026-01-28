@@ -1,7 +1,7 @@
 import {Keyv} from "keyv"
 import KeyvRedis from "@keyv/redis"
 
-type IMore = Omit<Required<ConstructorParameters<typeof Keyv>>[0], `store` | `namespace` | `ttl`> & {forceStore?: any}
+type ITMore = Omit<Required<ConstructorParameters<typeof Keyv>>[0], `store` | `namespace` | `ttl`> & {forceStore?: any}
 
 /**
  * RPC cache request structure.
@@ -54,7 +54,7 @@ export class CacheExternal<V = any> extends Keyv<V> {
     public url: string = `memory`,
     ttl?: number,
     namespace?: string,
-    more?: IMore
+    more?: ITMore
   ) {
     let store: any
     if (url.startsWith(`redis`)) store = new KeyvRedis(url)

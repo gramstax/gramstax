@@ -3,53 +3,7 @@ import {readdirSync, readFileSync, existsSync, statSync, writeFileSync} from "no
 import {watch, FSWatcher} from "chokidar"
 import {PageManager} from "~/page/manager"
 import {TemplateEngine} from "./engine"
-
-/**
- * Compiled template structure containing all parsed template components.
- *
- * @remarks
- * This type represents the cached result of template compilation.
- * Each property holds compiled functions for different template sections.
- *
- * @public
- */
-type ITCompiledTemplate = {
-  /** Compiled media blocks indexed by base ID and language */
-  media: ReturnType<typeof TemplateEngine.compileBlockMedia>
-  /** Compiled message blocks indexed by base ID and language */
-  message: ReturnType<typeof TemplateEngine.compileBlockMessage>
-  /** Compiled keyboard blocks indexed by base ID, language, and type */
-  keyboard: ReturnType<typeof TemplateEngine.compileBlockKeyboards>
-  /** Compiled description blocks indexed by base ID, scope, and language */
-  description: ReturnType<typeof TemplateEngine.compileBlockDescription>
-}
-
-/**
- * Configuration options for TemplateManager initialization.
- *
- * @remarks
- * Pass this object to the TemplateManager constructor to configure
- * template paths, hot-reloading, and watcher behavior.
- *
- * @example
- * ```typescript
- * const options = {
- *   path: [join(process.cwd(), "src", "pages")],
- *   enableWatch: true,
- *   watchOptions: {ignored: /node_modules/}
- * }
- * ```
- *
- * @public
- */
-type ITTemplateOptions = {
-  /** Array of directory paths to scan for template files */
-  path: string[]
-  /** Enable file watching for hot-reloading during development */
-  enableWatch?: boolean
-  /** {@link https://github.com/paulmillr/chokidar#persistence | Chokidar WatchOptions} passed to the file watcher */
-  watchOptions?: any
-}
+import type {ITCompiledTemplate, ITTemplateOptions} from "~/types/t.template"
 
 /**
  * Manages template loading, compilation, caching, and hot-reloading from page files.
@@ -88,6 +42,7 @@ export class TemplateManager {
    * Values are {@link ITCompiledTemplate} compiled results.
    */
   _map = new Map<string, ITCompiledTemplate>()
+
   /**
    * Reference to the TemplateEngine class for compilation.
    *
@@ -95,13 +50,15 @@ export class TemplateManager {
    * Uses {@link TemplateEngine} static compile helpers.
    */
   _engine = TemplateEngine
+
   /**
    * Active file system watchers for hot-reload.
    *
    * @remarks
-   * Uses {@link FSWatcher} instances from Chokidar.
+   * Uses Chokidar `FSWatcher` instances for hot reload.
    */
   _watcher: FSWatcher[] = []
+
   /**
    * Reference to PageManager for loading page modules.
    *
@@ -109,6 +66,7 @@ export class TemplateManager {
    * Uses {@link PageManager} to load page templates from .ts/.js.
    */
   _pageManager = PageManager
+
   /**
    * Set of supported template file extensions.
    *
@@ -116,19 +74,21 @@ export class TemplateManager {
    * Defaults to `.html`, `.ts`, and `.js`.
    */
   _supportedExtensions = new Set([`.html`, `.ts`, `.js`])
+
   /**
    * Base paths for scanning template files.
    *
    * @remarks
-   * Derived from {@link ITTemplateOptions.path}.
+   * Derived from `ITTemplateOptions.path`.
    * @readonly
    */
   readonly _path: ITTemplateOptions[`path`]
+
   /**
    * Flag indicating if file watching is enabled.
    *
    * @remarks
-   * Derived from {@link ITTemplateOptions.enableWatch}.
+   * Derived from `ITTemplateOptions.enableWatch`.
    * @readonly
    */
   readonly _isWatchEnabled: ITTemplateOptions[`enableWatch`]

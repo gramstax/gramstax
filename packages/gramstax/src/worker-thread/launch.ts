@@ -70,7 +70,7 @@ export class WorkerThreadLaunch {
    * Re-exported from `node:worker_threads`.
    *
    * @remarks
-   * Uses {@link isMainThread} to guard main-thread only logic.
+   * Uses `node:worker_threads:isMainThread` to guard main-thread only logic.
    */
   static isMainThread = isMainThread
 
@@ -81,7 +81,7 @@ export class WorkerThreadLaunch {
    * The main process ID.
    *
    * @remarks
-   * Mirrors {@link process.pid} in the main thread.
+   * Mirrors `process.pid` in the main thread.
    */
   pid = process.pid
 
@@ -89,7 +89,7 @@ export class WorkerThreadLaunch {
    * The underlying Node.js Worker instance from `node:worker_threads`.
    *
    * @remarks
-   * Instance of {@link Worker} used to communicate with the worker thread.
+   * Instance of `node:worker_threads:Worker` used to communicate with the worker thread.
    */
   thread: Worker = {} as any
 
@@ -97,7 +97,7 @@ export class WorkerThreadLaunch {
    * The worker thread ID.
    *
    * @remarks
-   * Matches {@link Worker.threadId}.
+   * Matches `new node:worker_threads:worker().threadId`.
    */
   threadId: number = {} as any
 

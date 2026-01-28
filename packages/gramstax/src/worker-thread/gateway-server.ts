@@ -27,7 +27,7 @@ export class WorkerThreadGatewayServer {
    * The underlying `net-ipc` Server instance.
    *
    * @remarks
-   * Uses {@link Server} for IPC transport.
+   * Uses `Server` from net-ipc for IPC transport.
    */
   server = new Server()
 

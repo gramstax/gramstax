@@ -105,7 +105,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * The underlying grammY Bot instance.
    *
    * @remarks
-   * Instance of {@link Bot} from the grammY library.
+   * Instance of the grammY `Bot`.
    */
   bot: Bot
 
@@ -113,7 +113,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Optional grammY bot configuration.
    *
    * @remarks
-   * Configuration object for {@link BotConfig} and {@link Context}.
+   * Configuration object for grammY `BotConfig` and `Context`.
    */
   botConfig?: BotConfig<Context>
 
