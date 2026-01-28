@@ -392,6 +392,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     const pathUrl = new URL(fullUrl).pathname
     const logger = this.log
+    const statsPath = `/stats_queue`
     this.webhookServer?.stop()
     const server = serve({
       async fetch(req) {
@@ -415,12 +416,18 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           }
         }
 
-        if (req.method == `GET` && pathname == `/stats_queue`) {
-          const stats = queue?.getStats() || {}
+        if (req.method == `GET` && pathname == statsPath) {
+          const stats = queue?.getStats() || {length: 0, maxSize: queueConfig?.maxQueueSize ?? 5000, waitingEnqueue: 0, waitingDequeue: 0}
           return new Response(
             JSON.stringify({
               enabled: queueEnabled,
-              ...stats,
+              path: statsPath,
+              timestamp: new Date().toISOString(),
+              maxQueueSize: queueConfig?.maxQueueSize ?? 5000,
+              workerCount,
+              perChatConcurrency,
+              blockWhenFull,
+              queue: stats,
               activeChats: activeChats.size
             }),
             {status: 200, headers: {"Content-Type": `application/json`}}

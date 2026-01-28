@@ -165,7 +165,7 @@ export class MockTelegramServer {
   private _json(payload: ITMockTelegramJson) {
     return new Response(JSON.stringify(payload), {
       status: 200,
-      headers: {"Content-Type": "application/json"}
+      headers: {"Content-Type": `application/json`}
     })
   }
 
