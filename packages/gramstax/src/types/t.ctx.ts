@@ -276,18 +276,18 @@ export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
   callbackData?: C
 
   /**
-   * Optional text intent override.
+   * Optional. override intent trigger for `handle*Text`.
    *
    * @remarks
-   * Overrides the default text intent matching for this page.
+   * Overrides the default `handle*Text` intent matching for this page.
    */
   intentText?: string
 
   /**
-   * Optional text command intent override.
+   * Optional. override intent trigger for `handleCommand*Text`.
    *
    * @remarks
-   * Overrides the default text command intent matching for this page.
+   * Overrides the default `handleCommand*Text` intent matching for this page.
    */
   intentTextCommand?: string
 }
@@ -382,7 +382,7 @@ export type ITPageData<T extends any[] = any[]> = {
   callbackData: (...args: T) => string
 
   /**
-   * Text intent pattern for matching incoming text messages.
+   * `handle*Text` intent pattern for matching incoming text messages.
    *
    * @remarks
    * Overrides intent value used to trigger the route function `handle*Text` (besides the `handleFree*`).
@@ -396,7 +396,7 @@ export type ITPageData<T extends any[] = any[]> = {
   intentText: string
 
   /**
-   * Text command intent pattern for matching incoming command messages.
+   * `handleCommand*Text` intent pattern for matching incoming command messages.
    *
    * @remarks
    * Overrides intent value used to trigger the route function `handleCommand*Text` (besides the `handleFree*`).
@@ -429,7 +429,7 @@ export type ITPageData<T extends any[] = any[]> = {
   _positionArgText: number
 
   /**
-   * Callback intent pattern for matching callback query data.
+   * `handle*CallbackData` intent pattern for matching callback query data.
    *
    * @remarks
    * Internal intent value used to trigger route function `handle*CallbackData` (besides the `handleFree*`).
