@@ -54,12 +54,12 @@ export class KeyboardBottomPage extends PageBase {
         <message>
           ⌨️ Bottom keyboard
 
-          Use the bottom keyboard with emojis and dynamic payloads for quick actions.
+          Use the bottom keyboard with emojis and dynamic arg for quick actions.
         </message>
         <message lang="id">
           ⌨️ Keyboard bawah
 
-          Gunakan keyboard bawah dengan emoji dan payload dinamis untuk aksi cepat.
+          Gunakan keyboard bawah dengan emoji dan argument dinamis untuk aksi cepat.
         </message>
       </base>
       <base id="reset">

@@ -10,7 +10,7 @@ export class TestAnimationPage extends PageBase {
       return k //
         .text(isDynamic ? l[1] : l[0]!, this.data.callbackData(isDynamic ? `static` : `dynamic`))
         .row()
-        .text(l[2]!, StartPage.data.callbackData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the callbackPayload route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
+        .text(l[2]!, StartPage.data.callbackData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the `handleArgsCallbackData` route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
     })
   }
 

@@ -352,7 +352,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async textFree() {
+   * async handleFreeText() {
    *   console.log(this.msgText) // "Hello World"
    * }
    * ```
@@ -430,8 +430,8 @@ export class Ctx {
    * @example
    * ```typescript
    * // Message: "/start 123"
-   * async textCommandPayload() {
-   *   console.log(this.msgTextCommandPayload) // "123"
+   * async handleCommandArgsText() {
+   *   console.log(this.msgTextCommandArg) // "123"
    * }
    * ```
    *
@@ -447,7 +447,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async photoFree() {
+   * async handleFreePhoto() {
    *   console.log(this.msgCaption) // "<Photo caption>"
    * }
    * ```
@@ -483,8 +483,8 @@ export class Ctx {
    * @example
    * ```typescript
    * // Caption: "start 123 456"
-   * async photoCaptionPayload() {
-   *   console.log(this.msgCaptionPayload) // "123"
+   * async handleCaptionArgsPhoto() {
+   *   console.log(this.msgCaptionArg) // "123"
    * }
    * ```
    *
@@ -519,8 +519,8 @@ export class Ctx {
    * @example
    * ```typescript
    * // Caption: "/photo 123"
-   * async photoCaptionCommandPayload() {
-   *   console.log(this.msgCaptionCommandPayload) // "123"
+   * async handleCommandCaptionArgsPhoto() {
+   *   console.log(this.msgCaptionCommandArg) // "123"
    * }
    * ```
    *
@@ -536,7 +536,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async photoFree() {
+   * async handleFreePhoto() {
    *   const photos = this.msgPhoto
    *   const largest = photos?.[photos.length - 1]
    * }
@@ -554,7 +554,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async videoFree() {
+   * async handleFreeVideo() {
    *   const video = this.msgVideo
    *   console.log(video?.file_id)
    * }
@@ -572,7 +572,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async audioFree() {
+   * async handleFreeAudio() {
    *   const audio = this.msgAudio
    *   console.log(audio?.file_id)
    * }
@@ -590,7 +590,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async documentFree() {
+   * async handleFreeDocument() {
    *   const doc = this.msgDocument
    *   console.log(doc?.file_name)
    * }
@@ -608,7 +608,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async animationFree() {
+   * async handleFreeAnimation() {
    *   const anim = this.msgAnimation
    *   console.log(anim?.file_id)
    * }
@@ -626,7 +626,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async voiceFree() {
+   * async handleFreeVoice() {
    *   const voice = this.msgVoice
    *   console.log(voice?.duration)
    * }
@@ -644,7 +644,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async videoNoteFree() {
+   * async handleFreeVideoNote() {
    *   const videoNote = this.msgVideoNote
    *   console.log(videoNote?.length)
    * }
@@ -662,7 +662,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async stickerFree() {
+   * async handleFreeSticker() {
    *   const sticker = this.msgSticker
    *   console.log(sticker?.emoji)
    * }
@@ -680,7 +680,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async locationFree() {
+   * async handleFreeLocation() {
    *   const loc = this.msgLocation
    *   console.log(loc?.latitude, loc?.longitude)
    * }
@@ -698,7 +698,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async contactFree() {
+   * async handleFreeContact() {
    *   const contact = this.msgContact
    *   console.log(contact?.phone_number)
    * }
@@ -716,7 +716,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async free() {
+   * async handleFree() {
    *   const webAppData = this.msgWebAppData
    *   console.log(webAppData?.data)
    * }
@@ -734,7 +734,7 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async free() {
+   * async handleFree() {
    *   const gift = this.msgGift
    *   console.log(gift)
    * }
@@ -801,29 +801,6 @@ export class Ctx {
    */
   get callbackDataArg() {
     return this.callbackDataArgs?.[0] as string
-  }
-
-  /**
-   * Temporary gets and setter the current session data.
-   * @remarks IMPORTANT: this is same as `this.temp.session` if you need set session use session*() or setSession() not from this !
-   *
-   * @example
-   * ```typescript
-   * async handleFreeText() {
-   *   // both is same
-   *   console.log(this.temp.session) // {method: "1-start", params: {random: "1234nhsu37"}}
-   *   console.log(this.temp.session) // {method: "1-start", params: {random: "1234nhsu37"}}
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get session() {
-    return this.temp.session
-  }
-  set session(v: ITTemp[`session`]) {
-    this.temp.session = v
   }
 
   /**
@@ -1743,7 +1720,7 @@ export class Ctx {
    * @example
    * ```typescript
    * async handleCallbackData() {
-   *   await this.setSession("textFree", {step: "awaiting_name"})
+   *   await this.setSession("random_172172783jd83", {step: "awaiting_name"})
    *   await this.reply()
    * }
    * ```
@@ -1773,12 +1750,10 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async textFree() {
    *   const session = await this.getSession()
    *   if (session?.params?.step === "awaiting_name") {
    *     // Handle name input
    *   }
-   * }
    * ```
    *
    * @public
@@ -2381,7 +2356,7 @@ export class Ctx {
    * async handleCaptionArgsPhoto() {
    *   this.msgPhoto // {...}
    *   this.msgCaption // "start"
-   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs["123", "aaa"]
    * }
    * ```
@@ -2411,7 +2386,7 @@ export class Ctx {
   async handleCommandCaptionPhoto?(): Promise<any>
 
   /**
-   * Route function for photoCaptionCommandPayload with slash command and arg match intent `this.data.name`
+   * Route function for `handleCommandCaptionArgsPhoto` with slash command and arg match intent `this.data.name`
    *
    * @remarks Triggered by photo with caption command and args.
    *
@@ -2420,7 +2395,7 @@ export class Ctx {
    * async handleCommandCaptionArgsPhoto() {
    *   this.msgPhoto // {...}
    *   this.msgCaption // "/start 123 aaa"
-   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
@@ -2466,7 +2441,7 @@ export class Ctx {
   async handleCaptionVideo?(): Promise<any>
 
   /**
-   * Route function for videoCaption with arg match intent `this.data.name`
+   * Route function for `handleCaptionArgsVideo` with arg match intent `this.data.name`
    *
    * @remarks Triggered by video with caption and with arg.
    *
@@ -2475,7 +2450,7 @@ export class Ctx {
    * async handleCaptionArgsVideo() {
    *   this.msgVideo // {...}
    *   this.msgCaption // "start"
-   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
@@ -2505,7 +2480,7 @@ export class Ctx {
   async handleCommandCaptionVideo?(): Promise<any>
 
   /**
-   * Route function for videoCaptionCommandPayload with slash command and arg match intent `this.data.name`
+   * Route function for `handleCommandCaptionArgsVideo` with slash command and arg match intent `this.data.name`
    *
    * @remarks Triggered by video with caption command and args.
    *
@@ -2514,7 +2489,7 @@ export class Ctx {
    * async handleCommandCaptionArgsVideo() {
    *   this.msgVideo // {...}
    *   this.msgCaption // "/start 123 aaa"
-   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
@@ -2560,7 +2535,7 @@ export class Ctx {
   async handleCaptionAudio?(): Promise<any>
 
   /**
-   * Route function for audioCaption with arg match intent `this.data.name`
+   * Route function for `handleCaptionArgsAudio` with arg match intent `this.data.name`
    *
    * @remarks Triggered by audio with caption and with arg.
    *
@@ -2569,7 +2544,7 @@ export class Ctx {
    * async handleCaptionArgsAudio() {
    *   this.msgAudio // {...}
    *   this.msgCaption // "start"
-   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
@@ -2580,7 +2555,7 @@ export class Ctx {
   async handleCaptionArgsAudio?(): Promise<any>
 
   /**
-   * Route function for audioCaption with slash command match intent `this.data.name`
+   * Route function for `handleCommandCaptionAudio` with slash command match intent `this.data.name`
    *
    * @remarks Triggered by audio with caption command.
    *
@@ -2594,12 +2569,11 @@ export class Ctx {
    *
    * @virtual
    * @public
-   *
    */
   async handleCommandCaptionAudio?(): Promise<any>
 
   /**
-   * Route function for audioCaptionCommandPayload with slash command and arg match intent `this.data.name`
+   * Route function for `handleCommandCaptionArgsAudio` with slash command and arg match intent `this.data.name`
    *
    * @remarks Triggered by audio with caption command and args.
    *
@@ -2608,13 +2582,14 @@ export class Ctx {
    * async handleCommandCaptionArgsAudio() {
    *   this.msgAudio // {...}
    *   this.msgCaption // "/start 123 aaa"
-   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
    *
    * @virtual
-   * @public */
+   * @public
+   */
   async handleCommandCaptionArgsAudio?(): Promise<any>
 
   /**
@@ -2636,7 +2611,7 @@ export class Ctx {
 
   // document
   /**
-   * Route function for documentCaption match intent `this.data.name`
+   * Route function for `handleCaptionDocument` match intent `this.data.name`
    *
    * @remarks Triggered by document with caption.
    *
@@ -2654,7 +2629,7 @@ export class Ctx {
   async handleCaptionDocument?(): Promise<any>
 
   /**
-   * Route function for documentCaption with arg match intent `this.data.name`
+   * Route function for `handleCaptionArgsDocument` with arg match intent `this.data.name`
    *
    * @remarks Triggered by document with caption and with arg.
    *
@@ -2663,7 +2638,7 @@ export class Ctx {
    * async handleCaptionArgsDocument() {
    *   this.msgDocument // {...}
    *   this.msgCaption // "start"
-   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
@@ -2674,7 +2649,7 @@ export class Ctx {
   async handleCaptionArgsDocument?(): Promise<any>
 
   /**
-   * Route function for documentCaption with slash command match intent `this.data.name`
+   * Route function for `handleCommandCaptionDocument` with slash command match intent `this.data.name`
    *
    * @remarks Triggered by document with caption command.
    *
@@ -2693,7 +2668,7 @@ export class Ctx {
   async handleCommandCaptionDocument?(): Promise<any>
 
   /**
-   * Route function for documentCaptionCommandPayload with slash command and arg match intent `this.data.name`
+   * Route function for `handleCommandCaptionArgsDocument` with slash command and arg match intent `this.data.name`
    *
    * @remarks Triggered by document with caption command and args.
    *
@@ -2702,7 +2677,7 @@ export class Ctx {
    * async handleCommandCaptionArgsDocument() {
    *   this.msgDocument // {...}
    *   this.msgCaption // "/start 123 aaa"
-   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
@@ -2748,7 +2723,7 @@ export class Ctx {
   async handleCaptionAnimation?(): Promise<any>
 
   /**
-   * Route function for animationCaption with arg match intent `this.data.name`
+   * Route function for `handleCaptionArgsAnimation` with arg match intent `this.data.name`
    *
    * @remarks Triggered by animation with caption and with arg.
    *
@@ -2757,7 +2732,7 @@ export class Ctx {
    * async handleCaptionArgsAnimation() {
    *   this.msgAnimation // {...}
    *   this.msgCaption // "start"
-   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
@@ -2787,7 +2762,7 @@ export class Ctx {
   async handleCommandCaptionAnimation?(): Promise<any>
 
   /**
-   * Route function for animationCaptionCommandPayload with slash command and arg match intent `this.data.name`
+   * Route function for `handleCommandCaptionArgsAnimation` with slash command and arg match intent `this.data.name`
    *
    * @remarks Triggered by animation with caption command and args.
    *
@@ -2796,7 +2771,7 @@ export class Ctx {
    * async handleCommandCaptionArgsAnimation() {
    *   this.msgAnimation // {...}
    *   this.msgCaption // "/start 123 aaa"
-   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
@@ -2842,7 +2817,7 @@ export class Ctx {
   async handleCaptionVoice?(): Promise<any>
 
   /**
-   * Route function for voiceCaption with arg match intent `this.data.name`
+   * Route function for `handleCaptionArgsVoice` with arg match intent `this.data.name`
    *
    * @remarks Triggered by voice with caption and with arg.
    *
@@ -2851,7 +2826,7 @@ export class Ctx {
    * async handleCaptionArgsVoice() {
    *   this.msgVoice // {...}
    *   this.msgCaption // "start"
-   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
@@ -2881,7 +2856,7 @@ export class Ctx {
   async handleCommandCaptionVoice?(): Promise<any>
 
   /**
-   * Route function for voiceCaptionCommandPayload with slash command and arg match intent `this.data.name`
+   * Route function for `handleCommandCaptionArgsVoice` with slash command and arg match intent `this.data.name`
    *
    * @remarks Triggered by voice with caption command and args.
    *
@@ -2890,7 +2865,7 @@ export class Ctx {
    * async handleCommandCaptionArgsVoice() {
    *   this.msgVoice // {...}
    *   this.msgCaption // "/start 123 aaa"
-   *   this.msgCaptionPayload // "123"
+   *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
    * }
    * ```
@@ -3017,8 +2992,8 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async textFree() {
-   *   if (this.isSessionTextFree()) {
+   * async handleFreeText() {
+   *   if (this.isSessionFreeText()) {
    *     // Handle the expected session flow
    *   }
    * }
@@ -3211,8 +3186,8 @@ export class Ctx {
    * @example
    * ```typescript
    * async handleCallbackData() {
-   *   // Set session to expect textFree input
-   *   await this.sessionTextFree({data: "12345"})
+   *   // Set session input for `handleFreeText`
+   *   await this.sessionFreeText({data: "12345"})
    *   await this.reply()
    * }
    * ```

@@ -9,7 +9,7 @@ new BotCore({
   token: env.TELEGRAM_BOT_TOKEN,
   log: true,
   optionsPage: {
-    // Keep callback payloads short for menus.
+    // Keep callback data intent short for menus.
     shortCallbackData: true
   }
 })
