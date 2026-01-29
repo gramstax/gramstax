@@ -4,7 +4,7 @@
 
 ## TemplateEngine.\_processSpaceBlocks() method
 
-Removes lines containing self-closing `<space />` tags.
+Block: space Removes lines containing self-closing `<space />` tags.
 
 **Signature:**
 

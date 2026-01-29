@@ -16,7 +16,7 @@ get msgVideoNote(): grammy_types.VideoNote | undefined;
 
 
 ```typescript
-async videoNoteFree() {
+async handleFreeVideoNote() {
   const videoNote = this.msgVideoNote
   console.log(videoNote?.length)
 }

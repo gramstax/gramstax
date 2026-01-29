@@ -17,8 +17,8 @@ get msgCaptionArg(): string;
 
 ```typescript
 // Caption: "start 123 456"
-async photoCaptionPayload() {
-  console.log(this.msgCaptionPayload) // "123"
+async handleCaptionArgsPhoto() {
+  console.log(this.msgCaptionArg) // "123"
 }
 ```
 

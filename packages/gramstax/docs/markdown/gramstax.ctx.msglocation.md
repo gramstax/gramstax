@@ -16,7 +16,7 @@ get msgLocation(): grammy_types.Location | undefined;
 
 
 ```typescript
-async locationFree() {
+async handleFreeLocation() {
   const loc = this.msgLocation
   console.log(loc?.latitude, loc?.longitude)
 }

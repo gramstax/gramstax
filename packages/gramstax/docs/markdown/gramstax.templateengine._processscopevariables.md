@@ -4,7 +4,7 @@
 
 ## TemplateEngine.\_processScopeVariables() method
 
-Converts `{{variable}}` placeholders to JavaScript template literal expressions.
+Scope: `{{}}` Converts `{{variable}}` placeholders to JavaScript template literal expressions.
 
 **Signature:**
 

@@ -4,7 +4,7 @@
 
 ## Ctx.handleCaptionDocument() method
 
-Route function for documentCaption match intent `this.data.name`
+Route function for `handleCaptionDocument` match intent `this.data.name`
 
 **Signature:**
 

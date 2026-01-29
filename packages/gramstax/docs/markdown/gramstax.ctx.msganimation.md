@@ -16,7 +16,7 @@ get msgAnimation(): grammy_types.Animation | undefined;
 
 
 ```typescript
-async animationFree() {
+async handleFreeAnimation() {
   const anim = this.msgAnimation
   console.log(anim?.file_id)
 }

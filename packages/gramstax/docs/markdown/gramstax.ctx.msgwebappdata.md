@@ -16,7 +16,7 @@ get msgWebAppData(): grammy_types.WebAppData | undefined;
 
 
 ```typescript
-async free() {
+async handleFree() {
   const webAppData = this.msgWebAppData
   console.log(webAppData?.data)
 }

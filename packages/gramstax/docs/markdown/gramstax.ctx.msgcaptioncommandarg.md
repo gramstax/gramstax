@@ -17,8 +17,8 @@ get msgCaptionCommandArg(): string;
 
 ```typescript
 // Caption: "/photo 123"
-async photoCaptionCommandPayload() {
-  console.log(this.msgCaptionCommandPayload) // "123"
+async handleCommandCaptionArgsPhoto() {
+  console.log(this.msgCaptionCommandArg) // "123"
 }
 ```
 

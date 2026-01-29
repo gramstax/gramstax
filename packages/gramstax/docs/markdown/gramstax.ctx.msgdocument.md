@@ -16,7 +16,7 @@ get msgDocument(): grammy_types.Document | undefined;
 
 
 ```typescript
-async documentFree() {
+async handleFreeDocument() {
   const doc = this.msgDocument
   console.log(doc?.file_name)
 }

@@ -4,7 +4,7 @@
 
 ## TemplateEngine.\_processSwitchBlocks() method
 
-Transforms `<switch>` blocks into JavaScript switch statement expressions.
+Block: switch Transforms `<switch>` blocks into JavaScript switch statement expressions.
 
 **Signature:**
 

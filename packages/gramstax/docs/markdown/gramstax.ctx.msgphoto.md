@@ -16,7 +16,7 @@ get msgPhoto(): grammy_types.PhotoSize[] | undefined;
 
 
 ```typescript
-async photoFree() {
+async handleFreePhoto() {
   const photos = this.msgPhoto
   const largest = photos?.[photos.length - 1]
 }

@@ -25,11 +25,9 @@ Fetches the session from external cache and updates the local session property.
 
 
 ```typescript
-async textFree() {
   const session = await this.getSession()
   if (session?.params?.step === "awaiting_name") {
     // Handle name input
   }
-}
 ```
 

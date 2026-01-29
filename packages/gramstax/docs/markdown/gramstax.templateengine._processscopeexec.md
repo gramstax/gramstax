@@ -4,7 +4,7 @@
 
 ## TemplateEngine.\_processScopeExec() method
 
-Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.
+Scope: `{~~}` Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.
 
 **Signature:**
 

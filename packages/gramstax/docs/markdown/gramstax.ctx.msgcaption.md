@@ -16,7 +16,7 @@ get msgCaption(): string;
 
 
 ```typescript
-async photoFree() {
+async handleFreePhoto() {
   console.log(this.msgCaption) // "<Photo caption>"
 }
 ```

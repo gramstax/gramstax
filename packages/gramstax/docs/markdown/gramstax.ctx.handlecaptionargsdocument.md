@@ -4,7 +4,7 @@
 
 ## Ctx.handleCaptionArgsDocument() method
 
-Route function for documentCaption with arg match intent `this.data.name`
+Route function for `handleCaptionArgsDocument` with arg match intent `this.data.name`
 
 **Signature:**
 
@@ -28,7 +28,7 @@ this.data.name = "start 123 aaa" &amp;&amp; this.msgDocument
 async handleCaptionArgsDocument() {
   this.msgDocument // {...}
   this.msgCaption // "start"
-  this.msgCaptionPayload // "123"
+  this.msgCaptionArg // "123"
   this.msgCaptionArgs // ["123", "aaa"]
 }
 ```

@@ -16,7 +16,7 @@ get msgAudio(): grammy_types.Audio | undefined;
 
 
 ```typescript
-async audioFree() {
+async handleFreeAudio() {
   const audio = this.msgAudio
   console.log(audio?.file_id)
 }

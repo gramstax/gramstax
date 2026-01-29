@@ -751,27 +751,6 @@ Web app data attached to the message.
 </td></tr>
 <tr><td>
 
-[session](./gramstax.ctx.session.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-[ITTemp](./gramstax.ittemp.md)<!-- -->\[\`session\`\]
-
-
-</td><td>
-
-Temporary gets and setter the current session data.
-
-
-</td></tr>
-<tr><td>
-
 [temp](./gramstax.ctx.temp.md)
 
 
@@ -1481,7 +1460,7 @@ _(Optional)_ Route function for animationCaption match intent `this.data.name`
 
 </td><td>
 
-_(Optional)_ Route function for animationCaption with arg match intent `this.data.name`
+_(Optional)_ Route function for `handleCaptionArgsAnimation` with arg match intent `this.data.name`
 
 
 </td></tr>
@@ -1495,7 +1474,7 @@ _(Optional)_ Route function for animationCaption with arg match intent `this.dat
 
 </td><td>
 
-_(Optional)_ Route function for audioCaption with arg match intent `this.data.name`
+_(Optional)_ Route function for `handleCaptionArgsAudio` with arg match intent `this.data.name`
 
 
 </td></tr>
@@ -1509,7 +1488,7 @@ _(Optional)_ Route function for audioCaption with arg match intent `this.data.na
 
 </td><td>
 
-_(Optional)_ Route function for documentCaption with arg match intent `this.data.name`
+_(Optional)_ Route function for `handleCaptionArgsDocument` with arg match intent `this.data.name`
 
 
 </td></tr>
@@ -1537,7 +1516,7 @@ _(Optional)_ Route function for photoCaption with arg match intent `this.data.na
 
 </td><td>
 
-_(Optional)_ Route function for videoCaption with arg match intent `this.data.name`
+_(Optional)_ Route function for `handleCaptionArgsVideo` with arg match intent `this.data.name`
 
 
 </td></tr>
@@ -1551,7 +1530,7 @@ _(Optional)_ Route function for videoCaption with arg match intent `this.data.na
 
 </td><td>
 
-_(Optional)_ Route function for voiceCaption with arg match intent `this.data.name`
+_(Optional)_ Route function for `handleCaptionArgsVoice` with arg match intent `this.data.name`
 
 
 </td></tr>
@@ -1579,7 +1558,7 @@ _(Optional)_ Route function for audioCaption match intent `this.data.name`
 
 </td><td>
 
-_(Optional)_ Route function for documentCaption match intent `this.data.name`
+_(Optional)_ Route function for `handleCaptionDocument` match intent `this.data.name`
 
 
 </td></tr>
@@ -1663,7 +1642,7 @@ _(Optional)_ Route function for animationCaption with slash command match intent
 
 </td><td>
 
-_(Optional)_ Route function for animationCaptionCommandPayload with slash command and arg match intent `this.data.name`
+_(Optional)_ Route function for `handleCommandCaptionArgsAnimation` with slash command and arg match intent `this.data.name`
 
 
 </td></tr>
@@ -1677,7 +1656,7 @@ _(Optional)_ Route function for animationCaptionCommandPayload with slash comman
 
 </td><td>
 
-_(Optional)_ Route function for audioCaptionCommandPayload with slash command and arg match intent `this.data.name`
+_(Optional)_ Route function for `handleCommandCaptionArgsAudio` with slash command and arg match intent `this.data.name`
 
 
 </td></tr>
@@ -1691,7 +1670,7 @@ _(Optional)_ Route function for audioCaptionCommandPayload with slash command an
 
 </td><td>
 
-_(Optional)_ Route function for documentCaptionCommandPayload with slash command and arg match intent `this.data.name`
+_(Optional)_ Route function for `handleCommandCaptionArgsDocument` with slash command and arg match intent `this.data.name`
 
 
 </td></tr>
@@ -1705,7 +1684,7 @@ _(Optional)_ Route function for documentCaptionCommandPayload with slash command
 
 </td><td>
 
-_(Optional)_ Route function for photoCaptionCommandPayload with slash command and arg match intent `this.data.name`
+_(Optional)_ Route function for `handleCommandCaptionArgsPhoto` with slash command and arg match intent `this.data.name`
 
 
 </td></tr>
@@ -1719,7 +1698,7 @@ _(Optional)_ Route function for photoCaptionCommandPayload with slash command an
 
 </td><td>
 
-_(Optional)_ Route function for videoCaptionCommandPayload with slash command and arg match intent `this.data.name`
+_(Optional)_ Route function for `handleCommandCaptionArgsVideo` with slash command and arg match intent `this.data.name`
 
 
 </td></tr>
@@ -1733,7 +1712,7 @@ _(Optional)_ Route function for videoCaptionCommandPayload with slash command an
 
 </td><td>
 
-_(Optional)_ Route function for voiceCaptionCommandPayload with slash command and arg match intent `this.data.name`
+_(Optional)_ Route function for `handleCommandCaptionArgsVoice` with slash command and arg match intent `this.data.name`
 
 
 </td></tr>
@@ -1747,7 +1726,7 @@ _(Optional)_ Route function for voiceCaptionCommandPayload with slash command an
 
 </td><td>
 
-_(Optional)_ Route function for audioCaption with slash command match intent `this.data.name`
+_(Optional)_ Route function for `handleCommandCaptionAudio` with slash command match intent `this.data.name`
 
 
 </td></tr>
@@ -1761,7 +1740,7 @@ _(Optional)_ Route function for audioCaption with slash command match intent `th
 
 </td><td>
 
-_(Optional)_ Route function for documentCaption with slash command match intent `this.data.name`
+_(Optional)_ Route function for `handleCommandCaptionDocument` with slash command match intent `this.data.name`
 
 
 </td></tr>

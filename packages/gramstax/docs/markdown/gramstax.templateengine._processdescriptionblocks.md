@@ -4,7 +4,7 @@
 
 ## TemplateEngine.\_processDescriptionBlocks() method
 
-Extracts and parses `<description>` blocks from a template string.
+Block: description Extracts and parses `<description>` blocks from a template string.
 
 **Signature:**
 

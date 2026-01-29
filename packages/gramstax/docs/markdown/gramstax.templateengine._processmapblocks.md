@@ -4,7 +4,7 @@
 
 ## TemplateEngine.\_processMapBlocks() method
 
-Transforms `<map>` blocks into JavaScript array map expressions.
+Block: map Transforms `<map>` blocks into JavaScript array map expressions.
 
 **Signature:**
 

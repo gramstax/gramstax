@@ -144,7 +144,7 @@ methods:
     uid: gramstax!TemplateEngine._processBaseBlocks:member(1)
     package: gramstax!
     fullName: _processBaseBlocks(template)
-    summary: Extracts and parses `<base>` blocks from a template string.
+    summary: 'Block: base Extracts and parses `<base>` blocks from a template string.'
     remarks: >-
       This internal method identifies all `<base>` blocks in the template and extracts their content, organizing them by
       their `id` attribute. Blocks without an `id` are stored under the key `"default"`<!-- -->. Leading whitespace and
@@ -195,7 +195,7 @@ methods:
     uid: gramstax!TemplateEngine._processDescriptionBlocks:member(1)
     package: gramstax!
     fullName: _processDescriptionBlocks(template)
-    summary: Extracts and parses `<description>` blocks from a template string.
+    summary: 'Block: description Extracts and parses `<description>` blocks from a template string.'
     remarks: >-
       This internal method identifies all `<description>` blocks and extracts their content organized by language and
       scope. Blocks without a `lang` attribute are stored under `"default"` language, and blocks without a `scope`
@@ -243,7 +243,7 @@ methods:
     uid: gramstax!TemplateEngine._processDivBlocks:member(1)
     package: gramstax!
     fullName: _processDivBlocks(template)
-    summary: Normalizes content within `<div>` blocks by removing indentation.
+    summary: 'Block: div Normalizes content within `<div>` blocks by removing indentation.'
     remarks: >-
       This internal method processes `<div>` blocks and cleans their inner content by removing leading tabs/spaces per
       line and trimming surrounding newlines. The `<div>` tags themselves are removed from the output.
@@ -331,7 +331,7 @@ methods:
     uid: gramstax!TemplateEngine._processKeyboardBlocks:member(1)
     package: gramstax!
     fullName: _processKeyboardBlocks(template)
-    summary: Extracts and parses `<keyboard>` blocks from a template string.
+    summary: 'Block: keyboard Extracts and parses `<keyboard>` blocks from a template string.'
     remarks: >-
       This internal method identifies all `<keyboard>` blocks and extracts their content organized by language and type
       (inline or bottom). Blocks without a `lang` attribute are stored under `"default"`<!-- -->. The `type` attribute
@@ -381,7 +381,7 @@ methods:
     uid: gramstax!TemplateEngine._processMapBlocks:member(1)
     package: gramstax!
     fullName: _processMapBlocks(template)
-    summary: Transforms `<map>` blocks into JavaScript array map expressions.
+    summary: 'Block: map Transforms `<map>` blocks into JavaScript array map expressions.'
     remarks: >-
       This internal method converts `<map>` blocks into array mapping operations. The `src` attribute specifies which
       data key contains the array. Inside the block, `{{e}}` refers to the current element, `{{e.prop}}` to element
@@ -412,7 +412,7 @@ methods:
     uid: gramstax!TemplateEngine._processMediaBlocks:member(1)
     package: gramstax!
     fullName: _processMediaBlocks(template)
-    summary: Extracts and parses `<media>` blocks from a template string.
+    summary: 'Block: media Extracts and parses `<media>` blocks from a template string.'
     remarks: >-
       This internal method identifies all `<media>` blocks and extracts their attributes and content. It supports
       various media types including photo, video, audio, document, animation, voice, video\_note, sticker, location, and
@@ -468,7 +468,7 @@ methods:
     uid: gramstax!TemplateEngine._processMessageBlocks:member(1)
     package: gramstax!
     fullName: _processMessageBlocks(template)
-    summary: Extracts and parses `<message>` blocks from a template string.
+    summary: 'Block: message Extracts and parses `<message>` blocks from a template string.'
     remarks: >-
       This internal method identifies all `<message>` blocks and extracts their content organized by language. Blocks
       without a `lang` attribute are stored under `"default"`<!-- -->. Leading whitespace and surrounding newlines are
@@ -507,7 +507,7 @@ methods:
     uid: gramstax!TemplateEngine._processScopeExec:member(1)
     package: gramstax!
     fullName: _processScopeExec(template)
-    summary: Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.
+    summary: 'Scope: `{~~}` Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.'
     remarks: >-
       This internal method converts inline execution syntax into self-invoking JavaScript expressions. It first attempts
       direct execution, then falls back to `with(data)` scope. Returns an empty string on any error.
@@ -538,7 +538,7 @@ methods:
     uid: gramstax!TemplateEngine._processScopeVariables:member(1)
     package: gramstax!
     fullName: _processScopeVariables(template)
-    summary: Converts `{{variable}}` placeholders to JavaScript template literal expressions.
+    summary: 'Scope: `{{}}` Converts `{{variable}}` placeholders to JavaScript template literal expressions.'
     remarks: >-
       This internal method transforms Mustache-like variable syntax into JavaScript template literal interpolation.
       Variables are accessed from the `data` object, with nullish coalescing to empty string when undefined.
@@ -563,7 +563,7 @@ methods:
     uid: gramstax!TemplateEngine._processScriptBlocks:member(1)
     package: gramstax!
     fullName: _processScriptBlocks(template)
-    summary: Transforms `<script>` blocks into executable JavaScript expressions.
+    summary: 'Block: script Transforms `<script>` blocks into executable JavaScript expressions.'
     remarks: >-
       This internal method converts `<script>` blocks into self-invoking functions that execute with access to the
       `data` object via `with(data)`<!-- -->. If the script throws an error or `data` is undefined, an empty string is
@@ -598,7 +598,7 @@ methods:
     uid: gramstax!TemplateEngine._processSpaceBlocks:member(1)
     package: gramstax!
     fullName: _processSpaceBlocks(template)
-    summary: Removes lines containing self-closing `<space />` tags.
+    summary: 'Block: space Removes lines containing self-closing `<space />` tags.'
     remarks: >-
       This internal method identifies lines that contain only a `<space />` tag (with optional surrounding whitespace)
       and removes the entire line. This is useful for controlling whitespace in templates.
@@ -627,7 +627,7 @@ methods:
     uid: gramstax!TemplateEngine._processSwitchBlocks:member(1)
     package: gramstax!
     fullName: _processSwitchBlocks(template)
-    summary: Transforms `<switch>` blocks into JavaScript switch statement expressions.
+    summary: 'Block: switch Transforms `<switch>` blocks into JavaScript switch statement expressions.'
     remarks: >-
       This internal method converts `<switch>` blocks with `<case>` and `<default>` sub-blocks into self-invoking
       JavaScript switch expressions. The `value` attribute specifies which data key to switch on. Case values can be

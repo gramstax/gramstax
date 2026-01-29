@@ -17,8 +17,8 @@ get msgTextCommandArg(): string;
 
 ```typescript
 // Message: "/start 123"
-async textCommandPayload() {
-  console.log(this.msgTextCommandPayload) // "123"
+async handleCommandArgsText() {
+  console.log(this.msgTextCommandArg) // "123"
 }
 ```
 

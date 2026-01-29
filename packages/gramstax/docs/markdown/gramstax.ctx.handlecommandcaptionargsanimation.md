@@ -4,7 +4,7 @@
 
 ## Ctx.handleCommandCaptionArgsAnimation() method
 
-Route function for animationCaptionCommandPayload with slash command and arg match intent `this.data.name`
+Route function for `handleCommandCaptionArgsAnimation` with slash command and arg match intent `this.data.name`
 
 **Signature:**
 
@@ -28,7 +28,7 @@ this.data.name = "/start 123 aaa"
 async handleCommandCaptionArgsAnimation() {
   this.msgAnimation // {...}
   this.msgCaption // "/start 123 aaa"
-  this.msgCaptionPayload // "123"
+  this.msgCaptionArg // "123"
   this.msgCaptionArgs // ["123", "aaa"]
 }
 ```

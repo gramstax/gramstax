@@ -4,7 +4,7 @@
 
 ## Ctx.handleCommandCaptionAudio() method
 
-Route function for audioCaption with slash command match intent `this.data.name`
+Route function for `handleCommandCaptionAudio` with slash command match intent `this.data.name`
 
 **Signature:**
 

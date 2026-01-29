@@ -116,7 +116,7 @@ Extracts specific blocks from template content with optional filtering.
 
 </td><td>
 
-Extracts and parses `<base>` blocks from a template string.
+Block: base Extracts and parses `<base>` blocks from a template string.
 
 
 </td></tr>
@@ -132,7 +132,7 @@ Extracts and parses `<base>` blocks from a template string.
 
 </td><td>
 
-Extracts and parses `<description>` blocks from a template string.
+Block: description Extracts and parses `<description>` blocks from a template string.
 
 
 </td></tr>
@@ -148,7 +148,7 @@ Extracts and parses `<description>` blocks from a template string.
 
 </td><td>
 
-Normalizes content within `<div>` blocks by removing indentation.
+Block: div Normalizes content within `<div>` blocks by removing indentation.
 
 
 </td></tr>
@@ -180,7 +180,7 @@ Parses `<import>` directives from a template and extracts import metadata.
 
 </td><td>
 
-Extracts and parses `<keyboard>` blocks from a template string.
+Block: keyboard Extracts and parses `<keyboard>` blocks from a template string.
 
 
 </td></tr>
@@ -196,7 +196,7 @@ Extracts and parses `<keyboard>` blocks from a template string.
 
 </td><td>
 
-Transforms `<map>` blocks into JavaScript array map expressions.
+Block: map Transforms `<map>` blocks into JavaScript array map expressions.
 
 
 </td></tr>
@@ -212,7 +212,7 @@ Transforms `<map>` blocks into JavaScript array map expressions.
 
 </td><td>
 
-Extracts and parses `<media>` blocks from a template string.
+Block: media Extracts and parses `<media>` blocks from a template string.
 
 
 </td></tr>
@@ -228,7 +228,7 @@ Extracts and parses `<media>` blocks from a template string.
 
 </td><td>
 
-Extracts and parses `<message>` blocks from a template string.
+Block: message Extracts and parses `<message>` blocks from a template string.
 
 
 </td></tr>
@@ -244,7 +244,7 @@ Extracts and parses `<message>` blocks from a template string.
 
 </td><td>
 
-Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.
+Scope: `{~~}` Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.
 
 
 </td></tr>
@@ -260,7 +260,7 @@ Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.
 
 </td><td>
 
-Converts `{{variable}}` placeholders to JavaScript template literal expressions.
+Scope: `{{}}` Converts `{{variable}}` placeholders to JavaScript template literal expressions.
 
 
 </td></tr>
@@ -276,7 +276,7 @@ Converts `{{variable}}` placeholders to JavaScript template literal expressions.
 
 </td><td>
 
-Transforms `<script>` blocks into executable JavaScript expressions.
+Block: script Transforms `<script>` blocks into executable JavaScript expressions.
 
 
 </td></tr>
@@ -292,7 +292,7 @@ Transforms `<script>` blocks into executable JavaScript expressions.
 
 </td><td>
 
-Removes lines containing self-closing `<space />` tags.
+Block: space Removes lines containing self-closing `<space />` tags.
 
 
 </td></tr>
@@ -308,7 +308,7 @@ Removes lines containing self-closing `<space />` tags.
 
 </td><td>
 
-Transforms `<switch>` blocks into JavaScript switch statement expressions.
+Block: switch Transforms `<switch>` blocks into JavaScript switch statement expressions.
 
 
 </td></tr>

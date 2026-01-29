@@ -4,7 +4,7 @@
 
 ## TemplateEngine.\_processBaseBlocks() method
 
-Extracts and parses `<base>` blocks from a template string.
+Block: base Extracts and parses `<base>` blocks from a template string.
 
 **Signature:**
 

@@ -103,7 +103,7 @@ export class TemplateEngine {
   }
 
   /**
-   * Scope: {{}}
+   * Scope: `{{}}`
    * Converts `{{variable}}` placeholders to JavaScript template literal expressions.
    *
    * @remarks
@@ -127,7 +127,7 @@ export class TemplateEngine {
   }
 
   /**
-   * Scope: {~~}
+   * Scope: `{~~}`
    * Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.
    *
    * @remarks

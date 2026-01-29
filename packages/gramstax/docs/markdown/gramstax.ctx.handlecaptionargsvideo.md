@@ -4,7 +4,7 @@
 
 ## Ctx.handleCaptionArgsVideo() method
 
-Route function for videoCaption with arg match intent `this.data.name`
+Route function for `handleCaptionArgsVideo` with arg match intent `this.data.name`
 
 **Signature:**
 
@@ -28,7 +28,7 @@ this.data.name = "start 123 aaa" &amp;&amp; this.msgVideo
 async handleCaptionArgsVideo() {
   this.msgVideo // {...}
   this.msgCaption // "start"
-  this.msgCaptionPayload // "123"
+  this.msgCaptionArg // "123"
   this.msgCaptionArgs // ["123", "aaa"]
 }
 ```

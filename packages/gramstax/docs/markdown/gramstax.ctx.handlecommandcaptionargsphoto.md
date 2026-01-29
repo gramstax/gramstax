@@ -4,7 +4,7 @@
 
 ## Ctx.handleCommandCaptionArgsPhoto() method
 
-Route function for photoCaptionCommandPayload with slash command and arg match intent `this.data.name`
+Route function for `handleCommandCaptionArgsPhoto` with slash command and arg match intent `this.data.name`
 
 **Signature:**
 
@@ -28,7 +28,7 @@ this.data.name = "/start 123 aaa" &amp;&amp; this.msgPhoto
 async handleCommandCaptionArgsPhoto() {
   this.msgPhoto // {...}
   this.msgCaption // "/start 123 aaa"
-  this.msgCaptionPayload // "123"
+  this.msgCaptionArg // "123"
   this.msgCaptionArgs // ["123", "aaa"]
 }
 ```

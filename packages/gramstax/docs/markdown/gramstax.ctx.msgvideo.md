@@ -16,7 +16,7 @@ get msgVideo(): grammy_types.Video | undefined;
 
 
 ```typescript
-async videoFree() {
+async handleFreeVideo() {
   const video = this.msgVideo
   console.log(video?.file_id)
 }

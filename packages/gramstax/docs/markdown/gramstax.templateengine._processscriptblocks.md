@@ -4,7 +4,7 @@
 
 ## TemplateEngine.\_processScriptBlocks() method
 
-Transforms `<script>` blocks into executable JavaScript expressions.
+Block: script Transforms `<script>` blocks into executable JavaScript expressions.
 
 **Signature:**
 

@@ -4,7 +4,7 @@
 
 ## Ctx.handleCommandCaptionArgsAudio() method
 
-Route function for audioCaptionCommandPayload with slash command and arg match intent `this.data.name`
+Route function for `handleCommandCaptionArgsAudio` with slash command and arg match intent `this.data.name`
 
 **Signature:**
 
@@ -28,7 +28,7 @@ this.data.name = "/start 123 aaa" &amp;&amp; this.msgAudio
 async handleCommandCaptionArgsAudio() {
   this.msgAudio // {...}
   this.msgCaption // "/start 123 aaa"
-  this.msgCaptionPayload // "123"
+  this.msgCaptionArg // "123"
   this.msgCaptionArgs // ["123", "aaa"]
 }
 ```

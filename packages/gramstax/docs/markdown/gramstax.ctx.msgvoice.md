@@ -16,7 +16,7 @@ get msgVoice(): grammy_types.Voice | undefined;
 
 
 ```typescript
-async voiceFree() {
+async handleFreeVoice() {
   const voice = this.msgVoice
   console.log(voice?.duration)
 }

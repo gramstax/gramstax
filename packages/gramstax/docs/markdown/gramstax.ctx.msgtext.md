@@ -16,7 +16,7 @@ get msgText(): string;
 
 
 ```typescript
-async textFree() {
+async handleFreeText() {
   console.log(this.msgText) // "Hello World"
 }
 ```

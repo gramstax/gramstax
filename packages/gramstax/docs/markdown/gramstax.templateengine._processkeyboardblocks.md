@@ -4,7 +4,7 @@
 
 ## TemplateEngine.\_processKeyboardBlocks() method
 
-Extracts and parses `<keyboard>` blocks from a template string.
+Block: keyboard Extracts and parses `<keyboard>` blocks from a template string.
 
 **Signature:**
 

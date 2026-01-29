@@ -16,7 +16,7 @@ get msgGift(): grammy_types.GiftInfo | undefined;
 
 
 ```typescript
-async free() {
+async handleFree() {
   const gift = this.msgGift
   console.log(gift)
 }

@@ -28,7 +28,7 @@ this.data.name = "start 123 aaa" &amp;&amp; this.msgPhoto
 async handleCaptionArgsPhoto() {
   this.msgPhoto // {...}
   this.msgCaption // "start"
-  this.msgCaptionPayload // "123"
+  this.msgCaptionArg // "123"
   this.msgCaptionArgs["123", "aaa"]
 }
 ```

@@ -61,8 +61,8 @@ These methods are shortcuts for [Ctx.setSession()](./gramstax.ctx.setsession.md)
 
 ```typescript
 async handleCallbackData() {
-  // Set session to expect textFree input
-  await this.sessionTextFree({data: "12345"})
+  // Set session input for `handleFreeText`
+  await this.sessionFreeText({data: "12345"})
   await this.reply()
 }
 ```

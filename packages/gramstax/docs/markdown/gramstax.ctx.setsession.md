@@ -95,7 +95,7 @@ Session data is stored in the external cache and persists across requests. Used 
 
 ```typescript
 async handleCallbackData() {
-  await this.setSession("textFree", {step: "awaiting_name"})
+  await this.setSession("random_172172783jd83", {step: "awaiting_name"})
   await this.reply()
 }
 ```

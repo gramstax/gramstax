@@ -16,7 +16,7 @@ get msgSticker(): grammy_types.Sticker | undefined;
 
 
 ```typescript
-async stickerFree() {
+async handleFreeSticker() {
   const sticker = this.msgSticker
   console.log(sticker?.emoji)
 }

@@ -4,7 +4,7 @@
 
 ## TemplateEngine.\_processDivBlocks() method
 
-Normalizes content within `<div>` blocks by removing indentation.
+Block: div Normalizes content within `<div>` blocks by removing indentation.
 
 **Signature:**
 

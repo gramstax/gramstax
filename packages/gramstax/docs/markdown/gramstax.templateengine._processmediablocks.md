@@ -4,7 +4,7 @@
 
 ## TemplateEngine.\_processMediaBlocks() method
 
-Extracts and parses `<media>` blocks from a template string.
+Block: media Extracts and parses `<media>` blocks from a template string.
 
 **Signature:**
 

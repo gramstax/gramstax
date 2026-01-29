@@ -23,8 +23,8 @@ These methods validate whether the current session’s `session.method` matches 
 
 
 ```typescript
-async textFree() {
-  if (this.isSessionTextFree()) {
+async handleFreeText() {
+  if (this.isSessionFreeText()) {
     // Handle the expected session flow
   }
 }

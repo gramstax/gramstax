@@ -16,7 +16,7 @@ get msgContact(): grammy_types.Contact | undefined;
 
 
 ```typescript
-async contactFree() {
+async handleFreeContact() {
   const contact = this.msgContact
   console.log(contact?.phone_number)
 }

@@ -4,7 +4,7 @@
 
 ## Ctx.handleCommandCaptionDocument() method
 
-Route function for documentCaption with slash command match intent `this.data.name`
+Route function for `handleCommandCaptionDocument` with slash command match intent `this.data.name`
 
 **Signature:**
 

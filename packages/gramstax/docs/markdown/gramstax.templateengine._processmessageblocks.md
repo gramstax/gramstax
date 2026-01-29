@@ -4,7 +4,7 @@
 
 ## TemplateEngine.\_processMessageBlocks() method
 
-Extracts and parses `<message>` blocks from a template string.
+Block: message Extracts and parses `<message>` blocks from a template string.
 
 **Signature:**
 

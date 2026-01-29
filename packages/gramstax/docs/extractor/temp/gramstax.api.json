@@ -4752,7 +4752,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#getSession:member(1)",
-              "docComment": "/**\n * Retrieves session data for the current user.\n *\n * @remarks\n *\n * Fetches the session from external cache and updates the local session property.\n *\n * @returns The session data, or null if not found or on error.\n *\n * @example\n * ```typescript\n * async textFree() {\n *   const session = await this.getSession()\n *   if (session?.params?.step === \"awaiting_name\") {\n *     // Handle name input\n *   }\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Retrieves session data for the current user.\n *\n * @remarks\n *\n * Fetches the session from external cache and updates the local session property.\n *\n * @returns The session data, or null if not found or on error.\n *\n * @example\n * ```typescript\n *   const session = await this.getSession()\n *   if (session?.params?.step === \"awaiting_name\") {\n *     // Handle name input\n *   }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4941,7 +4941,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * Route function for animationCaption with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async handleCaptionArgsAnimation() {\n *   this.msgAnimation // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionPayload // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCaptionArgsAnimation` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async handleCaptionArgsAnimation() {\n *   this.msgAnimation // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4977,7 +4977,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * Route function for audioCaption with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msgAudio\n * ```typescript\n * async handleCaptionArgsAudio() {\n *   this.msgAudio // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionPayload // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCaptionArgsAudio` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msgAudio\n * ```typescript\n * async handleCaptionArgsAudio() {\n *   this.msgAudio // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5013,7 +5013,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * Route function for documentCaption with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msgDocument\n * ```typescript\n * async handleCaptionArgsDocument() {\n *   this.msgDocument // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionPayload // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCaptionArgsDocument` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msgDocument\n * ```typescript\n * async handleCaptionArgsDocument() {\n *   this.msgDocument // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5049,7 +5049,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * Route function for photoCaption with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msgPhoto\n * ```typescript\n * async handleCaptionArgsPhoto() {\n *   this.msgPhoto // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionPayload // \"123\"\n *   this.msgCaptionArgs[\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for photoCaption with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msgPhoto\n * ```typescript\n * async handleCaptionArgsPhoto() {\n *   this.msgPhoto // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs[\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5085,7 +5085,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * Route function for videoCaption with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msgVideo\n * ```typescript\n * async handleCaptionArgsVideo() {\n *   this.msgVideo // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionPayload // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCaptionArgsVideo` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\" && this.msgVideo\n * ```typescript\n * async handleCaptionArgsVideo() {\n *   this.msgVideo // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5121,7 +5121,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * Route function for voiceCaption with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async handleCaptionArgsVoice() {\n *   this.msgVoice // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionPayload // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCaptionArgsVoice` with arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption and with arg.\n *\n * @example\n *\n * this.data.name = \"start 123 aaa\"\n * ```typescript\n * async handleCaptionArgsVoice() {\n *   this.msgVoice // {...}\n *   this.msgCaption // \"start\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5193,7 +5193,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCaptionDocument:member(1)",
-              "docComment": "/**\n * Route function for documentCaption match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption.\n *\n * @example\n *\n * this.data.name = \"start\" && this.msgDocument\n * ```typescript\n * async handleCaptionDocument() {\n *   this.msgDocument // {...}\n *   this.msgCaption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCaptionDocument` match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption.\n *\n * @example\n *\n * this.data.name = \"start\" && this.msgDocument\n * ```typescript\n * async handleCaptionDocument() {\n *   this.msgDocument // {...}\n *   this.msgCaption // \"start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5409,7 +5409,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * Route function for animationCaptionCommandPayload with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandCaptionArgsAnimation() {\n *   this.msgAnimation // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionPayload // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionArgsAnimation` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by animation with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandCaptionArgsAnimation() {\n *   this.msgAnimation // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5445,7 +5445,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * Route function for audioCaptionCommandPayload with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" && this.msgAudio\n * ```typescript\n * async handleCommandCaptionArgsAudio() {\n *   this.msgAudio // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionPayload // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionArgsAudio` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" && this.msgAudio\n * ```typescript\n * async handleCommandCaptionArgsAudio() {\n *   this.msgAudio // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5481,7 +5481,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * Route function for documentCaptionCommandPayload with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandCaptionArgsDocument() {\n *   this.msgDocument // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionPayload // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionArgsDocument` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandCaptionArgsDocument() {\n *   this.msgDocument // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5517,7 +5517,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * Route function for photoCaptionCommandPayload with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" && this.msgPhoto\n * ```typescript\n * async handleCommandCaptionArgsPhoto() {\n *   this.msgPhoto // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionPayload // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionArgsPhoto` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by photo with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" && this.msgPhoto\n * ```typescript\n * async handleCommandCaptionArgsPhoto() {\n *   this.msgPhoto // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5553,7 +5553,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * Route function for videoCaptionCommandPayload with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" && this.msgVideo\n * ```typescript\n * async handleCommandCaptionArgsVideo() {\n *   this.msgVideo // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionPayload // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionArgsVideo` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by video with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\" && this.msgVideo\n * ```typescript\n * async handleCommandCaptionArgsVideo() {\n *   this.msgVideo // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5589,7 +5589,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * Route function for voiceCaptionCommandPayload with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandCaptionArgsVoice() {\n *   this.msgVoice // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionPayload // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionArgsVoice` with slash command and arg match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by voice with caption command and args.\n *\n * @example\n *\n * this.data.name = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandCaptionArgsVoice() {\n *   this.msgVoice // {...}\n *   this.msgCaption // \"/start 123 aaa\"\n *   this.msgCaptionArg // \"123\"\n *   this.msgCaptionArgs // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5625,7 +5625,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionAudio:member(1)",
-              "docComment": "/**\n * Route function for audioCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\" && this.msgAudio\n * ```typescript\n * async handleCommandCaptionAudio() {\n *   this.msgAudio // {...}\n *   this.msgCaption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionAudio` with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by audio with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\" && this.msgAudio\n * ```typescript\n * async handleCommandCaptionAudio() {\n *   this.msgAudio // {...}\n *   this.msgCaption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5661,7 +5661,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandCaptionDocument:member(1)",
-              "docComment": "/**\n * Route function for documentCaption with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\" && this.msgDocument\n * ```typescript\n * async handleCommandCaptionDocument() {\n *   this.msgDocument // {...}\n *   this.msgCaption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Route function for `handleCommandCaptionDocument` with slash command match intent `this.data.name`\n *\n * @remarks\n *\n * Triggered by document with caption command.\n *\n * @example\n *\n * this.data.name = \"/start\" && this.msgDocument\n * ```typescript\n * async handleCommandCaptionDocument() {\n *   this.msgDocument // {...}\n *   this.msgCaption // \"/start\"\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6633,7 +6633,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#isSessionCallbackData:member(1)",
-              "docComment": "/**\n * Session validation methods.\n *\n * @remarks\n *\n * These methods validate whether the current session’s `session.method` matches the value returned by `methodSession*`. Each isSession* method compares the session method with its corresponding `methodSession*` result.\n *\n * @example\n * ```typescript\n * async textFree() {\n *   if (this.isSessionTextFree()) {\n *     // Handle the expected session flow\n *   }\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Session validation methods.\n *\n * @remarks\n *\n * These methods validate whether the current session’s `session.method` matches the value returned by `methodSession*`. Each isSession* method compares the session method with its corresponding `methodSession*` result.\n *\n * @example\n * ```typescript\n * async handleFreeText() {\n *   if (this.isSessionFreeText()) {\n *     // Handle the expected session flow\n *   }\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9992,7 +9992,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgAnimation:member",
-              "docComment": "/**\n * Animation/GIF arg attached to the message.\n *\n * @example\n * ```typescript\n * async animationFree() {\n *   const anim = this.msgAnimation\n *   console.log(anim?.file_id)\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Animation/GIF arg attached to the message.\n *\n * @example\n * ```typescript\n * async handleFreeAnimation() {\n *   const anim = this.msgAnimation\n *   console.log(anim?.file_id)\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10027,7 +10027,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgAudio:member",
-              "docComment": "/**\n * Audio arg attached to the message.\n *\n * @example\n * ```typescript\n * async audioFree() {\n *   const audio = this.msgAudio\n *   console.log(audio?.file_id)\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Audio arg attached to the message.\n *\n * @example\n * ```typescript\n * async handleFreeAudio() {\n *   const audio = this.msgAudio\n *   console.log(audio?.file_id)\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10062,7 +10062,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgCaption:member",
-              "docComment": "/**\n * The caption text for media messages.\n *\n * @example\n * ```typescript\n * async photoFree() {\n *   console.log(this.msgCaption) // \"<Photo caption>\"\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * The caption text for media messages.\n *\n * @example\n * ```typescript\n * async handleFreePhoto() {\n *   console.log(this.msgCaption) // \"<Photo caption>\"\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10092,7 +10092,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgCaptionArg:member",
-              "docComment": "/**\n * The first arg token from caption text.\n *\n * @example\n * ```typescript\n * // Caption: \"start 123 456\"\n * async photoCaptionPayload() {\n *   console.log(this.msgCaptionPayload) // \"123\"\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * The first arg token from caption text.\n *\n * @example\n * ```typescript\n * // Caption: \"start 123 456\"\n * async handleCaptionArgsPhoto() {\n *   console.log(this.msgCaptionArg) // \"123\"\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10152,7 +10152,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgCaptionCommandArg:member",
-              "docComment": "/**\n * The first arg token from a caption command.\n *\n * @example\n * ```typescript\n * // Caption: \"/photo 123\"\n * async photoCaptionCommandPayload() {\n *   console.log(this.msgCaptionCommandPayload) // \"123\"\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * The first arg token from a caption command.\n *\n * @example\n * ```typescript\n * // Caption: \"/photo 123\"\n * async handleCommandCaptionArgsPhoto() {\n *   console.log(this.msgCaptionCommandArg) // \"123\"\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10212,7 +10212,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgContact:member",
-              "docComment": "/**\n * Contact arg attached to the message.\n *\n * @example\n * ```typescript\n * async contactFree() {\n *   const contact = this.msgContact\n *   console.log(contact?.phone_number)\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Contact arg attached to the message.\n *\n * @example\n * ```typescript\n * async handleFreeContact() {\n *   const contact = this.msgContact\n *   console.log(contact?.phone_number)\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10247,7 +10247,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgDocument:member",
-              "docComment": "/**\n * Document arg attached to the message.\n *\n * @example\n * ```typescript\n * async documentFree() {\n *   const doc = this.msgDocument\n *   console.log(doc?.file_name)\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Document arg attached to the message.\n *\n * @example\n * ```typescript\n * async handleFreeDocument() {\n *   const doc = this.msgDocument\n *   console.log(doc?.file_name)\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10282,7 +10282,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgGift:member",
-              "docComment": "/**\n * Gift arg attached to the message.\n *\n * @example\n * ```typescript\n * async free() {\n *   const gift = this.msgGift\n *   console.log(gift)\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Gift arg attached to the message.\n *\n * @example\n * ```typescript\n * async handleFree() {\n *   const gift = this.msgGift\n *   console.log(gift)\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10317,7 +10317,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgLocation:member",
-              "docComment": "/**\n * Location arg attached to the message.\n *\n * @example\n * ```typescript\n * async locationFree() {\n *   const loc = this.msgLocation\n *   console.log(loc?.latitude, loc?.longitude)\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Location arg attached to the message.\n *\n * @example\n * ```typescript\n * async handleFreeLocation() {\n *   const loc = this.msgLocation\n *   console.log(loc?.latitude, loc?.longitude)\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10352,7 +10352,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgPhoto:member",
-              "docComment": "/**\n * Photo sizes attached to the message.\n *\n * @example\n * ```typescript\n * async photoFree() {\n *   const photos = this.msgPhoto\n *   const largest = photos?.[photos.length - 1]\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Photo sizes attached to the message.\n *\n * @example\n * ```typescript\n * async handleFreePhoto() {\n *   const photos = this.msgPhoto\n *   const largest = photos?.[photos.length - 1]\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10387,7 +10387,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgSticker:member",
-              "docComment": "/**\n * Sticker arg attached to the message.\n *\n * @example\n * ```typescript\n * async stickerFree() {\n *   const sticker = this.msgSticker\n *   console.log(sticker?.emoji)\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Sticker arg attached to the message.\n *\n * @example\n * ```typescript\n * async handleFreeSticker() {\n *   const sticker = this.msgSticker\n *   console.log(sticker?.emoji)\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10422,7 +10422,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgText:member",
-              "docComment": "/**\n * The raw message text from the current update.\n *\n * @example\n * ```typescript\n * async textFree() {\n *   console.log(this.msgText) // \"Hello World\"\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * The raw message text from the current update.\n *\n * @example\n * ```typescript\n * async handleFreeText() {\n *   console.log(this.msgText) // \"Hello World\"\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10512,7 +10512,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgTextCommandArg:member",
-              "docComment": "/**\n * The first arg token from a command message.\n *\n * @example\n * ```typescript\n * // Message: \"/start 123\"\n * async textCommandPayload() {\n *   console.log(this.msgTextCommandPayload) // \"123\"\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * The first arg token from a command message.\n *\n * @example\n * ```typescript\n * // Message: \"/start 123\"\n * async handleCommandArgsText() {\n *   console.log(this.msgTextCommandArg) // \"123\"\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10572,7 +10572,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgVideo:member",
-              "docComment": "/**\n * Video arg attached to the message.\n *\n * @example\n * ```typescript\n * async videoFree() {\n *   const video = this.msgVideo\n *   console.log(video?.file_id)\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Video arg attached to the message.\n *\n * @example\n * ```typescript\n * async handleFreeVideo() {\n *   const video = this.msgVideo\n *   console.log(video?.file_id)\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10607,7 +10607,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgVideoNote:member",
-              "docComment": "/**\n * Video note (circular video) attached to the message.\n *\n * @example\n * ```typescript\n * async videoNoteFree() {\n *   const videoNote = this.msgVideoNote\n *   console.log(videoNote?.length)\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Video note (circular video) attached to the message.\n *\n * @example\n * ```typescript\n * async handleFreeVideoNote() {\n *   const videoNote = this.msgVideoNote\n *   console.log(videoNote?.length)\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10642,7 +10642,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgVoice:member",
-              "docComment": "/**\n * Voice message arg attached to the message.\n *\n * @example\n * ```typescript\n * async voiceFree() {\n *   const voice = this.msgVoice\n *   console.log(voice?.duration)\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Voice message arg attached to the message.\n *\n * @example\n * ```typescript\n * async handleFreeVoice() {\n *   const voice = this.msgVoice\n *   console.log(voice?.duration)\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10677,7 +10677,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#msgWebAppData:member",
-              "docComment": "/**\n * Web app data attached to the message.\n *\n * @example\n * ```typescript\n * async free() {\n *   const webAppData = this.msgWebAppData\n *   console.log(webAppData?.data)\n * }\n * ```\n *\n * @readonly @public\n */\n",
+              "docComment": "/**\n * Web app data attached to the message.\n *\n * @example\n * ```typescript\n * async handleFree() {\n *   const webAppData = this.msgWebAppData\n *   console.log(webAppData?.data)\n * }\n * ```\n *\n * @readonly @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -13043,50 +13043,6 @@
               "name": "replyVoice"
             },
             {
-              "kind": "Property",
-              "canonicalReference": "gramstax!Ctx#session:member",
-              "docComment": "/**\n * Temporary gets and setter the current session data.\n *\n * @remarks\n *\n * IMPORTANT: this is same as `this.temp.session` if you need set session use session*() or setSession() not from this !\n *\n * @example\n * ```typescript\n * async handleFreeText() {\n *   // both is same\n *   console.log(this.temp.session) // {method: \"1-start\", params: {random: \"1234nhsu37\"}}\n *   console.log(this.temp.session) // {method: \"1-start\", params: {random: \"1234nhsu37\"}}\n * }\n * ```\n *\n * @readonly @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "get session(): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITTemp",
-                  "canonicalReference": "gramstax!ITTemp:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[`session`]"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";\n\nset session(v: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITTemp",
-                  "canonicalReference": "gramstax!ITTemp:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "[`session`]);"
-                }
-              ],
-              "isReadonly": true,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "session",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 3
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#sessionArgsCallbackData:member(1)",
               "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
@@ -13195,7 +13151,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#sessionCallbackData:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   // Set session to expect textFree input\n *   await this.sessionTextFree({data: \"12345\"})\n *   await this.reply()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   // Set session input for `handleFreeText`\n *   await this.sessionFreeText({data: \"12345\"})\n *   await this.reply()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15262,7 +15218,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSession:member(1)",
-              "docComment": "/**\n * Sets session data for the current user.\n *\n * @remarks\n *\n * Session data is stored in the external cache and persists across requests. Used to maintain state between different page interactions.\n *\n * @param method - The session method name (typically matches a route handler).\n *\n * @param params - The session parameters to store.\n *\n * @param moreRoot - Additional root-level properties to merge.\n *\n * @returns True if the session was set successfully, or null on error.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   await this.setSession(\"textFree\", {step: \"awaiting_name\"})\n *   await this.reply()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sets session data for the current user.\n *\n * @remarks\n *\n * Session data is stored in the external cache and persists across requests. Used to maintain state between different page interactions.\n *\n * @param method - The session method name (typically matches a route handler).\n *\n * @param params - The session parameters to store.\n *\n * @param moreRoot - Additional root-level properties to merge.\n *\n * @returns True if the session was set successfully, or null on error.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   await this.setSession(\"random_172172783jd83\", {step: \"awaiting_name\"})\n *   await this.reply()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22247,7 +22203,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processBaseBlocks:member(1)",
-              "docComment": "/**\n * Extracts and parses `<base>` blocks from a template string.\n *\n * @remarks\n *\n * This internal method identifies all `<base>` blocks in the template and extracts their content, organizing them by their `id` attribute. Blocks without an `id` are stored under the key `\"default\"`. Leading whitespace and surrounding newlines are trimmed from the inner content.\n *\n * **Attributes:** - `id` (optional): Identifier for the base block. If not specified, defaults to `\"default\"`. Used to reference specific base blocks when compiling templates or extracting content.\n *\n * @param template - The raw template string containing `<base>` blocks\n *\n * @returns An object mapping base IDs to their cleaned inner content\n *\n * @example\n * ```typescript\n * const template = `\n *   <base id=\"main\">\n *     <message>Hello World</message>\n *   </base>\n *   <base id=\"error\">\n *     <message>Error occurred</message>\n *   </base>\n *   <base>\n *     <message>Default block</message>\n *   </base>\n * `;\n * const bases = TemplateEngine._processBaseBlocks(template);\n * // Result: {\n * //   main: '<message>Hello World</message>',\n * //   error: '<message>Error occurred</message>',\n * //   default: '<message>Default block</message>'\n * // }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Block: base Extracts and parses `<base>` blocks from a template string.\n *\n * @remarks\n *\n * This internal method identifies all `<base>` blocks in the template and extracts their content, organizing them by their `id` attribute. Blocks without an `id` are stored under the key `\"default\"`. Leading whitespace and surrounding newlines are trimmed from the inner content.\n *\n * **Attributes:** - `id` (optional): Identifier for the base block. If not specified, defaults to `\"default\"`. Used to reference specific base blocks when compiling templates or extracting content.\n *\n * @param template - The raw template string containing `<base>` blocks\n *\n * @returns An object mapping base IDs to their cleaned inner content\n *\n * @example\n * ```typescript\n * const template = `\n *   <base id=\"main\">\n *     <message>Hello World</message>\n *   </base>\n *   <base id=\"error\">\n *     <message>Error occurred</message>\n *   </base>\n *   <base>\n *     <message>Default block</message>\n *   </base>\n * `;\n * const bases = TemplateEngine._processBaseBlocks(template);\n * // Result: {\n * //   main: '<message>Hello World</message>',\n * //   error: '<message>Error occurred</message>',\n * //   default: '<message>Default block</message>'\n * // }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22295,7 +22251,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processDescriptionBlocks:member(1)",
-              "docComment": "/**\n * Extracts and parses `<description>` blocks from a template string.\n *\n * @remarks\n *\n * This internal method identifies all `<description>` blocks and extracts their content organized by language and scope. Blocks without a `lang` attribute are stored under `\"default\"` language, and blocks without a `scope` attribute are stored under `\"default\"` scope.\n *\n * **Attributes:** - `lang` (optional): Language key for the output map. Defaults to `\"default\"`. - `scope` (optional): Scope key for the nested output map. Defaults to `\"default\"`.\n *\n * @param template - The template string containing `<description>` blocks\n *\n * @returns A nested object mapping language keys to scopes to their cleaned content\n *\n * @example\n * ```typescript\n * const template = `\n *   <description>Start the bot</description>\n *   <description lang=\"id\">Mulai bot</description>\n *   <description scope=\"chat_administrators\">Admin command</description>\n * `;\n * const descriptions = TemplateEngine._processDescriptionBlocks(template);\n * // Result: {\n * //   default: { default: 'Start the bot', chat_administrators: 'Admin command' },\n * //   id: { default: 'Mulai bot' }\n * // }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Block: description Extracts and parses `<description>` blocks from a template string.\n *\n * @remarks\n *\n * This internal method identifies all `<description>` blocks and extracts their content organized by language and scope. Blocks without a `lang` attribute are stored under `\"default\"` language, and blocks without a `scope` attribute are stored under `\"default\"` scope.\n *\n * **Attributes:** - `lang` (optional): Language key for the output map. Defaults to `\"default\"`. - `scope` (optional): Scope key for the nested output map. Defaults to `\"default\"`.\n *\n * @param template - The template string containing `<description>` blocks\n *\n * @returns A nested object mapping language keys to scopes to their cleaned content\n *\n * @example\n * ```typescript\n * const template = `\n *   <description>Start the bot</description>\n *   <description lang=\"id\">Mulai bot</description>\n *   <description scope=\"chat_administrators\">Admin command</description>\n * `;\n * const descriptions = TemplateEngine._processDescriptionBlocks(template);\n * // Result: {\n * //   default: { default: 'Start the bot', chat_administrators: 'Admin command' },\n * //   id: { default: 'Mulai bot' }\n * // }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22343,7 +22299,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processDivBlocks:member(1)",
-              "docComment": "/**\n * Normalizes content within `<div>` blocks by removing indentation.\n *\n * @remarks\n *\n * This internal method processes `<div>` blocks and cleans their inner content by removing leading tabs/spaces per line and trimming surrounding newlines. The `<div>` tags themselves are removed from the output.\n *\n * **Attributes:** - none\n *\n * @param template - The template string containing `<div>` blocks\n *\n * @returns The template with `<div>` blocks replaced by their de-indented content\n *\n * @example\n * ```typescript\n * const template = '<div>\\n    Line 1\\n    Line 2\\n</div>';\n * const processed = TemplateEngine._processDivBlocks(template);\n * // Result: 'Line 1\\nLine 2'\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Block: div Normalizes content within `<div>` blocks by removing indentation.\n *\n * @remarks\n *\n * This internal method processes `<div>` blocks and cleans their inner content by removing leading tabs/spaces per line and trimming surrounding newlines. The `<div>` tags themselves are removed from the output.\n *\n * **Attributes:** - none\n *\n * @param template - The template string containing `<div>` blocks\n *\n * @returns The template with `<div>` blocks replaced by their de-indented content\n *\n * @example\n * ```typescript\n * const template = '<div>\\n    Line 1\\n    Line 2\\n</div>';\n * const processed = TemplateEngine._processDivBlocks(template);\n * // Result: 'Line 1\\nLine 2'\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22439,7 +22395,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processKeyboardBlocks:member(1)",
-              "docComment": "/**\n * Extracts and parses `<keyboard>` blocks from a template string.\n *\n * @remarks\n *\n * This internal method identifies all `<keyboard>` blocks and extracts their content organized by language and type (inline or bottom). Blocks without a `lang` attribute are stored under `\"default\"`. The `type` attribute defaults to `\"inline\"` unless explicitly set to `\"bottom\"`.\n *\n * **Attributes:** - `lang` (optional): Language key for the output map. Defaults to `\"default\"`. - `type` (optional): Keyboard type. Supported values: - `\"inline\"` (default) - `\"bottom\"`\n *\n * @param template - The template string containing `<keyboard>` blocks\n *\n * @returns A nested object mapping language keys to keyboard mode configurations\n *\n * @example\n * ```typescript\n * const template = `\n *   <keyboard>Yes, No</keyboard>\n *   <keyboard type=\"bottom\">Button 1, Button 2</keyboard>\n *   <keyboard lang=\"id\">Ya, Tidak</keyboard>\n * `;\n * const keyboards = TemplateEngine._processKeyboardBlocks(template);\n * // Result: {\n * //   default: { inline: 'Yes, No', bottom: 'Button 1, Button 2' },\n * //   id: { inline: 'Ya, Tidak' }\n * // }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Block: keyboard Extracts and parses `<keyboard>` blocks from a template string.\n *\n * @remarks\n *\n * This internal method identifies all `<keyboard>` blocks and extracts their content organized by language and type (inline or bottom). Blocks without a `lang` attribute are stored under `\"default\"`. The `type` attribute defaults to `\"inline\"` unless explicitly set to `\"bottom\"`.\n *\n * **Attributes:** - `lang` (optional): Language key for the output map. Defaults to `\"default\"`. - `type` (optional): Keyboard type. Supported values: - `\"inline\"` (default) - `\"bottom\"`\n *\n * @param template - The template string containing `<keyboard>` blocks\n *\n * @returns A nested object mapping language keys to keyboard mode configurations\n *\n * @example\n * ```typescript\n * const template = `\n *   <keyboard>Yes, No</keyboard>\n *   <keyboard type=\"bottom\">Button 1, Button 2</keyboard>\n *   <keyboard lang=\"id\">Ya, Tidak</keyboard>\n * `;\n * const keyboards = TemplateEngine._processKeyboardBlocks(template);\n * // Result: {\n * //   default: { inline: 'Yes, No', bottom: 'Button 1, Button 2' },\n * //   id: { inline: 'Ya, Tidak' }\n * // }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22487,7 +22443,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processMapBlocks:member(1)",
-              "docComment": "/**\n * Transforms `<map>` blocks into JavaScript array map expressions.\n *\n * @remarks\n *\n * This internal method converts `<map>` blocks into array mapping operations. The `src` attribute specifies which data key contains the array. Inside the block, `{{e}}` refers to the current element, `{{e.prop}}` to element properties, and `{{i}}` to the current index. The `join` attribute specifies the separator.\n *\n * **Attributes:** - `src` (required): The key name in the `data` object whose value is treated as an array. - `join` (optional): Join separator string. Defaults to `\"\\\\n\"` (a newline escape sequence).\n *\n * @param template - The template string containing `<map>` blocks\n *\n * @returns The template with `<map>` blocks converted to map expressions\n *\n * @example\n * ```typescript\n * const template = '<map src=\"items\" join=\", \"> - {{e.name}} ({{i}})</map>';\n * const processed = TemplateEngine._processMapBlocks(template);\n * // Result: '${(data && data[\"items\"] || []).map((e, i) => ` - ${e.name} (${i})`).join(\", \")}'\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Block: map Transforms `<map>` blocks into JavaScript array map expressions.\n *\n * @remarks\n *\n * This internal method converts `<map>` blocks into array mapping operations. The `src` attribute specifies which data key contains the array. Inside the block, `{{e}}` refers to the current element, `{{e.prop}}` to element properties, and `{{i}}` to the current index. The `join` attribute specifies the separator.\n *\n * **Attributes:** - `src` (required): The key name in the `data` object whose value is treated as an array. - `join` (optional): Join separator string. Defaults to `\"\\\\n\"` (a newline escape sequence).\n *\n * @param template - The template string containing `<map>` blocks\n *\n * @returns The template with `<map>` blocks converted to map expressions\n *\n * @example\n * ```typescript\n * const template = '<map src=\"items\" join=\", \"> - {{e.name}} ({{i}})</map>';\n * const processed = TemplateEngine._processMapBlocks(template);\n * // Result: '${(data && data[\"items\"] || []).map((e, i) => ` - ${e.name} (${i})`).join(\", \")}'\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22535,7 +22491,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processMediaBlocks:member(1)",
-              "docComment": "/**\n * Extracts and parses `<media>` blocks from a template string.\n *\n * @remarks\n *\n * This internal method identifies all `<media>` blocks and extracts their attributes and content. It supports various media types including photo, video, audio, document, animation, voice, video_note, sticker, location, and contact. The inner content becomes the caption for supported types.\n *\n * **Attributes:** - `lang` (optional): Language key for the output map. Defaults to `\"default\"`. - `type` (required): Media type discriminator. Expected values: - `photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, - `sticker`, `location`, `contact`. - `src` (optional): File path / URL / file identifier for file-based media. - `latitude` (optional): Location latitude (used when `type=\"location\"`). - `longitude` (optional): Location longitude (used when `type=\"location\"`). - `phone` (optional): Contact phone number (used when `type=\"contact\"`). - `first_name` (optional): Contact first name (used when `type=\"contact\"`). - `last_name` (optional): Contact last name (used when `type=\"contact\"`). - `vcard` (optional): Contact vCard payload (used when `type=\"contact\"`).\n *\n * Media rules (based on `type`): - If `src` exists, it is assigned as `mediaBlock.src` (for any type). - If caption exists and `type !== \"video_note\"` and `type !== \"sticker\"`, it is assigned as `mediaBlock.caption`. - If `type === \"location\"`, `latitude` and `longitude` are copied if present, and caption (if present) is also allowed. - If `type === \"contact\"`, `phone`, `first_name`, `last_name`, and `vcard` are copied if present, and caption (if present) is also allowed.\n *\n * Note: - If multiple `<media>` blocks share the same `lang`, the last one wins (it overwrites the previous entry).\n *\n * @param template - The template string containing `<media>` blocks\n *\n * @returns An object mapping language keys to their corresponding media block configurations\n *\n * @example\n * ```typescript\n * const template = '<media type=\"photo\" src=\"image.jpg\" lang=\"en\">Hello</media>';\n * const media = TemplateEngine._processMediaBlocks(template);\n * // Result: { en: { type: 'photo', src: 'image.jpg', caption: 'Hello' } }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Block: media Extracts and parses `<media>` blocks from a template string.\n *\n * @remarks\n *\n * This internal method identifies all `<media>` blocks and extracts their attributes and content. It supports various media types including photo, video, audio, document, animation, voice, video_note, sticker, location, and contact. The inner content becomes the caption for supported types.\n *\n * **Attributes:** - `lang` (optional): Language key for the output map. Defaults to `\"default\"`. - `type` (required): Media type discriminator. Expected values: - `photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, - `sticker`, `location`, `contact`. - `src` (optional): File path / URL / file identifier for file-based media. - `latitude` (optional): Location latitude (used when `type=\"location\"`). - `longitude` (optional): Location longitude (used when `type=\"location\"`). - `phone` (optional): Contact phone number (used when `type=\"contact\"`). - `first_name` (optional): Contact first name (used when `type=\"contact\"`). - `last_name` (optional): Contact last name (used when `type=\"contact\"`). - `vcard` (optional): Contact vCard payload (used when `type=\"contact\"`).\n *\n * Media rules (based on `type`): - If `src` exists, it is assigned as `mediaBlock.src` (for any type). - If caption exists and `type !== \"video_note\"` and `type !== \"sticker\"`, it is assigned as `mediaBlock.caption`. - If `type === \"location\"`, `latitude` and `longitude` are copied if present, and caption (if present) is also allowed. - If `type === \"contact\"`, `phone`, `first_name`, `last_name`, and `vcard` are copied if present, and caption (if present) is also allowed.\n *\n * Note: - If multiple `<media>` blocks share the same `lang`, the last one wins (it overwrites the previous entry).\n *\n * @param template - The template string containing `<media>` blocks\n *\n * @returns An object mapping language keys to their corresponding media block configurations\n *\n * @example\n * ```typescript\n * const template = '<media type=\"photo\" src=\"image.jpg\" lang=\"en\">Hello</media>';\n * const media = TemplateEngine._processMediaBlocks(template);\n * // Result: { en: { type: 'photo', src: 'image.jpg', caption: 'Hello' } }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22592,7 +22548,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processMessageBlocks:member(1)",
-              "docComment": "/**\n * Extracts and parses `<message>` blocks from a template string.\n *\n * @remarks\n *\n * This internal method identifies all `<message>` blocks and extracts their content organized by language. Blocks without a `lang` attribute are stored under `\"default\"`. Leading whitespace and surrounding newlines are trimmed.\n *\n * **Attributes:** - `lang` (optional): Language key for the output map. Defaults to `\"default\"`.\n *\n * @param template - The template string containing `<message>` blocks\n *\n * @returns An object mapping language keys to their cleaned message content\n *\n * @example\n * ```typescript\n * const template = `\n *   <message>Hello World</message>\n *   <message lang=\"id\">Halo Dunia</message>\n * `;\n * const messages = TemplateEngine._processMessageBlocks(template);\n * // Result: { default: 'Hello World', id: 'Halo Dunia' }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Block: message Extracts and parses `<message>` blocks from a template string.\n *\n * @remarks\n *\n * This internal method identifies all `<message>` blocks and extracts their content organized by language. Blocks without a `lang` attribute are stored under `\"default\"`. Leading whitespace and surrounding newlines are trimmed.\n *\n * **Attributes:** - `lang` (optional): Language key for the output map. Defaults to `\"default\"`.\n *\n * @param template - The template string containing `<message>` blocks\n *\n * @returns An object mapping language keys to their cleaned message content\n *\n * @example\n * ```typescript\n * const template = `\n *   <message>Hello World</message>\n *   <message lang=\"id\">Halo Dunia</message>\n * `;\n * const messages = TemplateEngine._processMessageBlocks(template);\n * // Result: { default: 'Hello World', id: 'Halo Dunia' }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22640,7 +22596,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processScopeExec:member(1)",
-              "docComment": "/**\n * Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.\n *\n * @remarks\n *\n * This internal method converts inline execution syntax into self-invoking JavaScript expressions. It first attempts direct execution, then falls back to `with(data)` scope. Returns an empty string on any error.\n *\n * @param template - The template string containing `{~ code ~}` expressions\n *\n * @returns The template with inline execution blocks converted to executable expressions\n *\n * @example\n * ```typescript\n * const template = 'Total: {~ data?.count ?? 0 ~}';\n * const processed = TemplateEngine._processExec(template);\n * // Result: 'Total: ${(() => { try { return data?.count ?? 0 } catch(e) { try { with(data || {}) { return data?.count ?? 0 } } catch(ee) { return '' } } })()}'\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Scope: `{~~}` Transforms inline execution blocks `{~ jscode ~}` into JavaScript expressions.\n *\n * @remarks\n *\n * This internal method converts inline execution syntax into self-invoking JavaScript expressions. It first attempts direct execution, then falls back to `with(data)` scope. Returns an empty string on any error.\n *\n * @param template - The template string containing `{~ code ~}` expressions\n *\n * @returns The template with inline execution blocks converted to executable expressions\n *\n * @example\n * ```typescript\n * const template = 'Total: {~ data?.count ?? 0 ~}';\n * const processed = TemplateEngine._processExec(template);\n * // Result: 'Total: ${(() => { try { return data?.count ?? 0 } catch(e) { try { with(data || {}) { return data?.count ?? 0 } } catch(ee) { return '' } } })()}'\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22688,7 +22644,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processScopeVariables:member(1)",
-              "docComment": "/**\n * Converts `{{variable}}` placeholders to JavaScript template literal expressions.\n *\n * @remarks\n *\n * This internal method transforms Mustache-like variable syntax into JavaScript template literal interpolation. Variables are accessed from the `data` object, with nullish coalescing to empty string when undefined.\n *\n * @param template - The template string containing `{{variable}}` placeholders\n *\n * @returns The processed template with placeholders converted to `${data[\"key\"]}` syntax\n *\n * @example\n * ```typescript\n * const processed = TemplateEngine._processVariables('Hello {{name}}!');\n * // Result: 'Hello ${(data && data[\"name\"]) ?? \"\"}!'\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Scope: `{{}}` Converts `{{variable}}` placeholders to JavaScript template literal expressions.\n *\n * @remarks\n *\n * This internal method transforms Mustache-like variable syntax into JavaScript template literal interpolation. Variables are accessed from the `data` object, with nullish coalescing to empty string when undefined.\n *\n * @param template - The template string containing `{{variable}}` placeholders\n *\n * @returns The processed template with placeholders converted to `${data[\"key\"]}` syntax\n *\n * @example\n * ```typescript\n * const processed = TemplateEngine._processVariables('Hello {{name}}!');\n * // Result: 'Hello ${(data && data[\"name\"]) ?? \"\"}!'\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22736,7 +22692,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processScriptBlocks:member(1)",
-              "docComment": "/**\n * Transforms `<script>` blocks into executable JavaScript expressions.\n *\n * @remarks\n *\n * This internal method converts `<script>` blocks into self-invoking functions that execute with access to the `data` object via `with(data)`. If the script throws an error or `data` is undefined, an empty string is returned.\n *\n * **Attributes:** - none\n *\n * @param template - The template string containing `<script>` blocks\n *\n * @returns The template with `<script>` blocks converted to executable expressions\n *\n * @example\n * ```typescript\n * const template = '<script>return name ? `Hello ${name}` : `Hello`;</script>';\n * const processed = TemplateEngine._processScriptBlocks(template);\n * // Result: '${(() => { if (!data) return ''; try { with(data) { return name ? `Hello ${name}` : `Hello`; } } catch(e) { return '' } })()}'\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Block: script Transforms `<script>` blocks into executable JavaScript expressions.\n *\n * @remarks\n *\n * This internal method converts `<script>` blocks into self-invoking functions that execute with access to the `data` object via `with(data)`. If the script throws an error or `data` is undefined, an empty string is returned.\n *\n * **Attributes:** - none\n *\n * @param template - The template string containing `<script>` blocks\n *\n * @returns The template with `<script>` blocks converted to executable expressions\n *\n * @example\n * ```typescript\n * const template = '<script>return name ? `Hello ${name}` : `Hello`;</script>';\n * const processed = TemplateEngine._processScriptBlocks(template);\n * // Result: '${(() => { if (!data) return ''; try { with(data) { return name ? `Hello ${name}` : `Hello`; } } catch(e) { return '' } })()}'\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22784,7 +22740,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processSpaceBlocks:member(1)",
-              "docComment": "/**\n * Removes lines containing self-closing `<space />` tags.\n *\n * @remarks\n *\n * This internal method identifies lines that contain only a `<space />` tag (with optional surrounding whitespace) and removes the entire line. This is useful for controlling whitespace in templates.\n *\n * **Attributes:** - none\n *\n * @param template - The template string containing `<space />` tags\n *\n * @returns The template with `<space />` lines removed\n *\n * @example\n * ```typescript\n * const template = 'Line 1\\n<space />\\nLine 2';\n * const processed = TemplateEngine._processSpaceBlocks(template);\n * // Result: 'Line 1\\n\\nLine 2'\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Block: space Removes lines containing self-closing `<space />` tags.\n *\n * @remarks\n *\n * This internal method identifies lines that contain only a `<space />` tag (with optional surrounding whitespace) and removes the entire line. This is useful for controlling whitespace in templates.\n *\n * **Attributes:** - none\n *\n * @param template - The template string containing `<space />` tags\n *\n * @returns The template with `<space />` lines removed\n *\n * @example\n * ```typescript\n * const template = 'Line 1\\n<space />\\nLine 2';\n * const processed = TemplateEngine._processSpaceBlocks(template);\n * // Result: 'Line 1\\n\\nLine 2'\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -22832,7 +22788,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processSwitchBlocks:member(1)",
-              "docComment": "/**\n * Transforms `<switch>` blocks into JavaScript switch statement expressions.\n *\n * @remarks\n *\n * This internal method converts `<switch>` blocks with `<case>` and `<default>` sub-blocks into self-invoking JavaScript switch expressions. The `value` attribute specifies which data key to switch on. Case values can be comma-separated for multiple matches.\n *\n * **Attributes:** - <switch> - `value` (required): The key name in the `data` object whose value will be used as the switch expression. - <case> - `is` (required): One or more literal match values. Multiple values may be provided as a comma-separated list. - <default> - none\n *\n * @param template - The template string containing `<switch>` blocks\n *\n * @returns The template with `<switch>` blocks converted to executable switch expressions\n *\n * @example\n * ```typescript\n * const template = `\n *   <switch value=\"status\">\n *     <case is=\"active\">Active status</case>\n *     <case is=\"pending\">Pending status</case>\n *     <default>Unknown status</default>\n *   </switch>\n * `;\n * const processed = TemplateEngine._processSwitchBlocks(template);\n * // Result: '${(() => { switch((data && data[\"status\"])) { case \"active\": return `Active status`; ... } })()}'\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Block: switch Transforms `<switch>` blocks into JavaScript switch statement expressions.\n *\n * @remarks\n *\n * This internal method converts `<switch>` blocks with `<case>` and `<default>` sub-blocks into self-invoking JavaScript switch expressions. The `value` attribute specifies which data key to switch on. Case values can be comma-separated for multiple matches.\n *\n * **Attributes:** - <switch> - `value` (required): The key name in the `data` object whose value will be used as the switch expression. - <case> - `is` (required): One or more literal match values. Multiple values may be provided as a comma-separated list. - <default> - none\n *\n * @param template - The template string containing `<switch>` blocks\n *\n * @returns The template with `<switch>` blocks converted to executable switch expressions\n *\n * @example\n * ```typescript\n * const template = `\n *   <switch value=\"status\">\n *     <case is=\"active\">Active status</case>\n *     <case is=\"pending\">Pending status</case>\n *     <default>Unknown status</default>\n *   </switch>\n * `;\n * const processed = TemplateEngine._processSwitchBlocks(template);\n * // Result: '${(() => { switch((data && data[\"status\"])) { case \"active\": return `Active status`; ... } })()}'\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
