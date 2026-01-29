@@ -26,7 +26,7 @@ description: Best practices for Gramstax real project structure.
 - Include a `start.ts` page in each example.
 - Use the `handleCommandText` route function for the start page.
 - Always clear the session on the start page.
-- Do not call `sessionGet()` inside page handlers; the system fetches session before routing.
+- Do not call `getSession()` inside page handlers; the system fetches session before routing.
 - Prefer class or static methods for project logic.
 
 ## Production Quality (Gramstax + App Code)
@@ -36,14 +36,14 @@ description: Best practices for Gramstax real project structure.
 
 ## Templates and Conditional Rendering
 
-- Use `{~ ... ~}`, `<switch>`, or `<script>` for conditional content inside templates.
+- Use `{~..~}`, `<switch>`, or `<script>` for conditional content inside templates.
 - Keep conditional view logic in templates rather than handler functions.
 - Do not write multi-language content in page functions; keep it in templates.
 - Avoid separate base blocks when only small parts differ; merge and use template conditionals.
 - Avoid inline error strings in handlers; render via template conditional or a base variant.
-- Do not use `+` inside `{~ ... ~}` and `<script></script>`; use template literals or other non-`+` composition.
-- When using template literals inside `{~ ... ~}`, escape backticks and `${}`.
-- IMPORTANT!: Always use `\\n` (double slash) in template string when used.
+- Do not use `+` inside `{~..~}` and `<script></script>`; use template literals or other non-`+` composition.
+- When using template literals inside `{~..~}`, escape backticks and `${}`.
+- IMPORTANT!: Always use `\\n` (double slash) if declare in template string when used.
 - Use at least a heading + content format for message blocks.
 - Pass template data into `inlineKeyboardT`, `inlineKeyboard`, `bottomKeyboardT` and `bottomKeyboard` when keyboard labels depend on template data.
 - Write production-level message content by default (clear, contextual, user-friendly), not short placeholders.
