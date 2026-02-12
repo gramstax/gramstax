@@ -1,4 +1,4 @@
-import {log} from "~/utils/log"
+import {LogHe} from "~/helpers/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
@@ -14,8 +14,8 @@ export class GeneralStatusPage extends PageBase {
     return this.inlineKeyboardT([StartPage])
   }
 
-  async toError(funcName: string, error: any, edit = true) {
-    log.errorMake(error, this.constructorName, funcName)
+  async error(funcName: string, error: any, edit = true) {
+    LogHe.errorMake(error, this.constructorName, funcName)
 
     await this.clearSession()
     const kb = this.kb()
@@ -24,7 +24,7 @@ export class GeneralStatusPage extends PageBase {
     else await this.reply(kb, data)
   }
 
-  async toErrorInputNotFound() {
+  async errorInputNotFound() {
     const kb = this.kb()
     await this.reply(kb, {isNotFound: true})
   }

@@ -17,7 +17,7 @@ export class CounterThreadPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbk.refreshBack()}
+      ${this.kbk.refresh_back()}
       <message>
         🧵 Worker counter
 

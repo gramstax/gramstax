@@ -3,7 +3,7 @@ import {GeneralStatusPage} from "~/pages/general-status"
 
 export class UserGuard extends GuardBase {
   async _catch(err: any, func: any) {
-    await new GeneralStatusPage(this).toError(func, err, true)
+    await new GeneralStatusPage(this).error(func, err, true)
     return null
   }
 

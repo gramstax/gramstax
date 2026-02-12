@@ -15,7 +15,7 @@ export class BlockMapPage extends PageBase {
 
   static template = `
     <base>
-      ${this.kbk.refreshBack()}
+      ${this.kbk.refresh_back()}
       <message>
         <b>🧭 Template map demo</b>
 

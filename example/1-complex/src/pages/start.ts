@@ -114,7 +114,7 @@ export class StartPage extends PageBase {
 
   static template = `
     <base id="${this.BASE.kbForImport}">
-      ${this.kbk.refreshBack()}
+      ${this.kbk.refresh_back()}
     </base>
 
     <base id="${this.BASE.forImport}">
