@@ -13,6 +13,6 @@ process.once(`SIGTERM`, () => mockServer.stop())
 new BotCore({
   deploy: Env.TELEGRAM_BOT_DEPLOY,
   token: Env.TELEGRAM_BOT_TOKEN, // test token bot, its already revoke
-  log: true,
+  log: LogHe,
   botConfig: {client: {apiRoot: mockServer.apiRoot}}
 })
