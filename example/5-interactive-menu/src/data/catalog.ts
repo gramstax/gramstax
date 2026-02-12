@@ -1,8 +1,8 @@
-import type {CatalogCategory} from "./catalog-types"
+import type {ICatalogCategory} from "./catalog-t"
 
-export class CatalogMock {
+export class CatalogData {
   // Sample catalog data used for menus and pagination.
-  static list: CatalogCategory[] = [
+  static list: ICatalogCategory[] = [
     {
       id: `tools`,
       name: `Tools`,
@@ -36,7 +36,7 @@ export class CatalogMock {
     }
   ]
 
-  static menuItems = CatalogMock.list.flatMap((category) => category.items.map((item) => ({id: item.id, name: item.name, category: category.name})))
+  static menuItems = CatalogData.list.flatMap((category) => category.items.map((item) => ({id: item.id, name: item.name, category: category.name})))
   static getCategoryById(categoryId: string) {
     return this.list.find((category) => category.id === categoryId)
   }

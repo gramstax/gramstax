@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {CatalogMock} from "~/mock/catalog"
+import {CatalogData} from "~/data/catalog"
 import {ItemListPage} from "./item-list"
 
 // Item detail page with context-aware back button.
@@ -10,7 +10,7 @@ export class ItemDetailPage extends PageBase {
     const [action, categoryId, itemId] = this.callbackDataArgs
     if (action !== `detail` || !categoryId || !itemId) return null
 
-    const item = CatalogMock.getItemById(categoryId, itemId)
+    const item = CatalogData.getItemById(categoryId, itemId)
     const page = Number((await this.cacheState.get(`${this.userId}:page`)) || 0)
     const kb = this.inlineKeyboardT([ItemListPage.data.callbackData(`page`, `${page}`)])
     const da = {

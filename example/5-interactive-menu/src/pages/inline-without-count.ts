@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {CatalogMock} from "~/mock/catalog"
+import {CatalogData} from "~/data/catalog"
 import {StartPage} from "./start"
 import {BlankPage} from "./blank"
 
@@ -13,9 +13,9 @@ export class InlineWithoutCountPage extends PageBase {
     const safePage = Math.max(page, 0)
     const start = safePage * ITEMS_PER_PAGE
     const end = start + ITEMS_PER_PAGE
-    const items = CatalogMock.menuItems.slice(start, end)
+    const items = CatalogData.menuItems.slice(start, end)
     const hasPrevious = safePage > 0
-    const hasMore = end < CatalogMock.menuItems.length
+    const hasMore = end < CatalogData.menuItems.length
     return this.inlineKeyboard((k, l) => {
       items.forEach((item) => {
         k.text(item.name, this.data.callbackData(`item`, item.id)).row()

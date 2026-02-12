@@ -1,7 +1,7 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 import {BlankPage} from "./blank"
-import {CatalogMock} from "~/mock/catalog"
+import {CatalogData} from "~/data/catalog"
 
 // Inline keyboard with total page count.
 export class InlineWithCountPage extends PageBase {
@@ -10,11 +10,11 @@ export class InlineWithCountPage extends PageBase {
   ITEMS_PER_PAGE = 4
 
   buildKb(page: number) {
-    const totalPages = Math.max(Math.ceil(CatalogMock.menuItems.length / this.ITEMS_PER_PAGE), 1)
+    const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / this.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const start = safePage * this.ITEMS_PER_PAGE
     const end = start + this.ITEMS_PER_PAGE
-    const items = CatalogMock.menuItems.slice(start, end)
+    const items = CatalogData.menuItems.slice(start, end)
     return this.inlineKeyboard((k, l) => {
       const cb = this.data.callbackData.bind(this)
       items.forEach((item) => {
@@ -34,7 +34,7 @@ export class InlineWithCountPage extends PageBase {
   }
 
   async show(page: number, edit = true) {
-    const totalPages = Math.max(Math.ceil(CatalogMock.menuItems.length / this.ITEMS_PER_PAGE), 1)
+    const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / this.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const data = {page: safePage + 1, totalPages}
     const kb = this.buildKb(safePage)

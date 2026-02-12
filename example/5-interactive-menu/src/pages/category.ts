@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {CatalogMock} from "~/mock/catalog"
+import {CatalogData} from "~/data/catalog"
 import {ItemListPage} from "./item-list"
 import {StartPage} from "./start"
 
@@ -13,7 +13,7 @@ export class CategoryPage extends PageBase {
 
   kb() {
     return this.inlineKeyboard((k, l) => {
-      CatalogMock.list.forEach((category, index) => {
+      CatalogData.list.forEach((category, index) => {
         k.text(category.name, this.data.callbackData(`category`, category.id))
         if (index % 2 === 1) k.row()
       })
