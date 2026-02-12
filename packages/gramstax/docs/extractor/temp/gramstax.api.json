@@ -18746,7 +18746,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#log:member",
-              "docComment": "/**\n * Logger instance for debugging and info output.\n *\n * @remarks\n *\n * Uses {@link LoggingUtil} for formatted log output.\n */\n",
+              "docComment": "/**\n * Logger instance for debugging and info output.\n *\n * @remarks\n *\n * Uses {@link LoggingHelper} for formatted log output.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18754,8 +18754,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "LoggingUtil",
-                  "canonicalReference": "gramstax!LoggingUtil:class"
+                  "text": "LoggingHelper",
+                  "canonicalReference": "gramstax!LoggingHelper:class"
                 },
                 {
                   "kind": "Content",
@@ -19302,8 +19302,8 @@
             },
             {
               "kind": "Reference",
-              "text": "LoggingUtil",
-              "canonicalReference": "gramstax!LoggingUtil:class"
+              "text": "LoggingHelper",
+              "canonicalReference": "gramstax!LoggingHelper:class"
             },
             {
               "kind": "Content",
@@ -20651,7 +20651,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "gramstax!log:var",
-          "docComment": "/**\n * Pre-instantiated {@link LoggingUtil} singleton for convenience.\n *\n * @example\n * ```typescript\n * import { log } from \"gramstax\";\n *\n * // Basic logging\n * log.info(\"Application started\");\n * log.debug(\"Debug message\");\n * log.warn(\"Warning message\");\n * log.error(\"Error message\");\n * log.success(\"Success message\");\n *\n * // Timing measurements\n * log.time(\"request\", \"Processing user request\");\n * log.timeEnd(\"request\", \"Request completed\");\n * // Output: (245ms) request: Request completed\n *\n * // Multiple checkpoints\n * log.time(\"pipeline\", \"Starting data pipeline\");\n * log.timeLog(\"pipeline\", \"Step 1 complete\");\n * // Output: (150ms) pipeline: Step 1 complete\n * log.timeLog(\"pipeline\", \"Step 2 complete\");\n * // Output: (350ms) pipeline: Step 2 complete\n * log.timeEnd(\"pipeline\", \"All steps complete\");\n * // Output: (500ms) pipeline: All steps complete\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Pre-instantiated {@link LoggingHelper} singleton for convenience.\n *\n * @example\n * ```typescript\n * import { log } from \"gramstax\";\n *\n * // Basic logging\n * log.info(\"Application started\");\n * log.debug(\"Debug message\");\n * log.warn(\"Warning message\");\n * log.error(\"Error message\");\n * log.success(\"Success message\");\n *\n * // Timing measurements\n * log.time(\"request\", \"Processing user request\");\n * log.timeEnd(\"request\", \"Request completed\");\n * // Output: (245ms) request: Request completed\n *\n * // Multiple checkpoints\n * log.time(\"pipeline\", \"Starting data pipeline\");\n * log.timeLog(\"pipeline\", \"Step 1 complete\");\n * // Output: (150ms) pipeline: Step 1 complete\n * log.timeLog(\"pipeline\", \"Step 2 complete\");\n * // Output: (350ms) pipeline: Step 2 complete\n * log.timeEnd(\"pipeline\", \"All steps complete\");\n * // Output: (500ms) pipeline: All steps complete\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -20659,8 +20659,8 @@
             },
             {
               "kind": "Reference",
-              "text": "LoggingUtil",
-              "canonicalReference": "gramstax!LoggingUtil:class"
+              "text": "LoggingHelper",
+              "canonicalReference": "gramstax!LoggingHelper:class"
             }
           ],
           "fileUrlPath": "dist/src/index.d.ts",
@@ -20674,12 +20674,12 @@
         },
         {
           "kind": "Class",
-          "canonicalReference": "gramstax!LoggingUtil:class",
-          "docComment": "/**\n * Extends {@link https://www.npmjs.com/package/logging-pretty | LoggingPretty} to provide enhanced logging functionality.\n *\n * @remarks\n *\n * Inherits all methods from `LoggingPretty` including `info()`, `debug()`, `warn()`, `error()`, and `success()`. Adds helper methods for formatted error logging with class/function context and timing measurements.\n *\n * @example\n * ```typescript\n * import { LoggingUtil, log } from \"gramstax\";\n *\n * // Use the singleton\n * log.info(\"Application started\");\n *\n * // Time measurement\n * log.time(\"operation\", \"Starting database query\");\n * // ... do work ...\n * log.timeEnd(\"operation\", \"Query completed\");\n * // Output: (245ms) operation: Query completed\n *\n * // Or create a new instance\n * const logger = new LoggingUtil();\n * logger.errorMake(new Error(\"Oops\"), \"Worker\", \"init\");\n * ```\n *\n * @public\n */\n",
+          "canonicalReference": "gramstax!LoggingHelper:class",
+          "docComment": "/**\n * Extends {@link https://www.npmjs.com/package/logging-pretty | LoggingPretty} to provide enhanced logging functionality.\n *\n * @remarks\n *\n * Inherits all methods from `LoggingPretty` including `info()`, `debug()`, `warn()`, `error()`, and `success()`. Adds helper methods for formatted error logging with class/function context and timing measurements.\n *\n * @example\n * ```typescript\n * import { LoggingHelper, log } from \"gramstax\";\n *\n * // Use the singleton\n * log.info(\"Application started\");\n *\n * // Time measurement\n * log.time(\"operation\", \"Starting database query\");\n * // ... do work ...\n * log.timeEnd(\"operation\", \"Query completed\");\n * // Output: (245ms) operation: Query completed\n *\n * // Or create a new instance\n * const logger = new LoggingHelper();\n * logger.errorMake(new Error(\"Oops\"), \"Worker\", \"init\");\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "declare class LoggingUtil extends "
+              "text": "declare class LoggingHelper extends "
             },
             {
               "kind": "Reference",
@@ -20694,13 +20694,13 @@
           "fileUrlPath": "dist/src/index.d.ts",
           "releaseTag": "Public",
           "isAbstract": false,
-          "name": "LoggingUtil",
+          "name": "LoggingHelper",
           "preserveMemberOrder": false,
           "members": [
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!LoggingUtil#_formatErrorObj:member(1)",
-              "docComment": "/**\n * Format an error object to a JSON string.\n *\n * @param pureError - The error to format. If an `Error` object, extracts message, stack, and name.\n *\n * @returns JSON string representation of the error.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n * const formatted = logger._formatErrorObj(new Error(\"Test\"));\n * // => '{\\n  \"message\": \"Test\",\\n  \"stack\": \"...\",\\n  \"name\": \"Error\"\\n}'\n * ```\n *\n * @public\n */\n",
+              "canonicalReference": "gramstax!LoggingHelper#_formatErrorObj:member(1)",
+              "docComment": "/**\n * Format an error object to a JSON string.\n *\n * @param pureError - The error to format. If an `Error` object, extracts message, stack, and name.\n *\n * @returns JSON string representation of the error.\n *\n * @example\n * ```typescript\n * const logger = new LoggingHelper();\n * const formatted = logger._formatErrorObj(new Error(\"Test\"));\n * // => '{\\n  \"message\": \"Test\",\\n  \"stack\": \"...\",\\n  \"name\": \"Error\"\\n}'\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -20747,8 +20747,8 @@
             },
             {
               "kind": "Constructor",
-              "canonicalReference": "gramstax!LoggingUtil:constructor(1)",
-              "docComment": "/**\n * Creates a new LoggingUtil instance.\n *\n * @param options - LoggingPretty constructor options. Passed through to parent `LoggingPretty`.\n */\n",
+              "canonicalReference": "gramstax!LoggingHelper:constructor(1)",
+              "docComment": "/**\n * Creates a new LoggingHelper instance.\n *\n * @param options - LoggingPretty constructor options. Passed through to parent `LoggingPretty`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -20793,8 +20793,8 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!LoggingUtil#errorMake:member(1)",
-              "docComment": "/**\n * Log a formatted error message with optional class and function context.\n *\n * @param pureError - The error to log. Can be an `Error` object or any value.\n *\n * @param constructorName - Class name for context. Format is `[ClassName:methodName] error`.\n *\n * @param funcName - Method/function name. Format is `[methodName] error` if no class.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * try {\n *   throw new Error(\"Something went wrong\");\n * } catch (error) {\n *   logger.errorMake(error, \"UserService\", \"createUser\");\n *   // Logs: [UserService:createUser] { \"message\": \"Something went wrong\", ... }\n * }\n * ```\n *\n * @public\n */\n",
+              "canonicalReference": "gramstax!LoggingHelper#errorMake:member(1)",
+              "docComment": "/**\n * Log a formatted error message with optional class and function context.\n *\n * @param pureError - The error to log. Can be an `Error` object or any value.\n *\n * @param constructorName - Class name for context. Format is `[ClassName:methodName] error`.\n *\n * @param funcName - Method/function name. Format is `[methodName] error` if no class.\n *\n * @example\n * ```typescript\n * const logger = new LoggingHelper();\n *\n * try {\n *   throw new Error(\"Something went wrong\");\n * } catch (error) {\n *   logger.errorMake(error, \"UserService\", \"createUser\");\n *   // Logs: [UserService:createUser] { \"message\": \"Something went wrong\", ... }\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -20873,8 +20873,8 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!LoggingUtil#time:member(1)",
-              "docComment": "/**\n * Start a timer with a custom label.\n *\n * @param label - Unique identifier for this timer. Used with `timeEnd()` to calculate duration.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * logger.time(\"db-query\");\n * logger.time(\"api-call\");\n * ```\n *\n * @public\n */\n",
+              "canonicalReference": "gramstax!LoggingHelper#time:member(1)",
+              "docComment": "/**\n * Start a timer with a custom label.\n *\n * @param label - Unique identifier for this timer. Used with `timeEnd()` to calculate duration.\n *\n * @example\n * ```typescript\n * const logger = new LoggingHelper();\n *\n * logger.time(\"db-query\");\n * logger.time(\"api-call\");\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -20921,8 +20921,8 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!LoggingUtil#timeActive:member(1)",
-              "docComment": "/**\n * Get all active timer labels.\n *\n * @returns Array of active timer labels.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * logger.time(\"task1\");\n * logger.time(\"task2\");\n * const active = logger.timeActive();\n * // => [\"task1\", \"task2\"]\n * ```\n *\n * @public\n */\n",
+              "canonicalReference": "gramstax!LoggingHelper#timeActive:member(1)",
+              "docComment": "/**\n * Get all active timer labels.\n *\n * @returns Array of active timer labels.\n *\n * @example\n * ```typescript\n * const logger = new LoggingHelper();\n *\n * logger.time(\"task1\");\n * logger.time(\"task2\");\n * const active = logger.timeActive();\n * // => [\"task1\", \"task2\"]\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -20952,8 +20952,8 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!LoggingUtil#timeCheck:member(1)",
-              "docComment": "/**\n * Get the elapsed time for a running timer without ending it.\n *\n * @param label - The timer label to check.\n *\n * @returns Elapsed time in milliseconds, or `undefined` if timer doesn't exist.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * logger.time(\"long-process\");\n * // ... do some work ...\n * const elapsed = logger.timeCheck(\"long-process\");\n * logger.info(`Progress check: ${elapsed}ms elapsed`);\n * // ... continue work ...\n * logger.timeEnd(\"long-process\");\n * ```\n *\n * @public\n */\n",
+              "canonicalReference": "gramstax!LoggingHelper#timeCheck:member(1)",
+              "docComment": "/**\n * Get the elapsed time for a running timer without ending it.\n *\n * @param label - The timer label to check.\n *\n * @returns Elapsed time in milliseconds, or `undefined` if timer doesn't exist.\n *\n * @example\n * ```typescript\n * const logger = new LoggingHelper();\n *\n * logger.time(\"long-process\");\n * // ... do some work ...\n * const elapsed = logger.timeCheck(\"long-process\");\n * logger.info(`Progress check: ${elapsed}ms elapsed`);\n * // ... continue work ...\n * logger.timeEnd(\"long-process\");\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -21000,8 +21000,8 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!LoggingUtil#timeClear:member(1)",
-              "docComment": "/**\n * Clear all active timers.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * logger.time(\"task1\");\n * logger.time(\"task2\");\n * logger.timeClear();\n * // All timers cleared\n * ```\n *\n * @public\n */\n",
+              "canonicalReference": "gramstax!LoggingHelper#timeClear:member(1)",
+              "docComment": "/**\n * Clear all active timers.\n *\n * @example\n * ```typescript\n * const logger = new LoggingHelper();\n *\n * logger.time(\"task1\");\n * logger.time(\"task2\");\n * logger.timeClear();\n * // All timers cleared\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -21031,8 +21031,8 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!LoggingUtil#timeEnd:member(1)",
-              "docComment": "/**\n * End a timer and log the elapsed time with an optional custom message.\n *\n * @param label - The timer label to end. Must match a label from `time()`.\n *\n * @param message - Optional custom message to display with the elapsed time.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * logger.time(\"db-query\", \"Fetching users\");\n * // ... perform database query ...\n * logger.timeEnd(\"db-query\", \"Query completed\");\n * // Logs: (245ms) db-query: Query completed\n *\n * logger.time(\"processing\");\n * // ... do work ...\n * logger.timeEnd(\"processing\");\n * // Logs: (1523ms) processing\n * ```\n *\n * @public\n */\n",
+              "canonicalReference": "gramstax!LoggingHelper#timeEnd:member(1)",
+              "docComment": "/**\n * End a timer and log the elapsed time with an optional custom message.\n *\n * @param label - The timer label to end. Must match a label from `time()`.\n *\n * @param message - Optional custom message to display with the elapsed time.\n *\n * @example\n * ```typescript\n * const logger = new LoggingHelper();\n *\n * logger.time(\"db-query\", \"Fetching users\");\n * // ... perform database query ...\n * logger.timeEnd(\"db-query\", \"Query completed\");\n * // Logs: (245ms) db-query: Query completed\n *\n * logger.time(\"processing\");\n * // ... do work ...\n * logger.timeEnd(\"processing\");\n * // Logs: (1523ms) processing\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -21095,8 +21095,8 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!LoggingUtil#timeLog:member(1)",
-              "docComment": "/**\n * Log a checkpoint with elapsed time without ending the timer.\n *\n * @param label - The timer label to checkpoint.\n *\n * @param message - Optional custom message for this checkpoint.\n *\n * @example\n * ```typescript\n * const logger = new LoggingUtil();\n *\n * logger.time(\"data-processing\", \"Starting data pipeline\");\n * // ... step 1 ...\n * logger.timeLog(\"data-processing\", \"Step 1: Data loaded\");\n * // Logs: (245ms) data-processing: Step 1: Data loaded\n * // ... step 2 ...\n * logger.timeLog(\"data-processing\", \"Step 2: Data transformed\");\n * // Logs: (589ms) data-processing: Step 2: Data transformed\n * // ... step 3 ...\n * logger.timeEnd(\"data-processing\", \"Pipeline completed\");\n * // Logs: (1234ms) data-processing: Pipeline completed\n * ```\n *\n * @public\n */\n",
+              "canonicalReference": "gramstax!LoggingHelper#timeLog:member(1)",
+              "docComment": "/**\n * Log a checkpoint with elapsed time without ending the timer.\n *\n * @param label - The timer label to checkpoint.\n *\n * @param message - Optional custom message for this checkpoint.\n *\n * @example\n * ```typescript\n * const logger = new LoggingHelper();\n *\n * logger.time(\"data-processing\", \"Starting data pipeline\");\n * // ... step 1 ...\n * logger.timeLog(\"data-processing\", \"Step 1: Data loaded\");\n * // Logs: (245ms) data-processing: Step 1: Data loaded\n * // ... step 2 ...\n * logger.timeLog(\"data-processing\", \"Step 2: Data transformed\");\n * // Logs: (589ms) data-processing: Step 2: Data transformed\n * // ... step 3 ...\n * logger.timeEnd(\"data-processing\", \"Pipeline completed\");\n * // Logs: (1234ms) data-processing: Pipeline completed\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -27246,37 +27246,6 @@
               "name": "kill"
             },
             {
-              "kind": "Method",
-              "canonicalReference": "gramstax!WorkerThreadLaunch#mtdReady:member(1)",
-              "docComment": "/**\n * Internal method called by worker to signal readiness.\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "mtdReady(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "mtdReady"
-            },
-            {
               "kind": "Property",
               "canonicalReference": "gramstax!WorkerThreadLaunch#path:member",
               "docComment": "",
@@ -27371,6 +27340,37 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "ready"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!WorkerThreadLaunch#readyResolve:member(1)",
+              "docComment": "/**\n * Internal method called by worker to signal readiness.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readyResolve(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "readyResolve"
             },
             {
               "kind": "Property",

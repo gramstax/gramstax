@@ -345,20 +345,6 @@ Terminate the worker thread immediately.
 </td></tr>
 <tr><td>
 
-[mtdReady()](./gramstax.workerthreadlaunch.mtdready.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Internal method called by worker to signal readiness.
-
-
-</td></tr>
-<tr><td>
-
 [ready()](./gramstax.workerthreadlaunch.ready.md)
 
 
@@ -368,6 +354,20 @@ Internal method called by worker to signal readiness.
 </td><td>
 
 Wait for the worker to signal it's ready.
+
+
+</td></tr>
+<tr><td>
+
+[readyResolve()](./gramstax.workerthreadlaunch.readyresolve.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Internal method called by worker to signal readiness.
 
 
 </td></tr>

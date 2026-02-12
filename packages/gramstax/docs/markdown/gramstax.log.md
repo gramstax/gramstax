@@ -4,12 +4,12 @@
 
 ## log variable
 
-Pre-instantiated [LoggingUtil](./gramstax.loggingutil.md) singleton for convenience.
+Pre-instantiated [LoggingHelper](./gramstax.logginghelper.md) singleton for convenience.
 
 **Signature:**
 
 ```typescript
-log: LoggingUtil
+log: LoggingHelper
 ```
 
 ## Example

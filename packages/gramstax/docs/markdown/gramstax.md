@@ -74,7 +74,7 @@ Provides static utilities for keyboard data manipulation, specifically for rever
 </td></tr>
 <tr><td>
 
-[LoggingUtil](./gramstax.loggingutil.md)
+[LoggingHelper](./gramstax.logginghelper.md)
 
 
 </td><td>
@@ -237,7 +237,7 @@ Description
 
 </td><td>
 
-Pre-instantiated [LoggingUtil](./gramstax.loggingutil.md) singleton for convenience.
+Pre-instantiated [LoggingHelper](./gramstax.logginghelper.md) singleton for convenience.
 
 
 </td></tr>

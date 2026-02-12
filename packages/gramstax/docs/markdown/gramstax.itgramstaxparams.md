@@ -12,7 +12,7 @@ Configuration options for Gramstax bot instance.
 type ITGramstaxParams = {
     token: string;
     deploy: string;
-    log?: LoggingUtil | boolean | null;
+    log?: LoggingHelper | boolean | null;
     botConfig?: BotConfig<Context>;
     webhookQueue?: ITWebhookQueueConfig;
     cacheSession?: CacheExternal;
@@ -23,5 +23,5 @@ type ITGramstaxParams = {
     };
 };
 ```
-**References:** [LoggingUtil](./gramstax.loggingutil.md)<!-- -->, [ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)
+**References:** [LoggingHelper](./gramstax.logginghelper.md)<!-- -->, [ITWebhookQueueConfig](./gramstax.itwebhookqueueconfig.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)
 

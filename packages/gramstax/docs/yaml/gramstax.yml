@@ -9,7 +9,7 @@ classes:
   - gramstax!Ctx:class
   - gramstax!Gramstax:class
   - gramstax!LabelKeyboard:class
-  - gramstax!LoggingUtil:class
+  - gramstax!LoggingHelper:class
   - gramstax!MockTelegramServer:class
   - gramstax!PageManager:class
   - gramstax!TemplateEngine:class

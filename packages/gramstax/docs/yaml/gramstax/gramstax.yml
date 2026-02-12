@@ -123,14 +123,14 @@ properties:
     package: gramstax!
     fullName: log
     summary: Logger instance for debugging and info output.
-    remarks: Uses [LoggingUtil](xref:gramstax!LoggingUtil:class) for formatted log output.
+    remarks: Uses [LoggingHelper](xref:gramstax!LoggingHelper:class) for formatted log output.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'log: LoggingUtil | undefined;'
+      content: 'log: LoggingHelper | undefined;'
       return:
-        type: <xref uid="gramstax!LoggingUtil:class" /> | undefined
+        type: <xref uid="gramstax!LoggingHelper:class" /> | undefined
   - name: optionsPage
     uid: gramstax!Gramstax#optionsPage:member
     package: gramstax!

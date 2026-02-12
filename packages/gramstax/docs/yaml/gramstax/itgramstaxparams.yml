@@ -12,7 +12,7 @@ syntax: |-
   type ITGramstaxParams = {
       token: string;
       deploy: string;
-      log?: LoggingUtil | boolean | null;
+      log?: LoggingHelper | boolean | null;
       botConfig?: BotConfig<Context>;
       webhookQueue?: ITWebhookQueueConfig;
       cacheSession?: CacheExternal;

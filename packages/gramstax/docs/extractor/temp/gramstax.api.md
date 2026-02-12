@@ -379,7 +379,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     hookErrorInputNotFoundPage(ctx: ICtx): Promise<void>;
     // @virtual
     hookErrorPage(ctx: ICtx, listenerName: string, error: any, isEdit: boolean): Promise<void>;
-    log: LoggingUtil | undefined;
+    log: LoggingHelper | undefined;
     _onCallbackQueryData(ct: Context): Promise<void>;
     _onCatch(error: BotError<Context>): void;
     _onMessage(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<void>;
@@ -821,7 +821,7 @@ export type ITData = Record<string, any>;
 export type ITGramstaxParams = {
     token: string;
     deploy: string;
-    log?: LoggingUtil | boolean | null;
+    log?: LoggingHelper | boolean | null;
     botConfig?: BotConfig<Context>;
     webhookQueue?: ITWebhookQueueConfig;
     cacheSession?: CacheExternal;
@@ -977,10 +977,10 @@ export class LabelKeyboard {
 }
 
 // @public
-export const log: LoggingUtil;
+export const log: LoggingHelper;
 
 // @public
-export class LoggingUtil extends LoggingPretty {
+export class LoggingHelper extends LoggingPretty {
     constructor(options?: ConstructorParameters<typeof LoggingPretty>[0]);
     errorMake(pureError: any, constructorName?: any, funcName?: string): void;
     _formatErrorObj(pureError: any): string;
@@ -1226,11 +1226,11 @@ export class WorkerThreadLaunch {
     init(): void;
     static isMainThread: boolean;
     kill(): void;
-    mtdReady(): void;
     // (undocumented)
     path: string;
     pid: number;
     ready(): Promise<void>;
+    readyResolve(): void;
     // (undocumented)
     register?: any | undefined;
     request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;

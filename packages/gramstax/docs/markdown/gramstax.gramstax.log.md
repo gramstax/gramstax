@@ -9,10 +9,10 @@ Logger instance for debugging and info output.
 **Signature:**
 
 ```typescript
-log: LoggingUtil | undefined;
+log: LoggingHelper | undefined;
 ```
 
 ## Remarks
 
-Uses [LoggingUtil](./gramstax.loggingutil.md) for formatted log output.
+Uses [LoggingHelper](./gramstax.logginghelper.md) for formatted log output.
 

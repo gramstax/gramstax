@@ -91,8 +91,8 @@ items:
             uid: gramstax!ITWebhookQueueConfig:type
           - name: LabelKeyboard
             uid: gramstax!LabelKeyboard:class
-          - name: LoggingUtil
-            uid: gramstax!LoggingUtil:class
+          - name: LoggingHelper
+            uid: gramstax!LoggingHelper:class
           - name: MockTelegramServer
             uid: gramstax!MockTelegramServer:class
           - name: PageManager

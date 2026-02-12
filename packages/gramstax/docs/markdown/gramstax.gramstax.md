@@ -191,7 +191,7 @@ Handler function for processing bot updates.
 
 </td><td>
 
-[LoggingUtil](./gramstax.loggingutil.md) \| undefined
+[LoggingHelper](./gramstax.logginghelper.md) \| undefined
 
 
 </td><td>
