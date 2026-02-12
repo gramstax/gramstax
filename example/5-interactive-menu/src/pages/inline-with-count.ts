@@ -1,6 +1,7 @@
 import {PageBase} from "~/base/page"
-import {CatalogMock} from "~/mock/catalog"
 import {StartPage} from "./start"
+import {BlankPage} from "./blank"
+import {CatalogMock} from "~/mock/catalog"
 
 // Inline keyboard with total page count.
 export class InlineWithCountPage extends PageBase {
@@ -24,7 +25,7 @@ export class InlineWithCountPage extends PageBase {
       if (safePage > 0) {
         k.text(l[0]!, cb(`page`, safePage - 1))
       }
-      k.text(`${l[2]} ${safePage + 1}/${totalPages}`, `_`)
+      k.text(`${l[2]} ${safePage + 1}/${totalPages}`, BlankPage.data.callbackData())
       if (safePage < totalPages - 1) {
         k.text(l[1]!, cb(`page`, safePage + 1))
       }

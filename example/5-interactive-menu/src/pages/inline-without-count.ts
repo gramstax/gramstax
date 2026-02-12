@@ -1,6 +1,7 @@
 import {PageBase} from "~/base/page"
 import {CatalogMock} from "~/mock/catalog"
 import {StartPage} from "./start"
+import {BlankPage} from "./blank"
 
 // Inline keyboard with page info (no total count).
 export class InlineWithoutCountPage extends PageBase {
@@ -24,7 +25,7 @@ export class InlineWithoutCountPage extends PageBase {
       if (hasPrevious) {
         k.text(l[0]!, this.data.callbackData(`page`, safePage - 1))
       }
-      k.text(`${l[2]} ${safePage + 1}`, `_`)
+      k.text(`${l[2]} ${safePage + 1}`, BlankPage.data.callbackData())
       if (hasMore) {
         k.text(l[1]!, this.data.callbackData(`page`, safePage + 1))
       }

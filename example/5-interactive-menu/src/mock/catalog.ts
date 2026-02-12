@@ -1,14 +1,4 @@
-export type CatalogItem = {
-  id: string
-  name: string
-  description: string
-}
-
-export type CatalogCategory = {
-  id: string
-  name: string
-  items: CatalogItem[]
-}
+import type {CatalogCategory} from "./catalog.d"
 
 export class CatalogMock {
   // Sample catalog data used for menus and pagination.
@@ -47,11 +37,9 @@ export class CatalogMock {
   ]
 
   static menuItems = CatalogMock.list.flatMap((category) => category.items.map((item) => ({id: item.id, name: item.name, category: category.name})))
-
   static getCategoryById(categoryId: string) {
     return this.list.find((category) => category.id === categoryId)
   }
-
   static getItemById(categoryId: string, itemId: string) {
     const category = this.getCategoryById(categoryId)
     return category?.items.find((item) => item.id === itemId)
