@@ -9,7 +9,7 @@ import {LoggingPretty} from "logging-pretty"
  *
  * @example
  * ```typescript
- * import { LoggingUtil, log } from "gramstax";
+ * import { LoggingHelper, log } from "gramstax";
  *
  * // Use the singleton
  * log.info("Application started");
@@ -21,13 +21,13 @@ import {LoggingPretty} from "logging-pretty"
  * // Output: (245ms) operation: Query completed
  *
  * // Or create a new instance
- * const logger = new LoggingUtil();
+ * const logger = new LoggingHelper();
  * logger.errorMake(new Error("Oops"), "Worker", "init");
  * ```
  *
  * @public
  */
-export class LoggingUtil extends LoggingPretty {
+export class LoggingHelper extends LoggingPretty {
   /**
    * Internal map to store timing labels and their start timestamps.
    * @internal
@@ -35,7 +35,7 @@ export class LoggingUtil extends LoggingPretty {
   private timers: Map<string, bigint> = new Map()
 
   /**
-   * Creates a new LoggingUtil instance.
+   * Creates a new LoggingHelper instance.
    *
    * @param options - LoggingPretty constructor options. Passed through to parent `LoggingPretty`.
    */
@@ -52,7 +52,7 @@ export class LoggingUtil extends LoggingPretty {
    *
    * @example
    * ```typescript
-   * const logger = new LoggingUtil();
+   * const logger = new LoggingHelper();
    *
    * try {
    *   throw new Error("Something went wrong");
@@ -75,7 +75,7 @@ export class LoggingUtil extends LoggingPretty {
    *
    * @example
    * ```typescript
-   * const logger = new LoggingUtil();
+   * const logger = new LoggingHelper();
    * const formatted = logger._formatErrorObj(new Error("Test"));
    * // => '{\n  "message": "Test",\n  "stack": "...",\n  "name": "Error"\n}'
    * ```
@@ -93,7 +93,7 @@ export class LoggingUtil extends LoggingPretty {
    *
    * @example
    * ```typescript
-   * const logger = new LoggingUtil();
+   * const logger = new LoggingHelper();
    *
    * logger.time("db-query");
    * logger.time("api-call");
@@ -113,7 +113,7 @@ export class LoggingUtil extends LoggingPretty {
    *
    * @example
    * ```typescript
-   * const logger = new LoggingUtil();
+   * const logger = new LoggingHelper();
    *
    * logger.time("db-query", "Fetching users");
    * // ... perform database query ...
@@ -152,7 +152,7 @@ export class LoggingUtil extends LoggingPretty {
    *
    * @example
    * ```typescript
-   * const logger = new LoggingUtil();
+   * const logger = new LoggingHelper();
    *
    * logger.time("long-process");
    * // ... do some work ...
@@ -180,7 +180,7 @@ export class LoggingUtil extends LoggingPretty {
    *
    * @example
    * ```typescript
-   * const logger = new LoggingUtil();
+   * const logger = new LoggingHelper();
    *
    * logger.time("data-processing", "Starting data pipeline");
    * // ... step 1 ...
@@ -215,7 +215,7 @@ export class LoggingUtil extends LoggingPretty {
    *
    * @example
    * ```typescript
-   * const logger = new LoggingUtil();
+   * const logger = new LoggingHelper();
    *
    * logger.time("task1");
    * logger.time("task2");
@@ -236,7 +236,7 @@ export class LoggingUtil extends LoggingPretty {
    *
    * @example
    * ```typescript
-   * const logger = new LoggingUtil();
+   * const logger = new LoggingHelper();
    *
    * logger.time("task1");
    * logger.time("task2");
@@ -252,7 +252,7 @@ export class LoggingUtil extends LoggingPretty {
 }
 
 /**
- * Pre-instantiated {@link LoggingUtil} singleton for convenience.
+ * Pre-instantiated {@link LoggingHelper} singleton for convenience.
  *
  * @example
  * ```typescript
@@ -282,4 +282,4 @@ export class LoggingUtil extends LoggingPretty {
  *
  * @public
  */
-export const log = new LoggingUtil()
+export const log = new LoggingHelper()

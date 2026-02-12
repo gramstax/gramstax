@@ -1,7 +1,7 @@
 import type {BotConfig, Context} from "grammy"
 import type {CacheExternal} from "~/cache/external"
 import type {TemplateManager} from "~/template/manager"
-import type {LoggingUtil} from "~/utils/log"
+import type {LoggingHelper} from "~/helpers/log"
 
 /**
  * Webhook queue configuration for backpressure and worker pooling.
@@ -150,7 +150,7 @@ export type ITGramstaxParams = {
    *
    * @defaultValue `false`
    */
-  log?: LoggingUtil | boolean | null
+  log?: LoggingHelper | boolean | null
 
   /**
    * grammY Bot configuration options.

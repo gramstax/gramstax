@@ -144,7 +144,7 @@ export class WorkerThreadInit {
   constructor() {
     this.init()
     this.rpc = new WorkerThreadRpc(this.send.bind(this), this)
-    this.send({method: `mtdReady`})
+    this.send({method: `readyResolve`})
   }
 
   /**

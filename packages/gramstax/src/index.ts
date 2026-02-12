@@ -1,4 +1,4 @@
-export * from "./utils/log"
+export * from "./helpers/log"
 export * from "./cache/external"
 export * from "./core/bot"
 export * from "./core/ctx"

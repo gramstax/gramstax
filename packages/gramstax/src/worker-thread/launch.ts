@@ -152,7 +152,7 @@ export class WorkerThreadLaunch {
    * Internal method called by worker to signal readiness.
    * @public
    */
-  mtdReady() {
+  readyResolve() {
     this._readyResolve?.()
   }
 

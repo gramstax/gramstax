@@ -5,7 +5,7 @@ import utc from "dayjs/plugin/utc"
 dayjs.extend(utc)
 dayjs.extend(tz)
 
-export class TimeUt {
+export class TimeHe {
   static template = `YYYY-MM-DD HH:mm:ss`
 
   /**

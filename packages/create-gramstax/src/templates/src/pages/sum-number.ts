@@ -22,17 +22,23 @@ export class SumNumberPage extends PageBase {
     if (step === `left`) {
       if (!Number.isFinite(value)) {
         await this.sessionFreeText({step: `left`})
-        return await this.reply(this.kb(BASE.pleft), {}, BASE.pleft)
+        const bi = BASE.pleft
+        const kb = this.kb(bi)
+        return await this.reply(kb, {}, bi)
       }
 
       await this.sessionFreeText({step: `right`, left: value})
-      return await this.reply(this.kb(BASE.pright), {}, BASE.pright)
+      const bi = BASE.pright
+      const kb = this.kb(bi)
+      return await this.reply(kb, {}, bi)
     }
 
     if (step === `right`) {
       if (!Number.isFinite(value)) {
         await this.sessionFreeText({step: `right`, left})
-        return await this.reply(this.kb(BASE.pright), {}, BASE.pright)
+        const bi = BASE.pright
+        const kb = this.kb(bi)
+        return await this.reply(kb, {}, bi)
       }
 
       if (!Number.isFinite(left ?? NaN)) {
@@ -40,19 +46,22 @@ export class SumNumberPage extends PageBase {
         return await this.first(false)
       }
 
-      const result = left! + value
       await this.clearSession()
-      return await this.reply(this.kb(BASE.result), {result}, BASE.result)
+      const bi = BASE.result
+      const kb = this.kb(bi)
+      const da = {result: left! + value}
+      await this.reply(kb, da, bi)
     }
   }
 
   private async first(edit: boolean) {
     await this.sessionFreeText({step: `left`})
     const {BASE} = SumNumberPage
-    const kb = this.kb(BASE.pleft)
+    const bi = BASE.pleft
+    const kb = this.kb(bi)
 
-    if (edit) await this.edit(kb, {}, BASE.pleft)
-    else await this.reply(kb, {}, BASE.pleft)
+    if (edit) await this.edit(kb, {}, bi)
+    else await this.reply(kb, {}, bi)
   }
 
   private kb(baseId: string) {

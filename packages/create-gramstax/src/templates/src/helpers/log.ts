@@ -1,2 +1,2 @@
 import {log} from "gramstax"
-export {log}
+export {log as LogHe}

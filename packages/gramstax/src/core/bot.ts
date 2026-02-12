@@ -1,5 +1,5 @@
 import {Ctx} from "./ctx"
-import {log, type LoggingUtil} from "~/utils/log"
+import {log, type LoggingHelper} from "~/helpers/log"
 import {PageManager} from "~/page/manager"
 import {readFileSync} from "node:fs"
 import {fileURLToPath} from "node:url"
@@ -97,9 +97,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Logger instance for debugging and info output.
    *
    * @remarks
-   * Uses {@link LoggingUtil} for formatted log output.
+   * Uses {@link LoggingHelper} for formatted log output.
    */
-  log: LoggingUtil | undefined
+  log: LoggingHelper | undefined
 
   /**
    * The underlying grammY Bot instance.

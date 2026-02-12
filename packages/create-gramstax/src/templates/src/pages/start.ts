@@ -15,9 +15,9 @@ export class StartPage extends PageBase {
   async show(edit = true) {
     await this.clearSession()
     const kb = this.inlineKeyboardT([RandomNumberPage, SumNumberPage, HelpPage], `2`)
-    const data = {userName: this.userName}
-    if (edit) await this.edit(kb, data)
-    else await this.reply(kb, data)
+    const da = {userName: this.userName}
+    if (edit) await this.edit(kb, da)
+    else await this.reply(kb, da)
   }
 
   static template = `
