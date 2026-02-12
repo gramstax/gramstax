@@ -1,4 +1,4 @@
-import type {CatalogCategory} from "./catalog.d"
+import type {CatalogCategory} from "./catalog-types"
 
 export class CatalogMock {
   // Sample catalog data used for menus and pagination.

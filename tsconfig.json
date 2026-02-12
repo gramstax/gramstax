@@ -34,7 +34,7 @@
   },
   "files": [],
   "include": [
-    "*.ts"
+    "*.ts",
   ],
   "references": [
     {
