@@ -3,9 +3,9 @@ import {PageBase} from "~/base/page"
 export class StartPage extends PageBase {
   async show(edit = true) {
     const kb = this.inlineKeyboardT([this])
-    const data = {time: new Date().toString()}
-    if (edit) await this.edit(kb, data)
-    else await this.reply(kb, data)
+    const da = {time: new Date().toString()}
+    if (edit) await this.edit(kb, da)
+    else await this.reply(kb, da)
   }
 
   async handleCommandText() {

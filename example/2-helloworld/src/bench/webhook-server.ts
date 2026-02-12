@@ -1,5 +1,5 @@
-import {env} from "../env"
-import {log} from "../utils/log"
+import {Env} from "../env"
+import {LogHe} from "../helpers/log"
 import {BotCore} from "../core/bot"
 import {MockTelegramServer} from "gramstax"
 
@@ -10,18 +10,18 @@ const perChatConcurrency = Number(process.env.WEBHOOK_CHAT_CONCURRENCY ?? `1`)
 
 const webhookUrl = `http://127.0.0.1:3000/webhook`
 
-const mockServer = new MockTelegramServer({token: env.TELEGRAM_BOT_TOKEN})
+const mockServer = new MockTelegramServer({token: Env.TELEGRAM_BOT_TOKEN})
 await mockServer.start()
 process.once(`SIGINT`, () => mockServer.stop())
 process.once(`SIGTERM`, () => mockServer.stop())
 
-log.info(`Starting webhook benchmark server...`)
-log.info(`Webhook URL: ${webhookUrl}`)
-log.info(`Queue enabled: ${queueEnabled}`)
+LogHe.info(`Starting webhook benchmark server...`)
+LogHe.info(`Webhook URL: ${webhookUrl}`)
+LogHe.info(`Queue enabled: ${queueEnabled}`)
 
 new BotCore({
   deploy: `webhook:${webhookUrl}`,
-  token: env.TELEGRAM_BOT_TOKEN,
+  token: Env.TELEGRAM_BOT_TOKEN,
   log: true,
   botConfig: {client: {apiRoot: mockServer.apiRoot}},
   webhookQueue: queueEnabled
