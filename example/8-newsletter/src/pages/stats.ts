@@ -7,7 +7,8 @@ export class StatsPage extends PageBase {
     const subscribed = await this.db.isSubscribed(this.userId)
 
     const kb = this.inlineKeyboardT([StartPage])
-    await this.edit(kb, {count, subscribed})
+    const da = {count, subscribed}
+    await this.edit(kb, da)
   }
 
   static template = `

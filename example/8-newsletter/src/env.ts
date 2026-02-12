@@ -1,6 +1,6 @@
-export const env = {
-  DB_PATH: `./data` as string,
-  TELEGRAM_BOT_DEPLOY: `polling` as string,
-  TELEGRAM_BOT_TOKEN: `7815352851:AAGdLYBm8GKF7f26zi7cUmxsKM2jZseqgfI` as string,
-  TELEGRAM_ADMIN_IDS: JSON.parse(`[840754970]`) as number[]
+export class Env {
+  static DB_PATH = `./data` as string
+  static TELEGRAM_BOT_DEPLOY = `polling` as string
+  static TELEGRAM_BOT_TOKEN = `7815352851:AAGdLYBm8GKF7f26zi7cUmxsKM2jZseqgfI` as string
+  static TELEGRAM_ADMIN_IDS = JSON.parse(`[840754970]`) as number[]
 }

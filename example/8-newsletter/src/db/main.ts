@@ -1,3 +1,4 @@
+import {Env} from "~/env"
 import {open} from "lmdb"
 
 export type ISubscriber = {
@@ -11,7 +12,7 @@ export type ISubscriber = {
 export class MainDb {
   private db: ReturnType<typeof open>
 
-  constructor(storePath: string) {
+  constructor(storePath = Env.DB_PATH) {
     this.db = open(storePath, {compression: true, sharedStructuresKey: Symbol.for(`structures`)})
   }
 

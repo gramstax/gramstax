@@ -1,11 +1,10 @@
-import {env} from "~/env"
 import {MainDb} from "~/db/main"
 import {CtxCore} from "./ctx"
 import {Gramstax} from "gramstax"
 import {GeneralStatusPage} from "~/pages/general-status"
 
 export class BotCore extends Gramstax {
-  db = new MainDb(env.DB_PATH)
+  db = new MainDb()
 
   createCtx(ct: Parameters<Gramstax[`createCtx`]>[0]) {
     return new CtxCore({

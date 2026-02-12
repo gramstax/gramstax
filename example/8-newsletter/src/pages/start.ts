@@ -7,10 +7,10 @@ export class StartPage extends PageBase {
   async show(edit = true) {
     await this.clearSession()
     const subscribed = await this.db.isSubscribed(this.userId)
-    const data = {subscribed}
-    const kb = this.inlineKeyboardT([ToggleSubscriptionPage, StatsPage, HelpPage], `2`, undefined, data)
-    if (edit) await this.edit(kb, data)
-    else await this.reply(kb, data)
+    const da = {subscribed}
+    const kb = this.inlineKeyboardT([ToggleSubscriptionPage, StatsPage, HelpPage], `2`, undefined, da)
+    if (edit) await this.edit(kb, da)
+    else await this.reply(kb, da)
   }
 
   async handleCallbackData() {
