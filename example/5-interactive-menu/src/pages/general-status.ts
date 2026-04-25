@@ -3,7 +3,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Perform {
-  static async dec(ctx: GeneralStatusPage, isNotFound: boolean, edit = true) {
+  static async built(ctx: GeneralStatusPage, isNotFound: boolean, edit = true) {
     const kb = ctx.inlineKeyboardT([StartPage])
     const da = {isNotFound}
     if (edit) {
@@ -19,11 +19,11 @@ class Alert {
     LogHe.errorMake(error, ctx.constructorName, funcName)
 
     await ctx.clearSession()
-    await Perform.dec(ctx, false, edit)
+    await Perform.built(ctx, false, edit)
   }
 
   static async errorInputNotFound(ctx: GeneralStatusPage) {
-    await Perform.dec(ctx, true, false)
+    await Perform.built(ctx, true, false)
   }
 }
 

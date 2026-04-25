@@ -21,16 +21,10 @@ class Perform {
   static async delegate(ctx: ItemDetailPage) {
     const [action, categoryId, itemId] = ctx.callbackDataArgs
     if (action !== `detail` || !categoryId || !itemId) {
-      return await Alert.invalidSelection()
+      return
     }
 
     await Perform.entryPoint(ctx, categoryId, itemId)
-  }
-}
-
-class Alert {
-  static async invalidSelection() {
-    return null
   }
 }
 

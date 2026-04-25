@@ -9,7 +9,9 @@ class Helper {
 }
 
 class Alert {
-  static async error(ctx: GeneralStatusPage, edit = true) {
+  static async error(ctx: GeneralStatusPage, funcName: string, error: any, edit = true) {
+    LogHe.errorMake(error, ctx.constructorName, funcName)
+
     await ctx.clearSession()
     const kb = Helper.buildHomeKeyboard(ctx)
     const da = {isNotFound: false}
@@ -36,8 +38,7 @@ export class GeneralStatusPage extends PageBase {
   }
 
   async error(funcName: string, error: any, edit = true) {
-    LogHe.errorMake(error, this.constructorName, funcName)
-    await Alert.error(this, edit)
+    await Alert.error(this, funcName, error, edit)
   }
 
   async errorInputNotFound() {

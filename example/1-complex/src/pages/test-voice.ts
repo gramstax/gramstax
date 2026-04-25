@@ -1,10 +1,16 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Perform {
+  static async entryPoint(ctx: TestVoicePage) {
+    const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)])
+    await ctx.editVoice(kb)
+  }
+}
+
 export class TestVoicePage extends PageBase {
   async handleCallbackData() {
-    const kb = this.inlineKeyboardT([StartPage.data.callbackData(`3`)])
-    await this.editVoice(kb)
+    await Perform.entryPoint(this)
   }
 
   static template = `

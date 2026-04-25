@@ -5,9 +5,9 @@ class Perform {
   static async entryPoint(ctx: HelpPage, edit = true) {
     const kb = ctx.inlineKeyboardT([StartPage])
     if (edit) {
-      ctx.edit(kb)
+      await ctx.edit(kb)
     } else {
-      ctx.reply(kb)
+      await ctx.reply(kb)
     }
   }
 }

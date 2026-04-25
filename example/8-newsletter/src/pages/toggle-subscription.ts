@@ -2,13 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Perform {
-  static async showStart(ctx: ToggleSubscriptionPage, edit = true) {
-    await new StartPage(ctx).show(edit)
-  }
-}
-
-class Flow {
-  static async toggle(ctx: ToggleSubscriptionPage) {
+  static async entryPoint(ctx: ToggleSubscriptionPage) {
     const subscribed = await ctx.db.isSubscribed(ctx.userId)
     if (subscribed) {
       await ctx.db.unsubscribe(ctx.userId)
@@ -20,12 +14,14 @@ class Flow {
       })
     }
 
-    await Perform.showStart(ctx, true)
+    await new StartPage(ctx).transition(true)
   }
 }
 
 export class ToggleSubscriptionPage extends PageBase {
   async handleCallbackData() {
-    await Flow.toggle(this)
+    await Perform.entryPoint(this)
   }
+
+  static template = `<base></base>`
 }

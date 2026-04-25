@@ -7,7 +7,7 @@ class Base {
   static s1: `form-title`
   static s2: `form-description`
   static success: `success`
-  static invalid: `invalid`
+  static warnInvalid: `w-invalid`
 }
 
 class Helper {
@@ -29,7 +29,7 @@ class Flow {
     await ctx.edit(kb, da, bi)
   }
 
-  static async step2(ctx: CreatePage, title: string) {
+  static async step2Form(ctx: CreatePage, title: string) {
     await ctx.sessionFreeText({step: `description`, title})
     const bi = Base.s2
     const kb = Helper.buildHomeKeyboard(ctx, bi)
@@ -37,20 +37,20 @@ class Flow {
     await ctx.reply(kb, da, bi)
   }
 
-  static async processCreate(ctx: CreatePage, input?: string) {
+  static async step2Answer(ctx: CreatePage, input?: string) {
     const {step, title} = Helper.getSessionParams(ctx)
     const currentStep = step === `description` ? `description` : `title`
     const value = input?.trim()
     if (!value || !title) {
       await ctx.sessionFreeText({step: !value ? currentStep : `title`})
-      const bi = Base.invalid
+      const bi = Base.warnInvalid
       const kb = Helper.buildHomeKeyboard(ctx, bi)
       const da = {}
       return await ctx.reply(kb, da, bi)
     }
 
     if (currentStep === `title`) {
-      return await this.step2(ctx, value)
+      return await this.step2Form(ctx, value)
     }
 
     await ctx.clearSession()
@@ -82,7 +82,7 @@ export class CreatePage extends PageBase {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Flow.processCreate(this, this.msgText)
+    await Flow.step2Answer(this, this.msgText)
   }
 
   static template = `
@@ -140,7 +140,7 @@ export class CreatePage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.invalid}">
+    <base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid input

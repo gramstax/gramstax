@@ -4,9 +4,9 @@ import {TimeUt} from "~/utils/time"
 
 class Base {
   static s1Form: `form`
-  static s1Answer: `detail`
-  static notFound: `not-found`
-  static invalid: `invalid`
+  static success: `detail`
+  static infoNotFound: `i-notfound`
+  static warnInvalid: `w-invalid`
 }
 
 class Helper {
@@ -28,18 +28,26 @@ class Flow {
     const input = ctx.msgText.trim()
     const id = input?.trim()
     if (!id) {
-      return await Alert.invalid(ctx)
+      return await Alert.warnInvalid(ctx)
     }
-
     const item = await ctx.db.getItem(ctx.userId, id)
     if (!item) {
-      return await Alert.notFound(ctx, id)
+      return await Alert.infoNotFound(ctx, id)
     }
+    await Alert.success(ctx, item)
+  }
+}
 
+class Alert {
+  static async success(ctx: DetailPage, item: Awaited<ReturnType<DetailPage[`db`][`getItem`]>>) {
+    if (!item) {
+      return
+    }
     await ctx.clearSession()
     const createdAt = TimeUt.formatTimestamp(item.createdAt)
     const updatedAt = TimeUt.formatTimestamp(item.updatedAt)
-    const bi = Base.s1Answer
+
+    const bi = Base.success
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {
       id: item.id,
@@ -51,19 +59,17 @@ class Flow {
     }
     await ctx.reply(kb, da, bi)
   }
-}
 
-class Alert {
-  static async invalid(ctx: DetailPage) {
-    const bi = Base.invalid
+  static async warnInvalid(ctx: DetailPage) {
+    const bi = Base.warnInvalid
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {}
     await ctx.reply(kb, da, bi)
   }
 
-  static async notFound(ctx: DetailPage, id: string) {
+  static async infoNotFound(ctx: DetailPage, id: string) {
     await ctx.clearSession()
-    const bi = Base.notFound
+    const bi = Base.infoNotFound
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {id}
     await ctx.reply(kb, da, bi)
@@ -100,7 +106,7 @@ export class DetailPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.s1Answer}">
+    <base id="${Base.success}">
       ${this.kbk.home()}
       <message>
         📋 Item #{{id}}
@@ -122,7 +128,7 @@ export class DetailPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.notFound}">
+    <base id="${Base.infoNotFound}">
       ${this.kbk.cancel()}
       <message>
         ❌ Item not found: {{id}}
@@ -136,7 +142,7 @@ export class DetailPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.invalid}">
+    <base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid ID

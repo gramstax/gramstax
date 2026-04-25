@@ -1,31 +1,49 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Helper {
+  static kb(ctx: CounterPage) {
+    return ctx.inlineKeyboardT([ctx.data.callbackData(`I`), ctx.data.callbackData(`D`), StartPage], `2`)
+  }
+}
+
+class Flow {
+  static async step1Form(ctx: CounterPage) {
+    const kb = Helper.kb(ctx)
+    const key = `${ctx.userId}`
+    const count = (await ctx.cacheData.get(key)) || `0`
+    const da = {count}
+    await ctx.edit(kb, da)
+  }
+
+  static async step1Answer(ctx: CounterPage) {
+    const execution = ctx.callbackDataArg
+    const kb = Helper.kb(ctx)
+    const key = `${ctx.userId}`
+    const data = ((await ctx.cacheData.get(key)) as string) || `0`
+
+    let count
+    if (execution == `I`) {
+      count = `${parseInt(data) + 1}`
+    } else if (execution == `D`) {
+      count = `${parseInt(data) - 1}`
+    }
+
+    await ctx.cacheData.set(key, count)
+    const da = {count}
+    await ctx.edit(kb, da)
+  }
+}
+
 export class CounterPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
-  kb() {
-    return this.inlineKeyboardT([this.data.callbackData(`I`), this.data.callbackData(`D`), StartPage], `2`)
-  }
-
   async handleCallbackData() {
-    const kb = this.kb()
-    const key = `${this.userId}`
-    const count = (await this.cacheData.get(key)) || `0`
-    await this.edit(kb, {count})
+    await Flow.step1Form(this)
   }
 
   async handleArgsCallbackData() {
-    const execution = this.callbackDataArg
-    const kb = this.kb()
-    const key = `${this.userId}`
-    const data = ((await this.cacheData.get(key)) as string) || `0`
-
-    let count
-    if (execution == `I`) count = `${parseInt(data) + 1}`
-    if (execution == `D`) count = `${parseInt(data) - 1}`
-    await this.cacheData.set(key, count)
-    await this.edit(kb, {count})
+    await Flow.step1Answer(this)
   }
 
   static template = `

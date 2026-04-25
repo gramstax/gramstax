@@ -5,20 +5,20 @@ import {AdminGuard} from "~/guards/admin"
 type BroadcastSession = {
   step?: `message` | `confirm`
   draft?: string
-  mediaType?: `photo` | `video` | `animation`
   fileId?: string
   caption?: string
+  mediaType?: `photo` | `video` | `animation`
 }
 
 class Base {
-  static prompt = `prompt`
+  static step1Form = `s1-form`
   static confirm = `confirm`
   static confirmPhoto = `confirm-photo`
   static confirmVideo = `confirm-video`
   static confirmAnimation = `confirm-animation`
   static result = `result`
   static empty = `empty`
-  static cancelled = `cancelled`
+  static cancel = `cancel`
   static deliver = `deliver`
   static deliverPhoto = `deliver-photo`
   static deliverVideo = `deliver-video`
@@ -27,7 +27,7 @@ class Base {
 
 class Helper {
   static promptKb(ctx: BroadcastPage) {
-    return ctx.inlineKeyboardT([BroadcastPage.data.callbackData(`cancel`), StartPage], `2`, Base.prompt)
+    return ctx.inlineKeyboardT([BroadcastPage.data.callbackData(`cancel`), StartPage], `2`, Base.step1Form)
   }
 
   static confirmKb(ctx: BroadcastPage) {
@@ -43,9 +43,13 @@ class Helper {
   }
 
   static deliverMediaBase(mediaType: BroadcastSession[`mediaType`]) {
-    if (mediaType === `photo`) return Base.deliverPhoto
-    if (mediaType === `video`) return Base.deliverVideo
-    return Base.deliverAnimation
+    if (mediaType === `photo`) {
+      return Base.deliverPhoto
+    } else if (mediaType === `video`) {
+      return Base.deliverVideo
+    } else {
+      return Base.deliverAnimation
+    }
   }
 
   static async replyConfirmMedia(ctx: BroadcastPage, mediaType: NonNullable<BroadcastSession[`mediaType`]>, fileId: string, caption?: string) {
@@ -53,137 +57,176 @@ class Helper {
     const data = {fileId, caption}
 
     if (mediaType === `photo`) {
-      return await ctx.replyPhoto(kb, data, Base.confirmPhoto)
+      await ctx.replyPhoto(kb, data, Base.confirmPhoto)
+    } else if (mediaType === `video`) {
+      await ctx.replyVideo(kb, data, Base.confirmVideo)
+    } else {
+      await ctx.replyAnimation(kb, data, Base.confirmAnimation)
     }
-    if (mediaType === `video`) {
-      return await ctx.replyVideo(kb, data, Base.confirmVideo)
-    }
-
-    return await ctx.replyAnimation(kb, data, Base.confirmAnimation)
   }
 }
 
 class Alert {
-  static async emptyDraft(ctx: BroadcastPage, edit = false) {
+  static async infoEmptyDraft(ctx: BroadcastPage, edit = false) {
     await ctx.sessionFreeText({step: `message`})
     const kb = Helper.promptKb(ctx)
-    const data = {draft: `-`, isEmpty: true}
-
-    if (edit) return await ctx.edit(kb, data, Base.prompt)
-    return await ctx.reply(kb, data, Base.prompt)
+    const da = {draft: `-`, isEmpty: true}
+    const bi = Base.step1Form
+    if (edit) {
+      await ctx.edit(kb, da, bi)
+    } else {
+      await ctx.reply(kb, da, bi)
+    }
   }
 
   static async result(ctx: BroadcastPage, count: number) {
+    const bi = Base.result
     const kb = Helper.homeKb(ctx)
-    await ctx.edit(kb, {count}, Base.result)
+    const da = {count}
+    await ctx.edit(kb, da, bi)
   }
 
   static async emptySubscribers(ctx: BroadcastPage) {
     await ctx.clearSession()
+    const bi = Base.empty
     const kb = Helper.homeKb(ctx)
-    await ctx.edit(kb, {}, Base.empty)
-  }
-
-  static async cancelled(ctx: BroadcastPage) {
-    await ctx.clearSession()
-    const kb = Helper.homeKb(ctx)
-    await ctx.edit(kb, {}, Base.cancelled)
+    const da = {}
+    await ctx.edit(kb, da, bi)
   }
 }
 
 class Flow {
-  static async enter(ctx: BroadcastPage, edit = true) {
-    if (!AdminGuard.isAdmin(ctx)) return null
+  static async step1Form(ctx: BroadcastPage, draft: string, edit = true) {
+    if (!AdminGuard.isAdmin(ctx)) {
+      return null
+    }
 
     await ctx.sessionFreeText({step: `message`})
     const kb = Helper.promptKb(ctx)
-    const data = {draft: `-`, isEmpty: false}
-
-    if (edit) await ctx.edit(kb, data, Base.prompt)
-    else await ctx.reply(kb, data, Base.prompt)
+    const da = {draft, isEmpty: false}
+    const bi = Base.step1Form
+    if (edit) {
+      await ctx.edit(kb, da, bi)
+    } else {
+      await ctx.reply(kb, da, bi)
+    }
   }
 
-  static async handleArgs(ctx: BroadcastPage) {
-    const [action] = ctx.callbackDataArgs
-    if (!AdminGuard.isAdmin(ctx)) return null
+  static async step1Answer(ctx: BroadcastPage) {
+    console.log(ctx)
+    //
+  }
 
-    if (action === `send`) {
-      return await Flow.send(ctx)
-    }
-    if (action === `edit`) {
-      return await Flow.edit(ctx)
-    }
-    if (action === `cancel`) {
-      return await Flow.cancel(ctx)
-    }
-
-    await Flow.enter(ctx, true)
+  static async confirm(ctx: BroadcastPage, draft: string) {
+    await ctx.sessionFreeText({step: `confirm`, draft})
+    const bi = Base.confirm
+    const kb = Helper.confirmKb(ctx)
+    const da = {draft}
+    await ctx.reply(kb, da, bi)
   }
 
   static async freeText(ctx: BroadcastPage) {
-    if (!ctx.isSessionFreeText()) return null
+    if (!ctx.isSessionFreeText()) {
+      return null
+    }
+
     const {step} = Helper.sessionParams(ctx)
-    if (step !== `message`) return null
+    if (step !== `message`) {
+      return null
+    }
 
     const draft = ctx.msgText?.trim()
     if (!draft) {
-      return await Alert.emptyDraft(ctx)
+      await Alert.infoEmptyDraft(ctx)
+    } else {
+      await Flow.confirm(ctx, draft)
     }
-
-    await ctx.sessionFreeText({step: `confirm`, draft})
-    await ctx.reply(Helper.confirmKb(ctx), {draft}, Base.confirm)
   }
 
   static async freePhoto(ctx: BroadcastPage) {
-    if (!ctx.isSessionFreeText()) return null
+    if (!ctx.isSessionFreeText()) {
+      return null
+    }
+
     const {step} = Helper.sessionParams(ctx)
-    if (step !== `message`) return null
+    if (step !== `message`) {
+      return null
+    }
 
     const caption = ctx.msgCaption?.trim()
-    if (caption?.startsWith(`/`)) return null
+    if (caption?.startsWith(`/`)) {
+      return null
+    }
 
     const photos = ctx.msgPhoto
     const lastPhoto = photos?.[photos.length - 1]
-    if (!lastPhoto?.file_id) return null
+    if (!lastPhoto?.file_id) {
+      return null
+    }
 
     await ctx.sessionFreeText({step: `confirm`, mediaType: `photo`, fileId: lastPhoto.file_id, caption})
     await Helper.replyConfirmMedia(ctx, `photo`, lastPhoto.file_id, caption)
   }
 
   static async freeVideo(ctx: BroadcastPage) {
-    if (!ctx.isSessionFreeText()) return null
+    if (!ctx.isSessionFreeText()) {
+      return null
+    }
+
     const {step} = Helper.sessionParams(ctx)
-    if (step !== `message`) return null
+    if (step !== `message`) {
+      return null
+    }
 
     const caption = ctx.msgCaption?.trim()
-    if (caption?.startsWith(`/`)) return null
+    if (caption?.startsWith(`/`)) {
+      return null
+    }
 
     const fileId = ctx.msgVideo?.file_id
-    if (!fileId) return null
+    if (!fileId) {
+      return null
+    }
 
     await ctx.sessionFreeText({step: `confirm`, mediaType: `video`, fileId, caption})
     await Helper.replyConfirmMedia(ctx, `video`, fileId, caption)
   }
 
   static async freeAnimation(ctx: BroadcastPage) {
-    if (!ctx.isSessionFreeText()) return null
+    if (!ctx.isSessionFreeText()) {
+      return null
+    }
+
     const {step} = Helper.sessionParams(ctx)
-    if (step !== `message`) return null
+    if (step !== `message`) {
+      return null
+    }
 
     const caption = ctx.msgCaption?.trim()
-    if (caption?.startsWith(`/`)) return null
+    if (caption?.startsWith(`/`)) {
+      return null
+    }
 
     const fileId = ctx.msgAnimation?.file_id
-    if (!fileId) return null
+    if (!fileId) {
+      return null
+    }
 
     await ctx.sessionFreeText({step: `confirm`, mediaType: `animation`, fileId, caption})
     await Helper.replyConfirmMedia(ctx, `animation`, fileId, caption)
   }
+}
 
-  static async send(ctx: BroadcastPage) {
+class Perform {
+  static async actionEdit(ctx: BroadcastPage) {
+    const {draft, mediaType} = Helper.sessionParams(ctx)
+    await Flow.step1Form(ctx, mediaType ? `-` : draft || `-`, true)
+  }
+
+  static async actionSend(ctx: BroadcastPage) {
     const {draft, mediaType, fileId, caption} = Helper.sessionParams(ctx)
     if (!draft && !mediaType) {
-      return await Alert.emptyDraft(ctx, true)
+      return await Alert.infoEmptyDraft(ctx, true)
     }
 
     const subscribers = await ctx.db.listSubscribers()
@@ -198,42 +241,46 @@ class Flow {
     } else {
       await ctx.broadcast(ids, langs, undefined, {message: draft}, Base.deliver)
     }
-    await ctx.clearSession()
 
+    await ctx.clearSession()
     await Alert.result(ctx, subscribers.length)
   }
 
-  static async edit(ctx: BroadcastPage) {
-    const {draft, mediaType} = Helper.sessionParams(ctx)
-    if (mediaType) {
-      await ctx.sessionFreeText({step: `message`})
-      await ctx.edit(Helper.promptKb(ctx), {draft: `-`, isEmpty: false}, Base.prompt)
-      return
-    }
-
-    await ctx.sessionFreeText({step: `message`, draft})
-    await ctx.edit(Helper.promptKb(ctx), {draft: draft || `-`, isEmpty: false}, Base.prompt)
-  }
-
-  static async cancel(ctx: BroadcastPage) {
-    await Alert.cancelled(ctx)
+  static async actionCancel(ctx: BroadcastPage) {
+    await ctx.clearSession()
+    const bi = Base.cancel
+    const kb = Helper.homeKb(ctx)
+    const da = {}
+    await ctx.edit(kb, da, bi)
   }
 }
 
 export class BroadcastPage extends PageBase {
   static data = this.buildData((action?: string) => [action])
-  static BASE = Base
 
   async handleCallbackData() {
-    await Flow.enter(this, true)
+    await Flow.step1Form(this, `-`, true)
   }
 
   async handleCommandText() {
-    await Flow.enter(this, false)
+    await Flow.step1Form(this, `-`, false)
   }
 
   async handleArgsCallbackData() {
-    await Flow.handleArgs(this)
+    if (!AdminGuard.isAdmin(this)) {
+      return null
+    }
+
+    const [action] = this.callbackDataArgs
+    if (action === `send`) {
+      return await Perform.actionSend(this)
+    } else if (action === `edit`) {
+      return await Perform.actionEdit(this)
+    } else if (action === `cancel`) {
+      return await Perform.actionCancel(this)
+    } else {
+      await Flow.step1Form(this, `-`, true)
+    }
   }
 
   async handleFreeText() {
@@ -252,44 +299,12 @@ export class BroadcastPage extends PageBase {
     await Flow.freeAnimation(this)
   }
 
-  async handleSend() {
-    return await Flow.send(this)
-  }
-
-  async handleEdit() {
-    return await Flow.edit(this)
-  }
-
-  async handleCancel() {
-    return await Flow.cancel(this)
-  }
-
-  async startBroadcast(edit: boolean) {
-    return await Flow.enter(this, edit)
-  }
-
-  private promptKeyboard() {
-    return Helper.promptKb(this)
-  }
-
-  private confirmKeyboard() {
-    return Helper.confirmKb(this)
-  }
-
-  private getSessionParams() {
-    return Helper.sessionParams(this)
-  }
-
-  private getDeliverMediaBase(mediaType: BroadcastSession[`mediaType`]) {
-    return Helper.deliverMediaBase(mediaType)
-  }
-
   static template = `
     <base>
       ${this.kbk.home()}
     </base>
 
-    <base id="${this.BASE.prompt}">
+    <base id="${Base.step1Form}">
       <keyboard>${this.kbl.cancelHome.default}</keyboard>
       <keyboard lang="id">${this.kbl.cancelHome.id}</keyboard>
       <message>
@@ -312,7 +327,7 @@ export class BroadcastPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.confirm}">
+    <base id="${Base.confirm}">
       <keyboard>✅ Send, ✏️ Edit, ${this.kbl.cancelHome.default}</keyboard>
       <keyboard lang="id">✅ Kirim, ✏️ Edit, ${this.kbl.cancelHome.id}</keyboard>
       <message>
@@ -331,7 +346,7 @@ export class BroadcastPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.confirmPhoto}">
+    <base id="${Base.confirmPhoto}">
       <media type="photo" src="{{fileId}}">
         ✅ Confirm broadcast media
 
@@ -344,7 +359,7 @@ export class BroadcastPage extends PageBase {
       </media>
     </base>
 
-    <base id="${this.BASE.confirmVideo}">
+    <base id="${Base.confirmVideo}">
       <media type="video" src="{{fileId}}">
         ✅ Confirm broadcast media
 
@@ -357,7 +372,7 @@ export class BroadcastPage extends PageBase {
       </media>
     </base>
 
-    <base id="${this.BASE.confirmAnimation}">
+    <base id="${Base.confirmAnimation}">
       <media type="animation" src="{{fileId}}">
         ✅ Confirm broadcast media
 
@@ -370,7 +385,7 @@ export class BroadcastPage extends PageBase {
       </media>
     </base>
 
-    <base id="${this.BASE.result}">
+    <base id="${Base.result}">
       <message>
         🎉 Broadcast sent
 
@@ -385,7 +400,7 @@ export class BroadcastPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.empty}">
+    <base id="${Base.empty}">
       <message>
         📭 No subscribers yet.
         There is no one to broadcast to at the moment.
@@ -396,7 +411,7 @@ export class BroadcastPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.cancelled}">
+    <base id="${Base.cancel}">
       <message>
         ✖️ Broadcast cancelled.
         Draft discarded. You can restart the broadcast flow anytime.
@@ -407,7 +422,7 @@ export class BroadcastPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.deliver}">
+    <base id="${Base.deliver}">
       <message>
         📣 {{message}}
       </message>
@@ -416,7 +431,7 @@ export class BroadcastPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.deliverPhoto}">
+    <base id="${Base.deliverPhoto}">
       <media type="photo" src="{{fileId}}">
         📣 Broadcast update
 
@@ -429,7 +444,7 @@ export class BroadcastPage extends PageBase {
       </media>
     </base>
 
-    <base id="${this.BASE.deliverVideo}">
+    <base id="${Base.deliverVideo}">
       <media type="video" src="{{fileId}}">
         📣 Broadcast update
 
@@ -442,7 +457,7 @@ export class BroadcastPage extends PageBase {
       </media>
     </base>
 
-    <base id="${this.BASE.deliverAnimation}">
+    <base id="${Base.deliverAnimation}">
       <media type="animation" src="{{fileId}}">
         📣 Broadcast update
 

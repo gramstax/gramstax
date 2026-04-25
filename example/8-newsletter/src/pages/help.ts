@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Perform {
-  static async show(ctx: HelpPage) {
+  static async entryPoint(ctx: HelpPage) {
     const kb = ctx.inlineKeyboardT([StartPage])
     await ctx.edit(kb)
   }
@@ -10,7 +10,7 @@ class Perform {
 
 export class HelpPage extends PageBase {
   async handleCallbackData() {
-    await Perform.show(this)
+    await Perform.entryPoint(this)
   }
 
   static template = `

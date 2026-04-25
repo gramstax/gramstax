@@ -1,41 +1,33 @@
 import {PageBase} from "~/base/page"
-import {ToggleSubscriptionPage} from "./toggle-subscription"
-import {StatsPage} from "./stats"
 import {HelpPage} from "./help"
-
-class Base {}
-
-class Helper {
-  static kb(ctx: StartPage, data?: {subscribed: boolean}) {
-    return ctx.inlineKeyboardT([ToggleSubscriptionPage, StatsPage, HelpPage], `2`, undefined, data)
-  }
-}
+import {StatsPage} from "./stats"
+import {ToggleSubscriptionPage} from "./toggle-subscription"
 
 class Perform {
-  static async show(ctx: StartPage, edit = true) {
+  static async entryPoint(ctx: StartPage, edit = true) {
     await ctx.clearSession()
     const subscribed = await ctx.db.isSubscribed(ctx.userId)
-    const data = {subscribed}
-    const kb = Helper.kb(ctx, data)
-
-    if (edit) await ctx.edit(kb, data)
-    else await ctx.reply(kb, data)
+    const da = {subscribed}
+    const kb = ctx.inlineKeyboardT([ToggleSubscriptionPage, StatsPage, HelpPage], `2`, undefined, da)
+    if (edit) {
+      await ctx.edit(kb, da)
+    } else {
+      await ctx.reply(kb, da)
+    }
   }
 }
 
 export class StartPage extends PageBase {
-  static BASE = Base
-
-  async show(edit = true) {
-    await Perform.show(this, edit)
+  async transition(edit = true) {
+    await Perform.entryPoint(this, edit)
   }
 
   async handleCallbackData() {
-    await this.show(true)
+    await Perform.entryPoint(this, true)
   }
 
   async handleCommandText() {
-    await this.show(false)
+    await Perform.entryPoint(this, false)
   }
   static template = `
     <base>

@@ -67,14 +67,8 @@ class Perform {
       return
     }
     if (action === `item` && value) {
-      return await Alert.ignoreItem()
+      return
     }
-  }
-}
-
-class Alert {
-  static async ignoreItem() {
-    return
   }
 }
 

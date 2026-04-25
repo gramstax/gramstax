@@ -4,8 +4,8 @@ import {StartPage} from "./start"
 class Base {
   static form = `form`
   static success = `success`
-  static insufficient = `insufficient`
-  static invalid = `invalid`
+  static warnInsufficient = `w-insufficient`
+  static warnInvalid = `w-invalid`
 }
 
 class Helper {
@@ -15,7 +15,7 @@ class Helper {
 }
 
 class Flow {
-  static async enter(ctx: WithdrawPage) {
+  static async step1Form(ctx: WithdrawPage) {
     await ctx.sessionFreeText()
     const bi = Base.form
     const kb = Helper.kb(ctx, bi)
@@ -23,20 +23,20 @@ class Flow {
     await ctx.edit(kb, da, bi)
   }
 
-  static async process(ctx: WithdrawPage) {
+  static async step1Answer(ctx: WithdrawPage) {
     const amountInput = ctx.msgText.trim()
     if (!amountInput) {
-      return await Alert.invalid(ctx)
+      return await Alert.warnInvalid(ctx)
     }
 
     const amount = ctx.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      return await Alert.invalid(ctx, amountInput)
+      return await Alert.warnInvalid(ctx, amountInput)
     }
 
     const current = ctx.bankStore.getBalance(ctx.userId)
     if (current < amount) {
-      return await Alert.insufficient(ctx, ctx.bankStore.formatAmount(current))
+      return await Alert.warnInsufficient(ctx, ctx.bankStore.formatAmount(current))
     }
 
     const next = current - amount
@@ -54,26 +54,22 @@ class Flow {
 }
 
 class Alert {
-  static async success(ctx: WithdrawPage, amount: string, balance: string, edit = false) {
+  static async success(ctx: WithdrawPage, amount: string, balance: string) {
     const bi = Base.success
     const da = {amount, balance}
     const kb = Helper.kb(ctx, bi)
-    if (edit) {
-      await ctx.edit(kb, da, bi)
-    } else {
-      await ctx.reply(kb, da, bi)
-    }
+    await ctx.reply(kb, da, bi)
   }
 
-  static async insufficient(ctx: WithdrawPage, balance: string) {
-    const bi = Base.insufficient
+  static async warnInsufficient(ctx: WithdrawPage, balance: string) {
+    const bi = Base.warnInsufficient
     const kb = Helper.kb(ctx, bi)
     const da = {balance}
     await ctx.reply(kb, da, bi)
   }
 
-  static async invalid(ctx: WithdrawPage, amount = ``) {
-    const bi = Base.invalid
+  static async warnInvalid(ctx: WithdrawPage, amount = ``) {
+    const bi = Base.warnInvalid
     const kb = Helper.kb(ctx, bi)
     const da = {amount}
     await ctx.reply(kb, da, bi)
@@ -82,21 +78,19 @@ class Alert {
 
 // Withdraw funds from the user's balance.
 export class WithdrawPage extends PageBase {
-  static BASE = Base
-
   async handleCallbackData() {
-    await Flow.enter(this)
+    await Flow.step1Form(this)
   }
 
   async handleFreeText() {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Flow.process(this)
+    await Flow.step1Answer(this)
   }
 
   static template = `
-    <base id="form">
+    <base id="${Base.form}">
       ${this.kbk.cancel()}
       <message>
         ➖ Withdraw funds
@@ -106,7 +100,7 @@ export class WithdrawPage extends PageBase {
       </message>
     </base>
 
-    <base id="success">
+    <base id="${Base.success}">
       ${this.kbk.home()}
       <message>
         ✅ Withdrawal completed
@@ -116,7 +110,7 @@ export class WithdrawPage extends PageBase {
       </message>
     </base>
 
-    <base id="insufficient">
+    <base id="${Base.warnInsufficient}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Insufficient funds
@@ -126,7 +120,7 @@ export class WithdrawPage extends PageBase {
       </message>
     </base>
 
-    <base id="invalid">
+    <base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid amount

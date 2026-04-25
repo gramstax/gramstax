@@ -5,9 +5,9 @@ import type {MainItem} from "~/db/main"
 class Base {
   static list: `list`
   static success: `success`
-  static notFound: `not-found`
-  static invalid: `invalid`
-  static empty: `empty`
+  static errorNotFound: `e-notfound`
+  static warnInvalid: `w-invalid`
+  static infoEmpty: `i-empty`
 }
 
 class Helper {
@@ -45,8 +45,8 @@ class Alert {
     }
   }
 
-  static async notFound(ctx: DeletePage, id: string, edit: boolean) {
-    const bi = Base.notFound
+  static async errorNotFound(ctx: DeletePage, id: string, edit: boolean) {
+    const bi = Base.errorNotFound
     const da = {id}
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     if (edit) {
@@ -56,8 +56,8 @@ class Alert {
     }
   }
 
-  static async invalid(ctx: DeletePage, edit: boolean) {
-    const bi = Base.invalid
+  static async warnInvalid(ctx: DeletePage, edit: boolean) {
+    const bi = Base.warnInvalid
     const da = {}
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     if (edit) {
@@ -66,16 +66,20 @@ class Alert {
       await ctx.reply(kb, da, bi)
     }
   }
+
+  static async infoEmpty(ctx: DeletePage) {
+    const bi = Base.infoEmpty
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const da = {}
+    await ctx.edit(kb, da, bi)
+  }
 }
 
-class Perform {
-  static async showList(ctx: DeletePage) {
+class Flow {
+  static async step1Form(ctx: DeletePage) {
     const items = (await ctx.db.listItems(ctx.userId)).slice(0, Helper.MAX_ITEMS)
     if (items.length === 0) {
-      const bi = Base.empty
-      const kb = Helper.buildHomeKeyboard(ctx, bi)
-      const da = {}
-      await ctx.edit(kb, da, bi)
+      await Alert.infoEmpty(ctx)
     } else {
       const bi = Base.list
       const kb = Helper.buildListKeyboard(ctx, items)
@@ -84,16 +88,16 @@ class Perform {
     }
   }
 
-  static async handleDelete(ctx: DeletePage, input?: string, edit = false) {
+  static async step1Answer(ctx: DeletePage, input?: string, edit = false) {
     const id = input?.trim()
     if (!id) {
       await ctx.clearSession()
-      return await Alert.invalid(ctx, edit)
+      return await Alert.warnInvalid(ctx, edit)
     }
 
     const deleted = ctx.db.deleteItem(ctx.userId, id)
     if (!deleted) {
-      return await Alert.notFound(ctx, id, edit)
+      return await Alert.errorNotFound(ctx, id, edit)
     }
 
     await ctx.clearSession()
@@ -107,15 +111,15 @@ export class DeletePage extends PageBase {
 
   async handleCallbackData() {
     await this.sessionFreeText({step: `id`})
-    await Perform.showList(this)
+    await Flow.step1Form(this)
   }
 
   async handleArgsCallbackData() {
     const [action, id] = this.callbackDataArgs
     if (action === `pick` && id) {
-      await Perform.handleDelete(this, id, true)
+      await Flow.step1Answer(this, id, true)
     } else {
-      await Perform.showList(this)
+      await Flow.step1Form(this)
     }
   }
 
@@ -123,7 +127,7 @@ export class DeletePage extends PageBase {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Perform.handleDelete(this, this.msgText, false)
+    await Flow.step1Answer(this, this.msgText, false)
   }
 
   static template = `
@@ -155,7 +159,7 @@ export class DeletePage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.notFound}">
+    <base id="${Base.errorNotFound}">
       ${this.kbk.home()}
       <message>
         ❌ Item not found: {{id}}
@@ -169,7 +173,7 @@ export class DeletePage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.invalid}">
+    <base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid ID
@@ -183,7 +187,7 @@ export class DeletePage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.empty}">
+    <base id="${Base.infoEmpty}">
       ${this.kbk.home()}
       <message>
         📭 No items available to delete

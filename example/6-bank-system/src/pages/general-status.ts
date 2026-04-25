@@ -37,11 +37,11 @@ export class GeneralStatusPage extends PageBase {
     this.constructorName = p?.constructor?.name
   }
 
-  async toError(funcName: string, error: any, edit = true) {
+  async error(funcName: string, error: any, edit = true) {
     await Alert.error(this, funcName, error, edit)
   }
 
-  async toErrorInputNotFound() {
+  async errorInputNotFound() {
     await Alert.errorInputNotFound(this)
   }
 

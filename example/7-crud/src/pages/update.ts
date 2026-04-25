@@ -6,8 +6,8 @@ class Base {
   static select: `select`
   static status: `status`
   static success: `success`
-  static empty: `empty`
-  static notFound: `not-found`
+  static infoEmpty: `empty`
+  static errorNotFound: `i-not-found`
 }
 
 class Helper {
@@ -76,14 +76,17 @@ class Flow {
     }
   }
 
-  static async step2Form(ctx: UpdatePage, id: string) {
+  static async step1Answer(ctx: UpdatePage, id: string) {
     const item = await ctx.db.getItem(ctx.userId, id)
     if (!item) {
       return await Alert.infoNotFound(ctx, id)
     }
+    await this.step2Form(ctx, item)
+  }
 
+  static async step2Form(ctx: UpdatePage, item: {id: string; title: string; status: string}) {
     const bi = Base.status
-    const kb = Helper.buildStatusKeyboard(ctx, id)
+    const kb = Helper.buildStatusKeyboard(ctx, item.id)
     const da = {id: item.id, title: item.title, status: item.status}
     await ctx.edit(kb, da, bi)
   }
@@ -103,8 +106,15 @@ class Flow {
 }
 
 class Alert {
+  static async success(ctx: UpdatePage, id: string, status: MainItem[`status`]) {
+    const bi = Base.success
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const da = {id, status}
+    await ctx.reply(kb, da, bi)
+  }
+
   static async infoEmpty(ctx: UpdatePage, edit = true) {
-    const bi = Base.empty
+    const bi = Base.infoEmpty
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {}
     if (edit) {
@@ -115,17 +125,10 @@ class Alert {
   }
 
   static async infoNotFound(ctx: UpdatePage, id: string) {
-    const bi = Base.notFound
+    const bi = Base.errorNotFound
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {id}
     await ctx.edit(kb, da, bi)
-  }
-
-  static async success(ctx: UpdatePage, id: string, status: MainItem[`status`]) {
-    const bi = Base.success
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    const da = {id, status}
-    await ctx.reply(kb, da, bi)
   }
 }
 
@@ -145,7 +148,7 @@ export class UpdatePage extends PageBase {
     }
 
     if (action === `select` && query) {
-      return await Flow.step2Form(this, query)
+      return await Flow.step1Answer(this, query)
     }
 
     if (action === `status` && query && status) {
@@ -208,7 +211,7 @@ export class UpdatePage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.empty}">
+    <base id="${Base.infoEmpty}">
       ${this.kbk.home()}
       <message>
         📭 No items available to update
@@ -222,7 +225,7 @@ export class UpdatePage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.notFound}">
+    <base id="${Base.errorNotFound}">
       ${this.kbk.home()}
       <message>
         ❌ Item not found: {{id}}

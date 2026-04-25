@@ -1,16 +1,22 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-export class BlockMapPage extends PageBase {
-  async handleCallbackData() {
-    const kb = this.inlineKeyboardT([this, StartPage])
-    const data = {
+class Perform {
+  static async entryPoint(ctx: BlockMapPage) {
+    const kb = ctx.inlineKeyboardT([this, StartPage])
+    const da = {
       arr: Array.from({length: Math.floor(Math.random() * 4) + 3}, () => ({number: Math.random()})),
       status: 1,
       e: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`,
       i: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`
     }
-    await this.edit(kb, data)
+    await ctx.edit(kb, da)
+  }
+}
+
+export class BlockMapPage extends PageBase {
+  async handleCallbackData() {
+    await Perform.entryPoint(this)
   }
 
   static template = `

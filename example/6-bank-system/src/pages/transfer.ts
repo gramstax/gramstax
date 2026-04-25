@@ -3,25 +3,16 @@ import {StartPage} from "./start"
 
 class Base {
   static form = `form`
-  static invalid = `invalid`
   static success = `success`
-  static insufficient = `insufficient`
-  static unknownUser = `unknown-user`
-  static self = `self`
+  static warnInvalid = `invalid`
+  static warnInsufficient = `w-insufficient`
+  static warnUnknownUser = `w-unknown-user`
+  static warnSelf = `w-self`
 }
 
 class Helper {
   static kb(ctx: TransferPage, baseId?: string) {
     return ctx.inlineKeyboardT([StartPage], `1`, baseId)
-  }
-}
-
-class Perform {
-  static async entryPoint(ctx: TransferPage) {
-    const bi = Base.form
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
   }
 
   static resolveTarget(ctx: TransferPage, input: string) {
@@ -39,71 +30,37 @@ class Perform {
   }
 }
 
-class Alert {
-  static async invalid(ctx: TransferPage, amount = ``) {
-    const bi = Base.invalid
-    const kb = Helper.kb(ctx, bi)
-    const da = {amount}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async unknownUser(ctx: TransferPage, target: string) {
-    const bi = Base.unknownUser
-    const kb = Helper.kb(ctx, bi)
-    const da = {target}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async self(ctx: TransferPage) {
-    const bi = Base.self
+class Flow {
+  static async step1Form(ctx: TransferPage) {
+    const bi = Base.form
     const kb = Helper.kb(ctx, bi)
     const da = {}
-    await ctx.reply(kb, da, bi)
+    await ctx.edit(kb, da, bi)
   }
 
-  static async insufficient(ctx: TransferPage, balance: string) {
-    const bi = Base.insufficient
-    const kb = Helper.kb(ctx, bi)
-    const da = {balance}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async success(ctx: TransferPage, amount: string, balance: string, target: string, edit = false) {
-    const bi = Base.success
-    const kb = Helper.kb(ctx, bi)
-    const data = {amount, balance, target}
-    if (edit) {
-      await ctx.edit(kb, data, bi)
-    } else {
-      await ctx.reply(kb, data, bi)
-    }
-  }
-}
-
-class Flow {
-  static async process(ctx: TransferPage) {
+  static async step1Answer(ctx: TransferPage) {
     const [amountInput, targetInput] = ctx.msgText.trim().split(/\s+/)
     if (!amountInput || !targetInput) {
-      return await Alert.invalid(ctx)
+      return await Alert.warnInvalid(ctx)
     }
 
     const amount = ctx.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      return await Alert.invalid(ctx, amountInput)
+      return await Alert.warnInvalid(ctx, amountInput)
     }
 
-    const target = Perform.resolveTarget(ctx, targetInput)
+    const target = Helper.resolveTarget(ctx, targetInput)
     if (!target) {
-      return await Alert.unknownUser(ctx, targetInput)
+      return await Alert.warnUnknownUser(ctx, targetInput)
     }
 
     if (target.id === ctx.userId) {
-      return await Alert.self(ctx)
+      return await Alert.warnSelf(ctx)
     }
 
     const current = ctx.bankStore.getBalance(ctx.userId)
     if (current < amount) {
-      return await Alert.insufficient(ctx, ctx.bankStore.formatAmount(current))
+      return await Alert.warnInsufficient(ctx, ctx.bankStore.formatAmount(current))
     }
 
     const nextSender = current - amount
@@ -133,17 +90,54 @@ class Flow {
   }
 }
 
+class Alert {
+  static async warnInvalid(ctx: TransferPage, amount = ``) {
+    const bi = Base.warnInvalid
+    const kb = Helper.kb(ctx, bi)
+    const da = {amount}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async warnUnknownUser(ctx: TransferPage, target: string) {
+    const bi = Base.warnUnknownUser
+    const kb = Helper.kb(ctx, bi)
+    const da = {target}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async warnSelf(ctx: TransferPage) {
+    const bi = Base.warnSelf
+    const kb = Helper.kb(ctx, bi)
+    const da = {}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async warnInsufficient(ctx: TransferPage, balance: string) {
+    const bi = Base.warnInsufficient
+    const kb = Helper.kb(ctx, bi)
+    const da = {balance}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async success(ctx: TransferPage, amount: string, balance: string, target: string) {
+    const bi = Base.success
+    const kb = Helper.kb(ctx, bi)
+    const data = {amount, balance, target}
+    await ctx.reply(kb, data, bi)
+  }
+}
+
 // Transfer funds to another user.
 export class TransferPage extends PageBase {
   async handleCallbackData() {
-    await Perform.entryPoint(this)
+    await Flow.step1Form(this)
   }
 
   async handleFreeText() {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Flow.process(this)
+    await Flow.step1Answer(this)
   }
 
   static template = `
@@ -169,7 +163,7 @@ export class TransferPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.insufficient}">
+    <base id="${Base.warnInsufficient}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Insufficient funds
@@ -179,7 +173,7 @@ export class TransferPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.unknownUser}">
+    <base id="${Base.warnUnknownUser}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Recipient not found
@@ -189,7 +183,7 @@ export class TransferPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.self}">
+    <base id="${Base.warnSelf}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Transfer blocked
@@ -199,7 +193,7 @@ export class TransferPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.invalid}">
+    <base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid transfer format

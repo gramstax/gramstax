@@ -1,32 +1,50 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-export class TestAnimationPage extends PageBase {
-  static data = this.buildData((swc?: string) => [swc])
-  static BASE = {dynamicAttr: `dynamic-attribute`}
+class Base {
+  static dynamicAttr = `dynamic-attribute`
+}
 
-  kb(isDynamic = false) {
-    return this.inlineKeyboard((k, l) => {
+class Helper {
+  static kb(ctx: TestAnimationPage, isDynamic = false) {
+    return ctx.inlineKeyboard((k, l) => {
       return k //
-        .text(isDynamic ? l[1] : l[0]!, this.data.callbackData(isDynamic ? `static` : `dynamic`))
+        .text(isDynamic ? l[1] : l[0]!, ctx.data.callbackData(isDynamic ? `static` : `dynamic`))
         .row()
         .text(l[2]!, StartPage.data.callbackData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the `handleArgsCallbackData` route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
     })
   }
+}
 
-  async handleCallbackData() {
-    await this.editAnimation(this.kb())
+class Flow {
+  static async step1Form(ctx: TestAnimationPage) {
+    const kb = Helper.kb(ctx)
+    await ctx.editAnimation(kb)
   }
 
-  async handleArgsCallbackData() {
-    const swc = this.callbackDataArg
-    if (swc == `static`) return await this.handleCallbackData()
-    if (swc == `dynamic`) {
+  static async step1Answer(ctx: TestAnimationPage) {
+    const swc = ctx.callbackDataArg
+    if (swc == `static`) {
+      return await ctx.handleCallbackData()
+    } else if (swc == `dynamic`) {
       const data = {
         src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
       }
-      await this.editAnimation(this.kb(true), data, `dynamic-attribute`)
+      const kb = Helper.kb(ctx, true)
+      await ctx.editAnimation(kb, data, `dynamic-attribute`)
     }
+  }
+}
+
+export class TestAnimationPage extends PageBase {
+  static data = this.buildData((swc?: string) => [swc])
+
+  async handleCallbackData() {
+    await Flow.step1Form(this)
+  }
+
+  async handleArgsCallbackData() {
+    await Flow.step1Answer(this)
   }
 
   static template = `
@@ -45,7 +63,7 @@ export class TestAnimationPage extends PageBase {
       </media>
     </base>
     
-    <base id="${this.BASE.dynamicAttr}">
+    <base id="${Base.dynamicAttr}">
       <media type="animation" src="{{src}}">
         🧩 Dynamic attribute demo
 

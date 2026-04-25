@@ -1,26 +1,47 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-export class InputText2Page extends PageBase {
-  static data = this.buildData({intentCommandText: `input_text2`})
-  static BASE = {result: `result`}
+class Base {
+  static result: `result`
+}
 
-  kb(baseId?: string) {
-    return this.inlineKeyboardT([StartPage], `1`, baseId)
+class Helper {
+  static kb(ctx: InputText2Page, baseId?: string) {
+    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  }
+}
+
+class Perform {
+  static async entryPoint(ctx: InputText2Page, edit = true) {
+    const kb = Helper.kb(ctx)
+    if (edit) {
+      await ctx.edit(kb)
+    } else {
+      await ctx.reply(kb)
+    }
   }
 
+  static async nothing(ctx: InputText2Page) {
+    const bi = Base.result
+    const da = {res: ctx.msgText}
+    const kb = Helper.kb(ctx, bi)
+    await ctx.reply(kb, da, bi)
+  }
+}
+
+export class InputText2Page extends PageBase {
+  static data = this.buildData({intentCommandText: `input_text2`})
+
   async handleCallbackData() {
-    await this.edit(this.kb())
+    await Perform.entryPoint(this, true)
   }
 
   async handleCommandText() {
-    await this.reply(this.kb())
+    await Perform.entryPoint(this, false)
   }
 
   async handleFreeText() {
-    const bi = InputText2Page.BASE.result
-    const da = {res: this.msgText}
-    await this.reply(this.kb(bi), da, bi)
+    await Perform.nothing(this)
   }
 
   static template = `
@@ -37,7 +58,8 @@ export class InputText2Page extends PageBase {
         Kirim pesan untuk melihat balasan secara langsung.
       </message>
     </base>
-    <base id="${this.BASE.result}">
+
+    <base id="${Base.result}">
       ${this.kbk.home()}
       <message>
         ✅ Result (no session)

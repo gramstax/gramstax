@@ -70,7 +70,7 @@ class Helper {
 }
 
 class Perform {
-  static async main(ctx: StartPage, condition = 1) {
+  static async entryPoint(ctx: StartPage, condition = 1) {
     const kb = Helper.kb(ctx)
     const da = {
       firstName: ctx.userFirstName,
@@ -93,31 +93,31 @@ export class StartPage extends PageBase {
   static data = this.buildData((rdm?: string) => [rdm])
 
   async toError() {
-    await Perform.main(this, 1)
+    await Perform.entryPoint(this, 1)
   }
 
   async handleText() {
-    await Perform.main(this, 1)
+    await Perform.entryPoint(this, 1)
   }
 
   async handleArgsText() {
-    await Perform.main(this, 1)
+    await Perform.entryPoint(this, 1)
   }
 
   async handleCommandText() {
-    await Perform.main(this, 1)
+    await Perform.entryPoint(this, 1)
   }
 
   async handleCommandArgsText() {
-    await Perform.main(this, 1)
+    await Perform.entryPoint(this, 1)
   }
 
   async handleCallbackData() {
-    await Perform.main(this, 2)
+    await Perform.entryPoint(this, 2)
   }
 
   async handleArgsCallbackData() {
-    await Perform.main(this, 3)
+    await Perform.entryPoint(this, 3)
   }
 
   static template = `
@@ -142,6 +142,7 @@ export class StartPage extends PageBase {
         Acak: {{number}}
       </message>
     </base>
+    
     <base>
       <description>Default description command start</description>
       <description lang="en">[EN] Description command start</description>

@@ -4,7 +4,7 @@ import {StartPage} from "./start"
 class Base {
   static form = `form`
   static success = `success`
-  static invalid = `invalid`
+  static warnInvalid = `invalid`
 }
 
 class Helper {
@@ -14,7 +14,7 @@ class Helper {
 }
 
 class Flow {
-  static async step1(ctx: DepositPage) {
+  static async step1Form(ctx: DepositPage) {
     await ctx.sessionFreeText()
     const bi = Base.form
     const kb = Helper.kb(ctx, bi)
@@ -22,15 +22,15 @@ class Flow {
     await ctx.edit(kb, da, bi)
   }
 
-  static async step2(ctx: DepositPage) {
+  static async step2Answer(ctx: DepositPage) {
     const amountInput = ctx.msgText.trim()
     if (!amountInput) {
-      return await Alert.invalid(ctx)
+      return await Alert.warnInvalid(ctx)
     }
 
     const amount = ctx.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      return await Alert.invalid(ctx, amountInput)
+      return await Alert.warnInvalid(ctx, amountInput)
     }
 
     const current = ctx.bankStore.getBalance(ctx.userId)
@@ -56,8 +56,8 @@ class Alert {
     await ctx.reply(kb, da, bi)
   }
 
-  static async invalid(ctx: DepositPage, amount = ``) {
-    const bi = Base.invalid
+  static async warnInvalid(ctx: DepositPage, amount = ``) {
+    const bi = Base.warnInvalid
     const kb = Helper.kb(ctx, bi)
     const da = {amount}
     await ctx.reply(kb, da, bi)
@@ -67,14 +67,14 @@ class Alert {
 // Deposits funds into the user's balance.
 export class DepositPage extends PageBase {
   async handleCallbackData() {
-    await Flow.step1(this)
+    await Flow.step1Form(this)
   }
 
   async handleFreeText() {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Flow.step2(this)
+    await Flow.step2Answer(this)
   }
 
   static template = `
@@ -98,7 +98,7 @@ export class DepositPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.invalid}">
+    <base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid amount

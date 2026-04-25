@@ -1,10 +1,16 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Perform {
+  static async entryPoint(ctx: TestVideoNotePage) {
+    const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)])
+    await ctx.editVideoNote(kb)
+  }
+}
+
 export class TestVideoNotePage extends PageBase {
   async handleCallbackData() {
-    const kb = this.inlineKeyboardT([StartPage.data.callbackData(`3`)])
-    await this.editVideoNote(kb)
+    await Perform.entryPoint(this)
   }
 
   static template = `

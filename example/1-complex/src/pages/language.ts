@@ -28,18 +28,18 @@ class Helper {
   }
 }
 
-class Perform {
-  static async entryPoint(ctx: LanguagePage) {
+class Flow {
+  static async step1Form(ctx: LanguagePage) {
     const kb = Helper.kb(ctx)
     await ctx.edit(kb)
   }
 
-  static async delegate(ctx: LanguagePage) {
+  static async step2Answer(ctx: LanguagePage) {
     const language = ctx.callbackDataArg.toLowerCase()
 
     await ctx.cacheData.set(`${ctx.userId}:lang`, language)
     ctx.userLanguage = language
-    await this.entryPoint(ctx)
+    await this.step1Form(ctx)
   }
 }
 
@@ -47,11 +47,11 @@ export class LanguagePage extends PageBase {
   static data = this.buildData((lang?: string) => [lang])
 
   async handleCallbackData() {
-    await Perform.entryPoint(this)
+    await Flow.step1Form(this)
   }
 
   async handleArgsCallbackData() {
-    await Perform.delegate(this)
+    await Flow.step2Answer(this)
   }
 
   static template = `

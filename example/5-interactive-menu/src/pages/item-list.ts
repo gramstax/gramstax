@@ -48,10 +48,10 @@ class Perform {
 
     const category = CatalogData.getCategoryById(categoryId)
     const categoryName = category?.name || `Unknown`
+
     const da = {category: categoryName}
     const kb = Helper.kb(ctx, categoryId, page, category)
     const bi = Base.list
-
     if (isEdit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -62,7 +62,7 @@ class Perform {
   static async delegateOne(ctx: ItemListPage) {
     const categoryId = await ctx.cacheState.get(`${ctx.userId}:category`)
     if (!categoryId) {
-      await Alert.missingCategory(ctx)
+      await this.delegateMissingCategory(ctx)
     } else {
       await Perform.entryPoint(ctx, categoryId, 0, true)
     }
@@ -76,15 +76,13 @@ class Perform {
 
     const categoryId = await ctx.cacheState.get(`${ctx.userId}:category`)
     if (!categoryId) {
-      await Alert.missingCategory(ctx)
+      await this.delegateMissingCategory(ctx)
     } else {
       await Perform.entryPoint(ctx, categoryId, Number(value), true)
     }
   }
-}
 
-class Alert {
-  static async missingCategory(ctx: ItemListPage) {
+  static async delegateMissingCategory(ctx: ItemListPage) {
     await new CategoryPage(ctx).transition(true)
   }
 }

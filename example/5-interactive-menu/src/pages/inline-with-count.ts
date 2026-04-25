@@ -53,16 +53,8 @@ class Perform {
       await ctx.reply(kb, da, bi)
     }
   }
-}
 
-class Alert {
-  static async ignoreItem() {
-    return
-  }
-}
-
-class Flow {
-  static async handleArgsCallbackData(ctx: InlineWithCountPage) {
+  static async process(ctx: InlineWithCountPage) {
     const [action, value] = ctx.callbackDataArgs
     if (!action) {
       return
@@ -76,7 +68,7 @@ class Flow {
       return
     }
     if (action === `item` && value) {
-      return await Alert.ignoreItem()
+      return
     }
   }
 }
@@ -90,7 +82,7 @@ export class InlineWithCountPage extends PageBase {
   }
 
   async handleArgsCallbackData() {
-    await Flow.handleArgsCallbackData(this)
+    await Perform.process(this)
   }
 
   static template = `

@@ -1,8 +1,13 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Base {
+  static reset = `reset`
+  static delete = `delete`
+}
+
 class Perform {
-  static async main(ctx: KeyboardBottomPage, count?: number, baseId?: string) {
+  static async entryPoint(ctx: KeyboardBottomPage, count?: number, baseId?: string) {
     const pr = {data: {first: ctx.data.intentText}}
     const kb = ctx.bottomKeyboard((k, l) => {
       return k
@@ -23,27 +28,27 @@ export class KeyboardBottomPage extends PageBase {
   })
 
   async handleCallbackData() {
-    await Perform.main(this)
+    await Perform.entryPoint(this)
   }
 
   async handleText() {
-    await Perform.main(this)
+    await Perform.entryPoint(this)
   }
 
   async handleArgsText() {
-    await Perform.main(this, parseInt(this.msgTextArg))
+    await Perform.entryPoint(this, parseInt(this.msgTextArg))
   }
 
   async handleCommandText() {
-    await Perform.main(this)
+    await Perform.entryPoint(this)
   }
 
   async handleCommandArgsText() {
     const pl = this.msgTextCommandArg
     const kb = this.inlineKeyboardT([StartPage])
-    if (pl == `reset`) {
-      await Perform.main(this, kb, pl)
-    } else if (pl == `delete`) {
+    if (pl == Base.reset) {
+      await Perform.entryPoint(this, kb, pl)
+    } else if (pl == Base.delete) {
       const da = {}
       await this.reply(kb, da, pl, {
         reply_markup: {
@@ -71,7 +76,8 @@ export class KeyboardBottomPage extends PageBase {
         Gunakan keyboard bawah dengan emoji dan argument dinamis untuk aksi cepat.
       </message>
     </base>
-    <base id="reset">
+    
+    <base id="${Base.reset}">
       <message>
         ✅ Keyboard reset
 
@@ -83,7 +89,8 @@ export class KeyboardBottomPage extends PageBase {
         Keyboard bawah berhasil direset.
       </message>    
     </base>
-    <base id="delete">
+
+    <base id="${Base.delete}">
       <message>
         ✅ Keyboard removed
 
