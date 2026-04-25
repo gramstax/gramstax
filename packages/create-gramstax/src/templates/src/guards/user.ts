@@ -4,14 +4,14 @@ import {UserNameNotFoundPage} from "~/pages/username-notfound"
 
 export class UserGuard extends GuardBase {
   async _catch(err: any, func: any, isEdit: boolean) {
-    await new GeneralStatusPage(this).toError(func, err, isEdit)
+    await new GeneralStatusPage(this).error(func, err, isEdit)
     return null
   }
 
   async ensureUsername(edit: boolean) {
     try {
       if (!this.userName || this.userName.length == 0) {
-        await new UserNameNotFoundPage(this).transition(edit)
+        await new UserNameNotFoundPage(this).entryPoint(edit)
         return null
       }
       return {status: true}

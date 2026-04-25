@@ -1,79 +1,98 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-export class SumNumberPage extends PageBase {
-  static BASE = {pleft: `pleft`, pright: `pright`, result: `result`}
+class Base {
+  static pleft: `pleft`
+  static pright: `pright`
+  static result: `result`
+}
 
+class Helper {
+  static getSessionParams(ctx: SumNumberPage) {
+    return (ctx.temp.session?.params as {step?: `left` | `right`; left?: number} | undefined) ?? {}
+  }
+
+  static kb(ctx: SumNumberPage, baseId: string) {
+    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  }
+}
+
+class Flow {
+  static async step1Form(ctx: SumNumberPage, edit: boolean) {
+    await ctx.sessionFreeText({step: `left`})
+    const bi = Base.pleft
+    const kb = Helper.kb(ctx, bi)
+    const da = {}
+    if (edit) {
+      await ctx.edit(kb, da, bi)
+    } else {
+      await ctx.reply(kb, da, bi)
+    }
+  }
+
+  static async step1Answer(ctx: SumNumberPage, left: number) {
+    if (!Number.isFinite(left)) {
+      await Flow.step1Form(ctx, false)
+    } else {
+      await this.step2Form(ctx, left)
+    }
+  }
+
+  static async step2Form(ctx: SumNumberPage, left: number) {
+    await ctx.sessionFreeText({step: `right`, left})
+    const bi = Base.pright
+    const kb = Helper.kb(ctx, bi)
+    const da = {}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async step2Answer(ctx: SumNumberPage, left: number, right: number) {
+    if (!Number.isFinite(right)) {
+      await Flow.step2Form(ctx, right)
+    } else if (!Number.isFinite(right ?? NaN)) {
+      await ctx.clearSession()
+      await Flow.step1Form(ctx, false)
+    } else {
+      await Alert.success(ctx, left, right)
+    }
+  }
+}
+
+class Alert {
+  static async success(ctx: SumNumberPage, left: number, right: number) {
+    await ctx.clearSession()
+    const bi = Base.result
+    const kb = Helper.kb(ctx, bi)
+    const da = {result: left! + right}
+    await ctx.reply(kb, da, bi)
+  }
+}
+
+export class SumNumberPage extends PageBase {
   async handleCallbackData() {
-    await this.first(true)
+    await Flow.step1Form(this, true)
   }
 
   async handleCommandText() {
-    await this.first(false)
+    await Flow.step1Form(this, false)
   }
 
   async handleFreeText() {
-    if (!this.isSessionFreeText()) return null
-    const {BASE} = SumNumberPage
-    const {step, left} = this.getSessionParams()
+    if (!this.isSessionFreeText()) {
+      return null
+    }
+    const {step, left} = Helper.getSessionParams(this)
     const input = this.msgText?.trim()
     const value = input ? Number(input) : NaN
-
     if (step === `left`) {
-      if (!Number.isFinite(value)) {
-        await this.sessionFreeText({step: `left`})
-        const bi = BASE.pleft
-        const kb = this.kb(bi)
-        return await this.reply(kb, {}, bi)
-      }
-
-      await this.sessionFreeText({step: `right`, left: value})
-      const bi = BASE.pright
-      const kb = this.kb(bi)
-      return await this.reply(kb, {}, bi)
+      await Flow.step1Answer(this, value)
+    } else if (step === `right`) {
+      await Flow.step2Answer(this, left!, value)
     }
-
-    if (step === `right`) {
-      if (!Number.isFinite(value)) {
-        await this.sessionFreeText({step: `right`, left})
-        const bi = BASE.pright
-        const kb = this.kb(bi)
-        return await this.reply(kb, {}, bi)
-      }
-
-      if (!Number.isFinite(left ?? NaN)) {
-        await this.clearSession()
-        return await this.first(false)
-      }
-
-      await this.clearSession()
-      const bi = BASE.result
-      const kb = this.kb(bi)
-      const da = {result: left! + value}
-      await this.reply(kb, da, bi)
-    }
-  }
-
-  private async first(edit: boolean) {
-    await this.sessionFreeText({step: `left`})
-    const {BASE} = SumNumberPage
-    const bi = BASE.pleft
-    const kb = this.kb(bi)
-
-    if (edit) await this.edit(kb, {}, bi)
-    else await this.reply(kb, {}, bi)
-  }
-
-  private kb(baseId: string) {
-    return this.inlineKeyboardT([StartPage], `1`, baseId)
-  }
-
-  private getSessionParams() {
-    return (this.temp.session?.params as {step?: `left` | `right`; left?: number} | undefined) ?? {}
   }
 
   static template = `
-    <base id="${this.BASE.pleft}">
+    <base id="${Base.pleft}">
       ${this.kbk.cancel()}
       <message>
         <b>📚 Input Left Number</b>
@@ -86,7 +105,8 @@ export class SumNumberPage extends PageBase {
         Contoh: 23
       </message>
     </base>
-    <base id="${this.BASE.pright}">
+
+    <base id="${Base.pright}">
       ${this.kbk.cancel()}
       <message>
         <b>📚 Input Right Number</b>
@@ -99,7 +119,8 @@ export class SumNumberPage extends PageBase {
         Contoh: 10
       </message>
     </base>
-    <base id="${this.BASE.result}">
+
+    <base id="${Base.result}">
       ${this.kbk.home()}
       <message>
         <b>📚 Result Sum</b>

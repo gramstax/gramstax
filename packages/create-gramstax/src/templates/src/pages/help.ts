@@ -1,19 +1,24 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-export class HelpPage extends PageBase {
-  async show(edit = true) {
-    const kb = this.inlineKeyboardT([StartPage])
-    if (edit) await this.edit(kb)
-    else await this.reply(kb)
+class Perform {
+  static async entryPoint(ctx: HelpPage, edit = true) {
+    const kb = ctx.inlineKeyboardT([StartPage])
+    if (edit) {
+      await ctx.edit(kb)
+    } else {
+      await ctx.reply(kb)
+    }
   }
+}
 
+export class HelpPage extends PageBase {
   async handleCallbackData() {
-    await this.show(true)
+    await Perform.entryPoint(this, true)
   }
 
   async handleCommandText() {
-    await this.show(false)
+    await Perform.entryPoint(this, false)
   }
 
   static template = `

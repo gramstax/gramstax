@@ -3,21 +3,30 @@ import {PageBase} from "~/base/page"
 import {RandomNumberPage} from "./random-number"
 import {SumNumberPage} from "./sum-number"
 
+class Perform {
+  static async entryPoint(ctx: StartPage, edit = true) {
+    await ctx.clearSession()
+    const kb = ctx.inlineKeyboardT([RandomNumberPage, SumNumberPage, HelpPage], `2`)
+    const da = {userName: ctx.userName}
+    if (edit) {
+      await ctx.edit(kb, da)
+    } else {
+      await ctx.reply(kb, da)
+    }
+  }
+}
+
 export class StartPage extends PageBase {
   async handleCallbackData() {
-    await this.show(true)
+    await Perform.entryPoint(this, true)
   }
 
   async handleCommandText() {
-    await this.show(false)
+    await Perform.entryPoint(this, false)
   }
 
-  async show(edit = true) {
-    await this.clearSession()
-    const kb = this.inlineKeyboardT([RandomNumberPage, SumNumberPage, HelpPage], `2`)
-    const da = {userName: this.userName}
-    if (edit) await this.edit(kb, da)
-    else await this.reply(kb, da)
+  async entryPoint(edit = true) {
+    await Perform.entryPoint(this, edit)
   }
 
   static template = `

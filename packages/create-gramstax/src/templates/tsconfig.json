@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    // Short relative path
-    "baseUrl": ".",
     "paths": {
       "~/*": [
         "./src/*"

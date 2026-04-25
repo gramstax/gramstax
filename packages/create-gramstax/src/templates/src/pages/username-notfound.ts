@@ -1,11 +1,20 @@
 import {HelpPage} from "./help"
 import {PageBase} from "~/base/page"
 
+class Perform {
+  static async entryPoint(ctx: UserNameNotFoundPage, edit = true) {
+    const kb = ctx.inlineKeyboardT([HelpPage])
+    if (edit) {
+      await ctx.edit(kb)
+    } else {
+      await ctx.reply(kb)
+    }
+  }
+}
+
 export class UserNameNotFoundPage extends PageBase {
-  async transition(edit = true) {
-    const kb = this.inlineKeyboardT([HelpPage])
-    if (edit) await this.edit(kb)
-    else await this.reply(kb)
+  async entryPoint(edit = true) {
+    await Perform.entryPoint(this, edit)
   }
 
   static template = `

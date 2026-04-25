@@ -2199,7 +2199,7 @@ export class Ctx {
    * @virtual
    * @public
    */
-  async transition?(...args: any): Promise<any>
+  async entryPoint?(...args: any): Promise<any>
 
   // =============== route function
   /**
