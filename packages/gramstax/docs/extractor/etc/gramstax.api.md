@@ -333,8 +333,6 @@ export class Ctx {
     // @virtual
     static template?: string;
     templateManager: TemplateManager;
-    // @virtual
-    transition?(...args: any): Promise<any>;
     get userFirstName(): string;
     get userFullName(): string;
     get userId(): number;

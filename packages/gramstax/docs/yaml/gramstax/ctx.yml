@@ -6141,25 +6141,3 @@ methods:
       return:
         type: Promise&lt;boolean | null&gt;
         description: True if the session was set successfully, or null on error.
-  - name: transition(args)
-    uid: gramstax!Ctx#transition:member(1)
-    package: gramstax!
-    fullName: transition(args)
-    summary: Transition method for navigating between pages.
-    remarks: >-
-      Override this method in subclasses to implement page-to-page transitions. This is a placeholder that must be
-      implemented when needed.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: |-
-        /** @virtual */
-        transition?(...args: any): Promise<any>;
-      parameters:
-        - id: args
-          description: Transition parameters.
-          type: any
-      return:
-        type: Promise&lt;any&gt;
-        description: Promise resolving when transition is complete.

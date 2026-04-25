@@ -15398,59 +15398,6 @@
               "isAbstract": false
             },
             {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#transition:member(1)",
-              "docComment": "/**\n * Transition method for navigating between pages.\n *\n * @remarks\n *\n * Override this method in subclasses to implement page-to-page transitions. This is a placeholder that must be implemented when needed.\n *\n * @param args - Transition parameters.\n *\n * @returns Promise resolving when transition is complete.\n *\n * @virtual @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "transition?(...args: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<any>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "args",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": true,
-              "isAbstract": false,
-              "name": "transition"
-            },
-            {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#userFirstName:member",
               "docComment": "/**\n * The user's first name from the Telegram profile.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   console.log(this.userFirstName) // \"Alya\"\n * }\n * ```\n *\n * @readonly @public\n */\n",

@@ -3968,19 +3968,5 @@ Sets session data for the current user.
 
 
 </td></tr>
-<tr><td>
-
-[transition(args)?](./gramstax.ctx.transition.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Transition method for navigating between pages.
-
-
-</td></tr>
 </tbody></table>
 
