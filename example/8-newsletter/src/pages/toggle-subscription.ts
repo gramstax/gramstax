@@ -14,7 +14,7 @@ class Perform {
       })
     }
 
-    await new StartPage(ctx).transition(true)
+    await new StartPage(ctx).entryPoint(true)
   }
 }
 

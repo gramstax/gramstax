@@ -26,7 +26,7 @@ class Perform {
 export class ResetPage extends PageBase {
   static data = this.buildData({intentText: `Reset`})
 
-  async transition(edit = false) {
+  async entryPoint(edit = false) {
     await Perform.entryPoint(this, edit)
   }
 

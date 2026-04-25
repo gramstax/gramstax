@@ -18,7 +18,7 @@ class Perform {
 }
 
 export class StartPage extends PageBase {
-  async transition(edit = true) {
+  async entryPoint(edit = true) {
     await Perform.entryPoint(this, edit)
   }
 

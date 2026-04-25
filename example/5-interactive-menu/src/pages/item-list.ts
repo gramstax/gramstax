@@ -83,7 +83,7 @@ class Perform {
   }
 
   static async delegateMissingCategory(ctx: ItemListPage) {
-    await new CategoryPage(ctx).transition(true)
+    await new CategoryPage(ctx).entryPoint(true)
   }
 }
 
@@ -91,7 +91,7 @@ class Perform {
 export class ItemListPage extends PageBase {
   static data = this.buildData((action?: string, value?: string) => [action, value])
 
-  async transition(categoryId: string, page = 0, isEdit = true) {
+  async entryPoint(categoryId: string, page = 0, isEdit = true) {
     await Perform.entryPoint(this, categoryId, page, isEdit)
   }
 

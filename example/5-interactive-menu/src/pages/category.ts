@@ -41,7 +41,7 @@ class Perform {
 
     await ctx.cacheState.set(`${ctx.userId}:category`, categoryId)
     await ctx.cacheState.set(`${ctx.userId}:page`, 0)
-    await new ItemListPage(ctx).transition(categoryId, 0, true)
+    await new ItemListPage(ctx).entryPoint(categoryId, 0, true)
   }
 }
 
@@ -52,7 +52,7 @@ export class CategoryPage extends PageBase {
     intentText: `Browse`
   })
 
-  async transition(edit = true) {
+  async entryPoint(edit = true) {
     await Perform.entryPoint(this, edit)
   }
 
