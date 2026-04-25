@@ -1,11 +1,17 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Perform {
+  static async entryPoint(ctx: HelpPage) {
+    const kb = ctx.inlineKeyboardT([StartPage])
+    await ctx.edit(kb)
+  }
+}
+
 // Help page for CRUD usage.
 export class HelpPage extends PageBase {
   async handleCallbackData() {
-    const kb = this.inlineKeyboardT([StartPage])
-    await this.edit(kb)
+    await Perform.entryPoint(this)
   }
 
   static template = `

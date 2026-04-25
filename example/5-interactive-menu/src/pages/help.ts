@@ -1,23 +1,28 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Perform {
+  static async entryPoint(ctx: HelpPage, edit = true) {
+    const kb = ctx.inlineKeyboardT([StartPage])
+    const da = {}
+    if (edit) {
+      await ctx.edit(kb, da)
+    } else {
+      await ctx.reply(kb, da)
+    }
+  }
+}
+
 // Help page describing navigation rules.
 export class HelpPage extends PageBase {
   static data = this.buildData({intentText: `Help`})
 
-  async show(edit = true) {
-    const kb = this.inlineKeyboardT([StartPage])
-    const bi = `help`
-    if (edit) await this.edit(kb, {}, bi)
-    else await this.reply(kb, {}, bi)
-  }
-
   async handleCallbackData() {
-    await this.show(true)
+    await Perform.entryPoint(this, true)
   }
 
   async handleText() {
-    await this.show(false)
+    await Perform.entryPoint(this, false)
   }
 
   static template = `
@@ -28,14 +33,6 @@ export class HelpPage extends PageBase {
 
         Use inline buttons to explore menus, and the bottom keyboard for quick actions.
         Pagination buttons appear when lists are long.
-      </message>
-    </base>
-
-    <base id="help">
-      <message>
-        ✅ Quick tip
-
-        Need a refresher? Choose Menu to start again.
       </message>
     </base>
   `

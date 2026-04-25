@@ -1,19 +1,24 @@
 import {PageBase} from "~/base/page"
 
-export class StartPage extends PageBase {
-  async show(edit = true) {
-    const kb = this.inlineKeyboardT([this])
+class Perform {
+  static async main(ctx = StartPage, edit = true) {
+    const kb = ctx.inlineKeyboardT([ctx])
     const data = {time: new Date().toString()}
-    if (edit) await this.edit(kb, data)
-    else await this.reply(kb, data)
+    if (edit) {
+      await ctx.edit(kb, data)
+    } else {
+      await ctx.reply(kb, data)
+    }
   }
+}
 
+export class StartPage extends PageBase {
   async handleCommandText() {
-    await this.show(false)
+    await Perform.main(false)
   }
 
   async handleCallbackData() {
-    await this.show(true)
+    await Perform.show(true)
   }
 
   static template = `

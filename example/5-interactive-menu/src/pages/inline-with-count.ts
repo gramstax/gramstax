@@ -3,20 +3,21 @@ import {StartPage} from "./start"
 import {BlankPage} from "./blank"
 import {CatalogData} from "~/data/catalog"
 
-// Inline keyboard with total page count.
-export class InlineWithCountPage extends PageBase {
-  static data = this.buildData((action?: string, page?: string) => [action, page])
-  static BASE = {list: `list`}
-  ITEMS_PER_PAGE = 4
+class Base {
+  static list: `list`
+}
 
-  buildKb(page: number) {
+class Helper {
+  static ITEMS_PER_PAGE = 4
+
+  static kb(ctx: InlineWithCountPage, page: number) {
     const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / this.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const start = safePage * this.ITEMS_PER_PAGE
     const end = start + this.ITEMS_PER_PAGE
     const items = CatalogData.menuItems.slice(start, end)
-    return this.inlineKeyboard((k, l) => {
-      const cb = this.data.callbackData.bind(this)
+    return ctx.inlineKeyboard((k, l) => {
+      const cb = ctx.data.callbackData.bind(ctx)
       items.forEach((item) => {
         k.text(item.name, cb(`item`, item.id)).row()
       })
@@ -33,30 +34,63 @@ export class InlineWithCountPage extends PageBase {
     })
   }
 
-  async show(page: number, edit = true) {
+  static pageData(page: number) {
     const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / this.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-    const data = {page: safePage + 1, totalPages}
-    const kb = this.buildKb(safePage)
-    const bi = InlineWithCountPage.BASE.list
-    if (edit) await this.edit(kb, data, bi)
-    else await this.reply(kb, data, bi)
+    return {page: safePage + 1, totalPages, safePage}
   }
+}
 
-  async handleCallbackData() {
-    await this.show(0, true)
+class Perform {
+  static async entryPoint(ctx: InlineWithCountPage, page: number, edit = true) {
+    const {page: currentPage, totalPages, safePage} = Helper.pageData(page)
+    const da = {page: currentPage, totalPages}
+    const kb = Helper.kb(ctx, safePage)
+    const bi = Base.list
+    if (edit) {
+      await ctx.edit(kb, da, bi)
+    } else {
+      await ctx.reply(kb, da, bi)
+    }
   }
+}
 
-  async handleArgsCallbackData() {
-    const [action, value] = this.callbackDataArgs
-    if (!action) return
+class Alert {
+  static async ignoreItem() {
+    return
+  }
+}
+
+class Flow {
+  static async handleArgsCallbackData(ctx: InlineWithCountPage) {
+    const [action, value] = ctx.callbackDataArgs
+    if (!action) {
+      return
+    }
 
     if (action === `page`) {
       const nextPage = Number(value)
-      if (!Number.isNaN(nextPage)) await this.show(nextPage, true)
+      if (!Number.isNaN(nextPage)) {
+        await Perform.entryPoint(ctx, nextPage, true)
+      }
       return
     }
-    if (action === `item` && value) return
+    if (action === `item` && value) {
+      return await Alert.ignoreItem()
+    }
+  }
+}
+
+// Inline keyboard with total page count.
+export class InlineWithCountPage extends PageBase {
+  static data = this.buildData((action?: string, page?: string) => [action, page])
+
+  async handleCallbackData() {
+    await Perform.entryPoint(this, 0, true)
+  }
+
+  async handleArgsCallbackData() {
+    await Flow.handleArgsCallbackData(this)
   }
 
   static template = `
@@ -71,7 +105,7 @@ export class InlineWithCountPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.list}">
+    <base id="${Base.list}">
       <message>
         Select an item from the inline menu to continue.
       </message>

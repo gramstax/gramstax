@@ -3,59 +3,91 @@ import {CatalogData} from "~/data/catalog"
 import {StartPage} from "./start"
 import {BlankPage} from "./blank"
 
-// Inline keyboard with page info (no total count).
-export class InlineWithoutCountPage extends PageBase {
-  static data = this.buildData((action?: string, page?: string) => [action, page])
-  static BASE = {list: `list`}
+class Base {
+  static list: `list`
+}
 
-  buildKb(page: number) {
-    const ITEMS_PER_PAGE = 4
+class Helper {
+  static ITEMS_PER_PAGE = 4
+
+  static kb(ctx: InlineWithoutCountPage, page: number) {
     const safePage = Math.max(page, 0)
-    const start = safePage * ITEMS_PER_PAGE
-    const end = start + ITEMS_PER_PAGE
+    const start = safePage * this.ITEMS_PER_PAGE
+    const end = start + this.ITEMS_PER_PAGE
     const items = CatalogData.menuItems.slice(start, end)
     const hasPrevious = safePage > 0
     const hasMore = end < CatalogData.menuItems.length
-    return this.inlineKeyboard((k, l) => {
+    return ctx.inlineKeyboard((k, l) => {
       items.forEach((item) => {
-        k.text(item.name, this.data.callbackData(`item`, item.id)).row()
+        k.text(item.name, ctx.data.callbackData(`item`, item.id)).row()
       })
 
       k.row()
       if (hasPrevious) {
-        k.text(l[0]!, this.data.callbackData(`page`, safePage - 1))
+        k.text(l[0]!, ctx.data.callbackData(`page`, safePage - 1))
       }
       k.text(`${l[2]} ${safePage + 1}`, BlankPage.data.callbackData())
       if (hasMore) {
-        k.text(l[1]!, this.data.callbackData(`page`, safePage + 1))
+        k.text(l[1]!, ctx.data.callbackData(`page`, safePage + 1))
       }
       return k.row().text(l[3]!, StartPage.data.callbackData())
     })
   }
 
-  async show(page: number, edit = true) {
+  static pageData(page: number) {
     const safePage = Math.max(page, 0)
-    const data = {page: safePage + 1}
-    const kb = this.buildKb(safePage)
-    const bi = InlineWithoutCountPage.BASE.list
-    if (edit) await this.edit(kb, data, bi)
-    else await this.reply(kb, data, bi)
+    return {page: safePage + 1, safePage}
+  }
+}
+
+class Perform {
+  static async entryPoint(ctx: InlineWithoutCountPage, page: number, edit = true) {
+    const {page: currentPage, safePage} = Helper.pageData(page)
+    const da = {page: currentPage}
+    const kb = Helper.kb(ctx, safePage)
+    const bi = Base.list
+    if (edit) {
+      await ctx.edit(kb, da, bi)
+    } else {
+      await ctx.reply(kb, da, bi)
+    }
   }
 
-  async handleCallbackData() {
-    await this.show(0, true)
-  }
-
-  async handleArgsCallbackData() {
-    const [action, value] = this.callbackDataArgs
-    if (!action) return
+  static async delegate(ctx: InlineWithoutCountPage) {
+    const [action, value] = ctx.callbackDataArgs
+    if (!action) {
+      return
+    }
 
     if (action === `page`) {
       const nextPage = Number(value)
-      if (!Number.isNaN(nextPage)) await this.show(nextPage, true)
+      if (!Number.isNaN(nextPage)) {
+        await Perform.entryPoint(ctx, nextPage, true)
+      }
       return
     }
-    if (action === `item` && value) return
+    if (action === `item` && value) {
+      return await Alert.ignoreItem()
+    }
+  }
+}
+
+class Alert {
+  static async ignoreItem() {
+    return
+  }
+}
+
+// Inline keyboard with page info (no total count).
+export class InlineWithoutCountPage extends PageBase {
+  static data = this.buildData((action?: string, page?: string) => [action, page])
+
+  async handleCallbackData() {
+    await Perform.entryPoint(this, 0, true)
+  }
+
+  async handleArgsCallbackData() {
+    await Perform.delegate(this)
   }
 
   static template = `
@@ -70,7 +102,7 @@ export class InlineWithoutCountPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.list}">
+    <base id="${Base.list}">
       <message>
         Select an item from the inline menu to continue.
       </message>

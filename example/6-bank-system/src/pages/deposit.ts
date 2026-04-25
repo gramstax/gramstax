@@ -1,59 +1,84 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-// Deposits funds into the user's balance.
-export class DepositPage extends PageBase {
-  static BASE = {form: `form`, success: `success`, invalid: `invalid`}
+class Base {
+  static form = `form`
+  static success = `success`
+  static invalid = `invalid`
+}
 
-  kb(baseId?: string) {
-    return this.inlineKeyboardT([StartPage], `1`, baseId)
+class Helper {
+  static kb(ctx: DepositPage, baseId?: string) {
+    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  }
+}
+
+class Flow {
+  static async step1(ctx: DepositPage) {
+    await ctx.sessionFreeText()
+    const bi = Base.form
+    const kb = Helper.kb(ctx, bi)
+    const da = {}
+    await ctx.edit(kb, da, bi)
   }
 
-  async handleCallbackData() {
-    await this.sessionFreeText()
-    await this.edit(this.kb(), {}, DepositPage.BASE.form)
-  }
-
-  async handleFreeText() {
-    if (!this.isSessionFreeText()) return null
-    await this.handleDeposit(this.msgText.trim(), false)
-  }
-
-  private async handleDeposit(amountInput?: string, edit = false) {
-    const {BASE} = DepositPage
-    const biInv = BASE.invalid
+  static async step2(ctx: DepositPage) {
+    const amountInput = ctx.msgText.trim()
     if (!amountInput) {
-      return await this.reply(this.kb(biInv), {}, biInv)
+      return await Alert.invalid(ctx)
     }
 
-    const amount = this.bankStore.parseAmount(amountInput)
+    const amount = ctx.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      return await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
+      return await Alert.invalid(ctx, amountInput)
     }
 
-    const current = this.bankStore.getBalance(this.userId)
+    const current = ctx.bankStore.getBalance(ctx.userId)
     const next = current + amount
-    const amountHex = this.bankStore.toHex(amount)
-    this.bankStore.setBalance(this.userId, next)
-    this.bankStore.recordTransaction(this.userId, {
+    const amountHex = ctx.bankStore.toHex(amount)
+    ctx.bankStore.setBalance(ctx.userId, next)
+    ctx.bankStore.recordTransaction(ctx.userId, {
       type: `deposit`,
       amountHex,
       ts: Date.now()
     })
 
-    const balance = this.bankStore.formatAmount(next)
-    const amountDisplay = this.bankStore.formatAmount(amount)
-    const data = {amount: amountDisplay, balance}
+    await ctx.clearSession()
+    await Alert.success(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
+  }
+}
 
-    await this.clearSession()
-    const biSuc = BASE.success
-    const kb = this.kb(biSuc)
-    if (edit) await this.edit(kb, data, biSuc)
-    else await this.reply(kb, data, biSuc)
+class Alert {
+  static async success(ctx: DepositPage, amount: string, balance: string) {
+    const bi = Base.success
+    const da = {amount, balance}
+    const kb = Helper.kb(ctx, bi)
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async invalid(ctx: DepositPage, amount = ``) {
+    const bi = Base.invalid
+    const kb = Helper.kb(ctx, bi)
+    const da = {amount}
+    await ctx.reply(kb, da, bi)
+  }
+}
+
+// Deposits funds into the user's balance.
+export class DepositPage extends PageBase {
+  async handleCallbackData() {
+    await Flow.step1(this)
+  }
+
+  async handleFreeText() {
+    if (!this.isSessionFreeText()) {
+      return null
+    }
+    await Flow.step2(this)
   }
 
   static template = `
-    <base id="form">
+    <base id="${Base.form}">
       ${this.kbk.cancel()}
       <message>
         ➕ Deposit funds
@@ -63,7 +88,7 @@ export class DepositPage extends PageBase {
       </message>
     </base>
 
-    <base id="success">
+    <base id="${Base.success}">
       ${this.kbk.home()}
       <message>
         ✅ Deposit completed
@@ -73,7 +98,7 @@ export class DepositPage extends PageBase {
       </message>
     </base>
 
-    <base id="invalid">
+    <base id="${Base.invalid}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid amount

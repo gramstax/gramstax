@@ -30,10 +30,10 @@ export class BotCore extends Gramstax {
   }
 
   async hookErrorPage(ctx: CtxCore, listenerName: string, error: any, isEdit: boolean) {
-    await new GeneralStatusPage(ctx).toError(`${listenerName}:hookErrorPage`, error, isEdit)
+    await new GeneralStatusPage(ctx).error(`${listenerName}:hookErrorPage`, error, isEdit)
   }
 
   async hookErrorInputNotFoundPage(ctx: CtxCore) {
-    await new GeneralStatusPage(ctx).toErrorInputNotFound()
+    await new GeneralStatusPage(ctx).errorInputNotFound()
   }
 }

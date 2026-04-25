@@ -3,14 +3,31 @@ import {ToggleSubscriptionPage} from "./toggle-subscription"
 import {StatsPage} from "./stats"
 import {HelpPage} from "./help"
 
+class Base {}
+
+class Helper {
+  static kb(ctx: StartPage, data?: {subscribed: boolean}) {
+    return ctx.inlineKeyboardT([ToggleSubscriptionPage, StatsPage, HelpPage], `2`, undefined, data)
+  }
+}
+
+class Perform {
+  static async show(ctx: StartPage, edit = true) {
+    await ctx.clearSession()
+    const subscribed = await ctx.db.isSubscribed(ctx.userId)
+    const data = {subscribed}
+    const kb = Helper.kb(ctx, data)
+
+    if (edit) await ctx.edit(kb, data)
+    else await ctx.reply(kb, data)
+  }
+}
+
 export class StartPage extends PageBase {
+  static BASE = Base
+
   async show(edit = true) {
-    await this.clearSession()
-    const subscribed = await this.db.isSubscribed(this.userId)
-    const da = {subscribed}
-    const kb = this.inlineKeyboardT([ToggleSubscriptionPage, StatsPage, HelpPage], `2`, undefined, da)
-    if (edit) await this.edit(kb, da)
-    else await this.reply(kb, da)
+    await Perform.show(this, edit)
   }
 
   async handleCallbackData() {

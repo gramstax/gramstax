@@ -1,19 +1,31 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-export class ToggleSubscriptionPage extends PageBase {
-  async handleCallbackData() {
-    const subscribed = await this.db.isSubscribed(this.userId)
+class Perform {
+  static async showStart(ctx: ToggleSubscriptionPage, edit = true) {
+    await new StartPage(ctx).show(edit)
+  }
+}
+
+class Flow {
+  static async toggle(ctx: ToggleSubscriptionPage) {
+    const subscribed = await ctx.db.isSubscribed(ctx.userId)
     if (subscribed) {
-      await this.db.unsubscribe(this.userId)
+      await ctx.db.unsubscribe(ctx.userId)
     } else {
-      await this.db.subscribe(this.userId, {
-        userName: this.userName,
-        fullName: this.userFullName,
-        language: this.userLanguage
+      await ctx.db.subscribe(ctx.userId, {
+        userName: ctx.userName,
+        fullName: ctx.userFullName,
+        language: ctx.userLanguage
       })
     }
 
-    await new StartPage(this).show(true)
+    await Perform.showStart(ctx, true)
+  }
+}
+
+export class ToggleSubscriptionPage extends PageBase {
+  async handleCallbackData() {
+    await Flow.toggle(this)
   }
 }

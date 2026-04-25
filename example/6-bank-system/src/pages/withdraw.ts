@@ -1,62 +1,98 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-// Withdraw funds from the user's balance.
-export class WithdrawPage extends PageBase {
-  static BASE = {form: `form`, success: `success`, insufficient: `insufficient`, invalid: `invalid`}
+class Base {
+  static form = `form`
+  static success = `success`
+  static insufficient = `insufficient`
+  static invalid = `invalid`
+}
 
-  kb(baseId?: string) {
-    return this.inlineKeyboardT([StartPage], `1`, baseId)
+class Helper {
+  static kb(ctx: WithdrawPage, baseId?: string) {
+    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  }
+}
+
+class Flow {
+  static async enter(ctx: WithdrawPage) {
+    await ctx.sessionFreeText()
+    const bi = Base.form
+    const kb = Helper.kb(ctx, bi)
+    const da = {}
+    await ctx.edit(kb, da, bi)
   }
 
-  async handleCallbackData() {
-    await this.sessionFreeText()
-    const bi = WithdrawPage.BASE.form
-    const kb = this.kb(bi)
-    await this.edit(kb, {}, bi)
-  }
-
-  async handleFreeText() {
-    if (!this.isSessionFreeText()) return null
-    await this.handleWithdraw(this.msgText.trim(), false)
-  }
-
-  private async handleWithdraw(amountInput?: string, edit = false) {
-    const {BASE} = WithdrawPage
-    const biInv = BASE.invalid
+  static async process(ctx: WithdrawPage) {
+    const amountInput = ctx.msgText.trim()
     if (!amountInput) {
-      return await this.reply(this.kb(biInv), {}, biInv)
+      return await Alert.invalid(ctx)
     }
 
-    const amount = this.bankStore.parseAmount(amountInput)
+    const amount = ctx.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      return await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
+      return await Alert.invalid(ctx, amountInput)
     }
 
-    const current = this.bankStore.getBalance(this.userId)
+    const current = ctx.bankStore.getBalance(ctx.userId)
     if (current < amount) {
-      const biIns = BASE.insufficient
-      return await this.reply(this.kb(biInv), {balance: this.bankStore.formatAmount(current)}, biIns)
+      return await Alert.insufficient(ctx, ctx.bankStore.formatAmount(current))
     }
 
     const next = current - amount
-    const amountHex = this.bankStore.toHex(amount)
-    this.bankStore.setBalance(this.userId, next)
-    this.bankStore.recordTransaction(this.userId, {
+    const amountHex = ctx.bankStore.toHex(amount)
+    ctx.bankStore.setBalance(ctx.userId, next)
+    ctx.bankStore.recordTransaction(ctx.userId, {
       type: `withdraw`,
       amountHex,
       ts: Date.now()
     })
 
-    const balance = this.bankStore.formatAmount(next)
-    const amountDisplay = this.bankStore.formatAmount(amount)
-    const data = {amount: amountDisplay, balance}
+    await ctx.clearSession()
+    await Alert.success(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
+  }
+}
 
-    await this.clearSession()
-    const biSuc = BASE.success
-    const kb = this.kb(biSuc)
-    if (edit) await this.edit(kb, data, biSuc)
-    else await this.reply(kb, data, biSuc)
+class Alert {
+  static async success(ctx: WithdrawPage, amount: string, balance: string, edit = false) {
+    const bi = Base.success
+    const da = {amount, balance}
+    const kb = Helper.kb(ctx, bi)
+    if (edit) {
+      await ctx.edit(kb, da, bi)
+    } else {
+      await ctx.reply(kb, da, bi)
+    }
+  }
+
+  static async insufficient(ctx: WithdrawPage, balance: string) {
+    const bi = Base.insufficient
+    const kb = Helper.kb(ctx, bi)
+    const da = {balance}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async invalid(ctx: WithdrawPage, amount = ``) {
+    const bi = Base.invalid
+    const kb = Helper.kb(ctx, bi)
+    const da = {amount}
+    await ctx.reply(kb, da, bi)
+  }
+}
+
+// Withdraw funds from the user's balance.
+export class WithdrawPage extends PageBase {
+  static BASE = Base
+
+  async handleCallbackData() {
+    await Flow.enter(this)
+  }
+
+  async handleFreeText() {
+    if (!this.isSessionFreeText()) {
+      return null
+    }
+    await Flow.process(this)
   }
 
   static template = `

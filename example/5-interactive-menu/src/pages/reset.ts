@@ -1,28 +1,41 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Base {
+  static reset: `reset`
+}
+
+class Perform {
+  static async entryPoint(ctx: ResetPage, edit = false) {
+    await ctx.cacheState.delete(`${ctx.userId}:category`)
+    await ctx.cacheState.delete(`${ctx.userId}:page`)
+    await ctx.clearSession()
+
+    const kb = ctx.inlineKeyboardT([StartPage])
+    const bi = Base.reset
+    const da = {}
+    if (edit) {
+      await ctx.edit(kb, da, bi)
+    } else {
+      await ctx.reply(kb, da, bi)
+    }
+  }
+}
+
 // Reset state and return to main menu.
 export class ResetPage extends PageBase {
   static data = this.buildData({intentText: `Reset`})
-  static BASE = {reset: `reset`}
 
   async transition(edit = false) {
-    await this.cacheState.delete(`${this.userId}:category`)
-    await this.cacheState.delete(`${this.userId}:page`)
-    await this.clearSession()
-
-    const kb = this.inlineKeyboardT([StartPage])
-    const bi = ResetPage.BASE.reset
-    if (edit) await this.edit(kb, {}, bi)
-    else await this.reply(kb, {}, bi)
+    await Perform.entryPoint(this, edit)
   }
 
   async handleCallbackData() {
-    await this.transition(true)
+    await Perform.entryPoint(this, true)
   }
 
   async handleText() {
-    await this.transition(false)
+    await Perform.entryPoint(this, false)
   }
 
   static template = `
@@ -35,7 +48,7 @@ export class ResetPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.reset}">
+    <base id="${Base.reset}">
       <message>
         ✅ Reset complete
 

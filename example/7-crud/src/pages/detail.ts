@@ -2,58 +2,89 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 import {TimeUt} from "~/utils/time"
 
+class Base {
+  static s1Form: `form`
+  static s1Answer: `detail`
+  static notFound: `not-found`
+  static invalid: `invalid`
+}
+
+class Helper {
+  static buildHomeKeyboard(ctx: DetailPage, baseId?: string) {
+    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  }
+}
+
+class Flow {
+  static async step1Form(ctx: DetailPage) {
+    await ctx.sessionFreeText()
+    const bi = Base.s1Form
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const da = {}
+    await ctx.edit(kb, da, bi)
+  }
+
+  static async step1Answer(ctx: DetailPage) {
+    const input = ctx.msgText.trim()
+    const id = input?.trim()
+    if (!id) {
+      return await Alert.invalid(ctx)
+    }
+
+    const item = await ctx.db.getItem(ctx.userId, id)
+    if (!item) {
+      return await Alert.notFound(ctx, id)
+    }
+
+    await ctx.clearSession()
+    const createdAt = TimeUt.formatTimestamp(item.createdAt)
+    const updatedAt = TimeUt.formatTimestamp(item.updatedAt)
+    const bi = Base.s1Answer
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const da = {
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      status: item.status,
+      createdAt,
+      updatedAt
+    }
+    await ctx.reply(kb, da, bi)
+  }
+}
+
+class Alert {
+  static async invalid(ctx: DetailPage) {
+    const bi = Base.invalid
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const da = {}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async notFound(ctx: DetailPage, id: string) {
+    await ctx.clearSession()
+    const bi = Base.notFound
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const da = {id}
+    await ctx.reply(kb, da, bi)
+  }
+}
+
 // Shows a single item by ID.
 export class DetailPage extends PageBase {
-  static BASE = {form: `form`, detail: `detail`, notFound: `not-found`, invalid: `invalid`}
-
   async handleCallbackData() {
-    await this.sessionFreeText()
-    const bi = DetailPage.BASE.form
-    await this.edit(this.kb(bi), {}, bi)
+    await Flow.step1Form(this)
   }
 
   async handleFreeText() {
-    if (!this.isSessionFreeText()) return null
-    await this.handleDetail(this.msgText)
-  }
-
-  kb(baseId?: string) {
-    return this.inlineKeyboardT([StartPage], `1`, baseId)
-  }
-
-  private replyBase(baseId: string, data: Record<string, unknown> = {}) {
-    return this.reply(this.kb(baseId), data, baseId)
-  }
-
-  private async handleInvalid() {
-    await this.replyBase(DetailPage.BASE.invalid)
-    await this.clearSession()
-  }
-
-  private async handleNotFound(id: string) {
-    await this.replyBase(DetailPage.BASE.notFound, {id})
-    await this.clearSession()
-  }
-
-  private async handleDetail(input?: string) {
-    const id = input?.trim()
-    if (!id) {
-      return await this.handleInvalid()
+    if (!this.isSessionFreeText()) {
+      return null
     }
-
-    const item = await this.db.getItem(this.userId, id)
-    if (!item) {
-      return await this.handleNotFound(id)
-    }
-
-    const createdAt = TimeUt.formatTimestamp(item.createdAt)
-    const updatedAt = TimeUt.formatTimestamp(item.updatedAt)
-    await this.replyBase(DetailPage.BASE.detail, {id: item.id, title: item.title, description: item.description, status: item.status, createdAt, updatedAt})
-    await this.clearSession()
+    await Flow.step1Answer(this)
   }
 
   static template = `
-    <base id="${this.BASE.form}">
+    <base id="${Base.s1Form}">
       ${this.kbk.cancel()}
       <message>
         🔎 View item details
@@ -69,7 +100,7 @@ export class DetailPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.detail}">
+    <base id="${Base.s1Answer}">
       ${this.kbk.home()}
       <message>
         📋 Item #{{id}}
@@ -91,7 +122,7 @@ export class DetailPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.notFound}">
+    <base id="${Base.notFound}">
       ${this.kbk.cancel()}
       <message>
         ❌ Item not found: {{id}}
@@ -105,7 +136,7 @@ export class DetailPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.invalid}">
+    <base id="${Base.invalid}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid ID

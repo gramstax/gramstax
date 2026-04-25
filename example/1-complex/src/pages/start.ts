@@ -21,12 +21,14 @@ import {TestAnimationPage} from "./test-animation"
 import {TestVideoNotePage} from "./test-video-note"
 import {KeyboardBottomPage} from "./keyboard-bottom"
 
-export class StartPage extends PageBase {
-  static data = this.buildData((rdm?: string) => [rdm])
-  static BASE = {kbForImport: `kb-for-block-import`, forImport: `for-block-import`}
+class Base {
+  static kbForImport: `kb-for-block-import`
+  static forImport: `for-block-import`
+}
 
-  kb() {
-    return this.inlineKeyboard(
+class Helper {
+  static kb(ctx: StartPage) {
+    return ctx.inlineKeyboard(
       (k, l) => {
         return k
           .text(l[0]!, CounterPage.data.callbackData()) //
@@ -60,65 +62,71 @@ export class StartPage extends PageBase {
           .text(l[19]!, BlockSwitchPage.data.callbackData())
           .row()
           .text(l[20]!, KeyboardBottomPage.data.callbackData())
-          .text(l[21]!, this.data.callbackData())
+          .text(l[21]!, ctx.data.callbackData())
       },
       {cache: true}
     )
   }
+}
 
-  async show(condition = 1) {
-    const kb = this.kb()
+class Perform {
+  static async main(ctx: StartPage, condition = 1) {
+    const kb = Helper.kb(ctx)
     const da = {
-      firstName: this.userFirstName,
+      firstName: ctx.userFirstName,
       time: new Date().toString()
     }
 
-    await this.clearSession()
+    await ctx.clearSession()
     if (condition == 1) {
-      await this.reply(kb, da)
+      await ctx.reply(kb, da)
     } else if (condition == 2) {
-      await this.edit(kb, da)
+      await ctx.edit(kb, da)
     } else if (condition == 3) {
-      await this.delete()
-      await this.reply(kb, da)
+      await ctx.delete()
+      await ctx.reply(kb, da)
     }
   }
+}
+
+export class StartPage extends PageBase {
+  static data = this.buildData((rdm?: string) => [rdm])
 
   async toError() {
-    await this.show(1)
+    await Perform.main(this, 1)
   }
 
   async handleText() {
-    await this.show(1)
+    await Perform.main(this, 1)
   }
 
   async handleArgsText() {
-    await this.show(1)
+    await Perform.main(this, 1)
   }
 
   async handleCommandText() {
-    await this.show(1)
+    await Perform.main(this, 1)
   }
 
   async handleCommandArgsText() {
-    await this.show(1)
+    await Perform.main(this, 1)
   }
 
   async handleCallbackData() {
-    await this.show(2)
+    await Perform.main(this, 2)
   }
 
   async handleArgsCallbackData() {
-    await this.show(3)
+    await Perform.main(this, 3)
   }
 
   static template = `
-    <base id="${this.BASE.kbForImport}">
+    <base id="${Base.kbForImport}">
       ${this.kbk.refresh_back()}
     </base>
 
-    <base id="${this.BASE.forImport}">
-      <import src="start" base="${this.BASE.kbForImport}" />
+    <base id="${Base.forImport}">
+      <import src="start" base="${Base.kbForImport}" />
       <message>
         🧩 Block import demo
 

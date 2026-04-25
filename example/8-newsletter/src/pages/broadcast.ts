@@ -10,178 +10,278 @@ type BroadcastSession = {
   caption?: string
 }
 
-export class BroadcastPage extends PageBase {
-  static data = this.buildData((action?: string) => [action])
-  static BASE = {
-    prompt: `prompt`,
-    confirm: `confirm`,
-    confirmPhoto: `confirm-photo`,
-    confirmVideo: `confirm-video`,
-    confirmAnimation: `confirm-animation`,
-    result: `result`,
-    empty: `empty`,
-    cancelled: `cancelled`,
-    deliver: `deliver`,
-    deliverPhoto: `deliver-photo`,
-    deliverVideo: `deliver-video`,
-    deliverAnimation: `deliver-animation`
+class Base {
+  static prompt = `prompt`
+  static confirm = `confirm`
+  static confirmPhoto = `confirm-photo`
+  static confirmVideo = `confirm-video`
+  static confirmAnimation = `confirm-animation`
+  static result = `result`
+  static empty = `empty`
+  static cancelled = `cancelled`
+  static deliver = `deliver`
+  static deliverPhoto = `deliver-photo`
+  static deliverVideo = `deliver-video`
+  static deliverAnimation = `deliver-animation`
+}
+
+class Helper {
+  static promptKb(ctx: BroadcastPage) {
+    return ctx.inlineKeyboardT([BroadcastPage.data.callbackData(`cancel`), StartPage], `2`, Base.prompt)
   }
 
-  async handleCallbackData() {
-    await this.startBroadcast(true)
+  static confirmKb(ctx: BroadcastPage) {
+    return ctx.inlineKeyboardT([BroadcastPage.data.callbackData(`send`), BroadcastPage.data.callbackData(`edit`), BroadcastPage.data.callbackData(`cancel`), StartPage], `2-2`, Base.confirm)
   }
 
-  async handleCommandText() {
-    await this.startBroadcast(false)
+  static homeKb(ctx: BroadcastPage, baseId?: string) {
+    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
-  async handleArgsCallbackData() {
-    const [action] = this.callbackDataArgs
-    if (!AdminGuard.isAdmin(this)) return null
+  static sessionParams(ctx: BroadcastPage) {
+    return (ctx.temp.session?.params as BroadcastSession | undefined) ?? {}
+  }
+
+  static deliverMediaBase(mediaType: BroadcastSession[`mediaType`]) {
+    if (mediaType === `photo`) return Base.deliverPhoto
+    if (mediaType === `video`) return Base.deliverVideo
+    return Base.deliverAnimation
+  }
+
+  static async replyConfirmMedia(ctx: BroadcastPage, mediaType: NonNullable<BroadcastSession[`mediaType`]>, fileId: string, caption?: string) {
+    const kb = Helper.confirmKb(ctx)
+    const data = {fileId, caption}
+
+    if (mediaType === `photo`) {
+      return await ctx.replyPhoto(kb, data, Base.confirmPhoto)
+    }
+    if (mediaType === `video`) {
+      return await ctx.replyVideo(kb, data, Base.confirmVideo)
+    }
+
+    return await ctx.replyAnimation(kb, data, Base.confirmAnimation)
+  }
+}
+
+class Alert {
+  static async emptyDraft(ctx: BroadcastPage, edit = false) {
+    await ctx.sessionFreeText({step: `message`})
+    const kb = Helper.promptKb(ctx)
+    const data = {draft: `-`, isEmpty: true}
+
+    if (edit) return await ctx.edit(kb, data, Base.prompt)
+    return await ctx.reply(kb, data, Base.prompt)
+  }
+
+  static async result(ctx: BroadcastPage, count: number) {
+    const kb = Helper.homeKb(ctx)
+    await ctx.edit(kb, {count}, Base.result)
+  }
+
+  static async emptySubscribers(ctx: BroadcastPage) {
+    await ctx.clearSession()
+    const kb = Helper.homeKb(ctx)
+    await ctx.edit(kb, {}, Base.empty)
+  }
+
+  static async cancelled(ctx: BroadcastPage) {
+    await ctx.clearSession()
+    const kb = Helper.homeKb(ctx)
+    await ctx.edit(kb, {}, Base.cancelled)
+  }
+}
+
+class Flow {
+  static async enter(ctx: BroadcastPage, edit = true) {
+    if (!AdminGuard.isAdmin(ctx)) return null
+
+    await ctx.sessionFreeText({step: `message`})
+    const kb = Helper.promptKb(ctx)
+    const data = {draft: `-`, isEmpty: false}
+
+    if (edit) await ctx.edit(kb, data, Base.prompt)
+    else await ctx.reply(kb, data, Base.prompt)
+  }
+
+  static async handleArgs(ctx: BroadcastPage) {
+    const [action] = ctx.callbackDataArgs
+    if (!AdminGuard.isAdmin(ctx)) return null
 
     if (action === `send`) {
-      return await this.handleSend()
+      return await Flow.send(ctx)
     }
     if (action === `edit`) {
-      return await this.handleEdit()
+      return await Flow.edit(ctx)
     }
     if (action === `cancel`) {
-      return await this.handleCancel()
+      return await Flow.cancel(ctx)
     }
-    await this.startBroadcast(true)
+
+    await Flow.enter(ctx, true)
   }
 
-  async handleFreeText() {
-    if (!this.isSessionFreeText()) return null
-    const {step} = this.getSessionParams()
+  static async freeText(ctx: BroadcastPage) {
+    if (!ctx.isSessionFreeText()) return null
+    const {step} = Helper.sessionParams(ctx)
     if (step !== `message`) return null
 
-    const draft = this.msgText?.trim()
+    const draft = ctx.msgText?.trim()
     if (!draft) {
-      await this.sessionFreeText({step: `message`})
-      return await this.reply(this.promptKeyboard(), {draft: `-`, isEmpty: true}, BroadcastPage.BASE.prompt)
+      return await Alert.emptyDraft(ctx)
     }
 
-    await this.sessionFreeText({step: `confirm`, draft})
-    await this.reply(this.confirmKeyboard(), {draft}, BroadcastPage.BASE.confirm)
+    await ctx.sessionFreeText({step: `confirm`, draft})
+    await ctx.reply(Helper.confirmKb(ctx), {draft}, Base.confirm)
   }
 
-  async handleFreePhoto() {
-    if (!this.isSessionFreeText()) return null
-    const {step} = this.getSessionParams()
+  static async freePhoto(ctx: BroadcastPage) {
+    if (!ctx.isSessionFreeText()) return null
+    const {step} = Helper.sessionParams(ctx)
     if (step !== `message`) return null
 
-    const caption = this.msgCaption?.trim()
+    const caption = ctx.msgCaption?.trim()
     if (caption?.startsWith(`/`)) return null
 
-    const photos = this.msgPhoto
+    const photos = ctx.msgPhoto
     const lastPhoto = photos?.[photos.length - 1]
     if (!lastPhoto?.file_id) return null
 
-    await this.sessionFreeText({step: `confirm`, mediaType: `photo`, fileId: lastPhoto.file_id, caption})
-    await this.replyPhoto(this.confirmKeyboard(), {fileId: lastPhoto.file_id, caption}, BroadcastPage.BASE.confirmPhoto)
+    await ctx.sessionFreeText({step: `confirm`, mediaType: `photo`, fileId: lastPhoto.file_id, caption})
+    await Helper.replyConfirmMedia(ctx, `photo`, lastPhoto.file_id, caption)
   }
 
-  async handleFreeVideo() {
-    if (!this.isSessionFreeText()) return null
-    const {step} = this.getSessionParams()
+  static async freeVideo(ctx: BroadcastPage) {
+    if (!ctx.isSessionFreeText()) return null
+    const {step} = Helper.sessionParams(ctx)
     if (step !== `message`) return null
 
-    const caption = this.msgCaption?.trim()
+    const caption = ctx.msgCaption?.trim()
     if (caption?.startsWith(`/`)) return null
 
-    const fileId = this.msgVideo?.file_id
+    const fileId = ctx.msgVideo?.file_id
     if (!fileId) return null
 
-    await this.sessionFreeText({step: `confirm`, mediaType: `video`, fileId, caption})
-    await this.replyVideo(this.confirmKeyboard(), {fileId, caption}, BroadcastPage.BASE.confirmVideo)
+    await ctx.sessionFreeText({step: `confirm`, mediaType: `video`, fileId, caption})
+    await Helper.replyConfirmMedia(ctx, `video`, fileId, caption)
   }
 
-  async handleFreeAnimation() {
-    if (!this.isSessionFreeText()) return null
-    const {step} = this.getSessionParams()
+  static async freeAnimation(ctx: BroadcastPage) {
+    if (!ctx.isSessionFreeText()) return null
+    const {step} = Helper.sessionParams(ctx)
     if (step !== `message`) return null
 
-    const caption = this.msgCaption?.trim()
+    const caption = ctx.msgCaption?.trim()
     if (caption?.startsWith(`/`)) return null
 
-    const fileId = this.msgAnimation?.file_id
+    const fileId = ctx.msgAnimation?.file_id
     if (!fileId) return null
 
-    await this.sessionFreeText({step: `confirm`, mediaType: `animation`, fileId, caption})
-    await this.replyAnimation(this.confirmKeyboard(), {fileId, caption}, BroadcastPage.BASE.confirmAnimation)
+    await ctx.sessionFreeText({step: `confirm`, mediaType: `animation`, fileId, caption})
+    await Helper.replyConfirmMedia(ctx, `animation`, fileId, caption)
   }
 
-  private async handleSend() {
-    const {draft, mediaType, fileId, caption} = this.getSessionParams()
+  static async send(ctx: BroadcastPage) {
+    const {draft, mediaType, fileId, caption} = Helper.sessionParams(ctx)
     if (!draft && !mediaType) {
-      await this.sessionFreeText({step: `message`})
-      return await this.edit(this.promptKeyboard(), {draft: `-`, isEmpty: true}, BroadcastPage.BASE.prompt)
+      return await Alert.emptyDraft(ctx, true)
     }
 
-    const subscribers = await this.db.listSubscribers()
+    const subscribers = await ctx.db.listSubscribers()
     if (subscribers.length === 0) {
-      await this.clearSession()
-      const kb = this.inlineKeyboardT([StartPage])
-      return await this.edit(kb, {}, BroadcastPage.BASE.empty)
+      return await Alert.emptySubscribers(ctx)
     }
 
     const ids = subscribers.map((item) => item.id)
     const langs = subscribers.map((item) => item.language || `default`)
     if (mediaType && fileId) {
-      const deliverBase = this.getDeliverMediaBase(mediaType)
-      await this.broadcastMedia(ids, langs, undefined, {fileId, caption}, deliverBase)
+      await ctx.broadcastMedia(ids, langs, undefined, {fileId, caption}, Helper.deliverMediaBase(mediaType))
     } else {
-      await this.broadcast(ids, langs, undefined, {message: draft}, BroadcastPage.BASE.deliver)
+      await ctx.broadcast(ids, langs, undefined, {message: draft}, Base.deliver)
     }
-    await this.clearSession()
+    await ctx.clearSession()
 
-    const kb = this.inlineKeyboardT([StartPage])
-    await this.edit(kb, {count: subscribers.length}, BroadcastPage.BASE.result)
+    await Alert.result(ctx, subscribers.length)
   }
 
-  private async handleEdit() {
-    const {draft, mediaType} = this.getSessionParams()
+  static async edit(ctx: BroadcastPage) {
+    const {draft, mediaType} = Helper.sessionParams(ctx)
     if (mediaType) {
-      await this.sessionFreeText({step: `message`})
-      await this.edit(this.promptKeyboard(), {draft: `-`, isEmpty: false}, BroadcastPage.BASE.prompt)
+      await ctx.sessionFreeText({step: `message`})
+      await ctx.edit(Helper.promptKb(ctx), {draft: `-`, isEmpty: false}, Base.prompt)
       return
     }
 
-    await this.sessionFreeText({step: `message`, draft})
-    await this.edit(this.promptKeyboard(), {draft: draft || `-`, isEmpty: false}, BroadcastPage.BASE.prompt)
+    await ctx.sessionFreeText({step: `message`, draft})
+    await ctx.edit(Helper.promptKb(ctx), {draft: draft || `-`, isEmpty: false}, Base.prompt)
   }
 
-  private async handleCancel() {
-    await this.clearSession()
-    const kb = this.inlineKeyboardT([StartPage])
-    await this.edit(kb, {}, BroadcastPage.BASE.cancelled)
+  static async cancel(ctx: BroadcastPage) {
+    await Alert.cancelled(ctx)
+  }
+}
+
+export class BroadcastPage extends PageBase {
+  static data = this.buildData((action?: string) => [action])
+  static BASE = Base
+
+  async handleCallbackData() {
+    await Flow.enter(this, true)
   }
 
-  private async startBroadcast(edit: boolean) {
-    if (!AdminGuard.isAdmin(this)) return null
-    await this.sessionFreeText({step: `message`})
-    const kb = this.promptKeyboard()
-    if (edit) await this.edit(kb, {draft: `-`, isEmpty: false}, BroadcastPage.BASE.prompt)
-    else await this.reply(kb, {draft: `-`, isEmpty: false}, BroadcastPage.BASE.prompt)
+  async handleCommandText() {
+    await Flow.enter(this, false)
+  }
+
+  async handleArgsCallbackData() {
+    await Flow.handleArgs(this)
+  }
+
+  async handleFreeText() {
+    await Flow.freeText(this)
+  }
+
+  async handleFreePhoto() {
+    await Flow.freePhoto(this)
+  }
+
+  async handleFreeVideo() {
+    await Flow.freeVideo(this)
+  }
+
+  async handleFreeAnimation() {
+    await Flow.freeAnimation(this)
+  }
+
+  async handleSend() {
+    return await Flow.send(this)
+  }
+
+  async handleEdit() {
+    return await Flow.edit(this)
+  }
+
+  async handleCancel() {
+    return await Flow.cancel(this)
+  }
+
+  async startBroadcast(edit: boolean) {
+    return await Flow.enter(this, edit)
   }
 
   private promptKeyboard() {
-    return this.inlineKeyboardT([this.data.callbackData(`cancel`), StartPage], `2`, BroadcastPage.BASE.prompt)
+    return Helper.promptKb(this)
   }
 
   private confirmKeyboard() {
-    return this.inlineKeyboardT([this.data.callbackData(`send`), this.data.callbackData(`edit`), this.data.callbackData(`cancel`), StartPage], `2-2`, BroadcastPage.BASE.confirm)
+    return Helper.confirmKb(this)
   }
 
   private getSessionParams() {
-    return (this.temp.session?.params as BroadcastSession | undefined) ?? {}
+    return Helper.sessionParams(this)
   }
 
   private getDeliverMediaBase(mediaType: BroadcastSession[`mediaType`]) {
-    if (mediaType === `photo`) return BroadcastPage.BASE.deliverPhoto
-    if (mediaType === `video`) return BroadcastPage.BASE.deliverVideo
-    return BroadcastPage.BASE.deliverAnimation
+    return Helper.deliverMediaBase(mediaType)
   }
 
   static template = `

@@ -2,6 +2,31 @@ import {LogHe} from "~/helpers/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Helper {
+  static buildHomeKeyboard(ctx: GeneralStatusPage) {
+    return ctx.inlineKeyboardT([StartPage])
+  }
+}
+
+class Alert {
+  static async error(ctx: GeneralStatusPage, edit = true) {
+    await ctx.clearSession()
+    const kb = Helper.buildHomeKeyboard(ctx)
+    const da = {isNotFound: false}
+    if (edit) {
+      await ctx.edit(kb, da)
+    } else {
+      await ctx.reply(kb, da)
+    }
+  }
+
+  static async errorInputNotFound(ctx: GeneralStatusPage) {
+    const kb = Helper.buildHomeKeyboard(ctx)
+    const da = {isNotFound: true}
+    await ctx.reply(kb, da)
+  }
+}
+
 export class GeneralStatusPage extends PageBase {
   constructorName?: string
 
@@ -10,23 +35,13 @@ export class GeneralStatusPage extends PageBase {
     this.constructorName = p?.constructor?.name
   }
 
-  kb() {
-    return this.inlineKeyboardT([StartPage])
-  }
-
-  async toError(funcName: string, error: any, edit = true) {
+  async error(funcName: string, error: any, edit = true) {
     LogHe.errorMake(error, this.constructorName, funcName)
-
-    await this.clearSession()
-    const kb = this.kb()
-    const data = {isNotFound: false}
-    if (edit) await this.edit(kb, data)
-    else await this.reply(kb, data)
+    await Alert.error(this, edit)
   }
 
-  async toErrorInputNotFound() {
-    const kb = this.kb()
-    await this.reply(kb, {isNotFound: true})
+  async errorInputNotFound() {
+    await Alert.errorInputNotFound(this)
   }
 
   static template = `

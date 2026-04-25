@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "gramstax": [
-        "packages/gramstax/src/index.ts"
+        "./packages/gramstax/src/index.ts"
       ]
     },
     "composite": true, // Must be enable when use "references"

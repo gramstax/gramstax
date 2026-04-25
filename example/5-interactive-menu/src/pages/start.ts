@@ -4,40 +4,45 @@ import {ResetPage} from "./reset"
 import {CategoryPage} from "./category"
 import {InlineWithoutCountPage} from "./inline-without-count"
 
+class Base {
+  static quick: `quick`
+}
+
+class Perform {
+  static async entryPoint(ctx: StartPage, isEdit = false) {
+    const ikb = ctx.inlineKeyboardT([CategoryPage, InlineWithoutCountPage, InlineWithoutCountPage, HelpPage, ResetPage], `2`)
+    if (isEdit) {
+      await ctx.edit(ikb)
+    } else {
+      await ctx.reply(ikb)
+
+      const bkb = ctx.bottomKeyboardT(`2`)
+      const da = {}
+      const bi = Base.quick
+      await ctx.reply(bkb, da, bi)
+    }
+  }
+}
+
 // Main menu page for the interactive bot.
 export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Home`})
-  static BASE = {quick: `quick`}
-
-  async show(isEdit = false) {
-    const ikb = this.inlineKeyboardT([CategoryPage, InlineWithoutCountPage, InlineWithoutCountPage, HelpPage, ResetPage], `2`)
-    if (isEdit) {
-      return await this.edit(ikb)
-    }
-
-    // First reply shows the main menu with inline buttons.
-    await this.reply(ikb)
-
-    // Second reply enables persistent quick actions.
-    const bkb = this.bottomKeyboardT(`2`)
-    await this.reply(bkb, {}, StartPage.BASE.quick)
-  }
 
   async handleCommandText() {
-    await this.show(false)
+    await Perform.entryPoint(this, false)
   }
 
   async handleText() {
-    await this.show(false)
+    await Perform.entryPoint(this, false)
   }
 
   async handleCallbackData() {
-    await this.show(true)
+    await Perform.entryPoint(this, true)
   }
 
   static template = `
     <base>
-      <keyboard>🔎 Browse, 📊 Inline Count, 🧾 Inline Simple, ❓ Help, ♻️ Reset</keyboard>
+      <keyboard type="inline">🔎 Browse, 📊 Inline Count, 🧾 Inline Simple, ❓ Help, ♻️ Reset</keyboard>
       <keyboard type="bottom">${this.kbl.home.default}, ${this.kbl.browse.default}, ${this.kbl.help.default}, ${this.kbl.reset.default}</keyboard>
       <message>
         🧭 Main Menu
@@ -51,7 +56,7 @@ export class StartPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.quick}">
+    <base id="${Base.quick}">
       <message>
         ✅ Quick actions enabled
 

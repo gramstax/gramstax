@@ -3,14 +3,14 @@ import {CatalogData} from "~/data/catalog"
 import {ItemDetailPage} from "./item-detail"
 import {CategoryPage} from "./category"
 
-// Item list with pagination and dynamic buttons.
-export class ItemListPage extends PageBase {
-  static data = this.buildData((action?: string, value?: string) => [action, value])
-  static BASE = {list: `list`}
+class Base {
+  static list: `list`
+}
 
-  buildKeyboard(categoryId: string, page: number, category = CatalogData.getCategoryById(categoryId)) {
+class Helper {
+  static kb(ctx: ItemListPage, categoryId: string, page: number, category = CatalogData.getCategoryById(categoryId)) {
     if (!category) {
-      return this.inlineKeyboardT([CategoryPage])
+      return ctx.inlineKeyboardT([CategoryPage])
     }
 
     const PAGE_SIZE = 3
@@ -20,7 +20,7 @@ export class ItemListPage extends PageBase {
     const end = start + PAGE_SIZE
     const items = category.items.slice(start, end)
 
-    return this.inlineKeyboard(
+    return ctx.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
           k.text(item.name, ItemDetailPage.data.callbackData(`detail`, categoryId, item.id))
@@ -29,46 +29,80 @@ export class ItemListPage extends PageBase {
 
         k.row()
         if (safePage > 0) {
-          k.text(l[0]!, this.data.callbackData(`page`, `${safePage - 1}`))
+          k.text(l[0]!, ctx.data.callbackData(`page`, `${safePage - 1}`))
         }
         if (safePage < totalPages - 1) {
-          k.text(l[1]!, this.data.callbackData(`page`, `${safePage - 1}`))
+          k.text(l[1]!, ctx.data.callbackData(`page`, `${safePage - 1}`))
         }
         return k.row().text(l[2]!, CategoryPage.data.callbackData())
       },
-      {baseId: ItemListPage.BASE.list}
+      {baseId: Base.list}
     )
   }
+}
 
-  async transition(categoryId: string, page = 0, isEdit = true) {
-    await this.cacheState.set(`${this.userId}:category`, categoryId)
-    await this.cacheState.set(`${this.userId}:page`, page)
+class Perform {
+  static async entryPoint(ctx: ItemListPage, categoryId: string, page = 0, isEdit = true) {
+    await ctx.cacheState.set(`${ctx.userId}:category`, categoryId)
+    await ctx.cacheState.set(`${ctx.userId}:page`, page)
 
     const category = CatalogData.getCategoryById(categoryId)
     const categoryName = category?.name || `Unknown`
     const da = {category: categoryName}
-    const kb = this.buildKeyboard(categoryId, page, category)
-    const bi = ItemListPage.BASE.list
+    const kb = Helper.kb(ctx, categoryId, page, category)
+    const bi = Base.list
 
-    if (isEdit) await this.edit(kb, da, bi)
-    else await this.reply(kb, da, bi)
+    if (isEdit) {
+      await ctx.edit(kb, da, bi)
+    } else {
+      await ctx.reply(kb, da, bi)
+    }
+  }
+
+  static async delegateOne(ctx: ItemListPage) {
+    const categoryId = await ctx.cacheState.get(`${ctx.userId}:category`)
+    if (!categoryId) {
+      await Alert.missingCategory(ctx)
+    } else {
+      await Perform.entryPoint(ctx, categoryId, 0, true)
+    }
+  }
+
+  static async delegateTwo(ctx: ItemListPage) {
+    const [action, value] = ctx.callbackDataArgs
+    if (action !== `page`) {
+      return await Perform.delegateOne(ctx)
+    }
+
+    const categoryId = await ctx.cacheState.get(`${ctx.userId}:category`)
+    if (!categoryId) {
+      await Alert.missingCategory(ctx)
+    } else {
+      await Perform.entryPoint(ctx, categoryId, Number(value), true)
+    }
+  }
+}
+
+class Alert {
+  static async missingCategory(ctx: ItemListPage) {
+    await new CategoryPage(ctx).transition(true)
+  }
+}
+
+// Item list with pagination and dynamic buttons.
+export class ItemListPage extends PageBase {
+  static data = this.buildData((action?: string, value?: string) => [action, value])
+
+  async transition(categoryId: string, page = 0, isEdit = true) {
+    await Perform.entryPoint(this, categoryId, page, isEdit)
   }
 
   async handleCallbackData() {
-    const categoryId = await this.cacheState.get(`${this.userId}:category`)
-    if (!categoryId) await new CategoryPage(this).transition(true)
-    else await this.transition(categoryId, 0, true)
+    await Perform.delegateOne(this)
   }
 
   async handleArgsCallbackData() {
-    const [action, value] = this.callbackDataArgs
-    if (action !== `page`) {
-      return await this.handleCallbackData()
-    }
-
-    const categoryId = await this.cacheState.get(`${this.userId}:category`)
-    if (!categoryId) await new CategoryPage(this).transition(true)
-    else await this.transition(categoryId, Number(value), true)
+    await Perform.delegateTwo(this)
   }
 
   static template = `
@@ -81,7 +115,7 @@ export class ItemListPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.list}">
+    <base id="${Base.list}">
       <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.back.default}</keyboard>
       <message>
         📦 Items in {{category}}

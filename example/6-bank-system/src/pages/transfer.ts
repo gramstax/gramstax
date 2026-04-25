@@ -1,103 +1,153 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-// Transfer funds to another user.
-export class TransferPage extends PageBase {
-  static BASE = {form: `form`, invalid: `invalid`, success: `success`, insufficient: `insufficient`, unknownUser: `unknown-user`, self: `self`}
+class Base {
+  static form = `form`
+  static invalid = `invalid`
+  static success = `success`
+  static insufficient = `insufficient`
+  static unknownUser = `unknown-user`
+  static self = `self`
+}
 
-  kb(baseId?: string) {
-    return this.inlineKeyboardT([StartPage], `1`, baseId)
+class Helper {
+  static kb(ctx: TransferPage, baseId?: string) {
+    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  }
+}
+
+class Perform {
+  static async entryPoint(ctx: TransferPage) {
+    const bi = Base.form
+    const kb = Helper.kb(ctx, bi)
+    const da = {}
+    await ctx.edit(kb, da, bi)
   }
 
-  async handleCallbackData() {
-    await this.sessionFreeText()
-    const bi = TransferPage.BASE.form
-    const kb = this.kb(bi)
-    await this.edit(kb, {}, bi)
+  static resolveTarget(ctx: TransferPage, input: string) {
+    const trimmed = input.trim()
+    if (/^\d+$/.test(trimmed)) {
+      return {id: Number(trimmed), label: `#${trimmed}`}
+    }
+
+    const username = trimmed.replace(/^@/, ``)
+    const userId = ctx.bankStore.getUserIdByUsername(username)
+    if (!userId) {
+      return null
+    }
+    return {id: userId, label: `@${username}`}
+  }
+}
+
+class Alert {
+  static async invalid(ctx: TransferPage, amount = ``) {
+    const bi = Base.invalid
+    const kb = Helper.kb(ctx, bi)
+    const da = {amount}
+    await ctx.reply(kb, da, bi)
   }
 
-  async handleFreeText() {
-    if (!this.isSessionFreeText()) return null
-    const payloads = this.msgText.trim().split(/\s+/)
-    await this.handleTransfer(payloads, false)
+  static async unknownUser(ctx: TransferPage, target: string) {
+    const bi = Base.unknownUser
+    const kb = Helper.kb(ctx, bi)
+    const da = {target}
+    await ctx.reply(kb, da, bi)
   }
 
-  private async handleTransfer(payloads: string[], edit = false) {
-    const [amountInput, targetInput] = payloads
-    const {BASE} = TransferPage
-    const biInv = BASE.invalid
+  static async self(ctx: TransferPage) {
+    const bi = Base.self
+    const kb = Helper.kb(ctx, bi)
+    const da = {}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async insufficient(ctx: TransferPage, balance: string) {
+    const bi = Base.insufficient
+    const kb = Helper.kb(ctx, bi)
+    const da = {balance}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async success(ctx: TransferPage, amount: string, balance: string, target: string, edit = false) {
+    const bi = Base.success
+    const kb = Helper.kb(ctx, bi)
+    const data = {amount, balance, target}
+    if (edit) {
+      await ctx.edit(kb, data, bi)
+    } else {
+      await ctx.reply(kb, data, bi)
+    }
+  }
+}
+
+class Flow {
+  static async process(ctx: TransferPage) {
+    const [amountInput, targetInput] = ctx.msgText.trim().split(/\s+/)
     if (!amountInput || !targetInput) {
-      return await this.reply(this.kb(biInv), {}, biInv)
+      return await Alert.invalid(ctx)
     }
 
-    const amount = this.bankStore.parseAmount(amountInput)
+    const amount = ctx.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      return await this.reply(this.kb(biInv), {amount: amountInput}, biInv)
+      return await Alert.invalid(ctx, amountInput)
     }
 
-    const target = this.resolveTarget(targetInput)
+    const target = Perform.resolveTarget(ctx, targetInput)
     if (!target) {
-      const bi = BASE.unknownUser
-      return await this.reply(this.kb(bi), {target: targetInput}, bi)
+      return await Alert.unknownUser(ctx, targetInput)
     }
 
-    if (target.id === this.userId) {
-      const bi = BASE.self
-      return await this.reply(this.kb(bi), {}, bi)
+    if (target.id === ctx.userId) {
+      return await Alert.self(ctx)
     }
 
-    const current = this.bankStore.getBalance(this.userId)
+    const current = ctx.bankStore.getBalance(ctx.userId)
     if (current < amount) {
-      const bi = BASE.insufficient
-      return await this.reply(this.kb(bi), {balance: this.bankStore.formatAmount(current)}, bi)
+      return await Alert.insufficient(ctx, ctx.bankStore.formatAmount(current))
     }
 
     const nextSender = current - amount
-    const targetBalance = this.bankStore.getBalance(target.id)
+    const targetBalance = ctx.bankStore.getBalance(target.id)
     const nextTarget = targetBalance + amount
-    const amountHex = this.bankStore.toHex(amount)
+    const amountHex = ctx.bankStore.toHex(amount)
 
-    this.bankStore.setBalance(this.userId, nextSender)
-    this.bankStore.setBalance(target.id, nextTarget)
-
-    this.bankStore.recordTransaction(this.userId, {
+    ctx.bankStore.setBalance(ctx.userId, nextSender)
+    ctx.bankStore.setBalance(target.id, nextTarget)
+    ctx.bankStore.recordTransaction(ctx.userId, {
       type: `transfer-out`,
       amountHex,
       peerId: target.id,
       peerName: target.label,
       ts: Date.now()
     })
-    this.bankStore.recordTransaction(target.id, {
+    ctx.bankStore.recordTransaction(target.id, {
       type: `transfer-in`,
       amountHex,
-      peerId: this.userId,
-      peerName: this.userName || `user-${this.userId}`,
+      peerId: ctx.userId,
+      peerName: ctx.userName || `user-${ctx.userId}`,
       ts: Date.now()
     })
 
-    const amountDisplay = this.bankStore.formatAmount(amount)
-    const balance = this.bankStore.formatAmount(nextSender)
-    const data = {amount: amountDisplay, balance, target: target.label}
+    await ctx.clearSession()
+    await Alert.success(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(nextSender), target.label)
+  }
+}
 
-    await this.clearSession()
-    const biSuc = BASE.success
-    const kb = this.kb(biSuc)
-    if (edit) await this.edit(kb, data, biSuc)
-    else await this.reply(kb, data, biSuc)
+// Transfer funds to another user.
+export class TransferPage extends PageBase {
+  async handleCallbackData() {
+    await Perform.entryPoint(this)
   }
 
-  private resolveTarget(input: string) {
-    const trimmed = input.trim()
-    if (/^\d+$/.test(trimmed)) return {id: Number(trimmed), label: `#${trimmed}`}
-
-    const username = trimmed.replace(/^@/, ``)
-    const userId = this.bankStore.getUserIdByUsername(username)
-    if (!userId) return null
-    return {id: userId, label: `@${username}`}
+  async handleFreeText() {
+    if (!this.isSessionFreeText()) {
+      return null
+    }
+    await Flow.process(this)
   }
 
   static template = `
-    <base id="${this.BASE.form}">
+    <base id="${Base.form}">
       ${this.kbk.cancel()}
       <message>
         🔁 Transfer funds
@@ -109,7 +159,7 @@ export class TransferPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.success}">
+    <base id="${Base.success}">
       ${this.kbk.home()}
       <message>
         ✅ Transfer completed
@@ -119,7 +169,7 @@ export class TransferPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.insufficient}">
+    <base id="${Base.insufficient}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Insufficient funds
@@ -129,7 +179,7 @@ export class TransferPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.unknownUser}">
+    <base id="${Base.unknownUser}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Recipient not found
@@ -139,7 +189,7 @@ export class TransferPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.self}">
+    <base id="${Base.self}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Transfer blocked
@@ -149,7 +199,7 @@ export class TransferPage extends PageBase {
       </message>
     </base>
 
-    <base id="${this.BASE.invalid}">
+    <base id="${Base.invalid}">
       ${this.kbk.cancel()}
       <message>
         ⚠️ Invalid transfer format
