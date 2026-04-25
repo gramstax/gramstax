@@ -2185,22 +2185,6 @@ export class Ctx {
     return positionEnd == 1 ? (spl[0] as string) : spl.slice(0, positionEnd).join(tag)
   }
 
-  // =============== most common used function
-  /**
-   * Transition method for navigating between pages.
-   *
-   * @remarks
-   * Override this method in subclasses to implement page-to-page transitions.
-   * This is a placeholder that must be implemented when needed.
-   *
-   * @param args - Transition parameters.
-   * @returns Promise resolving when transition is complete.
-   *
-   * @virtual
-   * @public
-   */
-  async entryPoint?(...args: any): Promise<any>
-
   // =============== route function
   /**
    * Route handler for callback queries without args matching `intentCallbackData`.
