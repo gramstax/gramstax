@@ -45,7 +45,7 @@
     "tsup": "^8.5.1"
   },
   "peerDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "commander": "^14.0.2",
