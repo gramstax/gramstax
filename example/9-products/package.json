@@ -1,9 +1,0 @@
-{
-  "name": "example-9-products",
-  "private": false,
-"scripts": {
-  "start": "bun ./src/index.ts",
-  "dev": "bun --watch ./src/index.ts",
-  "ci:check": "tsc --noEmit"
-}
-}
