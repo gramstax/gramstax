@@ -16,19 +16,15 @@ class Helper {
 
   static buildKeyboard(ctx: ListPage, page: number, totalPages: number) {
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-    const bi = Base.list
-    return ctx.inlineKeyboard(
-      (k, l) => {
-        if (safePage > 0) {
-          k.text(l[0]!, ctx.data.callbackData(`page`, `${safePage - 1}`))
-        }
-        if (safePage < totalPages - 1) {
-          k.text(l[1]!, ctx.data.callbackData(`page`, `${safePage + 1}`))
-        }
-        return k.row().text(l[2]!, StartPage.data.callbackData())
-      },
-      {baseId: bi}
-    )
+    return ctx.inlineKeyboard((k, l) => {
+      if (safePage > 0) {
+        k.text(l[0]!, ctx.data.callbackData(`page`, `${safePage - 1}`))
+      }
+      if (safePage < totalPages - 1) {
+        k.text(l[1]!, ctx.data.callbackData(`page`, `${safePage + 1}`))
+      }
+      return k.row().text(l[2]!, StartPage.data.callbackData())
+    })
   }
 }
 
@@ -59,10 +55,9 @@ class Main {
       })
       .join(`\n`)
 
-    const bi = Base.list
     const da = {items: list, page: safePage + 1, totalPages}
     const kb = Helper.buildKeyboard(ctx, safePage, totalPages)
-    await ctx.edit(kb, da, bi)
+    await ctx.edit(kb, da)
   }
 }
 
@@ -86,7 +81,7 @@ export class ListPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.list}">
+    <base>
       <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</keyboard>
       <keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</keyboard>
       <message>

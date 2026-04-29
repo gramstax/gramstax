@@ -4,8 +4,8 @@ import {StartPage} from "./start"
 type CreateSessionParams = {step?: `title` | `description`; title?: string}
 
 class Base {
-  static s1: `form-title`
-  static s2: `form-description`
+  static s1: `s1-title`
+  static s2: `s2-description`
   static success: `success`
   static warnInvalid: `w-invalid`
 }
@@ -54,7 +54,6 @@ class Main {
       return await this.processStep1Answer(ctx, value)
     }
 
-    await ctx.clearSession()
     const item = await ctx.db.createItem(ctx.userId, title, value)
     await Alert.success(ctx, {
       id: item.id,
@@ -67,6 +66,7 @@ class Main {
 
 class Alert {
   static async success(ctx: CreatePage, data: {id: string; title: string; description: string; status: string}) {
+    await ctx.clearSession()
     const bi = Base.success
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     await ctx.reply(kb, data, bi)

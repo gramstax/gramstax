@@ -14,28 +14,6 @@ class Helper {
   }
 }
 
-class Main {
-  static async showStep1Form(ctx: DetailPage) {
-    await ctx.sessionFreeText()
-    const kb = Helper.buildHomeKeyboard(ctx)
-    const da = {}
-    await ctx.edit(kb, da)
-  }
-
-  static async processStep1Answer(ctx: DetailPage) {
-    const input = ctx.msgText.trim()
-    const id = input?.trim()
-    if (!id) {
-      return await Alert.warnInvalid(ctx)
-    }
-    const item = await ctx.db.getItem(ctx.userId, id)
-    if (!item) {
-      return await Alert.infoNotFound(ctx, id)
-    }
-    await Alert.success(ctx, item)
-  }
-}
-
 class Alert {
   static async success(ctx: DetailPage, item: Awaited<ReturnType<DetailPage[`db`][`getItem`]>>) {
     if (!item) {
@@ -71,6 +49,29 @@ class Alert {
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {id}
     await ctx.reply(kb, da, bi)
+  }
+}
+
+class Main {
+  static async showStep1Form(ctx: DetailPage) {
+    await ctx.sessionFreeText()
+    const kb = Helper.buildHomeKeyboard(ctx)
+    const da = {}
+    await ctx.edit(kb, da)
+  }
+
+  static async processStep1Answer(ctx: DetailPage) {
+    const input = ctx.msgText.trim()
+    const id = input?.trim()
+    if (!id) {
+      return await Alert.warnInvalid(ctx)
+    }
+    const item = await ctx.db.getItem(ctx.userId, id)
+    if (!item) {
+      await Alert.infoNotFound(ctx, id)
+    } else {
+      await Alert.success(ctx, item)
+    }
   }
 }
 

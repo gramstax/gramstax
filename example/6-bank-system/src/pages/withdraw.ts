@@ -48,13 +48,13 @@ class Main {
       ts: Date.now()
     })
 
-    await ctx.clearSession()
     await Alert.success(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
   }
 }
 
 class Alert {
   static async success(ctx: WithdrawPage, amount: string, balance: string) {
+    await ctx.clearSession()
     const bi = Base.success
     const da = {amount, balance}
     const kb = Helper.kb(ctx, bi)

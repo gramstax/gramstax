@@ -11,7 +11,7 @@ type BroadcastSession = {
 }
 
 class Base {
-  static s1Form = `s1-form`
+  static s1Anon = `s1-anon`
   static confirm = `confirm`
   static confirmPhoto = `confirm-photo`
   static confirmVideo = `confirm-video`
@@ -27,7 +27,7 @@ class Base {
 
 class Helper {
   static promptKb(ctx: BroadcastPage) {
-    const bi = Base.s1Form
+    const bi = Base.s1Anon
     return ctx.inlineKeyboardT([BroadcastPage.data.callbackData(`cancel`), StartPage], `2`, bi)
   }
 
@@ -97,7 +97,7 @@ class Main {
     await ctx.sessionFreeText({step: `message`})
     const kb = Helper.promptKb(ctx)
     const da = {draft, isEmpty}
-    const bi = Base.s1Form
+    const bi = Base.s1Anon
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -299,7 +299,7 @@ export class BroadcastPage extends PageBase {
       ${this.kbk.home()}
     </base>
 
-    <base id="${Base.s1Form}">
+    <base id="${Base.s1Anon}">
       <keyboard>${this.kbl.cancelHome.default}</keyboard>
       <keyboard lang="id">${this.kbl.cancelHome.id}</keyboard>
       <message>

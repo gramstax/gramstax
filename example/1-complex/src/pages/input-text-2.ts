@@ -11,6 +11,15 @@ class Helper {
   }
 }
 
+class Alert {
+  static async success(ctx: InputText2Page) {
+    const bi = Base.success
+    const da = {res: ctx.msgText}
+    const kb = Helper.kb(ctx, bi)
+    await ctx.reply(kb, da, bi)
+  }
+}
+
 class Main {
   static async showEntryPoint(ctx: InputText2Page, edit = true) {
     const kb = Helper.kb(ctx)
@@ -19,15 +28,6 @@ class Main {
     } else {
       await ctx.reply(kb)
     }
-  }
-}
-
-class Alert {
-  static async success(ctx: InputText2Page) {
-    const bi = Base.success
-    const da = {res: ctx.msgText}
-    const kb = Helper.kb(ctx, bi)
-    await ctx.reply(kb, da, bi)
   }
 }
 

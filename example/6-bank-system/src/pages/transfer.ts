@@ -85,7 +85,6 @@ class Main {
       ts: Date.now()
     })
 
-    await ctx.clearSession()
     await Alert.success(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(nextSender), target.label)
   }
 }
@@ -120,6 +119,7 @@ class Alert {
   }
 
   static async success(ctx: TransferPage, amount: string, balance: string, target: string) {
+    await ctx.clearSession()
     const bi = Base.success
     const kb = Helper.kb(ctx, bi)
     const data = {amount, balance, target}

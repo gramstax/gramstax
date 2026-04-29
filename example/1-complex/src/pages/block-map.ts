@@ -3,7 +3,7 @@ import {StartPage} from "./start"
 
 class Main {
   static async showEntryPoint(ctx: BlockMapPage) {
-    const kb = ctx.inlineKeyboardT([this, StartPage])
+    const kb = ctx.inlineKeyboardT([ctx, StartPage])
     const da = {
       arr: Array.from({length: Math.floor(Math.random() * 4) + 3}, () => ({number: Math.random()})),
       status: 1,

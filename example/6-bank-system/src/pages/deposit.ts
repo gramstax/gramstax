@@ -13,6 +13,23 @@ class Helper {
   }
 }
 
+class Alert {
+  static async success(ctx: DepositPage, amount: string, balance: string) {
+    await ctx.clearSession()
+    const bi = Base.success
+    const da = {amount, balance}
+    const kb = Helper.kb(ctx, bi)
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async warnInvalid(ctx: DepositPage, amount = ``) {
+    const bi = Base.warnInvalid
+    const kb = Helper.kb(ctx, bi)
+    const da = {amount}
+    await ctx.reply(kb, da, bi)
+  }
+}
+
 class Main {
   static async showStep1Form(ctx: DepositPage) {
     await ctx.sessionFreeText()
@@ -43,24 +60,7 @@ class Main {
       ts: Date.now()
     })
 
-    await ctx.clearSession()
     await Alert.success(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
-  }
-}
-
-class Alert {
-  static async success(ctx: DepositPage, amount: string, balance: string) {
-    const bi = Base.success
-    const da = {amount, balance}
-    const kb = Helper.kb(ctx, bi)
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async warnInvalid(ctx: DepositPage, amount = ``) {
-    const bi = Base.warnInvalid
-    const kb = Helper.kb(ctx, bi)
-    const da = {amount}
-    await ctx.reply(kb, da, bi)
   }
 }
 

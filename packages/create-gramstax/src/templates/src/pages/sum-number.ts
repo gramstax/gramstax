@@ -17,6 +17,16 @@ class Helper {
   }
 }
 
+class Alert {
+  static async success(ctx: SumNumberPage, left: number, right: number) {
+    await ctx.clearSession()
+    const bi = Base.success
+    const kb = Helper.kb(ctx, bi)
+    const da = {result: left! + right}
+    await ctx.reply(kb, da, bi)
+  }
+}
+
 class Main {
   static async showStep1Form(ctx: SumNumberPage, edit: boolean) {
     await ctx.sessionFreeText({step: `left`})
@@ -55,16 +65,6 @@ class Main {
     } else {
       await Alert.success(ctx, left, right)
     }
-  }
-}
-
-class Alert {
-  static async success(ctx: SumNumberPage, left: number, right: number) {
-    await ctx.clearSession()
-    const bi = Base.success
-    const kb = Helper.kb(ctx, bi)
-    const da = {result: left! + right}
-    await ctx.reply(kb, da, bi)
   }
 }
 

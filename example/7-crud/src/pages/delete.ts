@@ -35,6 +35,7 @@ class Helper {
 
 class Alert {
   static async success(ctx: DeletePage, id: string, edit: boolean) {
+    await ctx.clearSession()
     const bi = Base.success
     const da = {id}
     const kb = Helper.buildHomeKeyboard(ctx, bi)
@@ -92,16 +93,14 @@ class Main {
   static async processStep1Answer(ctx: DeletePage, input?: string, edit = false) {
     const id = input?.trim()
     if (!id) {
-      await ctx.clearSession()
       return await Alert.warnInvalid(ctx, edit)
     }
 
-    const deleted = ctx.db.deleteItem(ctx.userId, id)
+    const deleted = await ctx.db.deleteItem(ctx.userId, id)
     if (!deleted) {
       return await Alert.errorNotFound(ctx, id, edit)
     }
 
-    await ctx.clearSession()
     await Alert.success(ctx, id, edit)
   }
 }

@@ -1,8 +1,14 @@
 import {PageBase} from "~/base/page"
 
+class Main {
+  static async showEntryPoint(ctx: BlankPage) {
+    await ctx.callbackQueryAnswer()
+  }
+}
+
 export class BlankPage extends PageBase {
   async handleCallbackData() {
-    await this.callbackQueryAnswer()
+    await Main.showEntryPoint(this)
   }
 
   static template = `<base></base>`
