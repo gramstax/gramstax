@@ -11,7 +11,7 @@ This document describes the code structure patterns and best practices for Grams
 **IMPORTANT**: All new Gramstax projects **must** be initialized using the official CLI:
 
 ```bash
-npx create-gramstax
+npx create-gramstax@latest
 ```
 
 Do not create project structure manually. Use the CLI to ensure proper scaffolding and configuration.

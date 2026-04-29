@@ -38,8 +38,9 @@ TELEGRAM_BOT_TOKEN="<...your_bot_token_here...>"
 - `src/blocks/` - Block data builder classes
 - `src/core/` - Core bot configuration and hooks
 - `src/guards/` - Route guards and middleware
+- `src/helpers/` - Helper function
 - `src/pages/` - Bot pages/screens
-- `src/utils/` - Utility functions
+- `src/utils/` - Utility functions for raw like array
 - `logs/` - Application logs (created automatically)
 
 ## Configuration
