@@ -4,7 +4,8 @@
         "composite": false,
         "noEmit": false,
         "resolveJsonModule": true,
-        "removeComments": true // true will delete all comments in .js, .d.ts in folder ./dist
+        "removeComments": true, // true will delete all comments in .js, .d.ts in folder ./dist
+        "ignoreDeprecations": "6.0"
     },
     "include": [
         "src/**/*"
