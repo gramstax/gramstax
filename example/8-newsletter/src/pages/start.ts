@@ -3,8 +3,8 @@ import {HelpPage} from "./help"
 import {StatsPage} from "./stats"
 import {ToggleSubscriptionPage} from "./toggle-subscription"
 
-class Perform {
-  static async entryPoint(ctx: StartPage, edit = true) {
+class Main {
+  static async showEntryPoint(ctx: StartPage, edit = true) {
     await ctx.clearSession()
     const subscribed = await ctx.db.isSubscribed(ctx.userId)
     const da = {subscribed}
@@ -18,17 +18,18 @@ class Perform {
 }
 
 export class StartPage extends PageBase {
-  async entryPoint(edit = true) {
-    await Perform.entryPoint(this, edit)
+  async showEntryPoint(edit = true) {
+    await Main.showEntryPoint(this, edit)
   }
 
   async handleCallbackData() {
-    await Perform.entryPoint(this, true)
+    await Main.showEntryPoint(this, true)
   }
 
   async handleCommandText() {
-    await Perform.entryPoint(this, false)
+    await Main.showEntryPoint(this, false)
   }
+
   static template = `
     <base>
       <keyboard>{~subscribed ? "🚫 Unsubscribe" : "✅ Subscribe"~}, 📊 Stats, ❓ Help</keyboard>

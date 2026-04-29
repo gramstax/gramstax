@@ -69,8 +69,8 @@ class Helper {
   }
 }
 
-class Perform {
-  static async entryPoint(ctx: StartPage, condition = 1) {
+class Main {
+  static async showEntryPoint(ctx: StartPage, condition = 1) {
     const kb = Helper.kb(ctx)
     const da = {
       firstName: ctx.userFirstName,
@@ -92,32 +92,28 @@ class Perform {
 export class StartPage extends PageBase {
   static data = this.buildData((rdm?: string) => [rdm])
 
-  async toError() {
-    await Perform.entryPoint(this, 1)
-  }
-
   async handleText() {
-    await Perform.entryPoint(this, 1)
+    await Main.showEntryPoint(this, 1)
   }
 
   async handleArgsText() {
-    await Perform.entryPoint(this, 1)
+    await Main.showEntryPoint(this, 1)
   }
 
   async handleCommandText() {
-    await Perform.entryPoint(this, 1)
+    await Main.showEntryPoint(this, 1)
   }
 
   async handleCommandArgsText() {
-    await Perform.entryPoint(this, 1)
+    await Main.showEntryPoint(this, 1)
   }
 
   async handleCallbackData() {
-    await Perform.entryPoint(this, 2)
+    await Main.showEntryPoint(this, 2)
   }
 
   async handleArgsCallbackData() {
-    await Perform.entryPoint(this, 3)
+    await Main.showEntryPoint(this, 3)
   }
 
   static template = `

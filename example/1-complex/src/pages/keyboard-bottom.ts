@@ -6,8 +6,8 @@ class Base {
   static delete = `delete`
 }
 
-class Perform {
-  static async entryPoint(ctx: KeyboardBottomPage, count?: number, baseId?: string) {
+class Main {
+  static async showEntryPoint(ctx: KeyboardBottomPage, count?: number, baseId?: string) {
     const pr = {data: {first: ctx.data.intentText}}
     const kb = ctx.bottomKeyboard((k, l) => {
       return k
@@ -19,6 +19,21 @@ class Perform {
     const da = {}
     await ctx.reply(kb, da, baseId)
   }
+
+  static async showDelete(ctx: KeyboardBottomPage, pl: string) {
+    const kb = ctx.inlineKeyboardT([StartPage])
+    const da = {}
+    await ctx.reply(kb, da, pl, {
+      reply_markup: {
+        remove_keyboard: true
+      }
+    })
+  }
+
+  static async showReset(ctx: KeyboardBottomPage, pl: string) {
+    const kb = ctx.inlineKeyboardT([StartPage])
+    await this.showEntryPoint(ctx, kb, pl)
+  }
 }
 
 export class KeyboardBottomPage extends PageBase {
@@ -28,33 +43,27 @@ export class KeyboardBottomPage extends PageBase {
   })
 
   async handleCallbackData() {
-    await Perform.entryPoint(this)
+    await Main.showEntryPoint(this)
   }
 
   async handleText() {
-    await Perform.entryPoint(this)
+    await Main.showEntryPoint(this)
   }
 
   async handleArgsText() {
-    await Perform.entryPoint(this, parseInt(this.msgTextArg))
+    await Main.showEntryPoint(this, parseInt(this.msgTextArg))
   }
 
   async handleCommandText() {
-    await Perform.entryPoint(this)
+    await Main.showEntryPoint(this)
   }
 
   async handleCommandArgsText() {
     const pl = this.msgTextCommandArg
-    const kb = this.inlineKeyboardT([StartPage])
     if (pl == Base.reset) {
-      await Perform.entryPoint(this, kb, pl)
+      await Main.showReset(this, pl)
     } else if (pl == Base.delete) {
-      const da = {}
-      await this.reply(kb, da, pl, {
-        reply_markup: {
-          remove_keyboard: true
-        }
-      })
+      await Main.showDelete(this, pl)
     }
   }
 

@@ -1,6 +1,6 @@
+import {TimeUt} from "~/utils/time"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
-import {TimeUt} from "~/utils/time"
 
 class Base {
   static list: `list`
@@ -16,6 +16,7 @@ class Helper {
 
   static buildKeyboard(ctx: ListPage, page: number, totalPages: number) {
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
+    const bi = Base.list
     return ctx.inlineKeyboard(
       (k, l) => {
         if (safePage > 0) {
@@ -26,7 +27,7 @@ class Helper {
         }
         return k.row().text(l[2]!, StartPage.data.callbackData())
       },
-      {baseId: Base.list}
+      {baseId: bi}
     )
   }
 }
@@ -40,8 +41,8 @@ class Alert {
   }
 }
 
-class Perform {
-  static async entryPoint(ctx: ListPage, page = 0) {
+class Main {
+  static async showEntryPoint(ctx: ListPage, page = 0) {
     const totalItems = await ctx.db.countItems(ctx.userId)
     if (totalItems === 0) {
       return await Alert.infoEmpty(ctx)
@@ -70,18 +71,18 @@ export class ListPage extends PageBase {
   static data = this.buildData((action?: string, page?: string) => [action, page])
 
   async handleCallbackData() {
-    await Perform.entryPoint(this, 0)
+    await Main.showEntryPoint(this, 0)
   }
 
   async handleArgsCallbackData() {
     const [action, value] = this.callbackDataArgs
     if (action !== `page`) {
-      return await Perform.entryPoint(this, 0)
+      return await Main.showEntryPoint(this, 0)
     }
 
     const nextPage = Number(value)
     const page = Number.isNaN(nextPage) ? 0 : nextPage
-    await Perform.entryPoint(this, page)
+    await Main.showEntryPoint(this, page)
   }
 
   static template = `

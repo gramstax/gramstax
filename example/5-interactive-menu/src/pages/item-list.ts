@@ -41,8 +41,8 @@ class Helper {
   }
 }
 
-class Perform {
-  static async entryPoint(ctx: ItemListPage, categoryId: string, page = 0, isEdit = true) {
+class Main {
+  static async showEntryPoint(ctx: ItemListPage, categoryId: string, page = 0, edit = true) {
     await ctx.cacheState.set(`${ctx.userId}:category`, categoryId)
     await ctx.cacheState.set(`${ctx.userId}:page`, page)
 
@@ -52,37 +52,37 @@ class Perform {
     const da = {category: categoryName}
     const kb = Helper.kb(ctx, categoryId, page, category)
     const bi = Base.list
-    if (isEdit) {
+    if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
       await ctx.reply(kb, da, bi)
     }
   }
 
-  static async delegateOne(ctx: ItemListPage) {
+  static async processDelegateOne(ctx: ItemListPage) {
     const categoryId = await ctx.cacheState.get(`${ctx.userId}:category`)
     if (!categoryId) {
-      await this.delegateMissingCategory(ctx)
+      await this.processDelegateMissingCategory(ctx)
     } else {
-      await Perform.entryPoint(ctx, categoryId, 0, true)
+      await Main.showEntryPoint(ctx, categoryId, 0, true)
     }
   }
 
-  static async delegateTwo(ctx: ItemListPage) {
+  static async processDelegateTwo(ctx: ItemListPage) {
     const [action, value] = ctx.callbackDataArgs
     if (action !== `page`) {
-      return await Perform.delegateOne(ctx)
+      return await Main.processDelegateOne(ctx)
     }
 
     const categoryId = await ctx.cacheState.get(`${ctx.userId}:category`)
     if (!categoryId) {
-      await this.delegateMissingCategory(ctx)
+      await this.processDelegateMissingCategory(ctx)
     } else {
-      await Perform.entryPoint(ctx, categoryId, Number(value), true)
+      await Main.showEntryPoint(ctx, categoryId, Number(value), true)
     }
   }
 
-  static async delegateMissingCategory(ctx: ItemListPage) {
+  static async processDelegateMissingCategory(ctx: ItemListPage) {
     await new CategoryPage(ctx).entryPoint(true)
   }
 }
@@ -92,15 +92,15 @@ export class ItemListPage extends PageBase {
   static data = this.buildData((action?: string, value?: string) => [action, value])
 
   async entryPoint(categoryId: string, page = 0, isEdit = true) {
-    await Perform.entryPoint(this, categoryId, page, isEdit)
+    await Main.showEntryPoint(this, categoryId, page, isEdit)
   }
 
   async handleCallbackData() {
-    await Perform.delegateOne(this)
+    await Main.processDelegateOne(this)
   }
 
   async handleArgsCallbackData() {
-    await Perform.delegateTwo(this)
+    await Main.processDelegateTwo(this)
   }
 
   static template = `

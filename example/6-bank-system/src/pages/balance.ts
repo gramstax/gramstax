@@ -1,8 +1,8 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Perform {
-  static async entryPoint(ctx: BalancePage) {
+class Main {
+  static async showEntryPoint(ctx: BalancePage) {
     const balance = ctx.bankStore.getBalance(ctx.userId)
     const formatted = ctx.bankStore.formatAmount(balance)
     const da = {balance: formatted}
@@ -14,7 +14,7 @@ class Perform {
 // Shows the current user balance.
 export class BalancePage extends PageBase {
   async handleCallbackData() {
-    await Perform.entryPoint(this)
+    await Main.showEntryPoint(this)
   }
 
   static template = `

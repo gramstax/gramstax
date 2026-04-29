@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static result: `result`
+  static success: `success`
 }
 
 class Helper {
@@ -11,8 +11,8 @@ class Helper {
   }
 }
 
-class Flow {
-  static async step1Form(ctx: InputTextPage, edit = true) {
+class Main {
+  static async showStep1Form(ctx: InputTextPage, edit = true) {
     await ctx.sessionFreeText()
     const kb = Helper.kb(ctx)
     if (edit) {
@@ -22,8 +22,14 @@ class Flow {
     }
   }
 
-  static async step1Answer(ctx: InputTextPage) {
-    const bi = Base.result
+  static async processStep1Answer(ctx: InputTextPage) {
+    await Alert.success(ctx)
+  }
+}
+
+class Alert {
+  static async success(ctx: InputTextPage) {
+    const bi = Base.success
     const da = {res: ctx.msgText}
     const kb = Helper.kb(ctx, bi)
     await ctx.reply(kb, da, bi)
@@ -34,18 +40,18 @@ export class InputTextPage extends PageBase {
   static data = this.buildData({intentCommandText: `input_text`})
 
   async handleCallbackData() {
-    await Flow.step1Form(this, true)
+    await Main.showStep1Form(this, true)
   }
 
   async handleCommandText() {
-    await Flow.step1Form(this, false)
+    await Main.showStep1Form(this, false)
   }
 
   async handleFreeText() {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Flow.step1Answer(this)
+    await Main.processStep1Answer(this)
   }
 
   static template = `
@@ -63,7 +69,7 @@ export class InputTextPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.result}">
+    <base id="${Base.success}">
       ${this.kbk.home()}
       <message>
         ✅ Result

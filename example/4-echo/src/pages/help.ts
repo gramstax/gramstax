@@ -1,8 +1,8 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Perform {
-  static async entryPoint(ctx: HelpPage, edit = true) {
+class Main {
+  static async showEntryPoint(ctx: HelpPage, edit = true) {
     const kb = ctx.inlineKeyboardT([StartPage])
     if (edit) {
       await ctx.edit(kb)
@@ -15,11 +15,11 @@ class Perform {
 // Help page lists available commands.
 export class HelpPage extends PageBase {
   async handleCommandText() {
-    await Perform.entryPoint(this, false)
+    await Main.showEntryPoint(this, false)
   }
 
   async handleCallbackData() {
-    await Perform.entryPoint(this, true)
+    await Main.showEntryPoint(this, true)
   }
 
   static template = `

@@ -1,8 +1,8 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Perform {
-  static async entryPoint(ctx: BlockMapPage) {
+class Main {
+  static async showEntryPoint(ctx: BlockMapPage) {
     const kb = ctx.inlineKeyboardT([this, StartPage])
     const da = {
       arr: Array.from({length: Math.floor(Math.random() * 4) + 3}, () => ({number: Math.random()})),
@@ -16,7 +16,7 @@ class Perform {
 
 export class BlockMapPage extends PageBase {
   async handleCallbackData() {
-    await Perform.entryPoint(this)
+    await Main.showEntryPoint(this)
   }
 
   static template = `

@@ -16,22 +16,23 @@ class Helper {
   }
 }
 
-class Flow {
-  static async step1Form(ctx: TestAnimationPage) {
+class Main {
+  static async showStep1Form(ctx: TestAnimationPage) {
     const kb = Helper.kb(ctx)
     await ctx.editAnimation(kb)
   }
 
-  static async step1Answer(ctx: TestAnimationPage) {
+  static async processStep1Answer(ctx: TestAnimationPage) {
     const swc = ctx.callbackDataArg
     if (swc == `static`) {
-      return await ctx.handleCallbackData()
+      await ctx.handleCallbackData()
     } else if (swc == `dynamic`) {
       const data = {
         src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
       }
+      const bi = Base.dynamicAttr
       const kb = Helper.kb(ctx, true)
-      await ctx.editAnimation(kb, data, `dynamic-attribute`)
+      await ctx.editAnimation(kb, data, bi)
     }
   }
 }
@@ -40,11 +41,11 @@ export class TestAnimationPage extends PageBase {
   static data = this.buildData((swc?: string) => [swc])
 
   async handleCallbackData() {
-    await Flow.step1Form(this)
+    await Main.showStep1Form(this)
   }
 
   async handleArgsCallbackData() {
-    await Flow.step1Answer(this)
+    await Main.processStep1Answer(this)
   }
 
   static template = `

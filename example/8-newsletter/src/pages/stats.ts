@@ -1,8 +1,8 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Perform {
-  static async entryPoint(ctx: StatsPage) {
+class Main {
+  static async showEntryPoint(ctx: StatsPage) {
     const count = await ctx.db.countSubscribers()
     const subscribed = await ctx.db.isSubscribed(ctx.userId)
     const kb = ctx.inlineKeyboardT([StartPage])
@@ -13,7 +13,7 @@ class Perform {
 
 export class StatsPage extends PageBase {
   async handleCallbackData() {
-    await Perform.entryPoint(this)
+    await Main.showEntryPoint(this)
   }
 
   static template = `

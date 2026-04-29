@@ -2,8 +2,8 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 import {IncrementJob} from "~/jobs/increment"
 
-class Perform {
-  static async entryPoint(ctx: CounterThreadPage) {
+class Main {
+  static async showEntryPoint(ctx: CounterThreadPage) {
     const count = await IncrementJob.mtdGetCount()
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`1`), StartPage])
     const da = {count, timestamp: new Date().getTime()}
@@ -15,11 +15,11 @@ export class CounterThreadPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
   async handleCallbackData() {
-    await Perform.entryPoint(this)
+    await Main.showEntryPoint(this)
   }
 
   async handleArgsCallbackData() {
-    await Perform.entryPoint(this)
+    await Main.showEntryPoint(this)
   }
 
   static template = `

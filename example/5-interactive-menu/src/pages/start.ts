@@ -8,10 +8,10 @@ class Base {
   static quick: `quick`
 }
 
-class Perform {
-  static async entryPoint(ctx: StartPage, isEdit = false) {
+class Main {
+  static async showEntryPoint(ctx: StartPage, edit = false) {
     const ikb = ctx.inlineKeyboardT([CategoryPage, InlineWithoutCountPage, InlineWithoutCountPage, HelpPage, ResetPage], `2`)
-    if (isEdit) {
+    if (edit) {
       await ctx.edit(ikb)
     } else {
       await ctx.reply(ikb)
@@ -29,15 +29,15 @@ export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Home`})
 
   async handleCommandText() {
-    await Perform.entryPoint(this, false)
+    await Main.showEntryPoint(this, false)
   }
 
   async handleText() {
-    await Perform.entryPoint(this, false)
+    await Main.showEntryPoint(this, false)
   }
 
   async handleCallbackData() {
-    await Perform.entryPoint(this, true)
+    await Main.showEntryPoint(this, true)
   }
 
   static template = `

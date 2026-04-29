@@ -1,8 +1,8 @@
 import {HelpPage} from "./help"
 import {PageBase} from "~/base/page"
 
-class Perform {
-  static async entryPoint(ctx: UserNameNotFoundPage, edit = true) {
+class Main {
+  static async showEntryPoint(ctx: UserNameNotFoundPage, edit = true) {
     const kb = ctx.inlineKeyboardT([HelpPage])
     if (edit) {
       await ctx.edit(kb)
@@ -13,8 +13,8 @@ class Perform {
 }
 
 export class UserNameNotFoundPage extends PageBase {
-  async entryPoint(edit = true) {
-    await Perform.entryPoint(this, edit)
+  async showEntryPoint(edit = true) {
+    await Main.showEntryPoint(this, edit)
   }
 
   static template = `

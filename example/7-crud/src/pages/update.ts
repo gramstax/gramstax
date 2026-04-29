@@ -21,7 +21,6 @@ class Helper {
     const allItems = await ctx.db.listItems(ctx.userId)
     const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-
     return ctx.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
@@ -53,8 +52,8 @@ class Helper {
   }
 }
 
-class Flow {
-  static async step1Form(ctx: UpdatePage, page = 0, edit = true) {
+class Main {
+  static async showStep1Form(ctx: UpdatePage, page = 0, edit = true) {
     const allItems = await ctx.db.listItems(ctx.userId)
     const totalPages = Math.max(Math.ceil(allItems.length / Helper.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
@@ -76,32 +75,34 @@ class Flow {
     }
   }
 
-  static async step1Answer(ctx: UpdatePage, id: string) {
+  static async processStep1Answer(ctx: UpdatePage, id: string) {
     const item = await ctx.db.getItem(ctx.userId, id)
     if (!item) {
-      return await Alert.infoNotFound(ctx, id)
+      await Alert.infoNotFound(ctx, id)
+    } else {
+      await this.showStep2Form(ctx, item)
     }
-    await this.step2Form(ctx, item)
   }
 
-  static async step2Form(ctx: UpdatePage, item: {id: string; title: string; status: string}) {
+  static async showStep2Form(ctx: UpdatePage, item: {id: string; title: string; status: string}) {
     const bi = Base.status
     const kb = Helper.buildStatusKeyboard(ctx, item.id)
     const da = {id: item.id, title: item.title, status: item.status}
     await ctx.edit(kb, da, bi)
   }
 
-  static async step2Answer(ctx: UpdatePage, id: string, status: MainItem[`status`], edit = true) {
+  static async processStep2Answer(ctx: UpdatePage, id: string, status: MainItem[`status`], edit = true) {
     const item = await ctx.db.getItem(ctx.userId, id)
     if (!item) {
-      return await Flow.step1Form(ctx, 0, edit)
+      return await Main.showStep1Form(ctx, 0, edit)
     }
 
     const updated = await ctx.db.updateItem(ctx.userId, id, item.title, item.description, status)
     if (!updated) {
-      return await Flow.step1Form(ctx, 0, edit)
+      await Main.showStep1Form(ctx, 0, edit)
+    } else {
+      await Alert.success(ctx, id, status)
     }
-    await Alert.success(ctx, id, status)
   }
 }
 
@@ -137,25 +138,25 @@ export class UpdatePage extends PageBase {
   static data = this.buildData((action?: string, query?: string, status?: string) => [action, query, status])
 
   async handleCallbackData() {
-    await Flow.step1Form(this, 0, true)
+    await Main.showStep1Form(this, 0, true)
   }
 
   async handleArgsCallbackData() {
     const [action, query, status] = this.callbackDataArgs
     if (action === `page`) {
       const page = Number(query)
-      return await Flow.step1Form(this, page)
+      return await Main.showStep1Form(this, page)
     }
 
     if (action === `select` && query) {
-      return await Flow.step1Answer(this, query)
+      return await Main.processStep1Answer(this, query)
     }
 
     if (action === `status` && query && status) {
-      return await Flow.step2Answer(this, query, status as MainItem[`status`], true)
+      return await Main.processStep2Answer(this, query, status as MainItem[`status`], true)
     }
 
-    await Flow.step1Form(this, 0, true)
+    await Main.showStep1Form(this, 0, true)
   }
 
   static template = `

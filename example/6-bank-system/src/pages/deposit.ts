@@ -13,8 +13,8 @@ class Helper {
   }
 }
 
-class Flow {
-  static async step1Form(ctx: DepositPage) {
+class Main {
+  static async showStep1Form(ctx: DepositPage) {
     await ctx.sessionFreeText()
     const bi = Base.form
     const kb = Helper.kb(ctx, bi)
@@ -22,7 +22,7 @@ class Flow {
     await ctx.edit(kb, da, bi)
   }
 
-  static async step2Answer(ctx: DepositPage) {
+  static async processStep1Answer(ctx: DepositPage) {
     const amountInput = ctx.msgText.trim()
     if (!amountInput) {
       return await Alert.warnInvalid(ctx)
@@ -67,14 +67,14 @@ class Alert {
 // Deposits funds into the user's balance.
 export class DepositPage extends PageBase {
   async handleCallbackData() {
-    await Flow.step1Form(this)
+    await Main.showStep1Form(this)
   }
 
   async handleFreeText() {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Flow.step2Answer(this)
+    await Main.processStep1Answer(this)
   }
 
   static template = `

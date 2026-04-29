@@ -28,18 +28,18 @@ class Helper {
   }
 }
 
-class Flow {
-  static async step1Form(ctx: LanguagePage) {
+class Main {
+  static async showStep1Form(ctx: LanguagePage) {
     const kb = Helper.kb(ctx)
     await ctx.edit(kb)
   }
 
-  static async step2Answer(ctx: LanguagePage) {
+  static async processStep1Answer(ctx: LanguagePage) {
     const language = ctx.callbackDataArg.toLowerCase()
 
     await ctx.cacheData.set(`${ctx.userId}:lang`, language)
     ctx.userLanguage = language
-    await this.step1Form(ctx)
+    await this.showStep1Form(ctx)
   }
 }
 
@@ -47,11 +47,11 @@ export class LanguagePage extends PageBase {
   static data = this.buildData((lang?: string) => [lang])
 
   async handleCallbackData() {
-    await Flow.step1Form(this)
+    await Main.showStep1Form(this)
   }
 
   async handleArgsCallbackData() {
-    await Flow.step2Answer(this)
+    await Main.processStep1Answer(this)
   }
 
   static template = `

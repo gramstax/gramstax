@@ -3,7 +3,6 @@ import {StartPage} from "./start"
 import {TimeUt} from "~/utils/time"
 
 class Base {
-  static s1Form: `form`
   static success: `detail`
   static infoNotFound: `i-notfound`
   static warnInvalid: `w-invalid`
@@ -15,16 +14,15 @@ class Helper {
   }
 }
 
-class Flow {
-  static async step1Form(ctx: DetailPage) {
+class Main {
+  static async showStep1Form(ctx: DetailPage) {
     await ctx.sessionFreeText()
-    const bi = Base.s1Form
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const kb = Helper.buildHomeKeyboard(ctx)
     const da = {}
-    await ctx.edit(kb, da, bi)
+    await ctx.edit(kb, da)
   }
 
-  static async step1Answer(ctx: DetailPage) {
+  static async processStep1Answer(ctx: DetailPage) {
     const input = ctx.msgText.trim()
     const id = input?.trim()
     if (!id) {
@@ -79,18 +77,18 @@ class Alert {
 // Shows a single item by ID.
 export class DetailPage extends PageBase {
   async handleCallbackData() {
-    await Flow.step1Form(this)
+    await Main.showStep1Form(this)
   }
 
   async handleFreeText() {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Flow.step1Answer(this)
+    await Main.processStep1Answer(this)
   }
 
   static template = `
-    <base id="${Base.s1Form}">
+    <base>
       ${this.kbk.cancel()}
       <message>
         🔎 View item details

@@ -6,8 +6,8 @@ class Base {
   static detail: `detail`
 }
 
-class Perform {
-  static async entryPoint(ctx: ItemDetailPage, categoryId: string, itemId: string) {
+class Main {
+  static async showEntryPoint(ctx: ItemDetailPage, categoryId: string, itemId: string) {
     const item = CatalogData.getItemById(categoryId, itemId)
     const page = Number((await ctx.cacheState.get(`${ctx.userId}:page`)) ?? 0)
     const kb = ctx.inlineKeyboardT([ItemListPage.data.callbackData(`page`, `${page}`)])
@@ -18,13 +18,8 @@ class Perform {
     await ctx.edit(kb, da, Base.detail)
   }
 
-  static async delegate(ctx: ItemDetailPage) {
-    const [action, categoryId, itemId] = ctx.callbackDataArgs
-    if (action !== `detail` || !categoryId || !itemId) {
-      return
-    }
-
-    await Perform.entryPoint(ctx, categoryId, itemId)
+  static async processDelegate(ctx: ItemDetailPage, categoryId: string, itemId: string) {
+    await Main.showEntryPoint(ctx, categoryId, itemId)
   }
 }
 
@@ -33,7 +28,11 @@ export class ItemDetailPage extends PageBase {
   static data = this.buildData((action?: string, categoryId?: string, itemId?: string) => [action, categoryId, itemId])
 
   async handleArgsCallbackData() {
-    await Perform.delegate(this)
+    const [action, categoryId, itemId] = this.callbackDataArgs
+    if (action !== `detail` || !categoryId || !itemId) {
+      return
+    }
+    await Main.processDelegate(this, categoryId, itemId)
   }
 
   static template = `

@@ -1,8 +1,8 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Perform {
-  static async entryPoint(ctx: RandomNumberPage, edit = true) {
+class Main {
+  static async showEntryPoint(ctx: RandomNumberPage, edit = true) {
     const kb = ctx.inlineKeyboardT([this, StartPage])
     const da = {result: Math.random() * 10 ** 18}
     if (edit) {
@@ -15,15 +15,15 @@ class Perform {
 
 export class RandomNumberPage extends PageBase {
   async handleCallbackData() {
-    await Perform.entryPoint(this, true)
+    await Main.showEntryPoint(this, true)
   }
 
   async handleCommandText() {
-    await Perform.entryPoint(this, false)
+    await Main.showEntryPoint(this, false)
   }
 
   async entryPoint(edit = true) {
-    await Perform.entryPoint(this, edit)
+    await Main.showEntryPoint(this, edit)
   }
 
   static template = `

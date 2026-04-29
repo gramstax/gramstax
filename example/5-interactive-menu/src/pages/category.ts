@@ -21,8 +21,8 @@ class Helper {
   }
 }
 
-class Perform {
-  static async entryPoint(ctx: CategoryPage, edit = true) {
+class Main {
+  static async showEntryPoint(ctx: CategoryPage, edit = true) {
     const kb = Helper.kb(ctx)
     const bi = Base.categories
     const da = {}
@@ -33,10 +33,10 @@ class Perform {
     }
   }
 
-  static async delegate(ctx: CategoryPage) {
+  static async processDelegate(ctx: CategoryPage) {
     const [action, categoryId] = ctx.callbackDataArgs
     if (action !== `category` || !categoryId) {
-      return await Perform.entryPoint(ctx, true)
+      return await Main.showEntryPoint(ctx, true)
     }
 
     await ctx.cacheState.set(`${ctx.userId}:category`, categoryId)
@@ -53,19 +53,19 @@ export class CategoryPage extends PageBase {
   })
 
   async entryPoint(edit = true) {
-    await Perform.entryPoint(this, edit)
+    await Main.showEntryPoint(this, edit)
   }
 
   async handleCallbackData() {
-    await Perform.entryPoint(this, true)
+    await Main.showEntryPoint(this, true)
   }
 
   async handleText() {
-    await Perform.entryPoint(this, false)
+    await Main.showEntryPoint(this, false)
   }
 
   async handleArgsCallbackData() {
-    await Perform.delegate(this)
+    await Main.processDelegate(this)
   }
 
   static template = `

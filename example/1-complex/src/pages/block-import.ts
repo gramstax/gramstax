@@ -1,8 +1,8 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Perform {
-  static async entryPoint(ctx: BlockImportPage) {
+class Main {
+  static async showEntryPoint(ctx: BlockImportPage) {
     const number = Math.random()
     const kb = ctx.inlineKeyboardT([this, StartPage])
     const da = {number}
@@ -12,7 +12,7 @@ class Perform {
 
 export class BlockImportPage extends PageBase {
   async handleCallbackData() {
-    await Perform.entryPoint(this)
+    await Main.showEntryPoint(this)
   }
 
   static template = `

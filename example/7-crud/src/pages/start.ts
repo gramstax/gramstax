@@ -1,13 +1,13 @@
 import {PageBase} from "~/base/page"
-import {CreatePage} from "./create"
 import {ListPage} from "./list"
+import {HelpPage} from "./help"
+import {CreatePage} from "./create"
 import {DetailPage} from "./detail"
 import {UpdatePage} from "./update"
 import {DeletePage} from "./delete"
-import {HelpPage} from "./help"
 
-class Perform {
-  static async entryPoint(ctx: StartPage, edit: boolean) {
+class Main {
+  static async showEntryPoint(ctx: StartPage, edit: boolean) {
     await ctx.clearSession()
     const kb = ctx.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`)
     if (edit) {
@@ -21,11 +21,11 @@ class Perform {
 // Main menu page for CRUD example.
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Perform.entryPoint(this, false)
+    await Main.showEntryPoint(this, false)
   }
 
   async handleCallbackData() {
-    await Perform.entryPoint(this, true)
+    await Main.showEntryPoint(this, true)
   }
 
   static template = `

@@ -5,8 +5,8 @@ class Base {
   static reset: `reset`
 }
 
-class Perform {
-  static async entryPoint(ctx: ResetPage, edit = false) {
+class Main {
+  static async showEntryPoint(ctx: ResetPage, edit = false) {
     await ctx.cacheState.delete(`${ctx.userId}:category`)
     await ctx.cacheState.delete(`${ctx.userId}:page`)
     await ctx.clearSession()
@@ -27,15 +27,15 @@ export class ResetPage extends PageBase {
   static data = this.buildData({intentText: `Reset`})
 
   async entryPoint(edit = false) {
-    await Perform.entryPoint(this, edit)
+    await Main.showEntryPoint(this, edit)
   }
 
   async handleCallbackData() {
-    await Perform.entryPoint(this, true)
+    await Main.showEntryPoint(this, true)
   }
 
   async handleText() {
-    await Perform.entryPoint(this, false)
+    await Main.showEntryPoint(this, false)
   }
 
   static template = `

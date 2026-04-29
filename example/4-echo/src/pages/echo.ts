@@ -2,17 +2,17 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static text: `r-text`
-  static photo: `r-photo`
-  static video: `r-video`
-  static audio: `r-audio`
-  static document: `r-document`
-  static animation: `r-animation`
-  static voice: `r-voice`
-  static videoNote: `r-video_note`
-  static sticker: `r-sticker`
-  static location: `r-location`
-  static contact: `r-contact`
+  static forText: `f-text`
+  static forPhoto: `f-photo`
+  static forVideo: `f-video`
+  static forAudio: `f-audio`
+  static forDocument: `f-document`
+  static forAnimation: `f-animation`
+  static forVoice: `f-voice`
+  static forVideoNote: `f-video_note`
+  static forSticker: `f-sticker`
+  static forLocation: `f-location`
+  static forContact: `f-contact`
 }
 
 class Helper {
@@ -21,13 +21,13 @@ class Helper {
   }
 }
 
-class Perform {
-  static async entryPoint(ctx: EchoPage) {
+class Main {
+  static async showEntryPoint(ctx: EchoPage) {
     const kb = Helper.kb(ctx)
     await ctx.edit(kb)
   }
 
-  static async forText(ctx: EchoPage) {
+  static async showForText(ctx: EchoPage) {
     const text = ctx.msgText
     if (text.startsWith(`/`)) {
       return null
@@ -35,11 +35,11 @@ class Perform {
 
     const kb = Helper.kb(ctx)
     const da = {text}
-    const bi = Base.text
+    const bi = Base.forText
     await ctx.reply(kb, da, bi)
   }
 
-  static async forPhoto(ctx: EchoPage) {
+  static async showForPhoto(ctx: EchoPage) {
     const caption = ctx.msgCaption
     const fileIdLargest = ctx.msgPhoto[ctx.msgPhoto.length - 1].file_id
     if (caption?.startsWith(`/`)) {
@@ -48,11 +48,11 @@ class Perform {
 
     const kb = Helper.kb(ctx)
     const da = {caption, fileId: fileIdLargest}
-    const bi = Base.photo
+    const bi = Base.forPhoto
     await ctx.replyPhoto(kb, da, bi)
   }
 
-  static async forVideo(ctx: EchoPage) {
+  static async showForVideo(ctx: EchoPage) {
     const caption = ctx.msgCaption
     const fileId = ctx.msgVideo.file_id
     if (caption?.startsWith(`/`)) {
@@ -61,11 +61,11 @@ class Perform {
 
     const kb = Helper.kb(ctx)
     const da = {caption, fileId}
-    const bi = Base.video
+    const bi = Base.forVideo
     await ctx.replyVideo(kb, da, bi)
   }
 
-  static async forAudio(ctx: EchoPage) {
+  static async showForAudio(ctx: EchoPage) {
     const caption = ctx.msgCaption
     const fileId = ctx.msgAudio.file_id
     if (caption?.startsWith(`/`)) {
@@ -74,11 +74,11 @@ class Perform {
 
     const kb = Helper.kb(ctx)
     const da = {caption, fileId}
-    const bi = Base.audio
+    const bi = Base.forAudio
     await ctx.replyAudio(kb, da, bi)
   }
 
-  static async forDocument(ctx: EchoPage) {
+  static async showForDocument(ctx: EchoPage) {
     const caption = ctx.msgCaption
     const fileId = ctx.msgDocument.file_id
     if (caption?.startsWith(`/`)) {
@@ -87,11 +87,11 @@ class Perform {
 
     const kb = Helper.kb(ctx)
     const da = {caption, fileId}
-    const bi = Base.document
+    const bi = Base.forDocument
     await ctx.replyDocument(kb, da, bi)
   }
 
-  static async forAnimation(ctx: EchoPage) {
+  static async showForAnimation(ctx: EchoPage) {
     const caption = ctx.msgCaption
     const fileId = ctx.msgAnimation.file_id
     if (caption?.startsWith(`/`)) {
@@ -100,11 +100,11 @@ class Perform {
 
     const kb = Helper.kb(ctx)
     const da = {caption, fileId}
-    const bi = Base.animation
+    const bi = Base.forAnimation
     await ctx.replyAnimation(kb, da, bi)
   }
 
-  static async forVoice(ctx: EchoPage) {
+  static async showForVoice(ctx: EchoPage) {
     const caption = ctx.msgCaption
     const fileId = ctx.msgVoice.file_id
     if (caption?.startsWith(`/`)) {
@@ -113,43 +113,43 @@ class Perform {
 
     const kb = Helper.kb(ctx)
     const da = {caption, fileId}
-    const bi = Base.voice
+    const bi = Base.forVoice
     await ctx.replyVoice(kb, da, bi)
   }
 
-  static async forVideoNote(ctx: EchoPage) {
+  static async showForVideoNote(ctx: EchoPage) {
     // not support caption
     const fileId = ctx.msgVideoNote.file_id
     const kb = Helper.kb(ctx)
     const da = {fileId}
-    const bi = Base.videoNote
+    const bi = Base.forVideoNote
     await ctx.replyVideoNote(kb, da, bi)
   }
 
-  static async forSticker(ctx: EchoPage) {
+  static async showForSticker(ctx: EchoPage) {
     // not support caption
     const fileId = ctx.msgSticker.file_id
     const kb = Helper.kb(ctx)
     const da = {fileId}
-    const bi = Base.sticker
+    const bi = Base.forSticker
     await ctx.replySticker(kb, da, bi)
   }
 
-  static async forLocation(ctx: EchoPage) {
+  static async showForLocation(ctx: EchoPage) {
     // not support caption
     const {latitude, longitude} = ctx.msgLocation
     const kb = Helper.kb(ctx)
     const da = {latitude, longitude}
-    const bi = Base.location
+    const bi = Base.forLocation
     await ctx.replyLocation(kb, da, bi)
   }
 
-  static async forContact(ctx: EchoPage) {
+  static async showForContact(ctx: EchoPage) {
     // not support caption
     const {first_name, last_name, phone_number, user_id, vcard} = ctx.msgContact
     const kb = Helper.kb(ctx)
     const da = {first_name, last_name, phone_number, user_id, vcard}
-    const bi = Base.contact
+    const bi = Base.forContact
     await ctx.replyContact(kb, da, bi)
   }
 }
@@ -157,51 +157,51 @@ class Perform {
 // Echo page responds to any free text input.
 export class EchoPage extends PageBase {
   async handleCallbackData() {
-    await Perform.entryPoint(this)
+    await Main.showEntryPoint(this)
   }
 
   async handleFreeText() {
-    await Perform.forText(this)
+    await Main.showForText(this)
   }
 
   async handleFreePhoto() {
-    await Perform.forPhoto(this)
+    await Main.showForPhoto(this)
   }
 
   async handleFreeVideo() {
-    await Perform.forVideo(this)
+    await Main.showForVideo(this)
   }
 
   async handleFreeAudio() {
-    await Perform.forAudio(this)
+    await Main.showForAudio(this)
   }
 
   async handleFreeDocument() {
-    await Perform.forDocument(this)
+    await Main.showForDocument(this)
   }
 
   async handleFreeAnimation() {
-    await Perform.forAnimation(this)
+    await Main.showForAnimation(this)
   }
 
   async handleFreeVoice() {
-    await Perform.forVoice(this)
+    await Main.showForVoice(this)
   }
 
   async handleFreeVideoNote() {
-    await Perform.forVideoNote(this)
+    await Main.showForVideoNote(this)
   }
 
   async handleFreeSticker() {
-    await Perform.forSticker(this)
+    await Main.showForSticker(this)
   }
 
   async handleFreeLocation() {
-    await Perform.forLocation(this)
+    await Main.showForLocation(this)
   }
 
   async handleFreeContact() {
-    await Perform.forContact(this)
+    await Main.showForContact(this)
   }
 
   static template = `
@@ -214,7 +214,7 @@ export class EchoPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.text}">
+    <base id="${Base.forText}">
       <message>
         💬 Echoed message
 
@@ -222,55 +222,55 @@ export class EchoPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.photo}">
+    <base id="${Base.forPhoto}">
       <media type="photo" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
 
-    <base id="${Base.video}">
+    <base id="${Base.forVideo}">
       <media type="video" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
 
-    <base id="${Base.audio}">
+    <base id="${Base.forAudio}">
       <media type="audio" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
 
-    <base id="${Base.document}">
+    <base id="${Base.forDocument}">
       <media type="document" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
 
-    <base id="${Base.animation}">
+    <base id="${Base.forAnimation}">
       <media type="animation" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
 
-    <base id="${Base.voice}">
+    <base id="${Base.forVoice}">
       <media type="voice" src="{{fileId}}">
         {{caption}}
       </media>
     </base>
 
-    <base id="${Base.videoNote}">
+    <base id="${Base.forVideoNote}">
       <media type="video_note" src="{{fileId}}"></media>
     </base>
 
-    <base id="${Base.sticker}">
+    <base id="${Base.forSticker}">
       <media type="sticker" src="{{fileId}}"></media>
     </base>
 
-    <base id="${Base.location}">
+    <base id="${Base.forLocation}">
       <media type="location" latitude="{{latitude}}" longitude="{{longitude}}"></media>
     </base>
 
-    <base id="${Base.contact}">
+    <base id="${Base.forContact}">
       <media type="contact" phone="{{phone_number}}" first_name="{{first_name}}" last_name="{{last_name}}" vcard="{{vcard}}"></media>
     </base>
   `

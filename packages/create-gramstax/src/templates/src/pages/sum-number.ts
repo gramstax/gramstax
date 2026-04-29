@@ -4,7 +4,7 @@ import {StartPage} from "./start"
 class Base {
   static pleft: `pleft`
   static pright: `pright`
-  static result: `result`
+  static success: `success`
 }
 
 class Helper {
@@ -17,8 +17,8 @@ class Helper {
   }
 }
 
-class Flow {
-  static async step1Form(ctx: SumNumberPage, edit: boolean) {
+class Main {
+  static async showStep1Form(ctx: SumNumberPage, edit: boolean) {
     await ctx.sessionFreeText({step: `left`})
     const bi = Base.pleft
     const kb = Helper.kb(ctx, bi)
@@ -30,15 +30,15 @@ class Flow {
     }
   }
 
-  static async step1Answer(ctx: SumNumberPage, left: number) {
+  static async processStep1Answer(ctx: SumNumberPage, left: number) {
     if (!Number.isFinite(left)) {
-      await Flow.step1Form(ctx, false)
+      await Main.showStep1Form(ctx, false)
     } else {
-      await this.step2Form(ctx, left)
+      await this.showStep2Form(ctx, left)
     }
   }
 
-  static async step2Form(ctx: SumNumberPage, left: number) {
+  static async showStep2Form(ctx: SumNumberPage, left: number) {
     await ctx.sessionFreeText({step: `right`, left})
     const bi = Base.pright
     const kb = Helper.kb(ctx, bi)
@@ -46,12 +46,12 @@ class Flow {
     await ctx.reply(kb, da, bi)
   }
 
-  static async step2Answer(ctx: SumNumberPage, left: number, right: number) {
+  static async processStep2Answer(ctx: SumNumberPage, left: number, right: number) {
     if (!Number.isFinite(right)) {
-      await Flow.step2Form(ctx, right)
+      await Main.showStep2Form(ctx, right)
     } else if (!Number.isFinite(right ?? NaN)) {
       await ctx.clearSession()
-      await Flow.step1Form(ctx, false)
+      await Main.showStep1Form(ctx, false)
     } else {
       await Alert.success(ctx, left, right)
     }
@@ -61,7 +61,7 @@ class Flow {
 class Alert {
   static async success(ctx: SumNumberPage, left: number, right: number) {
     await ctx.clearSession()
-    const bi = Base.result
+    const bi = Base.success
     const kb = Helper.kb(ctx, bi)
     const da = {result: left! + right}
     await ctx.reply(kb, da, bi)
@@ -70,11 +70,11 @@ class Alert {
 
 export class SumNumberPage extends PageBase {
   async handleCallbackData() {
-    await Flow.step1Form(this, true)
+    await Main.showStep1Form(this, true)
   }
 
   async handleCommandText() {
-    await Flow.step1Form(this, false)
+    await Main.showStep1Form(this, false)
   }
 
   async handleFreeText() {
@@ -85,9 +85,9 @@ export class SumNumberPage extends PageBase {
     const input = this.msgText?.trim()
     const value = input ? Number(input) : NaN
     if (step === `left`) {
-      await Flow.step1Answer(this, value)
+      await Main.processStep1Answer(this, value)
     } else if (step === `right`) {
-      await Flow.step2Answer(this, left!, value)
+      await Main.processStep2Answer(this, left!, value)
     }
   }
 
@@ -120,7 +120,7 @@ export class SumNumberPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.result}">
+    <base id="${Base.success}">
       ${this.kbk.home()}
       <message>
         <b>📚 Result Sum</b>

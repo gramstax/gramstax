@@ -7,20 +7,21 @@ class Helper {
   }
 }
 
-class Flow {
-  static async step1Form(ctx: CounterPage) {
-    const kb = Helper.kb(ctx)
+class Main {
+  static async showStep1Form(ctx: CounterPage) {
     const key = `${ctx.userId}`
     const count = (await ctx.cacheData.get(key)) || `0`
+    const kb = Helper.kb(ctx)
     const da = {count}
     await ctx.edit(kb, da)
   }
 
-  static async step1Answer(ctx: CounterPage) {
+  static async processStep1Answer(ctx: CounterPage) {
     const execution = ctx.callbackDataArg
     const kb = Helper.kb(ctx)
     const key = `${ctx.userId}`
-    const data = ((await ctx.cacheData.get(key)) as string) || `0`
+    const getCache = (await ctx.cacheData.get(key)) as string
+    const data = getCache || `0`
 
     let count
     if (execution == `I`) {
@@ -39,11 +40,11 @@ export class CounterPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
   async handleCallbackData() {
-    await Flow.step1Form(this)
+    await Main.showStep1Form(this)
   }
 
   async handleArgsCallbackData() {
-    await Flow.step1Answer(this)
+    await Main.processStep1Answer(this)
   }
 
   static template = `

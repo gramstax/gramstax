@@ -5,11 +5,11 @@ import {GeneralStatusPage} from "~/pages/general-status"
 export class BotCore extends Gramstax {
   // Centralized error handling for page failures.
   async hookErrorPage(ctx, listenerName, error, isEdit) {
-    await new GeneralStatusPage(ctx).toError(`${listenerName}:hookErrorPage`, error, isEdit)
+    await new GeneralStatusPage(ctx).error(`${listenerName}:hookErrorPage`, error, isEdit)
   }
 
   // Fallback when no route matches.
   async hookErrorInputNotFoundPage(ctx) {
-    await new GeneralStatusPage(ctx).toErrorInputNotFound()
+    await new GeneralStatusPage(ctx).errorInputNotFound()
   }
 }

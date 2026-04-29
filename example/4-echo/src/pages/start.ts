@@ -2,8 +2,8 @@ import {PageBase} from "~/base/page"
 import {HelpPage} from "./help"
 import {EchoPage} from "./echo"
 
-class Perform {
-  static async entryPoint(ctx: StartPage, edit = true) {
+class Main {
+  static async showEntryPoint(ctx: StartPage, edit = true) {
     const kb = ctx.inlineKeyboardT([HelpPage, EchoPage])
     if (edit) {
       await ctx.edit(kb)
@@ -16,11 +16,11 @@ class Perform {
 // Start page with welcome message and navigation.
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Perform.entryPoint(this, false)
+    await Main.showEntryPoint(this, false)
   }
 
   async handleCallbackData() {
-    await Perform.entryPoint(this, true)
+    await Main.showEntryPoint(this, true)
   }
 
   static template = `

@@ -1,10 +1,10 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Perform {
-  static async entryPoint(ctx: BlockSwitchPage, status: string) {
-    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(status == `1` ? `0` : `1`), StartPage], `1`, null, {status})
+class Main {
+  static async showEntryPoint(ctx: BlockSwitchPage, status: string) {
     const da = {status}
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(status == `1` ? `0` : `1`), StartPage], `1`, null, da)
     await ctx.edit(kb, da)
   }
 }
@@ -13,11 +13,11 @@ export class BlockSwitchPage extends PageBase {
   static data = this.buildData((status?: string) => [status])
 
   async handleCallbackData() {
-    await Perform.entryPoint(this, `0`)
+    await Main.showEntryPoint(this, `0`)
   }
 
   async handleArgsCallbackData() {
-    await Perform.entryPoint(this, this.callbackDataArg)
+    await Main.showEntryPoint(this, this.callbackDataArg)
   }
 
   static template = `

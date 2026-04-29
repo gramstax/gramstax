@@ -75,9 +75,10 @@ class Alert {
   }
 }
 
-class Flow {
-  static async step1Form(ctx: DeletePage) {
-    const items = (await ctx.db.listItems(ctx.userId)).slice(0, Helper.MAX_ITEMS)
+class Main {
+  static async showStep1Form(ctx: DeletePage) {
+    const getItems = await ctx.db.listItems(ctx.userId)
+    const items = getItems.slice(0, Helper.MAX_ITEMS)
     if (items.length === 0) {
       await Alert.infoEmpty(ctx)
     } else {
@@ -88,7 +89,7 @@ class Flow {
     }
   }
 
-  static async step1Answer(ctx: DeletePage, input?: string, edit = false) {
+  static async processStep1Answer(ctx: DeletePage, input?: string, edit = false) {
     const id = input?.trim()
     if (!id) {
       await ctx.clearSession()
@@ -111,15 +112,15 @@ export class DeletePage extends PageBase {
 
   async handleCallbackData() {
     await this.sessionFreeText({step: `id`})
-    await Flow.step1Form(this)
+    await Main.showStep1Form(this)
   }
 
   async handleArgsCallbackData() {
     const [action, id] = this.callbackDataArgs
     if (action === `pick` && id) {
-      await Flow.step1Answer(this, id, true)
+      await Main.processStep1Answer(this, id, true)
     } else {
-      await Flow.step1Form(this)
+      await Main.showStep1Form(this)
     }
   }
 
@@ -127,7 +128,7 @@ export class DeletePage extends PageBase {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Flow.step1Answer(this, this.msgText, false)
+    await Main.processStep1Answer(this, this.msgText, false)
   }
 
   static template = `

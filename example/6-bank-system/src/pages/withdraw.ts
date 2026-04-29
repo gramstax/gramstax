@@ -14,8 +14,8 @@ class Helper {
   }
 }
 
-class Flow {
-  static async step1Form(ctx: WithdrawPage) {
+class Main {
+  static async showStep1Form(ctx: WithdrawPage) {
     await ctx.sessionFreeText()
     const bi = Base.form
     const kb = Helper.kb(ctx, bi)
@@ -23,7 +23,7 @@ class Flow {
     await ctx.edit(kb, da, bi)
   }
 
-  static async step1Answer(ctx: WithdrawPage) {
+  static async processStep1Answer(ctx: WithdrawPage) {
     const amountInput = ctx.msgText.trim()
     if (!amountInput) {
       return await Alert.warnInvalid(ctx)
@@ -79,14 +79,14 @@ class Alert {
 // Withdraw funds from the user's balance.
 export class WithdrawPage extends PageBase {
   async handleCallbackData() {
-    await Flow.step1Form(this)
+    await Main.showStep1Form(this)
   }
 
   async handleFreeText() {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Flow.step1Answer(this)
+    await Main.processStep1Answer(this)
   }
 
   static template = `

@@ -30,15 +30,15 @@ class Helper {
   }
 }
 
-class Flow {
-  static async step1Form(ctx: TransferPage) {
+class Main {
+  static async showStep1Form(ctx: TransferPage) {
     const bi = Base.form
     const kb = Helper.kb(ctx, bi)
     const da = {}
     await ctx.edit(kb, da, bi)
   }
 
-  static async step1Answer(ctx: TransferPage) {
+  static async processStep1Answer(ctx: TransferPage) {
     const [amountInput, targetInput] = ctx.msgText.trim().split(/\s+/)
     if (!amountInput || !targetInput) {
       return await Alert.warnInvalid(ctx)
@@ -130,14 +130,14 @@ class Alert {
 // Transfer funds to another user.
 export class TransferPage extends PageBase {
   async handleCallbackData() {
-    await Flow.step1Form(this)
+    await Main.showStep1Form(this)
   }
 
   async handleFreeText() {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Flow.step1Answer(this)
+    await Main.processStep1Answer(this)
   }
 
   static template = `

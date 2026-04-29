@@ -40,8 +40,8 @@ class Helper {
   }
 }
 
-class Perform {
-  static async entryPoint(ctx: InlineWithoutCountPage, page: number, edit = true) {
+class Main {
+  static async showEntryPoint(ctx: InlineWithoutCountPage, page: number, edit = true) {
     const {page: currentPage, safePage} = Helper.pageData(page)
     const da = {page: currentPage}
     const kb = Helper.kb(ctx, safePage)
@@ -53,16 +53,11 @@ class Perform {
     }
   }
 
-  static async delegate(ctx: InlineWithoutCountPage) {
-    const [action, value] = ctx.callbackDataArgs
-    if (!action) {
-      return
-    }
-
+  static async processDelegate(ctx: InlineWithoutCountPage, action: string, value?: string) {
     if (action === `page`) {
       const nextPage = Number(value)
       if (!Number.isNaN(nextPage)) {
-        await Perform.entryPoint(ctx, nextPage, true)
+        await Main.showEntryPoint(ctx, nextPage, true)
       }
       return
     }
@@ -77,11 +72,15 @@ export class InlineWithoutCountPage extends PageBase {
   static data = this.buildData((action?: string, page?: string) => [action, page])
 
   async handleCallbackData() {
-    await Perform.entryPoint(this, 0, true)
+    await Main.showEntryPoint(this, 0, true)
   }
 
   async handleArgsCallbackData() {
-    await Perform.delegate(this)
+    const [action, value] = this.callbackDataArgs
+    if (!action) {
+      return
+    }
+    await Main.processDelegate(this, action, value)
   }
 
   static template = `

@@ -34,8 +34,8 @@ class Helper {
   }
 }
 
-class Perform {
-  static async entryPoint(ctx: HistoryPage) {
+class Main {
+  static async showEntryPoint(ctx: HistoryPage) {
     const history = Helper.formatHistory(ctx)
     const kb = ctx.inlineKeyboardT([StartPage])
     const da = {history}
@@ -46,7 +46,7 @@ class Perform {
 // Shows recent transaction history.
 export class HistoryPage extends PageBase {
   async handleCallbackData() {
-    await Perform.entryPoint(this)
+    await Main.showEntryPoint(this)
   }
 
   static template = `

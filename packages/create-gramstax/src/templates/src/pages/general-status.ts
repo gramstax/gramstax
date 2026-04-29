@@ -37,8 +37,8 @@ export class GeneralStatusPage extends PageBase {
     this.constructorName = p?.constructor?.name
   }
 
-  async error(funcName: string, error: any, edit = true) {
-    await Alert.error(this, funcName, error, edit)
+  async error(...args: Parameters<typeof Alert.error> extends [any, ...infer R] ? R : []) {
+    await Alert.error(this, ...args)
   }
 
   async errorInputNotFound() {

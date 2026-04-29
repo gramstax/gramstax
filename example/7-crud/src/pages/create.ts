@@ -20,8 +20,8 @@ class Helper {
   }
 }
 
-class Flow {
-  static async step1(ctx: CreatePage) {
+class Main {
+  static async showStep1Form(ctx: CreatePage) {
     await ctx.sessionFreeText({step: `title`})
     const bi = Base.s1
     const kb = Helper.buildHomeKeyboard(ctx, bi)
@@ -29,28 +29,29 @@ class Flow {
     await ctx.edit(kb, da, bi)
   }
 
-  static async step2Form(ctx: CreatePage, title: string) {
+  static async processStep1Answer(ctx: CreatePage, title: string) {
     await ctx.sessionFreeText({step: `description`, title})
+    await this.showStep2Form(ctx, title)
+  }
+
+  static async showStep2Form(ctx: CreatePage, title: string) {
     const bi = Base.s2
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {title}
     await ctx.reply(kb, da, bi)
   }
 
-  static async step2Answer(ctx: CreatePage, input?: string) {
+  static async processStep2Answer(ctx: CreatePage, input?: string) {
     const {step, title} = Helper.getSessionParams(ctx)
     const currentStep = step === `description` ? `description` : `title`
     const value = input?.trim()
     if (!value || !title) {
       await ctx.sessionFreeText({step: !value ? currentStep : `title`})
-      const bi = Base.warnInvalid
-      const kb = Helper.buildHomeKeyboard(ctx, bi)
-      const da = {}
-      return await ctx.reply(kb, da, bi)
+      return await Alert.warnInvalid(ctx)
     }
 
     if (currentStep === `title`) {
-      return await this.step2Form(ctx, value)
+      return await this.processStep1Answer(ctx, value)
     }
 
     await ctx.clearSession()
@@ -70,19 +71,26 @@ class Alert {
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     await ctx.reply(kb, data, bi)
   }
+
+  static async warnInvalid(ctx: CreatePage) {
+    const bi = Base.warnInvalid
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const da = {}
+    await ctx.reply(kb, da, bi)
+  }
 }
 
 // Creates a new item in cache.
 export class CreatePage extends PageBase {
   async handleCallbackData() {
-    await Flow.step1(this)
+    await Main.showStep1Form(this)
   }
 
   async handleFreeText() {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Flow.step2Answer(this, this.msgText)
+    await Main.processStep2Answer(this, this.msgText)
   }
 
   static template = `
