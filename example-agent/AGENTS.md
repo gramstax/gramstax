@@ -2,11 +2,13 @@
 
 ## Overview
 
-This document describes the code structure pattern used for project gramstax.
+This document describes the code structure patterns and best practices for Gramstax projects.
+
+---
 
 ## Project Initialization
 
-**IMPORTANT**: All new Gramstax projects **must** be initialized using the official CLI command:
+**IMPORTANT**: All new Gramstax projects **must** be initialized using the official CLI:
 
 ```bash
 npx create-gramstax
@@ -14,34 +16,123 @@ npx create-gramstax
 
 Do not create project structure manually. Use the CLI to ensure proper scaffolding and configuration.
 
+### Project Structure
+
+- `src/base` - shared base classes (`guard.ts`, `page.ts`).
+- `src/blocks` - template block helpers (`keyboard.ts`).
+- `src/core` - runtime entry points (`bot.ts`, `ctx.ts`).
+- `src/guards` - guard checks.
+- `src/pages` - page handlers (`start.ts`, `general-status.ts`).
+- `src/utils` - logging and helpers (`log.ts`).
+- Optional: `src/db`, `src/repositories`, `src/services`.
+
 ---
 
 ## Toolchain
 
-- Runtime: `bun`.
-- Language: `typescript`.
-- Bundler: `tsup`.
-- Tests: `bun:test`.
-- Linting: Eslint config in `.eslint.config.ts` (`eslint` + `typescript-eslint`).
-- Formatting: Prettier config in `.prettierrc` (no script provided).
-- Type checking: `tsc --noEmit` via `bun run ci:check`.
-
-### Commands
+- Runtime: `bun`
+- Language: `typescript`
+- Bundler: `tsup`
+- Tests: `bun:test`
+- Linting: `eslint` + `typescript-eslint` (`.eslint.config.ts`)
+- Formatting: `prettier` (`.prettierrc`)
+- Type checking: `tsc --noEmit` via `bun run ci:check`
 
 | Command            | Description  |
 | ------------------ | ------------ |
 | `bun run lint:fix` | Lint and fix |
 | `bun run ci:check` | Type check   |
+| `bun run test`     | Run tests    |
+
+---
+
+## Routing and Flow
+
+- Do not write template blocks (e.g., `<b>`) in function classes.
+- Do not write content data (e.g., "Your Balance: ...") in function classes (except for a few things).
+- If using `this.buildData`, the code must be at the top (position 1).
+- Prefer inline keyboard navigation and session flows.
+- Avoid slash commands when the flow can be fully inline + session driven.
+- Include a `start.ts` page in each example.
+- Use the `handleCommandText` route function for the start page.
+- Always clear the session on the start page.
+- Do not call `getSession()` inside page handlers; the system fetches session before routing.
+- Prefer class or static methods for project logic.
+
+---
+
+## Production Quality
+
+- All Gramstax implementations and app code must be production quality.
+- Apply production best practices for SQL databases (e.g., PostgreSQL) and NoSQL databases (e.g., LMDB).
+
+---
+
+## Templates and Conditional Rendering
+
+- Use `{~..~}`, `<switch>`, or `<script>` for conditional content inside templates.
+- Keep conditional view logic in templates rather than handler functions.
+- Do not write multi-language content in page functions; keep it in templates.
+- Avoid separate base blocks when only small parts differ; merge and use template conditionals.
+- Avoid inline error strings in handlers; render via template conditional or a base variant.
+- Do not use `+` inside `{~..~}` and `<script></script>`; use template literals or other non-`+` composition.
+- When using template literals inside `{~..~}`, escape backticks and `${}`.
+- **IMPORTANT**: Always use `\\n` (double slash) when declaring in template string.
+- Use at least a heading + content format for message blocks.
+- Pass template data into `inlineKeyboardT`, `inlineKeyboard`, `bottomKeyboardT`, and `bottomKeyboard` when keyboard labels depend on template data.
+- Write production-level message content by default (clear, contextual, user-friendly).
+- Use production-level emojis in messages (intentional, consistent, aligned with content).
+- Adjust emoji placement to lead headings or highlight key actions without overusing.
+
+---
+
+## Keyboard Blocks (this.kbk)
+
+- Only define `this.kbk` blocks when reused by more than one page.
+- Do not define a `this.kbk` block for a single page.
+- Keyboard labels should be production-ready and short.
+- Use production-level emojis in keyboard labels; place them consistently (e.g., leading the label).
+
+---
+
+## Keyboard Labels (this.kbl)
+
+- Use `this.kbl` when keyboard labels are required by more than one page.
+- Use `this.kbl` when the same labels are used across multiple base blocks in a page.
+- You can combine multiple labels into one `this.kbl` variable (e.g., `cancelHome`).
+
+---
+
+## Base Blocks
+
+- Do not use base IDs if a page has only one base block.
+- If two base blocks can be combined without IDs, combine them.
+- Use base IDs only when multiple distinct base blocks are required.
+
+---
+
+## Label Reuse and Duplication
+
+- Avoid duplicate values inside `KeyboardBlock.label`.
+- When a label combines other labels, derive it using `this.<key>` instead of literal duplication.
+- Define derived labels after their dependencies to avoid "used before initialization" errors.
+
+---
 
 ## Page Class Structure
 
-Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up to 4 inner classes:
+Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up to **4 inner classes**. Define only what you need — never create empty class blocks.
 
-### 1. Base - Collection of Base ID Strings
+| Class      | Purpose                                                     | Required                                            |
+| ---------- | ----------------------------------------------------------- | --------------------------------------------------- |
+| **Main**   | Business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)    |
+| **Base**   | Base ID strings for template states                         | When template has multiple `<base id="...">` states |
+| **Helper** | Reusable utility functions (keyboard builders, formatters)  | When reusable logic appears 2+ times                |
+| **Alert**  | User feedback messages (success, warning, error, info)      | When user feedback with content is needed           |
+
+### 1. Base - Base ID Constants
 
 Contains **static** string constants used as `<base id="...">` identifiers in templates.
-
-**Note**: This class has no constructor - all members are static.
 
 ```typescript
 class Base {
@@ -69,11 +160,9 @@ static template = `
 
 ---
 
-### 2. Helper - Collection of Helper Functions
+### 2. Helper - Utility Functions
 
 Contains reusable utility functions for building keyboards, formatting data, etc.
-
-**Note**: This class has no constructor - all members are static.
 
 ```typescript
 class Helper {
@@ -91,13 +180,9 @@ class Helper {
 
 ---
 
-### 3. Main - Collection of Main Functions
+### 3. Main - Business Logic
 
 Contains the primary business logic for the page. Functions follow specific naming patterns.
-
-**Note**: This class has no constructor - all members are static.
-
-#### Naming Conventions
 
 | Type                 | Pattern                     | Example                                    |
 | -------------------- | --------------------------- | ------------------------------------------ |
@@ -132,7 +217,6 @@ class Main {
 
 ```typescript
 class Main {
-  // Step 1: Display form for title input
   static async showStep1Form(ctx: CreatePage) {
     await ctx.sessionFreeText({ step: `title` });
     const bi = Base.s1;
@@ -141,13 +225,11 @@ class Main {
     await ctx.edit(kb, da, bi);
   }
 
-  // Step 1: Process user's title answer, move to step 2
   static async processStep1Answer(ctx: CreatePage, title: string) {
     await ctx.sessionFreeText({ step: `description`, title });
     await this.showStep2Form(ctx, title);
   }
 
-  // Step 2: Display form for description input
   static async showStep2Form(ctx: CreatePage, title: string) {
     const bi = Base.s2;
     const kb = Helper.buildHomeKeyboard(ctx, bi);
@@ -155,7 +237,6 @@ class Main {
     await ctx.reply(kb, da, bi);
   }
 
-  // Step 2: Process description answer, create item
   static async processStep2Answer(ctx: CreatePage, input?: string) {
     // ... create item logic
   }
@@ -164,13 +245,9 @@ class Main {
 
 ---
 
-### 4. Alert - Collection of Alert/Status Messages
+### 4. Alert - User Feedback
 
 Contains functions for displaying user feedback messages (success, warning, error, info).
-
-**Note**: This class has no constructor - all members are static.
-
-#### Naming Conventions
 
 | Type        | Pattern    | Example                                |
 | ----------- | ---------- | -------------------------------------- |
@@ -199,9 +276,181 @@ class Alert {
 
 ---
 
+## Only Create Classes When Used
+
+**Classes should only be defined if they are actually used.** Do not create empty class blocks.
+
+### ❌ Wrong Example
+
+```typescript
+class Alert {} // Alert is NOT used but class is still created - WRONG
+
+class Main {
+  static async showStep1Form(ctx: HelpPage) {...}
+}
+
+export class HelpPage extends PageBase {...}
+```
+
+### ✅ Correct Example
+
+```typescript
+class Alert {
+  static async success(ctx: HelpPage) {...}
+}
+
+class Main {
+  static async showEntryPoint(ctx: HelpPage) {
+    await Alert.success(ctx)
+  }
+}
+
+export class HelpPage extends PageBase {
+  async handleCallbackData() {
+    await Main.showEntryPoint(this);
+  }
+}
+```
+
+---
+
+## Class Order in Page Files
+
+Classes in page files must be ordered as follows:
+
+```
+1. Base     (if needed)
+2. Helper   (if needed)
+3. Alert    (if needed)
+4. Main     (REQUIRED - except for general-status.ts)
+5. *Page    (export class - REQUIRED)
+```
+
+```typescript
+// ✅ Correct - Class order follows the rules
+class Base {...}
+class Helper {...}
+class Alert {...}
+class Main {...}
+export class DepositPage extends PageBase {...}
+```
+
+```typescript
+// ❌ Wrong - Class order does not follow rules
+class Main {...}      // ❌ Must be at position 4
+class Base {...}      // ❌ Must be at position 1
+export class Page {...} // ❌ Must be at position 5
+class Alert {...}     // ❌ Must be at position 3
+class Helper {...}    // ❌ Must be at position 2
+```
+
+---
+
+## Variable Naming Conventions
+
+Use standardized variable names for consistency and easy maintenance.
+
+| Variable | Purpose           | Example                         |
+| -------- | ----------------- | ------------------------------- |
+| `kb`     | Keyboard markup   | `const kb = Helper.kb(ctx, bi)` |
+| `da`     | Data for template | `const da = { name: value }`    |
+| `bi`     | Base ID string    | `const bi = Base.form`          |
+
+### ✅ Correct Usage
+
+```typescript
+static async showStep1Form(ctx: DepositPage) {
+  const bi = Base.form; // ✅ bi for base id
+  const kb = Helper.kb(ctx, bi); // ✅ kb for keyboard
+  const da = {}; // ✅ da for data
+  await ctx.edit(kb, da, bi);
+}
+```
+
+### ❌ Wrong Usage
+
+```typescript
+static async showStep1Form(ctx: DepositPage) {
+  const baseId = Base.form           // ❌ should be 'bi'
+  const keyboard = Helper.kb(ctx)   // ❌ should be 'kb'
+  const data = {}                   // ❌ should be 'da'
+  await ctx.edit(keyboard, data, baseId)
+}
+```
+
+### When to Use `bi` (Base ID)
+
+**Use `bi` when template has explicit base ID:**
+
+```typescript
+// Template: <base id="${Base.form}">
+const bi = Base.form;
+const kb = Helper.kb(ctx, bi);
+const da = { name: value };
+await ctx.edit(kb, da, bi);
+```
+
+**Don't use `bi` when template has no base ID (default base):**
+
+```typescript
+// Template: <base> (without id)
+const kb = Helper.kb(ctx);
+const da = { text: "message" };
+await ctx.edit(kb, da);
+```
+
+### Base ID Naming for Steps
+
+When using `showStep{N}Form` method, baseId should follow this convention: start with `s` + step number + optional context.
+
+| Step Method     | Base ID Examples              | Description                  |
+| --------------- | ----------------------------- | ---------------------------- |
+| `showStep1Form` | `s1`, `s1Form`, `s1Create`    | Step 1 with optional context |
+| `showStep2Form` | `s2`, `s2Confirm`, `s2Review` | Step 2 with optional context |
+| `showStep3Form` | `s3`, `s3Complete`            | Step 3 with optional context |
+
+```typescript
+class Base {
+  static s1 = `s1`;
+  static s1Confirm = `s1-confirm`;
+  static s2 = `s2`;
+  static s2Review = `s2-review`;
+}
+```
+
+---
+
+## Linting Rules
+
+All code **must** pass linting checks before committing.
+
+### NEVER Use eslint-disable
+
+**ILLEGAL** to use `eslint-disable` or any comments to hide errors or warnings.
+
+```typescript
+// ❌ ILLEGAL - Never do this:
+class Main {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+}
+```
+
+If there is an error, **fix the code**, don't hide the error.
+
+### Common Linting Rules
+
+- Use **backtick** quotes for strings (`` ` ``), not single or double quotes
+- No unused variables (remove or use all declared variables)
+- No spaces inside object braces: `{foo}`, not `{ foo }`
+- No semicolons at end of statements
+- Use `2` spaces for indentation
+- `arrowParens: always` - always use parentheses around arrow function parameters
+
+---
+
 ## Complete Example
 
-Here's the full structure from `example/6-bank-system/src/pages/deposit.ts`:
+Full structure from `example/6-bank-system/src/pages/deposit.ts`:
 
 ```typescript
 import { PageBase } from "~/base/page";
@@ -296,217 +545,16 @@ export class DepositPage extends PageBase {
 
 ---
 
-## Important: Only Create Classes When Used
-
-**Classes should only be defined if they are actually used.** Do not create empty class blocks.
-
-### ❌ Wrong Example
-
-```typescript
-// Alert is NOT used but class is still created - WRONG
-class Alert {}
-
-class Main {
-  static async showStep1Form(ctx: HelpPage) {...}
-}
-
-export class HelpPage extends PageBase {...}
-```
-
-### ✅ Correct Example
-
-```typescript
-// Only Main class is needed, no Base/Helper/Alert
-class Alert {
-  static async success(ctx: HelpPage) {...}
-}
-
-class Main {
-  static async showEntryPoint(ctx: HelpPage) {
-    ...
-    await Alert.success(ctx)
-  }
-}
-
-export class HelpPage extends PageBase {
-  async handleCallbackData() {
-    await Main.showEntryPoint(this);
-  }
-}
-```
-
----
-
-## Class Order in Page Files
-
-Classes in page files must be ordered as follows:
-
-```
-1. Base     (if needed)
-2. Helper   (if needed)
-3. Alert    (if needed)
-4. Main     (REQUIRED - except for page general-status.ts)
-5. *Page    (export class - REQUIRED)
-```
-
-```typescript
-// ✅ Correct - Class order follows the rules
-class Base {...}
-
-class Helper {...}
-
-class Alert {...}
-
-class Main {...}
-
-export class DepositPage extends PageBase {...}
-```
-
-```typescript
-// ❌ Wrong - Class order does not follow rules
-class Main {...} // ❌ Main must be at position 4
-class Base {...} // ❌ Base must be at position 1
-export class Page {...} // ❌ Page must be at position 5
-class Alert {...} // ❌ Alert must be at position 3
-class Helper {...} // ❌ Helper must be at position 2
-```
-
----
-
-## Variable Naming Conventions
-
-**IMPORTANT**: Use standardized variable names across all page classes for consistency and easy maintenance.
-
-| Variable | Purpose           | Example                         |
-| -------- | ----------------- | ------------------------------- |
-| `kb`     | Keyboard markup   | `const kb = Helper.kb(ctx, bi)` |
-| `da`     | Data for template | `const da = { name: value }`    |
-| `bi`     | Base ID string    | `const bi = Base.form`          |
-
-### ✅ Correct Usage
-
-```typescript
-static async showStep1Form(ctx: DepositPage) {
-  const bi = Base.form; // ✅ bi for base id
-  const kb = Helper.kb(ctx, bi); // ✅ kb for keyboard
-  const da = {}; // ✅ da for data
-  await ctx.edit(kb, da, bi);
-}
-```
-
-### ❌ Wrong Usage
-
-```typescript
-// ❌ Wrong: using generic names like 'keyboard', 'data', 'baseId'
-static async showStep1Form(ctx: DepositPage) {
-  const baseId = Base.form           // ❌ should be 'bi'
-  const keyboard = Helper.kb(ctx)   // ❌ should be 'kb'
-  const data = {}                   // ❌ should be 'da'
-  await ctx.edit(keyboard, data, baseId)
-}
-```
-
-### When to Use `bi` (Base ID)
-
-**Use `bi` when template has explicit base ID:**
-
-```typescript
-// Template: <base id="${Base.form}">
-// Must use bi:
-const bi = Base.form;
-const kb = Helper.kb(ctx, bi);
-const da = { name: value };
-await ctx.edit(kb, da, bi);
-```
-
-**Don't use `bi` when template has no base ID (default base):**
-
-```typescript
-// Template: <base> (without id)
-// No need for bi:
-const kb = Helper.kb(ctx);
-const da = { text: "message" };
-await ctx.edit(kb, da);
-```
-
-### Base ID Naming for Steps
-
-When using `showStep{N}Form` method, baseId should follow this convention:
-
-**Pattern:** Start with `s` + step number + optional context
-
-| Step Method     | Base ID Examples              | Description                  |
-| --------------- | ----------------------------- | ---------------------------- |
-| `showStep1Form` | `s1`, `s1Form`, `s1Create`    | Step 1 with optional context |
-| `showStep2Form` | `s2`, `s2Confirm`, `s2Review` | Step 2 with optional context |
-| `showStep3Form` | `s3`, `s3Complete`            | Step 3 with optional context |
-
-```typescript
-class Base {
-  static s1 = `s1`; // Simple step 1
-  static s1Confirm = `s1-confirm`; // Step 1 with context
-  static s2 = `s2`; // Simple step 2
-  static s2Review = `s2-review`; // Step 2 with context
-}
-```
-
----
-
-## Linting Rules
-
-All code **must** pass linting checks before committing. Run the following commands:
-
-```bash
-# Lint and fix
-bun run lint:fix
-
-# Type check
-bun run ci:check
-```
-
-**Linting rules**: Follow `.eslint.config.ts` from the project root.
-
-### NEVER Use eslint-disable
-
-**ILLEGAL** to use `eslint-disable` or any comments to hide errors or warnings.
-
-```typescript
-// ❌ ILLEGAL - Never do this:
-class Main {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-}
-```
-
-If there is an error, **fix the code**, don't hide the error.
-
-### Common Linting Rules to Remember
-
-- Use **backtick** quotes for strings (`` ` ``), not single or double quotes
-- No unused variables (remove or use all declared variables)
-- No spaces inside object braces: `{foo}`, not `{ foo }`
-- No semicolons at end of statements
-- Use `2` spaces for indentation
-- `arrowParens: always` - always use parentheses around arrow function parameters
-
----
-
 ## Summary Table
 
-| Class      | Purpose                                     | Naming Pattern                            | When to Create                                                                                    |
-| ---------- | ------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **Main**   | Business logic (show form / process answer) | `showStep{N}Form`, `processStep{N}Answer` | **Always required** - except for `general-status.ts` (no Main needed)                             |
-| **Base**   | Base ID strings for template states         | `static xxx = \`id\``                     | **When needed** - only if template has multiple `<base id="xxx">` states                          |
-| **Helper** | Reusable utility functions                  | Any descriptive name                      | **When needed** - only if you have reusable logic used 2+ times                                   |
-| **Alert**  | User feedback messages                      | `success*`, `warn*`, `error*`, `info*`    | **When needed** - only if you need to show user feedback (success, error, warning, info messages) |
+| Class      | Purpose                                     | Naming Pattern                            | When to Create                                                           |
+| ---------- | ------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------ |
+| **Main**   | Business logic (show form / process answer) | `showStep{N}Form`, `processStep{N}Answer` | **Always required** - except for `general-status.ts`                     |
+| **Base**   | Base ID strings for template states         | `static xxx = \`id\``                     | **When needed** - only if template has multiple `<base id="xxx">` states |
+| **Helper** | Reusable utility functions                  | Any descriptive name                      | **When needed** - only if reusable logic used 2+ times                   |
+| **Alert**  | User feedback messages                      | `success*`, `warn*`, `error*`, `info*`    | **When needed** - only if user feedback with content                     |
 
-### Class Creation Guidelines
-
-- **Main** → **ALWAYS REQUIRED**, every page must have a Main class
-- **Base** → **WHEN NEEDED**, only when template has >1 `<base id="...">` states
-- **Helper** → **WHEN NEEDED**, only when there is reusable logic (usually keyboard builder)
-- **Alert** → **WHEN NEEDED**, only when there are user feedback messages with content (success, error, warning, info)
-
-**Minimal example (without Base/Helper/Alert):**
+### Minimal Example (without Base/Helper/Alert)
 
 ```typescript
 class Main {
@@ -530,3 +578,7 @@ export class StartPage extends PageBase {
   `;
 }
 ```
+
+---
+
+> This AGENTS.md combines best practices from the Gramstax project. Updated with content from `skill/best-practice.md`.
