@@ -16,7 +16,8 @@
     "module": "Preserve",
     "moduleDetection": "force",
     "types": [
-      //{{types}}
+      "node",
+      "bun"
     ],
     "jsx": "react-jsx",
     "allowJs": true,

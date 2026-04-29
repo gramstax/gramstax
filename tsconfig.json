@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "types": [
+      "node",
+      "bun"
+    ],
     "paths": {
       "gramstax": [
         "./packages/gramstax/src/index.ts"
