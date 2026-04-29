@@ -328,11 +328,6 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       }
     }
 
-    // Task 6: tsconfig.json
-    const tsconfigPath = path.join(projectPath, `tsconfig.json`)
-    const tsconfigContent = fs.readFileSync(tsconfigPath, {encoding: `utf8`})
-    fs.writeFileSync(tsconfigPath, tsconfigContent, {encoding: `utf8`})
-
     // Task 6: Install dependencies
     log.info(`Installing dependencies..`)
     if (!(await this.installDependencies(projectPath, packageManager))) {
