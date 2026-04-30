@@ -118,12 +118,12 @@ Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up t
 
 ### Class Overview
 
-| Class | Purpose | Required |
-|-------|---------|----------|
-| **Base** | Base ID strings for template states | When template has multiple `<base id="...">` states |
-| **Helper** | Reusable utility functions (keyboard builders, formatters) | When reusable logic appears 2+ times |
-| **Alert** | User feedback messages (success, warning, error, info) | When user feedback with content is needed |
-| **Main** | Primary business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`) |
+| Class      | Purpose                                                             | Required                                            |
+| ---------- | ------------------------------------------------------------------- | --------------------------------------------------- |
+| **Base**   | Base ID strings for template states                                 | When template has multiple `<base id="...">` states |
+| **Helper** | Reusable utility functions (keyboard builders, formatters)          | When reusable logic appears 2+ times                |
+| **Alert**  | User feedback messages (success, warning, error, info)              | When user feedback with content is needed           |
+| **Main**   | Primary business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)    |
 
 ---
 
@@ -177,9 +177,9 @@ class Helper {
 
 Contains primary business logic with strict naming conventions.
 
-| Type | Pattern | Example |
-|------|---------|---------|
-| **Display Form** | `showStep{N}Form` | `showStep1Form`, `showStep2Form` |
+| Type               | Pattern                | Example                                    |
+| ------------------ | ---------------------- | ------------------------------------------ |
+| **Display Form**   | `showStep{N}Form`      | `showStep1Form`, `showStep2Form`           |
 | **Process Answer** | `processStep{N}Answer` | `processStep1Answer`, `processStep2Answer` |
 
 **Single-step Example:**
@@ -240,12 +240,12 @@ class Main {
 
 Displays user feedback messages with consistent naming:
 
-| Type | Pattern | Example |
-|------|---------|---------|
-| **Success** | `success*` | `success(ctx, data)` |
-| **Warning** | `warn*` | `warnInvalid(ctx)`, `warnExisted(ctx)` |
-| **Error** | `error*` | `errorNotFound(ctx)` |
-| **Info** | `info*` | `infoHelp(ctx)` |
+| Type        | Pattern    | Example                                |
+| ----------- | ---------- | -------------------------------------- |
+| **Success** | `success*` | `success(ctx, data)`                   |
+| **Warning** | `warn*`    | `warnInvalid(ctx)`, `warnExisted(ctx)` |
+| **Error**   | `error*`   | `errorNotFound(ctx)`                   |
+| **Info**    | `info*`    | `infoHelp(ctx)`                        |
 
 ```typescript
 class Alert {
@@ -368,11 +368,11 @@ export class DepositPage extends PageBase {
 
 Use standardized variable names across all page classes:
 
-| Variable | Purpose | Example |
-|----------|---------|---------|
-| `kb` | Keyboard markup | `const kb = Helper.kb(ctx, bi)` |
-| `da` | Data for template | `const da = { name: value }` |
-| `bi` | Base ID string | `const bi = Base.form` |
+| Variable | Purpose           | Example                         |
+| -------- | ----------------- | ------------------------------- |
+| `kb`     | Keyboard markup   | `const kb = Helper.kb(ctx, bi)` |
+| `da`     | Data for template | `const da = { name: value }`    |
+| `bi`     | Base ID string    | `const bi = Base.form`          |
 
 ### When to Use `bi` (Base ID)
 
@@ -399,11 +399,11 @@ await ctx.edit(kb, da);
 
 When using `showStep{N}Form`, baseId follows this pattern:
 
-| Step Method | Base ID Examples | Description |
-|-------------|------------------|-------------|
-| `showStep1Form` | `s1`, `s1Form`, `s1Create` | Step 1 with optional context |
+| Step Method     | Base ID Examples              | Description                  |
+| --------------- | ----------------------------- | ---------------------------- |
+| `showStep1Form` | `s1`, `s1Form`, `s1Create`    | Step 1 with optional context |
 | `showStep2Form` | `s2`, `s2Confirm`, `s2Review` | Step 2 with optional context |
-| `showStep3Form` | `s3`, `s3Complete` | Step 3 with optional context |
+| `showStep3Form` | `s3`, `s3Complete`            | Step 3 with optional context |
 
 ```typescript
 class Base {
@@ -534,4 +534,4 @@ export class StartPage extends PageBase {
 
 ---
 
-> **Note:** This guide combines content from `example-agent/AGENTS.md` and the original skill documentation. Always refer to the source for the most up-to-date patterns.
+> **Note:** This guide combines content from `agent/AGENTS.md` and the original skill documentation. Always refer to the source for the most up-to-date patterns.
