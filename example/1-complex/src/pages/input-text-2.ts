@@ -2,7 +2,8 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static success: `success`
+  static index = `-`
+  static success = `success`
 }
 
 class Helper {
@@ -12,7 +13,7 @@ class Helper {
 }
 
 class Alert {
-  static async success(ctx: InputText2Page) {
+  static async showSuccess(ctx: InputText2Page) {
     const bi = Base.success
     const da = {res: ctx.msgText}
     const kb = Helper.kb(ctx, bi)
@@ -21,12 +22,14 @@ class Alert {
 }
 
 class Main {
-  static async showEntryPoint(ctx: InputText2Page, edit = true) {
+  static async showIndex(ctx: InputText2Page, edit = true) {
+    const bi = Base.index
     const kb = Helper.kb(ctx)
+    const da = {}
     if (edit) {
-      await ctx.edit(kb)
+      await ctx.edit(kb, da, bi)
     } else {
-      await ctx.reply(kb)
+      await ctx.reply(kb, da, bi)
     }
   }
 }
@@ -35,19 +38,19 @@ export class InputText2Page extends PageBase {
   static data = this.buildData({intentCommandText: `input_text2`})
 
   async handleCallbackData() {
-    await Main.showEntryPoint(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleCommandText() {
-    await Main.showEntryPoint(this, false)
+    await Main.showIndex(this, false)
   }
 
   async handleFreeText() {
-    await Alert.success(this)
+    await Alert.showSuccess(this)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       ${this.kbk.cancel()}
       <message>
         📝 Input text (no session)

@@ -2,7 +2,8 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static success: `success`
+  static step1 = `s1`
+  static success = `success`
 }
 
 class Helper {
@@ -12,7 +13,7 @@ class Helper {
 }
 
 class Alert {
-  static async success(ctx: InputTextPage) {
+  static async showSuccess(ctx: InputTextPage) {
     const bi = Base.success
     const da = {res: ctx.msgText}
     const kb = Helper.kb(ctx, bi)
@@ -22,17 +23,19 @@ class Alert {
 
 class Main {
   static async showStep1Form(ctx: InputTextPage, edit = true) {
-    await ctx.sessionFreeText()
+    const bi = Base.step1
     const kb = Helper.kb(ctx)
+    const da = {}
+    await ctx.sessionFreeText({step: bi})
     if (edit) {
-      await ctx.edit(kb)
+      await ctx.edit(kb, da, bi)
     } else {
-      await ctx.reply(kb)
+      await ctx.reply(kb, da, bi)
     }
   }
 
   static async processStep1Answer(ctx: InputTextPage) {
-    await Alert.success(ctx)
+    await Alert.showSuccess(ctx)
   }
 }
 
@@ -51,11 +54,15 @@ export class InputTextPage extends PageBase {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Main.processStep1Answer(this)
+
+    const step = this.temp.session.step
+    if (step === Base.step1) {
+      await Main.processStep1Answer(this)
+    }
   }
 
   static template = `
-    <base>
+    <base id="${Base.step1}">
       ${this.kbk.cancel()}
       <message>
         ✍️ Input text (with session)

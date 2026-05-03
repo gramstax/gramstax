@@ -1,6 +1,10 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Base {
+  static index = `-`
+}
+
 class Helper {
   static formatHistory(ctx: HistoryPage) {
     const entries = ctx.bankStore.getHistory(ctx.userId)
@@ -35,22 +39,23 @@ class Helper {
 }
 
 class Main {
-  static async showEntryPoint(ctx: HistoryPage) {
+  static async showIndex(ctx: HistoryPage) {
     const history = Helper.formatHistory(ctx)
-    const kb = ctx.inlineKeyboardT([StartPage])
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
     const da = {history}
-    await ctx.edit(kb, da)
+    await ctx.edit(kb, da, bi)
   }
 }
 
 // Shows recent transaction history.
 export class HistoryPage extends PageBase {
   async handleCallbackData() {
-    await Main.showEntryPoint(this)
+    await Main.showIndex(this)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       ${this.kbk.back()}
       <message>
         📜 Recent transactions

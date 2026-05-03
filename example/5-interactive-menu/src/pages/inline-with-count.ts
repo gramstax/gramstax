@@ -4,7 +4,7 @@ import {BlankPage} from "./blank"
 import {CatalogData} from "~/data/catalog"
 
 class Base {
-  static list: `list`
+  static step1: `s1`
 }
 
 class Helper {
@@ -16,19 +16,19 @@ class Helper {
     const start = safePage * this.ITEMS_PER_PAGE
     const end = start + this.ITEMS_PER_PAGE
     const items = CatalogData.menuItems.slice(start, end)
+    const bi = Base.step1
     return ctx.inlineKeyboard((k, l) => {
-      const cb = ctx.data.callbackData.bind(ctx)
       items.forEach((item) => {
-        k.text(item.name, cb(`item`, item.id)).row()
+        k.text(item.name, ctx.data.callbackData(bi, `item`, item.id)).row()
       })
 
       k.row()
       if (safePage > 0) {
-        k.text(l[0]!, cb(`page`, safePage - 1))
+        k.text(l[0]!, ctx.data.callbackData(bi, `page`, safePage - 1))
       }
       k.text(`${l[2]} ${safePage + 1}/${totalPages}`, BlankPage.data.callbackData())
       if (safePage < totalPages - 1) {
-        k.text(l[1]!, cb(`page`, safePage + 1))
+        k.text(l[1]!, ctx.data.callbackData(bi, `page`, safePage + 1))
       }
       return k.row().text(l[3]!, StartPage.data.callbackData())
     })
@@ -42,11 +42,11 @@ class Helper {
 }
 
 class Main {
-  static async showEntryPoint(ctx: InlineWithCountPage, page: number, edit = true) {
+  static async showStep1Form(ctx: InlineWithCountPage, page: number, edit = true) {
     const {page: currentPage, totalPages, safePage} = Helper.pageData(page)
+    const bi = Base.step1
     const da = {page: currentPage, totalPages}
     const kb = Helper.kb(ctx, safePage)
-    const bi = Base.list
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -54,38 +54,35 @@ class Main {
     }
   }
 
-  static async process(ctx: InlineWithCountPage, action: string, value?: string) {
+  static async processStep1Answer(ctx: InlineWithCountPage, action: string, value?: string) {
     if (action === `page`) {
       const nextPage = Number(value)
-      if (!Number.isNaN(nextPage)) {
-        await Main.showEntryPoint(ctx, nextPage, true)
+      if (!isNaN(nextPage)) {
+        await Main.showStep1Form(ctx, nextPage, true)
       }
-      return
-    }
-    if (action === `item` && value) {
-      return
+    } else if (action === `item` && value) {
+      // ???
     }
   }
 }
 
 // Inline keyboard with total page count.
 export class InlineWithCountPage extends PageBase {
-  static data = this.buildData((action?: string, page?: string) => [action, page])
+  static data = this.buildData((step: string, action: string, page: string) => [step, action, page])
 
   async handleCallbackData() {
-    await Main.showEntryPoint(this, 0, true)
+    await Main.showStep1Form(this, 0, true)
   }
 
   async handleArgsCallbackData() {
-    const [action, value] = this.callbackDataArgs
-    if (!action) {
-      return
+    const [step, action, value] = this.callbackDataArgs
+    if (step === Base.step1) {
+      await Main.processStep1Answer(this, action!, value)
     }
-    await Main.process(this, action, value)
   }
 
   static template = `
-    <base>
+    <base id="${Base.step1}">
       <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, 📄 Page, ${this.kbl.home.default}</keyboard>
       <message>
         📊 Inline Menu (With Count)
@@ -93,12 +90,6 @@ export class InlineWithCountPage extends PageBase {
         Page {{page}}/{{totalPages}}
 
         Use Prev/Next to navigate, or tap Home to exit.
-      </message>
-    </base>
-
-    <base id="${Base.list}">
-      <message>
-        Select an item from the inline menu to continue.
       </message>
     </base>
   `

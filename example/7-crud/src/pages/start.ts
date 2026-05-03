@@ -6,14 +6,20 @@ import {DetailPage} from "./detail"
 import {UpdatePage} from "./update"
 import {DeletePage} from "./delete"
 
+class Base {
+  static index = `-`
+}
+
 class Main {
-  static async showEntryPoint(ctx: StartPage, edit: boolean) {
+  static async showIndex(ctx: StartPage, edit: boolean) {
     await ctx.clearSession()
-    const kb = ctx.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`)
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`, bi)
+    const da = {}
     if (edit) {
-      await ctx.edit(kb)
+      await ctx.edit(kb, da, bi)
     } else {
-      await ctx.reply(kb)
+      await ctx.reply(kb, da, bi)
     }
   }
 }
@@ -21,15 +27,15 @@ class Main {
 // Main menu page for CRUD example.
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showEntryPoint(this, false)
+    await Main.showIndex(this, false)
   }
 
   async handleCallbackData() {
-    await Main.showEntryPoint(this, true)
+    await Main.showIndex(this, true)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       <keyboard>➕ Create, 📋 List, 🔎 Detail, ✅ Update, 🗑️ Delete, ❓ Help</keyboard>
       <keyboard lang="id">➕ Buat, 📋 Daftar, 🔎 Detail, ✅ Perbarui, 🗑️ Hapus, ❓ Bantuan</keyboard>
       <message>

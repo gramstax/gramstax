@@ -22,8 +22,9 @@ Do not create project structure manually. Use the CLI to ensure proper scaffoldi
 - `src/blocks` - template block helpers (`keyboard.ts`).
 - `src/core` - runtime entry points (`bot.ts`, `ctx.ts`).
 - `src/guards` - guard checks.
+- `src/helpers` - Helper function (`log.ts`)
 - `src/pages` - page handlers (`start.ts`, `general-status.ts`).
-- `src/utils` - logging and helpers (`log.ts`).
+- `src/utils` - raw utility (`array.ts`).
 - Optional: `src/db`, `src/repositories`, `src/services`.
 
 ---
@@ -123,12 +124,12 @@ Do not create project structure manually. Use the CLI to ensure proper scaffoldi
 
 Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up to **4 inner classes**. Define only what you need — never create empty class blocks.
 
-| Class      | Purpose                                                     | Required                                            |
-| ---------- | ----------------------------------------------------------- | --------------------------------------------------- |
-| **Main**   | Business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)    |
-| **Base**   | Base ID strings for template states                         | When template has multiple `<base id="...">` states |
-| **Helper** | Reusable utility functions (keyboard builders, formatters)  | When reusable logic appears 2+ times                |
-| **Alert**  | User feedback messages (success, warning, error, info)      | When user feedback with content is needed           |
+| Class      | Purpose                                                                            | Required                                            |
+| ---------- | ---------------------------------------------------------------------------------- | --------------------------------------------------- |
+| **Main**   | Business logic (`showStep{N}Form` / `processStep{N}Answer` / `showIndex`)          | **Always required** (except `general-status.ts`)    |
+| **Base**   | Base ID strings for template states                                                | When template has multiple `<base id="...">` states |
+| **Helper** | Reusable utility functions (keyboard builders, formatters)                         | When reusable logic appears 2+ times                |
+| **Alert**  | User feedback messages (showSuccess, showFailed, showError, showWarning, showInfo) | When user feedback with content is needed           |
 
 ### 1. Base - Base ID Constants
 
@@ -138,7 +139,7 @@ Contains **static** string constants used as `<base id="...">` identifiers in te
 class Base {
   static form = `form`;
   static success = `success`;
-  static warnInvalid = `invalid`;
+  static warnInvalid = `warn-invalid`;
 }
 ```
 
@@ -206,7 +207,7 @@ class Main {
   static async processStep1Answer(ctx: DepositPage) {
     const amountInput = ctx.msgText.trim();
     if (!amountInput) {
-      return await Alert.warnInvalid(ctx);
+      return await Alert.showWarnInvalid(ctx);
     }
     // ... process the answer
   }
@@ -219,7 +220,7 @@ class Main {
 class Main {
   static async showStep1Form(ctx: CreatePage) {
     await ctx.sessionFreeText({ step: `title` });
-    const bi = Base.s1;
+    const bi = Base.step1;
     const kb = Helper.buildHomeKeyboard(ctx, bi);
     const da = {};
     await ctx.edit(kb, da, bi);
@@ -231,7 +232,7 @@ class Main {
   }
 
   static async showStep2Form(ctx: CreatePage, title: string) {
-    const bi = Base.s2;
+    const bi = Base.step2;
     const kb = Helper.buildHomeKeyboard(ctx, bi);
     const da = { title };
     await ctx.reply(kb, da, bi);
@@ -247,25 +248,26 @@ class Main {
 
 ### 4. Alert - User Feedback
 
-Contains functions for displaying user feedback messages (success, warning, error, info).
+Contains functions for displaying user feedback messages (success, failed, error, warning, info).
 
-| Type        | Pattern    | Example                                |
-| ----------- | ---------- | -------------------------------------- |
-| **Success** | `success*` | `success(ctx, data)`                   |
-| **Warning** | `warn*`    | `warnInvalid(ctx)`, `warnExisted(ctx)` |
-| **Error**   | `error*`   | `errorNotFound(ctx)`                   |
-| **Info**    | `info*`    | `infoHelp(ctx)`                        |
+| Type        | Pattern        | Example                                        |
+| ----------- | -------------- | ---------------------------------------------- |
+| **Success** | `showSuccess*` | `showSuccess(ctx, data)`                       |
+| **Failed**  | `showFailed*`  | `showFailed(ctx)`                              |
+| **Error**   | `showError*`   | `showErrorNotFound(ctx)`                       |
+| **Warning** | `showWarn*`    | `showWarnInvalid(ctx)`, `showWarnExisted(ctx)` |
+| **Info**    | `showInfo*`    | `showInfoHelp(ctx)`                            |
 
 ```typescript
 class Alert {
-  static async success(ctx: DepositPage, amount: string, balance: string) {
+  static async showSuccess(ctx: DepositPage, amount: string, balance: string) {
     const bi = Base.success;
     const da = { amount, balance };
     const kb = Helper.kb(ctx, bi);
     await ctx.reply(kb, da, bi);
   }
 
-  static async warnInvalid(ctx: DepositPage, amount = ``) {
+  static async showWarnInvalid(ctx: DepositPage, amount = ``) {
     const bi = Base.warnInvalid;
     const kb = Helper.kb(ctx, bi);
     const da = { amount };
@@ -296,18 +298,19 @@ export class HelpPage extends PageBase {...}
 
 ```typescript
 class Alert {
-  static async success(ctx: HelpPage) {...}
+  static async showSuccess(ctx: HelpPage) {...}
 }
 
 class Main {
-  static async showEntryPoint(ctx: HelpPage) {
-    await Alert.success(ctx)
+  static async showIndex(ctx: HelpPage) {
+    // condition code
+    await Alert.showSuccess(ctx)
   }
 }
 
 export class HelpPage extends PageBase {
   async handleCallbackData() {
-    await Main.showEntryPoint(this);
+    await Main.showIndex(this);
   }
 }
 ```
@@ -403,18 +406,18 @@ await ctx.edit(kb, da);
 
 When using `showStep{N}Form` method, baseId should follow this convention: start with `s` + step number + optional context.
 
-| Step Method     | Base ID Examples              | Description                  |
-| --------------- | ----------------------------- | ---------------------------- |
-| `showStep1Form` | `s1`, `s1Form`, `s1Create`    | Step 1 with optional context |
-| `showStep2Form` | `s2`, `s2Confirm`, `s2Review` | Step 2 with optional context |
-| `showStep3Form` | `s3`, `s3Complete`            | Step 3 with optional context |
+| Step Method     | Base ID Key Examples                   | Description                  |
+| --------------- | -------------------------------------- | ---------------------------- |
+| `showStep1Form` | `step1`, `step1Form`, `step1Create`    | Step 1 with optional context |
+| `showStep2Form` | `step2`, `step2Confirm`, `step2Review` | Step 2 with optional context |
+| `showStep3Form` | `step3`, `step3Complete`               | Step 3 with optional context |
 
 ```typescript
 class Base {
-  static s1 = `s1`;
-  static s1Confirm = `s1-confirm`;
-  static s2 = `s2`;
-  static s2Review = `s2-review`;
+  static step1 = `s1`;
+  static step1Confirm = `s1-confirm`;
+  static step2 = `s2`;
+  static step2Review = `s2-review`;
 }
 ```
 
@@ -469,14 +472,14 @@ class Helper {
 }
 
 class Alert {
-  static async success(ctx: DepositPage, amount: string, balance: string) {
+  static async showSuccess(ctx: DepositPage, amount: string, balance: string) {
     const bi = Base.success;
     const da = { amount, balance };
     const kb = Helper.kb(ctx, bi);
     await ctx.reply(kb, da, bi);
   }
 
-  static async warnInvalid(ctx: DepositPage, amount = ``) {
+  static async showWarnInvalid(ctx: DepositPage, amount = ``) {
     const bi = Base.warnInvalid;
     const kb = Helper.kb(ctx, bi);
     const da = { amount };
@@ -496,10 +499,10 @@ class Main {
   static async processStep1Answer(ctx: DepositPage) {
     const amountInput = ctx.msgText.trim();
     if (!amountInput) {
-      return await Alert.warnInvalid(ctx);
+      return await Alert.showWarnInvalid(ctx);
     }
     // ... processing logic
-    await Alert.success(ctx, amount, balance);
+    await Alert.showSuccess(ctx, amount, balance);
   }
 }
 
@@ -547,31 +550,36 @@ export class DepositPage extends PageBase {
 
 ## Summary Table
 
-| Class      | Purpose                                     | Naming Pattern                            | When to Create                                                           |
-| ---------- | ------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------ |
-| **Main**   | Business logic (show form / process answer) | `showStep{N}Form`, `processStep{N}Answer` | **Always required** - except for `general-status.ts`                     |
-| **Base**   | Base ID strings for template states         | `static xxx = \`id\``                     | **When needed** - only if template has multiple `<base id="xxx">` states |
-| **Helper** | Reusable utility functions                  | Any descriptive name                      | **When needed** - only if reusable logic used 2+ times                   |
-| **Alert**  | User feedback messages                      | `success*`, `warn*`, `error*`, `info*`    | **When needed** - only if user feedback with content                     |
+| Class      | Purpose                                     | Naming Pattern                                                        | When to Create                                                           |
+| ---------- | ------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| **Main**   | Business logic (show form / process answer) | `showStep{N}Form`, `processStep{N}Answer`, `showIndex`                | **Always required** - except for `general-status.ts`                     |
+| **Base**   | Base ID strings for template states         | `static xxx = \`id\``                                                 | **When needed** - only if template has multiple `<base id="xxx">` states |
+| **Helper** | Reusable utility functions                  | Any descriptive name                                                  | **When needed** - only if reusable logic used 2+ times                   |
+| **Alert**  | User feedback messages                      | `showSuccess*`, `showFailed*`, `showError*`, `showWarn*`, `showInfo*` | **When needed** - only if user feedback with content                     |
 
 ### Minimal Example (without Base/Helper/Alert)
 
 ```typescript
+class Base {
+  static index = `-`;
+}
+
 class Main {
-  static async showEntryPoint(ctx: StartPage) {
+  static async showIndex(ctx: StartPage) {
+    const bi = Base.index;
     const kb = ctx.inlineKeyboardT([ctx]);
     const da = { name: ctx.userFirstName, random: Math.random() };
-    await ctx.edit(kb, da);
+    await ctx.edit(kb, da, bi);
   }
 }
 
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showEntryPoint(this);
+    await Main.showIndex(this);
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       <keyboard>Refresh</keyboard>
       <message>Hello {{name}}, {{random}}</message>
     </base>

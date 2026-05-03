@@ -1,11 +1,12 @@
+import {TimeUt} from "~/utils/time"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
-import {TimeUt} from "~/utils/time"
 
 class Base {
-  static success: `detail`
-  static infoNotFound: `i-notfound`
-  static warnInvalid: `w-invalid`
+  static step1 = `s1`
+  static success = `success`
+  static infoNotFound = `i-notfound`
+  static warnInvalid = `w-invalid`
 }
 
 class Helper {
@@ -15,7 +16,7 @@ class Helper {
 }
 
 class Alert {
-  static async success(ctx: DetailPage, item: Awaited<ReturnType<DetailPage[`db`][`getItem`]>>) {
+  static async showSuccess(ctx: DetailPage, item: Awaited<ReturnType<DetailPage[`db`][`getItem`]>>) {
     if (!item) {
       return
     }
@@ -36,14 +37,14 @@ class Alert {
     await ctx.reply(kb, da, bi)
   }
 
-  static async warnInvalid(ctx: DetailPage) {
+  static async showWarnInvalid(ctx: DetailPage) {
     const bi = Base.warnInvalid
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {}
     await ctx.reply(kb, da, bi)
   }
 
-  static async infoNotFound(ctx: DetailPage, id: string) {
+  static async showInfoNotFound(ctx: DetailPage, id: string) {
     await ctx.clearSession()
     const bi = Base.infoNotFound
     const kb = Helper.buildHomeKeyboard(ctx, bi)
@@ -55,22 +56,23 @@ class Alert {
 class Main {
   static async showStep1Form(ctx: DetailPage) {
     await ctx.sessionFreeText()
-    const kb = Helper.buildHomeKeyboard(ctx)
+    const bi = Base.step1
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {}
-    await ctx.edit(kb, da)
+    await ctx.edit(kb, da, bi)
   }
 
   static async processStep1Answer(ctx: DetailPage) {
-    const input = ctx.msgText.trim()
-    const id = input?.trim()
+    const id = ctx.msgText.trim()
     if (!id) {
-      return await Alert.warnInvalid(ctx)
+      return await Alert.showWarnInvalid(ctx)
     }
+
     const item = await ctx.db.getItem(ctx.userId, id)
     if (!item) {
-      await Alert.infoNotFound(ctx, id)
+      await Alert.showInfoNotFound(ctx, id)
     } else {
-      await Alert.success(ctx, item)
+      await Alert.showSuccess(ctx, item)
     }
   }
 }
@@ -89,7 +91,7 @@ export class DetailPage extends PageBase {
   }
 
   static template = `
-    <base>
+    <base id="${Base.step1}">
       ${this.kbk.cancel()}
       <message>
         🔎 View item details

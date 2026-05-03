@@ -5,22 +5,28 @@ import {CategoryPage} from "./category"
 import {InlineWithoutCountPage} from "./inline-without-count"
 
 class Base {
-  static quick: `quick`
+  static index = `-`
+  static quick = `quick`
 }
 
 class Main {
-  static async showEntryPoint(ctx: StartPage, edit = false) {
-    const ikb = ctx.inlineKeyboardT([CategoryPage, InlineWithoutCountPage, InlineWithoutCountPage, HelpPage, ResetPage], `2`)
+  static async showIndex(ctx: StartPage, edit = false) {
+    const bi = Base.index
+    const ikb = ctx.inlineKeyboardT([CategoryPage, InlineWithoutCountPage, InlineWithoutCountPage, HelpPage, ResetPage], `2`, bi)
+    const da = {}
     if (edit) {
-      await ctx.edit(ikb)
+      await ctx.edit(ikb, da, bi)
     } else {
-      await ctx.reply(ikb)
-
-      const bkb = ctx.bottomKeyboardT(`2`)
-      const da = {}
-      const bi = Base.quick
-      await ctx.reply(bkb, da, bi)
+      await ctx.reply(ikb, da, bi)
+      await Main.showActionQuick(ctx)
     }
+  }
+
+  static async showActionQuick(ctx: StartPage) {
+    const bi = Base.quick
+    const bkb = ctx.bottomKeyboardT(`2`, bi)
+    const da = {}
+    await ctx.reply(bkb, da, bi)
   }
 }
 
@@ -29,21 +35,20 @@ export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Home`})
 
   async handleCommandText() {
-    await Main.showEntryPoint(this, false)
+    await Main.showIndex(this, false)
   }
 
   async handleText() {
-    await Main.showEntryPoint(this, false)
+    await Main.showIndex(this, false)
   }
 
   async handleCallbackData() {
-    await Main.showEntryPoint(this, true)
+    await Main.showIndex(this, true)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       <keyboard type="inline">🔎 Browse, 📊 Inline Count, 🧾 Inline Simple, ❓ Help, ♻️ Reset</keyboard>
-      <keyboard type="bottom">${this.kbl.home.default}, ${this.kbl.browse.default}, ${this.kbl.help.default}, ${this.kbl.reset.default}</keyboard>
       <message>
         🧭 Main Menu
 
@@ -57,6 +62,7 @@ export class StartPage extends PageBase {
     </base>
 
     <base id="${Base.quick}">
+      <keyboard type="bottom">${this.kbl.home.default}, ${this.kbl.browse.default}, ${this.kbl.help.default}, ${this.kbl.reset.default}</keyboard>
       <message>
         ✅ Quick actions enabled
 

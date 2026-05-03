@@ -2,14 +2,14 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static pleft: `pleft`
-  static pright: `pright`
+  static step1: `s1`
+  static step2: `s2`
   static success: `success`
 }
 
 class Helper {
   static getSessionParams(ctx: SumNumberPage) {
-    return (ctx.temp.session?.params as {step?: `left` | `right`; left?: number} | undefined) ?? {}
+    return (ctx.temp.session?.params as {step?: (typeof Base)[keyof typeof Base]; left?: number} | undefined) ?? {}
   }
 
   static kb(ctx: SumNumberPage, baseId: string) {
@@ -18,7 +18,7 @@ class Helper {
 }
 
 class Alert {
-  static async success(ctx: SumNumberPage, left: number, right: number) {
+  static async showSuccess(ctx: SumNumberPage, left: number, right: number) {
     await ctx.clearSession()
     const bi = Base.success
     const kb = Helper.kb(ctx, bi)
@@ -29,10 +29,10 @@ class Alert {
 
 class Main {
   static async showStep1Form(ctx: SumNumberPage, edit: boolean) {
-    await ctx.sessionFreeText({step: `left`})
-    const bi = Base.pleft
+    const bi = Base.step1
     const kb = Helper.kb(ctx, bi)
     const da = {}
+    await ctx.sessionFreeText({step: bi})
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -49,10 +49,10 @@ class Main {
   }
 
   static async showStep2Form(ctx: SumNumberPage, left: number) {
-    await ctx.sessionFreeText({step: `right`, left})
-    const bi = Base.pright
+    const bi = Base.step2
     const kb = Helper.kb(ctx, bi)
     const da = {}
+    await ctx.sessionFreeText({step: bi, left})
     await ctx.reply(kb, da, bi)
   }
 
@@ -60,10 +60,9 @@ class Main {
     if (!Number.isFinite(right)) {
       await Main.showStep2Form(ctx, right)
     } else if (!Number.isFinite(right ?? NaN)) {
-      await ctx.clearSession()
       await Main.showStep1Form(ctx, false)
     } else {
-      await Alert.success(ctx, left, right)
+      await Alert.showSuccess(ctx, left, right)
     }
   }
 }
@@ -84,15 +83,15 @@ export class SumNumberPage extends PageBase {
     const {step, left} = Helper.getSessionParams(this)
     const input = this.msgText?.trim()
     const value = input ? Number(input) : NaN
-    if (step === `left`) {
+    if (step === Base.step1) {
       await Main.processStep1Answer(this, value)
-    } else if (step === `right`) {
+    } else if (step === Base.step2) {
       await Main.processStep2Answer(this, left!, value)
     }
   }
 
   static template = `
-    <base id="${Base.pleft}">
+    <base id="${Base.step1}">
       ${this.kbk.cancel()}
       <message>
         <b>📚 Input Left Number</b>
@@ -106,7 +105,7 @@ export class SumNumberPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.pright}">
+    <base id="${Base.step2}">
       ${this.kbk.cancel()}
       <message>
         <b>📚 Input Right Number</b>

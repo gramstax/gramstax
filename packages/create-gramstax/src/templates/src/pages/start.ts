@@ -3,34 +3,39 @@ import {PageBase} from "~/base/page"
 import {RandomNumberPage} from "./random-number"
 import {SumNumberPage} from "./sum-number"
 
+class Base {
+  static index = `-`
+}
+
 class Main {
-  static async showEntryPoint(ctx: StartPage, edit = true) {
+  static async showIndex(ctx: StartPage, edit = true) {
     await ctx.clearSession()
-    const kb = ctx.inlineKeyboardT([RandomNumberPage, SumNumberPage, HelpPage], `2`)
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([RandomNumberPage, SumNumberPage, HelpPage], `2`, bi)
     const da = {userName: ctx.userName}
     if (edit) {
-      await ctx.edit(kb, da)
+      await ctx.edit(kb, da, bi)
     } else {
-      await ctx.reply(kb, da)
+      await ctx.reply(kb, da, bi)
     }
   }
 }
 
 export class StartPage extends PageBase {
   async handleCallbackData() {
-    await Main.showEntryPoint(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleCommandText() {
-    await Main.showEntryPoint(this, false)
+    await Main.showIndex(this, false)
   }
 
-  async entryPoint(edit = true) {
-    await Main.showEntryPoint(this, edit)
+  async showIndex(edit = true) {
+    await Main.showIndex(this, edit)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       <keyboard>🎰 Random Number, ➕ Sum Number, 🆘 Help</keyboard>
       <keyboard lang="id">🎰 Angka Acak, ➕ Jumlah Angka, 🆘 Bantuan</keyboard>
       <message>

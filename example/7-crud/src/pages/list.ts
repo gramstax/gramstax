@@ -3,8 +3,8 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static list: `list`
-  static empty: `empty`
+  static step1 = `s1`
+  static empty = `empty`
 }
 
 class Helper {
@@ -16,20 +16,25 @@ class Helper {
 
   static buildKeyboard(ctx: ListPage, page: number, totalPages: number) {
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-    return ctx.inlineKeyboard((k, l) => {
-      if (safePage > 0) {
-        k.text(l[0]!, ctx.data.callbackData(`page`, `${safePage - 1}`))
-      }
-      if (safePage < totalPages - 1) {
-        k.text(l[1]!, ctx.data.callbackData(`page`, `${safePage + 1}`))
-      }
-      return k.row().text(l[2]!, StartPage.data.callbackData())
-    })
+    const bi = Base.step1
+    const kb = ctx.inlineKeyboard(
+      (k, l) => {
+        if (safePage > 0) {
+          k.text(l[0]!, ctx.data.callbackData(`${safePage - 1}`))
+        }
+        if (safePage < totalPages - 1) {
+          k.text(l[1]!, ctx.data.callbackData(`${safePage + 1}`))
+        }
+        return k.row().text(l[2]!, StartPage.data.callbackData())
+      },
+      {baseId: bi}
+    )
+    return kb
   }
 }
 
 class Alert {
-  static async infoEmpty(ctx: ListPage) {
+  static async showInfoEmpty(ctx: ListPage) {
     const bi = Base.empty
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {}
@@ -38,10 +43,10 @@ class Alert {
 }
 
 class Main {
-  static async showEntryPoint(ctx: ListPage, page = 0) {
+  static async showStep1Form(ctx: ListPage, page = 0) {
     const totalItems = await ctx.db.countItems(ctx.userId)
     if (totalItems === 0) {
-      return await Alert.infoEmpty(ctx)
+      return await Alert.showInfoEmpty(ctx)
     }
 
     const totalPages = Math.max(Math.ceil(totalItems / Helper.PAGE_SIZE), 1)
@@ -55,33 +60,35 @@ class Main {
       })
       .join(`\n`)
 
+    const bi = Base.step1
     const da = {items: list, page: safePage + 1, totalPages}
     const kb = Helper.buildKeyboard(ctx, safePage, totalPages)
-    await ctx.edit(kb, da)
+    await ctx.edit(kb, da, bi)
+  }
+
+  static async processStep1Answer(ctx: ListPage) {
+    const [page] = ctx.callbackDataArgs
+
+    const nextPage = Number(page)
+    const pageNum = Number.isNaN(nextPage) ? 0 : nextPage
+    await Main.showStep1Form(ctx, pageNum)
   }
 }
 
 // Lists all cached items.
 export class ListPage extends PageBase {
-  static data = this.buildData((action?: string, page?: string) => [action, page])
+  static data = this.buildData((page?: string) => [page])
 
   async handleCallbackData() {
-    await Main.showEntryPoint(this, 0)
+    await Main.showStep1Form(this, 0)
   }
 
   async handleArgsCallbackData() {
-    const [action, value] = this.callbackDataArgs
-    if (action !== `page`) {
-      return await Main.showEntryPoint(this, 0)
-    }
-
-    const nextPage = Number(value)
-    const page = Number.isNaN(nextPage) ? 0 : nextPage
-    await Main.showEntryPoint(this, page)
+    await Main.processStep1Answer(this)
   }
 
   static template = `
-    <base>
+    <base id="${Base.step1}">
       <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</keyboard>
       <keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</keyboard>
       <message>

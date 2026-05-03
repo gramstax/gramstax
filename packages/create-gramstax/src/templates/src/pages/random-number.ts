@@ -1,33 +1,38 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Base {
+  static index = `-`
+}
+
 class Main {
-  static async showEntryPoint(ctx: RandomNumberPage, edit = true) {
-    const kb = ctx.inlineKeyboardT([this, StartPage])
+  static async showIndex(ctx: RandomNumberPage, edit = true) {
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([ctx, StartPage], `1`, bi)
     const da = {result: Math.random() * 10 ** 18}
     if (edit) {
-      await ctx.edit(kb, da)
+      await ctx.edit(kb, da, bi)
     } else {
-      await ctx.reply(kb, da)
+      await ctx.reply(kb, da, bi)
     }
   }
 }
 
 export class RandomNumberPage extends PageBase {
   async handleCallbackData() {
-    await Main.showEntryPoint(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleCommandText() {
-    await Main.showEntryPoint(this, false)
+    await Main.showIndex(this, false)
   }
 
-  async entryPoint(edit = true) {
-    await Main.showEntryPoint(this, edit)
+  async showIndex(edit = true) {
+    await Main.showIndex(this, edit)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       <keyboard>🎲 Shake, ${this.kbl.back.default}</keyboard>
       <keyboard lang="id">🎲 Kocok, ${this.kbl.back.id}</keyboard>
       <message>

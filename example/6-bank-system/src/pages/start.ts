@@ -5,13 +5,19 @@ import {DepositPage} from "./deposit"
 import {WithdrawPage} from "./withdraw"
 import {TransferPage} from "./transfer"
 
+class Base {
+  static index = `-`
+}
+
 class Main {
-  static async showEntryPoint(ctx: StartPage, edit = true) {
-    const kb = ctx.inlineKeyboardT([BalancePage, DepositPage, WithdrawPage, TransferPage, HistoryPage], `2`)
+  static async showIndex(ctx: StartPage, edit = true) {
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([BalancePage, DepositPage, WithdrawPage, TransferPage, HistoryPage], `2`, bi)
+    const da = {}
     if (edit) {
-      await ctx.edit(kb)
+      await ctx.edit(kb, da, bi)
     } else {
-      await ctx.reply(kb)
+      await ctx.reply(kb, da, bi)
     }
   }
 }
@@ -19,15 +25,15 @@ class Main {
 // Main menu page for the bank system bot.
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showEntryPoint(this, false)
+    await Main.showIndex(this, false)
   }
 
   async handleCallbackData() {
-    await Main.showEntryPoint(this, true)
+    await Main.showIndex(this, true)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       <keyboard>💳 Balance, ➕ Deposit, ➖ Withdraw, 🔁 Transfer, 📜 History</keyboard>
       <message>
         💼 Banking Menu

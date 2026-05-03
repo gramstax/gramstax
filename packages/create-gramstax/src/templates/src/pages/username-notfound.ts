@@ -1,24 +1,30 @@
 import {HelpPage} from "./help"
 import {PageBase} from "~/base/page"
 
+class Base {
+  static index = `-`
+}
+
 class Main {
-  static async showEntryPoint(ctx: UserNameNotFoundPage, edit = true) {
-    const kb = ctx.inlineKeyboardT([HelpPage])
+  static async showIndex(ctx: UserNameNotFoundPage, edit = true) {
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([HelpPage], `1`, bi)
+    const da = {}
     if (edit) {
-      await ctx.edit(kb)
+      await ctx.edit(kb, da, bi)
     } else {
-      await ctx.reply(kb)
+      await ctx.reply(kb, da, bi)
     }
   }
 }
 
 export class UserNameNotFoundPage extends PageBase {
-  async showEntryPoint(edit = true) {
-    await Main.showEntryPoint(this, edit)
+  async showIndex(edit = true) {
+    await Main.showIndex(this, edit)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       ${this.kbk.home()}
       <message>
         <b>⚠️ Username Required</b>

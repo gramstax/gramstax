@@ -1,23 +1,28 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Base {
+  static index = `-`
+}
+
 class Main {
-  static async showEntryPoint(ctx: StatsPage) {
+  static async showIndex(ctx: StatsPage) {
     const count = await ctx.db.countSubscribers()
     const subscribed = await ctx.db.isSubscribed(ctx.userId)
-    const kb = ctx.inlineKeyboardT([StartPage])
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
     const da = {count, subscribed}
-    await ctx.edit(kb, da)
+    await ctx.edit(kb, da, bi)
   }
 }
 
 export class StatsPage extends PageBase {
   async handleCallbackData() {
-    await Main.showEntryPoint(this)
+    await Main.showIndex(this)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       ${this.kbk.home()}
       <message>
         📊 Newsletter Stats

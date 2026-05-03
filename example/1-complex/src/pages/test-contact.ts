@@ -1,20 +1,26 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Base {
+  static index = `-`
+}
+
 class Main {
-  static async showEntryPoint(ctx: TestContactPage) {
-    const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)])
-    await ctx.editContact(kb)
+  static async showIndex(ctx: TestContactPage) {
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)], `1`, bi)
+    const da = {}
+    await ctx.editContact(kb, da, bi)
   }
 }
 
 export class TestContactPage extends PageBase {
   async handleCallbackData() {
-    await Main.showEntryPoint(this)
+    await Main.showIndex(this)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       ${this.kbk.back()}
       <media type="contact" phone="442071234567" first_name="England" last_name="idk" vcard="BEGIN:VCARD\\nVERSION:3.0\\nFN:England\\nTEL;TYPE=COUNTRY,VOICE:+442071234567\\nEND:VCARD">
         👤 Contact demo

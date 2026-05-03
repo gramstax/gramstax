@@ -1,21 +1,27 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Base {
+  static index = `-`
+}
+
 class Main {
-  static async showEntryPoint(ctx: HelpPage) {
-    const kb = ctx.inlineKeyboardT([StartPage])
-    await ctx.edit(kb)
+  static async showIndex(ctx: HelpPage) {
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
+    const da = {}
+    await ctx.edit(kb, da, bi)
   }
 }
 
 // Help page for CRUD usage.
 export class HelpPage extends PageBase {
   async handleCallbackData() {
-    await Main.showEntryPoint(this)
+    await Main.showIndex(this)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       ${this.kbk.back()}
       <message>
         🧭 CRUD Help

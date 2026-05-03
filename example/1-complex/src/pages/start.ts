@@ -22,12 +22,14 @@ import {TestVideoNotePage} from "./test-video-note"
 import {KeyboardBottomPage} from "./keyboard-bottom"
 
 class Base {
-  static kbForImport: `kb-for-block-import`
-  static forImport: `for-block-import`
+  static index = `-`
+  static kbForImport = `kb-for-block-import`
+  static forImport = `for-block-import`
 }
 
 class Helper {
   static kb(ctx: StartPage) {
+    const bi = Base.index
     return ctx.inlineKeyboard(
       (k, l) => {
         return k
@@ -64,13 +66,14 @@ class Helper {
           .text(l[20]!, KeyboardBottomPage.data.callbackData())
           .text(l[21]!, ctx.data.callbackData())
       },
-      {cache: true}
+      {cache: true, baseId: bi}
     )
   }
 }
 
 class Main {
-  static async showEntryPoint(ctx: StartPage, condition = 1) {
+  static async showIndex(ctx: StartPage, condition = 1) {
+    const bi = Base.index
     const kb = Helper.kb(ctx)
     const da = {
       firstName: ctx.userFirstName,
@@ -79,12 +82,12 @@ class Main {
 
     await ctx.clearSession()
     if (condition == 1) {
-      await ctx.reply(kb, da)
+      await ctx.reply(kb, da, bi)
     } else if (condition == 2) {
-      await ctx.edit(kb, da)
+      await ctx.edit(kb, da, bi)
     } else if (condition == 3) {
       await ctx.delete()
-      await ctx.reply(kb, da)
+      await ctx.reply(kb, da, bi)
     }
   }
 }
@@ -93,27 +96,27 @@ export class StartPage extends PageBase {
   static data = this.buildData((rdm?: string) => [rdm])
 
   async handleText() {
-    await Main.showEntryPoint(this, 1)
+    await Main.showIndex(this, 1)
   }
 
   async handleArgsText() {
-    await Main.showEntryPoint(this, 1)
+    await Main.showIndex(this, 1)
   }
 
   async handleCommandText() {
-    await Main.showEntryPoint(this, 1)
+    await Main.showIndex(this, 1)
   }
 
   async handleCommandArgsText() {
-    await Main.showEntryPoint(this, 1)
+    await Main.showIndex(this, 1)
   }
 
   async handleCallbackData() {
-    await Main.showEntryPoint(this, 2)
+    await Main.showIndex(this, 2)
   }
 
   async handleArgsCallbackData() {
-    await Main.showEntryPoint(this, 3)
+    await Main.showIndex(this, 3)
   }
 
   static template = `
@@ -139,7 +142,7 @@ export class StartPage extends PageBase {
       </message>
     </base>
     
-    <base>
+    <base id="${Base.index}">
       <description>Default description command start</description>
       <description lang="en">[EN] Description command start</description>
       <description lang="id">[ID] Deskripsi perintah start</description>

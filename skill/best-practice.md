@@ -33,8 +33,9 @@ description: Comprehensive best practices for Gramstax real project structure an
 - `src/blocks` for template block helpers (`keyboard.ts`).
 - `src/core` for runtime entry points (`bot.ts`, `ctx.ts`).
 - `src/guards` for guard checks (`__example.ts` removable once real guards exist).
+- `src/helpers` For helper (`log.ts`).
 - `src/pages` for page handlers (`start.ts`, `general-status.ts`).
-- `src/utils` for logging and helpers (`log.ts`).
+- `src/utils` for utils raw entity like Array (`array.ts`).
 - Optional: `src/db`, `src/repositories`, `src/services`.
 
 ---
@@ -118,12 +119,12 @@ Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up t
 
 ### Class Overview
 
-| Class      | Purpose                                                             | Required                                            |
-| ---------- | ------------------------------------------------------------------- | --------------------------------------------------- |
-| **Base**   | Base ID strings for template states                                 | When template has multiple `<base id="...">` states |
-| **Helper** | Reusable utility functions (keyboard builders, formatters)          | When reusable logic appears 2+ times                |
-| **Alert**  | User feedback messages (success, warning, error, info)              | When user feedback with content is needed           |
-| **Main**   | Primary business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)    |
+| Class      | Purpose                                                                           | Required                                            |
+| ---------- | --------------------------------------------------------------------------------- | --------------------------------------------------- |
+| **Base**   | Base ID strings for template states                                               | When template has multiple `<base id="...">` states |
+| **Helper** | Reusable utility functions (keyboard builders, formatters)                        | When reusable logic appears 2+ times                |
+| **Alert**  | User feedback messages (success, warning, error, info)                            | When user feedback with content is needed           |
+| **Main**   | Primary business logic (`showStep{N}Form` / `processStep{N}Answer` / `showIndex`) | **Always required** (except `general-status.ts`)    |
 
 ---
 
@@ -177,10 +178,11 @@ class Helper {
 
 Contains primary business logic with strict naming conventions.
 
-| Type               | Pattern                | Example                                    |
-| ------------------ | ---------------------- | ------------------------------------------ |
-| **Display Form**   | `showStep{N}Form`      | `showStep1Form`, `showStep2Form`           |
-| **Process Answer** | `processStep{N}Answer` | `processStep1Answer`, `processStep2Answer` |
+| Type                            | Pattern                | Example                                    |
+| ------------------------------- | ---------------------- | ------------------------------------------ |
+| **Display Form**                | `showStep{N}Form`      | `showStep1Form`, `showStep2Form`           |
+| **Process Answer**              | `processStep{N}Answer` | `processStep1Answer`, `processStep2Answer` |
+| **Display if there is no form** | `showIndex`            | `showIndex`                                |
 
 **Single-step Example:**
 
@@ -197,7 +199,7 @@ class Main {
   static async processStep1Answer(ctx: DepositPage) {
     const amountInput = ctx.msgText.trim();
     if (!amountInput) {
-      return await Alert.warnInvalid(ctx);
+      return await Alert.showWarnInvalid(ctx);
     }
     // ... process the answer
   }
@@ -210,7 +212,7 @@ class Main {
 class Main {
   static async showStep1Form(ctx: CreatePage) {
     await ctx.sessionFreeText({ step: `title` });
-    const bi = Base.s1;
+    const bi = Base.step1;
     const kb = Helper.buildHomeKeyboard(ctx, bi);
     const da = {};
     await ctx.edit(kb, da, bi);
@@ -222,7 +224,7 @@ class Main {
   }
 
   static async showStep2Form(ctx: CreatePage, title: string) {
-    const bi = Base.s2;
+    const bi = Base.step2;
     const kb = Helper.buildHomeKeyboard(ctx, bi);
     const da = { title };
     await ctx.reply(kb, da, bi);
@@ -240,23 +242,24 @@ class Main {
 
 Displays user feedback messages with consistent naming:
 
-| Type        | Pattern    | Example                                |
-| ----------- | ---------- | -------------------------------------- |
-| **Success** | `success*` | `success(ctx, data)`                   |
-| **Warning** | `warn*`    | `warnInvalid(ctx)`, `warnExisted(ctx)` |
-| **Error**   | `error*`   | `errorNotFound(ctx)`                   |
-| **Info**    | `info*`    | `infoHelp(ctx)`                        |
+| Type        | Pattern        | Example                                        |
+| ----------- | -------------- | ---------------------------------------------- |
+| **Success** | `showSuccess*` | `showSuccess(ctx, data)`                       |
+| **Failed**  | `showFailed*`  | `showErrorNotFound(ctx)`                       |
+| **Error**   | `showError*`   | `showErrorNotFound(ctx)`                       |
+| **Warning** | `showWarn*`    | `showWarnInvalid(ctx)`, `showWarnExisted(ctx)` |
+| **Info**    | `showInfo*`    | `showInfoHelp(ctx)`                            |
 
 ```typescript
 class Alert {
-  static async success(ctx: DepositPage, amount: string, balance: string) {
+  static async showSuccess(ctx: DepositPage, amount: string, balance: string) {
     const bi = Base.success;
     const da = { amount, balance };
     const kb = Helper.kb(ctx, bi);
     await ctx.reply(kb, da, bi);
   }
 
-  static async warnInvalid(ctx: DepositPage, amount = ``) {
+  static async showWarnInvalid(ctx: DepositPage, amount = ``) {
     const bi = Base.warnInvalid;
     const kb = Helper.kb(ctx, bi);
     const da = { amount };
@@ -288,14 +291,14 @@ class Helper {
 }
 
 class Alert {
-  static async success(ctx: DepositPage, amount: string, balance: string) {
+  static async showSuccess(ctx: DepositPage, amount: string, balance: string) {
     const bi = Base.success;
     const da = { amount, balance };
     const kb = Helper.kb(ctx, bi);
     await ctx.reply(kb, da, bi);
   }
 
-  static async warnInvalid(ctx: DepositPage, amount = ``) {
+  static async showWarnInvalid(ctx: DepositPage, amount = ``) {
     const bi = Base.warnInvalid;
     const kb = Helper.kb(ctx, bi);
     const da = { amount };
@@ -315,10 +318,10 @@ class Main {
   static async processStep1Answer(ctx: DepositPage) {
     const amountInput = ctx.msgText.trim();
     if (!amountInput) {
-      return await Alert.warnInvalid(ctx);
+      return await Alert.showWarnInvalid(ctx);
     }
     // ... processing logic
-    await Alert.success(ctx, amount, balance);
+    await Alert.showSuccess(ctx, amount, balance);
   }
 }
 
@@ -399,18 +402,18 @@ await ctx.edit(kb, da);
 
 When using `showStep{N}Form`, baseId follows this pattern:
 
-| Step Method     | Base ID Examples              | Description                  |
-| --------------- | ----------------------------- | ---------------------------- |
-| `showStep1Form` | `s1`, `s1Form`, `s1Create`    | Step 1 with optional context |
-| `showStep2Form` | `s2`, `s2Confirm`, `s2Review` | Step 2 with optional context |
-| `showStep3Form` | `s3`, `s3Complete`            | Step 3 with optional context |
+| Step Method     | Base ID Examples                       | Description                  |
+| --------------- | -------------------------------------- | ---------------------------- |
+| `showStep1Form` | `step1`, `step1Form`, `step1Create`    | Step 1 with optional context |
+| `showStep2Form` | `step2`, `step2Confirm`, `step2Review` | Step 2 with optional context |
+| `showStep3Form` | `step3`, `step3Complete`               | Step 3 with optional context |
 
 ```typescript
 class Base {
-  static s1 = `s1`;
-  static s1Confirm = `s1-confirm`;
-  static s2 = `s2`;
-  static s2Review = `s2-review`;
+  static step1 = `s1`;
+  static step1Confirm = `s1-confirm`;
+  static step2 = `s2`;
+  static step2Review = `s2-review`;
 }
 ```
 
@@ -432,9 +435,13 @@ Classes must appear in this specific order:
 
 ```typescript
 class Base {...}
+
 class Helper {...}
+
 class Alert {...}
+
 class Main {...}
+
 export class DepositPage extends PageBase {...}
 ```
 
@@ -510,21 +517,26 @@ Done
 ### Minimal Page Example
 
 ```typescript
+class Base {
+  static index = `-`;
+}
+
 class Main {
-  static async showEntryPoint(ctx: StartPage) {
+  static async showIndex(ctx: StartPage) {
+    const bi = Base.index;
     const kb = ctx.inlineKeyboardT([ctx]);
     const da = { name: ctx.userFirstName, random: Math.random() };
-    await ctx.edit(kb, da);
+    await ctx.edit(kb, da, bi);
   }
 }
 
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showEntryPoint(this);
+    await Main.showIndex(this);
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       <keyboard>Refresh</keyboard>
       <message>Hello {{name}}, {{random}}</message>
     </base>

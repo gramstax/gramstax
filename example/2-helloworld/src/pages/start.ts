@@ -1,28 +1,33 @@
 import {PageBase} from "~/base/page"
 
+class Base {
+  static index = `-`
+}
+
 class Main {
-  static async showEntryPoint(ctx: PageBase, edit = true) {
-    const kb = ctx.inlineKeyboardT([ctx])
+  static async showIndex(ctx: PageBase, edit = true) {
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([ctx], `1`, bi)
     const da = {time: new Date().toString()}
     if (edit) {
-      await ctx.edit(kb, da)
+      await ctx.edit(kb, da, bi)
     } else {
-      await ctx.reply(kb, da)
+      await ctx.reply(kb, da, bi)
     }
   }
 }
 
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showEntryPoint(this, false)
+    await Main.showIndex(this, false)
   }
 
   async handleCallbackData() {
-    await Main.showEntryPoint(this, true)
+    await Main.showIndex(this, true)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       <keyboard>Refresh</keyboard>
       <message>
         Hello World! 

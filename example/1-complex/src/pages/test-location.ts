@@ -1,20 +1,26 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Base {
+  static index = `-`
+}
+
 class Main {
-  static async showEntryPoint(ctx: TestLocationPage) {
-    const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)])
-    await ctx.editLocation(kb)
+  static async showIndex(ctx: TestLocationPage) {
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)], `1`, bi)
+    const da = {}
+    await ctx.editLocation(kb, da, bi)
   }
 }
 
 export class TestLocationPage extends PageBase {
   async handleCallbackData() {
-    await Main.showEntryPoint(this)
+    await Main.showIndex(this)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       ${this.kbk.back()}
       <media type="location" latitude="51.50735" longitude="-0.12776">
         📍 Location demo

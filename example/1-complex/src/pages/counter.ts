@@ -1,9 +1,15 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Base {
+  static index = `-`
+}
+
 class Helper {
   static kb(ctx: CounterPage) {
-    return ctx.inlineKeyboardT([ctx.data.callbackData(`I`), ctx.data.callbackData(`D`), StartPage], `2`)
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`I`), ctx.data.callbackData(`D`), StartPage], `2`, bi)
+    return kb
   }
 }
 
@@ -11,14 +17,14 @@ class Main {
   static async showStep1Form(ctx: CounterPage) {
     const key = `${ctx.userId}`
     const count = (await ctx.cacheData.get(key)) || `0`
+    const bi = Base.index
     const kb = Helper.kb(ctx)
     const da = {count}
-    await ctx.edit(kb, da)
+    await ctx.edit(kb, da, bi)
   }
 
   static async processStep1Answer(ctx: CounterPage) {
     const execution = ctx.callbackDataArg
-    const kb = Helper.kb(ctx)
     const key = `${ctx.userId}`
     const getCache = (await ctx.cacheData.get(key)) as string
     const data = getCache || `0`
@@ -31,8 +37,10 @@ class Main {
     }
 
     await ctx.cacheData.set(key, count)
+    const bi = Base.index
+    const kb = Helper.kb(ctx)
     const da = {count}
-    await ctx.edit(kb, da)
+    await ctx.edit(kb, da, bi)
   }
 }
 
@@ -48,7 +56,7 @@ export class CounterPage extends PageBase {
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       <keyboard>➕ Increase, ➖ Decrease, ${this.kbl.back.default}</keyboard>
       <keyboard lang="id">➕ Tambah, ➖ Kurang, ${this.kbl.back.id}</keyboard>
       <message>

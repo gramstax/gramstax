@@ -1,7 +1,7 @@
 import {PageBase} from "~/base/page"
 
 class Main {
-  static async showEntryPoint(ctx: TestErrorPage) {
+  static async showIndex(ctx: TestErrorPage) {
     await Promise.reject(new Error(`error from ${ctx.data.name}`))
   }
 }
@@ -9,7 +9,7 @@ class Main {
 export class TestErrorPage extends PageBase {
   async handleCallbackData() {
     // The error will be thrown to the GeneralErrorPage automatically because there is no try catch error handler in this area.
-    await Main.showEntryPoint(this)
+    await Main.showIndex(this)
   }
 
   static template = `

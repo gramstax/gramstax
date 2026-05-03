@@ -2,6 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
+  static step1 = `s1`
   static dynamicAttr = `dynamic-attribute`
 }
 
@@ -18,8 +19,10 @@ class Helper {
 
 class Main {
   static async showStep1Form(ctx: TestAnimationPage) {
+    const bi = Base.step1
     const kb = Helper.kb(ctx)
-    await ctx.editAnimation(kb)
+    const da = {}
+    await ctx.editAnimation(kb, da, bi)
   }
 
   static async processStep1Answer(ctx: TestAnimationPage) {
@@ -27,12 +30,12 @@ class Main {
     if (swc == `static`) {
       await ctx.handleCallbackData()
     } else if (swc == `dynamic`) {
-      const data = {
-        src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
-      }
       const bi = Base.dynamicAttr
       const kb = Helper.kb(ctx, true)
-      await ctx.editAnimation(kb, data, bi)
+      const da = {
+        src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
+      }
+      await ctx.editAnimation(kb, da, bi)
     }
   }
 }
@@ -49,7 +52,7 @@ export class TestAnimationPage extends PageBase {
   }
 
   static template = `
-    <base>
+    <base id="${Base.step1}">
       <keyboard>🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.default}</keyboard>
       <keyboard lang="id">🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.id}</keyboard>
       <media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">

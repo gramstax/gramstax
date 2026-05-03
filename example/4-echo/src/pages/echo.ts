@@ -2,17 +2,18 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static forText: `f-text`
-  static forPhoto: `f-photo`
-  static forVideo: `f-video`
-  static forAudio: `f-audio`
-  static forDocument: `f-document`
-  static forAnimation: `f-animation`
-  static forVoice: `f-voice`
-  static forVideoNote: `f-video_note`
-  static forSticker: `f-sticker`
-  static forLocation: `f-location`
-  static forContact: `f-contact`
+  static index = `-`
+  static forText = `f-text`
+  static forPhoto = `f-photo`
+  static forVideo = `f-video`
+  static forAudio = `f-audio`
+  static forDocument = `f-document`
+  static forAnimation = `f-animation`
+  static forVoice = `f-voice`
+  static forVideoNote = `f-video_note`
+  static forSticker = `f-sticker`
+  static forLocation = `f-location`
+  static forContact = `f-contact`
 }
 
 class Helper {
@@ -22,9 +23,11 @@ class Helper {
 }
 
 class Main {
-  static async showEntryPoint(ctx: EchoPage) {
+  static async showIndex(ctx: EchoPage) {
+    const bi = Base.index
     const kb = Helper.kb(ctx)
-    await ctx.edit(kb)
+    const da = {}
+    await ctx.edit(kb, da, bi)
   }
 
   static async showForText(ctx: EchoPage) {
@@ -157,7 +160,7 @@ class Main {
 // Echo page responds to any free text input.
 export class EchoPage extends PageBase {
   async handleCallbackData() {
-    await Main.showEntryPoint(this)
+    await Main.showIndex(this)
   }
 
   async handleFreeText() {
@@ -205,7 +208,7 @@ export class EchoPage extends PageBase {
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       ${this.kbk.home(`default`)}
       <message>
         🔁 Echo Tips

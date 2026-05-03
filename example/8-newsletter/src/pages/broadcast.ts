@@ -11,8 +11,8 @@ type BroadcastSession = {
 }
 
 class Base {
-  static s1Anon = `s1-anon`
-  static confirm = `confirm`
+  static step1 = `s1`
+  static confirmText = `confirm-text`
   static confirmPhoto = `confirm-photo`
   static confirmVideo = `confirm-video`
   static confirmAnimation = `confirm-animation`
@@ -27,21 +27,24 @@ class Base {
 
 class Helper {
   static promptKb(ctx: BroadcastPage) {
-    const bi = Base.s1Anon
-    return ctx.inlineKeyboardT([BroadcastPage.data.callbackData(`cancel`), StartPage], `2`, bi)
+    const bi = Base.step1
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`cancel`), StartPage], `2`, bi)
+    return kb
   }
 
   static confirmKb(ctx: BroadcastPage) {
-    const bi = Base.confirm
-    return ctx.inlineKeyboardT([BroadcastPage.data.callbackData(`send`), BroadcastPage.data.callbackData(`edit`), BroadcastPage.data.callbackData(`cancel`), StartPage], `2-2`, bi)
+    const bi = Base.confirmText
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`send`), ctx.data.callbackData(`edit`), ctx.data.callbackData(`cancel`), StartPage], `2-2`, bi)
+    return kb
   }
 
   static homeKb(ctx: BroadcastPage, baseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    return kb
   }
 
   static sessionParams(ctx: BroadcastPage) {
-    return (ctx.temp.session?.params as BroadcastSession | undefined) ?? {}
+    return (ctx.temp.session?.params as BroadcastSession) ?? {}
   }
 
   static deliverMediaBase(mediaType: BroadcastSession[`mediaType`]) {
@@ -72,14 +75,14 @@ class Helper {
 }
 
 class Alert {
-  static async success(ctx: BroadcastPage, count: number) {
+  static async showSuccess(ctx: BroadcastPage, count: number) {
     const bi = Base.success
     const kb = Helper.homeKb(ctx)
     const da = {count}
     await ctx.edit(kb, da, bi)
   }
 
-  static async infoEmptySubs(ctx: BroadcastPage) {
+  static async showInfoEmptySubs(ctx: BroadcastPage) {
     await ctx.clearSession()
     const bi = Base.infoEmptySubs
     const kb = Helper.homeKb(ctx)
@@ -97,7 +100,7 @@ class Main {
     await ctx.sessionFreeText({step: `message`})
     const kb = Helper.promptKb(ctx)
     const da = {draft, isEmpty}
-    const bi = Base.s1Anon
+    const bi = Base.step1
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -110,9 +113,9 @@ class Main {
     //
   }
 
-  static async showConfirm(ctx: BroadcastPage, draft: string) {
+  static async showActionConfirm(ctx: BroadcastPage, draft: string) {
     await ctx.sessionFreeText({step: `confirm`, draft})
-    const bi = Base.confirm
+    const bi = Base.confirmText
     const kb = Helper.confirmKb(ctx)
     const da = {draft}
     await ctx.reply(kb, da, bi)
@@ -132,7 +135,7 @@ class Main {
     if (!draft) {
       await Main.showStep1Form(ctx, `-`, true, false)
     } else {
-      await Main.showConfirm(ctx, draft)
+      await Main.showActionConfirm(ctx, draft)
     }
   }
 
@@ -222,7 +225,7 @@ class Main {
 
     const subscribers = await ctx.db.listSubscribers()
     if (subscribers.length === 0) {
-      return await Alert.infoEmptySubs(ctx)
+      return await Alert.showInfoEmptySubs(ctx)
     }
 
     const ids = subscribers.map((item) => item.id)
@@ -238,7 +241,7 @@ class Main {
     }
 
     await ctx.clearSession()
-    await Alert.success(ctx, subscribers.length)
+    await Alert.showSuccess(ctx, subscribers.length)
   }
 
   static async processActionCancel(ctx: BroadcastPage) {
@@ -299,7 +302,7 @@ export class BroadcastPage extends PageBase {
       ${this.kbk.home()}
     </base>
 
-    <base id="${Base.s1Anon}">
+    <base id="${Base.step1}">
       <keyboard>${this.kbl.cancelHome.default}</keyboard>
       <keyboard lang="id">${this.kbl.cancelHome.id}</keyboard>
       <message>
@@ -322,7 +325,7 @@ export class BroadcastPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.confirm}">
+    <base id="${Base.confirmText}">
       <keyboard>✅ Send, ✏️ Edit, ${this.kbl.cancelHome.default}</keyboard>
       <keyboard lang="id">✅ Kirim, ✏️ Edit, ${this.kbl.cancelHome.id}</keyboard>
       <message>

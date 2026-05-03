@@ -2,17 +2,17 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static reset: `reset`
+  static index = `-`
 }
 
 class Main {
-  static async showEntryPoint(ctx: ResetPage, edit = false) {
+  static async showIndex(ctx: ResetPage, edit = false) {
+    await ctx.clearSession()
     await ctx.cacheState.delete(`${ctx.userId}:category`)
     await ctx.cacheState.delete(`${ctx.userId}:page`)
-    await ctx.clearSession()
 
-    const kb = ctx.inlineKeyboardT([StartPage])
-    const bi = Base.reset
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
     const da = {}
     if (edit) {
       await ctx.edit(kb, da, bi)
@@ -26,29 +26,21 @@ class Main {
 export class ResetPage extends PageBase {
   static data = this.buildData({intentText: `Reset`})
 
-  async entryPoint(edit = false) {
-    await Main.showEntryPoint(this, edit)
-  }
-
   async handleCallbackData() {
-    await Main.showEntryPoint(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleText() {
-    await Main.showEntryPoint(this, false)
+    await Main.showIndex(this, false)
+  }
+
+  async showIndex(edit = false) {
+    await Main.showIndex(this, edit)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       ${this.kbk.back()}
-      <message>
-        ♻️ State reset
-
-        Your navigation state has been cleared. You can start fresh from the main menu.
-      </message>
-    </base>
-
-    <base id="${Base.reset}">
       <message>
         ✅ Reset complete
 

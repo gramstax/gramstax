@@ -1,13 +1,10 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-type CreateSessionParams = {step?: `title` | `description`; title?: string}
-
 class Base {
-  static s1: `s1-title`
-  static s2: `s2-description`
-  static success: `success`
-  static warnInvalid: `w-invalid`
+  static s1 = `s1`
+  static s2 = `s2`
+  static success = `success`
 }
 
 class Helper {
@@ -16,22 +13,36 @@ class Helper {
   }
 
   static getSessionParams(ctx: CreatePage) {
-    return (ctx.temp.session?.params as CreateSessionParams | undefined) ?? {}
+    return (
+      (ctx.temp.session?.params as {
+        step?: Base
+        title?: string
+      }) ?? {}
+    )
+  }
+}
+
+class Alert {
+  static async showSuccess(ctx: CreatePage, da: {id: string; title: string; description: string; status: string}) {
+    await ctx.clearSession()
+    const bi = Base.success
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    await ctx.reply(kb, da, bi)
   }
 }
 
 class Main {
   static async showStep1Form(ctx: CreatePage) {
-    await ctx.sessionFreeText({step: `title`})
     const bi = Base.s1
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {}
+    await ctx.sessionFreeText({step: bi})
     await ctx.edit(kb, da, bi)
   }
 
   static async processStep1Answer(ctx: CreatePage, title: string) {
-    await ctx.sessionFreeText({step: `description`, title})
-    await this.showStep2Form(ctx, title)
+    await ctx.sessionFreeText({step: Base.s2, title})
+    await Main.showStep2Form(ctx, title)
   }
 
   static async showStep2Form(ctx: CreatePage, title: string) {
@@ -41,42 +52,14 @@ class Main {
     await ctx.reply(kb, da, bi)
   }
 
-  static async processStep2Answer(ctx: CreatePage, input?: string) {
-    const {step, title} = Helper.getSessionParams(ctx)
-    const currentStep = step === `description` ? `description` : `title`
-    const value = input?.trim()
-    if (!value || !title) {
-      await ctx.sessionFreeText({step: !value ? currentStep : `title`})
-      return await Alert.warnInvalid(ctx)
-    }
-
-    if (currentStep === `title`) {
-      return await this.processStep1Answer(ctx, value)
-    }
-
-    const item = await ctx.db.createItem(ctx.userId, title, value)
-    await Alert.success(ctx, {
+  static async processStep2Answer(ctx: CreatePage, title: string, description: string) {
+    const item = await ctx.db.createItem(ctx.userId, title, description)
+    await Alert.showSuccess(ctx, {
       id: item.id,
       title: item.title,
       description: item.description,
       status: item.status
     })
-  }
-}
-
-class Alert {
-  static async success(ctx: CreatePage, data: {id: string; title: string; description: string; status: string}) {
-    await ctx.clearSession()
-    const bi = Base.success
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    await ctx.reply(kb, data, bi)
-  }
-
-  static async warnInvalid(ctx: CreatePage) {
-    const bi = Base.warnInvalid
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    const da = {}
-    await ctx.reply(kb, da, bi)
   }
 }
 
@@ -90,7 +73,14 @@ export class CreatePage extends PageBase {
     if (!this.isSessionFreeText()) {
       return null
     }
-    await Main.processStep2Answer(this, this.msgText)
+
+    const {step, title} = Helper.getSessionParams(this)
+    const input = this.msgText.trim()
+    if (step === Base.s1) {
+      await Main.processStep1Answer(this, input)
+    } else if (step === Base.s2) {
+      await Main.processStep2Answer(this, title!, input)
+    }
   }
 
   static template = `
@@ -145,20 +135,6 @@ export class CreatePage extends PageBase {
         📌 Status: {{status}}
 
         Anda dapat memperbarui atau menghapusnya kapan saja dari menu.
-      </message>
-    </base>
-
-    <base id="${Base.warnInvalid}">
-      ${this.kbk.cancel()}
-      <message>
-        ⚠️ Invalid input
-
-        Please send a non-empty value so we can continue.
-      </message>
-      <message lang="id">
-        ⚠️ Input tidak valid
-
-        Mohon kirim nilai yang tidak kosong agar proses bisa dilanjutkan.
       </message>
     </base>
   `

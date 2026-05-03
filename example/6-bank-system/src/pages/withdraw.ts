@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static form = `form`
+  static step1 = `s1`
   static success = `success`
   static warnInsufficient = `w-insufficient`
   static warnInvalid = `w-invalid`
@@ -17,7 +17,7 @@ class Helper {
 class Main {
   static async showStep1Form(ctx: WithdrawPage) {
     await ctx.sessionFreeText()
-    const bi = Base.form
+    const bi = Base.step1
     const kb = Helper.kb(ctx, bi)
     const da = {}
     await ctx.edit(kb, da, bi)
@@ -26,17 +26,17 @@ class Main {
   static async processStep1Answer(ctx: WithdrawPage) {
     const amountInput = ctx.msgText.trim()
     if (!amountInput) {
-      return await Alert.warnInvalid(ctx)
+      return await Alert.showWarnInvalid(ctx)
     }
 
     const amount = ctx.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      return await Alert.warnInvalid(ctx, amountInput)
+      return await Alert.showWarnInvalid(ctx, amountInput)
     }
 
     const current = ctx.bankStore.getBalance(ctx.userId)
     if (current < amount) {
-      return await Alert.warnInsufficient(ctx, ctx.bankStore.formatAmount(current))
+      return await Alert.showWarnInsufficient(ctx, ctx.bankStore.formatAmount(current))
     }
 
     const next = current - amount
@@ -48,12 +48,12 @@ class Main {
       ts: Date.now()
     })
 
-    await Alert.success(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
+    await Alert.showSuccess(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
   }
 }
 
 class Alert {
-  static async success(ctx: WithdrawPage, amount: string, balance: string) {
+  static async showSuccess(ctx: WithdrawPage, amount: string, balance: string) {
     await ctx.clearSession()
     const bi = Base.success
     const da = {amount, balance}
@@ -61,14 +61,14 @@ class Alert {
     await ctx.reply(kb, da, bi)
   }
 
-  static async warnInsufficient(ctx: WithdrawPage, balance: string) {
+  static async showWarnInsufficient(ctx: WithdrawPage, balance: string) {
     const bi = Base.warnInsufficient
     const kb = Helper.kb(ctx, bi)
     const da = {balance}
     await ctx.reply(kb, da, bi)
   }
 
-  static async warnInvalid(ctx: WithdrawPage, amount = ``) {
+  static async showWarnInvalid(ctx: WithdrawPage, amount = ``) {
     const bi = Base.warnInvalid
     const kb = Helper.kb(ctx, bi)
     const da = {amount}
@@ -90,7 +90,7 @@ export class WithdrawPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.form}">
+    <base id="${Base.step1}">
       ${this.kbk.cancel()}
       <message>
         ➖ Withdraw funds

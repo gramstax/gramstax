@@ -2,30 +2,38 @@ import {LogHe} from "~/helpers/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class Base {
+  static index = `-`
+}
+
 class Helper {
   static kb(ctx: GeneralStatusPage) {
-    return ctx.inlineKeyboardT([StartPage])
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
+    return kb
   }
 }
 
 class Alert {
-  static async error(ctx: GeneralStatusPage, funcName: string, error: any, edit = true) {
+  static async showError(ctx: GeneralStatusPage, funcName: string, error: any, edit = true) {
     LogHe.errorMake(error, ctx.constructorName, funcName)
 
     await ctx.clearSession()
+    const bi = Base.index
     const kb = Helper.kb(ctx)
     const da = {isNotFound: false}
     if (edit) {
-      await ctx.edit(kb, da)
+      await ctx.edit(kb, da, bi)
     } else {
-      await ctx.reply(kb, da)
+      await ctx.reply(kb, da, bi)
     }
   }
 
-  static async errorInputNotFound(ctx: GeneralStatusPage) {
+  static async showErrorInputNotFound(ctx: GeneralStatusPage) {
+    const bi = Base.index
     const kb = Helper.kb(ctx)
     const da = {isNotFound: true}
-    await ctx.reply(kb, da)
+    await ctx.reply(kb, da, bi)
   }
 }
 
@@ -37,16 +45,16 @@ export class GeneralStatusPage extends PageBase {
     this.constructorName = p?.constructor?.name
   }
 
-  async error(...args: Parameters<typeof Alert.error> extends [any, ...infer R] ? R : []) {
-    await Alert.error(this, ...args)
+  async showError(...args: Parameters<typeof Alert.showError> extends [any, ...infer R] ? R : []) {
+    await Alert.showError(this, ...args)
   }
 
-  async errorInputNotFound() {
-    await Alert.errorInputNotFound(this)
+  async showErrorInputNotFound() {
+    await Alert.showErrorInputNotFound(this)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       ${this.kbk.home()}
       <message>
         {~isNotFound ? "🔎 Route not found" : "❌ Something went wrong"~}

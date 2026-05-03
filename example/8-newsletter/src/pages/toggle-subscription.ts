@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Main {
-  static async showEntryPoint(ctx: ToggleSubscriptionPage) {
+  static async showIndex(ctx: ToggleSubscriptionPage) {
     const subscribed = await ctx.db.isSubscribed(ctx.userId)
     if (subscribed) {
       await ctx.db.unsubscribe(ctx.userId)
@@ -13,13 +13,13 @@ class Main {
         language: ctx.userLanguage
       })
     }
-    await new StartPage(ctx).showEntryPoint(true)
+    await new StartPage(ctx).showIndex(true)
   }
 }
 
 export class ToggleSubscriptionPage extends PageBase {
   async handleCallbackData() {
-    await Main.showEntryPoint(this)
+    await Main.showIndex(this)
   }
 
   static template = `<base></base>`

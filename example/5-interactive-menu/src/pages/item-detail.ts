@@ -3,23 +3,22 @@ import {CatalogData} from "~/data/catalog"
 import {ItemListPage} from "./item-list"
 
 class Base {
-  static detail: `detail`
+  static index = `-`
 }
 
 class Main {
-  static async showEntryPoint(ctx: ItemDetailPage, categoryId: string, itemId: string) {
+  static async showIndex(ctx: ItemDetailPage, categoryId: string, itemId: string) {
     const item = CatalogData.getItemById(categoryId, itemId)
-    const page = Number((await ctx.cacheState.get(`${ctx.userId}:page`)) ?? 0)
-    const kb = ctx.inlineKeyboardT([ItemListPage.data.callbackData(`page`, `${page}`)])
+    const getPage = await ctx.cacheState.get(`${ctx.userId}:page`)
+    const page = Number(getPage ?? 0)
+
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([ItemListPage.data.callbackData(`s1`, `${page}`)], `1`, bi)
     const da = {
       name: item?.name,
       description: item?.description
     }
-    await ctx.edit(kb, da, Base.detail)
-  }
-
-  static async processDelegate(ctx: ItemDetailPage, categoryId: string, itemId: string) {
-    await Main.showEntryPoint(ctx, categoryId, itemId)
+    await ctx.edit(kb, da, bi)
   }
 }
 
@@ -32,11 +31,11 @@ export class ItemDetailPage extends PageBase {
     if (action !== `detail` || !categoryId || !itemId) {
       return
     }
-    await Main.processDelegate(this, categoryId, itemId)
+    await Main.showIndex(this, categoryId, itemId)
   }
 
   static template = `
-    <base>
+    <base id="${Base.index}">
       <keyboard>⬅️ Back to List</keyboard>
       <message>
         📌 {~name || "Unknown"~}

@@ -3,11 +3,11 @@ import {StartPage} from "./start"
 import type {MainItem} from "~/db/main"
 
 class Base {
-  static select: `select`
-  static status: `status`
-  static success: `success`
-  static infoEmpty: `empty`
-  static errorNotFound: `i-not-found`
+  static step1 = `s1`
+  static step2 = `s2`
+  static success = `success`
+  static infoEmpty = `empty`
+  static errorNotFound = `i-not-found`
 }
 
 class Helper {
@@ -17,14 +17,15 @@ class Helper {
     return ctx.inlineKeyboardT([StartPage], `1`, baseId)
   }
 
-  static async buildSelectKeyboard(ctx: UpdatePage, page: number, items: MainItem[]) {
+  static async buildStep1Keyboard(ctx: UpdatePage, page: number, items: MainItem[]) {
     const allItems = await ctx.db.listItems(ctx.userId)
     const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
+    const bi = Base.step1
     return ctx.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
-          k.text(`📝 #${item.id} ${item.title.slice(0, 5)}..`, ctx.data.callbackData(`select`, item.id))
+          k.text(`📝 #${item.id} ${item.title.slice(0, 5)}..`, ctx.data.callbackData(bi, `select`, item.id))
           if (index % 2 === 1) {
             k.row()
           }
@@ -32,23 +33,52 @@ class Helper {
 
         k.row()
         if (safePage > 0) {
-          k.text(l[0]!, ctx.data.callbackData(`page`, `${safePage - 1}`))
+          k.text(l[0]!, ctx.data.callbackData(bi, `page`, `${safePage - 1}`))
         }
         if (safePage < totalPages - 1) {
-          k.text(l[1]!, ctx.data.callbackData(`page`, `${safePage + 1}`))
+          k.text(l[1]!, ctx.data.callbackData(bi, `page`, `${safePage + 1}`))
         }
         return k.row().text(l[2]!, StartPage.data.callbackData())
       },
-      {baseId: Base.select}
+      {baseId: bi}
     )
   }
 
-  static buildStatusKeyboard(ctx: UpdatePage, id: string) {
-    const b1 = ctx.data.callbackData(`status`, id, `todo`)
-    const b2 = ctx.data.callbackData(`status`, id, `in-progress`)
-    const b3 = ctx.data.callbackData(`status`, id, `done`)
+  static buildStep2Keyboard(ctx: UpdatePage, id: string) {
+    const bi = Base.step2
+    const b1 = ctx.data.callbackData(bi, `todo`, id)
+    const b2 = ctx.data.callbackData(bi, `in-progress`, id)
+    const b3 = ctx.data.callbackData(bi, `done`, id)
     const b4 = StartPage
-    return ctx.inlineKeyboardT([b1, b2, b3, b4], `3-1`, Base.status)
+    const kb = ctx.inlineKeyboardT([b1, b2, b3, b4], `3-1`, bi)
+    return kb
+  }
+}
+
+class Alert {
+  static async showSuccess(ctx: UpdatePage, id: string, status: MainItem[`status`]) {
+    const bi = Base.success
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const da = {id, status}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async showInfoEmpty(ctx: UpdatePage, edit = true) {
+    const bi = Base.infoEmpty
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const da = {}
+    if (edit) {
+      await ctx.edit(kb, da, bi)
+    } else {
+      await ctx.reply(kb, da, bi)
+    }
+  }
+
+  static async showInfoNotFound(ctx: UpdatePage, id: string) {
+    const bi = Base.errorNotFound
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const da = {id}
+    await ctx.edit(kb, da, bi)
   }
 }
 
@@ -62,12 +92,12 @@ class Main {
     const items = allItems.slice(start, end)
 
     if (items.length === 0) {
-      return await Alert.infoEmpty(ctx, edit)
+      return await Alert.showInfoEmpty(ctx, edit)
     }
 
-    const bi = Base.select
+    const bi = Base.step1
     const da = {count: allItems.length, page: safePage + 1, totalPages}
-    const kb = await Helper.buildSelectKeyboard(ctx, safePage, items)
+    const kb = await Helper.buildStep1Keyboard(ctx, safePage, items)
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -75,92 +105,60 @@ class Main {
     }
   }
 
-  static async processStep1Answer(ctx: UpdatePage, id: string) {
-    const item = await ctx.db.getItem(ctx.userId, id)
-    if (!item) {
-      await Alert.infoNotFound(ctx, id)
-    } else {
-      await this.showStep2Form(ctx, item)
+  static async processStep1Answer(ctx: UpdatePage, type: string, idOrPage: string) {
+    if (type === `page`) {
+      return await Main.showStep1Form(ctx, parseInt(idOrPage))
+    } else if (type === `select`) {
+      const item = await ctx.db.getItem(ctx.userId, idOrPage)
+      if (item) {
+        await Main.showStep2Form(ctx, item)
+      } else {
+        await Alert.showInfoNotFound(ctx, idOrPage)
+      }
     }
   }
 
   static async showStep2Form(ctx: UpdatePage, item: {id: string; title: string; status: string}) {
-    const bi = Base.status
-    const kb = Helper.buildStatusKeyboard(ctx, item.id)
+    const bi = Base.step2
+    const kb = Helper.buildStep2Keyboard(ctx, item.id)
     const da = {id: item.id, title: item.title, status: item.status}
     await ctx.edit(kb, da, bi)
   }
 
-  static async processStep2Answer(ctx: UpdatePage, id: string, status: MainItem[`status`], edit = true) {
+  static async processStep2Answer(ctx: UpdatePage, status: MainItem[`status`], id: string, edit = true) {
     const item = await ctx.db.getItem(ctx.userId, id)
     if (!item) {
       return await Main.showStep1Form(ctx, 0, edit)
     }
 
     const updated = await ctx.db.updateItem(ctx.userId, id, item.title, item.description, status)
-    if (!updated) {
+    if (updated) {
+      await Alert.showSuccess(ctx, id, status)
+    } else {
       await Main.showStep1Form(ctx, 0, edit)
-    } else {
-      await Alert.success(ctx, id, status)
     }
-  }
-}
-
-class Alert {
-  static async success(ctx: UpdatePage, id: string, status: MainItem[`status`]) {
-    const bi = Base.success
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    const da = {id, status}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async infoEmpty(ctx: UpdatePage, edit = true) {
-    const bi = Base.infoEmpty
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    const da = {}
-    if (edit) {
-      await ctx.edit(kb, da, bi)
-    } else {
-      await ctx.reply(kb, da, bi)
-    }
-  }
-
-  static async infoNotFound(ctx: UpdatePage, id: string) {
-    const bi = Base.errorNotFound
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    const da = {id}
-    await ctx.edit(kb, da, bi)
   }
 }
 
 // Updates item status via inline selection.
 export class UpdatePage extends PageBase {
-  static data = this.buildData((action?: string, query?: string, status?: string) => [action, query, status])
+  static data = this.buildData((step?: string, arg1?: string, arg2?: string) => [step, arg1, arg2])
 
   async handleCallbackData() {
     await Main.showStep1Form(this, 0, true)
   }
 
   async handleArgsCallbackData() {
-    const [action, query, status] = this.callbackDataArgs
-    if (action === `page`) {
-      const page = Number(query)
-      return await Main.showStep1Form(this, page)
+    const [step, arg1, arg2] = this.callbackDataArgs
+    if (step === Base.step1) {
+      await Main.processStep1Answer(this, arg1!, arg2!)
+    } else if (step === Base.step2 && arg1 === `status`) {
+      await Main.processStep2Answer(this, arg1 as MainItem[`status`], arg2!, true)
     }
-
-    if (action === `select` && query) {
-      return await Main.processStep1Answer(this, query)
-    }
-
-    if (action === `status` && query && status) {
-      return await Main.processStep2Answer(this, query, status as MainItem[`status`], true)
-    }
-
-    await Main.showStep1Form(this, 0, true)
   }
 
   static template = `
-    <base id="${Base.select}">
+    <base id="${Base.step1}">
       <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</keyboard>
       <keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</keyboard>
       <message>
@@ -175,7 +173,7 @@ export class UpdatePage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.status}">
+    <base id="${Base.step2}">
       <keyboard>📝 Todo, 🔄 In Progress, ✅ Done, 🏠 Home</keyboard>
       <keyboard lang="id">📝 Todo, 🔄 Proses, ✅ Selesai, 🏠 Beranda</keyboard>
       <message>

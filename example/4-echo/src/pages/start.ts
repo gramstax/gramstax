@@ -2,13 +2,19 @@ import {PageBase} from "~/base/page"
 import {HelpPage} from "./help"
 import {EchoPage} from "./echo"
 
+class Base {
+  static index = `-`
+}
+
 class Main {
-  static async showEntryPoint(ctx: StartPage, edit = true) {
-    const kb = ctx.inlineKeyboardT([HelpPage, EchoPage])
+  static async showIndex(ctx: StartPage, edit = true) {
+    const bi = Base.index
+    const kb = ctx.inlineKeyboardT([HelpPage, EchoPage], `1`, bi)
+    const da = {}
     if (edit) {
-      await ctx.edit(kb)
+      await ctx.edit(kb, da, bi)
     } else {
-      await ctx.reply(kb)
+      await ctx.reply(kb, da, bi)
     }
   }
 }
@@ -16,15 +22,15 @@ class Main {
 // Start page with welcome message and navigation.
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showEntryPoint(this, false)
+    await Main.showIndex(this, false)
   }
 
   async handleCallbackData() {
-    await Main.showEntryPoint(this, true)
+    await Main.showIndex(this, true)
   }
 
   static template = `
-    <base>
+    <base id=${Base.index}>
       <keyboard>❓ Help, 🔁 Echo Tips</keyboard>
       <message>
         🔊 Echo Bot

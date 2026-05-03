@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static form = `form`
+  static step1 = `s1`
   static success = `success`
   static warnInvalid = `invalid`
 }
@@ -14,7 +14,7 @@ class Helper {
 }
 
 class Alert {
-  static async success(ctx: DepositPage, amount: string, balance: string) {
+  static async showSuccess(ctx: DepositPage, amount: string, balance: string) {
     await ctx.clearSession()
     const bi = Base.success
     const da = {amount, balance}
@@ -22,7 +22,7 @@ class Alert {
     await ctx.reply(kb, da, bi)
   }
 
-  static async warnInvalid(ctx: DepositPage, amount = ``) {
+  static async showWarnInvalid(ctx: DepositPage, amount = ``) {
     const bi = Base.warnInvalid
     const kb = Helper.kb(ctx, bi)
     const da = {amount}
@@ -33,7 +33,7 @@ class Alert {
 class Main {
   static async showStep1Form(ctx: DepositPage) {
     await ctx.sessionFreeText()
-    const bi = Base.form
+    const bi = Base.step1
     const kb = Helper.kb(ctx, bi)
     const da = {}
     await ctx.edit(kb, da, bi)
@@ -42,12 +42,12 @@ class Main {
   static async processStep1Answer(ctx: DepositPage) {
     const amountInput = ctx.msgText.trim()
     if (!amountInput) {
-      return await Alert.warnInvalid(ctx)
+      return await Alert.showWarnInvalid(ctx)
     }
 
     const amount = ctx.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      return await Alert.warnInvalid(ctx, amountInput)
+      return await Alert.showWarnInvalid(ctx, amountInput)
     }
 
     const current = ctx.bankStore.getBalance(ctx.userId)
@@ -60,7 +60,7 @@ class Main {
       ts: Date.now()
     })
 
-    await Alert.success(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
+    await Alert.showSuccess(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
   }
 }
 
@@ -78,7 +78,7 @@ export class DepositPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.form}">
+    <base id="${Base.step1}">
       ${this.kbk.cancel()}
       <message>
         ➕ Deposit funds

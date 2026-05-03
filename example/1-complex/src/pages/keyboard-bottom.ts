@@ -2,26 +2,40 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
+  static index = `-`
   static reset = `reset`
   static delete = `delete`
 }
 
-class Main {
-  static async showEntryPoint(ctx: KeyboardBottomPage, count?: number, baseId?: string) {
-    const pr = {data: {first: ctx.data.intentText}}
-    const kb = ctx.bottomKeyboard((k, l) => {
-      return k
-        .text(count === undefined ? `${l[0]!} 0` : `${l[0]} ${count + 1}`)
-        .row()
-        .text(l[1]!)
-        .oneTime()
-    }, pr)
+class Helper {
+  static async built(ctx: KeyboardBottomPage, count?: number, baseId?: string) {
     const da = {}
+    const kb = ctx.bottomKeyboard(
+      (k, l) => {
+        return k
+          .text(count === undefined ? `${l[0]!} 0` : `${l[0]} ${count + 1}`)
+          .row()
+          .text(l[1]!)
+          .oneTime()
+      },
+      {
+        baseId: Base.index,
+        data: {
+          first: ctx.data.intentText
+        }
+      }
+    )
     await ctx.reply(kb, da, baseId)
   }
+}
 
-  static async showDelete(ctx: KeyboardBottomPage, pl: string) {
-    const kb = ctx.inlineKeyboardT([StartPage])
+class Main {
+  static async showIndex(ctx: KeyboardBottomPage, count?: number) {
+    await Helper.built(ctx, count, Base.index)
+  }
+
+  static async showActionDelete(ctx: KeyboardBottomPage, pl: string) {
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, Base.index)
     const da = {}
     await ctx.reply(kb, da, pl, {
       reply_markup: {
@@ -30,9 +44,8 @@ class Main {
     })
   }
 
-  static async showReset(ctx: KeyboardBottomPage, pl: string) {
-    const kb = ctx.inlineKeyboardT([StartPage])
-    await this.showEntryPoint(ctx, kb, pl)
+  static async showActionReset(ctx: KeyboardBottomPage, pl: string) {
+    await Helper.built(ctx, undefined, pl)
   }
 }
 
@@ -43,34 +56,34 @@ export class KeyboardBottomPage extends PageBase {
   })
 
   async handleCallbackData() {
-    await Main.showEntryPoint(this)
+    await Main.showIndex(this)
   }
 
   async handleText() {
-    await Main.showEntryPoint(this)
+    await Main.showIndex(this)
   }
 
   async handleArgsText() {
-    await Main.showEntryPoint(this, parseInt(this.msgTextArg))
+    await Main.showIndex(this, parseInt(this.msgTextArg))
   }
 
   async handleCommandText() {
-    await Main.showEntryPoint(this)
+    await Main.showIndex(this)
   }
 
   async handleCommandArgsText() {
     const pl = this.msgTextCommandArg
     if (pl == Base.reset) {
-      await Main.showReset(this, pl)
+      await Main.showActionReset(this, pl)
     } else if (pl == Base.delete) {
-      await Main.showDelete(this, pl)
+      await Main.showActionDelete(this, pl)
     }
   }
 
   static template = `    
-    <base>
-      <keyboard>${this.kbl.home.default}</keyboard>
-      <keyboard lang="id">${this.kbl.home.id}</keyboard>
+    <base id="${Base.index}">
+      <keyboard type="inline">${this.kbl.home.default}</keyboard>
+      <keyboard lang="id" type="inline">${this.kbl.home.id}</keyboard>
       <keyboard type="bottom">{{first}}, ${this.kbl.home.default}</keyboard>
       <keyboard lang="id" type="bottom">{{first}}, ${this.kbl.home.id}</keyboard>
 

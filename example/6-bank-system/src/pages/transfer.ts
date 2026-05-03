@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static form = `form`
+  static step1 = `s1`
   static success = `success`
   static warnInvalid = `invalid`
   static warnInsufficient = `w-insufficient`
@@ -32,7 +32,7 @@ class Helper {
 
 class Main {
   static async showStep1Form(ctx: TransferPage) {
-    const bi = Base.form
+    const bi = Base.step1
     const kb = Helper.kb(ctx, bi)
     const da = {}
     await ctx.edit(kb, da, bi)
@@ -41,26 +41,26 @@ class Main {
   static async processStep1Answer(ctx: TransferPage) {
     const [amountInput, targetInput] = ctx.msgText.trim().split(/\s+/)
     if (!amountInput || !targetInput) {
-      return await Alert.warnInvalid(ctx)
+      return await Alert.showWarnInvalid(ctx)
     }
 
     const amount = ctx.bankStore.parseAmount(amountInput)
     if (amount === null) {
-      return await Alert.warnInvalid(ctx, amountInput)
+      return await Alert.showWarnInvalid(ctx, amountInput)
     }
 
     const target = Helper.resolveTarget(ctx, targetInput)
     if (!target) {
-      return await Alert.warnUnknownUser(ctx, targetInput)
+      return await Alert.showWarnUnknownUser(ctx, targetInput)
     }
 
     if (target.id === ctx.userId) {
-      return await Alert.warnSelf(ctx)
+      return await Alert.showWarnSelf(ctx)
     }
 
     const current = ctx.bankStore.getBalance(ctx.userId)
     if (current < amount) {
-      return await Alert.warnInsufficient(ctx, ctx.bankStore.formatAmount(current))
+      return await Alert.showWarnInsufficient(ctx, ctx.bankStore.formatAmount(current))
     }
 
     const nextSender = current - amount
@@ -85,45 +85,45 @@ class Main {
       ts: Date.now()
     })
 
-    await Alert.success(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(nextSender), target.label)
+    await Alert.showSuccess(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(nextSender), target.label)
   }
 }
 
 class Alert {
-  static async warnInvalid(ctx: TransferPage, amount = ``) {
+  static async showWarnInvalid(ctx: TransferPage, amount = ``) {
     const bi = Base.warnInvalid
     const kb = Helper.kb(ctx, bi)
     const da = {amount}
     await ctx.reply(kb, da, bi)
   }
 
-  static async warnUnknownUser(ctx: TransferPage, target: string) {
+  static async showWarnUnknownUser(ctx: TransferPage, target: string) {
     const bi = Base.warnUnknownUser
     const kb = Helper.kb(ctx, bi)
     const da = {target}
     await ctx.reply(kb, da, bi)
   }
 
-  static async warnSelf(ctx: TransferPage) {
+  static async showWarnSelf(ctx: TransferPage) {
     const bi = Base.warnSelf
     const kb = Helper.kb(ctx, bi)
     const da = {}
     await ctx.reply(kb, da, bi)
   }
 
-  static async warnInsufficient(ctx: TransferPage, balance: string) {
+  static async showWarnInsufficient(ctx: TransferPage, balance: string) {
     const bi = Base.warnInsufficient
     const kb = Helper.kb(ctx, bi)
     const da = {balance}
     await ctx.reply(kb, da, bi)
   }
 
-  static async success(ctx: TransferPage, amount: string, balance: string, target: string) {
+  static async showSuccess(ctx: TransferPage, amount: string, balance: string, target: string) {
     await ctx.clearSession()
     const bi = Base.success
     const kb = Helper.kb(ctx, bi)
-    const data = {amount, balance, target}
-    await ctx.reply(kb, data, bi)
+    const da = {amount, balance, target}
+    await ctx.reply(kb, da, bi)
   }
 }
 
@@ -141,7 +141,7 @@ export class TransferPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.form}">
+    <base id="${Base.step1}">
       ${this.kbk.cancel()}
       <message>
         🔁 Transfer funds

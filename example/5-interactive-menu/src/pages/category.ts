@@ -1,31 +1,28 @@
 import {PageBase} from "~/base/page"
+import {StartPage} from "./start"
 import {CatalogData} from "~/data/catalog"
 import {ItemListPage} from "./item-list"
-import {StartPage} from "./start"
 
 class Base {
-  static categories: `categories`
-}
-
-class Helper {
-  static kb(ctx: CategoryPage) {
-    return ctx.inlineKeyboard((k, l) => {
-      CatalogData.list.forEach((category, index) => {
-        k.text(category.name, ctx.data.callbackData(`category`, category.id))
-        if (index % 2 === 1) {
-          k.row()
-        }
-      })
-      return k.row().text(l[0]!, StartPage.data.callbackData())
-    })
-  }
+  static step1 = `s1`
 }
 
 class Main {
-  static async showEntryPoint(ctx: CategoryPage, edit = true) {
-    const kb = Helper.kb(ctx)
-    const bi = Base.categories
+  static async showStep1Form(ctx: CategoryPage, edit = true) {
+    const bi = Base.step1
     const da = {}
+    const kb = ctx.inlineKeyboard(
+      (k, l) => {
+        CatalogData.list.forEach((category, index) => {
+          k.text(category.name, ctx.data.callbackData(bi, category.id))
+          if (index % 2 === 1) {
+            k.row()
+          }
+        })
+        return k.row().text(l[0]!, StartPage.data.callbackData())
+      },
+      {baseId: bi}
+    )
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -33,52 +30,42 @@ class Main {
     }
   }
 
-  static async processDelegate(ctx: CategoryPage) {
-    const [action, categoryId] = ctx.callbackDataArgs
-    if (action !== `category` || !categoryId) {
-      return await Main.showEntryPoint(ctx, true)
-    }
-
+  static async processStep1Answer(ctx: CategoryPage, categoryId: string) {
     await ctx.cacheState.set(`${ctx.userId}:category`, categoryId)
     await ctx.cacheState.set(`${ctx.userId}:page`, 0)
-    await new ItemListPage(ctx).entryPoint(categoryId, 0, true)
+    await new ItemListPage(ctx).showStep1Form(categoryId, 0, true)
   }
 }
 
 // Category list page with dynamic inline buttons.
 export class CategoryPage extends PageBase {
   static data = this.buildData({
-    callbackData: (action?: string, payload?: string) => [action, payload],
+    callbackData: (step: string, payload: string) => [step, payload],
     intentText: `Browse`
   })
 
-  async entryPoint(edit = true) {
-    await Main.showEntryPoint(this, edit)
-  }
-
   async handleCallbackData() {
-    await Main.showEntryPoint(this, true)
+    await Main.showStep1Form(this, true)
   }
 
   async handleText() {
-    await Main.showEntryPoint(this, false)
+    await Main.showStep1Form(this, false)
   }
 
   async handleArgsCallbackData() {
-    await Main.processDelegate(this)
+    const [step, categoryId] = this.callbackDataArgs
+    if (step === Base.step1) {
+      await Main.processStep1Answer(this, categoryId!)
+    }
+  }
+
+  async showStep1Form(edit = true) {
+    await Main.showStep1Form(this, edit)
   }
 
   static template = `
-    <base>
+    <base id="${Base.step1}">
       ${this.kbk.back()}
-      <message>
-        🔎 Browse Categories
-
-        Select a category to see its items.
-      </message>
-    </base>
-
-    <base id="${Base.categories}">
       <message>
         Choose a category to continue browsing.
       </message>
