@@ -7,20 +7,25 @@ class Base {
 }
 
 class Helper {
-  static kb(ctx: TestAnimationPage, isDynamic = false) {
-    return ctx.inlineKeyboard((k, l) => {
-      return k //
-        .text(isDynamic ? l[1] : l[0]!, ctx.data.callbackData(isDynamic ? `static` : `dynamic`))
-        .row()
-        .text(l[2]!, StartPage.data.callbackData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the `handleArgsCallbackData` route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
-    })
+  static kbStep1(ctx: TestAnimationPage, isDynamic = false) {
+    const bi = Base.step1
+    const kb = ctx.inlineKeyboard(
+      (k, l) => {
+        return k //
+          .text(isDynamic ? l[1] : l[0]!, ctx.data.callbackData(isDynamic ? `static` : `dynamic`))
+          .row()
+          .text(l[2]!, StartPage.data.callbackData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the `handleArgsCallbackData` route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
+      },
+      {baseId: bi}
+    )
+    return kb
   }
 }
 
 class Main {
   static async showStep1Form(ctx: TestAnimationPage) {
     const bi = Base.step1
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kbStep1(ctx)
     const da = {}
     await ctx.editAnimation(kb, da, bi)
   }
@@ -31,7 +36,7 @@ class Main {
       await ctx.handleCallbackData()
     } else if (swc == `dynamic`) {
       const bi = Base.dynamicAttr
-      const kb = Helper.kb(ctx, true)
+      const kb = Helper.kbStep1(ctx, true)
       const da = {
         src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
       }

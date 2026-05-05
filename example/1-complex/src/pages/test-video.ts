@@ -7,7 +7,7 @@ class Base {
 
 class Main {
   static async showStep1Form(ctx: TestVideoPage) {
-    const bi = `i`
+    const bi = Base.step1
     const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)], `1`, bi)
     const da = {}
     await ctx.editVideo(kb, da, bi)

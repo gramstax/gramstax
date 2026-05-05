@@ -24,7 +24,7 @@ class Alert {
 class Main {
   static async showStep1Form(ctx: InputText2Page, edit = true) {
     const bi = Base.step1
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kb(ctx, bi)
     const da = {}
     if (edit) {
       await ctx.edit(kb, da, bi)

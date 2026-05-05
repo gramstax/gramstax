@@ -24,7 +24,7 @@ class Alert {
 class Main {
   static async showStep1Form(ctx: InputTextPage, edit = true) {
     const bi = Base.step1
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kb(ctx, bi)
     const da = {}
     await ctx.sessionFreeText({step: bi})
     if (edit) {
@@ -55,7 +55,7 @@ export class InputTextPage extends PageBase {
       return null
     }
 
-    const step = this.temp.session.step
+    const {step} = this.temp.session.params
     if (step === Base.step1) {
       await Main.processStep1Answer(this)
     }
