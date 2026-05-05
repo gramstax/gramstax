@@ -3,12 +3,12 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static index = `-`
+  static dynamic = `d`
 }
 
 class Helper {
   static kb(ctx) {
-    const bi = Base.index
+    const bi = Base.dynamic
     const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
     return kb
   }
@@ -19,7 +19,7 @@ class Alert {
     LogHe.errorMake(error, ctx.constructorName, funcName)
 
     await ctx.clearSession()
-    const bi = Base.index
+    const bi = Base.dynamic
     const kb = Helper.kb(ctx)
     const da = {isNotFound: false}
     if (edit) {
@@ -30,7 +30,7 @@ class Alert {
   }
 
   static async showErrorInputNotFound(ctx) {
-    const bi = Base.index
+    const bi = Base.dynamic
     const kb = Helper.kb(ctx)
     const da = {isNotFound: true}
     await ctx.reply(kb, da, bi)
@@ -54,7 +54,7 @@ export class GeneralStatusPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.dynamic}">
       ${this.kbk.home()}
       <message>
         {~isNotFound ? "🔎 Route not found" : "❌ Something went wrong"~}

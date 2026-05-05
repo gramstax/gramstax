@@ -119,12 +119,12 @@ Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up t
 
 ### Class Overview
 
-| Class      | Purpose                                                                           | Required                                            |
-| ---------- | --------------------------------------------------------------------------------- | --------------------------------------------------- |
-| **Base**   | Base ID strings for template states                                               | When template has multiple `<base id="...">` states |
-| **Helper** | Reusable utility functions (keyboard builders, formatters)                        | When reusable logic appears 2+ times                |
-| **Alert**  | User feedback messages (success, warning, error, info)                            | When user feedback with content is needed           |
-| **Main**   | Primary business logic (`showStep{N}Form` / `processStep{N}Answer` / `showIndex`) | **Always required** (except `general-status.ts`)    |
+| Class      | Purpose                                                             | Required                                            |
+| ---------- | ------------------------------------------------------------------- | --------------------------------------------------- |
+| **Base**   | Base ID strings for template states                                 | When template has multiple `<base id="...">` states |
+| **Helper** | Reusable utility functions (keyboard builders, formatters)          | When reusable logic appears 2+ times                |
+| **Alert**  | User feedback messages (success, warning, error, info)              | When user feedback with content is needed           |
+| **Main**   | Primary business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)    |
 
 ---
 
@@ -134,7 +134,7 @@ Defines static string constants for `<base id="...">` identifiers in templates.
 
 ```typescript
 class Base {
-  static form = `form`;
+  static step1 = `s1`;
   static success = `success`;
   static warnInvalid = `invalid`;
 }
@@ -144,7 +144,7 @@ class Base {
 
 ```typescript
 static template = `
-  <base id="${Base.form}">
+  <base id="${Base.step1}">
     <!-- form content -->
   </base>
 
@@ -178,11 +178,10 @@ class Helper {
 
 Contains primary business logic with strict naming conventions.
 
-| Type                            | Pattern                | Example                                    |
-| ------------------------------- | ---------------------- | ------------------------------------------ |
-| **Display Form**                | `showStep{N}Form`      | `showStep1Form`, `showStep2Form`           |
-| **Process Answer**              | `processStep{N}Answer` | `processStep1Answer`, `processStep2Answer` |
-| **Display if there is no form** | `showIndex`            | `showIndex`                                |
+| Type               | Pattern                | Example                                    |
+| ------------------ | ---------------------- | ------------------------------------------ |
+| **Display Form**   | `showStep{N}Form`      | `showStep1Form`, `showStep2Form`           |
+| **Process Answer** | `processStep{N}Answer` | `processStep1Answer`, `processStep2Answer` |
 
 **Single-step Example:**
 
@@ -190,7 +189,7 @@ Contains primary business logic with strict naming conventions.
 class Main {
   static async showStep1Form(ctx: DepositPage) {
     await ctx.sessionFreeText();
-    const bi = Base.form;
+    const bi = Base.step1;
     const kb = Helper.kb(ctx, bi);
     const da = {};
     await ctx.edit(kb, da, bi);
@@ -279,7 +278,7 @@ import { PageBase } from "~/base/page";
 import { StartPage } from "./start";
 
 class Base {
-  static form = `form`;
+  static step1 = `s1`;
   static success = `success`;
   static warnInvalid = `invalid`;
 }
@@ -309,7 +308,7 @@ class Alert {
 class Main {
   static async showStep1Form(ctx: DepositPage) {
     await ctx.sessionFreeText();
-    const bi = Base.form;
+    const bi = Base.step1;
     const kb = Helper.kb(ctx, bi);
     const da = {};
     await ctx.edit(kb, da, bi);
@@ -338,7 +337,7 @@ export class DepositPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.form}">
+    <base id="${Base.step1}">
       ${this.kbk.cancel()}
       <message>
         ➕ Deposit funds
@@ -375,15 +374,15 @@ Use standardized variable names across all page classes:
 | -------- | ----------------- | ------------------------------- |
 | `kb`     | Keyboard markup   | `const kb = Helper.kb(ctx, bi)` |
 | `da`     | Data for template | `const da = { name: value }`    |
-| `bi`     | Base ID string    | `const bi = Base.form`          |
+| `bi`     | Base ID string    | `const bi = Base.step1`         |
 
 ### When to Use `bi` (Base ID)
 
 **Use `bi` when template has explicit base ID:**
 
 ```typescript
-// Template: <base id="${Base.form}">
-const bi = Base.form;
+// Template: <base id="${Base.step1}">
+const bi = Base.step1;
 const kb = Helper.kb(ctx, bi);
 const da = { name: value };
 await ctx.edit(kb, da, bi);
@@ -518,25 +517,29 @@ Done
 
 ```typescript
 class Base {
-  static index = `-`;
+  static step1 = `s1`;
 }
 
 class Main {
-  static async showIndex(ctx: StartPage) {
-    const bi = Base.index;
+  static async showStep1Form(ctx: StartPage) {
+    const bi = Base.step1;
     const kb = ctx.inlineKeyboardT([ctx]);
     const da = { name: ctx.userFirstName, random: Math.random() };
     await ctx.edit(kb, da, bi);
+  }
+
+  static async processStep1Answer(ctx: StartPage) {
+    throw ctx;
   }
 }
 
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showIndex(this);
+    await Main.showStep1Form(this);
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       <keyboard>Refresh</keyboard>
       <message>Hello {{name}}, {{random}}</message>
     </base>

@@ -5,13 +5,13 @@ import {CategoryPage} from "./category"
 import {InlineWithoutCountPage} from "./inline-without-count"
 
 class Base {
-  static index = `-`
+  static step1 = `s1`
   static quick = `quick`
 }
 
 class Main {
-  static async showIndex(ctx: StartPage, edit = false) {
-    const bi = Base.index
+  static async showStep1Form(ctx: StartPage, edit = false) {
+    const bi = Base.step1
     const ikb = ctx.inlineKeyboardT([CategoryPage, InlineWithoutCountPage, InlineWithoutCountPage, HelpPage, ResetPage], `2`, bi)
     const da = {}
     if (edit) {
@@ -20,6 +20,10 @@ class Main {
       await ctx.reply(ikb, da, bi)
       await Main.showActionQuick(ctx)
     }
+  }
+
+  static async processStep1Answer(ctx: StartPage) {
+    throw ctx
   }
 
   static async showActionQuick(ctx: StartPage) {
@@ -35,19 +39,19 @@ export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Home`})
 
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await Main.showStep1Form(this, false)
   }
 
   async handleText() {
-    await Main.showIndex(this, false)
+    await Main.showStep1Form(this, false)
   }
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await Main.showStep1Form(this, true)
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       <keyboard type="inline">🔎 Browse, 📊 Inline Count, 🧾 Inline Simple, ❓ Help, ♻️ Reset</keyboard>
       <message>
         🧭 Main Menu

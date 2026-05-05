@@ -22,15 +22,15 @@ import {TestVideoNotePage} from "./test-video-note"
 import {KeyboardBottomPage} from "./keyboard-bottom"
 
 class Base {
-  static index = `-`
+  static step1 = `s1`
   static kbForImport = `kb-for-block-import`
   static forImport = `for-block-import`
 }
 
 class Helper {
   static kb(ctx: StartPage) {
-    const bi = Base.index
-    return ctx.inlineKeyboard(
+    const bi = Base.step1
+    const kb = ctx.inlineKeyboard(
       (k, l) => {
         return k
           .text(l[0]!, CounterPage.data.callbackData()) //
@@ -68,12 +68,13 @@ class Helper {
       },
       {cache: true, baseId: bi}
     )
+    return kb
   }
 }
 
 class Main {
-  static async showIndex(ctx: StartPage, condition = 1) {
-    const bi = Base.index
+  static async showStep1Form(ctx: StartPage, condition = 1) {
+    const bi = Base.step1
     const kb = Helper.kb(ctx)
     const da = {
       firstName: ctx.userFirstName,
@@ -90,33 +91,37 @@ class Main {
       await ctx.reply(kb, da, bi)
     }
   }
+
+  static async processStep1Answer(ctx: StartPage) {
+    throw ctx
+  }
 }
 
 export class StartPage extends PageBase {
   static data = this.buildData((rdm?: string) => [rdm])
 
   async handleText() {
-    await Main.showIndex(this, 1)
+    await Main.showStep1Form(this, 1)
   }
 
   async handleArgsText() {
-    await Main.showIndex(this, 1)
+    await Main.showStep1Form(this, 1)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this, 1)
+    await Main.showStep1Form(this, 1)
   }
 
   async handleCommandArgsText() {
-    await Main.showIndex(this, 1)
+    await Main.showStep1Form(this, 1)
   }
 
   async handleCallbackData() {
-    await Main.showIndex(this, 2)
+    await Main.showStep1Form(this, 2)
   }
 
   async handleArgsCallbackData() {
-    await Main.showIndex(this, 3)
+    await Main.showStep1Form(this, 3)
   }
 
   static template = `
@@ -142,7 +147,7 @@ export class StartPage extends PageBase {
       </message>
     </base>
     
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       <description>Default description command start</description>
       <description lang="en">[EN] Description command start</description>
       <description lang="id">[ID] Deskripsi perintah start</description>

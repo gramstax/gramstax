@@ -2,15 +2,19 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static index = `-`
+  static step1 = `s1`
 }
 
 class Main {
-  static async showIndex(ctx: BlockSwitchPage, status: string) {
-    const bi = Base.index
+  static async showStep1Form(ctx: BlockSwitchPage, status: string) {
+    const bi = Base.step1
     const da = {status}
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(status == `1` ? `0` : `1`), StartPage], `1`, bi, da)
     await ctx.edit(kb, da, bi)
+  }
+
+  static async processStep1Answer(ctx: BlockSwitchPage, status: string) {
+    await Main.showStep1Form(ctx, status)
   }
 }
 
@@ -18,15 +22,15 @@ export class BlockSwitchPage extends PageBase {
   static data = this.buildData((status?: string) => [status])
 
   async handleCallbackData() {
-    await Main.showIndex(this, `0`)
+    await Main.showStep1Form(this, `0`)
   }
 
   async handleArgsCallbackData() {
-    await Main.showIndex(this, this.callbackDataArg)
+    await Main.processStep1Answer(this, this.callbackDataArg)
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       <keyboard>
         <switch value="status">
           <case is="1">🔴 Off</case>

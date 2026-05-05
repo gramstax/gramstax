@@ -4,13 +4,13 @@ import {RandomNumberPage} from "./random-number"
 import {SumNumberPage} from "./sum-number"
 
 class Base {
-  static index = `-`
+  static step1 = `s1`
 }
 
 class Main {
-  static async showIndex(ctx: StartPage, edit = true) {
+  static async showStep1Form(ctx: StartPage, edit = true) {
     await ctx.clearSession()
-    const bi = Base.index
+    const bi = Base.step1
     const kb = ctx.inlineKeyboardT([RandomNumberPage, SumNumberPage, HelpPage], `2`, bi)
     const da = {userName: ctx.userName}
     if (edit) {
@@ -19,23 +19,27 @@ class Main {
       await ctx.reply(kb, da, bi)
     }
   }
+
+  static async processStep1Answer(ctx: StartPage) {
+    throw ctx
+  }
 }
 
 export class StartPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await Main.showStep1Form(this, true)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await Main.showStep1Form(this, false)
   }
 
-  async showIndex(edit = true) {
-    await Main.showIndex(this, edit)
+  async showStep1Form(edit = true) {
+    await Main.showStep1Form(this, edit)
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       <keyboard>🎰 Random Number, ➕ Sum Number, 🆘 Help</keyboard>
       <keyboard lang="id">🎰 Angka Acak, ➕ Jumlah Angka, 🆘 Bantuan</keyboard>
       <message>

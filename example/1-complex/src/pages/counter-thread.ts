@@ -3,16 +3,20 @@ import {StartPage} from "./start"
 import {IncrementJob} from "~/jobs/increment"
 
 class Base {
-  static index = `-`
+  static step1 = `s1`
 }
 
 class Main {
-  static async showIndex(ctx: CounterThreadPage) {
+  static async showStep1Form(ctx: CounterThreadPage) {
     const count = await IncrementJob.mtdGetCount()
-    const bi = Base.index
+    const bi = Base.step1
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`1`), StartPage], `1`, bi)
     const da = {count, timestamp: new Date().getTime()}
     await ctx.edit(kb, da, bi)
+  }
+
+  static async processStep1Answer(ctx: CounterThreadPage) {
+    await Main.showStep1Form(ctx)
   }
 }
 
@@ -20,15 +24,18 @@ export class CounterThreadPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await Main.showStep1Form(this)
   }
 
   async handleArgsCallbackData() {
-    await Main.showIndex(this)
+    const [exe] = this.callbackDataArgs
+    if (exe === `1`) {
+      await Main.processStep1Answer(this)
+    }
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       ${this.kbk.refresh_back()}
       <message>
         🧵 Worker counter

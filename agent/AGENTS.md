@@ -126,7 +126,7 @@ Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up t
 
 | Class      | Purpose                                                                            | Required                                            |
 | ---------- | ---------------------------------------------------------------------------------- | --------------------------------------------------- |
-| **Main**   | Business logic (`showStep{N}Form` / `processStep{N}Answer` / `showIndex`)          | **Always required** (except `general-status.ts`)    |
+| **Main**   | Business logic (`showStep{N}Form` / `processStep{N}Answer`)                        | **Always required** (except `general-status.ts`)    |
 | **Base**   | Base ID strings for template states                                                | When template has multiple `<base id="...">` states |
 | **Helper** | Reusable utility functions (keyboard builders, formatters)                         | When reusable logic appears 2+ times                |
 | **Alert**  | User feedback messages (showSuccess, showFailed, showError, showWarning, showInfo) | When user feedback with content is needed           |
@@ -137,7 +137,7 @@ Contains **static** string constants used as `<base id="...">` identifiers in te
 
 ```typescript
 class Base {
-  static form = `form`;
+  static step1 = `s1`;
   static success = `success`;
   static warnInvalid = `warn-invalid`;
 }
@@ -149,7 +149,7 @@ class Base {
 
 ```typescript
 static template = `
-  <base id="${Base.form}">
+  <base id="${Base.step1}">
     <!-- form content -->
   </base>
 
@@ -198,7 +198,7 @@ Contains the primary business logic for the page. Functions follow specific nami
 class Main {
   static async showStep1Form(ctx: DepositPage) {
     await ctx.sessionFreeText();
-    const bi = Base.form;
+    const bi = Base.step1;
     const kb = Helper.kb(ctx, bi);
     const da = {};
     await ctx.edit(kb, da, bi);
@@ -302,7 +302,7 @@ class Alert {
 }
 
 class Main {
-  static async showIndex(ctx: HelpPage) {
+  static async showStep1Form(ctx: HelpPage) {
     // condition code
     await Alert.showSuccess(ctx)
   }
@@ -310,7 +310,7 @@ class Main {
 
 export class HelpPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this);
+    await Main.showStep1Form(this);
   }
 }
 ```
@@ -357,13 +357,13 @@ Use standardized variable names for consistency and easy maintenance.
 | -------- | ----------------- | ------------------------------- |
 | `kb`     | Keyboard markup   | `const kb = Helper.kb(ctx, bi)` |
 | `da`     | Data for template | `const da = { name: value }`    |
-| `bi`     | Base ID string    | `const bi = Base.form`          |
+| `bi`     | Base ID string    | `const bi = Base.step1`         |
 
 ### ✅ Correct Usage
 
 ```typescript
 static async showStep1Form(ctx: DepositPage) {
-  const bi = Base.form; // ✅ bi for base id
+  const bi = Base.step1; // ✅ bi for base id
   const kb = Helper.kb(ctx, bi); // ✅ kb for keyboard
   const da = {}; // ✅ da for data
   await ctx.edit(kb, da, bi);
@@ -374,7 +374,7 @@ static async showStep1Form(ctx: DepositPage) {
 
 ```typescript
 static async showStep1Form(ctx: DepositPage) {
-  const baseId = Base.form           // ❌ should be 'bi'
+  const baseId = Base.step1           // ❌ should be 'bi'
   const keyboard = Helper.kb(ctx)   // ❌ should be 'kb'
   const data = {}                   // ❌ should be 'da'
   await ctx.edit(keyboard, data, baseId)
@@ -386,8 +386,8 @@ static async showStep1Form(ctx: DepositPage) {
 **Use `bi` when template has explicit base ID:**
 
 ```typescript
-// Template: <base id="${Base.form}">
-const bi = Base.form;
+// Template: <base id="${Base.step1}">
+const bi = Base.step1;
 const kb = Helper.kb(ctx, bi);
 const da = { name: value };
 await ctx.edit(kb, da, bi);
@@ -460,7 +460,7 @@ import { PageBase } from "~/base/page";
 import { StartPage } from "./start";
 
 class Base {
-  static form = `form`;
+  static step1 = `s1`;
   static success = `success`;
   static warnInvalid = `invalid`;
 }
@@ -490,7 +490,7 @@ class Alert {
 class Main {
   static async showStep1Form(ctx: DepositPage) {
     await ctx.sessionFreeText();
-    const bi = Base.form;
+    const bi = Base.step1;
     const kb = Helper.kb(ctx, bi);
     const da = {};
     await ctx.edit(kb, da, bi);
@@ -519,7 +519,7 @@ export class DepositPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.form}">
+    <base id="${Base.step1}">
       ${this.kbk.cancel()}
       <message>
         ➕ Deposit funds
@@ -552,7 +552,7 @@ export class DepositPage extends PageBase {
 
 | Class      | Purpose                                     | Naming Pattern                                                        | When to Create                                                           |
 | ---------- | ------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| **Main**   | Business logic (show form / process answer) | `showStep{N}Form`, `processStep{N}Answer`, `showIndex`                | **Always required** - except for `general-status.ts`                     |
+| **Main**   | Business logic (show form / process answer) | `showStep{N}Form`, `processStep{N}Answer`                             | **Always required** - except for `general-status.ts`                     |
 | **Base**   | Base ID strings for template states         | `static xxx = \`id\``                                                 | **When needed** - only if template has multiple `<base id="xxx">` states |
 | **Helper** | Reusable utility functions                  | Any descriptive name                                                  | **When needed** - only if reusable logic used 2+ times                   |
 | **Alert**  | User feedback messages                      | `showSuccess*`, `showFailed*`, `showError*`, `showWarn*`, `showInfo*` | **When needed** - only if user feedback with content                     |
@@ -561,12 +561,12 @@ export class DepositPage extends PageBase {
 
 ```typescript
 class Base {
-  static index = `-`;
+  static step1 = `s1`;
 }
 
 class Main {
-  static async showIndex(ctx: StartPage) {
-    const bi = Base.index;
+  static async showStep1Form(ctx: StartPage) {
+    const bi = Base.step1;
     const kb = ctx.inlineKeyboardT([ctx]);
     const da = { name: ctx.userFirstName, random: Math.random() };
     await ctx.edit(kb, da, bi);
@@ -575,11 +575,11 @@ class Main {
 
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showIndex(this);
+    await Main.showStep1Form(this);
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       <keyboard>Refresh</keyboard>
       <message>Hello {{name}}, {{random}}</message>
     </base>

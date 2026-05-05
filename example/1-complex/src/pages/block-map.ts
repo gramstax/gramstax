@@ -2,12 +2,12 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static index = `-`
+  static step1 = `s1`
 }
 
 class Main {
-  static async showIndex(ctx: BlockMapPage) {
-    const bi = Base.index
+  static async showStep1Form(ctx: BlockMapPage) {
+    const bi = Base.step1
     const kb = ctx.inlineKeyboardT([ctx, StartPage], `1`, bi)
     const da = {
       arr: Array.from({length: Math.floor(Math.random() * 4) + 3}, () => ({number: Math.random()})),
@@ -17,15 +17,19 @@ class Main {
     }
     await ctx.edit(kb, da, bi)
   }
+
+  static async processStep1Answer(ctx: BlockMapPage) {
+    throw ctx
+  }
 }
 
 export class BlockMapPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await Main.showStep1Form(this)
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       ${this.kbk.refresh_back()}
       <message>
         <b>🧭 Template map demo</b>

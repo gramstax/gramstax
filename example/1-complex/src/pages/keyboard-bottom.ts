@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static index = `-`
+  static step1 = `s1`
   static reset = `reset`
   static delete = `delete`
 }
@@ -19,7 +19,7 @@ class Helper {
           .oneTime()
       },
       {
-        baseId: Base.index,
+        baseId: Base.step1,
         data: {
           first: ctx.data.intentText
         }
@@ -30,22 +30,32 @@ class Helper {
 }
 
 class Main {
-  static async showIndex(ctx: KeyboardBottomPage, count?: number) {
-    await Helper.built(ctx, count, Base.index)
+  static async showStep1Form(ctx: KeyboardBottomPage, count?: number) {
+    await Helper.built(ctx, count, Base.step1)
   }
 
-  static async showActionDelete(ctx: KeyboardBottomPage, pl: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, Base.index)
+  static async processStep1Answer(ctx: KeyboardBottomPage, action?: string) {
+    if (action === Base.reset) {
+      await Main.showActionReset(ctx, action)
+    } else if (action === Base.delete) {
+      await Main.showActionDelete(ctx, action)
+    } else {
+      await Main.showStep1Form(ctx, parseInt(ctx.msgTextArg))
+    }
+  }
+
+  static async showActionDelete(ctx: KeyboardBottomPage, bi: string) {
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, Base.step1)
     const da = {}
-    await ctx.reply(kb, da, pl, {
+    await ctx.reply(kb, da, bi, {
       reply_markup: {
         remove_keyboard: true
       }
     })
   }
 
-  static async showActionReset(ctx: KeyboardBottomPage, pl: string) {
-    await Helper.built(ctx, undefined, pl)
+  static async showActionReset(ctx: KeyboardBottomPage, bi: string) {
+    await Helper.built(ctx, undefined, bi)
   }
 }
 
@@ -56,32 +66,27 @@ export class KeyboardBottomPage extends PageBase {
   })
 
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await Main.showStep1Form(this)
   }
 
   async handleText() {
-    await Main.showIndex(this)
+    await Main.showStep1Form(this)
   }
 
   async handleArgsText() {
-    await Main.showIndex(this, parseInt(this.msgTextArg))
+    await Main.processStep1Answer(this)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this)
+    await Main.showStep1Form(this)
   }
 
   async handleCommandArgsText() {
-    const pl = this.msgTextCommandArg
-    if (pl == Base.reset) {
-      await Main.showActionReset(this, pl)
-    } else if (pl == Base.delete) {
-      await Main.showActionDelete(this, pl)
-    }
+    await Main.processStep1Answer(this, this.msgTextCommandArg)
   }
 
   static template = `    
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       <keyboard type="inline">${this.kbl.home.default}</keyboard>
       <keyboard lang="id" type="inline">${this.kbl.home.id}</keyboard>
       <keyboard type="bottom">{{first}}, ${this.kbl.home.default}</keyboard>

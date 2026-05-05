@@ -7,13 +7,13 @@ import {UpdatePage} from "./update"
 import {DeletePage} from "./delete"
 
 class Base {
-  static index = `-`
+  static step1 = `s1`
 }
 
 class Main {
-  static async showIndex(ctx: StartPage, edit: boolean) {
+  static async showStep1Form(ctx: StartPage, edit: boolean) {
     await ctx.clearSession()
-    const bi = Base.index
+    const bi = Base.step1
     const kb = ctx.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`, bi)
     const da = {}
     if (edit) {
@@ -22,20 +22,24 @@ class Main {
       await ctx.reply(kb, da, bi)
     }
   }
+
+  static async processStep1Answer(ctx: StartPage) {
+    throw ctx
+  }
 }
 
 // Main menu page for CRUD example.
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await Main.showStep1Form(this, false)
   }
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await Main.showStep1Form(this, true)
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       <keyboard>➕ Create, 📋 List, 🔎 Detail, ✅ Update, 🗑️ Delete, ❓ Help</keyboard>
       <keyboard lang="id">➕ Buat, 📋 Daftar, 🔎 Detail, ✅ Perbarui, 🗑️ Hapus, ❓ Bantuan</keyboard>
       <message>

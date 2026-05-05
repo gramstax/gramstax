@@ -3,12 +3,12 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static index = `-`
+  static dynamic = `d`
 }
 
 class Helper {
   static async built(ctx: GeneralStatusPage, isNotFound: boolean, edit = true) {
-    const bi = Base.index
+    const bi = Base.dynamic
     const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
     const da = {isNotFound}
     if (edit) {
@@ -49,7 +49,7 @@ export class GeneralStatusPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.dynamic}">
       ${this.kbk.home()}
       <message>
         {~isNotFound ? "🔎 Route not found" : "❌ Something went wrong"~}

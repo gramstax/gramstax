@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static index = `-`
+  static step1 = `s1`
   static forText = `f-text`
   static forPhoto = `f-photo`
   static forVideo = `f-video`
@@ -17,17 +17,23 @@ class Base {
 }
 
 class Helper {
-  static kb(ctx: EchoPage) {
-    return ctx.inlineKeyboardT([StartPage])
+  static kbStep1(ctx: EchoPage) {
+    const bi = Base.step1
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
+    return kb
   }
 }
 
 class Main {
-  static async showIndex(ctx: EchoPage) {
-    const bi = Base.index
-    const kb = Helper.kb(ctx)
+  static async showStep1Form(ctx: EchoPage) {
+    const bi = Base.step1
+    const kb = Helper.kbStep1(ctx)
     const da = {}
     await ctx.edit(kb, da, bi)
+  }
+
+  static async processStep1Answer(ctx: EchoPage) {
+    throw ctx
   }
 
   static async showForText(ctx: EchoPage) {
@@ -36,7 +42,7 @@ class Main {
       return null
     }
 
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kbStep1(ctx)
     const da = {text}
     const bi = Base.forText
     await ctx.reply(kb, da, bi)
@@ -49,7 +55,7 @@ class Main {
       return null
     }
 
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kbStep1(ctx)
     const da = {caption, fileId: fileIdLargest}
     const bi = Base.forPhoto
     await ctx.replyPhoto(kb, da, bi)
@@ -62,7 +68,7 @@ class Main {
       return null
     }
 
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kbStep1(ctx)
     const da = {caption, fileId}
     const bi = Base.forVideo
     await ctx.replyVideo(kb, da, bi)
@@ -75,7 +81,7 @@ class Main {
       return null
     }
 
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kbStep1(ctx)
     const da = {caption, fileId}
     const bi = Base.forAudio
     await ctx.replyAudio(kb, da, bi)
@@ -88,7 +94,7 @@ class Main {
       return null
     }
 
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kbStep1(ctx)
     const da = {caption, fileId}
     const bi = Base.forDocument
     await ctx.replyDocument(kb, da, bi)
@@ -101,7 +107,7 @@ class Main {
       return null
     }
 
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kbStep1(ctx)
     const da = {caption, fileId}
     const bi = Base.forAnimation
     await ctx.replyAnimation(kb, da, bi)
@@ -114,7 +120,7 @@ class Main {
       return null
     }
 
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kbStep1(ctx)
     const da = {caption, fileId}
     const bi = Base.forVoice
     await ctx.replyVoice(kb, da, bi)
@@ -123,7 +129,7 @@ class Main {
   static async showForVideoNote(ctx: EchoPage) {
     // not support caption
     const fileId = ctx.msgVideoNote.file_id
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kbStep1(ctx)
     const da = {fileId}
     const bi = Base.forVideoNote
     await ctx.replyVideoNote(kb, da, bi)
@@ -132,7 +138,7 @@ class Main {
   static async showForSticker(ctx: EchoPage) {
     // not support caption
     const fileId = ctx.msgSticker.file_id
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kbStep1(ctx)
     const da = {fileId}
     const bi = Base.forSticker
     await ctx.replySticker(kb, da, bi)
@@ -141,7 +147,7 @@ class Main {
   static async showForLocation(ctx: EchoPage) {
     // not support caption
     const {latitude, longitude} = ctx.msgLocation
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kbStep1(ctx)
     const da = {latitude, longitude}
     const bi = Base.forLocation
     await ctx.replyLocation(kb, da, bi)
@@ -150,7 +156,7 @@ class Main {
   static async showForContact(ctx: EchoPage) {
     // not support caption
     const {first_name, last_name, phone_number, user_id, vcard} = ctx.msgContact
-    const kb = Helper.kb(ctx)
+    const kb = Helper.kbStep1(ctx)
     const da = {first_name, last_name, phone_number, user_id, vcard}
     const bi = Base.forContact
     await ctx.replyContact(kb, da, bi)
@@ -160,7 +166,7 @@ class Main {
 // Echo page responds to any free text input.
 export class EchoPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await Main.showStep1Form(this)
   }
 
   async handleFreeText() {
@@ -208,7 +214,7 @@ export class EchoPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       ${this.kbk.home(`default`)}
       <message>
         🔁 Echo Tips

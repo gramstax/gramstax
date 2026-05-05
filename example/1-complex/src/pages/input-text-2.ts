@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static index = `-`
+  static step1 = `s1`
   static success = `success`
 }
 
@@ -22,8 +22,8 @@ class Alert {
 }
 
 class Main {
-  static async showIndex(ctx: InputText2Page, edit = true) {
-    const bi = Base.index
+  static async showStep1Form(ctx: InputText2Page, edit = true) {
+    const bi = Base.step1
     const kb = Helper.kb(ctx)
     const da = {}
     if (edit) {
@@ -32,17 +32,21 @@ class Main {
       await ctx.reply(kb, da, bi)
     }
   }
+
+  static async processStep1Answer(ctx: InputText2Page) {
+    throw ctx
+  }
 }
 
 export class InputText2Page extends PageBase {
   static data = this.buildData({intentCommandText: `input_text2`})
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await Main.showStep1Form(this, true)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await Main.showStep1Form(this, false)
   }
 
   async handleFreeText() {
@@ -50,7 +54,7 @@ export class InputText2Page extends PageBase {
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       ${this.kbk.cancel()}
       <message>
         📝 Input text (no session)

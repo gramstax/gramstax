@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static index = `-`
+  static step1 = `s1`
 }
 
 class Helper {
@@ -39,23 +39,27 @@ class Helper {
 }
 
 class Main {
-  static async showIndex(ctx: HistoryPage) {
+  static async showStep1Form(ctx: HistoryPage) {
     const history = Helper.formatHistory(ctx)
-    const bi = Base.index
+    const bi = Base.step1
     const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
     const da = {history}
     await ctx.edit(kb, da, bi)
+  }
+
+  static async processStep1Answer(ctx: HistoryPage) {
+    throw ctx
   }
 }
 
 // Shows recent transaction history.
 export class HistoryPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await Main.showStep1Form(this)
   }
 
   static template = `
-    <base id="${Base.index}">
+    <base id="${Base.step1}">
       ${this.kbk.back()}
       <message>
         📜 Recent transactions
