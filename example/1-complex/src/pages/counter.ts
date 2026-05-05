@@ -23,8 +23,7 @@ class Main {
     await ctx.edit(kb, da, bi)
   }
 
-  static async processStep1Answer(ctx: CounterPage) {
-    const execution = ctx.callbackDataArg
+  static async processStep1Answer(ctx: CounterPage, execution: string) {
     const key = `${ctx.userId}`
     const getCache = (await ctx.cacheData.get(key)) as string
     const data = getCache || `0`
@@ -52,7 +51,7 @@ export class CounterPage extends PageBase {
   }
 
   async handleArgsCallbackData() {
-    await Main.processStep1Answer(this)
+    await Main.processStep1Answer(this, this.callbackDataArg)
   }
 
   static template = `
