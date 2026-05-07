@@ -119,12 +119,13 @@ Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up t
 
 ### Class Overview
 
-| Class      | Purpose                                                             | Required                                            |
-| ---------- | ------------------------------------------------------------------- | --------------------------------------------------- |
-| **Base**   | Base ID strings for template states                                 | When template has multiple `<base id="...">` states |
-| **Helper** | Reusable utility functions (keyboard builders, formatters)          | When reusable logic appears 2+ times                |
-| **Alert**  | User feedback messages (success, warning, error, info)              | When user feedback with content is needed           |
-| **Main**   | Primary business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)    |
+| Class        | Purpose                                                             | Required                                            |
+| ------------ | ------------------------------------------------------------------- | --------------------------------------------------- |
+| **Base**     | Base ID strings for template states                                 | When template has multiple `<base id="...">` states |
+| **Helper**   | Reusable utility functions (keyboard builders, formatters)          | When reusable logic appears 2+ times                |
+| **Constant** | Reusable common constant string/number                              | When reusable constants used 2+ times               |
+| **Alert**    | User feedback messages (success, warning, error, info)              | When user feedback with content is needed           |
+| **Main**     | Primary business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)    |
 
 ---
 
@@ -135,8 +136,8 @@ Defines static string constants for `<base id="...">` identifiers in templates.
 ```typescript
 class Base {
   static step1 = `s1`;
-  static success = `success`;
-  static warnInvalid = `invalid`;
+  static success = `s`;
+  static warnInvalid = `w-invalid`;
 }
 ```
 
@@ -279,8 +280,8 @@ import { StartPage } from "./start";
 
 class Base {
   static step1 = `s1`;
-  static success = `success`;
-  static warnInvalid = `invalid`;
+  static success = `s`;
+  static warnInvalid = `w-invalid`;
 }
 
 class Helper {
@@ -435,6 +436,8 @@ Classes must appear in this specific order:
 ```typescript
 class Base {...}
 
+class Constant {...}
+
 class Helper {...}
 
 class Alert {...}
@@ -447,11 +450,12 @@ export class DepositPage extends PageBase {...}
 ### Wrong Order
 
 ```typescript
-class Main {...}      // ❌ Must be position 4
+class Main {...}      // ❌ Must be position 5
 class Base {...}      // ❌ Must be position 1
-export class Page {...} // ❌ Must be position 5
-class Alert {...}     // ❌ Must be position 3
-class Helper {...}    // ❌ Must be position 2
+export class Page {...} // ❌ Must be position 6
+class Alert {...}     // ❌ Must be position 4
+class Constant {...} // Must be position 2
+class Helper {...}    // ❌ Must be position 3
 ```
 
 ---

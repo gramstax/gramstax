@@ -124,12 +124,13 @@ Do not create project structure manually. Use the CLI to ensure proper scaffoldi
 
 Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up to **4 inner classes**. Define only what you need — never create empty class blocks.
 
-| Class      | Purpose                                                                            | Required                                            |
-| ---------- | ---------------------------------------------------------------------------------- | --------------------------------------------------- |
-| **Main**   | Business logic (`showStep{N}Form` / `processStep{N}Answer`)                        | **Always required** (except `general-status.ts`)    |
-| **Base**   | Base ID strings for template states                                                | When template has multiple `<base id="...">` states |
-| **Helper** | Reusable utility functions (keyboard builders, formatters)                         | When reusable logic appears 2+ times                |
-| **Alert**  | User feedback messages (showSuccess, showFailed, showError, showWarning, showInfo) | When user feedback with content is needed           |
+| Class        | Purpose                                                                            | Required                                            |
+| ------------ | ---------------------------------------------------------------------------------- | --------------------------------------------------- |
+| **Main**     | Business logic (`showStep{N}Form` / `processStep{N}Answer`)                        | **Always required** (except `general-status.ts`)    |
+| **Base**     | Base ID strings for template states                                                | When template has multiple `<base id="...">` states |
+| **Helper**   | Reusable utility functions (keyboard builders, formatters)                         | When reusable logic appears 2+ times                |
+| **Constant** | Reusable common constant string/number                                             | When reusable constants used 2+ times               |
+| **Alert**    | User feedback messages (showSuccess, showFailed, showError, showWarning, showInfo) | When user feedback with content is needed           |
 
 ### 1. Base - Base ID Constants
 
@@ -138,8 +139,8 @@ Contains **static** string constants used as `<base id="...">` identifiers in te
 ```typescript
 class Base {
   static step1 = `s1`;
-  static success = `success`;
-  static warnInvalid = `warn-invalid`;
+  static success = `s`;
+  static warnInvalid = `w-invalid`;
 }
 ```
 
@@ -332,6 +333,7 @@ Classes in page files must be ordered as follows:
 ```typescript
 // ✅ Correct - Class order follows the rules
 class Base {...}
+class Constant {...}
 class Helper {...}
 class Alert {...}
 class Main {...}
@@ -340,11 +342,12 @@ export class DepositPage extends PageBase {...}
 
 ```typescript
 // ❌ Wrong - Class order does not follow rules
-class Main {...}      // ❌ Must be at position 4
+class Main {...}      // ❌ Must be at position 5
 class Base {...}      // ❌ Must be at position 1
-export class Page {...} // ❌ Must be at position 5
-class Alert {...}     // ❌ Must be at position 3
-class Helper {...}    // ❌ Must be at position 2
+export class Page {...} // ❌ Must be at position 6
+class Alert {...}     // ❌ Must be at position 4
+class Constant {...} // Must be at position 2
+class Helper {...}    // ❌ Must be at position 3
 ```
 
 ---
@@ -461,8 +464,8 @@ import { StartPage } from "./start";
 
 class Base {
   static step1 = `s1`;
-  static success = `success`;
-  static warnInvalid = `invalid`;
+  static success = `s`;
+  static warnInvalid = `w-invalid`;
 }
 
 class Helper {
@@ -550,12 +553,13 @@ export class DepositPage extends PageBase {
 
 ## Summary Table
 
-| Class      | Purpose                                     | Naming Pattern                                                        | When to Create                                                           |
-| ---------- | ------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| **Main**   | Business logic (show form / process answer) | `showStep{N}Form`, `processStep{N}Answer`                             | **Always required** - except for `general-status.ts`                     |
-| **Base**   | Base ID strings for template states         | `static xxx = \`id\``                                                 | **When needed** - only if template has multiple `<base id="xxx">` states |
-| **Helper** | Reusable utility functions                  | Any descriptive name                                                  | **When needed** - only if reusable logic used 2+ times                   |
-| **Alert**  | User feedback messages                      | `showSuccess*`, `showFailed*`, `showError*`, `showWarn*`, `showInfo*` | **When needed** - only if user feedback with content                     |
+| Class        | Purpose                                     | Naming Pattern                                                        | When to Create                                                           |
+| ------------ | ------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| **Main**     | Business logic (show form / process answer) | `showStep{N}Form`, `processStep{N}Answer`                             | **Always required** - except for `general-status.ts`                     |
+| **Base**     | Base ID strings for template states         | `static xxx = \`id\``                                                 | **When needed** - only if template has multiple `<base id="xxx">` states |
+| **Helper**   | Reusable utility functions                  | Any descriptive name                                                  | **When needed** - only if reusable logic used 2+ times                   |
+| **Constant** | Reusable common constant string/number      | Any descriptive name                                                  | **When needed** - only if reusable logic used 2+ times                   |
+| **Alert**    | User feedback messages                      | `showSuccess*`, `showFailed*`, `showError*`, `showWarn*`, `showInfo*` | **When needed** - only if user feedback with content                     |
 
 ### Minimal Example (without Base/Helper/Alert)
 
