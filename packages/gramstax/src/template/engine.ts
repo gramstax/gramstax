@@ -68,10 +68,10 @@ export type ITMediaBlock = {
  *   </base>
  * `;
  *
- * const messages = TemplateEngine.compileMessages(template);
- * const keyboards = TemplateEngine.compileKeyboards(template);
+ * const messages = TemplateEngine.compileBlockMessages(template);
+ * const keyboards = TemplateEngine.compileBlockKeyboards(template);
  *
- * const msg = messages.default.default({ name: 'John' });
+ * const msg = messages.default?.default?.({ name: 'John' });
  * // Result: 'Welcome John!'
  * ```
  *
@@ -816,8 +816,8 @@ export class TemplateEngine {
    *     <media type="photo" src="{{image}}">{{caption}}</media>
    *   </base>
    * `;
-   * const media = TemplateEngine.compileMedia(template);
-   * const result = media.default.default({ image: 'photo.jpg', caption: 'Hello' });
+   * const media = TemplateEngine.compileBlockMedia(template);
+   * const result = media.default?.default?.({ image: 'photo.jpg', caption: 'Hello' });
    * // Result: { type: 'photo', src: 'photo.jpg', caption: 'Hello' }
    * ```
    *
@@ -890,8 +890,8 @@ export class TemplateEngine {
    *     <message lang="id">Halo {{name}}!</message>
    *   </base>
    * `;
-   * const messages = TemplateEngine.compileMessages(template);
-   * const result = messages.default.default({ name: 'John' });
+   * const messages = TemplateEngine.compileBlockMessages(template);
+   * const result = messages.default?.default?.({ name: 'John' });
    * // Result: 'Hello John!'
    * ```
    *
@@ -952,8 +952,8 @@ export class TemplateEngine {
    *     <description scope="chat_administrators">Admin command</description>
    *   </base>
    * `;
-   * const descriptions = TemplateEngine.compileDescription(template);
-   * const result = descriptions.default.default.default({});
+   * const descriptions = TemplateEngine.compileBlockDescription(template);
+   * const result = descriptions.default?.default?.default?.({});
    * // Result: 'Start the bot'
    * ```
    *
@@ -1029,8 +1029,8 @@ export class TemplateEngine {
    *     <keyboard type="bottom">Menu, Help</keyboard>
    *   </base>
    * `;
-   * const keyboards = TemplateEngine.compileKeyboards(template);
-   * const inline = keyboards.default.default.inline?.({ action: 'Cancel' });
+   * const keyboards = TemplateEngine.compileBlockKeyboards(template);
+   * const inline = keyboards.default?.default?.inline?.({ action: 'Cancel' });
    * // Result: ['Yes', 'No', 'Cancel']
    * ```
    *
@@ -1366,3 +1366,16 @@ export class TemplateEngine {
     return result
   }
 }
+
+// // membuktikan apakah code class TemplateEngine rawan inject code dari sisi user input
+// const template = `
+//   <base>
+//     <message>Hello {{name}}!</message>
+//     <message lang="id">Halo {{name}}!</message>
+//   </base>
+// `
+
+// const messages = TemplateEngine.compileBlockMessage(template)
+// const exampleInputFromUser = `console.log('woy')`
+// const result = messages.default?.default?.({name: exampleInputFromUser})
+// console.log(result)
