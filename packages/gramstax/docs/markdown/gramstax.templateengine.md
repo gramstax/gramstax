@@ -31,10 +31,10 @@ const template = `
   </base>
 `;
 
-const messages = TemplateEngine.compileMessages(template);
-const keyboards = TemplateEngine.compileKeyboards(template);
+const messages = TemplateEngine.compileBlockMessages(template);
+const keyboards = TemplateEngine.compileBlockKeyboards(template);
 
-const msg = messages.default.default({ name: 'John' });
+const msg = messages.default?.default?.({ name: 'John' });
 // Result: 'Welcome John!'
 ```
 

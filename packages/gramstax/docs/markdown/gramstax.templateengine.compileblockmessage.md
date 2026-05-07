@@ -92,8 +92,8 @@ const template = `
     <message lang="id">Halo {{name}}!</message>
   </base>
 `;
-const messages = TemplateEngine.compileMessages(template);
-const result = messages.default.default({ name: 'John' });
+const messages = TemplateEngine.compileBlockMessages(template);
+const result = messages.default?.default?.({ name: 'John' });
 // Result: 'Hello John!'
 ```
 

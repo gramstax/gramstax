@@ -179,9 +179,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'parentPort: worker_threads.MessagePort | null;'
+      content: 'parentPort: node_worker_threads.MessagePort | null;'
       return:
-        type: worker_threads.MessagePort | null
+        type: node_worker_threads.MessagePort | null
   - name: pid
     uid: gramstax!WorkerThreadInit#pid:member
     package: gramstax!

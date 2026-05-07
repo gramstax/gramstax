@@ -94,8 +94,8 @@ const template = `
     <description scope="chat_administrators">Admin command</description>
   </base>
 `;
-const descriptions = TemplateEngine.compileDescription(template);
-const result = descriptions.default.default.default({});
+const descriptions = TemplateEngine.compileBlockDescription(template);
+const result = descriptions.default?.default?.default?.({});
 // Result: 'Start the bot'
 ```
 

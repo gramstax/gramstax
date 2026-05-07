@@ -87,8 +87,8 @@ const template = `
     <media type="photo" src="{{image}}">{{caption}}</media>
   </base>
 `;
-const media = TemplateEngine.compileMedia(template);
-const result = media.default.default({ image: 'photo.jpg', caption: 'Hello' });
+const media = TemplateEngine.compileBlockMedia(template);
+const result = media.default?.default?.({ image: 'photo.jpg', caption: 'Hello' });
 // Result: { type: 'photo', src: 'photo.jpg', caption: 'Hello' }
 ```
 

@@ -9,7 +9,7 @@ Reference to the parent port for messaging from `node:worker_threads`<!-- -->.
 **Signature:**
 
 ```typescript
-parentPort: worker_threads.MessagePort | null;
+parentPort: node_worker_threads.MessagePort | null;
 ```
 
 ## Remarks

@@ -25,10 +25,10 @@ example:
       </base>
     `;
 
-    const messages = TemplateEngine.compileMessages(template);
-    const keyboards = TemplateEngine.compileKeyboards(template);
+    const messages = TemplateEngine.compileBlockMessages(template);
+    const keyboards = TemplateEngine.compileBlockKeyboards(template);
 
-    const msg = messages.default.default({ name: 'John' });
+    const msg = messages.default?.default?.({ name: 'John' });
     // Result: 'Welcome John!'
     ```
 isPreview: false
@@ -692,8 +692,8 @@ methods:
             <description scope="chat_administrators">Admin command</description>
           </base>
         `;
-        const descriptions = TemplateEngine.compileDescription(template);
-        const result = descriptions.default.default.default({});
+        const descriptions = TemplateEngine.compileBlockDescription(template);
+        const result = descriptions.default?.default?.default?.({});
         // Result: 'Start the bot'
         ```
     isPreview: false
@@ -759,8 +759,8 @@ methods:
             <keyboard type="bottom">Menu, Help</keyboard>
           </base>
         `;
-        const keyboards = TemplateEngine.compileKeyboards(template);
-        const inline = keyboards.default.default.inline?.({ action: 'Cancel' });
+        const keyboards = TemplateEngine.compileBlockKeyboards(template);
+        const inline = keyboards.default?.default?.inline?.({ action: 'Cancel' });
         // Result: ['Yes', 'No', 'Cancel']
         ```
     isPreview: false
@@ -811,8 +811,8 @@ methods:
             <media type="photo" src="{{image}}">{{caption}}</media>
           </base>
         `;
-        const media = TemplateEngine.compileMedia(template);
-        const result = media.default.default({ image: 'photo.jpg', caption: 'Hello' });
+        const media = TemplateEngine.compileBlockMedia(template);
+        const result = media.default?.default?.({ image: 'photo.jpg', caption: 'Hello' });
         // Result: { type: 'photo', src: 'photo.jpg', caption: 'Hello' }
         ```
     isPreview: false
@@ -869,8 +869,8 @@ methods:
             <message lang="id">Halo {{name}}!</message>
           </base>
         `;
-        const messages = TemplateEngine.compileMessages(template);
-        const result = messages.default.default({ name: 'John' });
+        const messages = TemplateEngine.compileBlockMessages(template);
+        const result = messages.default?.default?.({ name: 'John' });
         // Result: 'Hello John!'
         ```
     isPreview: false

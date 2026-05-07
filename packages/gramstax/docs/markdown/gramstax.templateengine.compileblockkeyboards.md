@@ -97,8 +97,8 @@ const template = `
     <keyboard type="bottom">Menu, Help</keyboard>
   </base>
 `;
-const keyboards = TemplateEngine.compileKeyboards(template);
-const inline = keyboards.default.default.inline?.({ action: 'Cancel' });
+const keyboards = TemplateEngine.compileBlockKeyboards(template);
+const inline = keyboards.default?.default?.inline?.({ action: 'Cancel' });
 // Result: ['Yes', 'No', 'Cancel']
 ```
 

@@ -283,7 +283,7 @@ Check if currently running in the main thread. Re-exported from `node:worker_thr
 
 </td><td>
 
-worker\_threads.MessagePort \| null
+node\_worker\_threads.MessagePort \| null
 
 
 </td><td>

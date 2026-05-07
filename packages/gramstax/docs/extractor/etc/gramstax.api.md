@@ -16,10 +16,10 @@ import { InlineKeyboard } from 'grammy';
 import { Keyboard } from 'grammy';
 import { Keyv } from 'keyv';
 import { LoggingPretty } from 'logging-pretty';
+import * as node_worker_threads from 'node:worker_threads';
 import { Server } from 'net-ipc';
 import { UserFromGetMe } from 'grammy/types';
 import { Worker as Worker_2 } from 'node:worker_threads';
-import * as worker_threads from 'worker_threads';
 
 // @public
 export class BlockKeyboard {
@@ -1208,7 +1208,7 @@ export class WorkerThreadInit {
     id: number;
     init(): void;
     static isMainThread: boolean;
-    parentPort: worker_threads.MessagePort | null;
+    parentPort: node_worker_threads.MessagePort | null;
     pid: number;
     request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;
     rpc: WorkerThreadRpc;
