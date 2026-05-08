@@ -2,6 +2,12 @@
 
 This directory contains modularized rules for Gramstax development. AI agents should refer to these Markdown files based on the relevant context.
 
+## Target Folder
+
+- Rule set name: `rules-pages`
+- Intended source folder: `./src/pages`
+- Usage rule: apply these rules when creating or editing page-related files in the matching pages directory for the target project or template.
+
 ## Rule Pages
 
 - **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)**: Initialization and directory layout.
