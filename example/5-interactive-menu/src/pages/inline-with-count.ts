@@ -17,21 +17,25 @@ class Helper {
     const end = start + this.ITEMS_PER_PAGE
     const items = CatalogData.menuItems.slice(start, end)
     const bi = Base.step1
-    return ctx.inlineKeyboard((k, l) => {
-      items.forEach((item) => {
-        k.text(item.name, ctx.data.callbackData(bi, `item`, item.id)).row()
-      })
+    const kb = ctx.inlineKeyboard(
+      (k, l) => {
+        items.forEach((item) => {
+          k.text(item.name, ctx.data.callbackData(bi, `item`, item.id)).row()
+        })
 
-      k.row()
-      if (safePage > 0) {
-        k.text(l[0]!, ctx.data.callbackData(bi, `page`, safePage - 1))
-      }
-      k.text(`${l[2]} ${safePage + 1}/${totalPages}`, BlankPage.data.callbackData())
-      if (safePage < totalPages - 1) {
-        k.text(l[1]!, ctx.data.callbackData(bi, `page`, safePage + 1))
-      }
-      return k.row().text(l[3]!, StartPage.data.callbackData())
-    })
+        k.row()
+        if (safePage > 0) {
+          k.text(l[0]!, ctx.data.callbackData(bi, `page`, safePage - 1))
+        }
+        k.text(`${l[2]} ${safePage + 1}/${totalPages}`, BlankPage.data.callbackData())
+        if (safePage < totalPages - 1) {
+          k.text(l[1]!, ctx.data.callbackData(bi, `page`, safePage + 1))
+        }
+        return k.row().text(l[3]!, StartPage.data.callbackData())
+      },
+      {baseId: bi}
+    )
+    return kb
   }
 
   static pageData(page: number) {

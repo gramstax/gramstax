@@ -3,8 +3,8 @@ import {StartPage} from "./start"
 
 class Base {
   static step1 = `s1`
-  static success = `success`
-  static warnInvalid = `invalid`
+  static success = `s`
+  static warnInvalid = `w-invalid`
   static warnInsufficient = `w-insufficient`
   static warnUnknownUser = `w-unknown-user`
   static warnSelf = `w-self`
@@ -12,7 +12,8 @@ class Base {
 
 class Helper {
   static kb(ctx: TransferPage, baseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    return kb
   }
 
   static resolveTarget(ctx: TransferPage, input: string) {

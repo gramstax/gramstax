@@ -3,12 +3,13 @@ import {StartPage} from "./start"
 
 class Base {
   static step1 = `s1`
-  static success = `success`
+  static success = `s`
 }
 
 class Helper {
   static kb(ctx: InputText2Page, baseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    return kb
   }
 }
 

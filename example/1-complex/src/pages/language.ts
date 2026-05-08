@@ -8,7 +8,7 @@ class Base {
 class Helper {
   static kb(ctx: LanguagePage) {
     const bi = Base.step1
-    return ctx.inlineKeyboard(
+    const kb = ctx.inlineKeyboard(
       (k, l) => {
         const languages = l.slice(0, -1)
         const backButton = l[l.length - 1]! // Get the back button text
@@ -33,6 +33,7 @@ class Helper {
       },
       {baseId: bi}
     )
+    return kb
   }
 }
 

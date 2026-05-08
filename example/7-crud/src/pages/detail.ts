@@ -4,14 +4,15 @@ import {StartPage} from "./start"
 
 class Base {
   static step1 = `s1`
-  static success = `success`
+  static success = `s`
   static infoNotFound = `i-notfound`
   static warnInvalid = `w-invalid`
 }
 
 class Helper {
   static buildHomeKeyboard(ctx: DetailPage, baseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    return kb
   }
 }
 

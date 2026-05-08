@@ -9,8 +9,10 @@ class Base {
 
 class Helper {
   static kb(ctx: ItemListPage, categoryId: string, page: number, category = CatalogData.getCategoryById(categoryId)) {
+    const bi = Base.step1
     if (!category) {
-      return ctx.inlineKeyboardT([CategoryPage])
+      const kb = ctx.inlineKeyboardT([CategoryPage], `1`, bi)
+      return kb
     }
 
     const PAGE_SIZE = 3
@@ -19,9 +21,7 @@ class Helper {
     const start = safePage * PAGE_SIZE
     const end = start + PAGE_SIZE
     const items = category.items.slice(start, end)
-    const bi = Base.step1
-
-    return ctx.inlineKeyboard(
+    const kb = ctx.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
           k.text(item.name, ItemDetailPage.data.callbackData(`detail`, categoryId, item.id))
@@ -41,6 +41,7 @@ class Helper {
       },
       {baseId: bi}
     )
+    return kb
   }
 }
 

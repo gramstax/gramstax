@@ -5,16 +5,17 @@ import type {MainItem} from "~/db/main"
 class Base {
   static step1 = `s1`
   static step2 = `s2`
-  static success = `success`
-  static infoEmpty = `empty`
-  static errorNotFound = `i-not-found`
+  static success = `s`
+  static infoEmpty = `i-empty`
+  static infoNotFound = `i-notfound`
 }
 
 class Helper {
   static PAGE_SIZE = 5
 
   static buildHomeKeyboard(ctx: UpdatePage, baseId: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    return kb
   }
 
   static async buildStep1Keyboard(ctx: UpdatePage, page: number, items: MainItem[]) {
@@ -22,7 +23,7 @@ class Helper {
     const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const bi = Base.step1
-    return ctx.inlineKeyboard(
+    const kb = ctx.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
           k.text(`📝 #${item.id} ${item.title.slice(0, 5)}..`, ctx.data.callbackData(bi, `select`, item.id))
@@ -42,6 +43,7 @@ class Helper {
       },
       {baseId: bi}
     )
+    return kb
   }
 
   static buildStep2Keyboard(ctx: UpdatePage, id: string) {
@@ -75,7 +77,7 @@ class Alert {
   }
 
   static async showInfoNotFound(ctx: UpdatePage, id: string) {
-    const bi = Base.errorNotFound
+    const bi = Base.infoNotFound
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {id}
     await ctx.edit(kb, da, bi)
@@ -224,7 +226,7 @@ export class UpdatePage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.errorNotFound}">
+    <base id="${Base.infoNotFound}">
       ${this.kbk.home()}
       <message>
         ❌ Item not found: {{id}}

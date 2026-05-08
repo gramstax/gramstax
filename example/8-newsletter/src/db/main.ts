@@ -42,8 +42,10 @@ export class MainDb {
     const now = Date.now()
     const subscriber: ISubscriber = {id, joinedAt: now, ...data}
     await this.db.put(key, subscriber)
-    const currentCount = (this.db.get(this.countKey()) as number) || 0
-    await this.db.put(this.countKey(), currentCount + 1)
+
+    const ckey = this.countKey()
+    const currentCount = (this.db.get(ckey) as number) || 0
+    await this.db.put(ckey, currentCount + 1)
     return {subscriber, created: true}
   }
 
@@ -52,15 +54,18 @@ export class MainDb {
     const key = this.subKey(id)
     const removed = await this.db.remove(key)
     if (removed) {
-      const currentCount = (this.db.get(this.countKey()) as number) || 0
-      await this.db.put(this.countKey(), Math.max(0, currentCount - 1))
+      const ckey = this.countKey()
+      const currentCount = (this.db.get(ckey) as number) || 0
+      await this.db.put(ckey, Math.max(0, currentCount - 1))
     }
     return removed
   }
 
   async countSubscribers() {
     await this.ensureMeta()
-    return (this.db.get(this.countKey()) as number) || 0
+    const ckey = this.countKey()
+    const res = (this.db.get(ckey) as number) || 0
+    return res
   }
 
   async listSubscribers(): Promise<ISubscriber[]> {
@@ -68,7 +73,9 @@ export class MainDb {
     const prefix = this.subPrefix()
     const items: ISubscriber[] = []
     for (const {value} of this.db.getRange({start: prefix, end: `${prefix}~`})) {
-      if (value) items.push(value as ISubscriber)
+      if (value) {
+        items.push(value as ISubscriber)
+      }
     }
     return items.sort((a, b) => a.joinedAt - b.joinedAt)
   }

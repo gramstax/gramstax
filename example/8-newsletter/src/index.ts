@@ -9,7 +9,7 @@ class Index {
     new BotCore({
       deploy: Env.TELEGRAM_BOT_DEPLOY,
       token: Env.TELEGRAM_BOT_TOKEN,
-      log: true
+      log: LogHe
     })
   }
 }

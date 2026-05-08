@@ -4,14 +4,15 @@ import {StartPage} from "./start"
 
 class Base {
   static step1 = `s1`
-  static empty = `empty`
+  static infoEmpty = `i-empty`
 }
 
 class Helper {
   static PAGE_SIZE = 5
 
   static buildHomeKeyboard(ctx: ListPage, baseId: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    return kb
   }
 
   static buildKeyboard(ctx: ListPage, page: number, totalPages: number) {
@@ -35,7 +36,7 @@ class Helper {
 
 class Alert {
   static async showInfoEmpty(ctx: ListPage) {
-    const bi = Base.empty
+    const bi = Base.infoEmpty
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {}
     await ctx.edit(kb, da, bi)
@@ -107,7 +108,7 @@ export class ListPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.empty}">
+    <base id="${Base.infoEmpty}">
       ${this.kbk.home()}
       <message>
         📭 No cached items yet.

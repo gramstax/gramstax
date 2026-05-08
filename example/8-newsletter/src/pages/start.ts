@@ -1,7 +1,6 @@
 import {PageBase} from "~/base/page"
 import {HelpPage} from "./help"
 import {StatsPage} from "./stats"
-import {ToggleSubscriptionPage} from "./toggle-subscription"
 
 class Base {
   static step1 = `s1`
@@ -13,7 +12,7 @@ class Main {
     const subscribed = await ctx.db.isSubscribed(ctx.userId)
     const bi = Base.step1
     const da = {subscribed}
-    const kb = ctx.inlineKeyboardT([ToggleSubscriptionPage, StatsPage, HelpPage], `2`, bi, da)
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi), StatsPage, HelpPage], `2`, bi, da)
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -22,13 +21,32 @@ class Main {
   }
 
   static async processStep1Answer(ctx: StartPage) {
-    throw ctx
+    const subscribed = await ctx.db.isSubscribed(ctx.userId)
+    if (subscribed) {
+      await ctx.db.unsubscribe(ctx.userId)
+    } else {
+      await ctx.db.subscribe(ctx.userId, {
+        userName: ctx.userName,
+        fullName: ctx.userFullName,
+        language: ctx.userLanguage
+      })
+    }
+    await Main.showStep1Form(ctx, true)
   }
 }
 
 export class StartPage extends PageBase {
+  static data = this.buildData((step?: string) => [step])
+
   async handleCallbackData() {
     await Main.showStep1Form(this, true)
+  }
+
+  async handleArgsCallbackData() {
+    const [step] = this.callbackDataArgs
+    if (step === Base.step1) {
+      await Main.processStep1Answer(this)
+    }
   }
 
   async handleCommandText() {

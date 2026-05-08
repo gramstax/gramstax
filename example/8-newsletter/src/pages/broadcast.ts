@@ -3,81 +3,52 @@ import {StartPage} from "./start"
 import {AdminGuard} from "~/guards/admin"
 
 type BroadcastSession = {
-  step?: `message` | `confirm`
-  draft?: string
+  draftText?: string
   fileId?: string
   caption?: string
   mediaType?: `photo` | `video` | `animation`
+  position?: `form` | `confirm`
 }
 
 class Base {
   static step1 = `s1`
-  static confirmText = `confirm-text`
-  static confirmPhoto = `confirm-photo`
-  static confirmVideo = `confirm-video`
-  static confirmAnimation = `confirm-animation`
-  static success = `success`
-  static infoEmptySubs = `empty-subs`
-  static cancel = `cancel`
-  static deliver = `deliver`
-  static deliverPhoto = `deliver-photo`
-  static deliverVideo = `deliver-video`
-  static deliverAnimation = `deliver-animation`
+  static infoConfirmText = `i-confirm-text`
+  static infoConfirmPhoto = `i-confirm-photo`
+  static infoConfirmVideo = `i-confirm-video`
+  static infoConfirmAnimation = `i-confirm-animation`
+  static success = `s`
+  static infoEmptySubs = `i-empty-subs`
+  static infoCancel = `i-cancel`
+  static infoDeliverText = `i-deliver-text`
+  static infoDeliverPhoto = `i-deliver-photo`
+  static infoDeliverVideo = `i-deliver-video`
+  static infoDeliverAnimation = `i-deliver-animation`
+  static kbHome = `kh`
+  static kbConfirm = `kc`
 }
 
 class Helper {
-  static promptKb(ctx: BroadcastPage) {
-    const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`cancel`), StartPage], `2`, bi)
-    return kb
-  }
-
-  static confirmKb(ctx: BroadcastPage) {
-    const bi = Base.confirmText
+  static kbConfirm(ctx: BroadcastPage) {
+    const bi = Base.kbConfirm
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`send`), ctx.data.callbackData(`edit`), ctx.data.callbackData(`cancel`), StartPage], `2-2`, bi)
     return kb
   }
 
-  static homeKb(ctx: BroadcastPage, baseId?: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  static kbHome(ctx: BroadcastPage, baseId?: string) {
+    const bi = baseId ? baseId : Base.kbHome
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
     return kb
   }
 
-  static sessionParams(ctx: BroadcastPage) {
+  static getSessionParams(ctx: BroadcastPage) {
     return (ctx.temp.session?.params as BroadcastSession) ?? {}
-  }
-
-  static deliverMediaBase(mediaType: BroadcastSession[`mediaType`]) {
-    if (mediaType === `photo`) {
-      return Base.deliverPhoto
-    } else if (mediaType === `video`) {
-      return Base.deliverVideo
-    } else {
-      return Base.deliverAnimation
-    }
-  }
-
-  static async replyConfirmMedia(ctx: BroadcastPage, mediaType: NonNullable<BroadcastSession[`mediaType`]>, fileId: string, caption?: string) {
-    const kb = Helper.confirmKb(ctx)
-    const da = {fileId, caption}
-
-    if (mediaType === `photo`) {
-      const bi = Base.confirmPhoto
-      await ctx.replyPhoto(kb, da, bi)
-    } else if (mediaType === `video`) {
-      const bi = Base.confirmVideo
-      await ctx.replyVideo(kb, da, bi)
-    } else {
-      const bi = Base.confirmAnimation
-      await ctx.replyAnimation(kb, da, bi)
-    }
   }
 }
 
 class Alert {
   static async showSuccess(ctx: BroadcastPage, count: number) {
     const bi = Base.success
-    const kb = Helper.homeKb(ctx)
+    const kb = Helper.kbHome(ctx)
     const da = {count}
     await ctx.edit(kb, da, bi)
   }
@@ -85,22 +56,85 @@ class Alert {
   static async showInfoEmptySubs(ctx: BroadcastPage) {
     await ctx.clearSession()
     const bi = Base.infoEmptySubs
-    const kb = Helper.homeKb(ctx)
+    const kb = Helper.kbHome(ctx)
     const da = {}
     await ctx.edit(kb, da, bi)
+  }
+
+  static async showInfoCancel(ctx: BroadcastPage) {
+    await ctx.clearSession()
+    const bi = Base.infoCancel
+    const kb = Helper.kbHome(ctx)
+    const da = {}
+    await ctx.edit(kb, da, bi)
+  }
+
+  static async showInfoConfirmText(ctx: BroadcastPage) {
+    const draftText = ctx.msgText.trim()
+    const bi = Base.infoConfirmText
+    const kb = Helper.kbConfirm(ctx)
+    const da = {draftText}
+    await ctx.setSession(`multi_session`, {position: `confirm`, draftText})
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async showInfoConfirmAnimation(ctx: BroadcastPage) {
+    const animation = ctx.msgAnimation
+    const fileId = animation.file_id
+    if (!fileId) {
+      return null
+    }
+
+    const caption = ctx.msgCaption?.trim()
+    const bi = Base.step1
+    const kb = Helper.kbConfirm(ctx)
+    const da = {fileId, caption}
+    await ctx.setSession(`multi_session`, {position: `confirm`, mediaType: `animation`, fileId, caption})
+    await ctx.replyAnimation(kb, da, bi)
+  }
+
+  static async showInfoConfirmPhoto(ctx: BroadcastPage) {
+    const photos = ctx.msgPhoto
+    const lastPhoto = photos?.[photos.length - 1]
+    const fileId = lastPhoto.file_id
+    if (!fileId) {
+      return null
+    }
+
+    const caption = ctx.msgCaption?.trim()
+    const bi = Base.infoConfirmPhoto
+    const kb = Helper.kbConfirm(ctx)
+    const da = {fileId, caption}
+    await ctx.setSession(`multi_session`, {position: `confirm`, mediaType: `photo`, fileId, caption})
+    await ctx.replyPhoto(kb, da, bi)
+  }
+
+  static async showInfoConfirmVideo(ctx: BroadcastPage) {
+    const video = ctx.msgVideo
+    const fileId = video?.file_id
+    if (!fileId) {
+      return null
+    }
+
+    const caption = ctx.msgCaption?.trim()
+    const bi = Base.infoConfirmVideo
+    const kb = Helper.kbConfirm(ctx)
+    const da = {fileId, caption}
+    await ctx.setSession(`multi_session`, {position: `confirm`, mediaType: `video`, fileId, caption})
+    await ctx.replyVideo(kb, da, bi)
   }
 }
 
 class Main {
-  static async showStep1Form(ctx: BroadcastPage, draft: string, isEmpty = false, edit = true) {
+  static async showStep1Form(ctx: BroadcastPage, draftText: string, isEmpty = false, edit = true) {
     if (!AdminGuard.isAdmin(ctx)) {
       return null
     }
 
-    await ctx.sessionFreeText({step: `message`})
-    const kb = Helper.promptKb(ctx)
-    const da = {draft, isEmpty}
+    await ctx.setSession(`multi_session`, {position: `form`}) // multi session in 1 object for handleFreeText, handleFree*
     const bi = Base.step1
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`cancel`), StartPage], `2`, bi)
+    const da = {draftText, isEmpty}
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -108,148 +142,37 @@ class Main {
     }
   }
 
-  static async processStep1Answer(ctx: BroadcastPage) {
-    console.log(ctx)
-    //
-  }
+  static async processStep1Answer(ctx: BroadcastPage, action: string) {
+    const {draftText, mediaType, fileId, caption} = Helper.getSessionParams(ctx)
+    if (action === `edit`) {
+      await Main.showStep1Form(ctx, mediaType ? `-` : draftText || `-`, false, true)
+    } else if (action === `send`) {
+      if (!draftText && !mediaType) {
+        return await Main.showStep1Form(ctx, `-`, true, true)
+      }
 
-  static async showActionConfirm(ctx: BroadcastPage, draft: string) {
-    await ctx.sessionFreeText({step: `confirm`, draft})
-    const bi = Base.confirmText
-    const kb = Helper.confirmKb(ctx)
-    const da = {draft}
-    await ctx.reply(kb, da, bi)
-  }
+      const subscribers = await ctx.db.listSubscribers()
+      if (subscribers.length === 0) {
+        return await Alert.showInfoEmptySubs(ctx)
+      }
 
-  static async showConfirmText(ctx: BroadcastPage) {
-    if (!ctx.isSessionFreeText()) {
-      return null
+      const ids = subscribers.map((item) => item.id)
+      const langs = subscribers.map((item) => item.language || `default`)
+      if (mediaType && fileId) {
+        const da = {fileId, caption}
+        const bi = mediaType === `photo` ? Base.infoDeliverPhoto : mediaType === `video` ? Base.infoDeliverVideo : Base.infoDeliverAnimation
+        await ctx.broadcastMedia(ids, langs, undefined, da, bi)
+      } else {
+        const da = {message: draftText}
+        const bi = Base.infoDeliverText
+        await ctx.broadcast(ids, langs, undefined, da, bi)
+      }
+
+      await ctx.clearSession()
+      await Alert.showSuccess(ctx, subscribers.length)
+    } else if (action === `cancel`) {
+      await Alert.showInfoCancel(ctx)
     }
-
-    const {step} = Helper.sessionParams(ctx)
-    if (step !== `message`) {
-      return null
-    }
-
-    const draft = ctx.msgText?.trim()
-    if (!draft) {
-      await Main.showStep1Form(ctx, `-`, true, false)
-    } else {
-      await Main.showActionConfirm(ctx, draft)
-    }
-  }
-
-  static async showConfirmPhoto(ctx: BroadcastPage) {
-    if (!ctx.isSessionFreeText()) {
-      return null
-    }
-
-    const {step} = Helper.sessionParams(ctx)
-    if (step !== `message`) {
-      return null
-    }
-
-    const caption = ctx.msgCaption?.trim()
-    if (caption?.startsWith(`/`)) {
-      return null
-    }
-
-    const photos = ctx.msgPhoto
-    const lastPhoto = photos?.[photos.length - 1]
-    if (!lastPhoto?.file_id) {
-      return null
-    }
-
-    await ctx.sessionFreeText({step: `confirm`, mediaType: `photo`, fileId: lastPhoto.file_id, caption})
-    await Helper.replyConfirmMedia(ctx, `photo`, lastPhoto.file_id, caption)
-  }
-
-  static async showConfirmVideo(ctx: BroadcastPage) {
-    if (!ctx.isSessionFreeText()) {
-      return null
-    }
-
-    const {step} = Helper.sessionParams(ctx)
-    if (step !== `message`) {
-      return null
-    }
-
-    const caption = ctx.msgCaption?.trim()
-    if (caption?.startsWith(`/`)) {
-      return null
-    }
-
-    const fileId = ctx.msgVideo?.file_id
-    if (!fileId) {
-      return null
-    }
-
-    await ctx.sessionFreeText({step: `confirm`, mediaType: `video`, fileId, caption})
-    await Helper.replyConfirmMedia(ctx, `video`, fileId, caption)
-  }
-
-  static async showConfirmAnimation(ctx: BroadcastPage) {
-    if (!ctx.isSessionFreeText()) {
-      return null
-    }
-
-    const {step} = Helper.sessionParams(ctx)
-    if (step !== `message`) {
-      return null
-    }
-
-    const caption = ctx.msgCaption?.trim()
-    if (caption?.startsWith(`/`)) {
-      return null
-    }
-
-    const fileId = ctx.msgAnimation?.file_id
-    if (!fileId) {
-      return null
-    }
-
-    await ctx.sessionFreeText({step: `confirm`, mediaType: `animation`, fileId, caption})
-    await Helper.replyConfirmMedia(ctx, `animation`, fileId, caption)
-  }
-
-  static async processActionEdit(ctx: BroadcastPage) {
-    const {draft, mediaType} = Helper.sessionParams(ctx)
-    await Main.showStep1Form(ctx, mediaType ? `-` : draft || `-`, false, true)
-  }
-
-  static async processActionSend(ctx: BroadcastPage) {
-    const {draft, mediaType, fileId, caption} = Helper.sessionParams(ctx)
-    if (!draft && !mediaType) {
-      return await Main.showStep1Form(ctx, `-`, true, true)
-    }
-
-    const subscribers = await ctx.db.listSubscribers()
-    if (subscribers.length === 0) {
-      return await Alert.showInfoEmptySubs(ctx)
-    }
-
-    const ids = subscribers.map((item) => item.id)
-    const langs = subscribers.map((item) => item.language || `default`)
-    if (mediaType && fileId) {
-      const da = {fileId, caption}
-      const bi = Helper.deliverMediaBase(mediaType)
-      await ctx.broadcastMedia(ids, langs, undefined, da, bi)
-    } else {
-      const da = {message: draft}
-      const bi = Base.deliver
-      await ctx.broadcast(ids, langs, undefined, da, bi)
-    }
-
-    await ctx.clearSession()
-    await Alert.showSuccess(ctx, subscribers.length)
-  }
-
-  static async processActionCancel(ctx: BroadcastPage) {
-    await ctx.clearSession()
-    const bi = Base.cancel
-    const kb = Helper.homeKb(ctx)
-    const da = {}
-    await ctx.edit(kb, da, bi)
   }
 }
 
@@ -270,36 +193,61 @@ export class BroadcastPage extends PageBase {
     }
 
     const [action] = this.callbackDataArgs
-    if (action === `send`) {
-      return await Main.processActionSend(this)
-    } else if (action === `edit`) {
-      return await Main.processActionEdit(this)
-    } else if (action === `cancel`) {
-      return await Main.processActionCancel(this)
-    } else {
-      await Main.showStep1Form(this, `-`, false, true)
-    }
+    await Main.processStep1Answer(this, action!)
   }
 
   async handleFreeText() {
-    await Main.showConfirmText(this)
+    if (!AdminGuard.isAdmin(this)) {
+      return null
+    }
+
+    const {position} = Helper.getSessionParams(this)
+    if (position === `form`) {
+      await Alert.showInfoConfirmText(this)
+    }
   }
 
   async handleFreePhoto() {
-    await Main.showConfirmPhoto(this)
+    if (!AdminGuard.isAdmin(this)) {
+      return null
+    }
+
+    const {position} = Helper.getSessionParams(this)
+    if (position === `form`) {
+      await Alert.showInfoConfirmPhoto(this)
+    }
   }
 
   async handleFreeVideo() {
-    await Main.showConfirmVideo(this)
+    if (!AdminGuard.isAdmin(this)) {
+      return null
+    }
+
+    const {position} = Helper.getSessionParams(this)
+    if (position === `form`) {
+      await Alert.showInfoConfirmVideo(this)
+    }
   }
 
   async handleFreeAnimation() {
-    await Main.showConfirmAnimation(this)
+    if (!AdminGuard.isAdmin(this)) {
+      return null
+    }
+
+    const {position} = Helper.getSessionParams(this)
+    if (position === `form`) {
+      await Alert.showInfoConfirmAnimation(this)
+    }
   }
 
   static template = `
-    <base>
+    <base id="${Base.kbHome}">
       ${this.kbk.home()}
+    </base>
+
+    <base id="${Base.kbConfirm}">
+      <keyboard>✅ Send, ✏️ Edit, ${this.kbl.cancelHome.default}</keyboard>
+      <keyboard lang="id">✅ Kirim, ✏️ Edit, ${this.kbl.cancelHome.id}</keyboard>
     </base>
 
     <base id="${Base.step1}">
@@ -309,7 +257,7 @@ export class BroadcastPage extends PageBase {
         📣 Broadcast Message
 
         {~isEmpty ? "⚠️ Message cannot be empty.\\n" : ""~}
-        Current draft: {{draft}}
+        Current draft: {{draftText}}
 
         Send the announcement text now. This will be delivered to every subscriber who is currently active.
         You can also send a photo, video, or animation with an optional caption.
@@ -318,69 +266,11 @@ export class BroadcastPage extends PageBase {
         📣 Pesan Siaran
 
         {~isEmpty ? "⚠️ Pesan tidak boleh kosong.\\n" : ""~}
-        Draf saat ini: {{draft}}
+        Draf saat ini: {{draftText}}
 
         Kirim teks siaran sekarang. Pesan ini akan dikirim ke semua pelanggan yang aktif.
         Anda juga dapat mengirim foto, video, atau animasi dengan caption opsional.
       </message>
-    </base>
-
-    <base id="${Base.confirmText}">
-      <keyboard>✅ Send, ✏️ Edit, ${this.kbl.cancelHome.default}</keyboard>
-      <keyboard lang="id">✅ Kirim, ✏️ Edit, ${this.kbl.cancelHome.id}</keyboard>
-      <message>
-        ✅ Confirm broadcast
-
-        {{draft}}
-
-        Review the message carefully. Once sent, it will be delivered to all subscribers.
-      </message>
-      <message lang="id">
-        ✅ Konfirmasi siaran
-
-        {{draft}}
-
-        Tinjau pesan dengan saksama. Setelah dikirim, pesan akan diterima oleh semua pelanggan.
-      </message>
-    </base>
-
-    <base id="${Base.confirmPhoto}">
-      <media type="photo" src="{{fileId}}">
-        ✅ Confirm broadcast media
-
-        {{caption}}
-      </media>
-      <media lang="id" type="photo" src="{{fileId}}">
-        ✅ Konfirmasi siaran media
-
-        {{caption}}
-      </media>
-    </base>
-
-    <base id="${Base.confirmVideo}">
-      <media type="video" src="{{fileId}}">
-        ✅ Confirm broadcast media
-
-        {{caption}}
-      </media>
-      <media lang="id" type="video" src="{{fileId}}">
-        ✅ Konfirmasi siaran media
-
-        {{caption}}
-      </media>
-    </base>
-
-    <base id="${Base.confirmAnimation}">
-      <media type="animation" src="{{fileId}}">
-        ✅ Confirm broadcast media
-
-        {{caption}}
-      </media>
-      <media lang="id" type="animation" src="{{fileId}}">
-        ✅ Konfirmasi siaran media
-
-        {{caption}}
-      </media>
     </base>
 
     <base id="${Base.success}">
@@ -398,6 +288,66 @@ export class BroadcastPage extends PageBase {
       </message>
     </base>
 
+    <base id="${Base.infoConfirmAnimation}">
+      ${this.kbk.broadcastConfirm()}
+      <media type="animation" src="{{fileId}}">
+        ✅ Confirm broadcast animation
+
+        caption: {{caption}}
+      </media>
+      <media lang="id" type="animation" src="{{fileId}}">
+        ✅ Konfirmasi siaran animasi
+
+        caption: {{caption}}
+      </media>
+    </base>
+
+    <base id="${Base.infoConfirmPhoto}">
+      ${this.kbk.broadcastConfirm()}
+      <media type="photo" src="{{fileId}}">
+        ✅ Confirm broadcast photo
+
+        caption: {{caption}}
+      </media>
+      <media lang="id" type="photo" src="{{fileId}}">
+        ✅ Konfirmasi siaran foto
+
+        caption: {{caption}}
+      </media>
+    </base>
+
+    <base id="${Base.infoConfirmText}">
+      ${this.kbk.broadcastConfirm()}
+      <message>
+        ✅ Confirm broadcast text
+
+        text: {{draftText}}
+
+        Review the message carefully. Once sent, it will be delivered to all subscribers.
+      </message>
+      <message lang="id">
+        ✅ Konfirmasi siaran text
+
+        text: {{draftText}}
+
+        Tinjau pesan dengan saksama. Setelah dikirim, pesan akan diterima oleh semua pelanggan.
+      </message>
+    </base>
+
+    <base id="${Base.infoConfirmVideo}">
+      ${this.kbk.broadcastConfirm()}
+      <media type="video" src="{{fileId}}">
+        ✅ Confirm broadcast video
+
+        caption: {{caption}}
+      </media>
+      <media lang="id" type="video" src="{{fileId}}">
+        ✅ Konfirmasi siaran video
+
+        caption: {{caption}}
+      </media>
+    </base>
+
     <base id="${Base.infoEmptySubs}">
       <message>
         📭 No subscribers yet.
@@ -409,7 +359,7 @@ export class BroadcastPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.cancel}">
+    <base id="${Base.infoCancel}">
       <message>
         ✖️ Broadcast cancelled.
         Draft discarded. You can restart the broadcast flow anytime.
@@ -420,50 +370,38 @@ export class BroadcastPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.deliver}">
+    <base id="${Base.infoDeliverText}">
       <message>
-        📣 {{message}}
+        {{message}}
       </message>
       <message lang="id">
-        📣 {{message}}
+        {{message}}
       </message>
     </base>
 
-    <base id="${Base.deliverPhoto}">
+    <base id="${Base.infoDeliverPhoto}">
       <media type="photo" src="{{fileId}}">
-        📣 Broadcast update
-
         {{caption}}
       </media>
       <media lang="id" type="photo" src="{{fileId}}">
-        📣 Pembaruan siaran
-
         {{caption}}
       </media>
     </base>
 
-    <base id="${Base.deliverVideo}">
+    <base id="${Base.infoDeliverVideo}">
       <media type="video" src="{{fileId}}">
-        📣 Broadcast update
-
         {{caption}}
       </media>
       <media lang="id" type="video" src="{{fileId}}">
-        📣 Pembaruan siaran
-
         {{caption}}
       </media>
     </base>
 
-    <base id="${Base.deliverAnimation}">
+    <base id="${Base.infoDeliverAnimation}">
       <media type="animation" src="{{fileId}}">
-        📣 Broadcast update
-
         {{caption}}
       </media>
       <media lang="id" type="animation" src="{{fileId}}">
-        📣 Pembaruan siaran
-
         {{caption}}
       </media>
     </base>

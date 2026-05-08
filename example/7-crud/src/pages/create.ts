@@ -4,12 +4,13 @@ import {StartPage} from "./start"
 class Base {
   static s1 = `s1`
   static s2 = `s2`
-  static success = `success`
+  static success = `s`
 }
 
 class Helper {
   static buildHomeKeyboard(ctx: CreatePage, baseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    return kb
   }
 
   static getSessionParams(ctx: CreatePage) {

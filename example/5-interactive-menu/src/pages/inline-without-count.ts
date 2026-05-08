@@ -18,21 +18,25 @@ class Helper {
     const hasPrevious = safePage > 0
     const hasMore = end < CatalogData.menuItems.length
     const bi = Base.step1
-    return ctx.inlineKeyboard((k, l) => {
-      items.forEach((item) => {
-        k.text(item.name, ctx.data.callbackData(bi, `item`, item.id)).row()
-      })
+    const kb = ctx.inlineKeyboard(
+      (k, l) => {
+        items.forEach((item) => {
+          k.text(item.name, ctx.data.callbackData(bi, `item`, item.id)).row()
+        })
 
-      k.row()
-      if (hasPrevious) {
-        k.text(l[0]!, ctx.data.callbackData(bi, `page`, safePage - 1))
-      }
-      k.text(`${l[2]} ${safePage + 1}`, BlankPage.data.callbackData())
-      if (hasMore) {
-        k.text(l[1]!, ctx.data.callbackData(bi, `page`, safePage + 1))
-      }
-      return k.row().text(l[3]!, StartPage.data.callbackData())
-    })
+        k.row()
+        if (hasPrevious) {
+          k.text(l[0]!, ctx.data.callbackData(bi, `page`, safePage - 1))
+        }
+        k.text(`${l[2]} ${safePage + 1}`, BlankPage.data.callbackData())
+        if (hasMore) {
+          k.text(l[1]!, ctx.data.callbackData(bi, `page`, safePage + 1))
+        }
+        return k.row().text(l[3]!, StartPage.data.callbackData())
+      },
+      {baseId: bi}
+    )
+    return kb
   }
 
   static pageData(page: number) {

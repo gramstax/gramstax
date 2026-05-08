@@ -3,13 +3,14 @@ import {StartPage} from "./start"
 
 class Base {
   static step1 = `s1`
-  static success = `success`
-  static warnInvalid = `invalid`
+  static success = `s`
+  static warnInvalid = `w-invalid`
 }
 
 class Helper {
   static kb(ctx: DepositPage, baseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+    return kb
   }
 }
 

@@ -1,16 +1,9 @@
 import {Gramstax} from "gramstax"
-import type {ITGramstaxParams} from "gramstax"
-import type {BotConfig, Context} from "grammy"
 import {CtxCore} from "./ctx"
 import {GeneralStatusPage} from "~/pages/general-status"
 
-type BotCoreParams = ITGramstaxParams & {botConfig?: BotConfig<Context>}
-
 // BotCore configures Gramstax hooks for this project.
 export class BotCore extends Gramstax {
-  constructor(params: BotCoreParams) {
-    super(params)
-  }
   // Centralized error handling for page failures.
   async hookErrorPage(ctx: CtxCore, listenerName: string, error: any, isEdit: boolean) {
     await new GeneralStatusPage(ctx).showError(`${listenerName}:hookErrorPage`, error, isEdit)
