@@ -8,10 +8,12 @@ type BroadcastSession = {
   caption?: string
   mediaType?: `photo` | `video` | `animation`
   position?: `form` | `confirm`
+  isHybridMedia?: `1` | `0`
 }
 
 class Base {
   static step1 = `s1`
+  static infoHybridMedia = `i-hybrid-media`
   static infoConfirmText = `i-confirm-text`
   static infoConfirmPhoto = `i-confirm-photo`
   static infoConfirmVideo = `i-confirm-video`
@@ -47,6 +49,14 @@ class Helper {
 }
 
 class Alert {
+  static async showInfoHybridMedia(ctx: BroadcastPage) {
+    await ctx.setSession(`multi_session`, {position: `form`}) // multi session in 1 object for handleFreeText, handleFree*
+    const bi = Base.infoHybridMedia
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `cancel`), StartPage], `2`, bi)
+    const da = {}
+    await ctx.edit(kb, da, bi)
+  }
+
   static async showSuccess(ctx: BroadcastPage, successCount: number, totalCount: number) {
     await ctx.clearSession()
     const bi = Base.success
@@ -88,7 +98,7 @@ class Alert {
     }
 
     const caption = ctx.msgCaption?.trim()
-    const bi = Base.step1
+    const bi = Base.infoConfirmAnimation
     const kb = Helper.kbConfirm(ctx)
     const da = {fileId, caption}
     await ctx.setSession(`multi_session`, {position: `confirm`, mediaType: `animation`, fileId, caption})
@@ -135,7 +145,7 @@ class Main {
 
     await ctx.setSession(`multi_session`, {position: `form`}) // multi session in 1 object for handleFreeText, handleFree*
     const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `cancel`), StartPage], `2`, bi)
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `hybrid`), ctx.data.callbackData(bi, `cancel`), StartPage], `1-2`, bi)
     const da = {draftText, isEmpty}
     if (edit) {
       await ctx.edit(kb, da, bi)
@@ -175,6 +185,8 @@ class Main {
       await Alert.showSuccess(ctx, res.successCount, res.totalCount)
     } else if (action === `cancel`) {
       await Alert.showInfoCancel(ctx)
+    } else if (action === `hybrid`) {
+      //
     }
   }
 }
@@ -256,8 +268,8 @@ export class BroadcastPage extends PageBase {
     </base>
 
     <base id="${Base.step1}">
-      <keyboard>${this.kbl.cancelHome.default}</keyboard>
-      <keyboard lang="id">${this.kbl.cancelHome.id}</keyboard>
+      <keyboard>📰 Hybrid Media, ${this.kbl.cancelHome.default}</keyboard>
+      <keyboard lang="id">📰 Media Hibrid, ${this.kbl.cancelHome.id}</keyboard>
       <message>
         📣 Broadcast Message
 
@@ -275,6 +287,30 @@ export class BroadcastPage extends PageBase {
 
         Kirim teks siaran sekarang. Pesan ini akan dikirim ke semua pelanggan yang aktif.
         Anda juga dapat mengirim foto, video, atau animasi dengan caption opsional.
+      </message>
+    </base>
+
+    <base id="${Base.infoHybridMedia}">
+      ${this.kbk.cancelHome()}
+      <message>
+        📣 Broadcast Message With Bundle Media Hybrid
+
+        {~isEmpty ? "⚠️ Message cannot be empty.\\n" : ""~}
+        Current draft: {{draftText}}
+
+        Send the announcement media now. This will be delivered to every subscriber who is currently active.
+        Onlt can send a photo, video, or animation with an optional caption.
+        You can send mix foto, video and animation.
+      </message>
+      <message lang="id">
+        📣 Pesan Siaran Dengan Bandle Media Hibrid
+
+        {~isEmpty ? "⚠️ Pesan tidak boleh kosong.\\n" : ""~}
+        Draf saat ini: {{draftText}}
+
+        Kirim media siaran sekarang. Pesan ini akan dikirim ke semua pelanggan yang aktif.
+        Hanya dapat mengirim foto, video, atau animasi dengan caption opsional.
+        Anda dapat mengirim campuran foto, video dan animasi.
       </message>
     </base>
 
