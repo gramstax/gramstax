@@ -30,7 +30,8 @@ class Base {
 class Helper {
   static kbConfirm(ctx: BroadcastPage) {
     const bi = Base.kbConfirm
-    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`send`), ctx.data.callbackData(`edit`), ctx.data.callbackData(`cancel`), StartPage], `2-2`, bi)
+    const s1 = Base.step1
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(s1, `send`), ctx.data.callbackData(s1, `edit`), ctx.data.callbackData(s1, `cancel`), StartPage], `2-2`, bi)
     return kb
   }
 
@@ -46,10 +47,11 @@ class Helper {
 }
 
 class Alert {
-  static async showSuccess(ctx: BroadcastPage, count: number) {
+  static async showSuccess(ctx: BroadcastPage, successCount: number, totalCount: number) {
+    await ctx.clearSession()
     const bi = Base.success
     const kb = Helper.kbHome(ctx)
-    const da = {count}
+    const da = {successCount, totalCount}
     await ctx.edit(kb, da, bi)
   }
 
@@ -133,7 +135,7 @@ class Main {
 
     await ctx.setSession(`multi_session`, {position: `form`}) // multi session in 1 object for handleFreeText, handleFree*
     const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`cancel`), StartPage], `2`, bi)
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `cancel`), StartPage], `2`, bi)
     const da = {draftText, isEmpty}
     if (edit) {
       await ctx.edit(kb, da, bi)
@@ -158,18 +160,19 @@ class Main {
 
       const ids = subscribers.map((item) => item.id)
       const langs = subscribers.map((item) => item.language || `default`)
+      let res: Awaited<ReturnType<typeof ctx.broadcast>>
       if (mediaType && fileId) {
         const da = {fileId, caption}
         const bi = mediaType === `photo` ? Base.infoDeliverPhoto : mediaType === `video` ? Base.infoDeliverVideo : Base.infoDeliverAnimation
-        await ctx.broadcastMedia(ids, langs, undefined, da, bi)
+
+        res = await ctx.broadcastMedia(ids, langs, undefined, da, bi)
       } else {
         const da = {message: draftText}
         const bi = Base.infoDeliverText
-        await ctx.broadcast(ids, langs, undefined, da, bi)
+        res = await ctx.broadcast(ids, langs, undefined, da, bi)
       }
 
-      await ctx.clearSession()
-      await Alert.showSuccess(ctx, subscribers.length)
+      await Alert.showSuccess(ctx, res.successCount, res.totalCount)
     } else if (action === `cancel`) {
       await Alert.showInfoCancel(ctx)
     }
@@ -177,7 +180,7 @@ class Main {
 }
 
 export class BroadcastPage extends PageBase {
-  static data = this.buildData((action?: string) => [action])
+  static data = this.buildData((step?: string, action?: string) => [step, action])
 
   async handleCallbackData() {
     await Main.showStep1Form(this, `-`, false, true)
@@ -192,8 +195,10 @@ export class BroadcastPage extends PageBase {
       return null
     }
 
-    const [action] = this.callbackDataArgs
-    await Main.processStep1Answer(this, action!)
+    const [step, action] = this.callbackDataArgs
+    if (step === Base.step1) {
+      await Main.processStep1Answer(this, action!)
+    }
   }
 
   async handleFreeText() {
@@ -277,13 +282,13 @@ export class BroadcastPage extends PageBase {
       <message>
         🎉 Broadcast sent
 
-        Delivered to {{count}} subscribers.
+        Delivered to {{successCount}}/{{totalCount}} subscribers.
         You can send another update anytime from the admin route.
       </message>
       <message lang="id">
         🎉 Siaran terkirim
 
-        Dikirim ke {{count}} pelanggan.
+        Dikirim ke {{successCount}}/{{totalCount}} pelanggan.
         Anda bisa mengirim pembaruan lagi kapan saja lewat rute admin.
       </message>
     </base>
@@ -291,12 +296,12 @@ export class BroadcastPage extends PageBase {
     <base id="${Base.infoConfirmAnimation}">
       ${this.kbk.broadcastConfirm()}
       <media type="animation" src="{{fileId}}">
-        ✅ Confirm broadcast animation
+        🆗 Confirm broadcast animation
 
         caption: {{caption}}
       </media>
       <media lang="id" type="animation" src="{{fileId}}">
-        ✅ Konfirmasi siaran animasi
+        🆗 Konfirmasi siaran animasi
 
         caption: {{caption}}
       </media>
@@ -305,12 +310,12 @@ export class BroadcastPage extends PageBase {
     <base id="${Base.infoConfirmPhoto}">
       ${this.kbk.broadcastConfirm()}
       <media type="photo" src="{{fileId}}">
-        ✅ Confirm broadcast photo
+        🆗 Confirm broadcast photo
 
         caption: {{caption}}
       </media>
       <media lang="id" type="photo" src="{{fileId}}">
-        ✅ Konfirmasi siaran foto
+        🆗 Konfirmasi siaran foto
 
         caption: {{caption}}
       </media>
@@ -319,14 +324,14 @@ export class BroadcastPage extends PageBase {
     <base id="${Base.infoConfirmText}">
       ${this.kbk.broadcastConfirm()}
       <message>
-        ✅ Confirm broadcast text
+        🆗 Confirm broadcast text
 
         text: {{draftText}}
 
         Review the message carefully. Once sent, it will be delivered to all subscribers.
       </message>
       <message lang="id">
-        ✅ Konfirmasi siaran text
+        🆗 Konfirmasi siaran text
 
         text: {{draftText}}
 
@@ -337,12 +342,12 @@ export class BroadcastPage extends PageBase {
     <base id="${Base.infoConfirmVideo}">
       ${this.kbk.broadcastConfirm()}
       <media type="video" src="{{fileId}}">
-        ✅ Confirm broadcast video
+        🆗 Confirm broadcast video
 
         caption: {{caption}}
       </media>
       <media lang="id" type="video" src="{{fileId}}">
-        ✅ Konfirmasi siaran video
+        🆗 Konfirmasi siaran video
 
         caption: {{caption}}
       </media>
