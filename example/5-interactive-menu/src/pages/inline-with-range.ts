@@ -4,17 +4,19 @@ import {BlankPage} from "./blank"
 import {CatalogData} from "~/data/catalog"
 
 class Base {
-  static step1: `s1`
+  static step1 = `s1`
+}
+
+class Constant {
+  static ITEMS_PER_PAGE = 4
 }
 
 class Helper {
-  static ITEMS_PER_PAGE = 4
-
-  static kb(ctx: InlineWithCountPage, page: number) {
-    const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / this.ITEMS_PER_PAGE), 1)
+  static kb(ctx: InlineWithRangePage, page: number) {
+    const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / Constant.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-    const start = safePage * this.ITEMS_PER_PAGE
-    const end = start + this.ITEMS_PER_PAGE
+    const start = safePage * Constant.ITEMS_PER_PAGE
+    const end = start + Constant.ITEMS_PER_PAGE
     const items = CatalogData.menuItems.slice(start, end)
     const bi = Base.step1
     const kb = ctx.inlineKeyboard(
@@ -39,14 +41,14 @@ class Helper {
   }
 
   static pageData(page: number) {
-    const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / this.ITEMS_PER_PAGE), 1)
+    const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / Constant.ITEMS_PER_PAGE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     return {page: safePage + 1, totalPages, safePage}
   }
 }
 
 class Main {
-  static async showStep1Form(ctx: InlineWithCountPage, page: number, edit = true) {
+  static async showStep1Form(ctx: InlineWithRangePage, page: number, edit = true) {
     const {page: currentPage, totalPages, safePage} = Helper.pageData(page)
     const bi = Base.step1
     const da = {page: currentPage, totalPages}
@@ -58,7 +60,7 @@ class Main {
     }
   }
 
-  static async processStep1Answer(ctx: InlineWithCountPage, action: string, value?: string) {
+  static async processStep1Answer(ctx: InlineWithRangePage, action: string, value?: string) {
     if (action === `page`) {
       const nextPage = Number(value)
       if (!isNaN(nextPage)) {
@@ -71,8 +73,8 @@ class Main {
 }
 
 // Inline keyboard with total page count.
-export class InlineWithCountPage extends PageBase {
-  static data = this.buildData((step: string, action: string, page: string) => [step, action, page])
+export class InlineWithRangePage extends PageBase {
+  static data = this.buildData((step?: string, action?: string, page?: string) => [step, action, page])
 
   async handleCallbackData() {
     await Main.showStep1Form(this, 0, true)
@@ -89,7 +91,7 @@ export class InlineWithCountPage extends PageBase {
     <base id="${Base.step1}">
       <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, 📄 Page, ${this.kbl.home.default}</keyboard>
       <message>
-        📊 Inline Menu (With Count)
+        📊 Inline Menu (With Count + Range)
 
         Page {{page}}/{{totalPages}}
 

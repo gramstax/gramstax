@@ -4,16 +4,18 @@ import {BlankPage} from "./blank"
 import {CatalogData} from "~/data/catalog"
 
 class Base {
-  static step1: `s1`
+  static step1 = `s1`
+}
+
+class Constant {
+  static ITEMS_PER_PAGE = 4
 }
 
 class Helper {
-  static ITEMS_PER_PAGE = 4
-
-  static kb(ctx: InlineWithoutCountPage, page: number) {
+  static kb(ctx: InlineWithoutRangePage, page: number) {
     const safePage = Math.max(page, 0)
-    const start = safePage * this.ITEMS_PER_PAGE
-    const end = start + this.ITEMS_PER_PAGE
+    const start = safePage * Constant.ITEMS_PER_PAGE
+    const end = start + Constant.ITEMS_PER_PAGE
     const items = CatalogData.menuItems.slice(start, end)
     const hasPrevious = safePage > 0
     const hasMore = end < CatalogData.menuItems.length
@@ -46,7 +48,7 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: InlineWithoutCountPage, page: number, edit = true) {
+  static async showStep1Form(ctx: InlineWithoutRangePage, page: number, edit = true) {
     const {page: currentPage, safePage} = Helper.pageData(page)
     const da = {page: currentPage}
     const kb = Helper.kb(ctx, safePage)
@@ -58,7 +60,7 @@ class Main {
     }
   }
 
-  static async processStep1Answer(ctx: InlineWithoutCountPage, action: string, value?: string) {
+  static async processStep1Answer(ctx: InlineWithoutRangePage, action: string, value?: string) {
     if (action === `page`) {
       const nextPage = Number(value)
       if (!isNaN(nextPage)) {
@@ -71,8 +73,8 @@ class Main {
 }
 
 // Inline keyboard with page info (no total count).
-export class InlineWithoutCountPage extends PageBase {
-  static data = this.buildData((step: string, action: string, page: string) => [step, action, page])
+export class InlineWithoutRangePage extends PageBase {
+  static data = this.buildData((step?: string, action?: string, page?: string) => [step, action, page])
 
   async handleCallbackData() {
     await Main.showStep1Form(this, 0, true)
@@ -89,7 +91,7 @@ export class InlineWithoutCountPage extends PageBase {
     <base id="${Base.step1}">
       <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, 📄 Page, ${this.kbl.home.default}</keyboard>
       <message>
-        🧾 Inline Menu (Without Count)
+        🧾 Inline Menu (Without Range (only count))
 
         Page {{page}}
 

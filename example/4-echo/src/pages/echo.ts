@@ -215,7 +215,7 @@ export class EchoPage extends PageBase {
 
   static template = `
     <base id="${Base.step1}">
-      ${this.kbk.home(`default`)}
+      ${this.kbk.home()}
       <message>
         🔁 Echo Tips
 
@@ -225,8 +225,6 @@ export class EchoPage extends PageBase {
 
     <base id="${Base.forText}">
       <message>
-        💬 Echoed message
-
         {{text}}
       </message>
     </base>

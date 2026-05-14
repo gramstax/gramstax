@@ -4,7 +4,7 @@ import {CategoryPage} from "./category"
 import {ItemDetailPage} from "./item-detail"
 
 class Base {
-  static step1: `s1`
+  static step1 = `s1`
 }
 
 class Helper {

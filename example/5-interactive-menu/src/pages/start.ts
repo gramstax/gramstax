@@ -2,35 +2,38 @@ import {HelpPage} from "./help"
 import {PageBase} from "~/base/page"
 import {ResetPage} from "./reset"
 import {CategoryPage} from "./category"
-import {InlineWithoutCountPage} from "./inline-without-count"
+import {InlineWithRangePage} from "./inline-with-range"
+import {InlineWithoutRangePage} from "./inline-without-range"
 
 class Base {
   static step1 = `s1`
-  static quick = `quick`
+  static infoQuick = `i-quick`
+}
+
+class Alert {
+  static async showInfoQuick(ctx: StartPage) {
+    const bi = Base.infoQuick
+    const bkb = ctx.bottomKeyboardT(`2`, bi)
+    const da = {}
+    await ctx.reply(bkb, da, bi)
+  }
 }
 
 class Main {
   static async showStep1Form(ctx: StartPage, edit = false) {
     const bi = Base.step1
-    const ikb = ctx.inlineKeyboardT([CategoryPage, InlineWithoutCountPage, InlineWithoutCountPage, HelpPage, ResetPage], `2`, bi)
+    const ikb = ctx.inlineKeyboardT([CategoryPage, InlineWithRangePage, InlineWithoutRangePage, HelpPage, ResetPage], `2`, bi)
     const da = {}
     if (edit) {
       await ctx.edit(ikb, da, bi)
     } else {
       await ctx.reply(ikb, da, bi)
-      await Main.showActionQuick(ctx)
+      await Alert.showInfoQuick(ctx)
     }
   }
 
   static async processStep1Answer(ctx: StartPage) {
     throw ctx
-  }
-
-  static async showActionQuick(ctx: StartPage) {
-    const bi = Base.quick
-    const bkb = ctx.bottomKeyboardT(`2`, bi)
-    const da = {}
-    await ctx.reply(bkb, da, bi)
   }
 }
 
@@ -52,7 +55,7 @@ export class StartPage extends PageBase {
 
   static template = `
     <base id="${Base.step1}">
-      <keyboard type="inline">🔎 Browse, 📊 Inline Count, 🧾 Inline Simple, ❓ Help, ♻️ Reset</keyboard>
+      <keyboard type="inline">🔎 Browse, 📊 Inline Range, 🧾 Inline WRange, ❓ Help, ♻️ Reset</keyboard>
       <message>
         🧭 Main Menu
 
@@ -65,7 +68,7 @@ export class StartPage extends PageBase {
       </message>
     </base>
 
-    <base id="${Base.quick}">
+    <base id="${Base.infoQuick}">
       <keyboard type="bottom">${this.kbl.home.default}, ${this.kbl.browse.default}, ${this.kbl.help.default}, ${this.kbl.reset.default}</keyboard>
       <message>
         ✅ Quick actions enabled

@@ -1,4 +1,4 @@
-import {PageBase} from "~/base/page"
+import {PageBase} from "../base/page.js"
 
 class Base {
   static step1 = `s1`

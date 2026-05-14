@@ -1,4 +1,4 @@
-import {PageBase} from "~/base/page"
+import {PageBase} from "../base/page.js"
 
 export class BlankPage extends PageBase {
   async handleCallbackData() {

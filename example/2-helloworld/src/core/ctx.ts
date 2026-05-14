@@ -1,4 +1,4 @@
 import {Ctx} from "gramstax"
 
-// Shared context type for Echo bot pages.
+// Shared context
 export class CtxCore extends Ctx {}

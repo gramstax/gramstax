@@ -1,6 +1,6 @@
-import {LogHe} from "~/helpers/log"
-import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
+import {LogHe} from "../helpers/log.js"
+import {PageBase} from "../base/page.js"
+import {StartPage} from "./start.js"
 
 class Base {
   static dynamic = `d`
@@ -38,14 +38,14 @@ class Alert {
 }
 
 export class GeneralStatusPage extends PageBase {
-  constructorName;
+  constructorName
 
   constructor(p) {
     super(p)
     this.constructorName = p?.constructor?.name
   }
 
-  async showError(...args = []) {
+  async showError(...args) {
     await Alert.showError(this, ...args)
   }
 

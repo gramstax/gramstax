@@ -62,7 +62,7 @@ class Alert {
     const bi = Base.success
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {id, status}
-    await ctx.reply(kb, da, bi)
+    await ctx.edit(kb, da, bi)
   }
 
   static async showInfoEmpty(ctx: UpdatePage, edit = true) {
@@ -154,7 +154,7 @@ export class UpdatePage extends PageBase {
     const [step, arg1, arg2] = this.callbackDataArgs
     if (step === Base.step1) {
       await Main.processStep1Answer(this, arg1!, arg2!)
-    } else if (step === Base.step2 && arg1 === `status`) {
+    } else if (step === Base.step2) {
       await Main.processStep2Answer(this, arg1 as MainItem[`status`], arg2!, true)
     }
   }

@@ -1,4 +1,4 @@
-import {CtxCore} from "~/core/ctx"
+import {CtxCore} from "../core/ctx.js"
 
 export class GuardBase extends CtxCore {
   constructor(ctx) {

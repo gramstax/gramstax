@@ -1,6 +1,6 @@
-import {Env} from "./env"
-import {LogHe} from "./helpers/log"
-import {BotCore} from "./core/bot"
+import {Env} from "./env.js"
+import {LogHe} from "./helpers/log.js"
+import {BotCore} from "./core/bot.js"
 
 class Index {
   static async run() {
