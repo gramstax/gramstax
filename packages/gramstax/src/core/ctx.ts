@@ -883,6 +883,8 @@ export class Ctx {
    * @public
    */
   async broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply, throwError = false) {
+    const res = {successCount: 0, failedCount: 0, totalCount: 0}
+    res.totalCount = ids.length
     try {
       this.temp.isAnswer = true
       const limitFree = 30
@@ -896,15 +898,18 @@ export class Ctx {
           ...options
         })
 
+        res.successCount += 1
         if (index + 1 == limitFree) {
           await setTimeout(1200)
         }
       }
     } catch (err) {
+      res.failedCount += 1
       if (throwError) {
-        throw err
+        throw {...res, err}
       }
     }
+    return res
   }
 
   /**
@@ -943,10 +948,13 @@ export class Ctx {
     options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact,
     throwError = false
   ) {
+    const res = {successCount: 0, failedCount: 0, totalCount: 0}
+    res.totalCount = ids.length
     try {
       this.temp.isAnswer = true
       const limitFree = 30
       const medias = languageCode.map((it) => this.templateManager.getMedia(this.data.name, baseId, it, data))
+
       for (let index = 0; index < ids.length; index++) {
         const id = ids[index]
         const med = medias[index]
@@ -966,15 +974,18 @@ export class Ctx {
         if (med.type == `location`) await this.ct.api.sendLocation(id!, parseInt(med.latitude!), parseInt(med.longitude!), opt)
         if (med.type == `contact`) await this.ct.api.sendContact(id!, med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
 
+        res.successCount += 1
         if (index + 1 == limitFree) {
           await setTimeout(1200)
         }
       }
     } catch (err) {
+      res.failedCount += 1
       if (throwError) {
-        throw err
+        throw {...res, err}
       }
     }
+    return res
   }
 
   /**
