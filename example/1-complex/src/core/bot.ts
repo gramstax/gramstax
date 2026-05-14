@@ -1,6 +1,7 @@
 import {CtxCore} from "./ctx"
 import {Gramstax} from "gramstax"
 import {UserGuard} from "~/guards/user"
+import {IncrementJob} from "~/jobs/increment"
 import {CacheExternal} from "gramstax"
 import {GeneralStatusPage} from "~/pages/general-status"
 
@@ -20,6 +21,10 @@ export class BotCore extends Gramstax {
         data: {}
       }
     })
+  }
+
+  async hookAfterStart() {
+    await IncrementJob.launchWorker([5000]) // 5s
   }
 
   async hookBeforeRoute(ctx: CtxCore) {
