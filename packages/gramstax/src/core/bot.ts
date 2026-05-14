@@ -835,7 +835,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         document: initDynamicSpesific(),
         animation: initDynamicSpesific(),
         voice: initDynamicSpesific(),
-        videoNote: initDynamicSpesific(),
+        videonote: initDynamicSpesific(),
         sticker: initDynamicSpesific(),
         location: initDynamicSpesific(),
         contact: initDynamicSpesific()
@@ -1266,7 +1266,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
   /** {@inheritDoc Gramstax._onMessageText} */
   async _onMessageVideoNote(ct: Context): Promise<void> {
-    await this._onMessage(ct, `videoNote`)
+    await this._onMessage(ct, `videonote`)
   }
   /** {@inheritDoc Gramstax._onMessageText} */
   async _onMessageSticker(ct: Context): Promise<void> {

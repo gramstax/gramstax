@@ -145,6 +145,8 @@ export class MockTelegramServer {
 
     this.server = server
     this.apiRoot = `http://${this.hostname}:${server.port ?? this.port}`
+    process.once(`SIGINT`, () => this.stop())
+    process.once(`SIGTERM`, () => this.stop())
     return this.apiRoot
   }
 
