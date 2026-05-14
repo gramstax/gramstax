@@ -2,9 +2,9 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static step1: `s1`
-  static step2: `s2`
-  static success: `success`
+  static step1 = `s1`
+  static step2 = `s2`
+  static success = `s`
 }
 
 class Helper {
