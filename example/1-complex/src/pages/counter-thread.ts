@@ -8,7 +8,7 @@ class Base {
 
 class Main {
   static async showStep1Form(ctx: CounterThreadPage) {
-    const count = await IncrementJob.mtdGetCount()
+    const count = await IncrementJob.mtdGetCount() // difference thread
     const bi = Base.step1
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`1`), StartPage], `1`, bi)
     const da = {count, timestamp: new Date().getTime()}

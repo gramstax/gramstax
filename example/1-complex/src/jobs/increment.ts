@@ -10,9 +10,11 @@ export class Worker extends WorkerThreadInit {
   }
 
   mtdAutoRun(ms: number) {
+    const padStart = `(${this.pid}:${this.id}) [IncrementCoreJob]`
+    LogHe.debug(`${padStart} Started..`)
     setInterval(() => {
       this.count += 1
-      LogHe.debug(`(${this.pid}:${this.id}) [IncrementCoreJob] count: ${this.count}`)
+      LogHe.debug(`${padStart} count: ${this.count}`)
     }, ms)
   }
 
