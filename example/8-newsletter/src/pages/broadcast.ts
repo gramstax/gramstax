@@ -164,7 +164,11 @@ class Main {
   }
 
   static async processStep1Answer(ctx: BroadcastPage, action: string) {
-    const {draftText, mediaType, fileId, caption} = Helper.getSessionParams(ctx)
+    const {position, draftText, mediaType, fileId, caption} = Helper.getSessionParams(ctx)
+    if (position !== `confirm`) {
+      return
+    }
+
     if (action === `edit`) {
       await Main.showStep1Form(ctx, mediaType ? `-` : draftText || `-`, false, true)
     } else if (action === `send`) {
