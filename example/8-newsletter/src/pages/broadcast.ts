@@ -14,6 +14,7 @@ type BroadcastSession = {
 class Base {
   static step1 = `s1`
   static infoHybridMedia = `i-hybrid-media`
+  static infoHybridMediaNotAvailable = `i-hybrid-media-not-available`
   static infoConfirmText = `i-confirm-text`
   static infoConfirmPhoto = `i-confirm-photo`
   static infoConfirmVideo = `i-confirm-video`
@@ -37,8 +38,8 @@ class Helper {
     return kb
   }
 
-  static kbHome(ctx: BroadcastPage, baseId?: string) {
-    const bi = baseId ? baseId : Base.kbHome
+  static kbHome(ctx: BroadcastPage) {
+    const bi = Base.kbHome
     const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
     return kb
   }
@@ -53,6 +54,14 @@ class Alert {
     await ctx.setSession(`multi_session`, {position: `form`}) // multi session in 1 object for handleFreeText, handleFree*
     const bi = Base.infoHybridMedia
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `cancel`), StartPage], `2`, bi)
+    const da = {}
+    await ctx.edit(kb, da, bi)
+  }
+
+  static async showInfoHybridMediaNotAvailable(ctx: BroadcastPage) {
+    await ctx.clearSession()
+    const bi = Base.infoHybridMediaNotAvailable
+    const kb = Helper.kbHome(ctx)
     const da = {}
     await ctx.edit(kb, da, bi)
   }
@@ -311,6 +320,15 @@ export class BroadcastPage extends PageBase {
         Kirim media siaran sekarang. Pesan ini akan dikirim ke semua pelanggan yang aktif.
         Hanya dapat mengirim foto, video, atau animasi dengan caption opsional.
         Anda dapat mengirim campuran foto, video dan animasi.
+      </message>
+    </base>
+
+    <base id="${Base.infoHybridMediaNotAvailable}">
+      <message>
+        Bundle media hybrid for now not available.
+      </message>
+      <message lang="id">
+        Bandel media hibrid untuk sekarang tidak terseda.
       </message>
     </base>
 
