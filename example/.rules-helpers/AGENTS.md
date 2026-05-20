@@ -4,7 +4,7 @@ This directory is reserved for helper-related agent rules.
 
 ## Target Folder
 
-- Rule set name: `rules-helpers`
+- Rule set name: `.rules-helpers`
 - Current matching source folder in this repo: `./packages/gramstax/src/helpers`
 - Usage rule: apply these rules when creating or editing helper-related files in the matching helpers directory.
 

@@ -4,7 +4,7 @@ This directory contains modularized rules for Gramstax development. AI agents sh
 
 ## Target Folder
 
-- Rule set name: `rules-pages`
+- Rule set name: `.rules-pages`
 - Intended source folder: `./src/pages`
 - Usage rule: apply these rules when creating or editing page-related files in the matching pages directory for the target project or template.
 
