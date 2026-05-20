@@ -1,5 +1,5 @@
 import {describe, it, expect} from "bun:test"
-import {KeyboardBlock} from "../../src/blocks/keyboard"
+import {KeyboardBlock} from "~/blocks/keyboard"
 
 describe(`KeyboardBlock`, () => {
   describe(`labels`, () => {

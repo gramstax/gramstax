@@ -1,5 +1,5 @@
 import {describe, it, expect} from "bun:test"
-import {ArrayUt} from "../../src/utils/array"
+import {ArrayUt} from "~/utils/array"
 
 describe(`ArrayUt`, () => {
   describe(`random`, () => {

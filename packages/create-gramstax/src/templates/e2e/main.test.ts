@@ -5,7 +5,6 @@
  *   1. MockTelegramServer starts on random port → apiRoot captured
  *   2. BotCore initialized with webhook:http://127.0.0.1:3009/webhook/e2e-template
  *   3. CacheExternal (memory) shared across tests, cleared in beforeEach
- *   4. DEFAULT_USER (username: testuser) used for all tests that require auth
  *
  * Test Flow:
  *   T1.  /start → Welcome message + inline keyboard (Random Number, Sum Number, Help)
@@ -36,8 +35,17 @@ let mockServer: MockTelegramServer
 let botCore: BotCore
 let cacheSession: CacheExternal
 
-const DEFAULT_USER = {id: 1001, first_name: `Test`, username: `testuser`}
-const DEFAULT_CHAT = {id: 1001, type: `private` as const, first_name: `Test`}
+const USER_1 = {
+  responseTimeoutMs: 9000,
+  user: {
+    id: 123456789,
+    first_name: `Test`,
+    last_name: `user`,
+    username: `testuser`,
+    language_code: `en`,
+    is_bot: false
+  }
+}
 
 beforeAll(async () => {
   mockServer = new MockTelegramServer({log: false})
@@ -78,7 +86,7 @@ beforeEach(async () => {
 
 describe(`E2E: Template bot via MockTelegramServer (webhook)`, () => {
   it(`responds to /start command with welcome message and navigation buttons`, async () => {
-    const responses = await mockServer.sendText(`/start`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const responses = await mockServer.sendText(`/start`, USER_1)
 
     expect(responses.length).toBeGreaterThan(0)
     const reply = responses[0]!
@@ -97,10 +105,10 @@ describe(`E2E: Template bot via MockTelegramServer (webhook)`, () => {
   })
 
   it(`navigates to Help page via callback and shows back button`, async () => {
-    await mockServer.sendText(`/start`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    await mockServer.sendText(`/start`, USER_1)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`help`, {responseTimeoutMs: 3000, user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const responses = await mockServer.sendCallbackQuery(`help`, USER_1)
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]!
@@ -113,10 +121,10 @@ describe(`E2E: Template bot via MockTelegramServer (webhook)`, () => {
   })
 
   it(`navigates to Random Number page via callback and shows generated number`, async () => {
-    await mockServer.sendText(`/start`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    await mockServer.sendText(`/start`, USER_1)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`random-number`, {responseTimeoutMs: 3000, user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const responses = await mockServer.sendCallbackQuery(`random-number`, USER_1)
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]!
@@ -131,13 +139,13 @@ describe(`E2E: Template bot via MockTelegramServer (webhook)`, () => {
   })
 
   it(`refreshes random number via Shake callback`, async () => {
-    await mockServer.sendText(`/start`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    await mockServer.sendText(`/start`, USER_1)
     mockServer.clearRequests()
 
-    await mockServer.sendCallbackQuery(`random-number`, {responseTimeoutMs: 3000, user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    await mockServer.sendCallbackQuery(`random-number`, USER_1)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`random-number`, {responseTimeoutMs: 3000, user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const responses = await mockServer.sendCallbackQuery(`random-number`, USER_1)
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]!
@@ -145,22 +153,22 @@ describe(`E2E: Template bot via MockTelegramServer (webhook)`, () => {
   })
 
   it(`completes Sum Number two-step session flow`, async () => {
-    await mockServer.sendText(`/start`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    await mockServer.sendText(`/start`, USER_1)
     mockServer.clearRequests()
 
-    const sumResponses = await mockServer.sendCallbackQuery(`sum-number`, {responseTimeoutMs: 3000, user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const sumResponses = await mockServer.sendCallbackQuery(`sum-number`, USER_1)
     expect(sumResponses.length).toBeGreaterThan(0)
     expect(sumResponses[0]!.body?.text).toContain(`Input Left Number`)
 
     mockServer.clearRequests()
 
-    const leftResponses = await mockServer.sendText(`23`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const leftResponses = await mockServer.sendText(`23`, USER_1)
     expect(leftResponses.length).toBeGreaterThan(0)
     expect(leftResponses[0]!.body?.text).toContain(`Input Right Number`)
 
     mockServer.clearRequests()
 
-    const resultResponses = await mockServer.sendText(`10`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const resultResponses = await mockServer.sendText(`10`, USER_1)
     expect(resultResponses.length).toBeGreaterThan(0)
     expect(resultResponses[0]!.body?.text).toContain(`Result Sum`)
     expect(resultResponses[0]!.body?.text).toContain(`33`)
@@ -172,22 +180,22 @@ describe(`E2E: Template bot via MockTelegramServer (webhook)`, () => {
   })
 
   it(`handles invalid input in Sum Number gracefully`, async () => {
-    await mockServer.sendText(`/start`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    await mockServer.sendText(`/start`, USER_1)
     mockServer.clearRequests()
 
-    await mockServer.sendCallbackQuery(`sum-number`, {responseTimeoutMs: 3000, user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    await mockServer.sendCallbackQuery(`sum-number`, USER_1)
     mockServer.clearRequests()
 
-    const leftResponses = await mockServer.sendText(`not-a-number`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const leftResponses = await mockServer.sendText(`not-a-number`, USER_1)
     expect(leftResponses.length).toBeGreaterThan(0)
     expect(leftResponses[0]!.body?.text).toContain(`Input Left Number`)
   })
 
   it(`shows route not found for unrecognized callback`, async () => {
-    await mockServer.sendText(`/start`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    await mockServer.sendText(`/start`, USER_1)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`nonexistent_action`, {responseTimeoutMs: 3000, user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const responses = await mockServer.sendCallbackQuery(`nonexistent_action`, USER_1)
 
     expect(responses.length).toBeGreaterThanOrEqual(0)
     if (responses.length > 0) {
@@ -197,7 +205,7 @@ describe(`E2E: Template bot via MockTelegramServer (webhook)`, () => {
   })
 
   it(`captures outbound requests in mockServer.requests`, async () => {
-    const responses = await mockServer.sendText(`/start`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const responses = await mockServer.sendText(`/start`, USER_1)
 
     expect(responses.length).toBeGreaterThan(0)
     const sendMessageReq = mockServer.lastRequest(`sendMessage`)
@@ -206,22 +214,22 @@ describe(`E2E: Template bot via MockTelegramServer (webhook)`, () => {
   })
 
   it(`handles multiple sequential interactions`, async () => {
-    const res1 = await mockServer.sendText(`/start`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const res1 = await mockServer.sendText(`/start`, USER_1)
     expect(res1[0]?.body?.text).toContain(`Welcome to the bot`)
 
     mockServer.clearRequests()
 
-    const res2 = await mockServer.sendCallbackQuery(`help`, {responseTimeoutMs: 3000, user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const res2 = await mockServer.sendCallbackQuery(`help`, USER_1)
     expect(res2[0]?.body?.text).toContain(`Help Message`)
 
     mockServer.clearRequests()
 
-    const res3 = await mockServer.sendCallbackQuery(`random-number`, {responseTimeoutMs: 3000, user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const res3 = await mockServer.sendCallbackQuery(`random-number`, USER_1)
     expect(res3[0]?.body?.text).toContain(`Random Number`)
   })
 
   it(`sendPhoto triggers a response`, async () => {
-    const responses = await mockServer.sendPhoto({caption: `test photo`, user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const responses = await mockServer.sendPhoto({caption: `test photo`, ...USER_1})
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responses[0]?.body?.text).toContain(`Route Not Found`)
@@ -256,12 +264,12 @@ describe(`E2E: Template bot via MockTelegramServer (webhook)`, () => {
   })
 
   it(`validates inline_keyboard structure for all navigation pages`, async () => {
-    const res1 = await mockServer.sendText(`/start`, {user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const res1 = await mockServer.sendText(`/start`, USER_1)
     expect(Array.isArray(res1[0]?.body?.reply_markup?.inline_keyboard)).toBe(true)
 
     mockServer.clearRequests()
 
-    const res2 = await mockServer.sendCallbackQuery(`help`, {responseTimeoutMs: 3000, user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const res2 = await mockServer.sendCallbackQuery(`help`, USER_1)
     const kb2 = res2[0]?.body?.reply_markup?.inline_keyboard
     expect(Array.isArray(kb2)).toBe(true)
     expect(kb2!.length).toBeGreaterThan(0)
@@ -270,7 +278,7 @@ describe(`E2E: Template bot via MockTelegramServer (webhook)`, () => {
 
     mockServer.clearRequests()
 
-    const res3 = await mockServer.sendCallbackQuery(`random-number`, {responseTimeoutMs: 3000, user: DEFAULT_USER, chat: DEFAULT_CHAT})
+    const res3 = await mockServer.sendCallbackQuery(`random-number`, USER_1)
     const kb3 = res3[0]?.body?.reply_markup?.inline_keyboard
     expect(Array.isArray(kb3)).toBe(true)
     expect(kb3!.length).toBeGreaterThan(0)

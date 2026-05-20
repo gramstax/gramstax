@@ -1,5 +1,5 @@
 import {describe, it, expect} from "bun:test"
-import {TimeHe} from "../../src/helpers/time"
+import {TimeHe} from "~/helpers/time"
 
 describe(`TimeHe`, () => {
   describe(`format`, () => {
