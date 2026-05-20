@@ -34,6 +34,34 @@ example:
 isPreview: false
 isDeprecated: false
 type: class
+properties:
+  - name: ALLOWED_BLOCKS
+    uid: gramstax!TemplateEngine.ALLOWED_BLOCKS:member
+    package: gramstax!
+    fullName: ALLOWED_BLOCKS
+    summary: Registry of all supported template block tags.
+    remarks: >-
+      These are the actual XML-like tags recognized by `TemplateEngine`<!-- -->. Each corresponds to a `<tagName>`
+      element in template strings.
+
+
+      \*\*Content blocks:\*\* `base`<!-- -->, `message`<!-- -->, `keyboard`<!-- -->, `media`<!-- -->, `description`
+      \*\*Logic blocks:\*\* `script`<!-- -->, `switch`<!-- -->, `case`<!-- -->, `default`<!-- -->, `map`<!-- -->, `div`
+      \*\*Utility blocks:\*\* `import`<!-- -->, `space` \*\*Telegram HTML formatting (passed through, not compiled):\*\*
+      `b`<!-- -->, `i`<!-- -->, `u`<!-- -->, `s`<!-- -->, `code`<!-- -->, `pre`<!-- -->, `a`<!-- -->, `blockquote`<!--
+      -->, `expandable`
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static ALLOWED_BLOCKS: readonly ["base", "message", "keyboard", "media", "description", "script", "switch",
+        "case", "default", "map", "div", "import", "space", "b", "i", "u", "s", "code", "pre", "a", "blockquote",
+        "expandable"];
+      return:
+        type: >-
+          readonly ["base", "message", "keyboard", "media", "description", "script", "switch", "case", "default", "map",
+          "div", "import", "space", "b", "i", "u", "s", "code", "pre", "a", "blockquote", "expandable"]
 methods:
   - name: _compileToFunction(template, isArray)
     uid: gramstax!TemplateEngine._compileToFunction:member(1)

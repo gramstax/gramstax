@@ -9,7 +9,11 @@ Sends a media message to multiple users in bulk.
 **Signature:**
 
 ```typescript
-broadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact, throwError?: boolean): Promise<void>;
+broadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact, throwError?: boolean): Promise<{
+        successCount: number;
+        failedCount: number;
+        totalCount: number;
+    }>;
 ```
 
 ## Parameters
@@ -146,7 +150,7 @@ _(Optional)_ If true, throws errors instead of swallowing them.
 
 **Returns:**
 
-Promise&lt;void&gt;
+Promise&lt;{ successCount: number; failedCount: number; totalCount: number; }&gt;
 
 ## Remarks
 

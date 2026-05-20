@@ -1031,7 +1031,11 @@ methods:
     syntax:
       content: >-
         broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?:
-        ITOptReply, throwError?: boolean): Promise<void>;
+        ITOptReply, throwError?: boolean): Promise<{
+                successCount: number;
+                failedCount: number;
+                totalCount: number;
+            }>;
       parameters:
         - id: ids
           description: Array of user IDs to send the message to.
@@ -1055,7 +1059,12 @@ methods:
           description: If true, throws errors instead of swallowing them.
           type: boolean
       return:
-        type: Promise&lt;void&gt;
+        type: |-
+          Promise&lt;{
+                  successCount: number;
+                  failedCount: number;
+                  totalCount: number;
+              }&gt;
         description: ''
   - name: broadcastMedia(ids, languageCode, keyboard, data, baseId, options, throwError)
     uid: gramstax!Ctx#broadcastMedia:member(1)
@@ -1081,7 +1090,11 @@ methods:
         broadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string,
         options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation |
         ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact, throwError?:
-        boolean): Promise<void>;
+        boolean): Promise<{
+                successCount: number;
+                failedCount: number;
+                totalCount: number;
+            }>;
       parameters:
         - id: ids
           description: Array of user IDs to send the media to.
@@ -1110,7 +1123,12 @@ methods:
           description: If true, throws errors instead of swallowing them.
           type: boolean
       return:
-        type: Promise&lt;void&gt;
+        type: |-
+          Promise&lt;{
+                  successCount: number;
+                  failedCount: number;
+                  totalCount: number;
+              }&gt;
         description: ''
   - name: buildData(callbackData)
     uid: gramstax!Ctx.buildData:member(1)

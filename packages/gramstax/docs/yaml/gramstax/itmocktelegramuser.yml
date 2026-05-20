@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: ITMockTelegramUser
+uid: gramstax!ITMockTelegramUser:type
+package: gramstax!
+fullName: ITMockTelegramUser
+summary: Basic Telegram mock user profile used when generating updates.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITMockTelegramUser = {
+      id?: number;
+      is_bot?: boolean;
+      first_name?: string;
+      last_name?: string;
+      username?: string;
+      language_code?: string;
+  };

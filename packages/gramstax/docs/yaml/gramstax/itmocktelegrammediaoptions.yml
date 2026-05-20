@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: ITMockTelegramMediaOptions
+uid: gramstax!ITMockTelegramMediaOptions:type
+package: gramstax!
+fullName: ITMockTelegramMediaOptions
+summary: Options for generated mock media message updates.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITMockTelegramMediaOptions = ITMockTelegramUpdateOptions & {
+      caption?: string;
+  };

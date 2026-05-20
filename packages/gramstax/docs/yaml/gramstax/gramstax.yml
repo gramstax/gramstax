@@ -537,7 +537,7 @@ methods:
                         name: string;
                         routeName: string;
                     }[];
-                    videoNote: {
+                    videonote: {
                         name: string;
                         routeName: string;
                     }[];
@@ -877,7 +877,7 @@ methods:
                           name: string;
                           routeName: string;
                       }[];
-                      videoNote: {
+                      videonote: {
                           name: string;
                           routeName: string;
                       }[];
@@ -1696,6 +1696,20 @@ methods:
         - id: isEdit
           description: Whether the handler was editing a message.
           type: boolean
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: stop()
+    uid: gramstax!Gramstax#stop:member(1)
+    package: gramstax!
+    fullName: stop()
+    summary: Stop bot
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'stop(): Promise<void>;'
       return:
         type: Promise&lt;void&gt;
         description: ''

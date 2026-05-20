@@ -4,14 +4,11 @@ uid: gramstax!ITMockTelegramServerOptions:type
 package: gramstax!
 fullName: ITMockTelegramServerOptions
 summary: Options for configuring the mock Telegram server.
-remarks: >-
-  `token` is required. Use `handlers` to override specific methods, and `defaultHandler` as a fallback for any unmatched
-  method.
+remarks: Use `handlers` to override specific methods, and `defaultHandler` as a fallback for any unmatched method.
 example:
   - |-
     ```typescript
     const options: ITMockTelegramServerOptions = {
-      token: `BOT_TOKEN`,
       port: 0,
       handlers: {
         getMe: () => ({ok: true, result: {is_bot: true}})
@@ -22,9 +19,9 @@ isPreview: false
 isDeprecated: false
 syntax: |-
   type ITMockTelegramServerOptions = {
-      token: string;
       hostname?: string;
       port?: number;
+      log?: ITMockTelegramLog | boolean | null;
       handlers?: Record<string, ITMockTelegramHandler>;
       defaultHandler?: ITMockTelegramHandler;
   };

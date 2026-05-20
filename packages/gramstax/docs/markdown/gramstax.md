@@ -434,6 +434,39 @@ Represents a media block configuration for Telegram messages.
 </td></tr>
 <tr><td>
 
+[ITMockTelegramCallbackQueryOptions](./gramstax.itmocktelegramcallbackqueryoptions.md)
+
+
+</td><td>
+
+Options for generated mock callback query updates.
+
+
+</td></tr>
+<tr><td>
+
+[ITMockTelegramChat](./gramstax.itmocktelegramchat.md)
+
+
+</td><td>
+
+Basic Telegram mock chat profile used when generating message updates.
+
+
+</td></tr>
+<tr><td>
+
+[ITMockTelegramContactOptions](./gramstax.itmocktelegramcontactoptions.md)
+
+
+</td><td>
+
+Options for generated mock contact updates.
+
+
+</td></tr>
+<tr><td>
+
 [ITMockTelegramHandler](./gramstax.itmocktelegramhandler.md)
 
 
@@ -456,12 +489,67 @@ Telegram JSON response shape for mock server responses.
 </td></tr>
 <tr><td>
 
+[ITMockTelegramLocationOptions](./gramstax.itmocktelegramlocationoptions.md)
+
+
+</td><td>
+
+Options for generated mock location updates.
+
+
+</td></tr>
+<tr><td>
+
+[ITMockTelegramMediaOptions](./gramstax.itmocktelegrammediaoptions.md)
+
+
+</td><td>
+
+Options for generated mock media message updates.
+
+
+</td></tr>
+<tr><td>
+
+[ITMockTelegramRequestRecord](./gramstax.itmocktelegramrequestrecord.md)
+
+
+</td><td>
+
+Recorded outbound Bot API request captured by the mock server.
+
+
+</td></tr>
+<tr><td>
+
 [ITMockTelegramServerOptions](./gramstax.itmocktelegramserveroptions.md)
 
 
 </td><td>
 
 Options for configuring the mock Telegram server.
+
+
+</td></tr>
+<tr><td>
+
+[ITMockTelegramUpdateOptions](./gramstax.itmocktelegramupdateoptions.md)
+
+
+</td><td>
+
+Shared options for generated mock updates.
+
+
+</td></tr>
+<tr><td>
+
+[ITMockTelegramUser](./gramstax.itmocktelegramuser.md)
+
+
+</td><td>
+
+Basic Telegram mock user profile used when generating updates.
 
 
 </td></tr>

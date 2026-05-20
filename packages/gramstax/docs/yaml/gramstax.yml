@@ -39,9 +39,17 @@ typeAliases:
   - gramstax!ITKbDest:type
   - gramstax!ITMapRpc:type
   - gramstax!ITMediaBlock:type
+  - gramstax!ITMockTelegramCallbackQueryOptions:type
+  - gramstax!ITMockTelegramChat:type
+  - gramstax!ITMockTelegramContactOptions:type
   - gramstax!ITMockTelegramHandler:type
   - gramstax!ITMockTelegramJson:type
+  - gramstax!ITMockTelegramLocationOptions:type
+  - gramstax!ITMockTelegramMediaOptions:type
+  - gramstax!ITMockTelegramRequestRecord:type
   - gramstax!ITMockTelegramServerOptions:type
+  - gramstax!ITMockTelegramUpdateOptions:type
+  - gramstax!ITMockTelegramUser:type
   - gramstax!ITOptEdit:type
   - gramstax!ITOptEditMedia1:type
   - gramstax!ITOptEditMedia2:type

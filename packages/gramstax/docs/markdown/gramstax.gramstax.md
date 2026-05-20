@@ -898,5 +898,19 @@ Hook called when a page handler throws an error.
 
 
 </td></tr>
+<tr><td>
+
+[stop()](./gramstax.gramstax.stop.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Stop bot
+
+
+</td></tr>
 </tbody></table>
 

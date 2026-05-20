@@ -1,0 +1,18 @@
+### YamlMime:TSTypeAlias
+name: ITMockTelegramRequestRecord
+uid: gramstax!ITMockTelegramRequestRecord:type
+package: gramstax!
+fullName: ITMockTelegramRequestRecord
+summary: Recorded outbound Bot API request captured by the mock server.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITMockTelegramRequestRecord = {
+      method: string;
+      body: any;
+      url: string;
+      requestMethod: string;
+      headers: Record<string, string>;
+  };

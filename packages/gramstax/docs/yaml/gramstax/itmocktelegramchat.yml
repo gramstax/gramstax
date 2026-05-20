@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: ITMockTelegramChat
+uid: gramstax!ITMockTelegramChat:type
+package: gramstax!
+fullName: ITMockTelegramChat
+summary: Basic Telegram mock chat profile used when generating message updates.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITMockTelegramChat = {
+      id?: number;
+      type?: `private` | `group` | `supergroup` | `channel`;
+      first_name?: string;
+      last_name?: string;
+      username?: string;
+      title?: string;
+  };

@@ -38,6 +38,52 @@ const msg = messages.default?.default?.({ name: 'John' });
 // Result: 'Welcome John!'
 ```
 
+## Properties
+
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[ALLOWED\_BLOCKS](./gramstax.templateengine.allowed_blocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+readonly \["base", "message", "keyboard", "media", "description", "script", "switch", "case", "default", "map", "div", "import", "space", "b", "i", "u", "s", "code", "pre", "a", "blockquote", "expandable"\]
+
+
+</td><td>
+
+Registry of all supported template block tags.
+
+
+</td></tr>
+</tbody></table>
+
 ## Methods
 
 <table><thead><tr><th>

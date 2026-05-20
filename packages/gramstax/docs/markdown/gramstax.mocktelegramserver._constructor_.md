@@ -9,7 +9,7 @@ Create a new mock server instance.
 **Signature:**
 
 ```typescript
-constructor(options: ITMockTelegramServerOptions);
+constructor(options?: ITMockTelegramServerOptions);
 ```
 
 ## Parameters
@@ -42,7 +42,7 @@ options
 
 </td><td>
 
-Server options.
+_(Optional)_ Server options.
 
 
 </td></tr>
@@ -56,6 +56,6 @@ Use `port: 0` to let Bun select a free port automatically.
 
 
 ```typescript
-const server = new MockTelegramServer({token: `BOT_TOKEN`, port: 0})
+const server = new MockTelegramServer({port: 0})
 ```
 

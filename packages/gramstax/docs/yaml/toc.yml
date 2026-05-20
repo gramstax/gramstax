@@ -45,12 +45,28 @@ items:
             uid: gramstax!ITMapRpc:type
           - name: ITMediaBlock
             uid: gramstax!ITMediaBlock:type
+          - name: ITMockTelegramCallbackQueryOptions
+            uid: gramstax!ITMockTelegramCallbackQueryOptions:type
+          - name: ITMockTelegramChat
+            uid: gramstax!ITMockTelegramChat:type
+          - name: ITMockTelegramContactOptions
+            uid: gramstax!ITMockTelegramContactOptions:type
           - name: ITMockTelegramHandler
             uid: gramstax!ITMockTelegramHandler:type
           - name: ITMockTelegramJson
             uid: gramstax!ITMockTelegramJson:type
+          - name: ITMockTelegramLocationOptions
+            uid: gramstax!ITMockTelegramLocationOptions:type
+          - name: ITMockTelegramMediaOptions
+            uid: gramstax!ITMockTelegramMediaOptions:type
+          - name: ITMockTelegramRequestRecord
+            uid: gramstax!ITMockTelegramRequestRecord:type
           - name: ITMockTelegramServerOptions
             uid: gramstax!ITMockTelegramServerOptions:type
+          - name: ITMockTelegramUpdateOptions
+            uid: gramstax!ITMockTelegramUpdateOptions:type
+          - name: ITMockTelegramUser
+            uid: gramstax!ITMockTelegramUser:type
           - name: ITOptEdit
             uid: gramstax!ITOptEdit:type
           - name: ITOptEditMedia1

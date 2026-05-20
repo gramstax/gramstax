@@ -939,7 +939,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<void>"
+                  "text": "<{\n        successCount: number;\n        failedCount: number;\n        totalCount: number;\n    }>"
                 },
                 {
                   "kind": "Content",
@@ -1172,7 +1172,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<void>"
+                  "text": "<{\n        successCount: number;\n        failedCount: number;\n        totalCount: number;\n    }>"
                 },
                 {
                   "kind": "Content",
@@ -16656,7 +16656,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ">;\n        routeDynamic: string[];\n        routeDynamicSpesific: {\n            text: {\n                name: string;\n                routeName: string;\n            }[];\n            photo: {\n                name: string;\n                routeName: string;\n            }[];\n            video: {\n                name: string;\n                routeName: string;\n            }[];\n            audio: {\n                name: string;\n                routeName: string;\n            }[];\n            document: {\n                name: string;\n                routeName: string;\n            }[];\n            animation: {\n                name: string;\n                routeName: string;\n            }[];\n            voice: {\n                name: string;\n                routeName: string;\n            }[];\n            videoNote: {\n                name: string;\n                routeName: string;\n            }[];\n            sticker: {\n                name: string;\n                routeName: string;\n            }[];\n            location: {\n                name: string;\n                routeName: string;\n            }[];\n            contact: {\n                name: string;\n                routeName: string;\n            }[];\n        };\n        routeStatic: {\n            handleCallbackData: "
+                  "text": ">;\n        routeDynamic: string[];\n        routeDynamicSpesific: {\n            text: {\n                name: string;\n                routeName: string;\n            }[];\n            photo: {\n                name: string;\n                routeName: string;\n            }[];\n            video: {\n                name: string;\n                routeName: string;\n            }[];\n            audio: {\n                name: string;\n                routeName: string;\n            }[];\n            document: {\n                name: string;\n                routeName: string;\n            }[];\n            animation: {\n                name: string;\n                routeName: string;\n            }[];\n            voice: {\n                name: string;\n                routeName: string;\n            }[];\n            videonote: {\n                name: string;\n                routeName: string;\n            }[];\n            sticker: {\n                name: string;\n                routeName: string;\n            }[];\n            location: {\n                name: string;\n                routeName: string;\n            }[];\n            contact: {\n                name: string;\n                routeName: string;\n            }[];\n        };\n        routeStatic: {\n            handleCallbackData: "
                 },
                 {
                   "kind": "Reference",
@@ -18800,6 +18800,42 @@
               "isAbstract": false
             },
             {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Gramstax#stop:member(1)",
+              "docComment": "/**\n * Stop bot\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "stop(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "stop"
+            },
+            {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#templateManager:member",
               "docComment": "/**\n * Manages template loading and rendering for pages.\n *\n * @remarks\n *\n * Uses {@link TemplateManager} to load page templates from disk.\n */\n",
@@ -19550,6 +19586,94 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMockTelegramCallbackQueryOptions:type",
+          "docComment": "/**\n * Options for generated mock callback query updates.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMockTelegramCallbackQueryOptions = "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITMockTelegramUpdateOptions",
+              "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    id?: string;\n    messageText?: string;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMockTelegramCallbackQueryOptions",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 3
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMockTelegramChat:type",
+          "docComment": "/**\n * Basic Telegram mock chat profile used when generating message updates.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMockTelegramChat = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    id?: number;\n    type?: `private` | `group` | `supergroup` | `channel`;\n    first_name?: string;\n    last_name?: string;\n    username?: string;\n    title?: string;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMockTelegramChat",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMockTelegramContactOptions:type",
+          "docComment": "/**\n * Options for generated mock contact updates.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMockTelegramContactOptions = "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITMockTelegramUpdateOptions",
+              "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    phone_number?: string;\n    first_name?: string;\n    last_name?: string;\n    user_id?: number;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMockTelegramContactOptions",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 3
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITMockTelegramHandler:type",
           "docComment": "/**\n * Handler signature for mock Telegram methods.\n *\n * @remarks\n *\n * Return a Bot API-like JSON object. `method` is the Telegram method name extracted from the URL path (e.g. `getMe`, `setWebhook`).\n *\n * @example\n * ```typescript\n * const handler: ITMockTelegramHandler = ({method}) => ({ok: true, result: {method}})\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -19634,8 +19758,105 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMockTelegramLocationOptions:type",
+          "docComment": "/**\n * Options for generated mock location updates.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMockTelegramLocationOptions = "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITMockTelegramUpdateOptions",
+              "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    latitude?: number;\n    longitude?: number;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMockTelegramLocationOptions",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 3
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMockTelegramMediaOptions:type",
+          "docComment": "/**\n * Options for generated mock media message updates.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMockTelegramMediaOptions = "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITMockTelegramUpdateOptions",
+              "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    caption?: string;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMockTelegramMediaOptions",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 3
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type",
+          "docComment": "/**\n * Recorded outbound Bot API request captured by the mock server.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMockTelegramRequestRecord = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    method: string;\n    body: any;\n    url: string;\n    requestMethod: string;\n    headers: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Record",
+              "canonicalReference": "!Record:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<string, string>;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMockTelegramRequestRecord",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 4
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITMockTelegramServerOptions:type",
-          "docComment": "/**\n * Options for configuring the mock Telegram server.\n *\n * @remarks\n *\n * `token` is required. Use `handlers` to override specific methods, and `defaultHandler` as a fallback for any unmatched method.\n *\n * @example\n * ```typescript\n * const options: ITMockTelegramServerOptions = {\n *   token: `BOT_TOKEN`,\n *   port: 0,\n *   handlers: {\n *     getMe: () => ({ok: true, result: {is_bot: true}})\n *   }\n * }\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for configuring the mock Telegram server.\n *\n * @remarks\n *\n * Use `handlers` to override specific methods, and `defaultHandler` as a fallback for any unmatched method.\n *\n * @example\n * ```typescript\n * const options: ITMockTelegramServerOptions = {\n *   port: 0,\n *   handlers: {\n *     getMe: () => ({ok: true, result: {is_bot: true}})\n *   }\n * }\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -19643,7 +19864,16 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    token: string;\n    hostname?: string;\n    port?: number;\n    handlers?: "
+              "text": "{\n    hostname?: string;\n    port?: number;\n    log?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITMockTelegramLog",
+              "canonicalReference": "gramstax!~ITMockTelegramLog:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | boolean | null;\n    handlers?: "
             },
             {
               "kind": "Reference",
@@ -19682,7 +19912,77 @@
           "name": "ITMockTelegramServerOptions",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 8
+            "endIndex": 10
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type",
+          "docComment": "/**\n * Shared options for generated mock updates.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMockTelegramUpdateOptions = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    user?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITMockTelegramUser",
+              "canonicalReference": "gramstax!ITMockTelegramUser:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    chat?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITMockTelegramChat",
+              "canonicalReference": "gramstax!ITMockTelegramChat:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    date?: number;\n    message_id?: number;\n    responseTimeoutMs?: number;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMockTelegramUpdateOptions",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 6
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITMockTelegramUser:type",
+          "docComment": "/**\n * Basic Telegram mock user profile used when generating updates.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITMockTelegramUser = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    id?: number;\n    is_bot?: boolean;\n    first_name?: string;\n    last_name?: string;\n    username?: string;\n    language_code?: string;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITMockTelegramUser",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
           }
         },
         {
@@ -21114,7 +21414,7 @@
         {
           "kind": "Class",
           "canonicalReference": "gramstax!MockTelegramServer:class",
-          "docComment": "/**\n * In-process mock Telegram API server for local testing.\n *\n * @remarks\n *\n * Provides a minimal subset of the Telegram Bot API for local development. It does not emulate network delays, rate limits, or full Telegram behavior.\n *\n * @example\n * ```typescript\n * const server = new MockTelegramServer({token: \"BOT_TOKEN\"})\n * await server.start()\n * console.log(server.apiRoot)\n * await server.stop()\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * In-process mock Telegram API server for local testing.\n *\n * @remarks\n *\n * Provides a minimal subset of the Telegram Bot API for local development. It does not emulate network delays, rate limits, or full Telegram behavior.\n *\n * @example\n * ```typescript\n * const server = new MockTelegramServer()\n * await server.start()\n * console.log(server.apiRoot)\n * await server.stop()\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -21130,11 +21430,11 @@
             {
               "kind": "Constructor",
               "canonicalReference": "gramstax!MockTelegramServer:constructor(1)",
-              "docComment": "/**\n * Create a new mock server instance.\n *\n * @remarks\n *\n * Use `port: 0` to let Bun select a free port automatically.\n *\n * @param options - Server options.\n *\n * @example\n * ```typescript\n * const server = new MockTelegramServer({token: `BOT_TOKEN`, port: 0})\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Create a new mock server instance.\n *\n * @remarks\n *\n * Use `port: 0` to let Bun select a free port automatically.\n *\n * @param options - Server options.\n *\n * @example\n * ```typescript\n * const server = new MockTelegramServer({port: 0})\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "constructor(options: "
+                  "text": "constructor(options?: "
                 },
                 {
                   "kind": "Reference",
@@ -21156,7 +21456,7 @@
                     "startIndex": 1,
                     "endIndex": 2
                   },
-                  "isOptional": false
+                  "isOptional": true
                 }
               ]
             },
@@ -21189,6 +21489,67 @@
               "isStatic": false,
               "isProtected": false,
               "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MockTelegramServer#botToken:member",
+              "docComment": "/**\n * Latest bot token observed from the URL path (e.g. /bot<token>/getMe).\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "botToken: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "botToken",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#clearRequests:member(1)",
+              "docComment": "/**\n * Clear the captured outbound Bot API request log.\n *\n * @remarks\n *\n * Useful between test cases to isolate request assertions. Does not affect the `updates` log.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "clearRequests(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "clearRequests"
             },
             {
               "kind": "Property",
@@ -21296,6 +21657,90 @@
               "isAbstract": false
             },
             {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#lastRequest:member(1)",
+              "docComment": "/**\n * Get the most recent captured Bot API request.\n *\n * @remarks\n *\n * When `method` is provided, searches backwards for the last request matching that method name. Without `method`, returns the absolute last request regardless of method.\n *\n * @param method - Optional Telegram Bot API method name to filter by (e.g. `sendMessage`).\n *\n * @returns The last matching request record, or `undefined` if none found.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "lastRequest(method?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "method",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "lastRequest"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MockTelegramServer#log:member",
+              "docComment": "/**\n * Optional logger for mock server lifecycle and request events.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "log?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramLog",
+                  "canonicalReference": "gramstax!~ITMockTelegramLog:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "log",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
               "kind": "Property",
               "canonicalReference": "gramstax!MockTelegramServer#port:member",
               "docComment": "/**\n * Port for the local server (0 selects a random free port).\n */\n",
@@ -21324,6 +21769,829 @@
               "isStatic": false,
               "isProtected": false,
               "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MockTelegramServer#requests:member",
+              "docComment": "/**\n * Captured outbound Bot API requests made by the bot under test.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "requests: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "requests",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendAnimation:member(1)",
+              "docComment": "/**\n * Simulate a user sending an animation (GIF) message.\n *\n * @param options - Caption, user, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendAnimation(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramMediaOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramMediaOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendAnimation"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendAudio:member(1)",
+              "docComment": "/**\n * Simulate a user sending an audio message.\n *\n * @param options - Caption, user, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendAudio(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramMediaOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramMediaOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendAudio"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendCallbackQuery:member(1)",
+              "docComment": "/**\n * Simulate a user pressing an inline keyboard button (callback query).\n *\n * @remarks\n *\n * Constructs a callback query update with the specified `data` payload. The bot under test should answer with `answerCallbackQuery` and optionally edit the message.\n *\n * @param data - The callback_data string from the pressed button.\n *\n * @param options - Callback ID, message text, user, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendCallbackQuery(data: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramCallbackQueryOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramCallbackQueryOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 9
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendCallbackQuery"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendContact:member(1)",
+              "docComment": "/**\n * Simulate a user sending a contact message.\n *\n * @param options - Phone number, name, user, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendContact(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramContactOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramContactOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendContact"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendDocument:member(1)",
+              "docComment": "/**\n * Simulate a user sending a document (file) message.\n *\n * @param options - Caption, user, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendDocument(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramMediaOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramMediaOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendDocument"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendLocation:member(1)",
+              "docComment": "/**\n * Simulate a user sending a location message.\n *\n * @param options - Latitude, longitude, user, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendLocation(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramLocationOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramLocationOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendLocation"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendPhoto:member(1)",
+              "docComment": "/**\n * Simulate a user sending a photo message.\n *\n * @param options - Caption, user, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendPhoto(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramMediaOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramMediaOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendPhoto"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendSticker:member(1)",
+              "docComment": "/**\n * Simulate a user sending a sticker message.\n *\n * @param options - User, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendSticker(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramUpdateOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendSticker"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendText:member(1)",
+              "docComment": "/**\n * Simulate a user sending a text message to the bot.\n *\n * @remarks\n *\n * Automatically adds `bot_command` entity if the text starts with `/`. Posts the update to the webhook and waits for outbound Bot API responses.\n *\n * @param text - The message text to send.\n *\n * @param options - User, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses from the bot under test.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendText(text: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramUpdateOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 9
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "text",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendText"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendVideo:member(1)",
+              "docComment": "/**\n * Simulate a user sending a video message.\n *\n * @param options - Caption, user, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendVideo(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramMediaOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramMediaOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendVideo"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendVideoNote:member(1)",
+              "docComment": "/**\n * Simulate a user sending a video note (round video) message.\n *\n * @param options - User, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendVideoNote(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramUpdateOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendVideoNote"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#sendVoice:member(1)",
+              "docComment": "/**\n * Simulate a user sending a voice message.\n *\n * @param options - Caption, user, chat, and timeout options.\n *\n * @returns Array of captured Bot API responses.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendVoice(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramMediaOptions",
+                  "canonicalReference": "gramstax!ITMockTelegramMediaOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMockTelegramRequestRecord",
+                  "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendVoice"
             },
             {
               "kind": "Property",
@@ -21429,12 +22697,47 @@
             },
             {
               "kind": "Property",
-              "canonicalReference": "gramstax!MockTelegramServer#token:member",
-              "docComment": "/**\n * Bot token used in the URL path (e.g. /bot<token>/getMe).\n */\n",
+              "canonicalReference": "gramstax!MockTelegramServer#updates:member",
+              "docComment": "/**\n * Captured inbound updates generated by helper methods.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "token: "
+                  "text": "updates: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "updates",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MockTelegramServer#webhookUrl:member",
+              "docComment": "/**\n * Webhook URL set through `setWebhook`.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "webhookUrl: "
                 },
                 {
                   "kind": "Content",
@@ -21448,7 +22751,7 @@
               "isReadonly": false,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "token",
+              "name": "webhookUrl",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -22779,6 +24082,36 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "_processSwitchBlocks"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!TemplateEngine.ALLOWED_BLOCKS:member",
+              "docComment": "/**\n * Registry of all supported template block tags.\n *\n * @remarks\n *\n * These are the actual XML-like tags recognized by `TemplateEngine`. Each corresponds to a `<tagName>` element in template strings.\n *\n * **Content blocks:** `base`, `message`, `keyboard`, `media`, `description` **Logic blocks:** `script`, `switch`, `case`, `default`, `map`, `div` **Utility blocks:** `import`, `space` **Telegram HTML formatting (passed through, not compiled):** `b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`, `expandable`\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static ALLOWED_BLOCKS: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "readonly [\"base\", \"message\", \"keyboard\", \"media\", \"description\", \"script\", \"switch\", \"case\", \"default\", \"map\", \"div\", \"import\", \"space\", \"b\", \"i\", \"u\", \"s\", \"code\", \"pre\", \"a\", \"blockquote\", \"expandable\"]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "ALLOWED_BLOCKS",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
             },
             {
               "kind": "Method",

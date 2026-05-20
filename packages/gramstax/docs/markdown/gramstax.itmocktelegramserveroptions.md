@@ -10,9 +10,9 @@ Options for configuring the mock Telegram server.
 
 ```typescript
 type ITMockTelegramServerOptions = {
-    token: string;
     hostname?: string;
     port?: number;
+    log?: ITMockTelegramLog | boolean | null;
     handlers?: Record<string, ITMockTelegramHandler>;
     defaultHandler?: ITMockTelegramHandler;
 };
@@ -21,14 +21,13 @@ type ITMockTelegramServerOptions = {
 
 ## Remarks
 
-`token` is required. Use `handlers` to override specific methods, and `defaultHandler` as a fallback for any unmatched method.
+Use `handlers` to override specific methods, and `defaultHandler` as a fallback for any unmatched method.
 
 ## Example
 
 
 ```typescript
 const options: ITMockTelegramServerOptions = {
-  token: `BOT_TOKEN`,
   port: 0,
   handlers: {
     getMe: () => ({ok: true, result: {is_bot: true}})

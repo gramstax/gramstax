@@ -43,8 +43,16 @@ export class Ctx {
     addArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], pld: (string | undefined)[]): string;
     bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb;
     bottomKeyboardT(layout?: ITKbCols, baseId?: string | null, data?: Record<any, any>): Keyboard;
-    broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply, throwError?: boolean): Promise<void>;
-    broadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact, throwError?: boolean): Promise<void>;
+    broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply, throwError?: boolean): Promise<{
+        successCount: number;
+        failedCount: number;
+        totalCount: number;
+    }>;
+    broadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact, throwError?: boolean): Promise<{
+        successCount: number;
+        failedCount: number;
+        totalCount: number;
+    }>;
     static buildData<C extends (...args: any[]) => any>(callbackData: C): ITPageData<Parameters<C>>;
     static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions): ITPageData<Parameters<C>>;
     static buildData(options: ITBuildDataOptions): ITPageData<[]>;
@@ -429,7 +437,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
                 name: string;
                 routeName: string;
             }[];
-            videoNote: {
+            videonote: {
                 name: string;
                 routeName: string;
             }[];
@@ -757,6 +765,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     _runWebhook(fullUrl: string): Promise<void>;
     // @internal
     _startWebhookWorker(queue: WebhookQueue<any>, acquireChat: (chatId: any) => Promise<() => void>, getChatId: (update: any) => any): void;
+    stop(): Promise<void>;
     templateManager: TemplateManager;
     webhookQueue?: ITWebhookQueueConfig;
     // @internal
@@ -869,6 +878,30 @@ export type ITMediaBlock = {
 };
 
 // @public
+export type ITMockTelegramCallbackQueryOptions = ITMockTelegramUpdateOptions & {
+    id?: string;
+    messageText?: string;
+};
+
+// @public
+export type ITMockTelegramChat = {
+    id?: number;
+    type?: `private` | `group` | `supergroup` | `channel`;
+    first_name?: string;
+    last_name?: string;
+    username?: string;
+    title?: string;
+};
+
+// @public
+export type ITMockTelegramContactOptions = ITMockTelegramUpdateOptions & {
+    phone_number?: string;
+    first_name?: string;
+    last_name?: string;
+    user_id?: number;
+};
+
+// @public
 export type ITMockTelegramHandler = (payload: {
     method: string;
     request: Request;
@@ -881,12 +914,51 @@ export type ITMockTelegramJson = {
 };
 
 // @public
+export type ITMockTelegramLocationOptions = ITMockTelegramUpdateOptions & {
+    latitude?: number;
+    longitude?: number;
+};
+
+// @public
+export type ITMockTelegramMediaOptions = ITMockTelegramUpdateOptions & {
+    caption?: string;
+};
+
+// @public
+export type ITMockTelegramRequestRecord = {
+    method: string;
+    body: any;
+    url: string;
+    requestMethod: string;
+    headers: Record<string, string>;
+};
+
+// @public
 export type ITMockTelegramServerOptions = {
-    token: string;
     hostname?: string;
     port?: number;
+    log?: ITMockTelegramLog | boolean | null;
     handlers?: Record<string, ITMockTelegramHandler>;
     defaultHandler?: ITMockTelegramHandler;
+};
+
+// @public
+export type ITMockTelegramUpdateOptions = {
+    user?: ITMockTelegramUser;
+    chat?: ITMockTelegramChat;
+    date?: number;
+    message_id?: number;
+    responseTimeoutMs?: number;
+};
+
+// @public
+export type ITMockTelegramUser = {
+    id?: number;
+    is_bot?: boolean;
+    first_name?: string;
+    last_name?: string;
+    username?: string;
+    language_code?: string;
 };
 
 // @public
@@ -992,19 +1064,37 @@ export class LoggingHelper extends LoggingPretty {
 
 // @public
 export class MockTelegramServer {
-    constructor(options: ITMockTelegramServerOptions);
+    constructor(options?: ITMockTelegramServerOptions);
     apiRoot: string;
+    botToken: string;
+    clearRequests(): void;
     defaultHandler?: ITMockTelegramHandler;
     handlers: Record<string, ITMockTelegramHandler>;
     hostname: string;
+    lastRequest(method?: string): ITMockTelegramRequestRecord | undefined;
+    log?: ITMockTelegramLog;
     port: number;
+    requests: ITMockTelegramRequestRecord[];
+    sendAnimation(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendAudio(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendCallbackQuery(data: string, options?: ITMockTelegramCallbackQueryOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendContact(options?: ITMockTelegramContactOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendDocument(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendLocation(options?: ITMockTelegramLocationOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendPhoto(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendSticker(options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendText(text: string, options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendVideo(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendVideoNote(options?: ITMockTelegramUpdateOptions): Promise<ITMockTelegramRequestRecord[]>;
+    sendVoice(options?: ITMockTelegramMediaOptions): Promise<ITMockTelegramRequestRecord[]>;
     server?: {
         port?: number;
         stop: () => void;
     };
     start(): Promise<string>;
     stop(): Promise<void>;
-    token: string;
+    updates: Record<string, unknown>[];
+    webhookUrl: string;
 }
 
 // @public
@@ -1022,6 +1112,7 @@ export class PageManager {
 
 // @public
 export class TemplateEngine {
+    static ALLOWED_BLOCKS: readonly ["base", "message", "keyboard", "media", "description", "script", "switch", "case", "default", "map", "div", "import", "space", "b", "i", "u", "s", "code", "pre", "a", "blockquote", "expandable"];
     static compileBlockDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
         [baseId: string]: {
             [scope: string]: {
@@ -1264,6 +1355,10 @@ export class WorkerThreadRpc {
     // (undocumented)
     send: (data: any) => any;
 }
+
+// Warnings were encountered during analysis:
+//
+// dist/src/index.d.ts:7245:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

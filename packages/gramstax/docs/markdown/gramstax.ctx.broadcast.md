@@ -9,7 +9,11 @@ Sends a message to multiple users in bulk.
 **Signature:**
 
 ```typescript
-broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply, throwError?: boolean): Promise<void>;
+broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply, throwError?: boolean): Promise<{
+        successCount: number;
+        failedCount: number;
+        totalCount: number;
+    }>;
 ```
 
 ## Parameters
@@ -146,7 +150,7 @@ _(Optional)_ If true, throws errors instead of swallowing them.
 
 **Returns:**
 
-Promise&lt;void&gt;
+Promise&lt;{ successCount: number; failedCount: number; totalCount: number; }&gt;
 
 ## Remarks
 
