@@ -47,7 +47,7 @@
   "dependencies": {
     "@keyv/redis": "^5.1.4",
     "chokidar": "^4.0.3",
-    "grammy": "^1.38.4",
+    "grammy": "^1.43.0",
     "keyv": "^5.5.4",
     "logging-pretty": "^3.0.0",
     "net-ipc": "^2.2.2"
