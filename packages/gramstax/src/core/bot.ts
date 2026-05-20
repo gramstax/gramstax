@@ -401,11 +401,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
     }
 
-    const pathUrl = new URL(fullUrl).pathname
+    const url = new URL(fullUrl)
+    const pathUrl = url.pathname
+    const port = parseInt(url.port) || 3000
     const logger = this.log
     const statsPath = `/stats_queue`
     this.webhookServer?.stop()
     const server = serve({
+      port,
       async fetch(req) {
         const {pathname} = new URL(req.url)
         if (req.method == `POST` && pathname == pathUrl) {
