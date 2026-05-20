@@ -1,0 +1,14 @@
+{
+  "name": "example-9-substore-bot",
+  "private": false,
+  "scripts": {
+    "start": "bun ./src/index.ts",
+    "dev": "bun --watch ./src/index.ts",
+    "test": "bun test test/",
+    "test:e2e": "bun test e2e/",
+    "test:all": "bun run test && bun run test:e2e"
+  },
+  "dependencies": {
+    "gramstax": "workspace:*"
+  }
+}
