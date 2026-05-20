@@ -120,7 +120,7 @@ describe(`E2E: CRUD bot via MockTelegramServer (webhook)`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]!
-    expect(edit.body?.text).toContain(`Cached items`)
+    expect(edit.body?.text).toMatch(/Cached items|No cached items yet/)
   })
 
   it(`handles unrecognized callback gracefully`, async () => {

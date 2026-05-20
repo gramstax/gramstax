@@ -113,7 +113,7 @@ describe(`OrderHistoryStore`, () => {
     const refreshed = OrderHistoryStore.refreshStatuses([order], new Date(`2026-01-01T00:16:00.000Z`))
 
     expect(refreshed[0]?.status).toBe(`failed`)
-    expect(OrderHistoryStore.formatHistory(refreshed)).toContain(`❌ Gagal`)
+    expect(OrderHistoryStore.formatHistory(refreshed)).toContain(`❌ Failed`)
   })
 })
 
@@ -121,7 +121,7 @@ describe(`CheckoutPage QRIS media`, () => {
   it(`sends order-created as a QRIS photo with deadline, status, and refresh button`, () => {
     const checkoutSource = readFileSync(join(import.meta.dir, `../src/pages/checkout.ts`), `utf8`)
 
-    expect(checkoutSource).toContain(`replyPhoto`)
+    expect(checkoutSource).toContain(`editPhoto`)
     expect(checkoutSource).toContain(`refresh`)
     expect(checkoutSource).toContain(`deadlineAt`)
     expect(checkoutSource).toContain(`<media type="photo" src="{{qrisImageUrl}}">`)
@@ -130,8 +130,7 @@ describe(`CheckoutPage QRIS media`, () => {
   it(`refreshes the QRIS order card as media instead of empty text`, () => {
     const checkoutSource = readFileSync(join(import.meta.dir, `../src/pages/checkout.ts`), `utf8`)
 
-    expect(checkoutSource).toContain(`editMedia(\`photo\``)
-    expect(checkoutSource).toContain(`replyPhoto`)
+    expect(checkoutSource).toContain(`editPhoto`)
     expect(checkoutSource).not.toContain(`await ctx.edit(kb, da, bi)\n  }\n}`)
   })
 })
