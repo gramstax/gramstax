@@ -79,6 +79,47 @@ export type ITMediaBlock = {
  */
 export class TemplateEngine {
   /**
+   * Registry of all supported template block tags.
+   *
+   * @remarks
+   * These are the actual XML-like tags recognized by `TemplateEngine`.
+   * Each corresponds to a `<tagName>` element in template strings.
+   *
+   * **Content blocks:** `base`, `message`, `keyboard`, `media`, `description`
+   * **Logic blocks:** `script`, `switch`, `case`, `default`, `map`, `div`
+   * **Utility blocks:** `import`, `space`
+   * **Telegram HTML formatting (passed through, not compiled):** `b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`, `expandable`
+   */
+  static ALLOWED_BLOCKS = [
+    // Content blocks
+    `base`,
+    `message`,
+    `keyboard`,
+    `media`,
+    `description`,
+    // Logic blocks
+    `script`,
+    `switch`,
+    `case`,
+    `default`,
+    `map`,
+    `div`,
+    // Utility blocks
+    `import`,
+    `space`,
+    // Telegram HTML formatting (passed through to message text)
+    `b`,
+    `i`,
+    `u`,
+    `s`,
+    `code`,
+    `pre`,
+    `a`,
+    `blockquote`,
+    `expandable`
+  ] as const
+
+  /**
    * Escapes special characters in a string for safe use in template literals.
    *
    * @remarks
