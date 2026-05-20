@@ -21,26 +21,26 @@ Use `./.rules-pages/AGENTS.md` as the module index for page-related rules. It cu
 - [`PRODUCTION_QUALITY.md`](./.rules-pages/PRODUCTION_QUALITY.md) — production standards and UX guidance
 - [`EXAMPLES.md`](./.rules-pages/EXAMPLES.md) — reference implementations and code snippets
 
-### `rules-helpers/`
+### `.rules-helpers/`
 
-Use `./rules-helpers/AGENTS.md` as the module index for helper-related rules. This rule set is currently a stub and should be expanded as helper conventions are documented.
+Use `./.rules-helpers/AGENTS.md` as the module index for helper-related rules. This rule set is currently a stub and should be expanded as helper conventions are documented.
 
 ## Rule Folder Convention
 
-When a new rule family is added, place it in its own `rules-*` folder and add it here as a new top-level section.
+When a new rule family is added, place it in its own `.rules-*` folder and add it here as a new top-level section.
 
 Recommended structure:
 
-1. `./rules-<topic>/AGENTS.md` — folder-level index and entrypoint
-2. `./rules-<topic>/*.md` — focused rule modules for that topic
+1. `./.rules-<topic>/AGENTS.md` — folder-level index and entrypoint
+2. `./.rules-<topic>/*.md` — focused rule modules for that topic
 
 Example future additions:
 
-- `./rules-api/AGENTS.md`
-- `./rules-cli/AGENTS.md`
+- `./.rules-api/AGENTS.md`
+- `./.rules-cli/AGENTS.md`
 
 ## Maintenance Notes
 
-- Keep this file limited to top-level indexing across `rules-*` folders.
+- Keep this file limited to top-level indexing across `.rules-*` folders.
 - Keep each `rules-*/AGENTS.md` responsible for indexing its own local rule pages.
 - When adding a new rule page inside an existing folder, update that folder's local `AGENTS.md` first.
