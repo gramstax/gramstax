@@ -265,6 +265,17 @@ export class MockTelegramServer {
     })
   }
 
+  /**
+   * Get the most recent captured Bot API request.
+   *
+   * @remarks
+   * When `method` is provided, searches backwards for the last request matching that method name.
+   * Without `method`, returns the absolute last request regardless of method.
+   *
+   * @param method - Optional Telegram Bot API method name to filter by (e.g. `sendMessage`).
+   * @returns The last matching request record, or `undefined` if none found.
+   * @public
+   */
   lastRequest(method?: string) {
     if (!method) {
       return this.requests[this.requests.length - 1]
@@ -279,6 +290,15 @@ export class MockTelegramServer {
     return undefined
   }
 
+  /**
+   * Clear the captured outbound Bot API request log.
+   *
+   * @remarks
+   * Useful between test cases to isolate request assertions.
+   * Does not affect the `updates` log.
+   *
+   * @public
+   */
   clearRequests() {
     this.requests.length = 0
   }
@@ -499,47 +519,129 @@ export class MockTelegramServer {
     return method.startsWith(`send`) || method.startsWith(`edit`) || method.startsWith(`answer`) || method.startsWith(`delete`) || method.startsWith(`copy`) || method.startsWith(`forward`) || method === `pinChatMessage` || method === `unpinChatMessage` || method === `setMessageReaction`
   }
 
+  /**
+   * Simulate a user sending a text message to the bot.
+   *
+   * @remarks
+   * Automatically adds `bot_command` entity if the text starts with `/`.
+   * Posts the update to the webhook and waits for outbound Bot API responses.
+   *
+   * @param text - The message text to send.
+   * @param options - User, chat, and timeout options.
+   * @returns Array of captured Bot API responses from the bot under test.
+   * @public
+   */
   async sendText(text: string, options?: ITMockTelegramUpdateOptions) {
     const entities = text.startsWith(`/`) ? [{offset: 0, length: text.split(` `)[0]?.length ?? text.length, type: `bot_command`}] : undefined
     return await this._postUpdate(this._buildMessageUpdate({text, ...(entities ? {entities} : {})}, options), options)
   }
 
+  /**
+   * Simulate a user sending a photo message.
+   *
+   * @param options - Caption, user, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
   async sendPhoto(options?: ITMockTelegramMediaOptions) {
     return await this._postUpdate(this._buildMessageUpdate({photo: [{file_id: `mock-photo-file-id`, file_unique_id: `mock-photo-unique-id`, width: 1, height: 1}], ...(options?.caption ? {caption: options.caption} : {})}, options), options)
   }
 
+  /**
+   * Simulate a user sending a video message.
+   *
+   * @param options - Caption, user, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
   async sendVideo(options?: ITMockTelegramMediaOptions) {
     return await this._postUpdate(this._buildMessageUpdate({video: {file_id: `mock-video-file-id`, file_unique_id: `mock-video-unique-id`, width: 1, height: 1, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options), options)
   }
 
+  /**
+   * Simulate a user sending an audio message.
+   *
+   * @param options - Caption, user, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
   async sendAudio(options?: ITMockTelegramMediaOptions) {
     return await this._postUpdate(this._buildMessageUpdate({audio: {file_id: `mock-audio-file-id`, file_unique_id: `mock-audio-unique-id`, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options), options)
   }
 
+  /**
+   * Simulate a user sending a document (file) message.
+   *
+   * @param options - Caption, user, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
   async sendDocument(options?: ITMockTelegramMediaOptions) {
     return await this._postUpdate(this._buildMessageUpdate({document: {file_id: `mock-document-file-id`, file_unique_id: `mock-document-unique-id`, file_name: `mock.txt`}, ...(options?.caption ? {caption: options.caption} : {})}, options), options)
   }
 
+  /**
+   * Simulate a user sending an animation (GIF) message.
+   *
+   * @param options - Caption, user, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
   async sendAnimation(options?: ITMockTelegramMediaOptions) {
     return await this._postUpdate(this._buildMessageUpdate({animation: {file_id: `mock-animation-file-id`, file_unique_id: `mock-animation-unique-id`, width: 1, height: 1, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options), options)
   }
 
+  /**
+   * Simulate a user sending a voice message.
+   *
+   * @param options - Caption, user, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
   async sendVoice(options?: ITMockTelegramMediaOptions) {
     return await this._postUpdate(this._buildMessageUpdate({voice: {file_id: `mock-voice-file-id`, file_unique_id: `mock-voice-unique-id`, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options), options)
   }
 
+  /**
+   * Simulate a user sending a video note (round video) message.
+   *
+   * @param options - User, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
   async sendVideoNote(options?: ITMockTelegramUpdateOptions) {
     return await this._postUpdate(this._buildMessageUpdate({video_note: {file_id: `mock-video-note-file-id`, file_unique_id: `mock-video-note-unique-id`, length: 1, duration: 1}}, options), options)
   }
 
+  /**
+   * Simulate a user sending a sticker message.
+   *
+   * @param options - User, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
   async sendSticker(options?: ITMockTelegramUpdateOptions) {
     return await this._postUpdate(this._buildMessageUpdate({sticker: {file_id: `mock-sticker-file-id`, file_unique_id: `mock-sticker-unique-id`, type: `regular`, width: 1, height: 1, is_animated: false, is_video: false}}, options), options)
   }
 
+  /**
+   * Simulate a user sending a location message.
+   *
+   * @param options - Latitude, longitude, user, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
   async sendLocation(options?: ITMockTelegramLocationOptions) {
     return await this._postUpdate(this._buildMessageUpdate({location: {latitude: options?.latitude ?? 0, longitude: options?.longitude ?? 0}}, options), options)
   }
 
+  /**
+   * Simulate a user sending a contact message.
+   *
+   * @param options - Phone number, name, user, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
   async sendContact(options?: ITMockTelegramContactOptions) {
     return await this._postUpdate(
       this._buildMessageUpdate(
@@ -557,6 +659,18 @@ export class MockTelegramServer {
     )
   }
 
+  /**
+   * Simulate a user pressing an inline keyboard button (callback query).
+   *
+   * @remarks
+   * Constructs a callback query update with the specified `data` payload.
+   * The bot under test should answer with `answerCallbackQuery` and optionally edit the message.
+   *
+   * @param data - The callback_data string from the pressed button.
+   * @param options - Callback ID, message text, user, chat, and timeout options.
+   * @returns Array of captured Bot API responses.
+   * @public
+   */
   async sendCallbackQuery(data: string, options?: ITMockTelegramCallbackQueryOptions) {
     const {updateId, messageId, date} = this._nextIds(options)
     return await this._postUpdate(
