@@ -1,3 +1,24 @@
+/**
+ * E2E Test Flow for HelloWorld Bot
+ *
+ * Setup:
+ *   1. MockTelegramServer starts on random port → apiRoot captured
+ *   2. BotCore initialized with webhook:http://127.0.0.1:3002/webhook/e2e
+ *   3. TemplateManager loads pages from src/pages/
+ *
+ * Test Flow:
+ *   T1. /start → Hello World! + Time now + inline keyboard (Refresh button, callback_data: "start")
+ *   T2. /start → callback:start → editMessage → Hello World! + Time now (refreshed)
+ *   T3. /unknown → Route not found
+ *   T4. /start → verify sendMessage request captured in mockServer.requests
+ *   T5. /start → callback:start → text:gibberish → sequential chain
+ *   T6. sendPhoto → Route not found (no photo handler)
+ *   T7. /start with custom user(id:99999)/chat(id:88888) → custom ID propagation verified
+ *
+ * Cleanup:
+ *   - botCore.stop() + mockServer.stop() in afterAll
+ *   - mockServer.clearRequests() in beforeEach
+ */
 import {join} from "node:path"
 import {BotCore} from "../src/core/bot"
 import {TemplateManager} from "gramstax"
@@ -16,7 +37,7 @@ beforeAll(async () => {
   process.chdir(join(import.meta.dir, `..`))
 
   botCore = new BotCore({
-    deploy: `webhook:http://127.0.0.1:3000/webhook/e2e`,
+    deploy: `webhook:http://127.0.0.1:3002/webhook/e2e`,
     token: `test-token`,
     log: false,
     templateManager,
