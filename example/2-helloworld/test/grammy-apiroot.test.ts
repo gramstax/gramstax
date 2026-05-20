@@ -7,7 +7,7 @@ import {describe, it, expect} from "bun:test"
 
 describe(`grammy apiRoot override`, () => {
   it(`routes API calls to local mock server`, async () => {
-    const mockServer = new MockTelegramServer({token: Env.TELEGRAM_BOT_TOKEN})
+    const mockServer = new MockTelegramServer()
     await mockServer.start()
     const templateManager = new TemplateManager({path: [join(import.meta.dir, `../src/pages`)]})
     const cwd = process.cwd()

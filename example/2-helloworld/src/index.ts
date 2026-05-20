@@ -7,7 +7,7 @@ class Index {
   static async run() {
     LogHe.info(`Starting 2-helloworld bot...`)
 
-    // const mockServer = new MockTelegramServer({token: Env.TELEGRAM_BOT_TOKEN})
+    // const mockServer = new MockTelegramServer()
     // await mockServer.start()
 
     new BotCore({
