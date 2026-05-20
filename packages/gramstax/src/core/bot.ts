@@ -145,6 +145,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   handlerBotUpdate: any
 
   /**
+   * Deploy type
+   * @remarks
+   * Deploy type from constructor params
+   */
+  deployType: `polling` | `webhook` | `serverless` | `test`
+
+  /**
    * Creates a new Gramstax bot instance.
    *
    * @param params - Configuration options. See {@link ITGramstaxParams} for all available options.
@@ -212,12 +219,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     this.hookBeforeStart()
     if (params.deploy.startsWith(`polling`)) {
+      this.deployType = `polling`
       this._runPolling()
     } else if (params.deploy.startsWith(`webhook:`)) {
+      this.deployType = `webhook`
       this._runWebhook(params.deploy.split(`webhook:`)[1] as string)
     } else if (params.deploy.startsWith(`serverless:`)) {
+      this.deployType = `serverless`
       this._runServerless(params.deploy.split(`serverless:`)[1] as string)
     } else if (params.deploy.startsWith(`test`)) {
+      this.deployType = `test`
       // nothing, for test unit internal area
     } else {
       throw new Error(`Params deploy is not valid, expected: polling, webhook:<public-url>, serverless:<your-adapter>`)
@@ -231,8 +242,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    */
   async stop() {
     await this.bot.stop()
-    await this.webhookServer?.stop()
-    this.webhookServer = undefined
+    if (this.deployType === `webhook`) {
+      await this.webhookServer?.stop()
+      this.webhookServer = undefined
+    }
   }
 
   /**
