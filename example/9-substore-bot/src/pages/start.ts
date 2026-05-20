@@ -12,7 +12,7 @@ class Main {
   static async showStep1Form(ctx: StartPage, edit = false) {
     await ctx.clearSession()
     const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([CatalogPage.data.callbackData(`page`, `0`), CartPage, HistoryPage, HelpPage], `2`, bi)
+    const kb = ctx.inlineKeyboardT([CatalogPage.data.callbackData(Base.step1, `page`, `0`), CartPage, HistoryPage, HelpPage], `2`, bi)
     const da = {}
     if (edit) {
       await ctx.edit(kb, da, bi)

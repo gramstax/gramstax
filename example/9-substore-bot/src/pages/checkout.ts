@@ -57,7 +57,7 @@ class Helper {
   }
 
   static kbCart(ctx: CheckoutPage, bi?: string) {
-    return ctx.inlineKeyboardT([CartPage, CatalogPage.data.callbackData(`page`, `0`)], `2`, bi)
+    return ctx.inlineKeyboardT([CartPage, CatalogPage.data.callbackData(Base.step1, `page`, `0`)], `2`, bi)
   }
 
   static kbConfirm(ctx: CheckoutPage, bi?: string) {
@@ -65,11 +65,11 @@ class Helper {
   }
 
   static kbHome(ctx: CheckoutPage, bi?: string) {
-    return ctx.inlineKeyboardT([HistoryPage, StartPage, CatalogPage.data.callbackData(`page`, `0`)], `2`, bi)
+    return ctx.inlineKeyboardT([HistoryPage, StartPage, CatalogPage.data.callbackData(Base.step1, `page`, `0`)], `2`, bi)
   }
 
   static kbSuccess(ctx: CheckoutPage, orderId: string, bi?: string) {
-    return ctx.inlineKeyboardT([ctx.data.callbackData(Base.refresh, orderId), HistoryPage, StartPage, CatalogPage.data.callbackData(`page`, `0`)], `2`, bi)
+    return ctx.inlineKeyboardT([ctx.data.callbackData(Base.refresh, orderId), HistoryPage, StartPage, CatalogPage.data.callbackData(Base.step1, `page`, `0`)], `2`, bi)
   }
 }
 

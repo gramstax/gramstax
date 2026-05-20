@@ -9,7 +9,7 @@ class Base {
 
 class Helper {
   static kb(ctx: HelpPage, bi?: string) {
-    return ctx.inlineKeyboardT([CatalogPage.data.callbackData(`page`, `0`), StartPage], `1`, bi)
+    return ctx.inlineKeyboardT([CatalogPage.data.callbackData(Base.step1, `page`, `0`), StartPage], `1`, bi)
   }
 }
 

@@ -25,7 +25,7 @@ class Helper {
   }
 
   static kbBack(ctx: ProductPage, bi?: string) {
-    return ctx.inlineKeyboardT([CatalogPage.data.callbackData(`page`, `0`), CartPage], `2`, bi)
+    return ctx.inlineKeyboardT([CatalogPage.data.callbackData(Base.step1, `page`, `0`), CartPage], `2`, bi)
   }
 }
 

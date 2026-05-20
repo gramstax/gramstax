@@ -21,10 +21,10 @@ class Helper {
         })
 
         if (productPage.hasPrev) {
-          k.text(l[0]!, ctx.data.callbackData(`page`, `${productPage.page - 1}`))
+          k.text(l[0]!, ctx.data.callbackData(bi, `page`, `${productPage.page - 1}`))
         }
         if (productPage.hasNext) {
-          k.text(l[1]!, ctx.data.callbackData(`page`, `${productPage.page + 1}`))
+          k.text(l[1]!, ctx.data.callbackData(bi, `page`, `${productPage.page + 1}`))
         }
 
         return k.row().text(l[2]!, CartPage.data.callbackData()).text(l[3]!, HelpPage.data.callbackData()).row().text(l[4]!, StartPage.data.callbackData())
@@ -61,15 +61,17 @@ class Main {
 }
 
 export class CatalogPage extends PageBase {
-  static data = this.buildData((action?: string, value?: string) => [action, value])
+  static data = this.buildData((step?: string, action?: string, value?: string) => [step, action, value])
 
   async handleCallbackData() {
     await Main.showStep1Form(this, 0, true)
   }
 
   async handleArgsCallbackData() {
-    const [action, value] = this.callbackDataArgs
-    await Main.processStep1Answer(this, action, value)
+    const [step, action, value] = this.callbackDataArgs
+    if (step === Base.step1) {
+      await Main.processStep1Answer(this, action, value)
+    }
   }
 
   async showStep1Form(page = 0, edit = true) {

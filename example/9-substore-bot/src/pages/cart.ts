@@ -24,26 +24,26 @@ class Helper {
     return ctx.inlineKeyboard(
       (k, l) => {
         summary.items.forEach((item) => {
-          k.text(`${l[0]!} ${item.product.name}`, ctx.data.callbackData(`inc`, item.product.id))
-          k.text(l[1]!, ctx.data.callbackData(`dec`, item.product.id))
-          k.text(l[2]!, ctx.data.callbackData(`remove`, item.product.id))
+          k.text(`${l[0]!} ${item.product.name}`, ctx.data.callbackData(bi, `inc`, item.product.id))
+          k.text(l[1]!, ctx.data.callbackData(bi, `dec`, item.product.id))
+          k.text(l[2]!, ctx.data.callbackData(bi, `remove`, item.product.id))
           k.row()
         })
 
         if (!summary.isEmpty) {
           k.text(l[3]!, CheckoutPage.data.callbackData())
-          k.text(l[4]!, ctx.data.callbackData(`clear`))
+          k.text(l[4]!, ctx.data.callbackData(bi, `clear`))
           k.row()
         }
 
-        return k.text(l[5]!, CatalogPage.data.callbackData(`page`, `0`)).text(l[6]!, StartPage.data.callbackData())
+        return k.text(l[5]!, CatalogPage.data.callbackData(Base.step1, `page`, `0`)).text(l[6]!, StartPage.data.callbackData())
       },
       {baseId: bi}
     )
   }
 
   static kbEmpty(ctx: CartPage, bi?: string) {
-    return ctx.inlineKeyboardT([CatalogPage.data.callbackData(`page`, `0`), StartPage], `1`, bi)
+    return ctx.inlineKeyboardT([CatalogPage.data.callbackData(Base.step1, `page`, `0`), StartPage], `1`, bi)
   }
 }
 
@@ -96,15 +96,17 @@ class Main {
 }
 
 export class CartPage extends PageBase {
-  static data = this.buildData((action?: string, productId?: string) => [action, productId])
+  static data = this.buildData((step?: string, action?: string, productId?: string) => [step, action, productId])
 
   async handleCallbackData() {
     await Main.showStep1Form(this, true)
   }
 
   async handleArgsCallbackData() {
-    const [action, productId] = this.callbackDataArgs
-    await Main.processStep1Answer(this, action, productId)
+    const [step, action, productId] = this.callbackDataArgs
+    if (step === Base.step1) {
+      await Main.processStep1Answer(this, action, productId)
+    }
   }
 
   async showStep1Form(edit = true) {
