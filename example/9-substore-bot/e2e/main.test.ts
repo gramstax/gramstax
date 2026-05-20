@@ -9,7 +9,7 @@
  * Test Flow:
  *   T1. /start → SubStore Bot + inline keyboard (Browse Products, Cart, History, Help)
  *   T2. /start → callback:help → editMessage → Store Help + Browse Products + Home buttons
- *   T3. /start → callback:catalog:page:0 → editMessage → Subscription Catalog + products available + pagination keyboard
+ *   T3. /start → callback:catalog:s1:page:0 → editMessage → Subscription Catalog + products available + pagination keyboard
  *   T4. /unknown → Action not found
  *   T5. /start → verify sendMessage request captured in mockServer.requests
  *   T6. /start → callback:help → text:gibberish → Action not found (sequential chain)
@@ -103,7 +103,7 @@ describe(`E2E: SubStore Bot via MockTelegramServer (webhook)`, () => {
     await mockServer.sendText(`/start`)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`catalog:page:0`, {responseTimeoutMs: 3000})
+    const responses = await mockServer.sendCallbackQuery(`catalog:s1:page:0`, {responseTimeoutMs: 3000})
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]
