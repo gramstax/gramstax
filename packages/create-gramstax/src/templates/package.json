@@ -32,7 +32,10 @@
     "start": "bun src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "bun test test/",
+    "test:e2e": "bun test e2e/",
+    "test:all": "bun test test/ e2e/"
   },
   "dependencies": {
     "gramstax": "gramstax",
