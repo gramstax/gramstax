@@ -18,3 +18,8 @@ type ITMockTelegramChat = {
     title?: string;
 };
 ```
+
+## Remarks
+
+Mirrors the Telegram Bot API `Chat` object. Used alongside `ITMockTelegramUser` to construct mock message updates sent to the bot's webhook.
+

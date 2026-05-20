@@ -18,3 +18,7 @@ type ITMockTelegramContactOptions = ITMockTelegramUpdateOptions & {
 ```
 **References:** [ITMockTelegramUpdateOptions](./gramstax.itmocktelegramupdateoptions.md)
 
+## Remarks
+
+Extends `ITMockTelegramUpdateOptions` with contact fields. Used by `sendContact`<!-- -->.
+

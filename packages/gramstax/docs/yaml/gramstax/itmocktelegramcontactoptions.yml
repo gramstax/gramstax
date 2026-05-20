@@ -4,7 +4,7 @@ uid: gramstax!ITMockTelegramContactOptions:type
 package: gramstax!
 fullName: ITMockTelegramContactOptions
 summary: Options for generated mock contact updates.
-remarks: ''
+remarks: Extends `ITMockTelegramUpdateOptions` with contact fields. Used by `sendContact`<!-- -->.
 example: []
 isPreview: false
 isDeprecated: false

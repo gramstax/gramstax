@@ -105,6 +105,19 @@ properties:
       content: 'cacheSession: CacheExternal<ITCacheRpc>;'
       return:
         type: <xref uid="gramstax!CacheExternal:class" />&lt;<xref uid="gramstax!ITCacheRpc:type" />&gt;
+  - name: deployType
+    uid: gramstax!Gramstax#deployType:member
+    package: gramstax!
+    fullName: deployType
+    summary: Deploy type
+    remarks: Deploy type from constructor params
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'deployType: `polling` | `webhook` | `serverless` | `test`;'
+      return:
+        type: '`polling` | `webhook` | `serverless` | `test`'
   - name: handlerBotUpdate
     uid: gramstax!Gramstax#handlerBotUpdate:member
     package: gramstax!

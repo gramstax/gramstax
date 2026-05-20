@@ -361,6 +361,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     cacheSession: CacheExternal<ITCacheRpc>;
     createBot(token: string): Bot<Context, grammy.Api<grammy.RawApi>>;
     createCtx(ct: Context): ICtx;
+    deployType: `polling` | `webhook` | `serverless` | `test`;
     // (undocumented)
     executeSyncBlocksDescription(pages: typeof Gramstax.prototype.pages): Promise<void>;
     getWebhookQueueStats(): {
@@ -1358,7 +1359,7 @@ export class WorkerThreadRpc {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:7245:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:7342:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

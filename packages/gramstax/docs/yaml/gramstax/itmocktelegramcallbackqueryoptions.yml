@@ -4,7 +4,7 @@ uid: gramstax!ITMockTelegramCallbackQueryOptions:type
 package: gramstax!
 fullName: ITMockTelegramCallbackQueryOptions
 summary: Options for generated mock callback query updates.
-remarks: ''
+remarks: Extends `ITMockTelegramUpdateOptions` with callback-specific fields. Used by `sendCallbackQuery`<!-- -->.
 example: []
 isPreview: false
 isDeprecated: false

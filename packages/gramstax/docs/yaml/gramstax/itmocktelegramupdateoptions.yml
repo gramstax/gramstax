@@ -4,7 +4,9 @@ uid: gramstax!ITMockTelegramUpdateOptions:type
 package: gramstax!
 fullName: ITMockTelegramUpdateOptions
 summary: Shared options for generated mock updates.
-remarks: ''
+remarks: >-
+  Base options object passed to all `send*` helper methods on `MockTelegramServer`<!-- -->. Controls the simulated user,
+  chat context, and response wait behavior.
 example: []
 isPreview: false
 isDeprecated: false

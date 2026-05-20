@@ -4,7 +4,9 @@ uid: gramstax!ITMockTelegramMediaOptions:type
 package: gramstax!
 fullName: ITMockTelegramMediaOptions
 summary: Options for generated mock media message updates.
-remarks: ''
+remarks: >-
+  Extends `ITMockTelegramUpdateOptions` with a `caption` field. Used by `sendPhoto`<!-- -->, `sendVideo`<!-- -->,
+  `sendAudio`<!-- -->, `sendDocument`<!-- -->, `sendAnimation`<!-- -->, and `sendVoice`<!-- -->.
 example: []
 isPreview: false
 isDeprecated: false

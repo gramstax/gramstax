@@ -16,3 +16,7 @@ type ITMockTelegramLocationOptions = ITMockTelegramUpdateOptions & {
 ```
 **References:** [ITMockTelegramUpdateOptions](./gramstax.itmocktelegramupdateoptions.md)
 
+## Remarks
+
+Extends `ITMockTelegramUpdateOptions` with `latitude` and `longitude`<!-- -->. Used by `sendLocation`<!-- -->.
+

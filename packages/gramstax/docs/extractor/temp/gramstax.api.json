@@ -18287,6 +18287,36 @@
               "name": "createCtx"
             },
             {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Gramstax#deployType:member",
+              "docComment": "/**\n * Deploy type\n *\n * @remarks\n *\n * Deploy type from constructor params\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "deployType: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "`polling` | `webhook` | `serverless` | `test`"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "deployType",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
               "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#executeSyncBlocksDescription:member(1)",
               "docComment": "",
@@ -19587,7 +19617,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITMockTelegramCallbackQueryOptions:type",
-          "docComment": "/**\n * Options for generated mock callback query updates.\n */\n",
+          "docComment": "/**\n * Options for generated mock callback query updates.\n *\n * @remarks\n *\n * Extends `ITMockTelegramUpdateOptions` with callback-specific fields. Used by `sendCallbackQuery`.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -19618,7 +19648,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITMockTelegramChat:type",
-          "docComment": "/**\n * Basic Telegram mock chat profile used when generating message updates.\n */\n",
+          "docComment": "/**\n * Basic Telegram mock chat profile used when generating message updates.\n *\n * @remarks\n *\n * Mirrors the Telegram Bot API `Chat` object. Used alongside `ITMockTelegramUser` to construct mock message updates sent to the bot's webhook.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -19644,7 +19674,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITMockTelegramContactOptions:type",
-          "docComment": "/**\n * Options for generated mock contact updates.\n */\n",
+          "docComment": "/**\n * Options for generated mock contact updates.\n *\n * @remarks\n *\n * Extends `ITMockTelegramUpdateOptions` with contact fields. Used by `sendContact`.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -19759,7 +19789,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITMockTelegramLocationOptions:type",
-          "docComment": "/**\n * Options for generated mock location updates.\n */\n",
+          "docComment": "/**\n * Options for generated mock location updates.\n *\n * @remarks\n *\n * Extends `ITMockTelegramUpdateOptions` with `latitude` and `longitude`. Used by `sendLocation`.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -19790,7 +19820,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITMockTelegramMediaOptions:type",
-          "docComment": "/**\n * Options for generated mock media message updates.\n */\n",
+          "docComment": "/**\n * Options for generated mock media message updates.\n *\n * @remarks\n *\n * Extends `ITMockTelegramUpdateOptions` with a `caption` field. Used by `sendPhoto`, `sendVideo`, `sendAudio`, `sendDocument`, `sendAnimation`, and `sendVoice`.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -19821,7 +19851,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITMockTelegramRequestRecord:type",
-          "docComment": "/**\n * Recorded outbound Bot API request captured by the mock server.\n */\n",
+          "docComment": "/**\n * Recorded outbound Bot API request captured by the mock server.\n *\n * @remarks\n *\n * Each entry represents one HTTP request made by the bot under test to the mock server. Access via `mockServer.requests` or `mockServer.lastRequest(method)`.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -19918,7 +19948,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITMockTelegramUpdateOptions:type",
-          "docComment": "/**\n * Shared options for generated mock updates.\n */\n",
+          "docComment": "/**\n * Shared options for generated mock updates.\n *\n * @remarks\n *\n * Base options object passed to all `send*` helper methods on `MockTelegramServer`. Controls the simulated user, chat context, and response wait behavior.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -19962,7 +19992,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITMockTelegramUser:type",
-          "docComment": "/**\n * Basic Telegram mock user profile used when generating updates.\n */\n",
+          "docComment": "/**\n * Basic Telegram mock user profile used when generating updates.\n *\n * @remarks\n *\n * Mirrors the Telegram Bot API `User` object. Used by `sendText`, `sendPhoto`, `sendCallbackQuery`, and other helper methods to construct mock message updates. The mock server fills missing fields with defaults (e.g. `language_code: \"en\"`).\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

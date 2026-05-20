@@ -15,3 +15,7 @@ type ITMockTelegramMediaOptions = ITMockTelegramUpdateOptions & {
 ```
 **References:** [ITMockTelegramUpdateOptions](./gramstax.itmocktelegramupdateoptions.md)
 
+## Remarks
+
+Extends `ITMockTelegramUpdateOptions` with a `caption` field. Used by `sendPhoto`<!-- -->, `sendVideo`<!-- -->, `sendAudio`<!-- -->, `sendDocument`<!-- -->, `sendAnimation`<!-- -->, and `sendVoice`<!-- -->.
+

@@ -18,3 +18,8 @@ type ITMockTelegramUser = {
     language_code?: string;
 };
 ```
+
+## Remarks
+
+Mirrors the Telegram Bot API `User` object. Used by `sendText`<!-- -->, `sendPhoto`<!-- -->, `sendCallbackQuery`<!-- -->, and other helper methods to construct mock message updates. The mock server fills missing fields with defaults (e.g. `language_code: "en"`<!-- -->).
+

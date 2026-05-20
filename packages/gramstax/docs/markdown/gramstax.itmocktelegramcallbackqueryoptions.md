@@ -16,3 +16,7 @@ type ITMockTelegramCallbackQueryOptions = ITMockTelegramUpdateOptions & {
 ```
 **References:** [ITMockTelegramUpdateOptions](./gramstax.itmocktelegramupdateoptions.md)
 
+## Remarks
+
+Extends `ITMockTelegramUpdateOptions` with callback-specific fields. Used by `sendCallbackQuery`<!-- -->.
+

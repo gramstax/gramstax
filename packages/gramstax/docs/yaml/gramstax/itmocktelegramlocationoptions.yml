@@ -4,7 +4,7 @@ uid: gramstax!ITMockTelegramLocationOptions:type
 package: gramstax!
 fullName: ITMockTelegramLocationOptions
 summary: Options for generated mock location updates.
-remarks: ''
+remarks: Extends `ITMockTelegramUpdateOptions` with `latitude` and `longitude`<!-- -->. Used by `sendLocation`<!-- -->.
 example: []
 isPreview: false
 isDeprecated: false

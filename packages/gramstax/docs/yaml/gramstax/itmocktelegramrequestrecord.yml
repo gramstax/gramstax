@@ -4,7 +4,9 @@ uid: gramstax!ITMockTelegramRequestRecord:type
 package: gramstax!
 fullName: ITMockTelegramRequestRecord
 summary: Recorded outbound Bot API request captured by the mock server.
-remarks: ''
+remarks: >-
+  Each entry represents one HTTP request made by the bot under test to the mock server. Access via `mockServer.requests`
+  or `mockServer.lastRequest(method)`<!-- -->.
 example: []
 isPreview: false
 isDeprecated: false

@@ -17,3 +17,8 @@ type ITMockTelegramRequestRecord = {
     headers: Record<string, string>;
 };
 ```
+
+## Remarks
+
+Each entry represents one HTTP request made by the bot under test to the mock server. Access via `mockServer.requests` or `mockServer.lastRequest(method)`<!-- -->.
+

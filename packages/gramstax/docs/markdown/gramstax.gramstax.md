@@ -164,6 +164,25 @@ External cache for user session data.
 </td></tr>
 <tr><td>
 
+[deployType](./gramstax.gramstax.deploytype.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\`polling\` \| \`webhook\` \| \`serverless\` \| \`test\`
+
+
+</td><td>
+
+Deploy type
+
+
+</td></tr>
+<tr><td>
+
 [handlerBotUpdate](./gramstax.gramstax.handlerbotupdate.md)
 
 

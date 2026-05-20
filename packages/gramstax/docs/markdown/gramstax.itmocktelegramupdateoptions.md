@@ -19,3 +19,7 @@ type ITMockTelegramUpdateOptions = {
 ```
 **References:** [ITMockTelegramUser](./gramstax.itmocktelegramuser.md)<!-- -->, [ITMockTelegramChat](./gramstax.itmocktelegramchat.md)
 
+## Remarks
+
+Base options object passed to all `send*` helper methods on `MockTelegramServer`<!-- -->. Controls the simulated user, chat context, and response wait behavior.
+
