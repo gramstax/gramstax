@@ -207,8 +207,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.pages = this._pageLoads()
 
     // Graceful shutdown
-    process.once(`SIGINT`, () => this.bot.stop())
-    process.once(`SIGTERM`, () => this.bot.stop())
+    process.once(`SIGINT`, () => this.stop())
+    process.once(`SIGTERM`, () => this.stop())
 
     this.hookBeforeStart()
     if (params.deploy.startsWith(`polling`)) {
@@ -222,6 +222,17 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     } else {
       throw new Error(`Params deploy is not valid, expected: polling, webhook:<public-url>, serverless:<your-adapter>`)
     }
+  }
+
+  /**
+   * Stop bot
+   *
+   * @public
+   */
+  async stop() {
+    await this.bot.stop()
+    await this.webhookServer?.stop()
+    this.webhookServer = undefined
   }
 
   /**
@@ -269,7 +280,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     await this.executeSyncBlocksDescription(this.pages)
 
     const {username} = botInfo
-    this.log?.success?.(`Telegram bot polling started: ${username} ${method == `webhook` || method == `serverless` ? `(${data})` : ``}`)
+    this.log?.success?.(`Telegram bot deploy ${method} started: ${username} ${method == `webhook` || method == `serverless` ? `(${data})` : ``}`)
     this.hookAfterStart()
   }
 
@@ -444,13 +455,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
     })
     this.webhookServer = server
-
-    const stopServer = () => {
-      this.webhookServer?.stop()
-      this.webhookServer = undefined
-    }
-    process.once(`SIGINT`, stopServer)
-    process.once(`SIGTERM`, stopServer)
 
     const data = await this.bot.api.getWebhookInfo()
     if (data.url != fullUrl) {
