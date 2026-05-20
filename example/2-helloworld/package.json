@@ -4,7 +4,10 @@
   "scripts": {
     "start": "bun ./src/index.ts",
     "dev": "bun --watch ./src/index.ts",
-    "bench:webhook": "bun ./src/bench/webhook-server.ts"
+    "bench:webhook": "bun ./src/bench/webhook-server.ts",
+    "test": "bun test test/",
+    "test:e2e": "bun test e2e/",
+    "test:all": "bun run test && bun run test:e2e"
   },
   "dependencies": {
     "gramstax": "workspace:*"
