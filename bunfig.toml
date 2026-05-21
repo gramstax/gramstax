@@ -1,2 +1,5 @@
 [console]
 depth = 4
+
+[test]
+pathIgnorePatterns = ["**/dist/**", "**/node_modules/**"]
