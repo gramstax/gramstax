@@ -85,6 +85,15 @@ export class MainDb {
     return removed
   }
 
+  async clearAll(userId: number) {
+    const prefix = this.itemPrefix(userId)
+    for (const {key} of this.db.getRange({start: prefix, end: `${prefix}~`})) {
+      await this.db.remove(key)
+    }
+    await this.db.remove(this.counterKey(userId))
+    await this.db.remove(this.countKey(userId))
+  }
+
   private itemKey(userId: number, id: string) {
     return `item:${userId}:${id}`
   }
