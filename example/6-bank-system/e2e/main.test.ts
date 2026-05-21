@@ -86,7 +86,7 @@ describe(`E2E: Bank System bot via MockTelegramServer (webhook)`, () => {
     await mockServer.sendText(`/start`)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`balance`, {responseTimeoutMs: 3000})
+    const responses = await mockServer.sendCallbackQuery(`balance`)
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]!
@@ -103,7 +103,7 @@ describe(`E2E: Bank System bot via MockTelegramServer (webhook)`, () => {
     await mockServer.sendText(`/start`)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`deposit`, {responseTimeoutMs: 3000})
+    const responses = await mockServer.sendCallbackQuery(`deposit`)
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]!
@@ -115,7 +115,7 @@ describe(`E2E: Bank System bot via MockTelegramServer (webhook)`, () => {
     await mockServer.sendText(`/start`)
     mockServer.clearRequests()
 
-    await mockServer.sendCallbackQuery(`deposit`, {responseTimeoutMs: 3000})
+    await mockServer.sendCallbackQuery(`deposit`)
     mockServer.clearRequests()
 
     const responses = await mockServer.sendText(`/unknown`)
@@ -127,7 +127,7 @@ describe(`E2E: Bank System bot via MockTelegramServer (webhook)`, () => {
   })
 
   it(`captures outbound requests in mockServer.requests`, async () => {
-    const responses = await mockServer.sendCallbackQuery(`start`, {responseTimeoutMs: 3000})
+    const responses = await mockServer.sendCallbackQuery(`start`)
 
     expect(responses.length).toBeGreaterThan(0)
     const sendMessageReq = mockServer.lastRequest(`editMessageText`) ?? mockServer.lastRequest(`sendMessage`)
@@ -136,17 +136,17 @@ describe(`E2E: Bank System bot via MockTelegramServer (webhook)`, () => {
   })
 
   it(`handles multiple sequential interactions`, async () => {
-    const res1 = await mockServer.sendCallbackQuery(`start`, {responseTimeoutMs: 3000})
+    const res1 = await mockServer.sendCallbackQuery(`start`)
     expect(res1[0]?.body?.text).toContain(`Banking Menu`)
 
     mockServer.clearRequests()
 
-    const res2 = await mockServer.sendCallbackQuery(`balance`, {responseTimeoutMs: 3000})
+    const res2 = await mockServer.sendCallbackQuery(`balance`)
     expect(res2[0]?.body?.text).toContain(`Account balance`)
 
     mockServer.clearRequests()
 
-    const res3 = await mockServer.sendCallbackQuery(`deposit`, {responseTimeoutMs: 3000})
+    const res3 = await mockServer.sendCallbackQuery(`deposit`)
     expect(res3[0]?.body?.text).toContain(`Deposit funds`)
   })
 })

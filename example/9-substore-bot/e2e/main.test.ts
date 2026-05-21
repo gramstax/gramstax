@@ -85,7 +85,7 @@ describe(`E2E: SubStore Bot via MockTelegramServer (webhook)`, () => {
     await mockServer.sendText(`/start`)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`help`, {responseTimeoutMs: 3000})
+    const responses = await mockServer.sendCallbackQuery(`help`)
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]
@@ -103,7 +103,7 @@ describe(`E2E: SubStore Bot via MockTelegramServer (webhook)`, () => {
     await mockServer.sendText(`/start`)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`catalog:s1:page:0`, {responseTimeoutMs: 3000})
+    const responses = await mockServer.sendCallbackQuery(`catalog:s1:page:0`)
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]
@@ -138,7 +138,7 @@ describe(`E2E: SubStore Bot via MockTelegramServer (webhook)`, () => {
 
     mockServer.clearRequests()
 
-    const res2 = await mockServer.sendCallbackQuery(`help`, {responseTimeoutMs: 3000})
+    const res2 = await mockServer.sendCallbackQuery(`help`)
     expect(res2[0]?.body?.text).toContain(`Help`)
 
     mockServer.clearRequests()

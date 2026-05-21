@@ -88,7 +88,7 @@ describe(`E2E: CRUD bot via MockTelegramServer (webhook)`, () => {
     await mockServer.sendText(`/start`)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`help`, {responseTimeoutMs: 3000})
+    const responses = await mockServer.sendCallbackQuery(`help`)
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]!
@@ -104,7 +104,7 @@ describe(`E2E: CRUD bot via MockTelegramServer (webhook)`, () => {
     await mockServer.sendText(`/start`)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`create`, {responseTimeoutMs: 3000})
+    const responses = await mockServer.sendCallbackQuery(`create`)
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]!
@@ -116,7 +116,7 @@ describe(`E2E: CRUD bot via MockTelegramServer (webhook)`, () => {
     await mockServer.sendText(`/start`)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`list`, {responseTimeoutMs: 3000})
+    const responses = await mockServer.sendCallbackQuery(`list`)
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]!
@@ -127,7 +127,7 @@ describe(`E2E: CRUD bot via MockTelegramServer (webhook)`, () => {
     await mockServer.sendText(`/start`)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`nonexistent_action`, {responseTimeoutMs: 3000})
+    const responses = await mockServer.sendCallbackQuery(`nonexistent_action`)
 
     expect(responses.length).toBeGreaterThanOrEqual(0)
     if (responses.length > 0) {
@@ -150,12 +150,12 @@ describe(`E2E: CRUD bot via MockTelegramServer (webhook)`, () => {
 
     mockServer.clearRequests()
 
-    const res2 = await mockServer.sendCallbackQuery(`help`, {responseTimeoutMs: 3000})
+    const res2 = await mockServer.sendCallbackQuery(`help`)
     expect(res2[0]?.body?.text).toContain(`Help`)
 
     mockServer.clearRequests()
 
-    const res3 = await mockServer.sendCallbackQuery(`help`, {responseTimeoutMs: 3000})
+    const res3 = await mockServer.sendCallbackQuery(`help`)
     expect(res3[0]?.body?.text).toContain(`Help`)
   })
 })

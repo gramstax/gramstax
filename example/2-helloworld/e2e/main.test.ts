@@ -87,7 +87,7 @@ describe(`E2E: HelloWorld bot via MockTelegramServer (webhook)`, () => {
     await mockServer.sendText(`/start`)
     mockServer.clearRequests()
 
-    const responses = await mockServer.sendCallbackQuery(`start`, {responseTimeoutMs: 3000})
+    const responses = await mockServer.sendCallbackQuery(`start`)
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]!
@@ -118,7 +118,7 @@ describe(`E2E: HelloWorld bot via MockTelegramServer (webhook)`, () => {
 
     mockServer.clearRequests()
 
-    const res2 = await mockServer.sendCallbackQuery(`start`, {responseTimeoutMs: 3000})
+    const res2 = await mockServer.sendCallbackQuery(`start`)
     expect(res2.length).toBeGreaterThan(0)
     expect(res2[0]?.body?.text).toContain(`Hello World!`)
 
