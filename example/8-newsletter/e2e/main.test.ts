@@ -283,9 +283,10 @@ describe(`E2E: Newsletter bot via MockTelegramServer (webhook)`, () => {
       })
 
       expect(responses.length).toBeGreaterThan(0)
-      const reply = responses[0]!
-      expect(reply.body?.text).toContain(`Broadcast sent`)
-      expect(reply.body?.text).toMatch(/Delivered to \d+\/\d+ subscribers/)
+      const editReply = responses.find((r) => r.method === `editMessageText`)
+      expect(editReply).toBeDefined()
+      expect(editReply!.body?.text).toContain(`Broadcast sent`)
+      expect(editReply!.body?.text).toMatch(/Delivered to \d+\/\d+ subscribers/)
     })
 
     it(`admin cancels broadcast and gets cancelled message`, async () => {

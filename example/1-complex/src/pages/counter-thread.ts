@@ -10,7 +10,7 @@ class Main {
   static async showStep1Form(ctx: CounterThreadPage) {
     const count = await IncrementJob.mtdGetCount() // difference thread
     const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`1`), StartPage], `1`, bi)
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `1`), StartPage], `1`, bi)
     const da = {count, timestamp: new Date().getTime()}
     await ctx.edit(kb, da, bi)
   }
@@ -21,15 +21,15 @@ class Main {
 }
 
 export class CounterThreadPage extends PageBase {
-  static data = this.buildData((exe?: string) => [exe])
+  static data = this.buildData((step?: string, exe?: string) => [step, exe])
 
   async handleCallbackData() {
     await Main.showStep1Form(this)
   }
 
   async handleArgsCallbackData() {
-    const [exe] = this.callbackDataArgs
-    if (exe === `1`) {
+    const [step, exe] = this.callbackDataArgs
+    if (step === Base.step1 && exe === `1`) {
       await Main.processStep1Answer(this)
     }
   }

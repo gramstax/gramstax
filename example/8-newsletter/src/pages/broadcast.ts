@@ -51,7 +51,7 @@ class Helper {
 
 class Alert {
   static async showInfoHybridMedia(ctx: BroadcastPage) {
-    await ctx.setSession(`multi_session`, {position: `form`}) // multi session in 1 object for handleFreeText, handleFree*
+    await ctx.setSession(`multi_session`, {position: `form`})
     const bi = Base.infoHybridMedia
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `cancel`), StartPage], `2`, bi)
     const da = {}
@@ -152,7 +152,7 @@ class Main {
       return null
     }
 
-    await ctx.setSession(`multi_session`, {position: `form`}) // multi session in 1 object for handleFreeText, handleFree*
+    await ctx.setSession(`multi_session`, {position: `form`})
     const bi = Base.step1
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `hybrid`), ctx.data.callbackData(bi, `cancel`), StartPage], `1-2`, bi)
     const da = {draftText, isEmpty}

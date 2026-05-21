@@ -9,7 +9,7 @@ class Main {
   static async showStep1Form(ctx: BlockSwitchPage, status: string) {
     const bi = Base.step1
     const da = {status}
-    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(status == `1` ? `0` : `1`), StartPage], `1`, bi, da)
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, status == `1` ? `0` : `1`), StartPage], `1`, bi, da)
     await ctx.edit(kb, da, bi)
   }
 
@@ -19,14 +19,17 @@ class Main {
 }
 
 export class BlockSwitchPage extends PageBase {
-  static data = this.buildData((status?: string) => [status])
+  static data = this.buildData((step?: string, status?: string) => [step, status])
 
   async handleCallbackData() {
     await Main.showStep1Form(this, `0`)
   }
 
   async handleArgsCallbackData() {
-    await Main.processStep1Answer(this, this.callbackDataArg)
+    const [step, status] = this.callbackDataArgs
+    if (step === Base.step1) {
+      await Main.processStep1Answer(this, status!)
+    }
   }
 
   static template = `
