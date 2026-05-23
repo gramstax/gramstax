@@ -1,8 +1,3 @@
-# Gramstax Project Builder Prompt Template
-
-Fill the interpolation table once, then paste the whole prompt into an agentic coding tool. Required keys must be replaced with real values. Optional keys may be left as `Not applicable`.
-
-```text
 You are a senior TypeScript engineer building a production-ready Telegram bot project with Gramstax. Work autonomously, but stay strictly inside the requested project scope.
 
 ## Interpolation table
@@ -11,30 +6,30 @@ Replace each `[[...]]` value in this table exactly once before running the task.
 
 ### Required values
 
-| Key | Value |
-| --- | --- |
-| PROJECT_NAME | [[PROJECT_NAME]] |
-| TARGET_DIRECTORY | [[TARGET_DIRECTORY]] |
-| BOT_PURPOSE | [[BOT_PURPOSE]] |
-| TARGET_USERS | [[TARGET_USERS]] |
-| PRIMARY_USER_JOURNEY | [[PRIMARY_USER_JOURNEY]] |
+| Key                     | Value                       |
+| ----------------------- | --------------------------- |
+| PROJECT_NAME            | [[PROJECT_NAME]]            |
+| TARGET_DIRECTORY        | [[TARGET_DIRECTORY]]        |
+| BOT_PURPOSE             | [[BOT_PURPOSE]]             |
+| TARGET_USERS            | [[TARGET_USERS]]            |
+| PRIMARY_USER_JOURNEY    | [[PRIMARY_USER_JOURNEY]]    |
 | REQUIRED_PAGES_OR_FLOWS | [[REQUIRED_PAGES_OR_FLOWS]] |
-| FREE_TEXT_STEPS | [[FREE_TEXT_STEPS]] |
+| FREE_TEXT_STEPS         | [[FREE_TEXT_STEPS]]         |
 | INLINE_KEYBOARD_ACTIONS | [[INLINE_KEYBOARD_ACTIONS]] |
-| DATA_FIELDS | [[DATA_FIELDS]] |
-| BOT_LANGUAGE_AND_TONE | [[BOT_LANGUAGE_AND_TONE]] |
+| DATA_FIELDS             | [[DATA_FIELDS]]             |
+| BOT_LANGUAGE_AND_TONE   | [[BOT_LANGUAGE_AND_TONE]]   |
 
 ### Optional values
 
 Use `Not applicable` when an optional key is not needed.
 
-| Key | Value |
-| --- | --- |
+| Key                       | Value                         |
+| ------------------------- | ----------------------------- |
 | EXTERNAL_SERVICES_OR_APIS | [[EXTERNAL_SERVICES_OR_APIS]] |
-| STORAGE_REQUIREMENT | [[STORAGE_REQUIREMENT]] |
-| ENVIRONMENT_VARIABLES | [[ENVIRONMENT_VARIABLES]] |
-| PRODUCTION_CONSTRAINTS | [[PRODUCTION_CONSTRAINTS]] |
-| EXTRA_REQUIREMENTS | [[EXTRA_REQUIREMENTS]] |
+| STORAGE_REQUIREMENT       | [[STORAGE_REQUIREMENT]]       |
+| ENVIRONMENT_VARIABLES     | [[ENVIRONMENT_VARIABLES]]     |
+| PRODUCTION_CONSTRAINTS    | [[PRODUCTION_CONSTRAINTS]]    |
+| EXTRA_REQUIREMENTS        | [[EXTRA_REQUIREMENTS]]        |
 
 If any required value is still wrapped in `[[...]]`, stop and ask me to replace it before creating files or running commands. Optional keys may be `Not applicable`; do not block on them.
 
@@ -173,6 +168,42 @@ Code style MUST follow:
 - Use helpers, services, repositories, or database folders only when they are justified by actual project complexity.
 - Do not over-engineer. Only add abstractions that the implemented flow uses.
 
+## Testing requirements
+
+Add tests that prove the bot works from the user’s point of view and that extracted logic is stable.
+
+### E2E testing
+
+- MUST create an e2e test at `e2e/main.test.ts` when the generated project has or can support a test script.
+- Use `bun:test` with `describe`, `it`, `expect`, `beforeAll`, `afterAll`, and `beforeEach`.
+- Use Gramstax’s `MockTelegramServer` to simulate Telegram instead of calling the real Telegram API.
+- Initialize the generated bot core with a test token, webhook deploy mode, a `TemplateManager` that loads `src/pages`, and `botConfig.client.apiRoot` pointing to `mockServer.apiRoot`.
+- Start `MockTelegramServer` in `beforeAll`, stop both `botCore` and the mock server in `afterAll`, and call `mockServer.clearRequests()` in `beforeEach`.
+- Prefer helper functions for repeated user context and keyboard lookup, such as `createPrivateUserContext(id)` and `getCallbackDataByLabel(responses, label)`.
+- Cover the primary happy path from `/start` through the main inline keyboard flow described by `PRIMARY_USER_JOURNEY`.
+- Cover each important callback action from `INLINE_KEYBOARD_ACTIONS`, including navigation back to the start page when applicable.
+- Cover each free-text step from `FREE_TEXT_STEPS`, including the session state that accepts the answer and the resulting confirmation or validation message.
+- Cover important media or Telegram method behavior by checking `mockServer.lastRequest("sendMessage")`, `mockServer.lastRequest("editMessageText")`, `mockServer.lastRequest("sendPhoto")`, `mockServer.lastRequest("editMessageMedia")`, or the method relevant to the feature.
+- Assert user-visible outcomes, not implementation details: message text contains stable headings/content, inline keyboards contain expected labels, and Telegram requests contain expected payload fields.
+- Use distinct private user IDs for stateful tests so session data does not leak between scenarios.
+
+Reference shape for e2e tests:
+
+- imports: `join` from `node:path`, Bun test helpers from `bun:test`, `TemplateManager` and `MockTelegramServer` from `gramstax`, and the generated `BotCore` from `../src/core/bot`.
+- top-level variables: `let mockServer: MockTelegramServer` and `let botCore: BotCore`.
+- `beforeAll`: start `new MockTelegramServer({log: false})`, create `new TemplateManager({path: [join(import.meta.dir, `../src/pages`)]})`, then create `new BotCore({deploy: `webhook:http://127.0.0.1:3001/webhook/e2e-project-name`, token: `test-token`, log: false, templateManager, botConfig: {client: {apiRoot: mockServer.apiRoot}}})`.
+- `afterAll`: `await botCore.stop()` and `await mockServer.stop()`.
+- `beforeEach`: `mockServer.clearRequests()`.
+
+### Unit testing
+
+- MUST add unit tests under `test/` for pure helpers, utilities, stores, repositories, services, validation functions, formatting functions, and other logic extracted outside page handlers.
+- Keep page-handler logic thin enough that most business rules can be tested as pure functions or store/service methods.
+- Unit tests MUST use deterministic inputs and assert edge cases such as empty data, invalid IDs, out-of-range pagination, failed lookups, and status transitions.
+- Do not mock Gramstax internals for unit tests unless unavoidable. Prefer testing pure exported functions/classes directly.
+- If testing page wiring that is hard to instantiate, use a narrow source-level assertion only for structural rules that cannot be exercised through e2e, and explain why in the test name.
+- If no extracted logic exists, do not create meaningless unit tests; state that e2e coverage is sufficient because the project has no pure logic layer.
+
 ## Required workflow
 
 1. Confirm all required interpolation values are filled and no required value still uses `[[...]]`.
@@ -181,14 +212,15 @@ Code style MUST follow:
 4. Inspect the generated project before editing.
 5. Identify existing Gramstax imports, page base classes, routing hooks, template helpers, and scripts.
 6. Implement the requested production flow using the generated patterns.
-7. Add or update documentation for required environment variables and run commands.
-8. Run the project’s available quality checks. Prefer, in order:
+7. Add e2e tests for the main Telegram user journey and unit tests for extracted pure logic when present.
+8. Add or update documentation for required environment variables, run commands, and test commands.
+9. Run the project’s available quality checks. Prefer, in order:
    - package install command from the generated project
    - lint or lint:fix command if available
    - TypeScript typecheck if available
    - tests if available
    - build command if available
-9. Fix issues caused by your changes and re-run the relevant checks.
+10. Fix issues caused by your changes and re-run the relevant checks.
 
 ## Done when
 
@@ -197,12 +229,11 @@ Code style MUST follow:
 - The app contains a working `start.ts` entry flow and the required inline/session-driven interactions.
 - Page files follow Gramstax class order, template, keyboard, base block, and naming rules.
 - User-facing text is production-ready, not placeholder text.
+- `e2e/main.test.ts` covers the primary `/start`, callback navigation, free-text, and Telegram request behavior for the requested flow when testing is supported.
+- Unit tests under `test/` cover extracted helpers/stores/services, or the final response explicitly explains why no unit-testable pure logic was added.
 - Secrets are not committed or embedded.
 - Environment variables from `ENVIRONMENT_VARIABLES` are documented when provided.
 - Lint/typecheck/build/test commands available in the generated project pass, or any unavailable commands are clearly reported with evidence.
 - The final response summarizes changed files, how to run the bot, required environment variables, and exact verification results.
-```
 
 🎯 Target: Claude Code / OpenCode-style agentic coding tool, 💡 optimized as a reusable Gramstax project-generation template with single-fill interpolation, required/optional keys, scope locks, architecture rules, and verification gates.
-
-Before pasting, fill the interpolation table once. This prompt is for an agentic tool with real system access, so confirm paths, permissions, and destructive-action boundaries first.

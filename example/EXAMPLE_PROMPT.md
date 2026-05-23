@@ -196,3 +196,5 @@ Code style MUST follow:
 - Environment variables from `ENVIRONMENT_VARIABLES` are documented when provided.
 - Lint/typecheck/build/test commands available in the generated project pass, or any unavailable commands are clearly reported with evidence.
 - The final response summarizes changed files, how to run the bot, required environment variables, and exact verification results.
+
+🎯 Target: Claude Code / OpenCode-style agentic coding tool, 💡 optimized as a reusable Gramstax project-generation template with single-fill interpolation, required/optional keys, scope locks, architecture rules, and verification gates.
