@@ -5,7 +5,7 @@ import type {CtxCore} from "./ctx"
 
 export class BotCore extends Gramstax {
   async hookBeforeRoute(ctx: CtxCore) {
-    const result = await new UserGuard(ctx).ensureUsername(true)
+    const result = await new UserGuard(ctx).ensureUsername(false)
     if (result === null) {
       return false
     }
