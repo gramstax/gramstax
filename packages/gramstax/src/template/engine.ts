@@ -92,32 +92,32 @@ export class TemplateEngine {
    */
   static ALLOWED_BLOCKS = [
     // Content blocks
-    `base`,
-    `message`,
-    `keyboard`,
-    `media`,
-    `description`,
+    `<base>`,
+    `<message>`,
+    `<keyboard>`,
+    `<media>`,
+    `<description>`,
     // Logic blocks
-    `script`,
-    `switch`,
-    `case`,
-    `default`,
-    `map`,
-    `div`,
+    `<script>`,
+    `<switch>`,
+    `<case>`,
+    `<default>`,
+    `<map>`,
+    `<div>`,
     // Utility blocks
-    `import`,
-    `space`,
+    `<import>`,
+    `<space>`,
     // Telegram HTML formatting (passed through to message text)
-    `b`,
-    `i`,
-    `u`,
-    `s`,
-    `code`,
-    `pre`,
-    `a`,
-    `blockquote`,
-    `expandable`
-  ] as const
+    `<b>`,
+    `<i>`,
+    `<u>`,
+    `<s>`,
+    `<code>`,
+    `<pre>`,
+    `<a>`,
+    `<blockquote expandable>`
+  ]
+  static ALLOWED_SCOPE = [`{{}}`, `{~~}`]
 
   /**
    * Escapes special characters in a string for safe use in template literals.

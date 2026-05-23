@@ -35,6 +35,18 @@ describe(`TemplateManager`, () => {
       const manager = new TemplateManager({path: [TEST_DIR]})
       expect(manager.has(`test`)).toBe(true)
     })
+
+    it(`should throw error when template contains unsupported block`, async () => {
+      await writeFile(join(TEST_DIR, `invalid_block.html`), `<base><unknown>Hello</unknown></base>`)
+
+      expect(() => new TemplateManager({path: [TEST_DIR]})).toThrow(/Unsupported template block: <unknown>/)
+    })
+
+    it(`should throw error when template contains unsupported scope`, async () => {
+      await writeFile(join(TEST_DIR, `invalid_scope.html`), `<base><message>Hello {% name %}</message></base>`)
+
+      expect(() => new TemplateManager({path: [TEST_DIR]})).toThrow(/Unsupported template scope: {% %}/)
+    })
   })
 
   describe(`Getters with Fallback`, () => {
@@ -183,6 +195,13 @@ describe(`TemplateManager`, () => {
       // Test 2: Explicit HTML extension works
       const explicitHtml = manager._readTemplateFile(`component.html`)
       expect(explicitHtml).toBe(`<base><message>HTML Content</message></base>`)
+    })
+
+    it(`should throw error when imported template content contains unsupported block`, async () => {
+      const manager = new TemplateManager({path: [TEST_DIR]})
+      await writeFile(join(TEST_DIR, `partial.html`), `<base><message><unknown>Bad</unknown></message></base>`)
+
+      expect(() => manager._compile(`main`, `<base><import src="partial" block="message" /></base>`)).toThrow(/Unsupported template block: <unknown>/)
     })
   })
 })

@@ -516,6 +516,37 @@ export class TemplateManager {
   }
 
   /**
+   * Validates template syntax against the blocks and interpolation scopes supported by TemplateEngine.
+   *
+   * @param template - Raw template content before imports and compilation
+   *
+   * @throws Error if the template contains an unsupported block tag or interpolation scope
+   *
+   * @public
+   */
+  _validateTemplate(template: string): void {
+    const allowedBlockNames = new Set(TemplateEngine.ALLOWED_BLOCKS.map((block) => block.replace(/^<\/?/, ``).replace(/\s.*?>$/, ``).replace(/>$/, ``).toLowerCase()))
+    const tagRegex = /<\/?\s*([a-z][\w-]*)(?:\s[^<>]*)?\/?\s*>/gi
+
+    for (const match of template.matchAll(tagRegex)) {
+      const blockName = match[1]?.toLowerCase()
+      if (blockName && !allowedBlockNames.has(blockName)) {
+        throw new Error(`Unsupported template block: <${blockName}>`)
+      }
+    }
+
+    const allowedScopeNames = new Set(TemplateEngine.ALLOWED_SCOPE)
+    const scopeRegex = /\{([^\s{}\w])([\s\S]*?)\1\}/g
+
+    for (const match of template.matchAll(scopeRegex)) {
+      const scopeName = `{${match[1]}${match[1]}}`
+      if (!allowedScopeNames.has(scopeName)) {
+        throw new Error(`Unsupported template scope: {${match[1]} ${match[1]}}`)
+      }
+    }
+  }
+
+  /**
    * Derives the cache key from a filename by removing the extension.
    *
    * @param filename - Filename with extension
@@ -564,6 +595,8 @@ export class TemplateManager {
     const compiled = existing || ({} as ITCompiledTemplate)
     let updated = false
 
+    this._validateTemplate(template)
+
     // Process Imports
     const processedTemplate = TemplateEngine.processImportBlocks(
       template,
@@ -578,6 +611,8 @@ export class TemplateManager {
       0,
       importCache
     )
+
+    this._validateTemplate(processedTemplate)
 
     // Memoize base blocks to avoid redundant regex parsing
     const baseBlocks = TemplateEngine._processBaseBlocks(processedTemplate)
