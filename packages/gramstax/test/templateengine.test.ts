@@ -412,10 +412,11 @@ describe(`TemplateEngine`, () => {
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for plain text without blocks`, () => {
+    it(`should return invalid for plain text without <base> block`, () => {
       const result = TemplateEngine.validateBlockPositions(`Just some text`)
-      expect(result.valid).toBe(true)
-      expect(result.errors).toEqual([])
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBeGreaterThan(0)
+      expect(result.errors[0]!.message).toContain(`Missing <base> block`)
     })
 
     it(`should return valid for a well-formed template`, () => {
@@ -444,13 +445,15 @@ describe(`TemplateEngine`, () => {
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for switch with case and default`, () => {
+    it(`should return valid for switch with case and default inside message`, () => {
       const template = `
         <base>
-          <switch value="status">
-            <case is="active">Active</case>
-            <default>Unknown</default>
-          </switch>
+          <message>
+            <switch value="status">
+              <case is="active">Active</case>
+              <default>Unknown</default>
+            </switch>
+          </message>
         </base>
       `
       const result = TemplateEngine.validateBlockPositions(template)
@@ -458,12 +461,14 @@ describe(`TemplateEngine`, () => {
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for map and div blocks`, () => {
+    it(`should return valid for map and div blocks inside message`, () => {
       const template = `
         <base>
-          <map src="items">
-            <div>{{e.name}}</div>
-          </map>
+          <message>
+            <map src="items">
+              <div>{{e.name}}</div>
+            </map>
+          </message>
         </base>
       `
       const result = TemplateEngine.validateBlockPositions(template)

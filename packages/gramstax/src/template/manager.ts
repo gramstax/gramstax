@@ -331,6 +331,7 @@ export class TemplateManager {
    */
   _loadAllFiles(): void {
     const rawTemplates = new Map<string, string>()
+    const rawFilenames = new Map<string, string>()
     const pagesToCleanup: any[] = []
 
     // 1. Collect all raw templates (from all paths)
@@ -346,10 +347,12 @@ export class TemplateManager {
 
         if (ext === `.html`) {
           rawTemplates.set(key, readFileSync(path, `utf8`))
+          rawFilenames.set(key, fileName)
         } else if (ext === `.ts` || ext === `.js`) {
           const Page = PageManager.getFileSync(path)
           if (Page?.template !== undefined) {
             rawTemplates.set(key, Page.template)
+            rawFilenames.set(key, fileName)
             pagesToCleanup.push(Page)
           }
         }
@@ -361,7 +364,7 @@ export class TemplateManager {
 
     // 3. Compile all collected templates
     for (const [key, template] of rawTemplates.entries()) {
-      this._compile(key, template, undefined, importCache, rawTemplates)
+      this._compile(key, template, undefined, importCache, rawTemplates, rawFilenames.get(key))
     }
 
     // 4. Memory Cleanup: clear raw templates and set Page.template to undefined
@@ -399,11 +402,11 @@ export class TemplateManager {
 
       if (ext == `.html`) {
         const raw = readFileSync(path, `utf8`)
-        this._compile(key, raw)
+        this._compile(key, raw, undefined, undefined, undefined, filename)
       } else if (ext == `.ts` || ext == `.js`) {
         const Page = PageManager.getFileSync(path)
         if (Page?.template !== undefined) {
-          this._compile(key, Page.template)
+          this._compile(key, Page.template, undefined, undefined, undefined, filename)
           Page.template = undefined // Cleanup single file as well
         }
       } else {
@@ -516,26 +519,91 @@ export class TemplateManager {
   }
 
   /**
-   * Validates template syntax against the blocks and interpolation scopes supported by TemplateEngine.
+   * Finds the `<base>` block (open + close) that encloses the given line number.
    *
-   * @param key - Template identifier (filename without extension), used in error messages
-   * @param template - Raw template content before imports and compilation
-   *
-   * @throws Error if the template contains an unsupported block tag or interpolation scope
+   * @param template - Processed template string
+   * @param line - 1-based line number to check
+   * @returns Object with `baseId` and `hasId`, or `null` if not inside any `<base>` block
    *
    * @example
    * ```typescript
-   * this._validateTemplate("s1", "<custom>text</custom>")
-   * // => throws: Template on base "s1": Unsupported template block: <custom>
+   * const tpl = '<base id="kb">\n<kop/></base>';
+   * this._getBaseAtLine(tpl, 2) // => { baseId: "kb", hasId: true }
+   *
+   * const tpl2 = '<base>\n<kop/></base>';
+   * this._getBaseAtLine(tpl2, 2) // => { baseId: null, hasId: false }
+   *
+   * const tpl3 = '</base>\n{-lah-}\n<base>';
+   * this._getBaseAtLine(tpl3, 2) // => null
    * ```
    *
    * @public
    */
-  _validateTemplate(key: string, template: string): void {
+  _getBaseAtLine(template: string, line: number): {baseId: string | null; hasId: boolean} | null {
+    const openRegex = /<base\b([^>]*?)>/gi
+    const closeRegex = /<\/base>/gi
+    const lines = line
+    let openMatch: RegExpExecArray | null
+    let closeMatch: RegExpExecArray | null
+
+    while ((openMatch = openRegex.exec(template)) !== null) {
+      const openLine = (template.slice(0, openMatch.index).match(/\n/g) || []).length + 1
+      if (openLine > lines) break
+
+      const attrs = openMatch[1]!
+      const idMatch = attrs.match(/\sid\s*=\s*(["']?)([^"'\s>]+)\1/i)
+      const baseId = idMatch?.[2] ?? null
+      const hasId = !!idMatch
+
+      // Find the matching </base> after this <base>
+      if (!closeRegex.lastIndex) closeRegex.lastIndex = openRegex.lastIndex
+      while ((closeMatch = closeRegex.exec(template)) !== null) {
+        const closeLine = (template.slice(0, closeMatch.index).match(/\n/g) || []).length + 1
+        if (closeLine > lines) {
+          // Error line is inside this base block (openLine <= lines <= closeLine)
+          return {baseId, hasId}
+        }
+        // Move past this </base>, find the next <base>
+        openRegex.lastIndex = closeRegex.lastIndex
+        break
+      }
+    }
+    return null
+  }
+
+  /**
+   * Validates template syntax and throws a descriptive error on failure.
+   *
+   * The error message includes the enclosing `<base id="...">` based on the error line.
+   * If the `<base>` has no `id` or no `<base>` tag is found, the `on base` prefix is omitted.
+   *
+   * @param baseId - Cache key (filename without extension), used as default filename
+   * @param template - Template content to validate
+   * @param filename - Source filename with extension, shown in error location
+   *
+   * @throws Error with format: `Template on base "${id}" (file, line X): msg` or `Template (file, line X): msg`
+   *
+   * @example
+   * ```typescript
+   * // base with id:
+   * this._validateTemplate("start", '<base id="kb"><kop/></base>', "start.html")
+   * // => throws: Template on base "kb" (start.html, line 1): Unsupported template block: <kop>
+   *
+   * // base without id:
+   * this._validateTemplate("start", '<base><kop/></base>', "start.html")
+   * // => throws: Template (start.html, line 1): Unsupported template block: <kop>
+   * ```
+   *
+   * @public
+   */
+  _validateTemplate(baseId: string, template: string, filename: string = baseId): void {
     const result = TemplateEngine.validateTemplate(template)
     if (!result.valid && result.errors.length > 0) {
       const err = result.errors[0]!
-      throw new Error(`Template on base "${key}" (line ${err.line}): ${err.message}`)
+      const baseInfo = this._getBaseAtLine(template, err.line)
+      const basePrefix = baseInfo?.hasId ? ` on base "${baseInfo.baseId}"` : ``
+      const fileRef = `${filename}, line ${err.line}`
+      throw new Error(`Template${basePrefix} (${fileRef}): ${err.message}`)
     }
   }
 
@@ -583,12 +651,12 @@ export class TemplateManager {
    *
    * @public
    */
-  _compile(key: string, template: string, keepIfExist?: Partial<{[K in keyof ITCompiledTemplate]: boolean}>, importCache?: Map<string, string>, rawCache?: Map<string, string>) {
+  _compile(key: string, template: string, keepIfExist?: Partial<{[K in keyof ITCompiledTemplate]: boolean}>, importCache?: Map<string, string>, rawCache?: Map<string, string>, filename: string = key) {
     const existing = this._map.get(key)
     const compiled = existing || ({} as ITCompiledTemplate)
     let updated = false
 
-    this._validateTemplate(key, template)
+    this._validateTemplate(key, template, filename)
 
     // Process Imports
     const processedTemplate = TemplateEngine.processImportBlocks(
@@ -605,7 +673,7 @@ export class TemplateManager {
       importCache
     )
 
-    this._validateTemplate(key, processedTemplate)
+    this._validateTemplate(key, processedTemplate, filename)
 
     // Memoize base blocks to avoid redundant regex parsing
     const baseBlocks = TemplateEngine._processBaseBlocks(processedTemplate)

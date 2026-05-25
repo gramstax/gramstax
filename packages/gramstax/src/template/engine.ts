@@ -1540,26 +1540,45 @@ export class TemplateEngine {
    * __root__
    *   ├── base             (root level only)
    *   │   ├── message      (content block)
+   *   │   │   ├── switch   (logic block)
+   *   │   │   │   ├── case
+   *   │   │   │   └── default
+   *   │   │   ├── map      (logic block)
+   *   │   │   ├── script   (logic block)
+   *   │   │   └── space    (utility)
    *   │   ├── keyboard     (content block)
+   *   │   │   ├── switch   (logic block)
+   *   │   │   │   ├── case
+   *   │   │   │   └── default
+   *   │   │   ├── map      (logic block)
+   *   │   │   ├── script   (logic block)
+   *   │   │   └── space    (utility)
    *   │   ├── media        (content block)
+   *   │   │   ├── switch   (logic block)
+   *   │   │   │   ├── case
+   *   │   │   │   └── default
+   *   │   │   ├── map      (logic block)
+   *   │   │   ├── script   (logic block)
+   *   │   │   └── space    (utility)
    *   │   ├── description  (content block)
+   *   │   │   ├── switch   (logic block)
+   *   │   │   │   ├── case
+   *   │   │   │   └── default
+   *   │   │   ├── map      (logic block)
+   *   │   │   ├── script   (logic block)
+   *   │   │   └── space    (utility)
    *   │   ├── import       (utility)
-   *   │   ├── switch       (logic block)
-   *   │   │   ├── case
-   *   │   │   └── default
-   *   │   ├── map          (logic block)
-   *   │   ├── div          (logic block)
+   *   │   ├── description  (utility)
    *   │   ├── script       (logic block)
-   *   │   └── space        (utility)
-   *   └── space            (utility, anywhere)
+   *   └   └── space        (utility)
    * ```
    *
    * **Enforced rules:**
    * - `<base>` must be at the outermost level and cannot be nested inside any other block.
-   * - `<message>`, `<keyboard>`, `<media>`, and `<description>` can only appear directly inside `<base>`.
+   * - `<message>`, `<keyboard>`, `<media>`, `<description>`, `<import>`, `<script>`, `<space>` can only appear directly inside `<base>`.
+   * - `<switch>`, `<map>` can only appear inside `<message>`, `<keyboard>`, `<media>`, or `<description>`.
    * - `<case>` and `<default>` can only appear inside `<switch>`.
-   * - `<import>` can only appear directly inside `<base>`.
-   * - Telegram formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`)
+   * - Telegram formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`, `<blockquote expandable>`)
    *   are passthrough and ignored during validation.
    *
    * @param template - The raw template string to validate
@@ -1605,10 +1624,10 @@ export class TemplateEngine {
       keyboard: new Set([`base`]),
       media: new Set([`base`]),
       description: new Set([`base`]),
-      switch: new Set([`base`, `message`, `description`, `keyboard`, `case`, `default`, `map`, `div`]),
+      switch: new Set([`message`, `keyboard`, `media`, `description`]),
       case: new Set([`switch`]),
       default: new Set([`switch`]),
-      map: new Set([`base`, `message`, `description`, `keyboard`, `case`, `default`, `div`]),
+      map: new Set([`message`, `keyboard`, `media`, `description`]),
       div: new Set([`base`, `message`, `description`, `keyboard`, `case`, `default`, `map`]),
       script: new Set([`base`, `message`, `description`, `keyboard`, `case`, `default`, `map`, `div`]),
       import: new Set([`base`]),
@@ -1668,6 +1687,41 @@ export class TemplateEngine {
     // Report any blocks that were never closed
     for (const item of stack) {
       errors.push({line: item.line, message: `Unclosed block <${item.block}>: missing closing tag </${item.block}>`})
+    }
+
+    // Check for content outside <base> blocks.
+    // All template content must be enclosed in <base>...</base>.
+    if (errors.length === 0) {
+      const baseBlocks: Array<{start: number; end: number}> = []
+      const baseTag = /<base\b[^>]*>[\s\S]*?<\/base>/g
+      let blockMatch: RegExpExecArray | null
+      while ((blockMatch = baseTag.exec(template)) !== null) {
+        baseBlocks.push({start: blockMatch.index, end: blockMatch.index + blockMatch[0].length})
+      }
+
+      if (baseBlocks.length === 0 && template.trim()) {
+        // No <base> block at all
+        errors.push({line: 1, message: `Missing <base> block: template content must be wrapped in <base>...</base>`})
+      } else {
+        // Check before first <base>
+        let prevEnd = 0
+        for (const block of baseBlocks) {
+          if (block.start > prevEnd) {
+            const slice = template.slice(prevEnd, block.start)
+            if (slice.trim()) {
+              const line = (template.slice(0, prevEnd).match(/\n/g) || []).length + 1
+              errors.push({line, message: `Content found outside <base> block: move content inside a <base>...</base>`})
+              break
+            }
+          }
+          prevEnd = block.end
+        }
+        // Check after last </base>
+        if (errors.length === 0 && prevEnd < template.length && template.slice(prevEnd).trim()) {
+          const line = (template.slice(0, prevEnd).match(/\n/g) || []).length + 1
+          errors.push({line, message: `Content found outside <base> block: move content inside a <base>...</base>`})
+        }
+      }
     }
 
     return {
