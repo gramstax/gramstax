@@ -88,7 +88,7 @@ export class TemplateEngine {
    * **Content blocks:** `base`, `message`, `keyboard`, `media`, `description`
    * **Logic blocks:** `script`, `switch`, `case`, `default`, `map`, `div`
    * **Utility blocks:** `import`, `space`
-   * **Telegram HTML formatting (passed through, not compiled):** `b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`, `expandable`
+   * **Telegram HTML formatting (passed through, not compiled):** `b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`, `blockquote expandable`
    */
   static ALLOWED_BLOCKS = [
     // Content blocks
@@ -105,8 +105,8 @@ export class TemplateEngine {
     `<map>`,
     `<div>`,
     // Utility blocks
-    `<import>`,
-    `<space>`,
+    `<import/>`,
+    `<space/>`,
     // Telegram HTML formatting (passed through to message text)
     `<b>`,
     `<i>`,
@@ -115,8 +115,35 @@ export class TemplateEngine {
     `<code>`,
     `<pre>`,
     `<a>`,
+    `<blockquote>`,
     `<blockquote expandable>`
   ]
+  /**
+   * Registry of supported scope interpolation syntaxes.
+   *
+   * @remarks
+   * These are the variable/expression delimiters recognized within template content.
+   * Each entry represents a pair of opening/closing delimiters that trigger a specific
+   * interpolation behavior at compile time.
+   *
+   * **Supported scopes:**
+   * - `{{}}` — Mustache-style variable interpolation. Placeholders like `{{name}}` are
+   *   replaced with the corresponding value from the `data` object at render time.
+   *   Nullish values produce an empty string.
+   * - `{~~}` — Inline execution blocks. Expressions like `{~ status ? "Success" : "Failed" ~}` are
+   *   evaluated as JavaScript expressions with access to the `data` object.
+   *
+   * This array is used for reference/documentation purposes; the actual parsing is
+   * handled by `_processScopeVariables` (for `{{}}`) and `_processScopeExec` (for `{~~}`).
+   *
+   * @example
+   * ```typescript
+   * console.log(TemplateEngine.ALLOWED_SCOPE)
+   * // Result: ['{{}}', '{~~}']
+   * ```
+   *
+   * @public
+   */
   static ALLOWED_SCOPE = [`{{}}`, `{~~}`]
 
   /**
@@ -1406,17 +1433,357 @@ export class TemplateEngine {
 
     return result
   }
+
+  /**
+   * Validates that all block tags in a template are recognized.
+   *
+   * @remarks
+   * Every HTML-like tag in the template must match a known block name from
+   * {@link TemplateEngine.ALLOWED_BLOCKS}. Unknown tags produce an error.
+   *
+   * Telegram HTML formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`,
+   * `<a>`, `<blockquote>`) are whitelisted and silently ignored.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array containing
+   *          line numbers and descriptive messages for each unknown block found
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockNames(`<custom>text</custom>`);
+   * // Result: { valid: false, errors: [{ line: 1, message: 'Unsupported template block: <custom>' }] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockNames(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors: Array<{line: number; message: string}> = []
+    const allowedBlockNames = new Set(
+      TemplateEngine.ALLOWED_BLOCKS.map((block) =>
+        block
+          .replace(/^<\/?/, ``)
+          .replace(/\s.*?>$/, ``)
+          .replace(/\/?>$/, ``)
+          .toLowerCase()
+      )
+    )
+    const passthroughTags = new Set([`b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`])
+    const tagRegex = /<\/?\s*([a-z][\w-]*)(?:\s[^<>]*)?\/?\s*>/gi
+
+    for (const match of template.matchAll(tagRegex)) {
+      const blockName = match[1]?.toLowerCase()
+      if (!blockName) continue
+      if (passthroughTags.has(blockName)) continue
+      if (allowedBlockNames.has(blockName)) continue
+
+      const line = (template.slice(0, match.index).match(/\n/g) || []).length + 1
+      errors.push({line, message: `Unsupported template block: <${blockName}>`})
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    }
+  }
+
+  /**
+   * Validates that all interpolation scope syntaxes in a template are recognized.
+   *
+   * @remarks
+   * Every interpolation scope delimited by `{X...X}` (where X is a non-word character)
+   * must match a known scope name from {@link TemplateEngine.ALLOWED_SCOPE}.
+   *
+   * For example, `{{variable}}` uses scope `{{}}` and `{~ expr ~}` uses `{~~}`.
+   * Any other delimiter like `{# comment #}` would be reported as unsupported.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array containing
+   *          line numbers and descriptive messages for each unsupported scope found
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateScopes(`{# comment #}`);
+   * // Result: { valid: false, errors: [{ line: 1, message: 'Unsupported template scope: {# #}' }] }
+   * ```
+   *
+   * @public
+   */
+  static validateScopes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors: Array<{line: number; message: string}> = []
+    const allowedScopeNames = new Set(TemplateEngine.ALLOWED_SCOPE)
+    const scopeRegex = /\{([^\s{}\w])([\s\S]*?)\1\}/g
+
+    for (const match of template.matchAll(scopeRegex)) {
+      const scopeName = `{${match[1]}${match[1]}}`
+      if (match[1] && allowedScopeNames.has(scopeName)) continue
+
+      const line = (template.slice(0, match.index).match(/\n/g) || []).length + 1
+      const delim = match[1] ?? `?`
+      errors.push({line, message: `Unsupported template scope: {${delim} ${delim}}`})
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    }
+  }
+
+  /**
+   * Validates block positioning and nesting rules in a template string.
+   *
+   * @remarks
+   * This method checks a template string for structural block nesting violations.
+   * It ensures that blocks are placed in their allowed parent contexts.
+   *
+   * **Nesting hierarchy:**
+   * ```
+   * __root__
+   *   ├── base             (root level only)
+   *   │   ├── message      (content block)
+   *   │   ├── keyboard     (content block)
+   *   │   ├── media        (content block)
+   *   │   ├── description  (content block)
+   *   │   ├── import       (utility)
+   *   │   ├── switch       (logic block)
+   *   │   │   ├── case
+   *   │   │   └── default
+   *   │   ├── map          (logic block)
+   *   │   ├── div          (logic block)
+   *   │   ├── script       (logic block)
+   *   │   └── space        (utility)
+   *   └── space            (utility, anywhere)
+   * ```
+   *
+   * **Enforced rules:**
+   * - `<base>` must be at the outermost level and cannot be nested inside any other block.
+   * - `<message>`, `<keyboard>`, `<media>`, and `<description>` can only appear directly inside `<base>`.
+   * - `<case>` and `<default>` can only appear inside `<switch>`.
+   * - `<import>` can only appear directly inside `<base>`.
+   * - Telegram formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`)
+   *   are passthrough and ignored during validation.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array containing
+   *          line numbers and descriptive messages for each violation found
+   *
+   * @example
+   * ```typescript
+   * // Valid template
+   * const result = TemplateEngine.validateBlockPositions(`
+   *   <base>
+   *     <message>Hello {{name}}!</message>
+   *     <keyboard>Yes, No</keyboard>
+   *   </base>
+   * `);
+   * // Result: { valid: true, errors: [] }
+   *
+   * // Invalid: <base> nested inside <message>
+   * const bad = TemplateEngine.validateBlockPositions(`
+   *   <base>
+   *     <message>
+   *       <base>Nested base</base>
+   *     </message>
+   *   </base>
+   * `);
+   * // Result: { valid: false, errors: [{ line: 4, message: 'Block <base> is not allowed inside <message>' }] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockPositions(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors: Array<{line: number; message: string}> = []
+    const stack: Array<{block: string; line: number}> = []
+
+    // Passthrough Telegram HTML tags that are not structural
+    const passthroughTags = new Set([`b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`])
+
+    // Allowed parent context for each structural block.
+    // `__root__` represents the outermost level (outside any block).
+    const allowedParents: Record<string, Set<string>> = {
+      base: new Set([`__root__`]),
+      message: new Set([`base`]),
+      keyboard: new Set([`base`]),
+      media: new Set([`base`]),
+      description: new Set([`base`]),
+      switch: new Set([`base`, `message`, `description`, `keyboard`, `case`, `default`, `map`, `div`]),
+      case: new Set([`switch`]),
+      default: new Set([`switch`]),
+      map: new Set([`base`, `message`, `description`, `keyboard`, `case`, `default`, `div`]),
+      div: new Set([`base`, `message`, `description`, `keyboard`, `case`, `default`, `map`]),
+      script: new Set([`base`, `message`, `description`, `keyboard`, `case`, `default`, `map`, `div`]),
+      import: new Set([`base`]),
+      space: new Set([`base`, `message`, `description`, `keyboard`, `case`, `default`, `switch`, `map`, `div`])
+    }
+
+    // Matches all HTML-like tags: <tagname>, <tagname attr="val">, </tagname>, <tagname />
+    const tagRegex = /<(\/?)(\w[\w-]*)([^>]*)>/g
+    let match: RegExpExecArray | null
+
+    while ((match = tagRegex.exec(template)) !== null) {
+      const fullTag = match[0]
+      const slashPrefix = match[1]!
+      const tagName = match[2]!.toLowerCase()
+      const isClosing = slashPrefix === `/`
+      const isSelfClosing = !isClosing && fullTag.endsWith(`/>`)
+
+      // Skip passthrough Telegram HTML tags
+      if (passthroughTags.has(tagName)) continue
+
+      // Skip tags that are not recognized structural blocks
+      if (!allowedParents[tagName]) continue
+
+      // Calculate the 1-based line number
+      const line = (template.slice(0, match.index).match(/\n/g) || []).length + 1
+
+      if (isClosing) {
+        // Closing tag: validate it matches the current open block on the stack
+        if (stack.length === 0) {
+          errors.push({line, message: `Unexpected closing tag </${tagName}>: no matching opening tag`})
+        } else {
+          const last = stack[stack.length - 1]!
+          if (last.block !== tagName) {
+            errors.push({line, message: `Mismatched closing tag: expected </${last.block}> but found </${tagName}>`})
+          } else {
+            stack.pop()
+          }
+        }
+      } else if (isSelfClosing) {
+        // Self-closing tag: validate parent only, no stack push
+        const currentParent = stack.length > 0 ? stack[stack.length - 1]!.block : `__root__`
+        const allowed = allowedParents[tagName]!
+        if (!allowed.has(currentParent)) {
+          errors.push({line, message: `Block <${tagName}> is not allowed inside <${currentParent}>`})
+        }
+      } else {
+        // Opening tag: validate parent, then push to stack
+        const currentParent = stack.length > 0 ? stack[stack.length - 1]!.block : `__root__`
+        const allowed = allowedParents[tagName]!
+        if (!allowed.has(currentParent)) {
+          errors.push({line, message: `Block <${tagName}> is not allowed inside <${currentParent}>`})
+        }
+        stack.push({block: tagName, line})
+      }
+    }
+
+    // Report any blocks that were never closed
+    for (const item of stack) {
+      errors.push({line: item.line, message: `Unclosed block <${item.block}>: missing closing tag </${item.block}>`})
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    }
+  }
+
+  /**
+   * Validates block syntax format (self-closing vs regular open/close).
+   *
+   * @remarks
+   * This method checks that each block tag uses the correct syntax format:
+   *
+   * **Must be self-closing:**
+   * - `<space />` — whitespace control block
+   * - `<import ... />` — import directive block
+   *
+   * **Must NOT be self-closing (must use open/close tags):**
+   * - `<base>...</base>`, `<message>...</message>`, `<keyboard>...</keyboard>`,
+   *   `<media>...</media>`, `<description>...</description>`, `<script>...</script>`,
+   *   `<switch>...</switch>`, `<case>...</case>`, `<default>...</default>`,
+   *   `<map>...</map>`, `<div>...</div>`
+   *
+   * Telegram HTML formatting tags passthrough and are ignored.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array containing
+   *          line numbers and descriptive messages for each format violation found
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockFormat(`<space>content</space>`);
+   * // Result: { valid: false, errors: [{ line: 1, message: 'Block <space> must be self-closing: use <space /> instead' }] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockFormat(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors: Array<{line: number; message: string}> = []
+    const selfClosingBlocks = new Set([`space`, `import`])
+    const regularBlocks = new Set([`base`, `message`, `keyboard`, `media`, `description`, `script`, `switch`, `case`, `default`, `map`, `div`])
+
+    const tagRegex = /<(\/?)(\w[\w-]*)([^>]*)>/g
+    let match: RegExpExecArray | null
+
+    while ((match = tagRegex.exec(template)) !== null) {
+      const fullTag = match[0]
+      const slashPrefix = match[1]!
+      const tagName = match[2]!.toLowerCase()
+      const isClosing = slashPrefix === `/`
+      const isSelfClosing = !isClosing && fullTag.endsWith(`/>`)
+
+      if (isClosing) continue
+
+      const line = (template.slice(0, match.index).match(/\n/g) || []).length + 1
+
+      if (isSelfClosing) {
+        // Block is self-closing but must have regular open/close tags
+        if (regularBlocks.has(tagName)) {
+          errors.push({line, message: `Block <${tagName}> must not be self-closing: use <${tagName}>...</${tagName}> instead`})
+        }
+      } else {
+        // Block is a regular opening tag but must be self-closing
+        if (selfClosingBlocks.has(tagName)) {
+          errors.push({line, message: `Block <${tagName}> must be self-closing: use <${tagName} /> instead`})
+        }
+      }
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    }
+  }
+
+  /**
+   * Validates all aspects of a template: block names, scopes, block format, and block positioning.
+   *
+   * @remarks
+   * This is a convenience method that runs all validators in order:
+   *
+   * 1. {@link TemplateEngine.validateBlockNames} — checks that all tags are known
+   * 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known
+   * 3. {@link TemplateEngine.validateBlockFormat} — checks self-closing vs regular tag syntax
+   * 4. {@link TemplateEngine.validateBlockPositions} — checks structural nesting rules
+   *
+   * Errors from all validators are combined into a single result.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and a combined `errors` array containing
+   *          line numbers and descriptive messages for every violation found
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateTemplate(`
+   *   <base>
+   *     <message>Hello {{name}}!</message>
+   *   </base>
+   * `);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateTemplate(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const blockNamesResult = this.validateBlockNames(template)
+    const scopesResult = this.validateScopes(template)
+    const formatResult = this.validateBlockFormat(template)
+    const positionsResult = this.validateBlockPositions(template)
+
+    const errors = [...blockNamesResult.errors, ...scopesResult.errors, ...formatResult.errors, ...positionsResult.errors]
+
+    return {
+      valid: errors.length === 0,
+      errors
+    }
+  }
 }
-
-// // membuktikan apakah code class TemplateEngine rawan inject code dari sisi user input
-// const template = `
-//   <base>
-//     <message>Hello {{name}}!</message>
-//     <message lang="id">Halo {{name}}!</message>
-//   </base>
-// `
-
-// const messages = TemplateEngine.compileBlockMessage(template)
-// const exampleInputFromUser = `console.log('woy')`
-// const result = messages.default?.default?.({name: exampleInputFromUser})
-// console.log(result)

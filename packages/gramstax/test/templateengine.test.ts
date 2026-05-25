@@ -404,4 +404,175 @@ describe(`TemplateEngine`, () => {
       expect(result).toBe(`Id`)
     })
   })
+
+  describe(`validateBlockPositions`, () => {
+    it(`should return valid for empty template`, () => {
+      const result = TemplateEngine.validateBlockPositions(``)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for plain text without blocks`, () => {
+      const result = TemplateEngine.validateBlockPositions(`Just some text`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for a well-formed template`, () => {
+      const template = `
+        <base>
+          <message>Hello {{name}}!</message>
+          <keyboard>Yes, No</keyboard>
+        </base>
+      `
+      const result = TemplateEngine.validateBlockPositions(template)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for multiple base blocks`, () => {
+      const template = `
+        <base id="main">
+          <message>Hello</message>
+        </base>
+        <base id="error">
+          <message>Error</message>
+        </base>
+      `
+      const result = TemplateEngine.validateBlockPositions(template)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for switch with case and default`, () => {
+      const template = `
+        <base>
+          <switch value="status">
+            <case is="active">Active</case>
+            <default>Unknown</default>
+          </switch>
+        </base>
+      `
+      const result = TemplateEngine.validateBlockPositions(template)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for map and div blocks`, () => {
+      const template = `
+        <base>
+          <map src="items">
+            <div>{{e.name}}</div>
+          </map>
+        </base>
+      `
+      const result = TemplateEngine.validateBlockPositions(template)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for import and space blocks`, () => {
+      const template = `
+        <base>
+          <import src="header" block="message" />
+          <message>Content</message>
+          <space />
+        </base>
+      `
+      const result = TemplateEngine.validateBlockPositions(template)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should ignore passthrough Telegram HTML tags`, () => {
+      const template = `
+        <base>
+          <message><b>Bold</b> and <i>italic</i></message>
+        </base>
+      `
+      const result = TemplateEngine.validateBlockPositions(template)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should detect base nested inside message`, () => {
+      const result = TemplateEngine.validateBlockPositions(`
+        <base>
+          <message>
+            <base>Nested base</base>
+          </message>
+        </base>
+      `)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBeGreaterThanOrEqual(1)
+      expect(result.errors[0]?.message).toContain(`base`)
+      expect(result.errors[0]?.message).toContain(`message`)
+    })
+
+    it(`should detect message inside message`, () => {
+      const result = TemplateEngine.validateBlockPositions(`
+        <base>
+          <message>
+            <message>Nested message</message>
+          </message>
+        </base>
+      `)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBeGreaterThanOrEqual(1)
+      expect(result.errors[0]?.message).toContain(`message`)
+    })
+
+    it(`should detect case outside switch`, () => {
+      const result = TemplateEngine.validateBlockPositions(`
+        <base>
+          <case is="test">Outside</case>
+        </base>
+      `)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBeGreaterThanOrEqual(1)
+      expect(result.errors[0]?.message).toContain(`case`)
+    })
+
+    it(`should detect mismatched closing tags`, () => {
+      const result = TemplateEngine.validateBlockPositions(`
+        <base>
+          <message>Hello</message>
+          </keyboard>
+        </base>
+      `)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBeGreaterThanOrEqual(1)
+      expect(result.errors[0]?.message).toContain(`Mismatched`)
+    })
+
+    it(`should detect unexpected closing tag`, () => {
+      const result = TemplateEngine.validateBlockPositions(`
+        <base>
+          <message>Hello</message>
+        </base>
+        </message>
+      `)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBeGreaterThanOrEqual(1)
+      expect(result.errors[0]?.message).toContain(`Unexpected closing`)
+    })
+
+    it(`should detect unclosed block`, () => {
+      const result = TemplateEngine.validateBlockPositions(`
+        <base>
+          <message>Unclosed
+        </base>
+      `)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBeGreaterThanOrEqual(1)
+      expect(result.errors.some((e) => e.message.includes(`Unclosed`) && e.message.includes(`message`))).toBe(true)
+    })
+
+    it(`should return correct line numbers for errors`, () => {
+      const result = TemplateEngine.validateBlockPositions(`<base>\n  <message>\n    <base>Inner</base>\n  </message>\n</base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBeGreaterThanOrEqual(1)
+      expect(result.errors[0]?.line).toBe(3)
+    })
+  })
 })

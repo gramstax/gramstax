@@ -518,31 +518,24 @@ export class TemplateManager {
   /**
    * Validates template syntax against the blocks and interpolation scopes supported by TemplateEngine.
    *
+   * @param key - Template identifier (filename without extension), used in error messages
    * @param template - Raw template content before imports and compilation
    *
    * @throws Error if the template contains an unsupported block tag or interpolation scope
    *
+   * @example
+   * ```typescript
+   * this._validateTemplate("s1", "<custom>text</custom>")
+   * // => throws: Template on base "s1": Unsupported template block: <custom>
+   * ```
+   *
    * @public
    */
-  _validateTemplate(template: string): void {
-    const allowedBlockNames = new Set(TemplateEngine.ALLOWED_BLOCKS.map((block) => block.replace(/^<\/?/, ``).replace(/\s.*?>$/, ``).replace(/>$/, ``).toLowerCase()))
-    const tagRegex = /<\/?\s*([a-z][\w-]*)(?:\s[^<>]*)?\/?\s*>/gi
-
-    for (const match of template.matchAll(tagRegex)) {
-      const blockName = match[1]?.toLowerCase()
-      if (blockName && !allowedBlockNames.has(blockName)) {
-        throw new Error(`Unsupported template block: <${blockName}>`)
-      }
-    }
-
-    const allowedScopeNames = new Set(TemplateEngine.ALLOWED_SCOPE)
-    const scopeRegex = /\{([^\s{}\w])([\s\S]*?)\1\}/g
-
-    for (const match of template.matchAll(scopeRegex)) {
-      const scopeName = `{${match[1]}${match[1]}}`
-      if (!allowedScopeNames.has(scopeName)) {
-        throw new Error(`Unsupported template scope: {${match[1]} ${match[1]}}`)
-      }
+  _validateTemplate(key: string, template: string): void {
+    const result = TemplateEngine.validateTemplate(template)
+    if (!result.valid && result.errors.length > 0) {
+      const err = result.errors[0]!
+      throw new Error(`Template on base "${key}" (line ${err.line}): ${err.message}`)
     }
   }
 
@@ -595,7 +588,7 @@ export class TemplateManager {
     const compiled = existing || ({} as ITCompiledTemplate)
     let updated = false
 
-    this._validateTemplate(template)
+    this._validateTemplate(key, template)
 
     // Process Imports
     const processedTemplate = TemplateEngine.processImportBlocks(
@@ -612,7 +605,7 @@ export class TemplateManager {
       importCache
     )
 
-    this._validateTemplate(processedTemplate)
+    this._validateTemplate(key, processedTemplate)
 
     // Memoize base blocks to avoid redundant regex parsing
     const baseBlocks = TemplateEngine._processBaseBlocks(processedTemplate)
