@@ -15,6 +15,30 @@ class Helper {
   }
 }
 
+class Alert {
+  static async showSuccess(ctx: WithdrawPage, amount: string, balance: string) {
+    await ctx.clearSession()
+    const bi = Base.success
+    const da = {amount, balance}
+    const kb = Helper.kb(ctx, bi)
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async showWarnInsufficient(ctx: WithdrawPage, balance: string) {
+    const bi = Base.warnInsufficient
+    const kb = Helper.kb(ctx, bi)
+    const da = {balance}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async showWarnInvalid(ctx: WithdrawPage, amount = ``) {
+    const bi = Base.warnInvalid
+    const kb = Helper.kb(ctx, bi)
+    const da = {amount}
+    await ctx.reply(kb, da, bi)
+  }
+}
+
 class Main {
   static async showStep1Form(ctx: WithdrawPage) {
     await ctx.sessionFreeText()
@@ -50,30 +74,6 @@ class Main {
     })
 
     await Alert.showSuccess(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
-  }
-}
-
-class Alert {
-  static async showSuccess(ctx: WithdrawPage, amount: string, balance: string) {
-    await ctx.clearSession()
-    const bi = Base.success
-    const da = {amount, balance}
-    const kb = Helper.kb(ctx, bi)
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnInsufficient(ctx: WithdrawPage, balance: string) {
-    const bi = Base.warnInsufficient
-    const kb = Helper.kb(ctx, bi)
-    const da = {balance}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnInvalid(ctx: WithdrawPage, amount = ``) {
-    const bi = Base.warnInvalid
-    const kb = Helper.kb(ctx, bi)
-    const da = {amount}
-    await ctx.reply(kb, da, bi)
   }
 }
 

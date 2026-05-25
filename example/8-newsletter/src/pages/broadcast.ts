@@ -51,7 +51,7 @@ class Helper {
 
 class Alert {
   static async showInfoHybridMedia(ctx: BroadcastPage) {
-    await ctx.setSession(`multi_session`, {position: `form`})
+    await ctx.setSession(`custom_session`, {position: `form`})
     const bi = Base.infoHybridMedia
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `cancel`), StartPage], `2`, bi)
     const da = {}
@@ -95,7 +95,7 @@ class Alert {
     const bi = Base.infoConfirmText
     const kb = Helper.kbConfirm(ctx)
     const da = {draftText}
-    await ctx.setSession(`multi_session`, {position: `confirm`, draftText})
+    await ctx.setSession(`custom_session`, {position: `confirm`, draftText})
     await ctx.reply(kb, da, bi)
   }
 
@@ -110,7 +110,7 @@ class Alert {
     const bi = Base.infoConfirmAnimation
     const kb = Helper.kbConfirm(ctx)
     const da = {fileId, caption}
-    await ctx.setSession(`multi_session`, {position: `confirm`, mediaType: `animation`, fileId, caption})
+    await ctx.setSession(`custom_session`, {position: `confirm`, mediaType: `animation`, fileId, caption})
     await ctx.replyAnimation(kb, da, bi)
   }
 
@@ -126,7 +126,7 @@ class Alert {
     const bi = Base.infoConfirmPhoto
     const kb = Helper.kbConfirm(ctx)
     const da = {fileId, caption}
-    await ctx.setSession(`multi_session`, {position: `confirm`, mediaType: `photo`, fileId, caption})
+    await ctx.setSession(`custom_session`, {position: `confirm`, mediaType: `photo`, fileId, caption})
     await ctx.replyPhoto(kb, da, bi)
   }
 
@@ -141,7 +141,7 @@ class Alert {
     const bi = Base.infoConfirmVideo
     const kb = Helper.kbConfirm(ctx)
     const da = {fileId, caption}
-    await ctx.setSession(`multi_session`, {position: `confirm`, mediaType: `video`, fileId, caption})
+    await ctx.setSession(`custom_session`, {position: `confirm`, mediaType: `video`, fileId, caption})
     await ctx.replyVideo(kb, da, bi)
   }
 }
@@ -152,7 +152,7 @@ class Main {
       return null
     }
 
-    await ctx.setSession(`multi_session`, {position: `form`})
+    await ctx.setSession(`custom_session`, {position: `form`})
     const bi = Base.step1
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `hybrid`), ctx.data.callbackData(bi, `cancel`), StartPage], `1-2`, bi)
     const da = {draftText, isEmpty}
@@ -199,7 +199,7 @@ class Main {
     } else if (action === `cancel`) {
       await Alert.showInfoCancel(ctx)
     } else if (action === `hybrid`) {
-      //
+      await Alert.showInfoHybridMediaNotAvailable(ctx)
     }
   }
 }

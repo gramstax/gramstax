@@ -31,6 +31,44 @@ class Helper {
   }
 }
 
+class Alert {
+  static async showWarnInvalid(ctx: TransferPage, amount = ``) {
+    const bi = Base.warnInvalid
+    const kb = Helper.kb(ctx, bi)
+    const da = {amount}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async showWarnUnknownUser(ctx: TransferPage, target: string) {
+    const bi = Base.warnUnknownUser
+    const kb = Helper.kb(ctx, bi)
+    const da = {target}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async showWarnSelf(ctx: TransferPage) {
+    const bi = Base.warnSelf
+    const kb = Helper.kb(ctx, bi)
+    const da = {}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async showWarnInsufficient(ctx: TransferPage, balance: string) {
+    const bi = Base.warnInsufficient
+    const kb = Helper.kb(ctx, bi)
+    const da = {balance}
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async showSuccess(ctx: TransferPage, amount: string, balance: string, target: string) {
+    await ctx.clearSession()
+    const bi = Base.success
+    const kb = Helper.kb(ctx, bi)
+    const da = {amount, balance, target}
+    await ctx.reply(kb, da, bi)
+  }
+}
+
 class Main {
   static async showStep1Form(ctx: TransferPage) {
     const bi = Base.step1
@@ -87,44 +125,6 @@ class Main {
     })
 
     await Alert.showSuccess(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(nextSender), target.label)
-  }
-}
-
-class Alert {
-  static async showWarnInvalid(ctx: TransferPage, amount = ``) {
-    const bi = Base.warnInvalid
-    const kb = Helper.kb(ctx, bi)
-    const da = {amount}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnUnknownUser(ctx: TransferPage, target: string) {
-    const bi = Base.warnUnknownUser
-    const kb = Helper.kb(ctx, bi)
-    const da = {target}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnSelf(ctx: TransferPage) {
-    const bi = Base.warnSelf
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnInsufficient(ctx: TransferPage, balance: string) {
-    const bi = Base.warnInsufficient
-    const kb = Helper.kb(ctx, bi)
-    const da = {balance}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showSuccess(ctx: TransferPage, amount: string, balance: string, target: string) {
-    await ctx.clearSession()
-    const bi = Base.success
-    const kb = Helper.kb(ctx, bi)
-    const da = {amount, balance, target}
-    await ctx.reply(kb, da, bi)
   }
 }
 
