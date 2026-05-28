@@ -21,7 +21,7 @@ class Helper {
           const row = languages.slice(i, i + 3)
           row.forEach((lang) => {
             const langCode = lang.toLowerCase()
-            const isSelected = langCode === currentLang
+            const isSelected = langCode.endsWith(currentLang)
             const displayText = isSelected ? `+ ${lang}` : lang
             k.text(displayText, ctx.data.callbackData(langCode))
           })
