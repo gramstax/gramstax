@@ -1450,13 +1450,13 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockNames(`<custom>text</custom>`);
+   * const result = TemplateEngine.validateNamesBlock(`<custom>text</custom>`);
    * // Result: { valid: false, errors: [{ line: 1, message: 'Unsupported template block: <custom>' }] }
    * ```
    *
    * @public
    */
-  static validateBlockNames(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+  static validateNamesBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
     const allowedBlockNames = new Set(
       TemplateEngine.ALLOWED_BLOCKS.map((block) =>
@@ -1588,7 +1588,7 @@ export class TemplateEngine {
    * @example
    * ```typescript
    * // Valid template
-   * const result = TemplateEngine.validateBlockPositions(`
+   * const result = TemplateEngine.validatePositionsBlock(`
    *   <base>
    *     <message>Hello {{name}}!</message>
    *     <keyboard>Yes, No</keyboard>
@@ -1597,7 +1597,7 @@ export class TemplateEngine {
    * // Result: { valid: true, errors: [] }
    *
    * // Invalid: <base> nested inside <message>
-   * const bad = TemplateEngine.validateBlockPositions(`
+   * const bad = TemplateEngine.validatePositionsBlock(`
    *   <base>
    *     <message>
    *       <base>Nested base</base>
@@ -1609,7 +1609,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static validateBlockPositions(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+  static validatePositionsBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
     const stack: Array<{block: string; line: number}> = []
 
@@ -1754,13 +1754,13 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockFormat(`<space>content</space>`);
+   * const result = TemplateEngine.validateFormatBlock(`<space>content</space>`);
    * // Result: { valid: false, errors: [{ line: 1, message: 'Block <space> must be self-closing: use <space /> instead' }] }
    * ```
    *
    * @public
    */
-  static validateBlockFormat(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+  static validateFormatBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
     const selfClosingBlocks = new Set([`space`, `import`])
     const regularBlocks = new Set([`base`, `message`, `keyboard`, `media`, `description`, `script`, `switch`, `case`, `default`, `map`, `div`])
@@ -1799,15 +1799,363 @@ export class TemplateEngine {
   }
 
   /**
-   * Validates all aspects of a template: block names, scopes, block format, and block positioning.
+   * Shared helper: validates attributes on a specific block tag.
+   *
+   * @param template - The raw template string
+   * @param tagName - Block tag name (e.g. `base`, `message`)
+   * @param allowedAttributes - Set of allowed attribute names
+   * @param allowedLabel - Text listing allowed attributes for error messages (e.g. `"id"`)
+   * @param valueValidators - Optional per-attribute value validators; return error message or null
+   * @returns Array of {line, message} errors
+   */
+  private static _validateBlockAttributes(template: string, tagName: string, allowedAttributes: Set<string>, allowedLabel: string, valueValidators?: Record<string, (value: string) => string | null>): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const tagRegex = new RegExp(`<${tagName}\\b([^>]*?)>`, `g`)
+    let match: RegExpExecArray | null
+
+    while ((match = tagRegex.exec(template)) !== null) {
+      const attrsStr = match[1]!.trim()
+      if (!attrsStr) continue
+
+      const line = (template.slice(0, match.index).match(/\n/g) || []).length + 1
+
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+))/g
+      let attrMatch: RegExpExecArray | null
+
+      while ((attrMatch = attrRegex.exec(attrsStr)) !== null) {
+        const attrName = attrMatch[1]!.toLowerCase()
+
+        if (!allowedAttributes.has(attrName)) {
+          const allowedMsg = allowedAttributes.size === 0 ? `no attributes are allowed` : `only ${allowedLabel} is allowed`
+          errors.push({line, message: `Unknown attribute "${attrMatch[1]}" on <${tagName}>: ${allowedMsg}`})
+          continue
+        }
+
+        if (valueValidators?.[attrName]) {
+          const attrValue = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+          const valError = valueValidators[attrName]!(attrValue)
+          if (valError) {
+            errors.push({line, message: valError})
+          }
+        }
+      }
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates attributes on `<base>` blocks.
+   *
+   * @remarks
+   * The only allowed attribute is `id`.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockBaseAttributes(`<base id="main"></base>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockBaseAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `base`, new Set([`id`]), `"id"`, {
+      id: (v) => (v ? null : `Attribute "id" on <base> must not be empty`)
+    })
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<message>` blocks.
+   *
+   * @remarks
+   * The only allowed attribute is `lang`.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockMessageAttributes(`<message lang="en">Hi</message>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockMessageAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `message`, new Set([`lang`]), `"lang"`)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<keyboard>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `lang` and `type`.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard type="bottom">A, B</keyboard>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockKeyboardAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `keyboard`, new Set([`lang`, `type`]), `"lang" and "type"`)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<media>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `lang`, `type`, `src`, `latitude`, `longitude`,
+   * `phone`, `first_name`, `last_name`, and `vcard`.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockMediaAttributes(`<media type="photo" src="img.jpg">Caption</media>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockMediaAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `media`, new Set([`lang`, `type`, `src`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, `vcard`]), `"lang", "type", "src", "latitude", "longitude", "phone", "first_name", "last_name", and "vcard"`)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<description>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `lang` and `scope`.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockDescriptionAttributes(`<description scope="chat_administrators">Admin cmd</description>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockDescriptionAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `description`, new Set([`lang`, `scope`]), `"lang" and "scope"`)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<script>` blocks.
+   *
+   * @remarks
+   * No attributes are allowed on `<script>` blocks.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockScriptAttributes(`<script>return x;</script>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockScriptAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `script`, new Set(), ``)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<switch>` blocks.
+   *
+   * @remarks
+   * The only allowed attribute is `value`.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockSwitchAttributes(`<switch value="status">...</switch>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockSwitchAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `switch`, new Set([`value`]), `"value"`)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<case>` blocks.
+   *
+   * @remarks
+   * The only allowed attribute is `is`.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockCaseAttributes(`<case is="active">Active</case>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockCaseAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `case`, new Set([`is`]), `"is"`)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<default>` blocks.
+   *
+   * @remarks
+   * No attributes are allowed on `<default>` blocks.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockDefaultAttributes(`<default>Unknown</default>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockDefaultAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `default`, new Set(), ``)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<map>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `src` and `join`.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockMapAttributes(`<map src="items" join=", ">{{e}}</map>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockMapAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `map`, new Set([`src`, `join`]), `"src" and "join"`)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<div>` blocks.
+   *
+   * @remarks
+   * No attributes are allowed on `<div>` blocks.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockDivAttributes(`<div>content</div>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockDivAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `div`, new Set(), ``)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<import>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `src`, `block`, `base`, `lang`, and `section`.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockImportAttributes(`<import src="other" block="message" />`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockImportAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `import`, new Set([`src`, `block`, `base`, `lang`, `section`]), `"src", "block", "base", "lang", and "section"`)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<space>` blocks.
+   *
+   * @remarks
+   * No attributes are allowed on `<space>` blocks.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockSpaceAttributes(`<space />`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockSpaceAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `space`, new Set(), ``)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.
    *
    * @remarks
    * This is a convenience method that runs all validators in order:
    *
-   * 1. {@link TemplateEngine.validateBlockNames} — checks that all tags are known
+   * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known
    * 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known
-   * 3. {@link TemplateEngine.validateBlockFormat} — checks self-closing vs regular tag syntax
-   * 4. {@link TemplateEngine.validateBlockPositions} — checks structural nesting rules
+   * 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax
+   * 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules
+   * 5. {@link TemplateEngine.validateBlockBaseAttributes} — checks `<base>` block attributes
+   * 6. {@link TemplateEngine.validateBlockMessageAttributes} — checks `<message>` block attributes
+   * 7. {@link TemplateEngine.validateBlockKeyboardAttributes} — checks `<keyboard>` block attributes
+   * 8. {@link TemplateEngine.validateBlockMediaAttributes} — checks `<media>` block attributes
+   * 9. {@link TemplateEngine.validateBlockDescriptionAttributes} — checks `<description>` block attributes
+   * 10. {@link TemplateEngine.validateBlockScriptAttributes} — checks `<script>` block attributes
+   * 11. {@link TemplateEngine.validateBlockSwitchAttributes} — checks `<switch>` block attributes
+   * 12. {@link TemplateEngine.validateBlockCaseAttributes} — checks `<case>` block attributes
+   * 13. {@link TemplateEngine.validateBlockDefaultAttributes} — checks `<default>` block attributes
+   * 14. {@link TemplateEngine.validateBlockMapAttributes} — checks `<map>` block attributes
+   * 15. {@link TemplateEngine.validateBlockDivAttributes} — checks `<div>` block attributes
+   * 16. {@link TemplateEngine.validateBlockImportAttributes} — checks `<import>` block attributes
+   * 17. {@link TemplateEngine.validateBlockSpaceAttributes} — checks `<space>` block attributes
    *
    * Errors from all validators are combined into a single result.
    *
@@ -1828,12 +2176,43 @@ export class TemplateEngine {
    * @public
    */
   static validateTemplate(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const blockNamesResult = this.validateBlockNames(template)
+    const blockNamesResult = this.validateNamesBlock(template)
     const scopesResult = this.validateScopes(template)
-    const formatResult = this.validateBlockFormat(template)
-    const positionsResult = this.validateBlockPositions(template)
+    const formatResult = this.validateFormatBlock(template)
+    const positionsResult = this.validatePositionsBlock(template)
+    const baseAttrResult = this.validateBlockBaseAttributes(template)
+    const messageAttrResult = this.validateBlockMessageAttributes(template)
+    const keyboardAttrResult = this.validateBlockKeyboardAttributes(template)
+    const mediaAttrResult = this.validateBlockMediaAttributes(template)
+    const descriptionAttrResult = this.validateBlockDescriptionAttributes(template)
+    const scriptAttrResult = this.validateBlockScriptAttributes(template)
+    const switchAttrResult = this.validateBlockSwitchAttributes(template)
+    const caseAttrResult = this.validateBlockCaseAttributes(template)
+    const defaultAttrResult = this.validateBlockDefaultAttributes(template)
+    const mapAttrResult = this.validateBlockMapAttributes(template)
+    const divAttrResult = this.validateBlockDivAttributes(template)
+    const importAttrResult = this.validateBlockImportAttributes(template)
+    const spaceAttrResult = this.validateBlockSpaceAttributes(template)
 
-    const errors = [...blockNamesResult.errors, ...scopesResult.errors, ...formatResult.errors, ...positionsResult.errors]
+    const errors = [
+      ...blockNamesResult.errors,
+      ...scopesResult.errors,
+      ...formatResult.errors,
+      ...positionsResult.errors,
+      ...baseAttrResult.errors,
+      ...messageAttrResult.errors,
+      ...keyboardAttrResult.errors,
+      ...mediaAttrResult.errors,
+      ...descriptionAttrResult.errors,
+      ...scriptAttrResult.errors,
+      ...switchAttrResult.errors,
+      ...caseAttrResult.errors,
+      ...defaultAttrResult.errors,
+      ...mapAttrResult.errors,
+      ...divAttrResult.errors,
+      ...importAttrResult.errors,
+      ...spaceAttrResult.errors
+    ]
 
     return {
       valid: errors.length === 0,

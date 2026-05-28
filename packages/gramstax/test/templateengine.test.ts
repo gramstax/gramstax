@@ -407,13 +407,13 @@ describe(`TemplateEngine`, () => {
 
   describe(`validateBlockPositions`, () => {
     it(`should return valid for empty template`, () => {
-      const result = TemplateEngine.validateBlockPositions(``)
+      const result = TemplateEngine.validatePositionsBlock(``)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
     it(`should return invalid for plain text without <base> block`, () => {
-      const result = TemplateEngine.validateBlockPositions(`Just some text`)
+      const result = TemplateEngine.validatePositionsBlock(`Just some text`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBeGreaterThan(0)
       expect(result.errors[0]!.message).toContain(`Missing <base> block`)
@@ -426,7 +426,7 @@ describe(`TemplateEngine`, () => {
           <keyboard>Yes, No</keyboard>
         </base>
       `
-      const result = TemplateEngine.validateBlockPositions(template)
+      const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
@@ -440,7 +440,7 @@ describe(`TemplateEngine`, () => {
           <message>Error</message>
         </base>
       `
-      const result = TemplateEngine.validateBlockPositions(template)
+      const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
@@ -456,7 +456,7 @@ describe(`TemplateEngine`, () => {
           </message>
         </base>
       `
-      const result = TemplateEngine.validateBlockPositions(template)
+      const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
@@ -471,7 +471,7 @@ describe(`TemplateEngine`, () => {
           </message>
         </base>
       `
-      const result = TemplateEngine.validateBlockPositions(template)
+      const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
@@ -484,7 +484,7 @@ describe(`TemplateEngine`, () => {
           <space />
         </base>
       `
-      const result = TemplateEngine.validateBlockPositions(template)
+      const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
@@ -495,13 +495,13 @@ describe(`TemplateEngine`, () => {
           <message><b>Bold</b> and <i>italic</i></message>
         </base>
       `
-      const result = TemplateEngine.validateBlockPositions(template)
+      const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
     it(`should detect base nested inside message`, () => {
-      const result = TemplateEngine.validateBlockPositions(`
+      const result = TemplateEngine.validatePositionsBlock(`
         <base>
           <message>
             <base>Nested base</base>
@@ -515,7 +515,7 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should detect message inside message`, () => {
-      const result = TemplateEngine.validateBlockPositions(`
+      const result = TemplateEngine.validatePositionsBlock(`
         <base>
           <message>
             <message>Nested message</message>
@@ -528,7 +528,7 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should detect case outside switch`, () => {
-      const result = TemplateEngine.validateBlockPositions(`
+      const result = TemplateEngine.validatePositionsBlock(`
         <base>
           <case is="test">Outside</case>
         </base>
@@ -539,7 +539,7 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should detect mismatched closing tags`, () => {
-      const result = TemplateEngine.validateBlockPositions(`
+      const result = TemplateEngine.validatePositionsBlock(`
         <base>
           <message>Hello</message>
           </keyboard>
@@ -551,7 +551,7 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should detect unexpected closing tag`, () => {
-      const result = TemplateEngine.validateBlockPositions(`
+      const result = TemplateEngine.validatePositionsBlock(`
         <base>
           <message>Hello</message>
         </base>
@@ -563,7 +563,7 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should detect unclosed block`, () => {
-      const result = TemplateEngine.validateBlockPositions(`
+      const result = TemplateEngine.validatePositionsBlock(`
         <base>
           <message>Unclosed
         </base>
@@ -574,10 +574,337 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should return correct line numbers for errors`, () => {
-      const result = TemplateEngine.validateBlockPositions(`<base>\n  <message>\n    <base>Inner</base>\n  </message>\n</base>`)
+      const result = TemplateEngine.validatePositionsBlock(`<base>\n  <message>\n    <base>Inner</base>\n  </message>\n</base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBeGreaterThanOrEqual(1)
       expect(result.errors[0]?.line).toBe(3)
+    })
+  })
+
+  describe(`validateBaseAttributes`, () => {
+    it(`should return valid for base with no attributes`, () => {
+      const result = TemplateEngine.validateBlockBaseAttributes(`<base></base>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for base with valid id attribute`, () => {
+      const result = TemplateEngine.validateBlockBaseAttributes(`<base id="main"></base>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for base with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockBaseAttributes(`<base lang="en"></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`lang`)
+    })
+
+    it(`should return invalid for base with empty id`, () => {
+      const result = TemplateEngine.validateBlockBaseAttributes(`<base id=""></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`id`)
+      expect(result.errors[0]?.message).toContain(`empty`)
+    })
+
+    it(`should report all invalid attributes on a single base`, () => {
+      const result = TemplateEngine.validateBlockBaseAttributes(`<base id="x" class="y" data-x="z"></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(2)
+      expect(result.errors[0]?.message).toContain(`class`)
+      expect(result.errors[1]?.message).toContain(`data-x`)
+    })
+
+    it(`should report unknown attribute on the correct line`, () => {
+      const result = TemplateEngine.validateBlockBaseAttributes(`<base></base>\n<base lang="en"></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.line).toBe(2)
+    })
+
+    it(`should be included in validateTemplate full validation`, () => {
+      const result = TemplateEngine.validateTemplate(`<base lang="en"><message>Hi</message></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((e) => e.message.includes(`lang`))).toBe(true)
+    })
+  })
+
+  describe(`validateMessageAttributes`, () => {
+    it(`should return valid for message with no attributes`, () => {
+      const result = TemplateEngine.validateBlockMessageAttributes(`<message>Hello</message>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for message with valid lang attribute`, () => {
+      const result = TemplateEngine.validateBlockMessageAttributes(`<message lang="en">Hello</message>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for message with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockMessageAttributes(`<message id="1">Hello</message>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`id`)
+    })
+
+    it(`should report unknown attribute on the correct line`, () => {
+      const result = TemplateEngine.validateBlockMessageAttributes(`<message>Ok</message>\n<message class="x">Bad</message>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.line).toBe(2)
+    })
+
+    it(`should be included in validateTemplate full validation`, () => {
+      const result = TemplateEngine.validateTemplate(`<base><message id="x">Hi</message></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
+    })
+  })
+
+  describe(`validateKeyboardAttributes`, () => {
+    it(`should return valid for keyboard with no attributes`, () => {
+      const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard>A, B</keyboard>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for keyboard with valid lang and type`, () => {
+      const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard lang="id" type="bottom">Ya, Tidak</keyboard>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for keyboard with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard id="x">A, B</keyboard>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`id`)
+    })
+
+    it(`should be included in validateTemplate full validation`, () => {
+      const result = TemplateEngine.validateTemplate(`<base><keyboard id="x">A</keyboard></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
+    })
+  })
+
+  describe(`validateMediaAttributes`, () => {
+    it(`should return valid for media with all valid attributes`, () => {
+      const result = TemplateEngine.validateBlockMediaAttributes(`<media type="photo" src="img.jpg" lang="en">Caption</media>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for media with location attributes`, () => {
+      const result = TemplateEngine.validateBlockMediaAttributes(`<media type="location" latitude="-6.2" longitude="106.8">Loc</media>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for media with contact attributes`, () => {
+      const result = TemplateEngine.validateBlockMediaAttributes(`<media type="contact" phone="123" first_name="John" last_name="Doe" vcard="BEGIN:VCARD">Contact</media>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for media with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockMediaAttributes(`<media type="photo" id="x">Cap</media>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`id`)
+    })
+
+    it(`should be included in validateTemplate full validation`, () => {
+      const result = TemplateEngine.validateTemplate(`<base><media type="photo" id="x">Cap</media></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
+    })
+  })
+
+  describe(`validateDescriptionAttributes`, () => {
+    it(`should return valid for description with no attributes`, () => {
+      const result = TemplateEngine.validateBlockDescriptionAttributes(`<description>Start</description>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for description with lang and scope`, () => {
+      const result = TemplateEngine.validateBlockDescriptionAttributes(`<description lang="id" scope="chat_administrators">Mulai</description>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for description with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockDescriptionAttributes(`<description id="x">Start</description>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`id`)
+    })
+
+    it(`should be included in validateTemplate full validation`, () => {
+      const result = TemplateEngine.validateTemplate(`<base><description id="x">Start</description></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
+    })
+  })
+
+  describe(`validateScriptAttributes`, () => {
+    it(`should return valid for script with no attributes`, () => {
+      const result = TemplateEngine.validateBlockScriptAttributes(`<script>return x;</script>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for script with any attribute`, () => {
+      const result = TemplateEngine.validateBlockScriptAttributes(`<script lang="en">return x;</script>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`lang`)
+    })
+
+    it(`should be included in validateTemplate full validation`, () => {
+      const result = TemplateEngine.validateTemplate(`<base><script id="x">return 1;</script></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
+    })
+  })
+
+  describe(`validateSwitchAttributes`, () => {
+    it(`should return valid for switch with value attribute`, () => {
+      const result = TemplateEngine.validateBlockSwitchAttributes(`<switch value="status"><case is="a">A</case></switch>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for switch with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockSwitchAttributes(`<switch value="status" id="x"><case is="a">A</case></switch>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`id`)
+    })
+
+    it(`should be included in validateTemplate full validation`, () => {
+      const result = TemplateEngine.validateTemplate(`<base><message><switch id="x"><case is="a">A</case></switch></message></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
+    })
+  })
+
+  describe(`validateCaseAttributes`, () => {
+    it(`should return valid for case with is attribute`, () => {
+      const result = TemplateEngine.validateBlockCaseAttributes(`<case is="active">Active</case>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for case with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockCaseAttributes(`<case is="a" id="x">A</case>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`id`)
+    })
+  })
+
+  describe(`validateDefaultAttributes`, () => {
+    it(`should return valid for default with no attributes`, () => {
+      const result = TemplateEngine.validateBlockDefaultAttributes(`<default>Unknown</default>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for default with any attribute`, () => {
+      const result = TemplateEngine.validateBlockDefaultAttributes(`<default id="x">Unknown</default>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`id`)
+    })
+  })
+
+  describe(`validateMapAttributes`, () => {
+    it(`should return valid for map with src and join`, () => {
+      const result = TemplateEngine.validateBlockMapAttributes(`<map src="items" join=", ">{{e}}</map>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for map with src only`, () => {
+      const result = TemplateEngine.validateBlockMapAttributes(`<map src="items">{{e}}</map>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for map with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockMapAttributes(`<map src="items" id="x">{{e}}</map>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`id`)
+    })
+
+    it(`should be included in validateTemplate full validation`, () => {
+      const result = TemplateEngine.validateTemplate(`<base><message><map src="x" id="y">{{e}}</map></message></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
+    })
+  })
+
+  describe(`validateDivAttributes`, () => {
+    it(`should return valid for div with no attributes`, () => {
+      const result = TemplateEngine.validateBlockDivAttributes(`<div>content</div>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for div with any attribute`, () => {
+      const result = TemplateEngine.validateBlockDivAttributes(`<div class="x">content</div>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`class`)
+    })
+  })
+
+  describe(`validateImportAttributes`, () => {
+    it(`should return valid for import with src only`, () => {
+      const result = TemplateEngine.validateBlockImportAttributes(`<import src="other" />`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for import with all valid attributes`, () => {
+      const result = TemplateEngine.validateBlockImportAttributes(`<import src="other" block="message" base="main" lang="en" section="value" />`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for import with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockImportAttributes(`<import src="other" id="x" />`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`id`)
+    })
+
+    it(`should be included in validateTemplate full validation`, () => {
+      const result = TemplateEngine.validateTemplate(`<base><import src="x" id="y" /></base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
+    })
+  })
+
+  describe(`validateSpaceAttributes`, () => {
+    it(`should return valid for space with no attributes`, () => {
+      const result = TemplateEngine.validateBlockSpaceAttributes(`<space />`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for space with any attribute`, () => {
+      const result = TemplateEngine.validateBlockSpaceAttributes(`<space id="x" />`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`id`)
     })
   })
 })
