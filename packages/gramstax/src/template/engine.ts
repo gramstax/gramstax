@@ -1908,7 +1908,9 @@ export class TemplateEngine {
    * @public
    */
   static validateBlockKeyboardAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `keyboard`, new Set([`lang`, `type`]), `"lang" and "type"`)
+    const errors = this._validateBlockAttributes(template, `keyboard`, new Set([`lang`, `type`]), `"lang" and "type"`, {
+      type: (v) => (v === `inline` || v === `bottom` ? null : `Attribute "type" on <keyboard> must be "inline" or "bottom", got "${v}"`)
+    })
     return {valid: errors.length === 0, errors}
   }
 
@@ -1931,7 +1933,10 @@ export class TemplateEngine {
    * @public
    */
   static validateBlockMediaAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `media`, new Set([`lang`, `type`, `src`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, `vcard`]), `"lang", "type", "src", "latitude", "longitude", "phone", "first_name", "last_name", and "vcard"`)
+    const validTypes = new Set([`photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, `sticker`, `location`, `contact`])
+    const errors = this._validateBlockAttributes(template, `media`, new Set([`lang`, `type`, `src`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, `vcard`]), `"lang", "type", "src", "latitude", "longitude", "phone", "first_name", "last_name", and "vcard"`, {
+      type: (v) => (validTypes.has(v) ? null : `Attribute "type" on <media> must be one of: ${[...validTypes].join(`, `)}, got "${v}"`)
+    })
     return {valid: errors.length === 0, errors}
   }
 

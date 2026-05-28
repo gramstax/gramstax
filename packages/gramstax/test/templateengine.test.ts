@@ -672,10 +672,29 @@ describe(`TemplateEngine`, () => {
       expect(result.errors).toEqual([])
     })
 
+    it(`should return valid for keyboard with type inline`, () => {
+      const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard type="inline">A, B</keyboard>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for keyboard with type bottom`, () => {
+      const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard type="bottom">A, B</keyboard>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
     it(`should return valid for keyboard with valid lang and type`, () => {
       const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard lang="id" type="bottom">Ya, Tidak</keyboard>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for keyboard with invalid type value`, () => {
+      const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard type="top">A, B</keyboard>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`must be "inline" or "bottom"`)
     })
 
     it(`should return invalid for keyboard with unknown attribute`, () => {
@@ -716,6 +735,14 @@ describe(`TemplateEngine`, () => {
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`id`)
+    })
+
+    it(`should return invalid for media with invalid type value`, () => {
+      const result = TemplateEngine.validateBlockMediaAttributes(`<media type="gif">Cap</media>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toContain(`must be one of`)
+      expect(result.errors[0]?.message).toContain(`gif`)
     })
 
     it(`should be included in validateTemplate full validation`, () => {
