@@ -11,7 +11,7 @@ Compiles a raw template string and stores the result in the cache.
 ```typescript
 _compile(key: string, template: string, keepIfExist?: Partial<{
         [K in keyof ITCompiledTemplate]: boolean;
-    }>, importCache?: Map<string, string>, rawCache?: Map<string, string>): void;
+    }>, importCache?: Map<string, string>, rawCache?: Map<string, string>, filename?: string): void;
 ```
 
 ## Parameters
@@ -109,6 +109,22 @@ Map&lt;string, string&gt;
 </td><td>
 
 _(Optional)_ Optional pre-loaded raw template cache for batch loading
+
+
+</td></tr>
+<tr><td>
+
+filename
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_
 
 
 </td></tr>

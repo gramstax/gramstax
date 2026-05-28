@@ -250,7 +250,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[\_compile(key, template, keepIfExist, importCache, rawCache)](./gramstax.templatemanager._compile.md)
+[\_compile(key, template, keepIfExist, importCache, rawCache, filename)](./gramstax.templatemanager._compile.md)
 
 
 </td><td>
@@ -259,6 +259,20 @@ Description
 </td><td>
 
 Compiles a raw template string and stores the result in the cache.
+
+
+</td></tr>
+<tr><td>
+
+[\_getBaseAtLine(template, line)](./gramstax.templatemanager._getbaseatline.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Finds the `<base>` block (open + close) that encloses the given line number.
 
 
 </td></tr>
@@ -427,6 +441,22 @@ Reads a template file's content from disk.
 </td><td>
 
 Validates and ensures all template directories exist.
+
+
+</td></tr>
+<tr><td>
+
+[\_validateTemplate(baseId, template, filename)](./gramstax.templatemanager._validatetemplate.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Validates template syntax and throws a descriptive error on failure.
+
+The error message includes the enclosing `<base id="...">` based on the error line. If the `<base>` has no `id` or no `<base>` tag is found, the `on base` prefix is omitted.
 
 
 </td></tr>

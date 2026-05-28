@@ -9,12 +9,12 @@ Registry of all supported template block tags.
 **Signature:**
 
 ```typescript
-static ALLOWED_BLOCKS: readonly ["base", "message", "keyboard", "media", "description", "script", "switch", "case", "default", "map", "div", "import", "space", "b", "i", "u", "s", "code", "pre", "a", "blockquote", "expandable"];
+static ALLOWED_BLOCKS: string[];
 ```
 
 ## Remarks
 
 These are the actual XML-like tags recognized by `TemplateEngine`<!-- -->. Each corresponds to a `<tagName>` element in template strings.
 
-\*\*Content blocks:\*\* `base`<!-- -->, `message`<!-- -->, `keyboard`<!-- -->, `media`<!-- -->, `description` \*\*Logic blocks:\*\* `script`<!-- -->, `switch`<!-- -->, `case`<!-- -->, `default`<!-- -->, `map`<!-- -->, `div` \*\*Utility blocks:\*\* `import`<!-- -->, `space` \*\*Telegram HTML formatting (passed through, not compiled):\*\* `b`<!-- -->, `i`<!-- -->, `u`<!-- -->, `s`<!-- -->, `code`<!-- -->, `pre`<!-- -->, `a`<!-- -->, `blockquote`<!-- -->, `expandable`
+\*\*Content blocks:\*\* `base`<!-- -->, `message`<!-- -->, `keyboard`<!-- -->, `media`<!-- -->, `description` \*\*Logic blocks:\*\* `script`<!-- -->, `switch`<!-- -->, `case`<!-- -->, `default`<!-- -->, `map`<!-- -->, `div` \*\*Utility blocks:\*\* `import`<!-- -->, `space` \*\*Telegram HTML formatting (passed through, not compiled):\*\* `b`<!-- -->, `i`<!-- -->, `u`<!-- -->, `s`<!-- -->, `code`<!-- -->, `pre`<!-- -->, `a`<!-- -->, `blockquote`<!-- -->, `blockquote expandable`
 

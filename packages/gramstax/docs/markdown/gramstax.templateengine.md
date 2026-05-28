@@ -73,12 +73,33 @@ Description
 
 </td><td>
 
-readonly \["base", "message", "keyboard", "media", "description", "script", "switch", "case", "default", "map", "div", "import", "space", "b", "i", "u", "s", "code", "pre", "a", "blockquote", "expandable"\]
+string\[\]
 
 
 </td><td>
 
 Registry of all supported template block tags.
+
+
+</td></tr>
+<tr><td>
+
+[ALLOWED\_SCOPE](./gramstax.templateengine.allowed_scope.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+Registry of supported scope interpolation syntaxes.
 
 
 </td></tr>
@@ -435,6 +456,294 @@ Compiles message blocks from a template into executable functions.
 </td><td>
 
 Recursively processes and resolves `<import>` blocks in a template.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockBaseAttributes(template)](./gramstax.templateengine.validateblockbaseattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<base>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockCaseAttributes(template)](./gramstax.templateengine.validateblockcaseattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<case>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockDefaultAttributes(template)](./gramstax.templateengine.validateblockdefaultattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<default>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockDescriptionAttributes(template)](./gramstax.templateengine.validateblockdescriptionattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<description>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockDivAttributes(template)](./gramstax.templateengine.validateblockdivattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<div>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockImportAttributes(template)](./gramstax.templateengine.validateblockimportattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<import>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockKeyboardAttributes(template)](./gramstax.templateengine.validateblockkeyboardattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<keyboard>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockMapAttributes(template)](./gramstax.templateengine.validateblockmapattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<map>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockMediaAttributes(template)](./gramstax.templateengine.validateblockmediaattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<media>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockMessageAttributes(template)](./gramstax.templateengine.validateblockmessageattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<message>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockScriptAttributes(template)](./gramstax.templateengine.validateblockscriptattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<script>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockSpaceAttributes(template)](./gramstax.templateengine.validateblockspaceattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<space>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockSwitchAttributes(template)](./gramstax.templateengine.validateblockswitchattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<switch>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateFormatBlock(template)](./gramstax.templateengine.validateformatblock.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates block syntax format (self-closing vs regular open/close).
+
+
+</td></tr>
+<tr><td>
+
+[validateNamesBlock(template)](./gramstax.templateengine.validatenamesblock.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates that all block tags in a template are recognized.
+
+
+</td></tr>
+<tr><td>
+
+[validatePositionsBlock(template)](./gramstax.templateengine.validatepositionsblock.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates block positioning and nesting rules in a template string.
+
+
+</td></tr>
+<tr><td>
+
+[validateScopes(template)](./gramstax.templateengine.validatescopes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates that all interpolation scope syntaxes in a template are recognized.
+
+
+</td></tr>
+<tr><td>
+
+[validateTemplate(template)](./gramstax.templateengine.validatetemplate.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.
 
 
 </td></tr>

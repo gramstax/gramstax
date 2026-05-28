@@ -150,10 +150,10 @@ properties:
       return:
         type: <xref uid="chokidar!FSWatcher:class" />[]
 methods:
-  - name: _compile(key, template, keepIfExist, importCache, rawCache)
+  - name: _compile(key, template, keepIfExist, importCache, rawCache, filename)
     uid: gramstax!TemplateManager#_compile:member(1)
     package: gramstax!
-    fullName: _compile(key, template, keepIfExist, importCache, rawCache)
+    fullName: _compile(key, template, keepIfExist, importCache, rawCache, filename)
     summary: Compiles a raw template string and stores the result in the cache.
     remarks: >-
       This method processes import blocks, compiles media, messages, keyboards, and descriptions from the template. It
@@ -174,7 +174,7 @@ methods:
       content: |-
         _compile(key: string, template: string, keepIfExist?: Partial<{
                 [K in keyof ITCompiledTemplate]: boolean;
-            }>, importCache?: Map<string, string>, rawCache?: Map<string, string>): void;
+            }>, importCache?: Map<string, string>, rawCache?: Map<string, string>, filename?: string): void;
       parameters:
         - id: key
           description: Template cache key (filename without extension)
@@ -194,9 +194,52 @@ methods:
         - id: rawCache
           description: Optional pre-loaded raw template cache for batch loading
           type: Map&lt;string, string&gt;
+        - id: filename
+          description: ''
+          type: string
       return:
         type: void
         description: ''
+  - name: _getBaseAtLine(template, line)
+    uid: gramstax!TemplateManager#_getBaseAtLine:member(1)
+    package: gramstax!
+    fullName: _getBaseAtLine(template, line)
+    summary: Finds the `<base>` block (open + close) that encloses the given line number.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const tpl = '<base id="kb">\n<kop/></base>';
+        this._getBaseAtLine(tpl, 2) // => { baseId: "kb", hasId: true }
+
+        const tpl2 = '<base>\n<kop/></base>';
+        this._getBaseAtLine(tpl2, 2) // => { baseId: null, hasId: false }
+
+        const tpl3 = '</base>\n{-lah-}\n<base>';
+        this._getBaseAtLine(tpl3, 2) // => null
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        _getBaseAtLine(template: string, line: number): {
+                baseId: string | null;
+                hasId: boolean;
+            } | null;
+      parameters:
+        - id: template
+          description: Processed template string
+          type: string
+        - id: line
+          description: 1-based line number to check
+          type: number
+      return:
+        type: |-
+          {
+                  baseId: string | null;
+                  hasId: boolean;
+              } | null
+        description: Object with `baseId` and `hasId`<!-- -->, or `null` if not inside any `<base>` block
   - name: _getExtension(filename)
     uid: gramstax!TemplateManager#_getExtension:member(1)
     package: gramstax!
@@ -475,6 +518,45 @@ methods:
       return:
         type: boolean
         description: '`true` if all paths are valid directories'
+  - name: _validateTemplate(baseId, template, filename)
+    uid: gramstax!TemplateManager#_validateTemplate:member(1)
+    package: gramstax!
+    fullName: _validateTemplate(baseId, template, filename)
+    summary: >-
+      Validates template syntax and throws a descriptive error on failure.
+
+
+      The error message includes the enclosing `<base id="...">` based on the error line. If the `<base>` has no `id` or
+      no `<base>` tag is found, the `on base` prefix is omitted.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        // base with id:
+        this._validateTemplate("start", '<base id="kb"><kop/></base>', "start.html")
+        // => throws: Template on base "kb" (start.html, line 1): Unsupported template block: <kop>
+
+        // base without id:
+        this._validateTemplate("start", '<base><kop/></base>', "start.html")
+        // => throws: Template (start.html, line 1): Unsupported template block: <kop>
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: '_validateTemplate(baseId: string, template: string, filename?: string): void;'
+      parameters:
+        - id: baseId
+          description: Cache key (filename without extension), used as default filename
+          type: string
+        - id: template
+          description: Template content to validate
+          type: string
+        - id: filename
+          description: Source filename with extension, shown in error location
+          type: string
+      return:
+        type: void
+        description: ''
   - name: destroy()
     uid: gramstax!TemplateManager#destroy:member(1)
     package: gramstax!

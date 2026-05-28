@@ -49,19 +49,44 @@ properties:
       \*\*Logic blocks:\*\* `script`<!-- -->, `switch`<!-- -->, `case`<!-- -->, `default`<!-- -->, `map`<!-- -->, `div`
       \*\*Utility blocks:\*\* `import`<!-- -->, `space` \*\*Telegram HTML formatting (passed through, not compiled):\*\*
       `b`<!-- -->, `i`<!-- -->, `u`<!-- -->, `s`<!-- -->, `code`<!-- -->, `pre`<!-- -->, `a`<!-- -->, `blockquote`<!--
-      -->, `expandable`
+      -->, `blockquote expandable`
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: >-
-        static ALLOWED_BLOCKS: readonly ["base", "message", "keyboard", "media", "description", "script", "switch",
-        "case", "default", "map", "div", "import", "space", "b", "i", "u", "s", "code", "pre", "a", "blockquote",
-        "expandable"];
+      content: 'static ALLOWED_BLOCKS: string[];'
       return:
-        type: >-
-          readonly ["base", "message", "keyboard", "media", "description", "script", "switch", "case", "default", "map",
-          "div", "import", "space", "b", "i", "u", "s", "code", "pre", "a", "blockquote", "expandable"]
+        type: string[]
+  - name: ALLOWED_SCOPE
+    uid: gramstax!TemplateEngine.ALLOWED_SCOPE:member
+    package: gramstax!
+    fullName: ALLOWED_SCOPE
+    summary: Registry of supported scope interpolation syntaxes.
+    remarks: >-
+      These are the variable/expression delimiters recognized within template content. Each entry represents a pair of
+      opening/closing delimiters that trigger a specific interpolation behavior at compile time.
+
+
+      \*\*Supported scopes:\*\* - `{{}}` — Mustache-style variable interpolation. Placeholders like `{{name}}` are
+      replaced with the corresponding value from the `data` object at render time. Nullish values produce an empty
+      string. - `{~~}` — Inline execution blocks. Expressions like `{~ status ? "Success" : "Failed" ~}` are evaluated
+      as JavaScript expressions with access to the `data` object.
+
+
+      This array is used for reference/documentation purposes; the actual parsing is handled by `_processScopeVariables`
+      (for `{{}}`<!-- -->) and `_processScopeExec` (for `{~~}`<!-- -->).
+    example:
+      - |-
+        ```typescript
+        console.log(TemplateEngine.ALLOWED_SCOPE)
+        // Result: ['{{}}', '{~~}']
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static ALLOWED_SCOPE: string[];'
+      return:
+        type: string[]
 methods:
   - name: _compileToFunction(template, isArray)
     uid: gramstax!TemplateEngine._compileToFunction:member(1)
@@ -981,3 +1006,826 @@ methods:
       return:
         type: string
         description: Template with all `<import>` blocks resolved and replaced
+  - name: validateBlockBaseAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockBaseAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockBaseAttributes(template)
+    summary: Validates attributes on `<base>` blocks.
+    remarks: The only allowed attribute is `id`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockBaseAttributes(`<base id="main"></base>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockBaseAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockCaseAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockCaseAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockCaseAttributes(template)
+    summary: Validates attributes on `<case>` blocks.
+    remarks: The only allowed attribute is `is`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockCaseAttributes(`<case is="active">Active</case>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockCaseAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockDefaultAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockDefaultAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockDefaultAttributes(template)
+    summary: Validates attributes on `<default>` blocks.
+    remarks: No attributes are allowed on `<default>` blocks.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockDefaultAttributes(`<default>Unknown</default>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockDefaultAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockDescriptionAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockDescriptionAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockDescriptionAttributes(template)
+    summary: Validates attributes on `<description>` blocks.
+    remarks: Allowed attributes are `lang` and `scope`<!-- -->.
+    example:
+      - >-
+        ```typescript
+
+        const result = TemplateEngine.validateBlockDescriptionAttributes(`<description scope="chat_administrators">Admin
+        cmd</description>`);
+
+        // Result: { valid: true, errors: [] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockDescriptionAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockDivAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockDivAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockDivAttributes(template)
+    summary: Validates attributes on `<div>` blocks.
+    remarks: No attributes are allowed on `<div>` blocks.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockDivAttributes(`<div>content</div>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockDivAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockImportAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockImportAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockImportAttributes(template)
+    summary: Validates attributes on `<import>` blocks.
+    remarks: Allowed attributes are `src`<!-- -->, `block`<!-- -->, `base`<!-- -->, `lang`<!-- -->, and `section`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockImportAttributes(`<import src="other" block="message" />`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockImportAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockKeyboardAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockKeyboardAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockKeyboardAttributes(template)
+    summary: Validates attributes on `<keyboard>` blocks.
+    remarks: Allowed attributes are `lang` and `type`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard type="bottom">A, B</keyboard>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockKeyboardAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockMapAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockMapAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockMapAttributes(template)
+    summary: Validates attributes on `<map>` blocks.
+    remarks: Allowed attributes are `src` and `join`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockMapAttributes(`<map src="items" join=", ">{{e}}</map>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockMapAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockMediaAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockMediaAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockMediaAttributes(template)
+    summary: Validates attributes on `<media>` blocks.
+    remarks: >-
+      Allowed attributes are `lang`<!-- -->, `type`<!-- -->, `src`<!-- -->, `latitude`<!-- -->, `longitude`<!-- -->,
+      `phone`<!-- -->, `first_name`<!-- -->, `last_name`<!-- -->, and `vcard`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockMediaAttributes(`<media type="photo" src="img.jpg">Caption</media>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockMediaAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockMessageAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockMessageAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockMessageAttributes(template)
+    summary: Validates attributes on `<message>` blocks.
+    remarks: The only allowed attribute is `lang`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockMessageAttributes(`<message lang="en">Hi</message>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockMessageAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockScriptAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockScriptAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockScriptAttributes(template)
+    summary: Validates attributes on `<script>` blocks.
+    remarks: No attributes are allowed on `<script>` blocks.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockScriptAttributes(`<script>return x;</script>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockScriptAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockSpaceAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockSpaceAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockSpaceAttributes(template)
+    summary: Validates attributes on `<space>` blocks.
+    remarks: No attributes are allowed on `<space>` blocks.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockSpaceAttributes(`<space />`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockSpaceAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockSwitchAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockSwitchAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockSwitchAttributes(template)
+    summary: Validates attributes on `<switch>` blocks.
+    remarks: The only allowed attribute is `value`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateBlockSwitchAttributes(`<switch value="status">...</switch>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockSwitchAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateFormatBlock(template)
+    uid: gramstax!TemplateEngine.validateFormatBlock:member(1)
+    package: gramstax!
+    fullName: validateFormatBlock(template)
+    summary: Validates block syntax format (self-closing vs regular open/close).
+    remarks: >-
+      This method checks that each block tag uses the correct syntax format:
+
+
+      \*\*Must be self-closing:\*\* - `<space />` — whitespace control block - `<import ... />` — import directive block
+
+
+      \*\*Must NOT be self-closing (must use open/close tags):\*\* - `<base>...</base>`<!-- -->,
+      `<message>...</message>`<!-- -->, `<keyboard>...</keyboard>`<!-- -->, `<media>...</media>`<!-- -->,
+      `<description>...</description>`<!-- -->, `<script>...</script>`<!-- -->, `<switch>...</switch>`<!-- -->,
+      `<case>...</case>`<!-- -->, `<default>...</default>`<!-- -->, `<map>...</map>`<!-- -->, `<div>...</div>`
+
+
+      Telegram HTML formatting tags passthrough and are ignored.
+    example:
+      - >-
+        ```typescript
+
+        const result = TemplateEngine.validateFormatBlock(`<space>content</space>`);
+
+        // Result: { valid: false, errors: [{ line: 1, message: 'Block <space> must be self-closing: use <space />
+        instead' }] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateFormatBlock(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: >-
+          An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
+          each format violation found
+  - name: validateNamesBlock(template)
+    uid: gramstax!TemplateEngine.validateNamesBlock:member(1)
+    package: gramstax!
+    fullName: validateNamesBlock(template)
+    summary: Validates that all block tags in a template are recognized.
+    remarks: >-
+      Every HTML-like tag in the template must match a known block name from
+      [TemplateEngine.ALLOWED\_BLOCKS](xref:gramstax!TemplateEngine.ALLOWED_BLOCKS:member)<!-- -->. Unknown tags produce
+      an error.
+
+
+      Telegram HTML formatting tags (`<b>`<!-- -->, `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->,
+      `<pre>`<!-- -->, `<a>`<!-- -->, `<blockquote>`<!-- -->) are whitelisted and silently ignored.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateNamesBlock(`<custom>text</custom>`);
+        // Result: { valid: false, errors: [{ line: 1, message: 'Unsupported template block: <custom>' }] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateNamesBlock(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: >-
+          An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
+          each unknown block found
+  - name: validatePositionsBlock(template)
+    uid: gramstax!TemplateEngine.validatePositionsBlock:member(1)
+    package: gramstax!
+    fullName: validatePositionsBlock(template)
+    summary: Validates block positioning and nesting rules in a template string.
+    remarks: >-
+      This method checks a template string for structural block nesting violations. It ensures that blocks are placed in
+      their allowed parent contexts.
+
+
+      \*\*Nesting hierarchy:\*\*
+
+
+      ```
+
+      __root__
+        ├── base             (root level only)
+        │   ├── message      (content block)
+        │   │   ├── switch   (logic block)
+        │   │   │   ├── case
+        │   │   │   └── default
+        │   │   ├── map      (logic block)
+        │   │   ├── script   (logic block)
+        │   │   └── space    (utility)
+        │   ├── keyboard     (content block)
+        │   │   ├── switch   (logic block)
+        │   │   │   ├── case
+        │   │   │   └── default
+        │   │   ├── map      (logic block)
+        │   │   ├── script   (logic block)
+        │   │   └── space    (utility)
+        │   ├── media        (content block)
+        │   │   ├── switch   (logic block)
+        │   │   │   ├── case
+        │   │   │   └── default
+        │   │   ├── map      (logic block)
+        │   │   ├── script   (logic block)
+        │   │   └── space    (utility)
+        │   ├── description  (content block)
+        │   │   ├── switch   (logic block)
+        │   │   │   ├── case
+        │   │   │   └── default
+        │   │   ├── map      (logic block)
+        │   │   ├── script   (logic block)
+        │   │   └── space    (utility)
+        │   ├── import       (utility)
+        │   ├── description  (utility)
+        │   ├── script       (logic block)
+        └   └── space        (utility)
+      ```
+
+      \*\*Enforced rules:\*\* - `<base>` must be at the outermost level and cannot be nested inside any other block. -
+      `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, `<description>`<!-- -->, `<import>`<!-- -->,
+      `<script>`<!-- -->, `<space>` can only appear directly inside `<base>`<!-- -->. - `<switch>`<!-- -->, `<map>` can
+      only appear inside `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, or `<description>`<!-- -->. -
+      `<case>` and `<default>` can only appear inside `<switch>`<!-- -->. - Telegram formatting tags (`<b>`<!-- -->,
+      `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->, `<a>`<!-- -->, `<blockquote>`<!--
+      -->, `<blockquote expandable>`<!-- -->) are passthrough and ignored during validation.
+    example:
+      - |-
+        ```typescript
+        // Valid template
+        const result = TemplateEngine.validatePositionsBlock(`
+          <base>
+            <message>Hello {{name}}!</message>
+            <keyboard>Yes, No</keyboard>
+          </base>
+        `);
+        // Result: { valid: true, errors: [] }
+
+        // Invalid: <base> nested inside <message>
+        const bad = TemplateEngine.validatePositionsBlock(`
+          <base>
+            <message>
+              <base>Nested base</base>
+            </message>
+          </base>
+        `);
+        // Result: { valid: false, errors: [{ line: 4, message: 'Block <base> is not allowed inside <message>' }] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validatePositionsBlock(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: >-
+          An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
+          each violation found
+  - name: validateScopes(template)
+    uid: gramstax!TemplateEngine.validateScopes:member(1)
+    package: gramstax!
+    fullName: validateScopes(template)
+    summary: Validates that all interpolation scope syntaxes in a template are recognized.
+    remarks: >-
+      Every interpolation scope delimited by `{X...X}` (where X is a non-word character) must match a known scope name
+      from [TemplateEngine.ALLOWED\_SCOPE](xref:gramstax!TemplateEngine.ALLOWED_SCOPE:member)<!-- -->.
+
+
+      For example, `{{variable}}` uses scope `{{}}` and `{~ expr ~}` uses `{~~}`<!-- -->. Any other delimiter like `{#
+      comment #}` would be reported as unsupported.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateScopes(`{# comment #}`);
+        // Result: { valid: false, errors: [{ line: 1, message: 'Unsupported template scope: {# #}' }] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateScopes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: >-
+          An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
+          each unsupported scope found
+  - name: validateTemplate(template)
+    uid: gramstax!TemplateEngine.validateTemplate:member(1)
+    package: gramstax!
+    fullName: validateTemplate(template)
+    summary: 'Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.'
+    remarks: >-
+      This is a convenience method that runs all validators in order:
+
+
+      1. [TemplateEngine.validateNamesBlock()](xref:gramstax!TemplateEngine.validateNamesBlock:member(1)) — checks that
+      all tags are known 2. [TemplateEngine.validateScopes()](xref:gramstax!TemplateEngine.validateScopes:member(1)) —
+      checks that all interpolation scopes are known 3.
+      [TemplateEngine.validateFormatBlock()](xref:gramstax!TemplateEngine.validateFormatBlock:member(1)) — checks
+      self-closing vs regular tag syntax 4.
+      [TemplateEngine.validatePositionsBlock()](xref:gramstax!TemplateEngine.validatePositionsBlock:member(1)) — checks
+      structural nesting rules 5.
+      [TemplateEngine.validateBlockBaseAttributes()](xref:gramstax!TemplateEngine.validateBlockBaseAttributes:member(1))
+      — checks `<base>` block attributes 6.
+      [TemplateEngine.validateBlockMessageAttributes()](xref:gramstax!TemplateEngine.validateBlockMessageAttributes:member(1))
+      — checks `<message>` block attributes 7.
+      [TemplateEngine.validateBlockKeyboardAttributes()](xref:gramstax!TemplateEngine.validateBlockKeyboardAttributes:member(1))
+      — checks `<keyboard>` block attributes 8.
+      [TemplateEngine.validateBlockMediaAttributes()](xref:gramstax!TemplateEngine.validateBlockMediaAttributes:member(1))
+      — checks `<media>` block attributes 9.
+      [TemplateEngine.validateBlockDescriptionAttributes()](xref:gramstax!TemplateEngine.validateBlockDescriptionAttributes:member(1))
+      — checks `<description>` block attributes 10.
+      [TemplateEngine.validateBlockScriptAttributes()](xref:gramstax!TemplateEngine.validateBlockScriptAttributes:member(1))
+      — checks `<script>` block attributes 11.
+      [TemplateEngine.validateBlockSwitchAttributes()](xref:gramstax!TemplateEngine.validateBlockSwitchAttributes:member(1))
+      — checks `<switch>` block attributes 12.
+      [TemplateEngine.validateBlockCaseAttributes()](xref:gramstax!TemplateEngine.validateBlockCaseAttributes:member(1))
+      — checks `<case>` block attributes 13.
+      [TemplateEngine.validateBlockDefaultAttributes()](xref:gramstax!TemplateEngine.validateBlockDefaultAttributes:member(1))
+      — checks `<default>` block attributes 14.
+      [TemplateEngine.validateBlockMapAttributes()](xref:gramstax!TemplateEngine.validateBlockMapAttributes:member(1)) —
+      checks `<map>` block attributes 15.
+      [TemplateEngine.validateBlockDivAttributes()](xref:gramstax!TemplateEngine.validateBlockDivAttributes:member(1)) —
+      checks `<div>` block attributes 16.
+      [TemplateEngine.validateBlockImportAttributes()](xref:gramstax!TemplateEngine.validateBlockImportAttributes:member(1))
+      — checks `<import>` block attributes 17.
+      [TemplateEngine.validateBlockSpaceAttributes()](xref:gramstax!TemplateEngine.validateBlockSpaceAttributes:member(1))
+      — checks `<space>` block attributes
+
+
+      Errors from all validators are combined into a single result.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateTemplate(`
+          <base>
+            <message>Hello {{name}}!</message>
+          </base>
+        `);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateTemplate(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: >-
+          An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive
+          messages for every violation found

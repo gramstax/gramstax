@@ -24116,7 +24116,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateEngine.ALLOWED_BLOCKS:member",
-              "docComment": "/**\n * Registry of all supported template block tags.\n *\n * @remarks\n *\n * These are the actual XML-like tags recognized by `TemplateEngine`. Each corresponds to a `<tagName>` element in template strings.\n *\n * **Content blocks:** `base`, `message`, `keyboard`, `media`, `description` **Logic blocks:** `script`, `switch`, `case`, `default`, `map`, `div` **Utility blocks:** `import`, `space` **Telegram HTML formatting (passed through, not compiled):** `b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`, `expandable`\n */\n",
+              "docComment": "/**\n * Registry of all supported template block tags.\n *\n * @remarks\n *\n * These are the actual XML-like tags recognized by `TemplateEngine`. Each corresponds to a `<tagName>` element in template strings.\n *\n * **Content blocks:** `base`, `message`, `keyboard`, `media`, `description` **Logic blocks:** `script`, `switch`, `case`, `default`, `map`, `div` **Utility blocks:** `import`, `space` **Telegram HTML formatting (passed through, not compiled):** `b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`, `blockquote expandable`\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -24124,7 +24124,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "readonly [\"base\", \"message\", \"keyboard\", \"media\", \"description\", \"script\", \"switch\", \"case\", \"default\", \"map\", \"div\", \"import\", \"space\", \"b\", \"i\", \"u\", \"s\", \"code\", \"pre\", \"a\", \"blockquote\", \"expandable\"]"
+                  "text": "string[]"
                 },
                 {
                   "kind": "Content",
@@ -24135,6 +24135,36 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "ALLOWED_BLOCKS",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!TemplateEngine.ALLOWED_SCOPE:member",
+              "docComment": "/**\n * Registry of supported scope interpolation syntaxes.\n *\n * @remarks\n *\n * These are the variable/expression delimiters recognized within template content. Each entry represents a pair of opening/closing delimiters that trigger a specific interpolation behavior at compile time.\n *\n * **Supported scopes:** - `{{}}` — Mustache-style variable interpolation. Placeholders like `{{name}}` are replaced with the corresponding value from the `data` object at render time. Nullish values produce an empty string. - `{~~}` — Inline execution blocks. Expressions like `{~ status ? \"Success\" : \"Failed\" ~}` are evaluated as JavaScript expressions with access to the `data` object.\n *\n * This array is used for reference/documentation purposes; the actual parsing is handled by `_processScopeVariables` (for `{{}}`) and `_processScopeExec` (for `{~~}`).\n *\n * @example\n * ```typescript\n * console.log(TemplateEngine.ALLOWED_SCOPE)\n * // Result: ['{{}}', '{~~}']\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static ALLOWED_SCOPE: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "ALLOWED_SCOPE",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -24609,6 +24639,1032 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "processImportBlocks"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockBaseAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<base>` blocks.\n *\n * @remarks\n *\n * The only allowed attribute is `id`.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockBaseAttributes(`<base id=\"main\"></base>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockBaseAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockBaseAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockCaseAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<case>` blocks.\n *\n * @remarks\n *\n * The only allowed attribute is `is`.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockCaseAttributes(`<case is=\"active\">Active</case>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockCaseAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockCaseAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockDefaultAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<default>` blocks.\n *\n * @remarks\n *\n * No attributes are allowed on `<default>` blocks.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockDefaultAttributes(`<default>Unknown</default>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockDefaultAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockDefaultAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockDescriptionAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<description>` blocks.\n *\n * @remarks\n *\n * Allowed attributes are `lang` and `scope`.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockDescriptionAttributes(`<description scope=\"chat_administrators\">Admin cmd</description>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockDescriptionAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockDescriptionAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockDivAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<div>` blocks.\n *\n * @remarks\n *\n * No attributes are allowed on `<div>` blocks.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockDivAttributes(`<div>content</div>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockDivAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockDivAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockImportAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<import>` blocks.\n *\n * @remarks\n *\n * Allowed attributes are `src`, `block`, `base`, `lang`, and `section`.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockImportAttributes(`<import src=\"other\" block=\"message\" />`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockImportAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockImportAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockKeyboardAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<keyboard>` blocks.\n *\n * @remarks\n *\n * Allowed attributes are `lang` and `type`.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard type=\"bottom\">A, B</keyboard>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockKeyboardAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockKeyboardAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockMapAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<map>` blocks.\n *\n * @remarks\n *\n * Allowed attributes are `src` and `join`.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockMapAttributes(`<map src=\"items\" join=\", \">{{e}}</map>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockMapAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockMapAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockMediaAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<media>` blocks.\n *\n * @remarks\n *\n * Allowed attributes are `lang`, `type`, `src`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, and `vcard`.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockMediaAttributes(`<media type=\"photo\" src=\"img.jpg\">Caption</media>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockMediaAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockMediaAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockMessageAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<message>` blocks.\n *\n * @remarks\n *\n * The only allowed attribute is `lang`.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockMessageAttributes(`<message lang=\"en\">Hi</message>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockMessageAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockMessageAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockScriptAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<script>` blocks.\n *\n * @remarks\n *\n * No attributes are allowed on `<script>` blocks.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockScriptAttributes(`<script>return x;</script>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockScriptAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockScriptAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockSpaceAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<space>` blocks.\n *\n * @remarks\n *\n * No attributes are allowed on `<space>` blocks.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockSpaceAttributes(`<space />`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockSpaceAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockSpaceAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockSwitchAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<switch>` blocks.\n *\n * @remarks\n *\n * The only allowed attribute is `value`.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockSwitchAttributes(`<switch value=\"status\">...</switch>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockSwitchAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockSwitchAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateFormatBlock:member(1)",
+              "docComment": "/**\n * Validates block syntax format (self-closing vs regular open/close).\n *\n * @remarks\n *\n * This method checks that each block tag uses the correct syntax format:\n *\n * **Must be self-closing:** - `<space />` — whitespace control block - `<import ... />` — import directive block\n *\n * **Must NOT be self-closing (must use open/close tags):** - `<base>...</base>`, `<message>...</message>`, `<keyboard>...</keyboard>`, `<media>...</media>`, `<description>...</description>`, `<script>...</script>`, `<switch>...</switch>`, `<case>...</case>`, `<default>...</default>`, `<map>...</map>`, `<div>...</div>`\n *\n * Telegram HTML formatting tags passthrough and are ignored.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each format violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateFormatBlock(`<space>content</space>`);\n * // Result: { valid: false, errors: [{ line: 1, message: 'Block <space> must be self-closing: use <space /> instead' }] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateFormatBlock(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateFormatBlock"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateNamesBlock:member(1)",
+              "docComment": "/**\n * Validates that all block tags in a template are recognized.\n *\n * @remarks\n *\n * Every HTML-like tag in the template must match a known block name from {@link TemplateEngine.ALLOWED_BLOCKS}. Unknown tags produce an error.\n *\n * Telegram HTML formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`) are whitelisted and silently ignored.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each unknown block found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateNamesBlock(`<custom>text</custom>`);\n * // Result: { valid: false, errors: [{ line: 1, message: 'Unsupported template block: <custom>' }] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateNamesBlock(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateNamesBlock"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validatePositionsBlock:member(1)",
+              "docComment": "/**\n * Validates block positioning and nesting rules in a template string.\n *\n * @remarks\n *\n * This method checks a template string for structural block nesting violations. It ensures that blocks are placed in their allowed parent contexts.\n *\n * **Nesting hierarchy:**\n * ```\n * __root__\n *   ├── base             (root level only)\n *   │   ├── message      (content block)\n *   │   │   ├── switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── map      (logic block)\n *   │   │   ├── script   (logic block)\n *   │   │   └── space    (utility)\n *   │   ├── keyboard     (content block)\n *   │   │   ├── switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── map      (logic block)\n *   │   │   ├── script   (logic block)\n *   │   │   └── space    (utility)\n *   │   ├── media        (content block)\n *   │   │   ├── switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── map      (logic block)\n *   │   │   ├── script   (logic block)\n *   │   │   └── space    (utility)\n *   │   ├── description  (content block)\n *   │   │   ├── switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── map      (logic block)\n *   │   │   ├── script   (logic block)\n *   │   │   └── space    (utility)\n *   │   ├── import       (utility)\n *   │   ├── description  (utility)\n *   │   ├── script       (logic block)\n *   └   └── space        (utility)\n * ```\n *\n * **Enforced rules:** - `<base>` must be at the outermost level and cannot be nested inside any other block. - `<message>`, `<keyboard>`, `<media>`, `<description>`, `<import>`, `<script>`, `<space>` can only appear directly inside `<base>`. - `<switch>`, `<map>` can only appear inside `<message>`, `<keyboard>`, `<media>`, or `<description>`. - `<case>` and `<default>` can only appear inside `<switch>`. - Telegram formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`, `<blockquote expandable>`) are passthrough and ignored during validation.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each violation found\n *\n * @example\n * ```typescript\n * // Valid template\n * const result = TemplateEngine.validatePositionsBlock(`\n *   <base>\n *     <message>Hello {{name}}!</message>\n *     <keyboard>Yes, No</keyboard>\n *   </base>\n * `);\n * // Result: { valid: true, errors: [] }\n *\n * // Invalid: <base> nested inside <message>\n * const bad = TemplateEngine.validatePositionsBlock(`\n *   <base>\n *     <message>\n *       <base>Nested base</base>\n *     </message>\n *   </base>\n * `);\n * // Result: { valid: false, errors: [{ line: 4, message: 'Block <base> is not allowed inside <message>' }] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validatePositionsBlock(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validatePositionsBlock"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateScopes:member(1)",
+              "docComment": "/**\n * Validates that all interpolation scope syntaxes in a template are recognized.\n *\n * @remarks\n *\n * Every interpolation scope delimited by `{X...X}` (where X is a non-word character) must match a known scope name from {@link TemplateEngine.ALLOWED_SCOPE}.\n *\n * For example, `{{variable}}` uses scope `{{}}` and `{~ expr ~}` uses `{~~}`. Any other delimiter like `{# comment #}` would be reported as unsupported.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each unsupported scope found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateScopes(`{# comment #}`);\n * // Result: { valid: false, errors: [{ line: 1, message: 'Unsupported template scope: {# #}' }] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateScopes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateScopes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateTemplate:member(1)",
+              "docComment": "/**\n * Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.\n *\n * @remarks\n *\n * This is a convenience method that runs all validators in order:\n *\n * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules 5. {@link TemplateEngine.validateBlockBaseAttributes} — checks `<base>` block attributes 6. {@link TemplateEngine.validateBlockMessageAttributes} — checks `<message>` block attributes 7. {@link TemplateEngine.validateBlockKeyboardAttributes} — checks `<keyboard>` block attributes 8. {@link TemplateEngine.validateBlockMediaAttributes} — checks `<media>` block attributes 9. {@link TemplateEngine.validateBlockDescriptionAttributes} — checks `<description>` block attributes 10. {@link TemplateEngine.validateBlockScriptAttributes} — checks `<script>` block attributes 11. {@link TemplateEngine.validateBlockSwitchAttributes} — checks `<switch>` block attributes 12. {@link TemplateEngine.validateBlockCaseAttributes} — checks `<case>` block attributes 13. {@link TemplateEngine.validateBlockDefaultAttributes} — checks `<default>` block attributes 14. {@link TemplateEngine.validateBlockMapAttributes} — checks `<map>` block attributes 15. {@link TemplateEngine.validateBlockDivAttributes} — checks `<div>` block attributes 16. {@link TemplateEngine.validateBlockImportAttributes} — checks `<import>` block attributes 17. {@link TemplateEngine.validateBlockSpaceAttributes} — checks `<space>` block attributes\n *\n * Errors from all validators are combined into a single result.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateTemplate(`\n *   <base>\n *     <message>Hello {{name}}!</message>\n *   </base>\n * `);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateTemplate(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateTemplate"
             }
           ],
           "implementsTokenRanges": []
@@ -24700,6 +25756,14 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", filename?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -24713,8 +25777,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 16,
-                "endIndex": 17
+                "startIndex": 18,
+                "endIndex": 19
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -24759,6 +25823,14 @@
                     "endIndex": 15
                   },
                   "isOptional": true
+                },
+                {
+                  "parameterName": "filename",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 16,
+                    "endIndex": 17
+                  },
+                  "isOptional": true
                 }
               ],
               "isOptional": false,
@@ -24799,6 +25871,70 @@
               "isStatic": false,
               "isProtected": false,
               "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#_getBaseAtLine:member(1)",
+              "docComment": "/**\n * Finds the `<base>` block (open + close) that encloses the given line number.\n *\n * @param template - Processed template string\n *\n * @param line - 1-based line number to check\n *\n * @returns Object with `baseId` and `hasId`, or `null` if not inside any `<base>` block\n *\n * @example\n * ```typescript\n * const tpl = '<base id=\"kb\">\\n<kop/></base>';\n * this._getBaseAtLine(tpl, 2) // => { baseId: \"kb\", hasId: true }\n *\n * const tpl2 = '<base>\\n<kop/></base>';\n * this._getBaseAtLine(tpl2, 2) // => { baseId: null, hasId: false }\n *\n * const tpl3 = '</base>\\n{-lah-}\\n<base>';\n * this._getBaseAtLine(tpl3, 2) // => null\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "_getBaseAtLine(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", line: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        baseId: string | null;\n        hasId: boolean;\n    } | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "line",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_getBaseAtLine"
             },
             {
               "kind": "Method",
@@ -25525,6 +26661,86 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "_validatePath"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#_validateTemplate:member(1)",
+              "docComment": "/**\n * Validates template syntax and throws a descriptive error on failure.\n *\n * The error message includes the enclosing `<base id=\"...\">` based on the error line. If the `<base>` has no `id` or no `<base>` tag is found, the `on base` prefix is omitted.\n *\n * @param baseId - Cache key (filename without extension), used as default filename\n *\n * @param template - Template content to validate\n *\n * @param filename - Source filename with extension, shown in error location\n *\n * @throws\n *\n * Error with format: `Template on base \"${id}\" (file, line X): msg` or `Template (file, line X): msg`\n *\n * @example\n * ```typescript\n * // base with id:\n * this._validateTemplate(\"start\", '<base id=\"kb\"><kop/></base>', \"start.html\")\n * // => throws: Template on base \"kb\" (start.html, line 1): Unsupported template block: <kop>\n *\n * // base without id:\n * this._validateTemplate(\"start\", '<base><kop/></base>', \"start.html\")\n * // => throws: Template (start.html, line 1): Unsupported template block: <kop>\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "_validateTemplate(baseId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", filename?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "baseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "filename",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_validateTemplate"
             },
             {
               "kind": "Property",

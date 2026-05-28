@@ -1113,7 +1113,8 @@ export class PageManager {
 
 // @public
 export class TemplateEngine {
-    static ALLOWED_BLOCKS: readonly ["base", "message", "keyboard", "media", "description", "script", "switch", "case", "default", "map", "div", "import", "space", "b", "i", "u", "s", "code", "pre", "a", "blockquote", "expandable"];
+    static ALLOWED_BLOCKS: string[];
+    static ALLOWED_SCOPE: string[];
     static compileBlockDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
         [baseId: string]: {
             [scope: string]: {
@@ -1181,6 +1182,132 @@ export class TemplateEngine {
     static _processScriptBlocks(template: string): string;
     static _processSpaceBlocks(template: string): string;
     static _processSwitchBlocks(template: string): string;
+    static validateBlockBaseAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockCaseAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockDefaultAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockDescriptionAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockDivAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockImportAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockKeyboardAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockMapAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockMediaAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockMessageAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockScriptAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockSpaceAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockSwitchAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateFormatBlock(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateNamesBlock(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validatePositionsBlock(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateScopes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateTemplate(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
 }
 
 // @public
@@ -1188,9 +1315,13 @@ export class TemplateManager {
     constructor(options: ITTemplateOptions);
     _compile(key: string, template: string, keepIfExist?: Partial<{
         [K in keyof ITCompiledTemplate]: boolean;
-    }>, importCache?: Map<string, string>, rawCache?: Map<string, string>): void;
+    }>, importCache?: Map<string, string>, rawCache?: Map<string, string>, filename?: string): void;
     destroy(): Promise<void>;
     _engine: typeof TemplateEngine;
+    _getBaseAtLine(template: string, line: number): {
+        baseId: string | null;
+        hasId: boolean;
+    } | null;
     getDescription(key: string, baseId?: string, language?: string, scope?: string, data?: Record<string, any>): string;
     getDescriptionLanguage(key: string, baseId?: string, scope?: string): string[];
     getDescriptionScopes(key: string, baseId?: string): string[];
@@ -1216,6 +1347,7 @@ export class TemplateManager {
     _readTemplateFile(filename: string): string | null;
     _supportedExtensions: Set<string>;
     _validatePath(): boolean;
+    _validateTemplate(baseId: string, template: string, filename?: string): void;
     _watcher: FSWatcher[];
     write(filename: string, template: string): Promise<boolean | null>;
 }
@@ -1359,7 +1491,7 @@ export class WorkerThreadRpc {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:7342:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:7976:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

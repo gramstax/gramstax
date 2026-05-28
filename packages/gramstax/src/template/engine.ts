@@ -1806,7 +1806,7 @@ export class TemplateEngine {
    * @param allowedAttributes - Set of allowed attribute names
    * @param allowedLabel - Text listing allowed attributes for error messages (e.g. `"id"`)
    * @param valueValidators - Optional per-attribute value validators; return error message or null
-   * @returns Array of {line, message} errors
+   * @returns Array of line, message errors
    */
   private static _validateBlockAttributes(template: string, tagName: string, allowedAttributes: Set<string>, allowedLabel: string, valueValidators?: Record<string, (value: string) => string | null>): Array<{line: number; message: string}> {
     const errors: Array<{line: number; message: string}> = []
