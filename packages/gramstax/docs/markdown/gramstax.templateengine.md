@@ -103,6 +103,25 @@ Registry of supported scope interpolation syntaxes.
 
 
 </td></tr>
+<tr><td>
+
+[MAX\_MEDIA\_GROUP\_ITEMS](./gramstax.templateengine.max_media_group_items.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+
+</td></tr>
 </tbody></table>
 
 ## Methods
@@ -285,6 +304,22 @@ Block: media Extracts and parses `<media>` blocks from a template string.
 </td></tr>
 <tr><td>
 
+[\_processMediaGroupBlocks(template)](./gramstax.templateengine._processmediagroupblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Parses `<media-group>` blocks into Telegram media group item definitions.
+
+
+</td></tr>
+<tr><td>
+
 [\_processMessageBlocks(template)](./gramstax.templateengine._processmessageblocks.md)
 
 
@@ -376,6 +411,20 @@ Block: space Removes lines containing self-closing `<space />` tags.
 </td><td>
 
 Block: switch Transforms `<switch>` blocks into JavaScript switch statement expressions.
+
+
+</td></tr>
+<tr><td>
+
+[\_splitMediaSrcList(src)](./gramstax.templateengine._splitmediasrclist.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
 
 
 </td></tr>
@@ -600,6 +649,22 @@ Validates attributes on `<map>` blocks.
 </td><td>
 
 Validates attributes on `<media>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockMediaGroupAttributes(template)](./gramstax.templateengine.validateblockmediagroupattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes and item constraints on `<media-group>` blocks.
 
 
 </td></tr>

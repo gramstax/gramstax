@@ -62,7 +62,7 @@ This internal method identifies all `<media>` blocks and extracts their attribut
 
 \*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. - `type` (required): Media type discriminator. Expected values: - `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, `document`<!-- -->, `animation`<!-- -->, `voice`<!-- -->, `video_note`<!-- -->, - `sticker`<!-- -->, `location`<!-- -->, `contact`<!-- -->. - `src` (optional): File path / URL / file identifier for file-based media. - `latitude` (optional): Location latitude (used when `type="location"`<!-- -->). - `longitude` (optional): Location longitude (used when `type="location"`<!-- -->). - `phone` (optional): Contact phone number (used when `type="contact"`<!-- -->). - `first_name` (optional): Contact first name (used when `type="contact"`<!-- -->). - `last_name` (optional): Contact last name (used when `type="contact"`<!-- -->). - `vcard` (optional): Contact vCard payload (used when `type="contact"`<!-- -->).
 
-Media rules (based on `type`<!-- -->): - If `src` exists, it is assigned as `mediaBlock.src` (for any type). - If caption exists and `type !== "video_note"` and `type !== "sticker"`<!-- -->, it is assigned as `mediaBlock.caption`<!-- -->. - If `type === "location"`<!-- -->, `latitude` and `longitude` are copied if present, and caption (if present) is also allowed. - If `type === "contact"`<!-- -->, `phone`<!-- -->, `first_name`<!-- -->, `last_name`<!-- -->, and `vcard` are copied if present, and caption (if present) is also allowed.
+Media rules (based on `type`<!-- -->): - If `src` exists, it is assigned as `mediaBlock.src` (for any type). - If `src` contains pipe-delimited values, `mediaBlock.srcList` is populated with up to 10 trimmed entries for Telegram media groups. - If caption exists and `type !== "video_note"` and `type !== "sticker"`<!-- -->, it is assigned as `mediaBlock.caption`<!-- -->. - If `type === "location"`<!-- -->, `latitude` and `longitude` are copied if present, and caption (if present) is also allowed. - If `type === "contact"`<!-- -->, `phone`<!-- -->, `first_name`<!-- -->, `last_name`<!-- -->, and `vcard` are copied if present, and caption (if present) is also allowed.
 
 Note: - If multiple `<media>` blocks share the same `lang`<!-- -->, the last one wins (it overwrites the previous entry).
 
@@ -70,8 +70,8 @@ Note: - If multiple `<media>` blocks share the same `lang`<!-- -->, the last one
 
 
 ```typescript
-const template = '<media type="photo" src="image.jpg" lang="en">Hello</media>';
+const template = '<media type="photo" src="image.jpg|image-2.jpg" lang="en">Hello</media>';
 const media = TemplateEngine._processMediaBlocks(template);
-// Result: { en: { type: 'photo', src: 'image.jpg', caption: 'Hello' } }
+// Result: { en: { type: 'photo', src: 'image.jpg|image-2.jpg', srcList: ['image.jpg', 'image-2.jpg'], caption: 'Hello' } }
 ```
 

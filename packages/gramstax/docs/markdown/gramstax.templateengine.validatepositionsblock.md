@@ -102,7 +102,7 @@ __root__
   │   ├── script       (logic block)
   └   └── space        (utility)
 ```
-\*\*Enforced rules:\*\* - `<base>` must be at the outermost level and cannot be nested inside any other block. - `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, `<description>`<!-- -->, `<import>`<!-- -->, `<script>`<!-- -->, `<space>` can only appear directly inside `<base>`<!-- -->. - `<switch>`<!-- -->, `<map>` can only appear inside `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, or `<description>`<!-- -->. - `<case>` and `<default>` can only appear inside `<switch>`<!-- -->. - Telegram formatting tags (`<b>`<!-- -->, `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->, `<a>`<!-- -->, `<blockquote>`<!-- -->, `<blockquote expandable>`<!-- -->) are passthrough and ignored during validation.
+\*\*Enforced rules:\*\* - `<base>` must be at the outermost level and cannot be nested inside any other block. - `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, `<media-group>`<!-- -->, `<description>`<!-- -->, `<import>`<!-- -->, `<script>`<!-- -->, `<space>` can only appear directly inside `<base>`<!-- -->. - `<media>` can also appear directly inside `<media-group>` as a group item. - `<switch>`<!-- -->, `<map>` can only appear inside `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, or `<description>`<!-- -->. - `<case>` and `<default>` can only appear inside `<switch>`<!-- -->. - Telegram formatting tags (`<b>`<!-- -->, `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->, `<a>`<!-- -->, `<blockquote>`<!-- -->, `<blockquote expandable>`<!-- -->) are passthrough and ignored during validation.
 
 ## Example
 

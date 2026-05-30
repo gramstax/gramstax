@@ -1072,8 +1072,11 @@ methods:
     fullName: broadcastMedia(ids, languageCode, keyboard, data, baseId, options, throwError)
     summary: Sends a media message to multiple users in bulk.
     remarks: >-
-      Media type and arg are inferred from the template `<media>` block. Automatically throttles after 30 messages to
-      respect Telegram rate limits. Uses each user's specified language code for template rendering.
+      Media type and arg are inferred from the template `<media>` block. If a supported media type (`photo`<!-- -->,
+      `video`<!-- -->, `audio`<!-- -->, `document`<!-- -->) uses a pipe-delimited `src`<!-- -->, it is sent as a
+      Telegram media group. Telegram media groups do not support reply markup, so keyboards are ignored for grouped
+      media. Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified
+      language code for template rendering.
     example:
       - |-
         ```typescript
@@ -1359,7 +1362,9 @@ methods:
         grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
         grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
         grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited &
-        grammy_types.Message) | undefined>;
+        grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1385,7 +1390,10 @@ methods:
           /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
-          & <xref uid="@grammyjs/types!Message:interface" />) | undefined&gt;
+          & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The edited message object.
   - name: editAudio(keyboardInline, data, baseId, options1, options2)
     uid: gramstax!Ctx#editAudio:member(1)
@@ -1408,7 +1416,9 @@ methods:
         ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1434,8 +1444,54 @@ methods:
           /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
-          & <xref uid="@grammyjs/types!Message:interface" />) | undefined&gt;
+          & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The edited message object.
+  - name: editAudioGroup(keyboard, data, baseId, options)
+    uid: gramstax!Ctx#editAudioGroup:member(1)
+    package: gramstax!
+    fullName: editAudioGroup(keyboard, data, baseId, options)
+    summary: Replaces the current message with an audio media group.
+    remarks: >-
+      Deletes the original message and sends a new media group via `replyMediaGroup`<!-- -->. Useful when the template
+      uses pipe-delimited `src` values.
+    example:
+      - |-
+        ```typescript
+        async handleArgsCallback() {
+          await this.editAudioGroup()
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        editAudioGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyAudio):
+        Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[]>;
+      parameters:
+        - id: keyboard
+          description: Optional keyboard markup for the new message.
+          type: <xref uid="gramstax!ITInBoKb:type" />
+        - id: data
+          description: Optional template interpolation data.
+          type: <xref uid="gramstax!ITData:type" />
+        - id: baseId
+          description: Optional template base ID position for block media type audio.
+          type: string
+        - id: options
+          description: Optional audio-specific options.
+          type: <xref uid="gramstax!ITOptReplyAudio:type" />
+      return:
+        type: >-
+          Promise&lt;(<xref uid="@grammyjs/types!Message.PhotoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
+          | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
+        description: The sent media group message object.
   - name: editContact(keyboardInline, data, baseId, options)
     uid: gramstax!Ctx#editContact:member(1)
     package: gramstax!
@@ -1451,7 +1507,9 @@ methods:
         Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1474,7 +1532,10 @@ methods:
           /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
-          & <xref uid="@grammyjs/types!Message:interface" />) | undefined&gt;
+          & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The sent message object.
   - name: editDocument(keyboardInline, data, baseId, options1, options2)
     uid: gramstax!Ctx#editDocument:member(1)
@@ -1497,7 +1558,9 @@ methods:
         ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1523,8 +1586,54 @@ methods:
           /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
-          & <xref uid="@grammyjs/types!Message:interface" />) | undefined&gt;
+          & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The edited message object.
+  - name: editDocumentGroup(keyboard, data, baseId, options)
+    uid: gramstax!Ctx#editDocumentGroup:member(1)
+    package: gramstax!
+    fullName: editDocumentGroup(keyboard, data, baseId, options)
+    summary: Replaces the current message with a document media group.
+    remarks: >-
+      Deletes the original message and sends a new media group via `replyMediaGroup`<!-- -->. Useful when the template
+      uses pipe-delimited `src` values.
+    example:
+      - |-
+        ```typescript
+        async handleArgsCallback() {
+          await this.editDocumentGroup()
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        editDocumentGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyDocument):
+        Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[]>;
+      parameters:
+        - id: keyboard
+          description: Optional keyboard markup for the new message.
+          type: <xref uid="gramstax!ITInBoKb:type" />
+        - id: data
+          description: Optional template interpolation data.
+          type: <xref uid="gramstax!ITData:type" />
+        - id: baseId
+          description: Optional template base ID position for block media type document.
+          type: string
+        - id: options
+          description: Optional document-specific options.
+          type: <xref uid="gramstax!ITOptReplyDocument:type" />
+      return:
+        type: >-
+          Promise&lt;(<xref uid="@grammyjs/types!Message.PhotoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
+          | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
+        description: The sent media group message object.
   - name: editLocation(keyboardInline, data, baseId, options)
     uid: gramstax!Ctx#editLocation:member(1)
     package: gramstax!
@@ -1540,7 +1649,9 @@ methods:
         Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1563,7 +1674,10 @@ methods:
           /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
-          & <xref uid="@grammyjs/types!Message:interface" />) | undefined&gt;
+          & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The sent message object.
   - name: editMedia(type, keyboardInline, data, baseId, options1, options2, fallbackReply)
     uid: gramstax!Ctx#editMedia:member(1)
@@ -1572,7 +1686,8 @@ methods:
     summary: Edits an existing media message with dynamic type selection.
     remarks: >-
       For media types that cannot be edited (voice, video\_note, sticker, location, contact), the original message is
-      deleted and a new one is sent.
+      deleted and a new one is sent. Multi-src media groups cannot replace a single message, so supported pipe-delimited
+      media groups also delete the original message and send a new media group.
     example:
       - |-
         ```typescript
@@ -1584,14 +1699,16 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        editMedia<T extends ITMediaBlock[`type`]>(type: T, keyboardInline?: ITInlineKb, data?: ITData, baseId?: string,
-        options1?: T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends
-        `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ?
+        editMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboardInline?: ITInlineKb, data?: ITData,
+        baseId?: string, options1?: T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote :
+        T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ?
         ITOptReplyContact : ITOptEditMedia1, options2?: ITOptEditMedia2, fallbackReply?: boolean): Promise<true |
         grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage |
         grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
         grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
-        | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: type
           description: The media type.
@@ -1628,7 +1745,10 @@ methods:
           /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
-          & <xref uid="@grammyjs/types!Message:interface" />) | undefined&gt;
+          & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The edited/sent message object.
   - name: editPhoto(keyboardInline, data, baseId, options1, options2)
     uid: gramstax!Ctx#editPhoto:member(1)
@@ -1651,7 +1771,9 @@ methods:
         ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1677,8 +1799,54 @@ methods:
           /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
-          & <xref uid="@grammyjs/types!Message:interface" />) | undefined&gt;
+          & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The edited message object.
+  - name: editPhotoGroup(keyboard, data, baseId, options)
+    uid: gramstax!Ctx#editPhotoGroup:member(1)
+    package: gramstax!
+    fullName: editPhotoGroup(keyboard, data, baseId, options)
+    summary: Replaces the current message with a photo media group.
+    remarks: >-
+      Deletes the original message and sends a new media group via `replyMediaGroup`<!-- -->. Useful when the template
+      uses pipe-delimited `src` values.
+    example:
+      - |-
+        ```typescript
+        async handleArgsCallback() {
+          await this.editPhotoGroup()
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        editPhotoGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto):
+        Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[]>;
+      parameters:
+        - id: keyboard
+          description: Optional keyboard markup for the new message.
+          type: <xref uid="gramstax!ITInBoKb:type" />
+        - id: data
+          description: Optional template interpolation data.
+          type: <xref uid="gramstax!ITData:type" />
+        - id: baseId
+          description: Optional template base ID position for block media type photo.
+          type: string
+        - id: options
+          description: Optional photo-specific options.
+          type: <xref uid="gramstax!ITOptReplyPhoto:type" />
+      return:
+        type: >-
+          Promise&lt;(<xref uid="@grammyjs/types!Message.PhotoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
+          | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
+        description: The sent media group message object.
   - name: editSticker(keyboardInline, data, baseId, options)
     uid: gramstax!Ctx#editSticker:member(1)
     package: gramstax!
@@ -1694,7 +1862,9 @@ methods:
         Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1717,7 +1887,10 @@ methods:
           /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
-          & <xref uid="@grammyjs/types!Message:interface" />) | undefined&gt;
+          & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The sent message object.
   - name: editVideo(keyboardInline, data, baseId, options1, options2)
     uid: gramstax!Ctx#editVideo:member(1)
@@ -1740,7 +1913,9 @@ methods:
         ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1766,8 +1941,54 @@ methods:
           /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
-          & <xref uid="@grammyjs/types!Message:interface" />) | undefined&gt;
+          & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The edited message object.
+  - name: editVideoGroup(keyboard, data, baseId, options)
+    uid: gramstax!Ctx#editVideoGroup:member(1)
+    package: gramstax!
+    fullName: editVideoGroup(keyboard, data, baseId, options)
+    summary: Replaces the current message with a video media group.
+    remarks: >-
+      Deletes the original message and sends a new media group via `replyMediaGroup`<!-- -->. Useful when the template
+      uses pipe-delimited `src` values.
+    example:
+      - |-
+        ```typescript
+        async handleArgsCallback() {
+          await this.editVideoGroup()
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        editVideoGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVideo):
+        Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[]>;
+      parameters:
+        - id: keyboard
+          description: Optional keyboard markup for the new message.
+          type: <xref uid="gramstax!ITInBoKb:type" />
+        - id: data
+          description: Optional template interpolation data.
+          type: <xref uid="gramstax!ITData:type" />
+        - id: baseId
+          description: Optional template base ID position for block media type video.
+          type: string
+        - id: options
+          description: Optional video-specific options.
+          type: <xref uid="gramstax!ITOptReplyVideo:type" />
+      return:
+        type: >-
+          Promise&lt;(<xref uid="@grammyjs/types!Message.PhotoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
+          | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
+        description: The sent media group message object.
   - name: editVideoNote(keyboardInline, data, baseId, options)
     uid: gramstax!Ctx#editVideoNote:member(1)
     package: gramstax!
@@ -1783,7 +2004,9 @@ methods:
         Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
         grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
         grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) |
+        (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
+        grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1806,7 +2029,10 @@ methods:
           /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
-          & <xref uid="@grammyjs/types!Message:interface" />) | undefined&gt;
+          & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The sent message object.
   - name: editVoice(keyboardInline, data, baseId, options)
     uid: gramstax!Ctx#editVoice:member(1)
@@ -1823,7 +2049,9 @@ methods:
         | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage
         | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
         grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage
-        | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+        | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage |
+        grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[] | undefined>;
       parameters:
         - id: keyboardInline
           description: Optional inline keyboard markup.
@@ -1846,7 +2074,10 @@ methods:
           /> | <xref uid="@grammyjs/types!Message.VoiceMessage:type" /> | <xref
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | (<xref uid="@grammyjs/types!Update.Edited:interface" />
-          & <xref uid="@grammyjs/types!Message:interface" />) | undefined&gt;
+          & <xref uid="@grammyjs/types!Message:interface" />) | (<xref uid="@grammyjs/types!Message.PhotoMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.AudioMessage:type" /> | <xref uid="@grammyjs/types!Message.DocumentMessage:type"
+          /> | <xref uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[] | undefined&gt;
         description: The sent message object.
   - name: getArgs(str, mtd, positionStart)
     uid: gramstax!Ctx#getArgs:member(1)
@@ -4875,6 +5106,41 @@ methods:
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | undefined&gt;
         description: The sent message object.
+  - name: replyAudioGroup(keyboard, data, baseId, options)
+    uid: gramstax!Ctx#replyAudioGroup:member(1)
+    package: gramstax!
+    fullName: replyAudioGroup(keyboard, data, baseId, options)
+    summary: Sends an audio media group using pipe-delimited `src` values from the page template.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        replyAudioGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyAudio):
+        Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[]>;
+      parameters:
+        - id: keyboard
+          description: ''
+          type: <xref uid="gramstax!ITInBoKb:type" />
+        - id: data
+          description: ''
+          type: <xref uid="gramstax!ITData:type" />
+        - id: baseId
+          description: ''
+          type: string
+        - id: options
+          description: ''
+          type: <xref uid="gramstax!ITOptReplyAudio:type" />
+      return:
+        type: >-
+          Promise&lt;(<xref uid="@grammyjs/types!Message.PhotoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
+          | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
+        description: ''
   - name: replyContact(keyboard, data, baseId, options)
     uid: gramstax!Ctx#replyContact:member(1)
     package: gramstax!
@@ -4965,6 +5231,41 @@ methods:
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | undefined&gt;
         description: The sent message object.
+  - name: replyDocumentGroup(keyboard, data, baseId, options)
+    uid: gramstax!Ctx#replyDocumentGroup:member(1)
+    package: gramstax!
+    fullName: replyDocumentGroup(keyboard, data, baseId, options)
+    summary: Sends a document media group using pipe-delimited `src` values from the page template.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        replyDocumentGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyDocument):
+        Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[]>;
+      parameters:
+        - id: keyboard
+          description: ''
+          type: <xref uid="gramstax!ITInBoKb:type" />
+        - id: data
+          description: ''
+          type: <xref uid="gramstax!ITData:type" />
+        - id: baseId
+          description: ''
+          type: string
+        - id: options
+          description: ''
+          type: <xref uid="gramstax!ITOptReplyDocument:type" />
+      return:
+        type: >-
+          Promise&lt;(<xref uid="@grammyjs/types!Message.PhotoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
+          | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
+        description: ''
   - name: replyLocation(keyboard, data, baseId, options)
     uid: gramstax!Ctx#replyLocation:member(1)
     package: gramstax!
@@ -5030,15 +5331,15 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        replyMedia<T extends ITMediaBlock[`type`]>(type: T, keyboard?: ITInBoKb, data?: ITData, baseId?: string,
-        options?: T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ?
-        ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T
-        extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ?
-        ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact :
-        undefined): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage |
-        grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage |
-        grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage
-        | grammy_types.Message.StickerMessage | undefined>;
+        replyMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb, data?: ITData,
+        baseId?: string, options?: T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends
+        `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ?
+        ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T
+        extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ?
+        ITOptReplyContact : undefined): Promise<grammy_types.Message.LocationMessage |
+        grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage |
+        grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
       parameters:
         - id: type
           description: The media type (photo, video, audio, document, animation, voice, video\_note, sticker, location, contact).
@@ -5073,6 +5374,56 @@ methods:
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | undefined&gt;
         description: The sent message object.
+  - name: replyMediaGroup(type, keyboard, data, baseId, options)
+    uid: gramstax!Ctx#replyMediaGroup:member(1)
+    package: gramstax!
+    fullName: replyMediaGroup(type, keyboard, data, baseId, options)
+    summary: Sends a Telegram media group using pipe-delimited `src` values or a `<media-group>` block from the page template.
+    remarks: >-
+      Only `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, and `document` support Telegram media groups. Omit `type`
+      when the template uses `<media-group>` with per-item media types. The first item receives the template caption.
+      Telegram media groups do not support reply markup, so keyboards are ignored for grouped media.
+    example:
+      - |-
+        ```typescript
+        async handleCallbackData() {
+          await this.replyMediaGroup("photo")
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        replyMediaGroup(type?: ITMediaGroupType, keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?:
+        ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument):
+        Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[]>;
+      parameters:
+        - id: type
+          description: Supported media group type.
+          type: <xref uid="gramstax!~ITMediaGroupType:type" />
+        - id: keyboard
+          description: Ignored for media groups; kept for API symmetry with replyMedia.
+          type: <xref uid="gramstax!ITInBoKb:type" />
+        - id: data
+          description: Optional template interpolation data.
+          type: <xref uid="gramstax!ITData:type" />
+        - id: baseId
+          description: Optional template base ID position for block media.
+          type: string
+        - id: options
+          description: Optional media-group send options.
+          type: >-
+            <xref uid="gramstax!ITOptReplyPhoto:type" /> | <xref uid="gramstax!ITOptReplyVideo:type" /> | <xref
+            uid="gramstax!ITOptReplyAudio:type" /> | <xref uid="gramstax!ITOptReplyDocument:type" />
+      return:
+        type: >-
+          Promise&lt;(<xref uid="@grammyjs/types!Message.PhotoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
+          | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
+        description: The sent media group messages.
   - name: replyPhoto(keyboard, data, baseId, options)
     uid: gramstax!Ctx#replyPhoto:member(1)
     package: gramstax!
@@ -5118,6 +5469,41 @@ methods:
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | undefined&gt;
         description: The sent message object.
+  - name: replyPhotoGroup(keyboard, data, baseId, options)
+    uid: gramstax!Ctx#replyPhotoGroup:member(1)
+    package: gramstax!
+    fullName: replyPhotoGroup(keyboard, data, baseId, options)
+    summary: Sends a photo media group using pipe-delimited `src` values from the page template.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        replyPhotoGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto):
+        Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[]>;
+      parameters:
+        - id: keyboard
+          description: ''
+          type: <xref uid="gramstax!ITInBoKb:type" />
+        - id: data
+          description: ''
+          type: <xref uid="gramstax!ITData:type" />
+        - id: baseId
+          description: ''
+          type: string
+        - id: options
+          description: ''
+          type: <xref uid="gramstax!ITOptReplyPhoto:type" />
+      return:
+        type: >-
+          Promise&lt;(<xref uid="@grammyjs/types!Message.PhotoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
+          | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
+        description: ''
   - name: replySticker(keyboard, data, baseId, options)
     uid: gramstax!Ctx#replySticker:member(1)
     package: gramstax!
@@ -5208,6 +5594,41 @@ methods:
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | undefined&gt;
         description: The sent message object.
+  - name: replyVideoGroup(keyboard, data, baseId, options)
+    uid: gramstax!Ctx#replyVideoGroup:member(1)
+    package: gramstax!
+    fullName: replyVideoGroup(keyboard, data, baseId, options)
+    summary: Sends a video media group using pipe-delimited `src` values from the page template.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        replyVideoGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVideo):
+        Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage |
+        grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage |
+        grammy_types.Message.LivePhotoMessage)[]>;
+      parameters:
+        - id: keyboard
+          description: ''
+          type: <xref uid="gramstax!ITInBoKb:type" />
+        - id: data
+          description: ''
+          type: <xref uid="gramstax!ITData:type" />
+        - id: baseId
+          description: ''
+          type: string
+        - id: options
+          description: ''
+          type: <xref uid="gramstax!ITOptReplyVideo:type" />
+      return:
+        type: >-
+          Promise&lt;(<xref uid="@grammyjs/types!Message.PhotoMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.VideoMessage:type" /> | <xref uid="@grammyjs/types!Message.AudioMessage:type" />
+          | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
+          uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
+        description: ''
   - name: replyVideoNote(keyboard, data, baseId, options)
     uid: gramstax!Ctx#replyVideoNote:member(1)
     package: gramstax!

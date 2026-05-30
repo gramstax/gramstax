@@ -9,7 +9,7 @@ Edits an existing media message with dynamic type selection.
 **Signature:**
 
 ```typescript
-editMedia<T extends ITMediaBlock[`type`]>(type: T, keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1, options2?: ITOptEditMedia2, fallbackReply?: boolean): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+editMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1, options2?: ITOptEditMedia2, fallbackReply?: boolean): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
 ```
 
 ## Parameters
@@ -146,13 +146,13 @@ _(Optional)_ If true, sends a reply if edit fails. Default: true.
 
 **Returns:**
 
-Promise&lt;true \| grammy\_types.Message.LocationMessage \| grammy\_types.Message.ContactMessage \| grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.VoiceMessage \| grammy\_types.Message.VideoNoteMessage \| grammy\_types.Message.StickerMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message) \| undefined&gt;
+Promise&lt;true \| grammy\_types.Message.LocationMessage \| grammy\_types.Message.ContactMessage \| grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.VoiceMessage \| grammy\_types.Message.VideoNoteMessage \| grammy\_types.Message.StickerMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message) \| (grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.LivePhotoMessage)\[\] \| undefined&gt;
 
 The edited/sent message object.
 
 ## Remarks
 
-For media types that cannot be edited (voice, video\_note, sticker, location, contact), the original message is deleted and a new one is sent.
+For media types that cannot be edited (voice, video\_note, sticker, location, contact), the original message is deleted and a new one is sent. Multi-src media groups cannot replace a single message, so supported pipe-delimited media groups also delete the original message and send a new media group.
 
 ## Example
 

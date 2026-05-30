@@ -1214,6 +1214,20 @@ Edits an existing message to show an audio.
 </td></tr>
 <tr><td>
 
+[editAudioGroup(keyboard, data, baseId, options)](./gramstax.ctx.editaudiogroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with an audio media group.
+
+
+</td></tr>
+<tr><td>
+
 [editContact(keyboardInline, data, baseId, options)](./gramstax.ctx.editcontact.md)
 
 
@@ -1237,6 +1251,20 @@ Replaces the current message with a contact.
 </td><td>
 
 Edits an existing message to show a document.
+
+
+</td></tr>
+<tr><td>
+
+[editDocumentGroup(keyboard, data, baseId, options)](./gramstax.ctx.editdocumentgroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a document media group.
 
 
 </td></tr>
@@ -1284,6 +1312,20 @@ Edits an existing message to show a photo.
 </td></tr>
 <tr><td>
 
+[editPhotoGroup(keyboard, data, baseId, options)](./gramstax.ctx.editphotogroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a photo media group.
+
+
+</td></tr>
+<tr><td>
+
 [editSticker(keyboardInline, data, baseId, options)](./gramstax.ctx.editsticker.md)
 
 
@@ -1307,6 +1349,20 @@ Replaces the current message with a sticker.
 </td><td>
 
 Edits an existing message to show a video.
+
+
+</td></tr>
+<tr><td>
+
+[editVideoGroup(keyboard, data, baseId, options)](./gramstax.ctx.editvideogroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a video media group.
 
 
 </td></tr>
@@ -3256,6 +3312,20 @@ Sends an audio message using the page template.
 </td></tr>
 <tr><td>
 
+[replyAudioGroup(keyboard, data, baseId, options)](./gramstax.ctx.replyaudiogroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends an audio media group using pipe-delimited `src` values from the page template.
+
+
+</td></tr>
+<tr><td>
+
 [replyContact(keyboard, data, baseId, options)](./gramstax.ctx.replycontact.md)
 
 
@@ -3279,6 +3349,20 @@ Sends a contact using the page template.
 </td><td>
 
 Sends a document message using the page template.
+
+
+</td></tr>
+<tr><td>
+
+[replyDocumentGroup(keyboard, data, baseId, options)](./gramstax.ctx.replydocumentgroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a document media group using pipe-delimited `src` values from the page template.
 
 
 </td></tr>
@@ -3312,6 +3396,20 @@ Sends a media message reply with dynamic type selection.
 </td></tr>
 <tr><td>
 
+[replyMediaGroup(type, keyboard, data, baseId, options)](./gramstax.ctx.replymediagroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a Telegram media group using pipe-delimited `src` values or a `<media-group>` block from the page template.
+
+
+</td></tr>
+<tr><td>
+
 [replyPhoto(keyboard, data, baseId, options)](./gramstax.ctx.replyphoto.md)
 
 
@@ -3321,6 +3419,20 @@ Sends a media message reply with dynamic type selection.
 </td><td>
 
 Sends a photo message using the page template.
+
+
+</td></tr>
+<tr><td>
+
+[replyPhotoGroup(keyboard, data, baseId, options)](./gramstax.ctx.replyphotogroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a photo media group using pipe-delimited `src` values from the page template.
 
 
 </td></tr>
@@ -3349,6 +3461,20 @@ Sends a sticker using the page template.
 </td><td>
 
 Sends a video message using the page template.
+
+
+</td></tr>
+<tr><td>
+
+[replyVideoGroup(keyboard, data, baseId, options)](./gramstax.ctx.replyvideogroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a video media group using pipe-delimited `src` values from the page template.
 
 
 </td></tr>

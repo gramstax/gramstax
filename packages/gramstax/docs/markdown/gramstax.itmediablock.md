@@ -10,8 +10,14 @@ Represents a media block configuration for Telegram messages.
 
 ```typescript
 type ITMediaBlock = {
-    type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact`;
+    type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact` | `group`;
     src?: string;
+    srcList?: string[];
+    mediaGroup?: Array<{
+        type: `photo` | `video` | `audio` | `document`;
+        src: string;
+        caption?: string;
+    }>;
     caption?: string;
     latitude?: string;
     longitude?: string;
@@ -24,7 +30,7 @@ type ITMediaBlock = {
 
 ## Remarks
 
-This type defines the structure for various media types supported by Telegram, including file-based media (photo, video, audio, document, animation, voice, video\_note, sticker), location, and contact.
+This type defines the structure for various media types supported by Telegram, including file-based media (photo, video, audio, document, animation, voice, video\_note, sticker), location, and contact. Pipe-delimited `src` values such as `a.jpg|b.jpg` are also exposed as `srcList` for Telegram media groups. `<media-group>` blocks are exposed as `mediaGroup` items and may mix photo/video items. Telegram media groups support up to 10 items and only for photo, video, audio, and document media.
 
 ## Example
 
@@ -34,6 +40,13 @@ const photoMedia: ITMediaBlock = {
   type: 'photo',
   src: 'path/to/image.jpg',
   caption: 'A beautiful sunset'
+};
+
+const albumMedia: ITMediaBlock = {
+  type: 'photo',
+  src: 'one.jpg|two.jpg',
+  srcList: ['one.jpg', 'two.jpg'],
+  caption: 'Photo album'
 };
 
 const locationMedia: ITMediaBlock = {

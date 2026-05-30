@@ -9,7 +9,7 @@ Edits an existing message to show a document.
 **Signature:**
 
 ```typescript
-editDocument(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | undefined>;
+editDocument(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
 ```
 
 ## Parameters
@@ -114,7 +114,7 @@ _(Optional)_ Optional edit options.
 
 **Returns:**
 
-Promise&lt;true \| grammy\_types.Message.LocationMessage \| grammy\_types.Message.ContactMessage \| grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.VoiceMessage \| grammy\_types.Message.VideoNoteMessage \| grammy\_types.Message.StickerMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message) \| undefined&gt;
+Promise&lt;true \| grammy\_types.Message.LocationMessage \| grammy\_types.Message.ContactMessage \| grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.VoiceMessage \| grammy\_types.Message.VideoNoteMessage \| grammy\_types.Message.StickerMessage \| (grammy\_types.Update.Edited &amp; grammy\_types.Message) \| (grammy\_types.Message.PhotoMessage \| grammy\_types.Message.VideoMessage \| grammy\_types.Message.AudioMessage \| grammy\_types.Message.DocumentMessage \| grammy\_types.Message.LivePhotoMessage)\[\] \| undefined&gt;
 
 The edited message object.
 

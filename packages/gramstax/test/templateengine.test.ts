@@ -307,6 +307,57 @@ describe(`TemplateEngine`, () => {
       expect(idMedia.mediaGroup![0]!.src).toContain(`img_girl.jpg`)
     })
 
+    it(`should include shared items in all language variants inside media-group, preserving document order`, () => {
+      const template = `
+        <base id="shareTest">
+          <media-group>
+            <media shared type="photo" src="shared.jpg">Shared caption</media>
+            <media type="photo" src="default.jpg">Default only</media>
+            <media lang="id" type="photo" src="id.jpg">ID only</media>
+          </media-group>
+        </base>
+      `
+      const compiled = TemplateEngine.compileBlockMedia(template)
+
+      // Default: items where !lang OR shared — e.g. shared.jpg (shared) + default.jpg (no lang)
+      // Order: pic_trulli.jpg (index 0), default.jpg (index 1)
+      const defaultMedia = compiled.shareTest!.default!({})
+      expect(defaultMedia.type).toBe(`group`)
+      expect(defaultMedia.mediaGroup).toHaveLength(2)
+      expect(defaultMedia.caption).toBe(`Shared caption`)
+      expect(defaultMedia.mediaGroup).toEqual([
+        {type: `photo`, src: `shared.jpg`, caption: `Shared caption`},
+        {type: `photo`, src: `default.jpg`, caption: `Default only`}
+      ])
+
+      // id: items where lang=id OR shared — e.g. shared.jpg (shared) + id.jpg (lang=id)
+      const idMedia = compiled.shareTest!.id!({})
+      expect(idMedia.type).toBe(`group`)
+      expect(idMedia.mediaGroup).toHaveLength(2)
+      expect(idMedia.mediaGroup).toEqual([
+        {type: `photo`, src: `shared.jpg`, caption: `Shared caption`},
+        {type: `photo`, src: `id.jpg`, caption: `ID only`}
+      ])
+    })
+
+    it(`should respect shared="false" as not shared`, () => {
+      const template = `
+        <base id="shareFalse">
+          <media-group>
+            <media type="photo" src="default.jpg">Default</media>
+            <media lang="id" type="photo" src="id.jpg">ID</media>
+            <media shared="false" type="photo" src="notshared.jpg">Not shared</media>
+          </media-group>
+        </base>
+      `
+      const compiled = TemplateEngine.compileBlockMedia(template)
+
+      const idMedia = compiled.shareFalse!.id!({})
+      // shared="false" item should NOT appear in id variant
+      expect(idMedia.mediaGroup).toHaveLength(1)
+      expect(idMedia.mediaGroup![0]!.src).toContain(`id.jpg`)
+    })
+
     it(`should support expressions in coordinates`, () => {
       const template = `
         <base id="loc">

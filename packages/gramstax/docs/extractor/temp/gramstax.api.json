@@ -1019,7 +1019,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#broadcastMedia:member(1)",
-              "docComment": "/**\n * Sends a media message to multiple users in bulk.\n *\n * @remarks\n *\n * Media type and arg are inferred from the template `<media>` block. Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.\n *\n * @param ids - Array of user IDs to send the media to.\n *\n * @param languageCode - Array of language codes corresponding to each user.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media.\n *\n * @param options - Optional grammY send options for the inferred media type.\n *\n * @param throwError - If true, throws errors instead of swallowing them.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   const userIds = [123456, 789012]\n *   const langs = [\"en\", \"id\"]\n *   await this.broadcastMedia(userIds, langs)\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a media message to multiple users in bulk.\n *\n * @remarks\n *\n * Media type and arg are inferred from the template `<media>` block. If a supported media type (`photo`, `video`, `audio`, `document`) uses a pipe-delimited `src`, it is sent as a Telegram media group. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media. Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.\n *\n * @param ids - Array of user IDs to send the media to.\n *\n * @param languageCode - Array of language codes corresponding to each user.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media.\n *\n * @param options - Optional grammY send options for the inferred media type.\n *\n * @param throwError - If true, throws errors instead of swallowing them.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   const userIds = [123456, 789012]\n *   const langs = [\"en\", \"id\"]\n *   await this.broadcastMedia(userIds, langs)\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2230,7 +2230,52 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") | undefined>"
+                  "text": ") | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[] | undefined>"
                 },
                 {
                   "kind": "Content",
@@ -2240,7 +2285,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 11,
-                "endIndex": 35
+                "endIndex": 45
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -2450,7 +2495,52 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") | undefined>"
+                  "text": ") | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[] | undefined>"
                 },
                 {
                   "kind": "Content",
@@ -2460,7 +2550,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 11,
-                "endIndex": 35
+                "endIndex": 45
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -2510,6 +2600,155 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "editAudio"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#editAudioGroup:member(1)",
+              "docComment": "/**\n * Replaces the current message with an audio media group.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. Useful when the template uses pipe-delimited `src` values.\n *\n * @param keyboard - Optional keyboard markup for the new message.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type audio.\n *\n * @param options - Optional audio-specific options.\n *\n * @returns The sent media group message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editAudioGroup()\n * }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "editAudioGroup(keyboard?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITInBoKb",
+                  "canonicalReference": "gramstax!ITInBoKb:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITData",
+                  "canonicalReference": "gramstax!ITData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyAudio",
+                  "canonicalReference": "gramstax!ITOptReplyAudio:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 9,
+                "endIndex": 21
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "keyboard",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "editAudioGroup"
             },
             {
               "kind": "Method",
@@ -2661,7 +2900,52 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") | undefined>"
+                  "text": ") | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[] | undefined>"
                 },
                 {
                   "kind": "Content",
@@ -2671,7 +2955,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 9,
-                "endIndex": 33
+                "endIndex": 43
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -2873,7 +3157,52 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") | undefined>"
+                  "text": ") | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[] | undefined>"
                 },
                 {
                   "kind": "Content",
@@ -2883,7 +3212,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 11,
-                "endIndex": 35
+                "endIndex": 45
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -2933,6 +3262,155 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "editDocument"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#editDocumentGroup:member(1)",
+              "docComment": "/**\n * Replaces the current message with a document media group.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. Useful when the template uses pipe-delimited `src` values.\n *\n * @param keyboard - Optional keyboard markup for the new message.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type document.\n *\n * @param options - Optional document-specific options.\n *\n * @returns The sent media group message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editDocumentGroup()\n * }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "editDocumentGroup(keyboard?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITInBoKb",
+                  "canonicalReference": "gramstax!ITInBoKb:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITData",
+                  "canonicalReference": "gramstax!ITData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyDocument",
+                  "canonicalReference": "gramstax!ITOptReplyDocument:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 9,
+                "endIndex": 21
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "keyboard",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "editDocumentGroup"
             },
             {
               "kind": "Method",
@@ -3084,7 +3562,52 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") | undefined>"
+                  "text": ") | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[] | undefined>"
                 },
                 {
                   "kind": "Content",
@@ -3094,7 +3617,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 9,
-                "endIndex": 33
+                "endIndex": 43
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -3140,11 +3663,20 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editMedia:member(1)",
-              "docComment": "/**\n * Edits an existing media message with dynamic type selection.\n *\n * @remarks\n *\n * For media types that cannot be edited (voice, video_note, sticker, location, contact), the original message is deleted and a new one is sent.\n *\n * @param type - The media type.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media.\n *\n * @param options1 - Type-specific media options.\n *\n * @param options2 - Additional edit options.\n *\n * @param fallbackReply - If true, sends a reply if edit fails. Default: true.\n *\n * @typeParam T - The media type to edit to.\n *\n * @returns The edited/sent message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editMedia(\"photo\")\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing media message with dynamic type selection.\n *\n * @remarks\n *\n * For media types that cannot be edited (voice, video_note, sticker, location, contact), the original message is deleted and a new one is sent. Multi-src media groups cannot replace a single message, so supported pipe-delimited media groups also delete the original message and send a new media group.\n *\n * @param type - The media type.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media.\n *\n * @param options1 - Type-specific media options.\n *\n * @param options2 - Additional edit options.\n *\n * @param fallbackReply - If true, sends a reply if edit fails. Default: true.\n *\n * @typeParam T - The media type to edit to.\n *\n * @returns The edited/sent message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editMedia(\"photo\")\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
                   "text": "editMedia<T extends "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Exclude",
+                  "canonicalReference": "!Exclude:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
                 },
                 {
                   "kind": "Reference",
@@ -3153,7 +3685,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "[`type`]"
+                  "text": "[`type`], `group`>"
                 },
                 {
                   "kind": "Content",
@@ -3374,7 +3906,52 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") | undefined>"
+                  "text": ") | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[] | undefined>"
                 },
                 {
                   "kind": "Content",
@@ -3386,7 +3963,7 @@
                   "typeParameterName": "T",
                   "constraintTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 5
                   },
                   "defaultTypeTokenRange": {
                     "startIndex": 0,
@@ -3396,8 +3973,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 29,
-                "endIndex": 53
+                "startIndex": 31,
+                "endIndex": 65
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -3406,21 +3983,13 @@
                 {
                   "parameterName": "type",
                   "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
+                    "startIndex": 6,
+                    "endIndex": 7
                   },
                   "isOptional": false
                 },
                 {
                   "parameterName": "keyboardInline",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 6,
-                    "endIndex": 7
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 8,
                     "endIndex": 9
@@ -3428,7 +3997,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "baseId",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 10,
                     "endIndex": 11
@@ -3436,26 +4005,34 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "options1",
+                  "parameterName": "baseId",
                   "parameterTypeTokenRange": {
                     "startIndex": 12,
-                    "endIndex": 24
+                    "endIndex": 13
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options1",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 14,
+                    "endIndex": 26
                   },
                   "isOptional": true
                 },
                 {
                   "parameterName": "options2",
                   "parameterTypeTokenRange": {
-                    "startIndex": 25,
-                    "endIndex": 26
+                    "startIndex": 27,
+                    "endIndex": 28
                   },
                   "isOptional": true
                 },
                 {
                   "parameterName": "fallbackReply",
                   "parameterTypeTokenRange": {
-                    "startIndex": 27,
-                    "endIndex": 28
+                    "startIndex": 29,
+                    "endIndex": 30
                   },
                   "isOptional": true
                 }
@@ -3623,7 +4200,52 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") | undefined>"
+                  "text": ") | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[] | undefined>"
                 },
                 {
                   "kind": "Content",
@@ -3633,7 +4255,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 11,
-                "endIndex": 35
+                "endIndex": 45
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -3683,6 +4305,155 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "editPhoto"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#editPhotoGroup:member(1)",
+              "docComment": "/**\n * Replaces the current message with a photo media group.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. Useful when the template uses pipe-delimited `src` values.\n *\n * @param keyboard - Optional keyboard markup for the new message.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type photo.\n *\n * @param options - Optional photo-specific options.\n *\n * @returns The sent media group message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editPhotoGroup()\n * }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "editPhotoGroup(keyboard?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITInBoKb",
+                  "canonicalReference": "gramstax!ITInBoKb:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITData",
+                  "canonicalReference": "gramstax!ITData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyPhoto",
+                  "canonicalReference": "gramstax!ITOptReplyPhoto:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 9,
+                "endIndex": 21
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "keyboard",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "editPhotoGroup"
             },
             {
               "kind": "Method",
@@ -3834,7 +4605,52 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") | undefined>"
+                  "text": ") | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[] | undefined>"
                 },
                 {
                   "kind": "Content",
@@ -3844,7 +4660,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 9,
-                "endIndex": 33
+                "endIndex": 43
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -4046,7 +4862,52 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") | undefined>"
+                  "text": ") | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[] | undefined>"
                 },
                 {
                   "kind": "Content",
@@ -4056,7 +4917,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 11,
-                "endIndex": 35
+                "endIndex": 45
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -4106,6 +4967,155 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "editVideo"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#editVideoGroup:member(1)",
+              "docComment": "/**\n * Replaces the current message with a video media group.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. Useful when the template uses pipe-delimited `src` values.\n *\n * @param keyboard - Optional keyboard markup for the new message.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type video.\n *\n * @param options - Optional video-specific options.\n *\n * @returns The sent media group message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editVideoGroup()\n * }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "editVideoGroup(keyboard?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITInBoKb",
+                  "canonicalReference": "gramstax!ITInBoKb:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITData",
+                  "canonicalReference": "gramstax!ITData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyVideo",
+                  "canonicalReference": "gramstax!ITOptReplyVideo:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 9,
+                "endIndex": 21
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "keyboard",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "editVideoGroup"
             },
             {
               "kind": "Method",
@@ -4257,7 +5267,52 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") | undefined>"
+                  "text": ") | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[] | undefined>"
                 },
                 {
                   "kind": "Content",
@@ -4267,7 +5322,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 9,
-                "endIndex": 33
+                "endIndex": 43
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -4460,7 +5515,52 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") | undefined>"
+                  "text": ") | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[] | undefined>"
                 },
                 {
                   "kind": "Content",
@@ -4470,7 +5570,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 9,
-                "endIndex": 33
+                "endIndex": 43
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -11248,6 +12348,155 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#replyAudioGroup:member(1)",
+              "docComment": "/**\n * Sends an audio media group using pipe-delimited `src` values from the page template.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "replyAudioGroup(keyboard?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITInBoKb",
+                  "canonicalReference": "gramstax!ITInBoKb:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITData",
+                  "canonicalReference": "gramstax!ITData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyAudio",
+                  "canonicalReference": "gramstax!ITOptReplyAudio:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 9,
+                "endIndex": 21
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "keyboard",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "replyAudioGroup"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyContact:member(1)",
               "docComment": "/**\n * Sends a contact using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type contact.\n *\n * @param options - Optional contact-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   await this.replyContact()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -11618,6 +12867,155 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#replyDocumentGroup:member(1)",
+              "docComment": "/**\n * Sends a document media group using pipe-delimited `src` values from the page template.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "replyDocumentGroup(keyboard?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITInBoKb",
+                  "canonicalReference": "gramstax!ITInBoKb:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITData",
+                  "canonicalReference": "gramstax!ITData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyDocument",
+                  "canonicalReference": "gramstax!ITOptReplyDocument:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 9,
+                "endIndex": 21
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "keyboard",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "replyDocumentGroup"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyLocation:member(1)",
               "docComment": "/**\n * Sends a location using the page template.\n *\n * @param keyboard - Optional keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type location.\n *\n * @param options - Optional location-specific options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   await this.replyLocation()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -11812,12 +13210,21 @@
                 },
                 {
                   "kind": "Reference",
+                  "text": "Exclude",
+                  "canonicalReference": "!Exclude:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
                   "text": "ITMediaBlock",
                   "canonicalReference": "gramstax!ITMediaBlock:type"
                 },
                 {
                   "kind": "Content",
-                  "text": "[`type`]"
+                  "text": "[`type`], `group`>"
                 },
                 {
                   "kind": "Content",
@@ -12055,7 +13462,7 @@
                   "typeParameterName": "T",
                   "constraintTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 5
                   },
                   "defaultTypeTokenRange": {
                     "startIndex": 0,
@@ -12065,8 +13472,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 34,
-                "endIndex": 54
+                "startIndex": 36,
+                "endIndex": 56
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -12075,21 +13482,13 @@
                 {
                   "parameterName": "type",
                   "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
+                    "startIndex": 6,
+                    "endIndex": 7
                   },
                   "isOptional": false
                 },
                 {
                   "parameterName": "keyboard",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 6,
-                    "endIndex": 7
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 8,
                     "endIndex": 9
@@ -12097,7 +13496,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "baseId",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 10,
                     "endIndex": 11
@@ -12105,10 +13504,18 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "options",
+                  "parameterName": "baseId",
                   "parameterTypeTokenRange": {
                     "startIndex": 12,
-                    "endIndex": 33
+                    "endIndex": 13
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 14,
+                    "endIndex": 35
                   },
                   "isOptional": true
                 }
@@ -12116,6 +13523,199 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "replyMedia"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#replyMediaGroup:member(1)",
+              "docComment": "/**\n * Sends a Telegram media group using pipe-delimited `src` values or a `<media-group>` block from the page template.\n *\n * @remarks\n *\n * Only `photo`, `video`, `audio`, and `document` support Telegram media groups. Omit `type` when the template uses `<media-group>` with per-item media types. The first item receives the template caption. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media.\n *\n * @param type - Supported media group type.\n *\n * @param keyboard - Ignored for media groups; kept for API symmetry with replyMedia.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media.\n *\n * @param options - Optional media-group send options.\n *\n * @returns The sent media group messages.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   await this.replyMediaGroup(\"photo\")\n * }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "replyMediaGroup(type?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMediaGroupType",
+                  "canonicalReference": "gramstax!~ITMediaGroupType:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", keyboard?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITInBoKb",
+                  "canonicalReference": "gramstax!ITInBoKb:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITData",
+                  "canonicalReference": "gramstax!ITData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyPhoto",
+                  "canonicalReference": "gramstax!ITOptReplyPhoto:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyVideo",
+                  "canonicalReference": "gramstax!ITOptReplyVideo:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyAudio",
+                  "canonicalReference": "gramstax!ITOptReplyAudio:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyDocument",
+                  "canonicalReference": "gramstax!ITOptReplyDocument:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 17,
+                "endIndex": 29
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "type",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "keyboard",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 9,
+                    "endIndex": 16
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "replyMediaGroup"
             },
             {
               "kind": "Method",
@@ -12301,6 +13901,155 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "replyPhoto"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#replyPhotoGroup:member(1)",
+              "docComment": "/**\n * Sends a photo media group using pipe-delimited `src` values from the page template.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "replyPhotoGroup(keyboard?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITInBoKb",
+                  "canonicalReference": "gramstax!ITInBoKb:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITData",
+                  "canonicalReference": "gramstax!ITData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyPhoto",
+                  "canonicalReference": "gramstax!ITOptReplyPhoto:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 9,
+                "endIndex": 21
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "keyboard",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "replyPhotoGroup"
             },
             {
               "kind": "Method",
@@ -12671,6 +14420,155 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "replyVideo"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#replyVideoGroup:member(1)",
+              "docComment": "/**\n * Sends a video media group using pipe-delimited `src` values from the page template.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "replyVideoGroup(keyboard?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITInBoKb",
+                  "canonicalReference": "gramstax!ITInBoKb:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITData",
+                  "canonicalReference": "gramstax!ITData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyVideo",
+                  "canonicalReference": "gramstax!ITOptReplyVideo:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 9,
+                "endIndex": 21
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "keyboard",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "replyVideoGroup"
             },
             {
               "kind": "Method",
@@ -19591,7 +21489,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITMediaBlock:type",
-          "docComment": "/**\n * Represents a media block configuration for Telegram messages.\n *\n * @remarks\n *\n * This type defines the structure for various media types supported by Telegram, including file-based media (photo, video, audio, document, animation, voice, video_note, sticker), location, and contact.\n *\n * @example\n * ```typescript\n * const photoMedia: ITMediaBlock = {\n *   type: 'photo',\n *   src: 'path/to/image.jpg',\n *   caption: 'A beautiful sunset'\n * };\n *\n * const locationMedia: ITMediaBlock = {\n *   type: 'location',\n *   latitude: '37.7749',\n *   longitude: '-122.4194'\n * };\n *\n * const contactMedia: ITMediaBlock = {\n *   type: 'contact',\n *   phone: '+1234567890',\n *   first_name: 'John',\n *   last_name: 'Doe'\n * };\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Represents a media block configuration for Telegram messages.\n *\n * @remarks\n *\n * This type defines the structure for various media types supported by Telegram, including file-based media (photo, video, audio, document, animation, voice, video_note, sticker), location, and contact. Pipe-delimited `src` values such as `a.jpg|b.jpg` are also exposed as `srcList` for Telegram media groups. `<media-group>` blocks are exposed as `mediaGroup` items and may mix photo/video items. Telegram media groups support up to 10 items and only for photo, video, audio, and document media.\n *\n * @example\n * ```typescript\n * const photoMedia: ITMediaBlock = {\n *   type: 'photo',\n *   src: 'path/to/image.jpg',\n *   caption: 'A beautiful sunset'\n * };\n *\n * const albumMedia: ITMediaBlock = {\n *   type: 'photo',\n *   src: 'one.jpg|two.jpg',\n *   srcList: ['one.jpg', 'two.jpg'],\n *   caption: 'Photo album'\n * };\n *\n * const locationMedia: ITMediaBlock = {\n *   type: 'location',\n *   latitude: '37.7749',\n *   longitude: '-122.4194'\n * };\n *\n * const contactMedia: ITMediaBlock = {\n *   type: 'contact',\n *   phone: '+1234567890',\n *   first_name: 'John',\n *   last_name: 'Doe'\n * };\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -19599,7 +21497,16 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact`;\n    src?: string;\n    caption?: string;\n    latitude?: string;\n    longitude?: string;\n    phone?: string;\n    first_name?: string;\n    last_name?: string;\n    vcard?: string;\n}"
+              "text": "{\n    type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact` | `group`;\n    src?: string;\n    srcList?: string[];\n    mediaGroup?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Array",
+              "canonicalReference": "!Array:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<{\n        type: `photo` | `video` | `audio` | `document`;\n        src: string;\n        caption?: string;\n    }>;\n    caption?: string;\n    latitude?: string;\n    longitude?: string;\n    phone?: string;\n    first_name?: string;\n    last_name?: string;\n    vcard?: string;\n}"
             },
             {
               "kind": "Content",
@@ -19611,7 +21518,7 @@
           "name": "ITMediaBlock",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 2
+            "endIndex": 4
           }
         },
         {
@@ -23771,7 +25678,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processMediaBlocks:member(1)",
-              "docComment": "/**\n * Block: media Extracts and parses `<media>` blocks from a template string.\n *\n * @remarks\n *\n * This internal method identifies all `<media>` blocks and extracts their attributes and content. It supports various media types including photo, video, audio, document, animation, voice, video_note, sticker, location, and contact. The inner content becomes the caption for supported types.\n *\n * **Attributes:** - `lang` (optional): Language key for the output map. Defaults to `\"default\"`. - `type` (required): Media type discriminator. Expected values: - `photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, - `sticker`, `location`, `contact`. - `src` (optional): File path / URL / file identifier for file-based media. - `latitude` (optional): Location latitude (used when `type=\"location\"`). - `longitude` (optional): Location longitude (used when `type=\"location\"`). - `phone` (optional): Contact phone number (used when `type=\"contact\"`). - `first_name` (optional): Contact first name (used when `type=\"contact\"`). - `last_name` (optional): Contact last name (used when `type=\"contact\"`). - `vcard` (optional): Contact vCard payload (used when `type=\"contact\"`).\n *\n * Media rules (based on `type`): - If `src` exists, it is assigned as `mediaBlock.src` (for any type). - If caption exists and `type !== \"video_note\"` and `type !== \"sticker\"`, it is assigned as `mediaBlock.caption`. - If `type === \"location\"`, `latitude` and `longitude` are copied if present, and caption (if present) is also allowed. - If `type === \"contact\"`, `phone`, `first_name`, `last_name`, and `vcard` are copied if present, and caption (if present) is also allowed.\n *\n * Note: - If multiple `<media>` blocks share the same `lang`, the last one wins (it overwrites the previous entry).\n *\n * @param template - The template string containing `<media>` blocks\n *\n * @returns An object mapping language keys to their corresponding media block configurations\n *\n * @example\n * ```typescript\n * const template = '<media type=\"photo\" src=\"image.jpg\" lang=\"en\">Hello</media>';\n * const media = TemplateEngine._processMediaBlocks(template);\n * // Result: { en: { type: 'photo', src: 'image.jpg', caption: 'Hello' } }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Block: media Extracts and parses `<media>` blocks from a template string.\n *\n * @remarks\n *\n * This internal method identifies all `<media>` blocks and extracts their attributes and content. It supports various media types including photo, video, audio, document, animation, voice, video_note, sticker, location, and contact. The inner content becomes the caption for supported types.\n *\n * **Attributes:** - `lang` (optional): Language key for the output map. Defaults to `\"default\"`. - `type` (required): Media type discriminator. Expected values: - `photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, - `sticker`, `location`, `contact`. - `src` (optional): File path / URL / file identifier for file-based media. - `latitude` (optional): Location latitude (used when `type=\"location\"`). - `longitude` (optional): Location longitude (used when `type=\"location\"`). - `phone` (optional): Contact phone number (used when `type=\"contact\"`). - `first_name` (optional): Contact first name (used when `type=\"contact\"`). - `last_name` (optional): Contact last name (used when `type=\"contact\"`). - `vcard` (optional): Contact vCard payload (used when `type=\"contact\"`).\n *\n * Media rules (based on `type`): - If `src` exists, it is assigned as `mediaBlock.src` (for any type). - If `src` contains pipe-delimited values, `mediaBlock.srcList` is populated with up to 10 trimmed entries for Telegram media groups. - If caption exists and `type !== \"video_note\"` and `type !== \"sticker\"`, it is assigned as `mediaBlock.caption`. - If `type === \"location\"`, `latitude` and `longitude` are copied if present, and caption (if present) is also allowed. - If `type === \"contact\"`, `phone`, `first_name`, `last_name`, and `vcard` are copied if present, and caption (if present) is also allowed.\n *\n * Note: - If multiple `<media>` blocks share the same `lang`, the last one wins (it overwrites the previous entry).\n *\n * @param template - The template string containing `<media>` blocks\n *\n * @returns An object mapping language keys to their corresponding media block configurations\n *\n * @example\n * ```typescript\n * const template = '<media type=\"photo\" src=\"image.jpg|image-2.jpg\" lang=\"en\">Hello</media>';\n * const media = TemplateEngine._processMediaBlocks(template);\n * // Result: { en: { type: 'photo', src: 'image.jpg|image-2.jpg', srcList: ['image.jpg', 'image-2.jpg'], caption: 'Hello' } }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23824,6 +25731,63 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "_processMediaBlocks"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine._processMediaGroupBlocks:member(1)",
+              "docComment": "/**\n * Parses `<media-group>` blocks into Telegram media group item definitions.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static _processMediaGroupBlocks(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        [lang: string]: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMediaBlock",
+                  "canonicalReference": "gramstax!ITMediaBlock:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_processMediaGroupBlocks"
             },
             {
               "kind": "Method",
@@ -24112,6 +26076,54 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "_processSwitchBlocks"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine._splitMediaSrcList:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static _splitMediaSrcList(src: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "src",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_splitMediaSrcList"
             },
             {
               "kind": "Property",
@@ -24538,6 +26550,36 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "compileBlockMessage"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!TemplateEngine.MAX_MEDIA_GROUP_ITEMS:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static MAX_MEDIA_GROUP_ITEMS: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "MAX_MEDIA_GROUP_ITEMS",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
             },
             {
               "kind": "Method",
@@ -25099,7 +27141,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.validateBlockMediaAttributes:member(1)",
-              "docComment": "/**\n * Validates attributes on `<media>` blocks.\n *\n * @remarks\n *\n * Allowed attributes are `lang`, `type`, `src`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, and `vcard`.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockMediaAttributes(`<media type=\"photo\" src=\"img.jpg\">Caption</media>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Validates attributes on `<media>` blocks.\n *\n * @remarks\n *\n * Allowed attributes are `lang`, `type`, `src`, `shared`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, and `vcard`.\n *\n * `shared` is a boolean attribute — it can be written as `shared`, `shared=\"true\"`, or `shared=\"false\"`. When `true`, the media item is included in all language variants of the enclosing `<media-group>`. Only valid inside `<media-group>`.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockMediaAttributes(`<media type=\"photo\" src=\"img.jpg\">Caption</media>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25152,6 +27194,63 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "validateBlockMediaAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockMediaGroupAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes and item constraints on `<media-group>` blocks.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockMediaGroupAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockMediaGroupAttributes"
             },
             {
               "kind": "Method",
@@ -25498,7 +27597,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.validatePositionsBlock:member(1)",
-              "docComment": "/**\n * Validates block positioning and nesting rules in a template string.\n *\n * @remarks\n *\n * This method checks a template string for structural block nesting violations. It ensures that blocks are placed in their allowed parent contexts.\n *\n * **Nesting hierarchy:**\n * ```\n * __root__\n *   ├── base             (root level only)\n *   │   ├── message      (content block)\n *   │   │   ├── switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── map      (logic block)\n *   │   │   ├── script   (logic block)\n *   │   │   └── space    (utility)\n *   │   ├── keyboard     (content block)\n *   │   │   ├── switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── map      (logic block)\n *   │   │   ├── script   (logic block)\n *   │   │   └── space    (utility)\n *   │   ├── media        (content block)\n *   │   │   ├── switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── map      (logic block)\n *   │   │   ├── script   (logic block)\n *   │   │   └── space    (utility)\n *   │   ├── description  (content block)\n *   │   │   ├── switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── map      (logic block)\n *   │   │   ├── script   (logic block)\n *   │   │   └── space    (utility)\n *   │   ├── import       (utility)\n *   │   ├── description  (utility)\n *   │   ├── script       (logic block)\n *   └   └── space        (utility)\n * ```\n *\n * **Enforced rules:** - `<base>` must be at the outermost level and cannot be nested inside any other block. - `<message>`, `<keyboard>`, `<media>`, `<description>`, `<import>`, `<script>`, `<space>` can only appear directly inside `<base>`. - `<switch>`, `<map>` can only appear inside `<message>`, `<keyboard>`, `<media>`, or `<description>`. - `<case>` and `<default>` can only appear inside `<switch>`. - Telegram formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`, `<blockquote expandable>`) are passthrough and ignored during validation.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each violation found\n *\n * @example\n * ```typescript\n * // Valid template\n * const result = TemplateEngine.validatePositionsBlock(`\n *   <base>\n *     <message>Hello {{name}}!</message>\n *     <keyboard>Yes, No</keyboard>\n *   </base>\n * `);\n * // Result: { valid: true, errors: [] }\n *\n * // Invalid: <base> nested inside <message>\n * const bad = TemplateEngine.validatePositionsBlock(`\n *   <base>\n *     <message>\n *       <base>Nested base</base>\n *     </message>\n *   </base>\n * `);\n * // Result: { valid: false, errors: [{ line: 4, message: 'Block <base> is not allowed inside <message>' }] }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Validates block positioning and nesting rules in a template string.\n *\n * @remarks\n *\n * This method checks a template string for structural block nesting violations. It ensures that blocks are placed in their allowed parent contexts.\n *\n * **Nesting hierarchy:**\n * ```\n * __root__\n *   ├── base             (root level only)\n *   │   ├── message      (content block)\n *   │   │   ├── switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── map      (logic block)\n *   │   │   ├── script   (logic block)\n *   │   │   └── space    (utility)\n *   │   ├── keyboard     (content block)\n *   │   │   ├── switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── map      (logic block)\n *   │   │   ├── script   (logic block)\n *   │   │   └── space    (utility)\n *   │   ├── media        (content block)\n *   │   │   ├── switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── map      (logic block)\n *   │   │   ├── script   (logic block)\n *   │   │   └── space    (utility)\n *   │   ├── description  (content block)\n *   │   │   ├── switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── map      (logic block)\n *   │   │   ├── script   (logic block)\n *   │   │   └── space    (utility)\n *   │   ├── import       (utility)\n *   │   ├── description  (utility)\n *   │   ├── script       (logic block)\n *   └   └── space        (utility)\n * ```\n *\n * **Enforced rules:** - `<base>` must be at the outermost level and cannot be nested inside any other block. - `<message>`, `<keyboard>`, `<media>`, `<media-group>`, `<description>`, `<import>`, `<script>`, `<space>` can only appear directly inside `<base>`. - `<media>` can also appear directly inside `<media-group>` as a group item. - `<switch>`, `<map>` can only appear inside `<message>`, `<keyboard>`, `<media>`, or `<description>`. - `<case>` and `<default>` can only appear inside `<switch>`. - Telegram formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`, `<blockquote expandable>`) are passthrough and ignored during validation.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each violation found\n *\n * @example\n * ```typescript\n * // Valid template\n * const result = TemplateEngine.validatePositionsBlock(`\n *   <base>\n *     <message>Hello {{name}}!</message>\n *     <keyboard>Yes, No</keyboard>\n *   </base>\n * `);\n * // Result: { valid: true, errors: [] }\n *\n * // Invalid: <base> nested inside <message>\n * const bad = TemplateEngine.validatePositionsBlock(`\n *   <base>\n *     <message>\n *       <base>Nested base</base>\n *     </message>\n *   </base>\n * `);\n * // Result: { valid: false, errors: [{ line: 4, message: 'Block <base> is not allowed inside <message>' }] }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

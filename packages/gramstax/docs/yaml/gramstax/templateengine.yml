@@ -87,6 +87,19 @@ properties:
       content: 'static ALLOWED_SCOPE: string[];'
       return:
         type: string[]
+  - name: MAX_MEDIA_GROUP_ITEMS
+    uid: gramstax!TemplateEngine.MAX_MEDIA_GROUP_ITEMS:member
+    package: gramstax!
+    fullName: MAX_MEDIA_GROUP_ITEMS
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static MAX_MEDIA_GROUP_ITEMS: number;'
+      return:
+        type: number
 methods:
   - name: _compileToFunction(template, isArray)
     uid: gramstax!TemplateEngine._compileToFunction:member(1)
@@ -484,7 +497,8 @@ methods:
 
 
       Media rules (based on `type`<!-- -->): - If `src` exists, it is assigned as `mediaBlock.src` (for any type). - If
-      caption exists and `type !== "video_note"` and `type !== "sticker"`<!-- -->, it is assigned as
+      `src` contains pipe-delimited values, `mediaBlock.srcList` is populated with up to 10 trimmed entries for Telegram
+      media groups. - If caption exists and `type !== "video_note"` and `type !== "sticker"`<!-- -->, it is assigned as
       `mediaBlock.caption`<!-- -->. - If `type === "location"`<!-- -->, `latitude` and `longitude` are copied if
       present, and caption (if present) is also allowed. - If `type === "contact"`<!-- -->, `phone`<!-- -->,
       `first_name`<!-- -->, `last_name`<!-- -->, and `vcard` are copied if present, and caption (if present) is also
@@ -494,11 +508,16 @@ methods:
       Note: - If multiple `<media>` blocks share the same `lang`<!-- -->, the last one wins (it overwrites the previous
       entry).
     example:
-      - |-
+      - >-
         ```typescript
-        const template = '<media type="photo" src="image.jpg" lang="en">Hello</media>';
+
+        const template = '<media type="photo" src="image.jpg|image-2.jpg" lang="en">Hello</media>';
+
         const media = TemplateEngine._processMediaBlocks(template);
-        // Result: { en: { type: 'photo', src: 'image.jpg', caption: 'Hello' } }
+
+        // Result: { en: { type: 'photo', src: 'image.jpg|image-2.jpg', srcList: ['image.jpg', 'image-2.jpg'], caption:
+        'Hello' } }
+
         ```
     isPreview: false
     isDeprecated: false
@@ -517,6 +536,30 @@ methods:
                   [lang: string]: <xref uid="gramstax!ITMediaBlock:type" />;
               }
         description: An object mapping language keys to their corresponding media block configurations
+  - name: _processMediaGroupBlocks(template)
+    uid: gramstax!TemplateEngine._processMediaGroupBlocks:member(1)
+    package: gramstax!
+    fullName: _processMediaGroupBlocks(template)
+    summary: Parses `<media-group>` blocks into Telegram media group item definitions.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processMediaGroupBlocks(template: string): {
+                [lang: string]: ITMediaBlock;
+            };
+      parameters:
+        - id: template
+          description: ''
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: <xref uid="gramstax!ITMediaBlock:type" />;
+              }
+        description: ''
   - name: _processMessageBlocks(template)
     uid: gramstax!TemplateEngine._processMessageBlocks:member(1)
     package: gramstax!
@@ -714,6 +757,24 @@ methods:
       return:
         type: string
         description: The template with `<switch>` blocks converted to executable switch expressions
+  - name: _splitMediaSrcList(src)
+    uid: gramstax!TemplateEngine._splitMediaSrcList:member(1)
+    package: gramstax!
+    fullName: _splitMediaSrcList(src)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _splitMediaSrcList(src: string): string[];'
+      parameters:
+        - id: src
+          description: ''
+          type: string
+      return:
+        type: string[]
+        description: ''
   - name: compileBlockDescription(template, baseBlocks)
     uid: gramstax!TemplateEngine.compileBlockDescription:member(1)
     package: gramstax!
@@ -1312,8 +1373,13 @@ methods:
     fullName: validateBlockMediaAttributes(template)
     summary: Validates attributes on `<media>` blocks.
     remarks: >-
-      Allowed attributes are `lang`<!-- -->, `type`<!-- -->, `src`<!-- -->, `latitude`<!-- -->, `longitude`<!-- -->,
-      `phone`<!-- -->, `first_name`<!-- -->, `last_name`<!-- -->, and `vcard`<!-- -->.
+      Allowed attributes are `lang`<!-- -->, `type`<!-- -->, `src`<!-- -->, `shared`<!-- -->, `latitude`<!-- -->,
+      `longitude`<!-- -->, `phone`<!-- -->, `first_name`<!-- -->, `last_name`<!-- -->, and `vcard`<!-- -->.
+
+
+      `shared` is a boolean attribute — it can be written as `shared`<!-- -->, `shared="true"`<!-- -->, or
+      `shared="false"`<!-- -->. When `true`<!-- -->, the media item is included in all language variants of the
+      enclosing `<media-group>`<!-- -->. Only valid inside `<media-group>`<!-- -->.
     example:
       - |-
         ```typescript
@@ -1345,6 +1411,38 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockMediaGroupAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockMediaGroupAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockMediaGroupAttributes(template)
+    summary: Validates attributes and item constraints on `<media-group>` blocks.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockMediaGroupAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: ''
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: ''
   - name: validateBlockMessageAttributes(template)
     uid: gramstax!TemplateEngine.validateBlockMessageAttributes:member(1)
     package: gramstax!
@@ -1647,12 +1745,13 @@ methods:
       ```
 
       \*\*Enforced rules:\*\* - `<base>` must be at the outermost level and cannot be nested inside any other block. -
-      `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, `<description>`<!-- -->, `<import>`<!-- -->,
-      `<script>`<!-- -->, `<space>` can only appear directly inside `<base>`<!-- -->. - `<switch>`<!-- -->, `<map>` can
-      only appear inside `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, or `<description>`<!-- -->. -
-      `<case>` and `<default>` can only appear inside `<switch>`<!-- -->. - Telegram formatting tags (`<b>`<!-- -->,
-      `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->, `<a>`<!-- -->, `<blockquote>`<!--
-      -->, `<blockquote expandable>`<!-- -->) are passthrough and ignored during validation.
+      `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, `<media-group>`<!-- -->, `<description>`<!-- -->,
+      `<import>`<!-- -->, `<script>`<!-- -->, `<space>` can only appear directly inside `<base>`<!-- -->. - `<media>`
+      can also appear directly inside `<media-group>` as a group item. - `<switch>`<!-- -->, `<map>` can only appear
+      inside `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, or `<description>`<!-- -->. - `<case>` and
+      `<default>` can only appear inside `<switch>`<!-- -->. - Telegram formatting tags (`<b>`<!-- -->, `<i>`<!-- -->,
+      `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->, `<a>`<!-- -->, `<blockquote>`<!-- -->,
+      `<blockquote expandable>`<!-- -->) are passthrough and ignored during validation.
     example:
       - |-
         ```typescript

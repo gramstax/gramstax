@@ -62,7 +62,9 @@ An object with a `valid` boolean and an `errors` array
 
 ## Remarks
 
-Allowed attributes are `lang`<!-- -->, `type`<!-- -->, `src`<!-- -->, `latitude`<!-- -->, `longitude`<!-- -->, `phone`<!-- -->, `first_name`<!-- -->, `last_name`<!-- -->, and `vcard`<!-- -->.
+Allowed attributes are `lang`<!-- -->, `type`<!-- -->, `src`<!-- -->, `shared`<!-- -->, `latitude`<!-- -->, `longitude`<!-- -->, `phone`<!-- -->, `first_name`<!-- -->, `last_name`<!-- -->, and `vcard`<!-- -->.
+
+`shared` is a boolean attribute — it can be written as `shared`<!-- -->, `shared="true"`<!-- -->, or `shared="false"`<!-- -->. When `true`<!-- -->, the media item is included in all language variants of the enclosing `<media-group>`<!-- -->. Only valid inside `<media-group>`<!-- -->.
 
 ## Example
 
