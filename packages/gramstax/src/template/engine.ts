@@ -5,6 +5,10 @@
  * This type defines the structure for various media types supported by Telegram,
  * including file-based media (photo, video, audio, document, animation, voice,
  * video_note, sticker), location, and contact.
+ * Pipe-delimited `src` values such as `a.jpg|b.jpg` are also exposed as
+ * `srcList` for Telegram media groups. `<media-group>` blocks are exposed as
+ * `mediaGroup` items and may mix photo/video items. Telegram media groups
+ * support up to 10 items and only for photo, video, audio, and document media.
  *
  * @example
  * ```typescript
@@ -12,6 +16,13 @@
  *   type: 'photo',
  *   src: 'path/to/image.jpg',
  *   caption: 'A beautiful sunset'
+ * };
+ *
+ * const albumMedia: ITMediaBlock = {
+ *   type: 'photo',
+ *   src: 'one.jpg|two.jpg',
+ *   srcList: ['one.jpg', 'two.jpg'],
+ *   caption: 'Photo album'
  * };
  *
  * const locationMedia: ITMediaBlock = {
@@ -31,8 +42,10 @@
  * @public
  */
 export type ITMediaBlock = {
-  type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact`
+  type: `photo` | `video` | `audio` | `document` | `animation` | `voice` | `video_note` | `sticker` | `location` | `contact` | `group`
   src?: string
+  srcList?: string[]
+  mediaGroup?: Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string}>
   caption?: string
   // for location
   latitude?: string
@@ -78,6 +91,8 @@ export type ITMediaBlock = {
  * @public
  */
 export class TemplateEngine {
+  static MAX_MEDIA_GROUP_ITEMS = 10
+
   /**
    * Registry of all supported template block tags.
    *
@@ -96,6 +111,7 @@ export class TemplateEngine {
     `<message>`,
     `<keyboard>`,
     `<media>`,
+    `<media-group>`,
     `<description>`,
     // Logic blocks
     `<script>`,
@@ -546,6 +562,8 @@ export class TemplateEngine {
    *
    * Media rules (based on `type`):
    * - If `src` exists, it is assigned as `mediaBlock.src` (for any type).
+   * - If `src` contains pipe-delimited values, `mediaBlock.srcList` is populated
+   *   with up to 10 trimmed entries for Telegram media groups.
    * - If caption exists and `type !== "video_note"` and `type !== "sticker"`,
    *   it is assigned as `mediaBlock.caption`.
    * - If `type === "location"`, `latitude` and `longitude` are copied if present,
@@ -562,9 +580,9 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const template = '<media type="photo" src="image.jpg" lang="en">Hello</media>';
+   * const template = '<media type="photo" src="image.jpg|image-2.jpg" lang="en">Hello</media>';
    * const media = TemplateEngine._processMediaBlocks(template);
-   * // Result: { en: { type: 'photo', src: 'image.jpg', caption: 'Hello' } }
+   * // Result: { en: { type: 'photo', src: 'image.jpg|image-2.jpg', srcList: ['image.jpg', 'image-2.jpg'], caption: 'Hello' } }
    * ```
    *
    * @public
@@ -604,6 +622,10 @@ export class TemplateEngine {
       // Media with file src (photo, video, audio, document, animation, voice, video_note, sticker)
       if (attrs.src) {
         mediaBlock.src = attrs.src
+        const srcList = this._splitMediaSrcList(attrs.src)
+        if (srcList.length > 1) {
+          mediaBlock.srcList = srcList
+        }
       }
 
       // Caption (otherwise for video_note and sticker with not suppert caption)
@@ -631,6 +653,93 @@ export class TemplateEngine {
     }
 
     return result
+  }
+
+  static _splitMediaSrcList(src: string): string[] {
+    if (!src.includes(`|`)) return []
+    return src
+      .split(`|`)
+      .map((it) => it.trim())
+      .filter((it) => it.length > 0)
+      .slice(0, this.MAX_MEDIA_GROUP_ITEMS)
+  }
+
+  /** Parses `<media-group>` blocks into Telegram media group item definitions. */
+  static _processMediaGroupBlocks(template: string) {
+    const mediaGroupRegex = /<media-group(?:\s+([^>]*))?>([\s\S]*?)<\/media-group>/gi
+    const result: {[lang: string]: ITMediaBlock} = {}
+
+    for (const match of template.matchAll(mediaGroupRegex)) {
+      const attributesStr = match[1]
+      const groupContent = match[2] || ``
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /(\w+)="([^"]*)"/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2]!
+        }
+      }
+
+      const blockLang = attrs.lang || `default`
+      const rawItems = this._processMediaGroupItems(groupContent)
+
+      // Separate default items (no lang) from lang-specific items
+      const defaultItems = rawItems.filter((item) => !item.lang)
+      const langItems = rawItems.filter((item) => item.lang)
+      const langVariants = new Set(langItems.map((item) => item.lang!))
+
+      // Default variant: only items without explicit lang
+      const defaultCaption = defaultItems.find((item) => item.caption)?.caption
+      if (defaultItems.length > 0 || langItems.length === 0) {
+        result[blockLang] = {type: `group`, mediaGroup: defaultItems, ...(defaultCaption ? {caption: defaultCaption} : {})}
+      }
+
+      // Lang-specific variants: ONLY items matching that lang (exclusive, no merge)
+      for (const variantLang of langVariants) {
+        const matchingItems = langItems.filter((item) => item.lang === variantLang)
+        const caption = matchingItems.find((item) => item.caption)?.caption
+        result[variantLang] = {type: `group`, mediaGroup: matchingItems, ...(caption ? {caption} : {})}
+      }
+    }
+
+    return result
+  }
+
+  private static _processMediaGroupItems(groupContent: string): Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string; lang?: string}> {
+    const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
+    const mediaGroup: Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string; lang?: string}> = []
+    const supportedTypes = new Set([`photo`, `video`, `audio`, `document`])
+
+    for (const match of groupContent.matchAll(mediaRegex)) {
+      if (mediaGroup.length >= this.MAX_MEDIA_GROUP_ITEMS) break
+
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /(\w+)="([^"]*)"/g
+      const attributesStr = match[1]
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2]!
+        }
+      }
+
+      if (!attrs.type || !supportedTypes.has(attrs.type) || !attrs.src) continue
+
+      const caption = (match[2] || ``)
+        .replace(/^[\t ]+/gm, ``)
+        .replace(/^\n+/, ``)
+        .replace(/\n+$/, ``)
+        .trim()
+
+      mediaGroup.push({
+        type: attrs.type as `photo` | `video` | `audio` | `document`,
+        src: attrs.src,
+        ...(caption ? {caption} : {}),
+        ...(attrs.lang ? {lang: attrs.lang} : {})
+      })
+    }
+
+    return mediaGroup
   }
 
   /**
@@ -900,11 +1009,16 @@ export class TemplateEngine {
     } = {}
 
     for (const [baseId, baseContent] of Object.entries(bases)) {
-      const mediaBlocks = this._processMediaBlocks(baseContent)
+      const mediaBlocks = {...this._processMediaBlocks(baseContent), ...this._processMediaGroupBlocks(baseContent)}
       result[baseId] = {}
 
       for (const [lang, mediaBlock] of Object.entries(mediaBlocks)) {
         const compiledProps: Record<string, (data?: Record<string, any>) => string> = {}
+        const compiledMediaGroup = mediaBlock.mediaGroup?.map((item) => ({
+          type: item.type,
+          src: this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(item.src))))), false),
+          caption: item.caption ? this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(item.caption))))), false) : undefined
+        }))
 
         for (const [key, value] of Object.entries(mediaBlock)) {
           if (key === `type` || typeof value !== `string`) continue
@@ -917,6 +1031,20 @@ export class TemplateEngine {
           const resolvedBlock = {...mediaBlock} as any
           for (const [key, fn] of Object.entries(compiledProps)) {
             resolvedBlock[key] = fn(data)
+          }
+          if (compiledMediaGroup) {
+            resolvedBlock.mediaGroup = compiledMediaGroup.map((item) => ({type: item.type, src: item.src(data), ...(item.caption ? {caption: item.caption(data)} : {})}))
+            // Only fallback to first mediaGroup caption if no explicit caption was set via compiledProps
+            const caption = resolvedBlock.mediaGroup.find((item: {caption?: string}) => item.caption)?.caption
+            if (caption && !resolvedBlock.caption) resolvedBlock.caption = caption
+          }
+          if (typeof resolvedBlock.src === `string`) {
+            const srcList = this._splitMediaSrcList(resolvedBlock.src)
+            if (srcList.length > 1) {
+              resolvedBlock.srcList = srcList
+            } else {
+              delete resolvedBlock.srcList
+            }
           }
           return resolvedBlock
         }
@@ -1575,7 +1703,8 @@ export class TemplateEngine {
    *
    * **Enforced rules:**
    * - `<base>` must be at the outermost level and cannot be nested inside any other block.
-   * - `<message>`, `<keyboard>`, `<media>`, `<description>`, `<import>`, `<script>`, `<space>` can only appear directly inside `<base>`.
+   * - `<message>`, `<keyboard>`, `<media>`, `<media-group>`, `<description>`, `<import>`, `<script>`, `<space>` can only appear directly inside `<base>`.
+   * - `<media>` can also appear directly inside `<media-group>` as a group item.
    * - `<switch>`, `<map>` can only appear inside `<message>`, `<keyboard>`, `<media>`, or `<description>`.
    * - `<case>` and `<default>` can only appear inside `<switch>`.
    * - Telegram formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`, `<blockquote expandable>`)
@@ -1622,7 +1751,8 @@ export class TemplateEngine {
       base: new Set([`__root__`]),
       message: new Set([`base`]),
       keyboard: new Set([`base`]),
-      media: new Set([`base`]),
+      media: new Set([`base`, `media-group`]),
+      "media-group": new Set([`base`]),
       description: new Set([`base`]),
       switch: new Set([`message`, `keyboard`, `media`, `description`]),
       case: new Set([`switch`]),
@@ -1763,7 +1893,7 @@ export class TemplateEngine {
   static validateFormatBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
     const selfClosingBlocks = new Set([`space`, `import`])
-    const regularBlocks = new Set([`base`, `message`, `keyboard`, `media`, `description`, `script`, `switch`, `case`, `default`, `map`, `div`])
+    const regularBlocks = new Set([`base`, `message`, `keyboard`, `media`, `media-group`, `description`, `script`, `switch`, `case`, `default`, `map`, `div`])
 
     const tagRegex = /<(\/?)(\w[\w-]*)([^>]*)>/g
     let match: RegExpExecArray | null
@@ -1810,7 +1940,7 @@ export class TemplateEngine {
    */
   private static _validateBlockAttributes(template: string, tagName: string, allowedAttributes: Set<string>, allowedLabel: string, valueValidators?: Record<string, (value: string) => string | null>): Array<{line: number; message: string}> {
     const errors: Array<{line: number; message: string}> = []
-    const tagRegex = new RegExp(`<${tagName}\\b([^>]*?)>`, `g`)
+    const tagRegex = new RegExp(`<${tagName}(?![\\w-])([^>]*?)>`, `g`)
     let match: RegExpExecArray | null
 
     while ((match = tagRegex.exec(template)) !== null) {
@@ -1938,6 +2068,60 @@ export class TemplateEngine {
       type: (v) => (validTypes.has(v) ? null : `Attribute "type" on <media> must be one of: ${[...validTypes].join(`, `)}, got "${v}"`)
     })
     return {valid: errors.length === 0, errors}
+  }
+
+  /** Validates attributes and item constraints on `<media-group>` blocks. */
+  static validateBlockMediaGroupAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `media-group`, new Set([`lang`]), `"lang"`)
+    errors.push(...this._validateMediaGroupItems(template))
+    return {valid: errors.length === 0, errors}
+  }
+
+  private static _validateMediaGroupItems(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const mediaGroupRegex = /<media-group(?:\s+[^>]*)?>([\s\S]*?)<\/media-group>/gi
+    const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
+    const supportedTypes = new Set([`photo`, `video`, `audio`, `document`])
+
+    for (const groupMatch of template.matchAll(mediaGroupRegex)) {
+      const groupLine = (template.slice(0, groupMatch.index).match(/\n/g) || []).length + 1
+      const groupContent = groupMatch[1] || ``
+      const itemTypes: string[] = []
+      let itemCount = 0
+
+      for (const mediaMatch of groupContent.matchAll(mediaRegex)) {
+        itemCount += 1
+        const line = groupLine + (groupContent.slice(0, mediaMatch.index).match(/\n/g) || []).length
+        const attrsStr = mediaMatch[1] || ``
+        const type = attrsStr.match(/\btype\s*=\s*"([^"]*)"/)?.[1]
+        const src = attrsStr.match(/\bsrc\s*=\s*"([^"]*)"/)?.[1]
+
+        if (!type || !supportedTypes.has(type)) {
+          errors.push({line, message: `Attribute "type" on <media> inside <media-group> must be one of: photo, video, audio, document`})
+          continue
+        }
+        if (!src) {
+          errors.push({line, message: `Attribute "src" on <media> inside <media-group> is required`})
+        }
+        itemTypes.push(type)
+      }
+
+      if (itemCount === 0) {
+        errors.push({line: groupLine, message: `<media-group> must contain at least one <media> item`})
+      }
+      if (itemCount > this.MAX_MEDIA_GROUP_ITEMS) {
+        errors.push({line: groupLine, message: `<media-group> must contain at most ${this.MAX_MEDIA_GROUP_ITEMS} <media> items`})
+      }
+      const uniqueTypes = new Set(itemTypes)
+      if (uniqueTypes.has(`audio`) && uniqueTypes.size > 1) {
+        errors.push({line: groupLine, message: `<media-group> with audio items can only contain audio items`})
+      }
+      if (uniqueTypes.has(`document`) && uniqueTypes.size > 1) {
+        errors.push({line: groupLine, message: `<media-group> with document items can only contain document items`})
+      }
+    }
+
+    return errors
   }
 
   /**
@@ -2189,6 +2373,7 @@ export class TemplateEngine {
     const messageAttrResult = this.validateBlockMessageAttributes(template)
     const keyboardAttrResult = this.validateBlockKeyboardAttributes(template)
     const mediaAttrResult = this.validateBlockMediaAttributes(template)
+    const mediaGroupAttrResult = this.validateBlockMediaGroupAttributes(template)
     const descriptionAttrResult = this.validateBlockDescriptionAttributes(template)
     const scriptAttrResult = this.validateBlockScriptAttributes(template)
     const switchAttrResult = this.validateBlockSwitchAttributes(template)
@@ -2208,6 +2393,7 @@ export class TemplateEngine {
       ...messageAttrResult.errors,
       ...keyboardAttrResult.errors,
       ...mediaAttrResult.errors,
+      ...mediaGroupAttrResult.errors,
       ...descriptionAttrResult.errors,
       ...scriptAttrResult.errors,
       ...switchAttrResult.errors,

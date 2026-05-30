@@ -2,8 +2,10 @@ import {describe, it, expect, beforeEach, afterEach, mock} from "bun:test"
 import {mkdir, rm, writeFile} from "node:fs/promises"
 import {existsSync} from "node:fs"
 import {join} from "node:path"
+import {InlineKeyboard} from "grammy"
 import {TemplateManager} from "~/template/manager"
 import {Ctx} from "~/core/ctx"
+import type {ITCtxParams} from "~/types/t.ctx"
 
 const TEST_DIR = join(import.meta.dir, `ctx_broadcast_views`)
 
@@ -43,11 +45,11 @@ describe(`Ctx.broadcastMedia`, () => {
       api: {
         sendPhoto
       }
-    } as any
+    } as unknown as ITCtxParams[`ct`]
 
     const ctx = new BroadcastCtx({
       ct,
-      cacheSession: {} as any,
+      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
       cacheKeyboard: new Map(),
       templateManager,
       temp: {isAnswer: false, session: {}, data: {}}
@@ -58,5 +60,352 @@ describe(`Ctx.broadcastMedia`, () => {
     expect(sendPhoto).toHaveBeenCalledTimes(2)
     expect(sendPhoto).toHaveBeenNthCalledWith(1, 1, `photo-default.jpg`, expect.objectContaining({caption: `Hello`, parse_mode: `HTML`}))
     expect(sendPhoto).toHaveBeenNthCalledWith(2, 2, `photo-id.jpg`, expect.objectContaining({caption: `Halo`, parse_mode: `HTML`}))
+  })
+
+  it(`should send pipe-delimited photo src values as media group`, async () => {
+    await writeFile(
+      join(TEST_DIR, `broadcast.html`),
+      `
+      <base>
+        <media type="photo" src="one.jpg|two.jpg|three.jpg">Album</media>
+      </base>
+    `
+    )
+
+    const templateManager = new TemplateManager({path: [TEST_DIR]})
+
+    const sendPhoto = mock(() => true)
+    const sendMediaGroup = mock(() => true)
+    const ct = {
+      api: {
+        sendPhoto,
+        sendMediaGroup
+      }
+    } as unknown as ITCtxParams[`ct`]
+
+    const ctx = new BroadcastCtx({
+      ct,
+      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheKeyboard: new Map(),
+      templateManager,
+      temp: {isAnswer: false, session: {}, data: {}}
+    })
+
+    await ctx.broadcastMedia([1], [`default`], new InlineKeyboard())
+
+    expect(sendPhoto).not.toHaveBeenCalled()
+    expect(sendMediaGroup).toHaveBeenCalledTimes(1)
+    expect(sendMediaGroup).toHaveBeenCalledWith(
+      1,
+      [
+        {type: `photo`, media: `one.jpg`, caption: `Album`, parse_mode: `HTML`},
+        {type: `photo`, media: `two.jpg`},
+        {type: `photo`, media: `three.jpg`}
+      ],
+      {}
+    )
+  })
+
+  it(`should keep unsupported pipe-delimited media types on single-send path`, async () => {
+    await writeFile(
+      join(TEST_DIR, `broadcast.html`),
+      `
+      <base>
+        <media type="animation" src="one.gif|two.gif">Animation</media>
+      </base>
+    `
+    )
+
+    const templateManager = new TemplateManager({path: [TEST_DIR]})
+
+    const sendAnimation = mock(() => true)
+    const sendMediaGroup = mock(() => true)
+    const ct = {
+      api: {
+        sendAnimation,
+        sendMediaGroup
+      }
+    } as unknown as ITCtxParams[`ct`]
+
+    const ctx = new BroadcastCtx({
+      ct,
+      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheKeyboard: new Map(),
+      templateManager,
+      temp: {isAnswer: false, session: {}, data: {}}
+    })
+
+    await ctx.broadcastMedia([1], [`default`])
+
+    expect(sendMediaGroup).not.toHaveBeenCalled()
+    expect(sendAnimation).toHaveBeenCalledTimes(1)
+    expect(sendAnimation).toHaveBeenCalledWith(1, `one.gif|two.gif`, expect.objectContaining({caption: `Animation`, parse_mode: `HTML`}))
+  })
+
+  it(`should reply with media group for supported pipe-delimited media src values`, async () => {
+    await writeFile(
+      join(TEST_DIR, `broadcast.html`),
+      `
+      <base>
+        <media type="document" src="one.pdf|two.pdf">Docs</media>
+      </base>
+    `
+    )
+
+    const templateManager = new TemplateManager({path: [TEST_DIR]})
+
+    const replyWithDocument = mock(() => true)
+    const replyWithMediaGroup = mock(() => true)
+    const ct = {
+      from: {language_code: `default`},
+      replyWithDocument,
+      replyWithMediaGroup
+    } as unknown as ITCtxParams[`ct`]
+
+    const ctx = new BroadcastCtx({
+      ct,
+      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheKeyboard: new Map(),
+      templateManager,
+      temp: {isAnswer: false, session: {}, data: {}}
+    })
+
+    await ctx.replyMediaGroup(`document`, new InlineKeyboard())
+
+    expect(replyWithDocument).not.toHaveBeenCalled()
+    expect(replyWithMediaGroup).toHaveBeenCalledTimes(1)
+    expect(replyWithMediaGroup).toHaveBeenCalledWith(
+      [
+        {type: `document`, media: `one.pdf`, caption: `Docs`, parse_mode: `HTML`},
+        {type: `document`, media: `two.pdf`}
+      ],
+      {}
+    )
+  })
+
+  it(`should expose convenience media group reply methods for all supported group types`, async () => {
+    const ct = {
+      from: {language_code: `default`},
+      replyWithMediaGroup: mock(() => true)
+    } as unknown as ITCtxParams[`ct`]
+    const templateManager = {
+      getMedia: mock((key: string) => ({
+        type: key.replace(`Group`, ``),
+        src: `one|two`,
+        srcList: [`one`, `two`],
+        caption: key
+      }))
+    } as unknown as TemplateManager
+
+    class PhotoGroupCtx extends Ctx {
+      static data = this.buildData({name: `photoGroup`})
+    }
+    class VideoGroupCtx extends Ctx {
+      static data = this.buildData({name: `videoGroup`})
+    }
+    class AudioGroupCtx extends Ctx {
+      static data = this.buildData({name: `audioGroup`})
+    }
+    class DocumentGroupCtx extends Ctx {
+      static data = this.buildData({name: `documentGroup`})
+    }
+
+    const params = {
+      ct,
+      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheKeyboard: new Map(),
+      templateManager,
+      temp: {isAnswer: false, session: {}, data: {}}
+    }
+
+    await new PhotoGroupCtx(params).replyPhotoGroup()
+    await new VideoGroupCtx(params).replyVideoGroup()
+    await new AudioGroupCtx(params).replyAudioGroup()
+    await new DocumentGroupCtx(params).replyDocumentGroup()
+
+    expect(ct.replyWithMediaGroup).toHaveBeenCalledTimes(4)
+    expect(ct.replyWithMediaGroup).toHaveBeenNthCalledWith(1, [{type: `photo`, media: `one`, caption: `photoGroup`, parse_mode: `HTML`}, {type: `photo`, media: `two`}], {})
+    expect(ct.replyWithMediaGroup).toHaveBeenNthCalledWith(2, [{type: `video`, media: `one`, caption: `videoGroup`, parse_mode: `HTML`}, {type: `video`, media: `two`}], {})
+    expect(ct.replyWithMediaGroup).toHaveBeenNthCalledWith(3, [{type: `audio`, media: `one`, caption: `audioGroup`, parse_mode: `HTML`}, {type: `audio`, media: `two`}], {})
+    expect(ct.replyWithMediaGroup).toHaveBeenNthCalledWith(4, [{type: `document`, media: `one`, caption: `documentGroup`, parse_mode: `HTML`}, {type: `document`, media: `two`}], {})
+  })
+
+  it(`should reply with mixed photo and video media-group block`, async () => {
+    await writeFile(
+      join(TEST_DIR, `broadcast.html`),
+      `
+      <base>
+        <media-group>
+          <media type="photo" src="{{photoUrl}}">Mixed {{title}}</media>
+          <media type="video" src="{{videoUrl}}"></media>
+          <media type="photo" src="static.jpg"></media>
+        </media-group>
+      </base>
+    `
+    )
+
+    const templateManager = new TemplateManager({path: [TEST_DIR]})
+
+    const replyWithMediaGroup = mock(() => true)
+    const ct = {
+      from: {language_code: `default`},
+      replyWithMediaGroup
+    } as unknown as ITCtxParams[`ct`]
+
+    const ctx = new BroadcastCtx({
+      ct,
+      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheKeyboard: new Map(),
+      templateManager,
+      temp: {isAnswer: false, session: {}, data: {}}
+    })
+
+    await ctx.replyMediaGroup(undefined, undefined, {photoUrl: `photo.jpg`, videoUrl: `video.mp4`, title: `Album`})
+
+    expect(replyWithMediaGroup).toHaveBeenCalledWith(
+      [
+        {type: `photo`, media: `photo.jpg`, caption: `Mixed Album`, parse_mode: `HTML`},
+        {type: `video`, media: `video.mp4`},
+        {type: `photo`, media: `static.jpg`}
+      ],
+      {}
+    )
+  })
+
+  it(`should respect lang attribute on inner media items inside media-group`, async () => {
+    await writeFile(
+      join(TEST_DIR, `broadcast.html`),
+      `
+      <base>
+        <media-group>
+          <media type="photo" src="en.jpg">English</media>
+          <media lang="wkwkland" type="photo" src="wkwk.jpg">Wkwkland</media>
+          <media type="photo" src="shared.jpg"></media>
+        </media-group>
+      </base>
+    `
+    )
+
+    const templateManager = new TemplateManager({path: [TEST_DIR]})
+
+    const replyWithMediaGroup = mock(() => true)
+    const ct = {
+      from: {language_code: `default`},
+      replyWithMediaGroup
+    } as unknown as ITCtxParams[`ct`]
+
+    const ctxDefault = new BroadcastCtx({
+      ct,
+      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheKeyboard: new Map(),
+      templateManager,
+      temp: {isAnswer: false, session: {}, data: {}}
+    })
+
+    // Default language: only items without lang (2 items)
+    await ctxDefault.replyMediaGroup(undefined, new InlineKeyboard())
+
+    expect(replyWithMediaGroup).toHaveBeenCalledTimes(1)
+    expect(replyWithMediaGroup).toHaveBeenCalledWith(
+      [
+        {type: `photo`, media: `en.jpg`, caption: `English`, parse_mode: `HTML`},
+        {type: `photo`, media: `shared.jpg`}
+      ],
+      {}
+    )
+  })
+
+  it(`should replace editMedia with media group reply for supported pipe-delimited media src values`, async () => {
+    await writeFile(
+      join(TEST_DIR, `broadcast.html`),
+      `
+      <base>
+        <media type="video" src="one.mp4|two.mp4">Videos</media>
+      </base>
+    `
+    )
+
+    const templateManager = new TemplateManager({path: [TEST_DIR]})
+
+    const deleteMessage = mock(() => true)
+    const editMessageMedia = mock(() => true)
+    const replyWithMediaGroup = mock(() => true)
+    const ct = {
+      from: {language_code: `default`},
+      deleteMessage,
+      editMessageMedia,
+      replyWithMediaGroup
+    } as unknown as ITCtxParams[`ct`]
+
+    const ctx = new BroadcastCtx({
+      ct,
+      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheKeyboard: new Map(),
+      templateManager,
+      temp: {isAnswer: false, session: {}, data: {}}
+    })
+
+    await ctx.editMedia(`video`)
+
+    expect(editMessageMedia).not.toHaveBeenCalled()
+    expect(deleteMessage).toHaveBeenCalledTimes(1)
+    expect(replyWithMediaGroup).toHaveBeenCalledWith(
+      [
+        {type: `video`, media: `one.mp4`, caption: `Videos`, parse_mode: `HTML`},
+        {type: `video`, media: `two.mp4`}
+      ],
+      {}
+    )
+  })
+
+  it(`should expose convenience edit media group methods for all supported group types`, async () => {
+    const deleteMessage = mock(() => true)
+    const replyWithMediaGroup = mock(() => true)
+    const ct = {
+      from: {language_code: `default`},
+      deleteMessage,
+      replyWithMediaGroup
+    } as unknown as ITCtxParams[`ct`]
+    const templateManager = {
+      getMedia: mock((key: string) => ({
+        type: key.replace(/Media/, ``),
+        src: `one|two`,
+        srcList: [`one`, `two`],
+        caption: key
+      }))
+    } as unknown as TemplateManager
+
+    class PhotoGroupEditCtx extends Ctx {
+      static data = this.buildData({name: `photoGroupEdit`})
+    }
+    class VideoGroupEditCtx extends Ctx {
+      static data = this.buildData({name: `videoGroupEdit`})
+    }
+    class AudioGroupEditCtx extends Ctx {
+      static data = this.buildData({name: `audioGroupEdit`})
+    }
+    class DocumentGroupEditCtx extends Ctx {
+      static data = this.buildData({name: `documentGroupEdit`})
+    }
+
+    const params = {
+      ct,
+      cacheSession: {} as unknown as ITCtxParams[`cacheSession`],
+      cacheKeyboard: new Map(),
+      templateManager,
+      temp: {isAnswer: false, session: {}, data: {}}
+    }
+
+    await new PhotoGroupEditCtx(params).editPhotoGroup()
+    await new VideoGroupEditCtx(params).editVideoGroup()
+    await new AudioGroupEditCtx(params).editAudioGroup()
+    await new DocumentGroupEditCtx(params).editDocumentGroup()
+
+    expect(deleteMessage).toHaveBeenCalledTimes(4)
+    expect(replyWithMediaGroup).toHaveBeenCalledTimes(4)
+    expect(replyWithMediaGroup).toHaveBeenNthCalledWith(1, [{type: `photo`, media: `one`, caption: `photoGroupEdit`, parse_mode: `HTML`}, {type: `photo`, media: `two`}], {})
+    expect(replyWithMediaGroup).toHaveBeenNthCalledWith(2, [{type: `video`, media: `one`, caption: `videoGroupEdit`, parse_mode: `HTML`}, {type: `video`, media: `two`}], {})
+    expect(replyWithMediaGroup).toHaveBeenNthCalledWith(3, [{type: `audio`, media: `one`, caption: `audioGroupEdit`, parse_mode: `HTML`}, {type: `audio`, media: `two`}], {})
+    expect(replyWithMediaGroup).toHaveBeenNthCalledWith(4, [{type: `document`, media: `one`, caption: `documentGroupEdit`, parse_mode: `HTML`}, {type: `document`, media: `two`}], {})
   })
 })

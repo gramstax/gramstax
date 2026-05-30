@@ -1,6 +1,7 @@
 import {setTimeout} from "node:timers/promises"
 import {TemplateManager} from "~/template/manager"
 import {InlineKeyboard, Keyboard} from "grammy"
+import type {InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
 import {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {ITMediaBlock} from "~/template/engine"
 import type {
@@ -33,6 +34,49 @@ import type {
   ITKbDest,
   ITCtxParams
 } from "~/types/t.ctx"
+
+type ITMediaGroupType = Extract<ITMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
+type ITMediaGroupInput = InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
+type ITMediaGroupItem = NonNullable<ITMediaBlock[`mediaGroup`]>[number]
+
+class Dynamic {
+  static MEDIA_GROUP_TYPES = new Set<ITMediaBlock[`type`]>([`photo`, `video`, `audio`, `document`])
+}
+
+class Helper {
+  static isMediaGroupType(type: ITMediaBlock[`type`]): type is ITMediaGroupType {
+    return Dynamic.MEDIA_GROUP_TYPES.has(type)
+  }
+
+  static buildMediaGroupOptions(options: Record<string, unknown>) {
+    const mediaGroupOptions = {...options}
+    delete mediaGroupOptions.parse_mode
+    delete mediaGroupOptions.reply_markup
+    return mediaGroupOptions
+  }
+
+  static buildMediaGroupFromItems(items: ITMediaGroupItem[], caption?: string): ITMediaGroupInput[] {
+    return items.map((item, index) => {
+      const itemCaption = index === 0 ? caption : undefined
+      if (item.type === `photo`) return itemCaption ? {type: `photo`, media: item.src, caption: itemCaption, parse_mode: `HTML`} : {type: `photo`, media: item.src}
+      if (item.type === `video`) return itemCaption ? {type: `video`, media: item.src, caption: itemCaption, parse_mode: `HTML`} : {type: `video`, media: item.src}
+      if (item.type === `audio`) return itemCaption ? {type: `audio`, media: item.src, caption: itemCaption, parse_mode: `HTML`} : {type: `audio`, media: item.src}
+      return itemCaption ? {type: `document`, media: item.src, caption: itemCaption, parse_mode: `HTML`} : {type: `document`, media: item.src}
+    })
+  }
+
+  static buildMediaGroup(type: ITMediaGroupType, srcList: string[], caption?: string): ITMediaGroupInput[] {
+    if (type === `photo`) {
+      return srcList.map((media, index) => (index === 0 && caption ? {type: `photo`, media, caption, parse_mode: `HTML`} : {type: `photo`, media}))
+    } else if (type === `video`) {
+      return srcList.map((media, index) => (index === 0 && caption ? {type: `video`, media, caption, parse_mode: `HTML`} : {type: `video`, media}))
+    } else if (type === `audio`) {
+      return srcList.map((media, index) => (index === 0 && caption ? {type: `audio`, media, caption, parse_mode: `HTML`} : {type: `audio`, media}))
+    } else {
+      return srcList.map((media, index) => (index === 0 && caption ? {type: `document`, media, caption, parse_mode: `HTML`} : {type: `document`, media}))
+    }
+  }
+}
 
 /**
  * The context/page base class that provides access to user data, session management,
@@ -917,6 +961,9 @@ export class Ctx {
    *
    * @remarks
    * Media type and arg are inferred from the template `<media>` block.
+   * If a supported media type (`photo`, `video`, `audio`, `document`) uses a pipe-delimited
+   * `src`, it is sent as a Telegram media group. Telegram media groups do not support
+   * reply markup, so keyboards are ignored for grouped media.
    * Automatically throttles after 30 messages to respect Telegram rate limits.
    * Uses each user's specified language code for template rendering.
    *
@@ -962,6 +1009,24 @@ export class Ctx {
           continue
         }
         const opt = {parse_mode: `HTML`, reply_markup: keyboard, ...options} as Record<any, any>
+
+        if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
+          await this.ct.api.sendMediaGroup(id!, Helper.buildMediaGroupFromItems(med.mediaGroup, med.caption), Helper.buildMediaGroupOptions(opt))
+          res.successCount += 1
+          if (index + 1 == limitFree) {
+            await setTimeout(1200)
+          }
+          continue
+        }
+
+        if (Helper.isMediaGroupType(med.type) && med.srcList && med.srcList.length > 1) {
+          await this.ct.api.sendMediaGroup(id!, Helper.buildMediaGroup(med.type, med.srcList, med.caption), Helper.buildMediaGroupOptions(opt))
+          res.successCount += 1
+          if (index + 1 == limitFree) {
+            await setTimeout(1200)
+          }
+          continue
+        }
 
         if (med.type == `photo`) await this.ct.api.sendPhoto(id!, med.src!, {caption: med.caption!, ...opt})
         if (med.type == `video`) await this.ct.api.sendVideo(id!, med.src!, {caption: med.caption!, ...opt})
@@ -1049,7 +1114,7 @@ export class Ctx {
    *
    * @public
    */
-  async replyMedia<T extends ITMediaBlock[`type`]>(
+  async replyMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(
     type: T,
     keyboard?: ITInBoKb,
     data?: ITData,
@@ -1093,6 +1158,45 @@ export class Ctx {
   }
 
   /**
+   * Sends a Telegram media group using pipe-delimited `src` values or a `<media-group>` block from the page template.
+   *
+   * @remarks
+   * Only `photo`, `video`, `audio`, and `document` support Telegram media groups.
+   * Omit `type` when the template uses `<media-group>` with per-item media types.
+   * The first item receives the template caption. Telegram media groups do not support
+   * reply markup, so keyboards are ignored for grouped media.
+   *
+   * @param type - Supported media group type.
+   * @param keyboard - Ignored for media groups; kept for API symmetry with replyMedia.
+   * @param data - Optional template interpolation data.
+   * @param baseId - Optional template base ID position for block media.
+   * @param options - Optional media-group send options.
+   * @returns The sent media group messages.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackData() {
+   *   await this.replyMediaGroup("photo")
+   * }
+   * ```
+   *
+   * @public
+   */
+  async replyMediaGroup(type?: ITMediaGroupType, keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument) {
+    this.temp.isAnswer = true
+    const med = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
+    const opt = {parse_mode: `HTML`, reply_markup: keyboard, ...options} as Record<any, any>
+    if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
+      return await this.ct.replyWithMediaGroup(Helper.buildMediaGroupFromItems(med.mediaGroup, med.caption), Helper.buildMediaGroupOptions(opt))
+    }
+    if (!type) {
+      throw new Error(`replyMediaGroup type is required when template media is not <media-group>`)
+    }
+    const srcList = med.srcList && med.srcList.length > 1 ? med.srcList : med.src ? [med.src] : []
+    return await this.ct.replyWithMediaGroup(Helper.buildMediaGroup(type, srcList, med.caption), Helper.buildMediaGroupOptions(opt))
+  }
+
+  /**
    * Sends a photo message using the page template.
    *
    * @param keyboard - Optional keyboard markup.
@@ -1112,6 +1216,11 @@ export class Ctx {
    */
   async replyPhoto(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto) {
     return this.replyMedia(`photo`, keyboard, data, baseId, options)
+  }
+
+  /** Sends a photo media group using pipe-delimited `src` values from the page template. */
+  async replyPhotoGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto) {
+    return this.replyMediaGroup(`photo`, keyboard, data, baseId, options)
   }
 
   /**
@@ -1136,6 +1245,11 @@ export class Ctx {
     return this.replyMedia(`video`, keyboard, data, baseId, options)
   }
 
+  /** Sends a video media group using pipe-delimited `src` values from the page template. */
+  async replyVideoGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVideo) {
+    return this.replyMediaGroup(`video`, keyboard, data, baseId, options)
+  }
+
   /**
    * Sends an audio message using the page template.
    *
@@ -1158,6 +1272,11 @@ export class Ctx {
     return this.replyMedia(`audio`, keyboard, data, baseId, options)
   }
 
+  /** Sends an audio media group using pipe-delimited `src` values from the page template. */
+  async replyAudioGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyAudio) {
+    return this.replyMediaGroup(`audio`, keyboard, data, baseId, options)
+  }
+
   /**
    * Sends a document message using the page template.
    *
@@ -1178,6 +1297,11 @@ export class Ctx {
    */
   async replyDocument(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyDocument) {
     return this.replyMedia(`document`, keyboard, data, baseId, options)
+  }
+
+  /** Sends a document media group using pipe-delimited `src` values from the page template. */
+  async replyDocumentGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyDocument) {
+    return this.replyMediaGroup(`document`, keyboard, data, baseId, options)
   }
 
   /**
@@ -1380,7 +1504,9 @@ export class Ctx {
    *
    * @remarks
    * For media types that cannot be edited (voice, video_note, sticker, location, contact),
-   * the original message is deleted and a new one is sent.
+   * the original message is deleted and a new one is sent. Multi-src media groups cannot
+   * replace a single message, so supported pipe-delimited media groups also delete the
+   * original message and send a new media group.
    *
    * @typeParam T - The media type to edit to.
    * @param type - The media type.
@@ -1401,7 +1527,7 @@ export class Ctx {
    *
    * @public
    */
-  async editMedia<T extends ITMediaBlock[`type`]>(
+  async editMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(
     type: T,
     keyboardInline?: ITInlineKb,
     data?: ITData,
@@ -1423,7 +1549,12 @@ export class Ctx {
   ) {
     try {
       this.temp.isAnswer = true
-      const {src, caption} = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
+      const med = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
+      const {src, caption} = med
+      if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
+        await this.delete()
+        return await this.replyMediaGroup(type, keyboardInline, data, baseId)
+      }
       if (type == `voice`) {
         await this.delete()
         return await this.replyVoice(keyboardInline, data, baseId, options1)
@@ -1554,6 +1685,114 @@ export class Ctx {
    */
   async editDocument(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
     return await this.editMedia(`document`, keyboardInline, data, baseId, options1, options2)
+  }
+
+  /**
+   * Replaces the current message with a photo media group.
+   *
+   * @remarks
+   * Deletes the original message and sends a new media group via `replyMediaGroup`.
+   * Useful when the template uses pipe-delimited `src` values.
+   *
+   * @param keyboard - Optional keyboard markup for the new message.
+   * @param data - Optional template interpolation data.
+   * @param baseId - Optional template base ID position for block media type photo.
+   * @param options - Optional photo-specific options.
+   * @returns The sent media group message object.
+   *
+   * @example
+   * ```typescript
+   * async handleArgsCallback() {
+   *   await this.editPhotoGroup()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async editPhotoGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto) {
+    await this.delete()
+    return await this.replyMediaGroup(`photo`, keyboard, data, baseId, options)
+  }
+
+  /**
+   * Replaces the current message with a video media group.
+   *
+   * @remarks
+   * Deletes the original message and sends a new media group via `replyMediaGroup`.
+   * Useful when the template uses pipe-delimited `src` values.
+   *
+   * @param keyboard - Optional keyboard markup for the new message.
+   * @param data - Optional template interpolation data.
+   * @param baseId - Optional template base ID position for block media type video.
+   * @param options - Optional video-specific options.
+   * @returns The sent media group message object.
+   *
+   * @example
+   * ```typescript
+   * async handleArgsCallback() {
+   *   await this.editVideoGroup()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async editVideoGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVideo) {
+    await this.delete()
+    return await this.replyMediaGroup(`video`, keyboard, data, baseId, options)
+  }
+
+  /**
+   * Replaces the current message with an audio media group.
+   *
+   * @remarks
+   * Deletes the original message and sends a new media group via `replyMediaGroup`.
+   * Useful when the template uses pipe-delimited `src` values.
+   *
+   * @param keyboard - Optional keyboard markup for the new message.
+   * @param data - Optional template interpolation data.
+   * @param baseId - Optional template base ID position for block media type audio.
+   * @param options - Optional audio-specific options.
+   * @returns The sent media group message object.
+   *
+   * @example
+   * ```typescript
+   * async handleArgsCallback() {
+   *   await this.editAudioGroup()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async editAudioGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyAudio) {
+    await this.delete()
+    return await this.replyMediaGroup(`audio`, keyboard, data, baseId, options)
+  }
+
+  /**
+   * Replaces the current message with a document media group.
+   *
+   * @remarks
+   * Deletes the original message and sends a new media group via `replyMediaGroup`.
+   * Useful when the template uses pipe-delimited `src` values.
+   *
+   * @param keyboard - Optional keyboard markup for the new message.
+   * @param data - Optional template interpolation data.
+   * @param baseId - Optional template base ID position for block media type document.
+   * @param options - Optional document-specific options.
+   * @returns The sent media group message object.
+   *
+   * @example
+   * ```typescript
+   * async handleArgsCallback() {
+   *   await this.editDocumentGroup()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async editDocumentGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyDocument) {
+    await this.delete()
+    return await this.replyMediaGroup(`document`, keyboard, data, baseId, options)
   }
 
   /**

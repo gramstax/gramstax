@@ -57,6 +57,24 @@ describe(`TemplateEngine`, () => {
       expect(result.default).toBeDefined()
       expect(result?.default?.type).toBe(`photo`)
     })
+
+    it(`should parse pipe-delimited media src values as srcList`, () => {
+      const template = `<media type="photo" src="a.jpg | b.jpg | c.jpg">Album</media>`
+      const result = TemplateEngine._processMediaBlocks(template)
+
+      expect(result.default?.src).toBe(`a.jpg | b.jpg | c.jpg`)
+      expect(result.default?.srcList).toEqual([`a.jpg`, `b.jpg`, `c.jpg`])
+    })
+
+    it(`should cap pipe-delimited media srcList to Telegram media group limit`, () => {
+      const src = Array.from({length: 12}, (_, index) => `file-${index + 1}.jpg`).join(`|`)
+      const template = `<media type="photo" src="${src}">Album</media>`
+      const result = TemplateEngine._processMediaBlocks(template)
+
+      expect(result.default?.srcList).toHaveLength(10)
+      expect(result.default?.srcList?.at(0)).toBe(`file-1.jpg`)
+      expect(result.default?.srcList?.at(9)).toBe(`file-10.jpg`)
+    })
   })
 
   describe(`_processKeyboardBlocks`, () => {
@@ -186,6 +204,109 @@ describe(`TemplateEngine`, () => {
       expect(media.caption).toBe(`Name: Alice`)
     })
 
+    it(`should compile dynamic pipe-delimited media src values as srcList`, () => {
+      const template = `
+        <base id="album">
+          <media type="photo" src="{{first}}|{{second}}">Album: {{title}}</media>
+        </base>
+      `
+      const compiled = TemplateEngine.compileBlockMedia(template)
+      const media = compiled.album!.default!({first: `a.jpg`, second: `b.jpg`, title: `Photos`})
+
+      expect(media.src).toBe(`a.jpg|b.jpg`)
+      expect(media.srcList).toEqual([`a.jpg`, `b.jpg`])
+      expect(media.caption).toBe(`Album: Photos`)
+    })
+
+    it(`should compile media-group blocks with mixed photo and video items`, () => {
+      const template = `
+        <base id="album">
+          <media-group>
+            <media type="photo" src="{{photoUrl}}">Album: {{title}}</media>
+            <media type="video" src="{{videoUrl}}"></media>
+            <media type="photo" src="static.jpg"></media>
+          </media-group>
+        </base>
+      `
+      const compiled = TemplateEngine.compileBlockMedia(template)
+      const media = compiled.album!.default!({photoUrl: `photo.jpg`, videoUrl: `video.mp4`, title: `Trip`})
+
+      expect(media.type).toBe(`group`)
+      expect(media.caption).toBe(`Album: Trip`)
+      expect(media.mediaGroup).toEqual([
+        {type: `photo`, src: `photo.jpg`, caption: `Album: Trip`},
+        {type: `video`, src: `video.mp4`},
+        {type: `photo`, src: `static.jpg`}
+      ])
+    })
+
+    it(`should filter inner media items by lang attribute inside media-group`, () => {
+      const template = `
+        <base id="langGroup">
+          <media-group>
+            <media type="photo" src="en.jpg">English caption</media>
+            <media lang="wkwkland" type="photo" src="wkwk.jpg">Wkwkland caption</media>
+            <media type="photo" src="shared.jpg"></media>
+          </media-group>
+        </base>
+      `
+      const compiled = TemplateEngine.compileBlockMedia(template)
+
+      // Default language: only items without lang
+      const defaultMedia = compiled.langGroup!.default!({})
+      expect(defaultMedia.type).toBe(`group`)
+      expect(defaultMedia.mediaGroup).toHaveLength(2)
+      expect(defaultMedia.caption).toBe(`English caption`)
+      expect(defaultMedia.mediaGroup).toEqual([
+        {type: `photo`, src: `en.jpg`, caption: `English caption`},
+        {type: `photo`, src: `shared.jpg`}
+      ])
+
+      // wkwkland language: ONLY items matching that lang (exclusive)
+      const wkwkMedia = compiled.langGroup!.wkwkland!({})
+      expect(wkwkMedia.type).toBe(`group`)
+      expect(wkwkMedia.mediaGroup).toHaveLength(1)
+      expect(wkwkMedia.caption).toBe(`Wkwkland caption`)
+      expect(wkwkMedia.mediaGroup).toEqual([
+        {type: `photo`, src: `wkwk.jpg`, caption: `Wkwkland caption`}
+      ])
+    })
+
+    it(`should filter inner media items by lang id exclusive (user's exact template)`, () => {
+      const template = `
+        <base id="s1">
+          <media-group>
+            <media type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
+              🖼️ Photo group demo
+
+              ENGLISH This is caption first photo
+            </media>
+            <media lang="id" type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
+              🖼️ Demo grup foto
+
+              Ini adalah caption pertama.
+            </media>
+            <media type="photo" src="https://www.w3schools.com/html/pic_trulli.jpg"></media>
+          </media-group>
+        </base>
+      `
+      const compiled = TemplateEngine.compileBlockMedia(template)
+
+      // Default language: only items without lang
+      const defaultMedia = compiled.s1!.default!({})
+      expect(defaultMedia.type).toBe(`group`)
+      expect(defaultMedia.mediaGroup).toHaveLength(2)
+      expect(defaultMedia.caption).toContain(`ENGLISH`)
+
+      // id language: ONLY the item with lang="id"
+      const idMedia = compiled.s1!.id!({})
+      expect(idMedia.type).toBe(`group`)
+      expect(idMedia.mediaGroup).toHaveLength(1)
+      expect(idMedia.caption).toContain(`Ini adalah caption pertama.`)
+      expect(idMedia.mediaGroup![0]!.type).toBe(`photo`)
+      expect(idMedia.mediaGroup![0]!.src).toContain(`img_girl.jpg`)
+    })
+
     it(`should support expressions in coordinates`, () => {
       const template = `
         <base id="loc">
@@ -232,6 +353,37 @@ describe(`TemplateEngine`, () => {
 
       const data = {users: [{name: `X`}, {name: `Y`}]}
       expect(fn!(data).trim()).toBe(`1. X, 2. Y`)
+    })
+  })
+
+  describe(`validateBlockMediaGroup`, () => {
+    it(`should allow media-group blocks directly inside base`, () => {
+      const template = `
+        <base>
+          <media-group>
+            <media type="photo" src="a.jpg">Caption</media>
+            <media type="video" src="b.mp4"></media>
+          </media-group>
+        </base>
+      `
+
+      expect(TemplateEngine.validateTemplate(template).valid).toBe(true)
+    })
+
+    it(`should reject unknown media-group attributes`, () => {
+      const template = `<base><media-group id="bad"><media type="photo" src="a.jpg"></media></media-group></base>`
+      const result = TemplateEngine.validateTemplate(template)
+
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((error) => error.message.includes(`Unknown attribute "id" on <media-group>`))).toBe(true)
+    })
+
+    it(`should reject unsupported media types inside media-group`, () => {
+      const template = `<base><media-group><media type="animation" src="a.gif"></media></media-group></base>`
+      const result = TemplateEngine.validateTemplate(template)
+
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((error) => error.message.includes(`Attribute "type" on <media> inside <media-group>`))).toBe(true)
     })
   })
   describe(`_extractBlock`, () => {
