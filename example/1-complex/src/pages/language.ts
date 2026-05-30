@@ -46,7 +46,7 @@ class Main {
   }
 
   static async processStep1Answer(ctx: LanguagePage) {
-    const language = ctx.callbackDataArg.toLowerCase()
+    const language = ctx.callbackDataArg.toLowerCase().split(` `)[1] as string
 
     await ctx.cacheData.set(`${ctx.userId}:lang`, language)
     ctx.userLanguage = language
