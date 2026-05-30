@@ -45,7 +45,7 @@ const makeUser = (id: number, username = `user${id}`) => ({
 const originalTransferHandleCallbackData = TransferPage.prototype.handleCallbackData
 
 TransferPage.prototype.handleCallbackData = async function () {
-  await this.sessionFreeText()
+  await this.setSessionFreeText()
   await originalTransferHandleCallbackData.call(this)
 }
 

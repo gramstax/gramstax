@@ -56,7 +56,7 @@ class Alert {
 
 class Main {
   static async showStep1Form(ctx: DetailPage) {
-    await ctx.sessionFreeText()
+    await ctx.setSessionFreeText()
     const bi = Base.step1
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {}

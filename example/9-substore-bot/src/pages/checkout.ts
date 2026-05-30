@@ -82,7 +82,7 @@ class Alert {
   }
 
   static async showWarnInvalid(ctx: CheckoutPage, contact = ``) {
-    await ctx.sessionFreeText({position: `contact`})
+    await ctx.setSessionFreeText({position: `contact`})
     const bi = Base.warnInvalid
     const kb = Helper.kbCart(ctx, bi)
     const da = {contact}
@@ -172,7 +172,7 @@ class Main {
       return await Alert.showWarnEmpty(ctx)
     }
 
-    await ctx.sessionFreeText({position: `contact`})
+    await ctx.setSessionFreeText({position: `contact`})
     const bi = Base.step1
     const kb = Helper.kbCart(ctx, bi)
     const da = {
@@ -198,7 +198,7 @@ class Main {
       return await Alert.showWarnEmpty(ctx)
     }
 
-    await ctx.sessionFreeText({position: `confirm`, contact, notes})
+    await ctx.setSessionFreeText({position: `confirm`, contact, notes})
     const bi = Base.confirm
     const kb = Helper.kbConfirm(ctx, bi)
     const da = {

@@ -27,7 +27,7 @@ class Main {
     const bi = Base.step1
     const kb = Helper.kb(ctx, bi)
     const da = {}
-    await ctx.sessionFreeText({step: bi})
+    await ctx.setSessionFreeText({step: bi})
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {

@@ -66,12 +66,12 @@ describe(`CartStore`, () => {
 })
 
 describe(`CheckoutPage session routing`, () => {
-  it(`keeps checkout free-text state in sessionFreeText instead of overwriting the session method`, () => {
+  it(`keeps checkout free-text state in setSessionFreeText instead of overwriting the session method`, () => {
     const checkoutSource = readFileSync(join(import.meta.dir, `../src/pages/checkout.ts`), `utf8`)
 
     expect(checkoutSource).not.toContain(`setSession(\`multi_session\``)
-    expect(checkoutSource).toContain(`sessionFreeText({position: \`contact\`}`)
-    expect(checkoutSource).toContain(`sessionFreeText({position: \`confirm\`, contact, notes}`)
+    expect(checkoutSource).toContain(`setSessionFreeText({position: \`contact\`}`)
+    expect(checkoutSource).toContain(`setSessionFreeText({position: \`confirm\`, contact, notes}`)
   })
 })
 

@@ -37,12 +37,12 @@ class Main {
     const bi = Base.s1
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {}
-    await ctx.sessionFreeText({step: bi})
+    await ctx.setSessionFreeText({step: bi})
     await ctx.edit(kb, da, bi)
   }
 
   static async processStep1Answer(ctx: CreatePage, title: string) {
-    await ctx.sessionFreeText({step: Base.s2, title})
+    await ctx.setSessionFreeText({step: Base.s2, title})
     await Main.showStep2Form(ctx, title)
   }
 

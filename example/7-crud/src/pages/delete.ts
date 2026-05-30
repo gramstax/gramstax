@@ -89,7 +89,7 @@ class Main {
       const bi = Base.step1
       const kb = Helper.buildListKeyboard(ctx, items)
       const da = {count: items.length}
-      await ctx.sessionFreeText({step: bi})
+      await ctx.setSessionFreeText({step: bi})
       await ctx.edit(kb, da, bi)
     }
   }
