@@ -394,7 +394,7 @@ All arg tokens parsed from caption text.
 </td></tr>
 <tr><td>
 
-[msgCaptionCommandArg](./gramstax.ctx.msgcaptioncommandarg.md)
+[msgCommandCaptionArg](./gramstax.ctx.msgcommandcaptionarg.md)
 
 
 </td><td>
@@ -415,7 +415,7 @@ The first arg token from a caption command.
 </td></tr>
 <tr><td>
 
-[msgCaptionCommandArgs](./gramstax.ctx.msgcaptioncommandargs.md)
+[msgCommandCaptionArgs](./gramstax.ctx.msgcommandcaptionargs.md)
 
 
 </td><td>
@@ -2026,6 +2026,594 @@ _(Optional)_ Route handler for free-form voice input.
 </td></tr>
 <tr><td>
 
+[handleSessionArgsCallbackData()?](./gramstax.ctx.handlesessionargscallbackdata.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionArgsText()?](./gramstax.ctx.handlesessionargstext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCallbackData()?](./gramstax.ctx.handlesessioncallbackdata.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCaptionAnimation()?](./gramstax.ctx.handlesessioncaptionanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCaptionArgsAnimation()?](./gramstax.ctx.handlesessioncaptionargsanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCaptionArgsAudio()?](./gramstax.ctx.handlesessioncaptionargsaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCaptionArgsDocument()?](./gramstax.ctx.handlesessioncaptionargsdocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCaptionArgsPhoto()?](./gramstax.ctx.handlesessioncaptionargsphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCaptionArgsVideo()?](./gramstax.ctx.handlesessioncaptionargsvideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCaptionArgsVoice()?](./gramstax.ctx.handlesessioncaptionargsvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCaptionAudio()?](./gramstax.ctx.handlesessioncaptionaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCaptionDocument()?](./gramstax.ctx.handlesessioncaptiondocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCaptionPhoto()?](./gramstax.ctx.handlesessioncaptionphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCaptionVideo()?](./gramstax.ctx.handlesessioncaptionvideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCaptionVoice()?](./gramstax.ctx.handlesessioncaptionvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandArgsText()?](./gramstax.ctx.handlesessioncommandargstext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandCaptionAnimation()?](./gramstax.ctx.handlesessioncommandcaptionanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandCaptionArgsAnimation()?](./gramstax.ctx.handlesessioncommandcaptionargsanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandCaptionArgsAudio()?](./gramstax.ctx.handlesessioncommandcaptionargsaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandCaptionArgsDocument()?](./gramstax.ctx.handlesessioncommandcaptionargsdocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandCaptionArgsPhoto()?](./gramstax.ctx.handlesessioncommandcaptionargsphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandCaptionArgsVideo()?](./gramstax.ctx.handlesessioncommandcaptionargsvideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandCaptionArgsVoice()?](./gramstax.ctx.handlesessioncommandcaptionargsvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandCaptionAudio()?](./gramstax.ctx.handlesessioncommandcaptionaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandCaptionDocument()?](./gramstax.ctx.handlesessioncommandcaptiondocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandCaptionPhoto()?](./gramstax.ctx.handlesessioncommandcaptionphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandCaptionVideo()?](./gramstax.ctx.handlesessioncommandcaptionvideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandCaptionVoice()?](./gramstax.ctx.handlesessioncommandcaptionvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionCommandText()?](./gramstax.ctx.handlesessioncommandtext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionFree()?](./gramstax.ctx.handlesessionfree.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionFreeAnimation()?](./gramstax.ctx.handlesessionfreeanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionFreeAudio()?](./gramstax.ctx.handlesessionfreeaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionFreeContact()?](./gramstax.ctx.handlesessionfreecontact.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionFreeDocument()?](./gramstax.ctx.handlesessionfreedocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionFreeLocation()?](./gramstax.ctx.handlesessionfreelocation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionFreePhoto()?](./gramstax.ctx.handlesessionfreephoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionFreeSticker()?](./gramstax.ctx.handlesessionfreesticker.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionFreeText()?](./gramstax.ctx.handlesessionfreetext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionFreeVideo()?](./gramstax.ctx.handlesessionfreevideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionFreeVideoNote()?](./gramstax.ctx.handlesessionfreevideonote.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionFreeVoice()?](./gramstax.ctx.handlesessionfreevoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
+[handleSessionText()?](./gramstax.ctx.handlesessiontext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Session-aware route handler for callback queries without args.
+
+
+</td></tr>
+<tr><td>
+
 [handleText()?](./gramstax.ctx.handletext.md)
 
 
@@ -2090,7 +2678,7 @@ Creates an inline keyboard with template-based buttons linked to page destinatio
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2104,7 +2692,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2118,7 +2706,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2132,7 +2720,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2146,7 +2734,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2160,7 +2748,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2174,7 +2762,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2188,7 +2776,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2202,7 +2790,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2216,7 +2804,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2230,35 +2818,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionCaptionCommandArgsAudio()](./gramstax.ctx.issessioncaptioncommandargsaudio.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
-
-
-</td></tr>
-<tr><td>
-
-[isSessionCaptionCommandAudio()](./gramstax.ctx.issessioncaptioncommandaudio.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2272,7 +2832,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2286,7 +2846,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2300,7 +2860,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2314,7 +2874,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2328,7 +2888,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2342,7 +2902,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2356,7 +2916,21 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionCommandCaptionArgsAudio()](./gramstax.ctx.issessioncommandcaptionargsaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2370,7 +2944,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2384,7 +2958,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2398,7 +2972,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2412,7 +2986,21 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
+
+
+</td></tr>
+<tr><td>
+
+[isSessionCommandCaptionAudio()](./gramstax.ctx.issessioncommandcaptionaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2426,7 +3014,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2440,7 +3028,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2454,7 +3042,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2480,7 +3068,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2494,7 +3082,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2508,7 +3096,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2522,7 +3110,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2536,7 +3124,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2550,7 +3138,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2564,7 +3152,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2578,7 +3166,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2592,7 +3180,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2606,7 +3194,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2620,7 +3208,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2634,7 +3222,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2648,7 +3236,7 @@ Session validation methods.
 
 </td><td>
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 
 </td></tr>
@@ -2836,34 +3424,6 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
-[methodSessionCaptionCommandArgsAudio(name)](./gramstax.ctx.methodsessioncaptioncommandargsaudio.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
-[methodSessionCaptionCommandAudio(name)](./gramstax.ctx.methodsessioncaptioncommandaudio.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session method name builders.
-
-
-</td></tr>
-<tr><td>
-
 [methodSessionCaptionDocument(name)](./gramstax.ctx.methodsessioncaptiondocument.md)
 
 
@@ -2962,6 +3522,20 @@ Session method name builders.
 </td></tr>
 <tr><td>
 
+[methodSessionCommandCaptionArgsAudio(name)](./gramstax.ctx.methodsessioncommandcaptionargsaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
 [methodSessionCommandCaptionArgsDocument(name)](./gramstax.ctx.methodsessioncommandcaptionargsdocument.md)
 
 
@@ -3005,6 +3579,20 @@ Session method name builders.
 <tr><td>
 
 [methodSessionCommandCaptionArgsVoice(name)](./gramstax.ctx.methodsessioncommandcaptionargsvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionCommandCaptionAudio(name)](./gramstax.ctx.methodsessioncommandcaptionaudio.md)
 
 
 </td><td>
@@ -3676,34 +4264,6 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[setSessionCaptionCommandArgsAudio(params)](./gramstax.ctx.setsessioncaptioncommandargsaudio.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
-[setSessionCaptionCommandAudio(params)](./gramstax.ctx.setsessioncaptioncommandaudio.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Session set helper methods.
-
-
-</td></tr>
-<tr><td>
-
 [setSessionCaptionDocument(params)](./gramstax.ctx.setsessioncaptiondocument.md)
 
 
@@ -3802,6 +4362,20 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
+[setSessionCommandCaptionArgsAudio(params)](./gramstax.ctx.setsessioncommandcaptionargsaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
 [setSessionCommandCaptionArgsDocument(params)](./gramstax.ctx.setsessioncommandcaptionargsdocument.md)
 
 
@@ -3845,6 +4419,20 @@ Session set helper methods.
 <tr><td>
 
 [setSessionCommandCaptionArgsVoice(params)](./gramstax.ctx.setsessioncommandcaptionargsvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionCommandCaptionAudio(params)](./gramstax.ctx.setsessioncommandcaptionaudio.md)
 
 
 </td><td>

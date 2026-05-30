@@ -86,5 +86,13 @@ void
 
 ## Remarks
 
-Populates `routeStatic`<!-- -->, `routeStaticIntent`<!-- -->, `routeStaticSession`<!-- -->, `routeDynamicSpesific`<!-- -->, and `routeDynamic` collections based on which route methods exist on the page class.
+Registration happens in 3 phases:
+
+\*\*Phase 1 — Non-session static/intent routes\*\* (id=2, id=3): Iterates `listRouteStatic` and `listRouteStaticIntent`<!-- -->. Registers exact-match routes (`handleCallbackData`<!-- -->, `handleText`<!-- -->, `handleCommandText`<!-- -->, `handleCaption*`<!-- -->, `handleCommandCaption*`<!-- -->) into `routeStatic` — and intent-with-args variants (`handleArgs*`<!-- -->, `handleCommandArgs*`<!-- -->, `handleCaptionArgs*`<!-- -->, `handleCommandCaptionArgs*`<!-- -->) into `routeStaticIntent`<!-- -->. Routes are keyed by `intentCommandText` (prefixed with `/`<!-- -->), `intentCallbackData`<!-- -->, `intentText`<!-- -->, or `Page.data.name`<!-- -->.
+
+\*\*Phase 2 — Session routes\*\* (id=1): Iterates `listRouteStaticSession`<!-- -->. Registers session-aware variants of all static and free routes (`handleSession*`<!-- -->) into `routeStaticSession`<!-- -->. Keyed by the return value of the corresponding `methodSession*()` method (e.g., `methodSessionFreeText(PageName)` → session method string).
+
+\*\*Phase 3 — Non-session free handlers\*\* (id=4): Scans for `handleFree*` methods defined directly on the page (via `Object.hasOwn(proto, routeName)`<!-- -->). Excludes inherited `handleSessionFree*` variants — those are dispatched exclusively via session routing (id=1).
+
+Also populates: - `routeDynamic[Page.data.name]` — global fallback `handleFree()` handler - `all[Page.data.name]` — page class reference
 

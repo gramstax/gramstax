@@ -25,7 +25,7 @@ Triggered by voice with caption command.
 this.data.name = "/start"
 
 ```typescript
-async voiceCaptionCommand() {
+async voiceCommandCaption() {
   this.msgVoice // {...}
   this.msgCaption // "/start"
 }

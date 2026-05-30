@@ -174,6 +174,49 @@ export class Ctx {
     handleFreeVideoNote?(): Promise<any>;
     // @virtual
     handleFreeVoice?(): Promise<any>;
+    handleSessionArgsCallbackData?(): Promise<any>;
+    handleSessionArgsText?(): Promise<any>;
+    // @virtual
+    handleSessionCallbackData?(): Promise<any>;
+    handleSessionCaptionAnimation?(): Promise<any>;
+    handleSessionCaptionArgsAnimation?(): Promise<any>;
+    handleSessionCaptionArgsAudio?(): Promise<any>;
+    handleSessionCaptionArgsDocument?(): Promise<any>;
+    handleSessionCaptionArgsPhoto?(): Promise<any>;
+    handleSessionCaptionArgsVideo?(): Promise<any>;
+    handleSessionCaptionArgsVoice?(): Promise<any>;
+    handleSessionCaptionAudio?(): Promise<any>;
+    handleSessionCaptionDocument?(): Promise<any>;
+    handleSessionCaptionPhoto?(): Promise<any>;
+    handleSessionCaptionVideo?(): Promise<any>;
+    handleSessionCaptionVoice?(): Promise<any>;
+    handleSessionCommandArgsText?(): Promise<any>;
+    handleSessionCommandCaptionAnimation?(): Promise<any>;
+    handleSessionCommandCaptionArgsAnimation?(): Promise<any>;
+    handleSessionCommandCaptionArgsAudio?(): Promise<any>;
+    handleSessionCommandCaptionArgsDocument?(): Promise<any>;
+    handleSessionCommandCaptionArgsPhoto?(): Promise<any>;
+    handleSessionCommandCaptionArgsVideo?(): Promise<any>;
+    handleSessionCommandCaptionArgsVoice?(): Promise<any>;
+    handleSessionCommandCaptionAudio?(): Promise<any>;
+    handleSessionCommandCaptionDocument?(): Promise<any>;
+    handleSessionCommandCaptionPhoto?(): Promise<any>;
+    handleSessionCommandCaptionVideo?(): Promise<any>;
+    handleSessionCommandCaptionVoice?(): Promise<any>;
+    handleSessionCommandText?(): Promise<any>;
+    handleSessionFree?(): Promise<any>;
+    handleSessionFreeAnimation?(): Promise<any>;
+    handleSessionFreeAudio?(): Promise<any>;
+    handleSessionFreeContact?(): Promise<any>;
+    handleSessionFreeDocument?(): Promise<any>;
+    handleSessionFreeLocation?(): Promise<any>;
+    handleSessionFreePhoto?(): Promise<any>;
+    handleSessionFreeSticker?(): Promise<any>;
+    handleSessionFreeText?(): Promise<any>;
+    handleSessionFreeVideo?(): Promise<any>;
+    handleSessionFreeVideoNote?(): Promise<any>;
+    handleSessionFreeVoice?(): Promise<any>;
+    handleSessionText?(): Promise<any>;
     // @virtual
     handleText?(): Promise<any>;
     haveArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0]): boolean;
@@ -190,8 +233,6 @@ export class Ctx {
     isSessionCaptionArgsVideo(): boolean;
     isSessionCaptionArgsVoice(): boolean;
     isSessionCaptionAudio(): boolean;
-    isSessionCaptionCommandArgsAudio(): boolean;
-    isSessionCaptionCommandAudio(): boolean;
     isSessionCaptionDocument(): boolean;
     isSessionCaptionPhoto(): boolean;
     isSessionCaptionVideo(): boolean;
@@ -199,10 +240,12 @@ export class Ctx {
     isSessionCommandArgsText(): boolean;
     isSessionCommandCaptionAnimation(): boolean;
     isSessionCommandCaptionArgsAnimation(): boolean;
+    isSessionCommandCaptionArgsAudio(): boolean;
     isSessionCommandCaptionArgsDocument(): boolean;
     isSessionCommandCaptionArgsPhoto(): boolean;
     isSessionCommandCaptionArgsVideo(): boolean;
     isSessionCommandCaptionArgsVoice(): boolean;
+    isSessionCommandCaptionAudio(): boolean;
     isSessionCommandCaptionDocument(): boolean;
     isSessionCommandCaptionPhoto(): boolean;
     isSessionCommandCaptionVideo(): boolean;
@@ -234,8 +277,6 @@ export class Ctx {
     methodSessionCaptionArgsVideo(name?: string): string;
     methodSessionCaptionArgsVoice(name?: string): string;
     methodSessionCaptionAudio(name?: string): string;
-    methodSessionCaptionCommandArgsAudio(name?: string): string;
-    methodSessionCaptionCommandAudio(name?: string): string;
     methodSessionCaptionDocument(name?: string): string;
     methodSessionCaptionPhoto(name?: string): string;
     methodSessionCaptionVideo(name?: string): string;
@@ -243,10 +284,12 @@ export class Ctx {
     methodSessionCommandArgsText(name?: string): string;
     methodSessionCommandCaptionAnimation(name?: string): string;
     methodSessionCommandCaptionArgsAnimation(name?: string): string;
+    methodSessionCommandCaptionArgsAudio(name?: string): string;
     methodSessionCommandCaptionArgsDocument(name?: string): string;
     methodSessionCommandCaptionArgsPhoto(name?: string): string;
     methodSessionCommandCaptionArgsVideo(name?: string): string;
     methodSessionCommandCaptionArgsVoice(name?: string): string;
+    methodSessionCommandCaptionAudio(name?: string): string;
     methodSessionCommandCaptionDocument(name?: string): string;
     methodSessionCommandCaptionPhoto(name?: string): string;
     methodSessionCommandCaptionVideo(name?: string): string;
@@ -269,8 +312,8 @@ export class Ctx {
     get msgCaption(): string;
     get msgCaptionArg(): string;
     get msgCaptionArgs(): string[];
-    get msgCaptionCommandArg(): string;
-    get msgCaptionCommandArgs(): string[];
+    get msgCommandCaptionArg(): string;
+    get msgCommandCaptionArgs(): string[];
     get msgContact(): grammy_types.Contact | undefined;
     get msgDocument(): grammy_types.Document | undefined;
     get msgGift(): grammy_types.GiftInfo | undefined;
@@ -317,8 +360,6 @@ export class Ctx {
     setSessionCaptionArgsVideo(params?: any): Promise<boolean | null>;
     setSessionCaptionArgsVoice(params?: any): Promise<boolean | null>;
     setSessionCaptionAudio(params?: any): Promise<boolean | null>;
-    setSessionCaptionCommandArgsAudio(params?: any): Promise<boolean | null>;
-    setSessionCaptionCommandAudio(params?: any): Promise<boolean | null>;
     setSessionCaptionDocument(params?: any): Promise<boolean | null>;
     setSessionCaptionPhoto(params?: any): Promise<boolean | null>;
     setSessionCaptionVideo(params?: any): Promise<boolean | null>;
@@ -326,10 +367,12 @@ export class Ctx {
     setSessionCommandArgsText(params?: any): Promise<boolean | null>;
     setSessionCommandCaptionAnimation(params?: any): Promise<boolean | null>;
     setSessionCommandCaptionArgsAnimation(params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionArgsAudio(params?: any): Promise<boolean | null>;
     setSessionCommandCaptionArgsDocument(params?: any): Promise<boolean | null>;
     setSessionCommandCaptionArgsPhoto(params?: any): Promise<boolean | null>;
     setSessionCommandCaptionArgsVideo(params?: any): Promise<boolean | null>;
     setSessionCommandCaptionArgsVoice(params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionAudio(params?: any): Promise<boolean | null>;
     setSessionCommandCaptionDocument(params?: any): Promise<boolean | null>;
     setSessionCommandCaptionPhoto(params?: any): Promise<boolean | null>;
     setSessionCommandCaptionVideo(params?: any): Promise<boolean | null>;
@@ -584,175 +627,183 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
                 name: string;
                 routeName: string;
             }>;
+            handleCommandCaptionArgsVoice: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
         };
         routeStaticSession: {
-            handleCallbackData: Record<string, {
+            handleSessionCallbackData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleText: Record<string, {
+            handleSessionText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandText: Record<string, {
+            handleSessionCommandText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCaptionPhoto: Record<string, {
+            handleSessionCaptionPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandCaptionPhoto: Record<string, {
+            handleSessionCommandCaptionPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCaptionVideo: Record<string, {
+            handleSessionCaptionVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandCaptionVideo: Record<string, {
+            handleSessionCommandCaptionVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCaptionAudio: Record<string, {
+            handleSessionCaptionAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandCaptionAudio: Record<string, {
+            handleSessionCommandCaptionAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCaptionDocument: Record<string, {
+            handleSessionCaptionDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandCaptionDocument: Record<string, {
+            handleSessionCommandCaptionDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCaptionAnimation: Record<string, {
+            handleSessionCaptionAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandCaptionAnimation: Record<string, {
+            handleSessionCommandCaptionAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCaptionVoice: Record<string, {
+            handleSessionCaptionVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandCaptionVoice: Record<string, {
+            handleSessionCommandCaptionVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleArgsCallbackData: Record<string, {
+            handleSessionArgsCallbackData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleArgsText: Record<string, {
+            handleSessionArgsText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandArgsText: Record<string, {
+            handleSessionCommandArgsText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCaptionArgsPhoto: Record<string, {
+            handleSessionCaptionArgsPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandCaptionArgsPhoto: Record<string, {
+            handleSessionCommandCaptionArgsPhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCaptionArgsVideo: Record<string, {
+            handleSessionCaptionArgsVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandCaptionArgsVideo: Record<string, {
+            handleSessionCommandCaptionArgsVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCaptionArgsAudio: Record<string, {
+            handleSessionCaptionArgsAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandCaptionArgsAudio: Record<string, {
+            handleSessionCommandCaptionArgsAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCaptionArgsDocument: Record<string, {
+            handleSessionCaptionArgsDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandCaptionArgsDocument: Record<string, {
+            handleSessionCommandCaptionArgsDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCaptionArgsAnimation: Record<string, {
+            handleSessionCaptionArgsAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCommandCaptionArgsAnimation: Record<string, {
+            handleSessionCommandCaptionArgsAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleCaptionArgsVoice: Record<string, {
+            handleSessionCaptionArgsVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleFreeText: Record<string, {
+            handleSessionCommandCaptionArgsVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleFreePhoto: Record<string, {
+            handleSessionFreeText: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleFreeVideo: Record<string, {
+            handleSessionFreePhoto: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleFreeAudio: Record<string, {
+            handleSessionFreeVideo: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleFreeDocument: Record<string, {
+            handleSessionFreeAudio: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleFreeAnimation: Record<string, {
+            handleSessionFreeDocument: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleFreeVoice: Record<string, {
+            handleSessionFreeAnimation: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleFreeVideoNote: Record<string, {
+            handleSessionFreeVoice: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleFreeSticker: Record<string, {
+            handleSessionFreeVideoNote: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleFreeLocation: Record<string, {
+            handleSessionFreeSticker: Record<string, {
                 name: string;
                 routeName: string;
             }>;
-            handleFreeContact: Record<string, {
+            handleSessionFreeLocation: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeContact: Record<string, {
                 name: string;
                 routeName: string;
             }>;
         };
         listRouteStatic: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
-        listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsAnimation"];
-        listRouteStaticSession: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice", "handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsAnimation", "handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
+        listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
+        listRouteStaticSession: readonly [...("handleSessionCallbackData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
         lenListRouteStatic: 15;
         lenListRouteStaticIntent: 15;
-        lenListRouteStaticSession: 41;
+        lenListRouteStaticSession: number;
     };
     _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any>;
     pages: ReturnType<typeof Gramstax._pageLoads>;
@@ -1521,7 +1572,7 @@ export class WorkerThreadRpc {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:8158:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:8335:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

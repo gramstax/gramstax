@@ -4,7 +4,7 @@
 
 ## Ctx.isSessionCommandCaptionArgsDocument() method
 
-Session validation methods.
+Session validation utilities — check whether the active session corresponds to a specific route type.
 
 **Signature:**
 
@@ -17,5 +17,7 @@ boolean
 
 ## Remarks
 
-These methods validate whether the current session’s `session.method` matches the value returned by `methodSession*`<!-- -->. Each isSession\* method compares the session method with its corresponding `methodSession*` result.
+These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.
+
+Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.
 
