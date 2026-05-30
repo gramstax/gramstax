@@ -684,31 +684,41 @@ export class TemplateEngine {
       const blockLang = attrs.lang || `default`
       const rawItems = this._processMediaGroupItems(groupContent)
 
-      // Separate default items (no lang) from lang-specific items
-      const defaultItems = rawItems.filter((item) => !item.lang)
-      const langItems = rawItems.filter((item) => item.lang)
-      const langVariants = new Set(langItems.map((item) => item.lang!))
+      // Preserve document order: each variant includes items matching its rules
+      const langVariants = new Set(rawItems.filter((item) => item.lang && !item.shared).map((item) => item.lang!))
+      const hasLangItems = langVariants.size > 0
 
-      // Default variant: only items without explicit lang
+      // Default variant: items with no lang OR shared — in template order
+      const defaultItems = rawItems.filter((item) => !item.lang || item.shared)
       const defaultCaption = defaultItems.find((item) => item.caption)?.caption
-      if (defaultItems.length > 0 || langItems.length === 0) {
+      if (defaultItems.length > 0 || !hasLangItems) {
         result[blockLang] = {type: `group`, mediaGroup: defaultItems, ...(defaultCaption ? {caption: defaultCaption} : {})}
       }
 
-      // Lang-specific variants: ONLY items matching that lang (exclusive, no merge)
+      // Lang-specific variants: items matching that lang OR shared — in template order
       for (const variantLang of langVariants) {
-        const matchingItems = langItems.filter((item) => item.lang === variantLang)
-        const caption = matchingItems.find((item) => item.caption)?.caption
-        result[variantLang] = {type: `group`, mediaGroup: matchingItems, ...(caption ? {caption} : {})}
+        const variantItems = rawItems.filter((item) => item.lang === variantLang || item.shared)
+        const caption = variantItems.find((item) => item.caption)?.caption
+        result[variantLang] = {type: `group`, mediaGroup: variantItems, ...(caption ? {caption} : {})}
       }
     }
 
     return result
   }
 
-  private static _processMediaGroupItems(groupContent: string): Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string; lang?: string}> {
+  /**
+   * Parses inner `<media>` items inside a `<media-group>` block body.
+   *
+   * Extracts `type`, `src`, `lang`, and `shared` attributes plus the caption
+   * body for each inner `<media>` element. `shared` supports both standalone
+   * boolean (`<media shared>`) and explicit (`<media shared="true">`) syntax.
+   *
+   * @param groupContent - The content between `<media-group>` and `</media-group>`
+   * @returns An array of parsed media item descriptors, preserving document order
+   */
+  private static _processMediaGroupItems(groupContent: string): Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string; lang?: string; shared?: boolean}> {
     const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
-    const mediaGroup: Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string; lang?: string}> = []
+    const mediaGroup: Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string; lang?: string; shared?: boolean}> = []
     const supportedTypes = new Set([`photo`, `video`, `audio`, `document`])
 
     for (const match of groupContent.matchAll(mediaRegex)) {
@@ -721,6 +731,10 @@ export class TemplateEngine {
         for (const attrMatch of attributesStr.matchAll(attrRegex)) {
           attrs[attrMatch[1]!] = attrMatch[2]!
         }
+        // Detect standalone boolean attributes (no ="value") — only match as a whole token, not inside src values
+        if (/(?:^|\s)shared(?=\s|$)/i.test(attributesStr)) {
+          if (!attrs.shared) attrs.shared = `true`
+        }
       }
 
       if (!attrs.type || !supportedTypes.has(attrs.type) || !attrs.src) continue
@@ -731,11 +745,14 @@ export class TemplateEngine {
         .replace(/\n+$/, ``)
         .trim()
 
+      const shared = attrs.shared === `true`
+
       mediaGroup.push({
         type: attrs.type as `photo` | `video` | `audio` | `document`,
         src: attrs.src,
         ...(caption ? {caption} : {}),
-        ...(attrs.lang ? {lang: attrs.lang} : {})
+        ...(attrs.lang ? {lang: attrs.lang} : {}),
+        ...(shared ? {shared: true} : {})
       })
     }
 
@@ -2048,8 +2065,12 @@ export class TemplateEngine {
    * Validates attributes on `<media>` blocks.
    *
    * @remarks
-   * Allowed attributes are `lang`, `type`, `src`, `latitude`, `longitude`,
+   * Allowed attributes are `lang`, `type`, `src`, `shared`, `latitude`, `longitude`,
    * `phone`, `first_name`, `last_name`, and `vcard`.
+   *
+   * `shared` is a boolean attribute — it can be written as `shared`, `shared="true"`,
+   * or `shared="false"`. When `true`, the media item is included in all language
+   * variants of the enclosing `<media-group>`. Only valid inside `<media-group>`.
    *
    * @param template - The raw template string to validate
    * @returns An object with a `valid` boolean and an `errors` array
@@ -2064,8 +2085,9 @@ export class TemplateEngine {
    */
   static validateBlockMediaAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const validTypes = new Set([`photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, `sticker`, `location`, `contact`])
-    const errors = this._validateBlockAttributes(template, `media`, new Set([`lang`, `type`, `src`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, `vcard`]), `"lang", "type", "src", "latitude", "longitude", "phone", "first_name", "last_name", and "vcard"`, {
-      type: (v) => (validTypes.has(v) ? null : `Attribute "type" on <media> must be one of: ${[...validTypes].join(`, `)}, got "${v}"`)
+    const errors = this._validateBlockAttributes(template, `media`, new Set([`lang`, `type`, `src`, `shared`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, `vcard`]), `"lang", "type", "src", "shared", "latitude", "longitude", "phone", "first_name", "last_name", and "vcard"`, {
+      type: (v) => (validTypes.has(v) ? null : `Attribute "type" on <media> must be one of: ${[...validTypes].join(`, `)}, got "${v}"`),
+      shared: (v) => (v === `true` || v === `false` ? null : `Attribute "shared" on <media> must be "true" or "false", got "${v}"`)
     })
     return {valid: errors.length === 0, errors}
   }
