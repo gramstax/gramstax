@@ -76,10 +76,7 @@ export class SumNumberPage extends PageBase {
     await Main.showStep1Form(this, false)
   }
 
-  async handleFreeText() {
-    if (!this.isSessionFreeText()) {
-      return null
-    }
+  async handleSessionFreeText() {
     const {step, left} = Helper.getSessionParams(this)
     const input = this.msgText?.trim()
     const value = input ? Number(input) : NaN
