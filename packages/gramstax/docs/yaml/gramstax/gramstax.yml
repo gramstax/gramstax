@@ -686,175 +686,183 @@ methods:
                         name: string;
                         routeName: string;
                     }>;
+                    handleCommandCaptionArgsVoice: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
                 };
                 routeStaticSession: {
-                    handleCallbackData: Record<string, {
+                    handleSessionCallbackData: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleText: Record<string, {
+                    handleSessionText: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandText: Record<string, {
+                    handleSessionCommandText: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCaptionPhoto: Record<string, {
+                    handleSessionCaptionPhoto: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandCaptionPhoto: Record<string, {
+                    handleSessionCommandCaptionPhoto: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCaptionVideo: Record<string, {
+                    handleSessionCaptionVideo: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandCaptionVideo: Record<string, {
+                    handleSessionCommandCaptionVideo: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCaptionAudio: Record<string, {
+                    handleSessionCaptionAudio: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandCaptionAudio: Record<string, {
+                    handleSessionCommandCaptionAudio: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCaptionDocument: Record<string, {
+                    handleSessionCaptionDocument: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandCaptionDocument: Record<string, {
+                    handleSessionCommandCaptionDocument: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCaptionAnimation: Record<string, {
+                    handleSessionCaptionAnimation: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandCaptionAnimation: Record<string, {
+                    handleSessionCommandCaptionAnimation: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCaptionVoice: Record<string, {
+                    handleSessionCaptionVoice: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandCaptionVoice: Record<string, {
+                    handleSessionCommandCaptionVoice: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleArgsCallbackData: Record<string, {
+                    handleSessionArgsCallbackData: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleArgsText: Record<string, {
+                    handleSessionArgsText: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandArgsText: Record<string, {
+                    handleSessionCommandArgsText: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCaptionArgsPhoto: Record<string, {
+                    handleSessionCaptionArgsPhoto: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandCaptionArgsPhoto: Record<string, {
+                    handleSessionCommandCaptionArgsPhoto: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCaptionArgsVideo: Record<string, {
+                    handleSessionCaptionArgsVideo: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandCaptionArgsVideo: Record<string, {
+                    handleSessionCommandCaptionArgsVideo: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCaptionArgsAudio: Record<string, {
+                    handleSessionCaptionArgsAudio: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandCaptionArgsAudio: Record<string, {
+                    handleSessionCommandCaptionArgsAudio: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCaptionArgsDocument: Record<string, {
+                    handleSessionCaptionArgsDocument: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandCaptionArgsDocument: Record<string, {
+                    handleSessionCommandCaptionArgsDocument: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCaptionArgsAnimation: Record<string, {
+                    handleSessionCaptionArgsAnimation: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCommandCaptionArgsAnimation: Record<string, {
+                    handleSessionCommandCaptionArgsAnimation: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleCaptionArgsVoice: Record<string, {
+                    handleSessionCaptionArgsVoice: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleFreeText: Record<string, {
+                    handleSessionCommandCaptionArgsVoice: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleFreePhoto: Record<string, {
+                    handleSessionFreeText: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleFreeVideo: Record<string, {
+                    handleSessionFreePhoto: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleFreeAudio: Record<string, {
+                    handleSessionFreeVideo: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleFreeDocument: Record<string, {
+                    handleSessionFreeAudio: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleFreeAnimation: Record<string, {
+                    handleSessionFreeDocument: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleFreeVoice: Record<string, {
+                    handleSessionFreeAnimation: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleFreeVideoNote: Record<string, {
+                    handleSessionFreeVoice: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleFreeSticker: Record<string, {
+                    handleSessionFreeVideoNote: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleFreeLocation: Record<string, {
+                    handleSessionFreeSticker: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
-                    handleFreeContact: Record<string, {
+                    handleSessionFreeLocation: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeContact: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
                 };
                 listRouteStatic: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
-                listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsAnimation"];
-                listRouteStaticSession: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice", "handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsAnimation", "handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
+                listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
+                listRouteStaticSession: readonly [...("handleSessionCallbackData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
                 lenListRouteStatic: 15;
                 lenListRouteStaticIntent: 15;
-                lenListRouteStaticSession: 41;
+                lenListRouteStaticSession: number;
             };
       return:
         type: |-
@@ -1026,175 +1034,183 @@ methods:
                           name: string;
                           routeName: string;
                       }&gt;;
+                      handleCommandCaptionArgsVoice: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
                   };
                   routeStaticSession: {
-                      handleCallbackData: Record&lt;string, {
+                      handleSessionCallbackData: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleText: Record&lt;string, {
+                      handleSessionText: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandText: Record&lt;string, {
+                      handleSessionCommandText: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCaptionPhoto: Record&lt;string, {
+                      handleSessionCaptionPhoto: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandCaptionPhoto: Record&lt;string, {
+                      handleSessionCommandCaptionPhoto: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCaptionVideo: Record&lt;string, {
+                      handleSessionCaptionVideo: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandCaptionVideo: Record&lt;string, {
+                      handleSessionCommandCaptionVideo: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCaptionAudio: Record&lt;string, {
+                      handleSessionCaptionAudio: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandCaptionAudio: Record&lt;string, {
+                      handleSessionCommandCaptionAudio: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCaptionDocument: Record&lt;string, {
+                      handleSessionCaptionDocument: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandCaptionDocument: Record&lt;string, {
+                      handleSessionCommandCaptionDocument: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCaptionAnimation: Record&lt;string, {
+                      handleSessionCaptionAnimation: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandCaptionAnimation: Record&lt;string, {
+                      handleSessionCommandCaptionAnimation: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCaptionVoice: Record&lt;string, {
+                      handleSessionCaptionVoice: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandCaptionVoice: Record&lt;string, {
+                      handleSessionCommandCaptionVoice: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleArgsCallbackData: Record&lt;string, {
+                      handleSessionArgsCallbackData: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleArgsText: Record&lt;string, {
+                      handleSessionArgsText: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandArgsText: Record&lt;string, {
+                      handleSessionCommandArgsText: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCaptionArgsPhoto: Record&lt;string, {
+                      handleSessionCaptionArgsPhoto: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandCaptionArgsPhoto: Record&lt;string, {
+                      handleSessionCommandCaptionArgsPhoto: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCaptionArgsVideo: Record&lt;string, {
+                      handleSessionCaptionArgsVideo: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandCaptionArgsVideo: Record&lt;string, {
+                      handleSessionCommandCaptionArgsVideo: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCaptionArgsAudio: Record&lt;string, {
+                      handleSessionCaptionArgsAudio: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandCaptionArgsAudio: Record&lt;string, {
+                      handleSessionCommandCaptionArgsAudio: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCaptionArgsDocument: Record&lt;string, {
+                      handleSessionCaptionArgsDocument: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandCaptionArgsDocument: Record&lt;string, {
+                      handleSessionCommandCaptionArgsDocument: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCaptionArgsAnimation: Record&lt;string, {
+                      handleSessionCaptionArgsAnimation: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCommandCaptionArgsAnimation: Record&lt;string, {
+                      handleSessionCommandCaptionArgsAnimation: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleCaptionArgsVoice: Record&lt;string, {
+                      handleSessionCaptionArgsVoice: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleFreeText: Record&lt;string, {
+                      handleSessionCommandCaptionArgsVoice: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleFreePhoto: Record&lt;string, {
+                      handleSessionFreeText: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleFreeVideo: Record&lt;string, {
+                      handleSessionFreePhoto: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleFreeAudio: Record&lt;string, {
+                      handleSessionFreeVideo: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleFreeDocument: Record&lt;string, {
+                      handleSessionFreeAudio: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleFreeAnimation: Record&lt;string, {
+                      handleSessionFreeDocument: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleFreeVoice: Record&lt;string, {
+                      handleSessionFreeAnimation: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleFreeVideoNote: Record&lt;string, {
+                      handleSessionFreeVoice: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleFreeSticker: Record&lt;string, {
+                      handleSessionFreeVideoNote: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleFreeLocation: Record&lt;string, {
+                      handleSessionFreeSticker: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleFreeContact: Record&lt;string, {
+                      handleSessionFreeLocation: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeContact: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
                   };
                   listRouteStatic: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
-                  listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsAnimation"];
-                  listRouteStaticSession: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice", "handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsAnimation", "handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
+                  listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
+                  listRouteStaticSession: readonly [...("handleSessionCallbackData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
                   lenListRouteStatic: 15;
                   lenListRouteStaticIntent: 15;
-                  lenListRouteStaticSession: 41;
+                  lenListRouteStaticSession: number;
               }
         description: The pages routing structure.
   - name: _pageRoutes(ctx, fromListener)
@@ -1210,25 +1226,30 @@ methods:
       \*\*Routing Priority (executed in order):\*\*
 
 
-      1. \*\*staticSession\*\* - Session-based routes (O(1) lookup) - Checks if user has an active session with a
-      matching method - Skips if the input matches a static or staticIntent route - Example: `textFree` with session
-      method "7-mypage"
+      1. \*\*staticSession\*\* — Session-aware routes, filtered by input type (O(n) lookup) - Only runs when the user
+      has an active session (`session.method` is set) - Iterates `routeStaticSession` and matches by `session.method`
+      value - \*\*Filtered by input type\*\*: only routes whose name ends with `fromListener` are checked (e.g.,
+      callback queries only match `*CallbackData` session routes, text only matches `*Text`<!-- -->, photo captions only
+      match `*CaptionPhoto`<!-- -->, etc.) - This prevents cross-type handler misdispatch (e.g., a callback query
+      accidentally matching `handleSessionFreeText`<!-- -->) - Example: session with method "7-mypage" → finds
+      `handleSessionFreeText["7-mypage"]` when `fromListener = "text"`
 
 
-      2. \*\*static\*\* - Exact intent match routes (O(1) lookup) - Matches exact text/callback data to page intents -
+      2. \*\*static\*\* — Exact intent match routes (O(1) lookup) - Matches exact text/callback data to page intents -
       Example: "start" → `handleText()`<!-- -->, "/help" → `handleCommandText()`
 
 
-      3. \*\*staticIntent\*\* - Intent with args routes (O(1) lookup) - Matches intent prefix when args are present -
+      3. \*\*staticIntent\*\* — Intent with args routes (O(1) lookup) - Matches intent prefix when args are present -
       Example: "start:123" → `handleArgsCallbackData()`<!-- -->, "/add item" → `handleCommandArgsText()`
 
 
-      4. \*\*dynamicSpesific\*\* - Type-specific free handlers (O(n) iteration) - Runs all `handleFree*` handlers for
-      the message type - Example: `handleFreeText()`<!-- -->, `handleFreePhoto()` - \*\*All matching handlers are
-      executed\*\* (no early return)
+      4. \*\*dynamicSpesific\*\* — Non-session free handlers (O(n) iteration) - Runs all `handleFree*` handlers (defined
+      directly on the page, not inherited) - `handleSessionFree*` variants are NOT dispatched here — they go through
+      id=1 - Example: `handleFreeText()`<!-- -->, `handleFreePhoto()` - \*\*All matching handlers are executed\*\* (no
+      early return)
 
 
-      5. \*\*dynamic\*\* - Global fallback handlers (O(n) iteration) - Runs all `handleFree()` handlers from pages that
+      5. \*\*dynamic\*\* — Global fallback handlers (O(n) iteration) - Runs all `handleFree()` handlers from pages that
       define them - Last resort when nothing else matches - \*\*All matching handlers are executed\*\* (no early return)
     example: []
     isPreview: false
@@ -1253,9 +1274,30 @@ methods:
     fullName: _pageSorts(Page, pages, indexPage)
     summary: Sorts and categorizes page routes into routing tables.
     remarks: >-
-      Populates `routeStatic`<!-- -->, `routeStaticIntent`<!-- -->, `routeStaticSession`<!-- -->,
-      `routeDynamicSpesific`<!-- -->, and `routeDynamic` collections based on which route methods exist on the page
-      class.
+      Registration happens in 3 phases:
+
+
+      \*\*Phase 1 — Non-session static/intent routes\*\* (id=2, id=3): Iterates `listRouteStatic` and
+      `listRouteStaticIntent`<!-- -->. Registers exact-match routes (`handleCallbackData`<!-- -->, `handleText`<!-- -->,
+      `handleCommandText`<!-- -->, `handleCaption*`<!-- -->, `handleCommandCaption*`<!-- -->) into `routeStatic` — and
+      intent-with-args variants (`handleArgs*`<!-- -->, `handleCommandArgs*`<!-- -->, `handleCaptionArgs*`<!-- -->,
+      `handleCommandCaptionArgs*`<!-- -->) into `routeStaticIntent`<!-- -->. Routes are keyed by `intentCommandText`
+      (prefixed with `/`<!-- -->), `intentCallbackData`<!-- -->, `intentText`<!-- -->, or `Page.data.name`<!-- -->.
+
+
+      \*\*Phase 2 — Session routes\*\* (id=1): Iterates `listRouteStaticSession`<!-- -->. Registers session-aware
+      variants of all static and free routes (`handleSession*`<!-- -->) into `routeStaticSession`<!-- -->. Keyed by the
+      return value of the corresponding `methodSession*()` method (e.g., `methodSessionFreeText(PageName)` → session
+      method string).
+
+
+      \*\*Phase 3 — Non-session free handlers\*\* (id=4): Scans for `handleFree*` methods defined directly on the page
+      (via `Object.hasOwn(proto, routeName)`<!-- -->). Excludes inherited `handleSessionFree*` variants — those are
+      dispatched exclusively via session routing (id=1).
+
+
+      Also populates: - `routeDynamic[Page.data.name]` — global fallback `handleFree()` handler - `all[Page.data.name]`
+      — page class reference
     example: []
     isPreview: false
     isDeprecated: false
