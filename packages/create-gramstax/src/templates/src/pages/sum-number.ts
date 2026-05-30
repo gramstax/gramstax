@@ -32,7 +32,7 @@ class Main {
     const bi = Base.step1
     const kb = Helper.kb(ctx, bi)
     const da = {}
-    await ctx.sessionFreeText({step: bi})
+    await ctx.setSessionFreeText({step: bi})
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -52,7 +52,7 @@ class Main {
     const bi = Base.step2
     const kb = Helper.kb(ctx, bi)
     const da = {}
-    await ctx.sessionFreeText({step: bi, left})
+    await ctx.setSessionFreeText({step: bi, left})
     await ctx.reply(kb, da, bi)
   }
 
