@@ -546,14 +546,14 @@ export class Ctx {
    * ```typescript
    * // Caption: "/photo 123 456"
    * async handleCommandCaptionArgsPhoto() {
-   *   console.log(this.msgCaptionCommandArgs) // ["123", "456"]
+   *   console.log(this.msgCommandCaptionArgs) // ["123", "456"]
    * }
    * ```
    *
    * @readonly
    * @public
    */
-  get msgCaptionCommandArgs() {
+  get msgCommandCaptionArgs() {
     return this.getArgs(this.msgCaption, `space`)
   }
 
@@ -564,15 +564,15 @@ export class Ctx {
    * ```typescript
    * // Caption: "/photo 123"
    * async handleCommandCaptionArgsPhoto() {
-   *   console.log(this.msgCaptionCommandArg) // "123"
+   *   console.log(this.msgCommandCaptionArg) // "123"
    * }
    * ```
    *
    * @readonly
    * @public
    */
-  get msgCaptionCommandArg() {
-    return this.msgCaptionCommandArgs[0] as string
+  get msgCommandCaptionArg() {
+    return this.msgCommandCaptionArgs[0] as string
   }
 
   /**
@@ -3077,7 +3077,7 @@ export class Ctx {
    *
    * @example this.data.name = "/start"
    * ```typescript
-   * async voiceCaptionCommand() {
+   * async voiceCommandCaption() {
    *   this.msgVoice // {...}
    *   this.msgCaption // "/start"
    * }
@@ -3216,19 +3216,161 @@ export class Ctx {
    */
   async handleFree?(): Promise<any>
 
-  // callback
+  // =============== handleSession* route function (session-aware)
   /**
-   * Session validation methods.
+   * Session-aware route handler for callback queries without args.
    *
    * @remarks
-   * These methods validate whether the current session’s `session.method` matches the value returned by `methodSession*`.
-   * Each isSession* method compares the session method with its corresponding `methodSession*` result.
+   * Mirrors the corresponding `handle*` method. Dispatched automatically by
+   * `_pageRoutes` id=1 (session routing) when:
+   *   1. The user has an active session (`session.method` is set)
+   *   2. `session.method` matches the method key registered for this route
+   *      (computed by the corresponding `methodSession*()`)
+   *   3. The route name ends with `fromListener` — ensuring only the correct
+   *      update type triggers it (callback queries match `*CallbackData` only;
+   *      text matches `*Text` only; etc.)
+   *
+   * Define `handleSession*` to handle session flows separately from normal
+   * flows. The regular `handle*` will only be called for non-session flows
+   * — manual `isSession*()` checks inside `handle*` are unnecessary because
+   * id=1 dispatches before id=2 ever runs.
+   *
+   * Works with ALL route types: CallbackData, ArgsCallbackData, Text,
+   * CommandText, FreeText, CaptionPhoto, etc.
+   *
+   * @example
+   * ```typescript
+   * // handle* — invoked via id=2 (static) when no session matches in id=1
+   * async handleCallbackData() {
+   *   await this.edit(`normal flow: ${this.callbackData}`)
+   * }
+   *
+   * // handleSession* — invoked via id=1 (session) when session.method matches
+   * async handleSessionCallbackData() {
+   *   const {inputText} = this.temp.session.params
+   *   await this.edit(`session-active: ${inputText}`)
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * async handleArgsCallbackData() {
+   *   await this.edit(`normal: ${this.callbackData}`)
+   * }
+   * async handleSessionArgsCallbackData() {
+   *   const {inputText} = this.temp.session.params
+   *   await this.edit(`session: ${this.callbackData}, params: ${inputText}`)
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  async handleSessionCallbackData?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionArgsCallbackData?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionText?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionArgsText?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandText?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandArgsText?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionFreeText?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCaptionPhoto?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCaptionArgsPhoto?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandCaptionPhoto?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandCaptionArgsPhoto?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionFreePhoto?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCaptionVideo?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCaptionArgsVideo?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandCaptionVideo?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandCaptionArgsVideo?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionFreeVideo?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCaptionAudio?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCaptionArgsAudio?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandCaptionAudio?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandCaptionArgsAudio?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionFreeAudio?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCaptionDocument?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCaptionArgsDocument?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandCaptionDocument?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandCaptionArgsDocument?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionFreeDocument?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCaptionAnimation?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCaptionArgsAnimation?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandCaptionAnimation?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandCaptionArgsAnimation?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionFreeAnimation?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCaptionVoice?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCaptionArgsVoice?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandCaptionVoice?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCommandCaptionArgsVoice?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionFreeVoice?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionFreeVideoNote?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionFreeSticker?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionFreeLocation?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionFreeContact?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionFree?(): Promise<any>
+
+  // callback
+  /**
+   * Session validation utilities — check whether the active session corresponds
+   * to a specific route type.
+   *
+   * @remarks
+   * These are **user-facing helpers** for manual session checks inside a handler.
+   * They are NOT used by the routing system — dispatch is handled entirely by
+   * `_pageRoutes` id=1 which matches `session.method` against registered keys.
+   *
+   * Each `isSession*()` compares its own `methodSession*()` result against
+   * the current `session.method`. Useful when a single handler needs to branch
+   * on the session type, or for defensive checks in `handleFree*` handlers.
    *
    * @example
    * ```typescript
    * async handleFreeText() {
    *   if (this.isSessionFreeText()) {
-   *     // Handle the expected session flow
+   *     // Active session of type "freeText" — handle session flow
+   *   } else {
+   *     // No matching session — handle non-session flow
    *   }
    * }
    * ```
@@ -3315,12 +3457,12 @@ export class Ctx {
     return this.temp.session.method === this.methodSessionCaptionArgsAudio()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionCommandAudio() {
-    return this.temp.session.method === this.methodSessionCaptionCommandAudio()
+  isSessionCommandCaptionAudio() {
+    return this.temp.session.method === this.methodSessionCommandCaptionAudio()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
-  isSessionCaptionCommandArgsAudio() {
-    return this.temp.session.method === this.methodSessionCaptionCommandArgsAudio()
+  isSessionCommandCaptionArgsAudio() {
+    return this.temp.session.method === this.methodSessionCommandCaptionArgsAudio()
   }
   /** {@inheritDoc Ctx.isSessionCallbackData} */
   isSessionFreeAudio() {
@@ -3508,12 +3650,12 @@ export class Ctx {
     return this.setSession(this.methodSessionCaptionArgsAudio(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackData} */
-  setSessionCaptionCommandAudio(params?: any) {
-    return this.setSession(this.methodSessionCaptionCommandAudio(), params)
+  setSessionCommandCaptionAudio(params?: any) {
+    return this.setSession(this.methodSessionCommandCaptionAudio(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackData} */
-  setSessionCaptionCommandArgsAudio(params?: any) {
-    return this.setSession(this.methodSessionCaptionCommandArgsAudio(), params)
+  setSessionCommandCaptionArgsAudio(params?: any) {
+    return this.setSession(this.methodSessionCommandCaptionArgsAudio(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackData} */
   setSessionFreeAudio(params?: any) {
@@ -3697,11 +3839,11 @@ export class Ctx {
     return this.methodSession(`19`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionCaptionCommandAudio(name?: string) {
+  methodSessionCommandCaptionAudio(name?: string) {
     return this.methodSession(`20`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionCaptionCommandArgsAudio(name?: string) {
+  methodSessionCommandCaptionArgsAudio(name?: string) {
     return this.methodSession(`21`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */

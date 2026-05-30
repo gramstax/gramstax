@@ -604,9 +604,31 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Sorts and categorizes page routes into routing tables.
    *
    * @remarks
-   * Populates `routeStatic`, `routeStaticIntent`, `routeStaticSession`,
-   * `routeDynamicSpesific`, and `routeDynamic` collections based on
-   * which route methods exist on the page class.
+   * Registration happens in 3 phases:
+   *
+   * **Phase 1 — Non-session static/intent routes** (id=2, id=3):
+   * Iterates `listRouteStatic` and `listRouteStaticIntent`. Registers exact-match
+   * routes (`handleCallbackData`, `handleText`, `handleCommandText`, `handleCaption*`,
+   * `handleCommandCaption*`) into `routeStatic` — and intent-with-args variants
+   * (`handleArgs*`, `handleCommandArgs*`, `handleCaptionArgs*`,
+   * `handleCommandCaptionArgs*`) into `routeStaticIntent`.
+   * Routes are keyed by `intentCommandText` (prefixed with `/`), `intentCallbackData`,
+   * `intentText`, or `Page.data.name`.
+   *
+   * **Phase 2 — Session routes** (id=1):
+   * Iterates `listRouteStaticSession`. Registers session-aware variants of all
+   * static and free routes (`handleSession*`) into `routeStaticSession`.
+   * Keyed by the return value of the corresponding `methodSession*()` method
+   * (e.g., `methodSessionFreeText(PageName)` → session method string).
+   *
+   * **Phase 3 — Non-session free handlers** (id=4):
+   * Scans for `handleFree*` methods defined directly on the page (via
+   * `Object.hasOwn(proto, routeName)`). Excludes inherited `handleSessionFree*`
+   * variants — those are dispatched exclusively via session routing (id=1).
+   *
+   * Also populates:
+   * - `routeDynamic[Page.data.name]` — global fallback `handleFree()` handler
+   * - `all[Page.data.name]` — page class reference
    *
    * @param Page - The page class.
    * @param pages - The pages routing structure.
@@ -630,6 +652,52 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // all
     pages.all[name] = Page
 
+    // Non-session static/intent routes (listRouteStatic + listRouteStaticIntent)
+    for (const listName of [`listRouteStatic`, `listRouteStaticIntent`] as const) {
+      const lenKey = listName === `listRouteStatic` ? `lenListRouteStatic` : `lenListRouteStaticIntent`
+      for (let index = 0; index < pages[lenKey]; index++) {
+        const routeName = pages[listName][index] as string
+
+        // Check if the method exists on the page
+        if (typeof (proto as any)[routeName] !== `function`) {
+          continue
+        }
+
+        const ps = pages.routeStatic[routeName as keyof typeof pages.routeStatic]
+        const psi = pages.routeStaticIntent[routeName as keyof typeof pages.routeStaticIntent]
+
+        const value = {name, routeName}
+        const p = ps || psi
+        if (p !== undefined) {
+          const _isCommand = routeName.includes(partCommand)
+          const _isCallbackData = routeName.endsWith(`CallbackData`)
+          const _isText = routeName.endsWith(`Text`)
+
+          let key: string | undefined
+          if (_isCommand) {
+            const _key = Page.data.intentCommandText
+            key = _key ? `/${_key}` : undefined
+          } else if (_isCallbackData) {
+            let _key = Page.data.intentCallbackData
+            if (this.optionsPage.shortCallbackData === true) {
+              _key = String(indexPage)
+              Page.data.intentCallbackData = _key
+            }
+            key = _key
+          } else if (_isText) {
+            key = Page.data.intentText
+          } else {
+            key = Page.data.name
+          }
+
+          if (key) {
+            p[key] = value
+          }
+        }
+      }
+    }
+
+    // Session routes (listRouteStaticSession)
     for (let index = 0; index < pages.lenListRouteStaticSession; index++) {
       const routeName = pages.listRouteStaticSession[index] as string
 
@@ -638,51 +706,31 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         continue
       }
 
-      const ps = pages.routeStatic[routeName as keyof typeof pages.routeStatic]
-      const psi = pages.routeStaticIntent[routeName as keyof typeof pages.routeStaticIntent]
       const pss = pages.routeStaticSession[routeName as keyof typeof pages.routeStaticSession]
 
       const value = {name, routeName}
-      const p = ps || psi
-      if (p !== undefined) {
-        const _isCommand = routeName.includes(partCommand)
-        const _isCallbackData = routeName.endsWith(`CallbackData`)
-        const _isText = routeName.endsWith(`Text`)
 
-        let key: string | undefined
-        if (_isCommand) {
-          const _key = Page.data.intentCommandText
-          key = _key ? `/${_key}` : undefined
-        } else if (_isCallbackData) {
-          let _key = Page.data.intentCallbackData
-          if (this.optionsPage.shortCallbackData === true) {
-            _key = String(indexPage)
-            Page.data.intentCallbackData = _key
-          }
-          key = _key
-        } else if (_isText) {
-          key = Page.data.intentText
-        } else {
-          key = Page.data.name
-        }
-
-        if (key) {
-          p[key] = value
-        }
-      }
-
-      // staticSession
+      // staticSession: compute session key via methodSession{Base}(name)
       if (pss !== undefined) {
         const hidePartReplace = routeName.replace(`handle`, ``)
-        const methodName = `methodSession${hidePartReplace}`
+        const normalized = hidePartReplace.startsWith(`Session`) ? hidePartReplace.slice(7) : hidePartReplace
+        const methodName = `methodSession${normalized}`
         const methodKey = (proto as any as Record<any, (...args: any) => string>)[methodName]?.(name)
         pss[methodKey!] = value
       }
+    }
 
-      // dynamicSpesific
-      if (routeName.startsWith(`handleFree`)) {
+    // dynamicSpesific — handleFree* (non-session) defined directly on this page
+    // (handleSessionFree* variants are dispatched exclusively via session routing id=1,
+    //  NOT via dynamicSpesific — dynamic dispatch doesn't check for sessions)
+    const nonSessionFreeRoutes = [`handleFreeText`, `handleFreePhoto`, `handleFreeVideo`, `handleFreeAudio`, `handleFreeDocument`, `handleFreeAnimation`, `handleFreeVoice`, `handleFreeVideoNote`, `handleFreeSticker`, `handleFreeLocation`, `handleFreeContact`] as const
+    for (const routeName of nonSessionFreeRoutes) {
+      if (Object.hasOwn(proto, routeName) && typeof (proto as any)[routeName] === `function`) {
         const pureName = routeName.replace(partHandle, ``).replace(partArgs, ``).replace(partCommand, ``).replace(partCaption, ``).replace(partFree, ``).toLowerCase()
-        pds[pureName as keyof typeof pds].push(value)
+        const alreadyExists = pds[pureName as keyof typeof pds]?.some((item) => item.name === name)
+        if (!alreadyExists) {
+          pds[pureName as keyof typeof pds].push({name, routeName})
+        }
       }
     }
 
@@ -811,33 +859,37 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `handleCommandCaptionArgsAnimation`,
       // voice
       `handleCaptionArgsVoice`,
-      `handleCommandCaptionArgsAnimation`
+      `handleCommandCaptionArgsVoice`
     ] as const
+    // Helper to keep map result as literal types (prevents widening to string[])
+    const toSession = <T extends string>(route: T): `handleSession${T extends `handle${infer R}` ? R : T}` => {
+      return `handleSession${route.startsWith(`handle`) ? route.slice(6) : route}` as any
+    }
     const listRouteStaticSession = [
-      ...listRouteStatic,
-      ...listRouteStaticIntent,
+      ...listRouteStatic.map(toSession),
+      ...listRouteStaticIntent.map(toSession),
       // text
-      `handleFreeText`,
+      `handleSessionFreeText`,
       // photo
-      `handleFreePhoto`,
+      `handleSessionFreePhoto`,
       // video
-      `handleFreeVideo`,
+      `handleSessionFreeVideo`,
       // audio
-      `handleFreeAudio`,
+      `handleSessionFreeAudio`,
       // document
-      `handleFreeDocument`,
+      `handleSessionFreeDocument`,
       // animation
-      `handleFreeAnimation`,
+      `handleSessionFreeAnimation`,
       // voice
-      `handleFreeVoice`,
+      `handleSessionFreeVoice`,
       // videoNote
-      `handleFreeVideoNote`,
+      `handleSessionFreeVideoNote`,
       // sticker
-      `handleFreeSticker`,
+      `handleSessionFreeSticker`,
       // location
-      `handleFreeLocation`,
+      `handleSessionFreeLocation`,
       // contact
-      `handleFreeContact`
+      `handleSessionFreeContact`
     ] as const
 
     const makeObject = <const T extends readonly string[], V extends () => any>(keys: T, val: V): {[K in T[number]]: ReturnType<V>} => Object.fromEntries(keys.map((k) => [k, val()])) as {[K in T[number]]: ReturnType<V>}
@@ -891,25 +943,32 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * **Routing Priority (executed in order):**
    *
-   * 1. **staticSession** - Session-based routes (O(1) lookup)
-   *    - Checks if user has an active session with a matching method
-   *    - Skips if the input matches a static or staticIntent route
-   *    - Example: `textFree` with session method "7-mypage"
+   * 1. **staticSession** — Session-aware routes, filtered by input type (O(n) lookup)
+   *    - Only runs when the user has an active session (`session.method` is set)
+   *    - Iterates `routeStaticSession` and matches by `session.method` value
+   *    - **Filtered by input type**: only routes whose name ends with `fromListener`
+   *      are checked (e.g., callback queries only match `*CallbackData` session routes,
+   *      text only matches `*Text`, photo captions only match `*CaptionPhoto`, etc.)
+   *    - This prevents cross-type handler misdispatch (e.g., a callback query
+   *      accidentally matching `handleSessionFreeText`)
+   *    - Example: session with method "7-mypage" → finds `handleSessionFreeText["7-mypage"]`
+   *      when `fromListener = "text"`
    *
-   * 2. **static** - Exact intent match routes (O(1) lookup)
+   * 2. **static** — Exact intent match routes (O(1) lookup)
    *    - Matches exact text/callback data to page intents
    *    - Example: "start" → `handleText()`, "/help" → `handleCommandText()`
    *
-   * 3. **staticIntent** - Intent with args routes (O(1) lookup)
+   * 3. **staticIntent** — Intent with args routes (O(1) lookup)
    *    - Matches intent prefix when args are present
    *    - Example: "start:123" → `handleArgsCallbackData()`, "/add item" → `handleCommandArgsText()`
    *
-   * 4. **dynamicSpesific** - Type-specific free handlers (O(n) iteration)
-   *    - Runs all `handleFree*` handlers for the message type
+   * 4. **dynamicSpesific** — Non-session free handlers (O(n) iteration)
+   *    - Runs all `handleFree*` handlers (defined directly on the page, not inherited)
+   *    - `handleSessionFree*` variants are NOT dispatched here — they go through id=1
    *    - Example: `handleFreeText()`, `handleFreePhoto()`
    *    - **All matching handlers are executed** (no early return)
    *
-   * 5. **dynamic** - Global fallback handlers (O(n) iteration)
+   * 5. **dynamic** — Global fallback handlers (O(n) iteration)
    *    - Runs all `handleFree()` handlers from pages that define them
    *    - Last resort when nothing else matches
    *    - **All matching handlers are executed** (no early return)
@@ -928,9 +987,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     /**
      * id = 1
      * type = staticSession
-     * algoritme = x = session method; O(x)
+     * algoritme = x = session method, filtered by input type; O(x)
      * example = all
-     * description = all route function but if have session only
+     * description = Session-aware route dispatch. Only runs when `session.method` is set.
+     *              Iterates `routeStaticSession` using `session.method` as the lookup key,
+     *              filtered by `fromListener` (`routeName.endsWith(fromListener)`) to prevent
+     *              cross-type matching (e.g., callback query hitting `handleSessionFreeText`).
+     *              Falls through to id=2 when no session exists or no session route matches.
      */
     if (Page === undefined) {
       const session = await ctx.getSession()
@@ -938,35 +1001,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const mtd = session.method
         const pStaticSession = this.pages.routeStaticSession
 
-        // Get entity for cross-checking with other routes
-        const cd = ctx.callbackData
-        const mt = ctx.msgText
-        const mc = ctx.msgCaption
-        const entity = cd || mt || mc
-        const isCallback = fromListener === `callbackdata`
-        const separatorMethod = isCallback ? `colon` : `space`
-        const intent = entity && ctx.haveArgs(entity, separatorMethod) ? ctx.getIntent(entity, separatorMethod, 1) : undefined
-        const intent2 = !isCallback && entity ? ctx.getIntent(entity, `space`, 2) : undefined
-
         for (let index = 0; index < this.pages.lenListRouteStaticSession; index++) {
-          const routeName = this.pages.listRouteStaticSession[index] as `handleCaptionAnimation`
+          const routeName = this.pages.listRouteStaticSession[index] as `handleSessionCaptionAnimation`
           if (routeName.toLowerCase().endsWith(fromListener)) {
-            // O(1) check: skip session-based routing if entity has its own route
-            if (entity) {
-              // Check in routeStatic (direct O(1) lookup)
-              if ((this.pages.routeStatic as any)[routeName]?.[entity]) {
-                continue
-              }
-              // Check in routeStaticIntent (direct O(1) lookup)
-              const intentBucket = (this.pages.routeStaticIntent as any)[routeName]
-              if (intentBucket && ((intent && intentBucket[intent]) || (intent2 && intentBucket[intent2]))) {
-                continue
-              }
-            }
-
             res = pStaticSession[routeName][mtd]
           }
-
           if (res) break
         }
 
@@ -1056,12 +1095,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     /**
      * id = 4
-     * type = dynamicSpesific
+     * type = dynamicSpesific (non-session only)
      * algoritme = O(n)
-     * example = handleFreeAnimtion, handleFreeText
-     * description = route with prefix "handleFree*", can be call without session. example "handleFreeText", "handleFreeAnimation"
-     *               if have that route in class page you must be add validate session in first line (if use session before)
-     *               example: if (!this.isSessionFreeText()) { return null }
+     * example = handleFreeText, handleFreePhoto, handleFreeAnimation
+     * description = Non-session free handlers. Only dispatches `handleFree*` methods defined
+     *              directly on the page (via `Object.hasOwn`). `handleSessionFree*` variants
+     *              are intentionally excluded — they are dispatched exclusively through id=1
+     *              (session routing) to prevent calls without a valid session context.
      */
     const arrFree = this.pages.routeDynamicSpesific[fromListener as `animation`] || []
     for (let index = 0; index < arrFree.length; index++) {
