@@ -192,7 +192,6 @@ For every page file in `src/pages`:
 - Do not write UI tags such as `<b>` or content-heavy message strings inside page logic methods.
 - Use `this.buildData` only when data must be prepared before rendering, and place that logic at the top of the handler.
 - Do not call `getSession()` manually. Assume the framework injects session data before routing.
-- Use `this.isSessionFreeText()` before processing free-text answers.
 - If a form method exists as `showStep{N}Form`, the paired `processStep{N}Answer` MUST also exist.
 - If the paired answer method is intentionally unused, its body MUST be exactly `throw ctx`.
 - Prefer static methods in the internal `Main` class for page transitions and business logic.

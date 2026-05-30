@@ -70,10 +70,7 @@ export class DepositPage extends PageBase {
     await Main.showStep1Form(this);
   }
 
-  async handleFreeText() {
-    if (!this.isSessionFreeText()) {
-      return null;
-    }
+  async handleSessionFreeText() {
     await Main.processStep1Answer(this);
   }
 

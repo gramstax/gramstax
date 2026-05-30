@@ -17,7 +17,7 @@ Gramstax is built for high-conversion, interactive bot experiences.
 ### Session Management
 
 - **MANDATORY**: Clear the user session on the start.ts page to ensure every new interaction starts from a clean slate.
-- **FREE TEXT HANDLING**: Use this.isSessionFreeText() to verify if the incoming text is a response to a specific form step.
+- **FREE TEXT HANDLING**: Use handleSessionFreeText() to verify if the incoming text is a response to a specific form step.
 - **NO MANUAL FETCH**: Do not call getSession() manually. The framework injects the session into the context before the handler is executed.
 
 ### Method Placement
