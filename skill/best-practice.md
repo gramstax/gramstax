@@ -189,7 +189,7 @@ Contains primary business logic with strict naming conventions.
 ```typescript
 class Main {
   static async showStep1Form(ctx: DepositPage) {
-    await ctx.sessionFreeText();
+    await ctx.setSessionFreeText();
     const bi = Base.step1;
     const kb = Helper.kb(ctx, bi);
     const da = {};
@@ -211,7 +211,7 @@ class Main {
 ```typescript
 class Main {
   static async showStep1Form(ctx: CreatePage) {
-    await ctx.sessionFreeText({ step: `title` });
+    await ctx.setSessionFreeText({ step: `title` });
     const bi = Base.step1;
     const kb = Helper.buildHomeKeyboard(ctx, bi);
     const da = {};
@@ -219,7 +219,7 @@ class Main {
   }
 
   static async processStep1Answer(ctx: CreatePage, title: string) {
-    await ctx.sessionFreeText({ step: `description`, title });
+    await ctx.setSessionFreeText({ step: `description`, title });
     await this.showStep2Form(ctx, title);
   }
 
@@ -308,7 +308,7 @@ class Alert {
 
 class Main {
   static async showStep1Form(ctx: DepositPage) {
-    await ctx.sessionFreeText();
+    await ctx.setSessionFreeText();
     const bi = Base.step1;
     const kb = Helper.kb(ctx, bi);
     const da = {};

@@ -45,7 +45,7 @@ class Alert {
 // 5. MAIN LOGIC
 class Main {
   static async showStep1Form(ctx: DepositPage) {
-    await ctx.sessionFreeText();
+    await ctx.setSessionFreeText();
     const bi = Base.step1;
     const kb = Helper.kb(ctx, bi);
     const da = {};
