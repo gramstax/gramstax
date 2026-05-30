@@ -5719,834 +5719,6 @@ methods:
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | undefined&gt;
         description: The sent message object.
-  - name: sessionArgsCallbackData(params)
-    uid: gramstax!Ctx#sessionArgsCallbackData:member(1)
-    package: gramstax!
-    fullName: sessionArgsCallbackData(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionArgsCallbackData(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionArgsText(params)
-    uid: gramstax!Ctx#sessionArgsText:member(1)
-    package: gramstax!
-    fullName: sessionArgsText(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionArgsText(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCallbackData(params)
-    uid: gramstax!Ctx#sessionCallbackData:member(1)
-    package: gramstax!
-    fullName: sessionCallbackData(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example:
-      - |-
-        ```typescript
-        async handleCallbackData() {
-          // Set session input for `handleFreeText`
-          await this.sessionFreeText({data: "12345"})
-          await this.reply()
-        }
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCallbackData(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionAnimation(params)
-    uid: gramstax!Ctx#sessionCaptionAnimation:member(1)
-    package: gramstax!
-    fullName: sessionCaptionAnimation(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionAnimation(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionArgsAnimation(params)
-    uid: gramstax!Ctx#sessionCaptionArgsAnimation:member(1)
-    package: gramstax!
-    fullName: sessionCaptionArgsAnimation(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionArgsAnimation(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionArgsAudio(params)
-    uid: gramstax!Ctx#sessionCaptionArgsAudio:member(1)
-    package: gramstax!
-    fullName: sessionCaptionArgsAudio(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionArgsAudio(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionArgsDocument(params)
-    uid: gramstax!Ctx#sessionCaptionArgsDocument:member(1)
-    package: gramstax!
-    fullName: sessionCaptionArgsDocument(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionArgsDocument(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionArgsPhoto(params)
-    uid: gramstax!Ctx#sessionCaptionArgsPhoto:member(1)
-    package: gramstax!
-    fullName: sessionCaptionArgsPhoto(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionArgsPhoto(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionArgsVideo(params)
-    uid: gramstax!Ctx#sessionCaptionArgsVideo:member(1)
-    package: gramstax!
-    fullName: sessionCaptionArgsVideo(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionArgsVideo(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionArgsVoice(params)
-    uid: gramstax!Ctx#sessionCaptionArgsVoice:member(1)
-    package: gramstax!
-    fullName: sessionCaptionArgsVoice(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionArgsVoice(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionAudio(params)
-    uid: gramstax!Ctx#sessionCaptionAudio:member(1)
-    package: gramstax!
-    fullName: sessionCaptionAudio(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionAudio(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionCommandArgsAudio(params)
-    uid: gramstax!Ctx#sessionCaptionCommandArgsAudio:member(1)
-    package: gramstax!
-    fullName: sessionCaptionCommandArgsAudio(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionCommandArgsAudio(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionCommandAudio(params)
-    uid: gramstax!Ctx#sessionCaptionCommandAudio:member(1)
-    package: gramstax!
-    fullName: sessionCaptionCommandAudio(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionCommandAudio(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionDocument(params)
-    uid: gramstax!Ctx#sessionCaptionDocument:member(1)
-    package: gramstax!
-    fullName: sessionCaptionDocument(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionDocument(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionPhoto(params)
-    uid: gramstax!Ctx#sessionCaptionPhoto:member(1)
-    package: gramstax!
-    fullName: sessionCaptionPhoto(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionPhoto(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionVideo(params)
-    uid: gramstax!Ctx#sessionCaptionVideo:member(1)
-    package: gramstax!
-    fullName: sessionCaptionVideo(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionVideo(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCaptionVoice(params)
-    uid: gramstax!Ctx#sessionCaptionVoice:member(1)
-    package: gramstax!
-    fullName: sessionCaptionVoice(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCaptionVoice(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCommandArgsText(params)
-    uid: gramstax!Ctx#sessionCommandArgsText:member(1)
-    package: gramstax!
-    fullName: sessionCommandArgsText(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCommandArgsText(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCommandCaptionAnimation(params)
-    uid: gramstax!Ctx#sessionCommandCaptionAnimation:member(1)
-    package: gramstax!
-    fullName: sessionCommandCaptionAnimation(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCommandCaptionAnimation(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCommandCaptionArgsAnimation(params)
-    uid: gramstax!Ctx#sessionCommandCaptionArgsAnimation:member(1)
-    package: gramstax!
-    fullName: sessionCommandCaptionArgsAnimation(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCommandCaptionArgsAnimation(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCommandCaptionArgsDocument(params)
-    uid: gramstax!Ctx#sessionCommandCaptionArgsDocument:member(1)
-    package: gramstax!
-    fullName: sessionCommandCaptionArgsDocument(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCommandCaptionArgsDocument(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCommandCaptionArgsPhoto(params)
-    uid: gramstax!Ctx#sessionCommandCaptionArgsPhoto:member(1)
-    package: gramstax!
-    fullName: sessionCommandCaptionArgsPhoto(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCommandCaptionArgsPhoto(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCommandCaptionArgsVideo(params)
-    uid: gramstax!Ctx#sessionCommandCaptionArgsVideo:member(1)
-    package: gramstax!
-    fullName: sessionCommandCaptionArgsVideo(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCommandCaptionArgsVideo(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCommandCaptionArgsVoice(params)
-    uid: gramstax!Ctx#sessionCommandCaptionArgsVoice:member(1)
-    package: gramstax!
-    fullName: sessionCommandCaptionArgsVoice(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCommandCaptionArgsVoice(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCommandCaptionDocument(params)
-    uid: gramstax!Ctx#sessionCommandCaptionDocument:member(1)
-    package: gramstax!
-    fullName: sessionCommandCaptionDocument(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCommandCaptionDocument(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCommandCaptionPhoto(params)
-    uid: gramstax!Ctx#sessionCommandCaptionPhoto:member(1)
-    package: gramstax!
-    fullName: sessionCommandCaptionPhoto(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCommandCaptionPhoto(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCommandCaptionVideo(params)
-    uid: gramstax!Ctx#sessionCommandCaptionVideo:member(1)
-    package: gramstax!
-    fullName: sessionCommandCaptionVideo(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCommandCaptionVideo(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCommandCaptionVoice(params)
-    uid: gramstax!Ctx#sessionCommandCaptionVoice:member(1)
-    package: gramstax!
-    fullName: sessionCommandCaptionVoice(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCommandCaptionVoice(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionCommandText(params)
-    uid: gramstax!Ctx#sessionCommandText:member(1)
-    package: gramstax!
-    fullName: sessionCommandText(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionCommandText(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionFreeAnimation(params)
-    uid: gramstax!Ctx#sessionFreeAnimation:member(1)
-    package: gramstax!
-    fullName: sessionFreeAnimation(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionFreeAnimation(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionFreeAudio(params)
-    uid: gramstax!Ctx#sessionFreeAudio:member(1)
-    package: gramstax!
-    fullName: sessionFreeAudio(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionFreeAudio(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionFreeContact(params)
-    uid: gramstax!Ctx#sessionFreeContact:member(1)
-    package: gramstax!
-    fullName: sessionFreeContact(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionFreeContact(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionFreeDocument(params)
-    uid: gramstax!Ctx#sessionFreeDocument:member(1)
-    package: gramstax!
-    fullName: sessionFreeDocument(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionFreeDocument(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionFreeLocation(params)
-    uid: gramstax!Ctx#sessionFreeLocation:member(1)
-    package: gramstax!
-    fullName: sessionFreeLocation(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionFreeLocation(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionFreePhoto(params)
-    uid: gramstax!Ctx#sessionFreePhoto:member(1)
-    package: gramstax!
-    fullName: sessionFreePhoto(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionFreePhoto(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionFreeSticker(params)
-    uid: gramstax!Ctx#sessionFreeSticker:member(1)
-    package: gramstax!
-    fullName: sessionFreeSticker(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionFreeSticker(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionFreeText(params)
-    uid: gramstax!Ctx#sessionFreeText:member(1)
-    package: gramstax!
-    fullName: sessionFreeText(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionFreeText(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionFreeVideo(params)
-    uid: gramstax!Ctx#sessionFreeVideo:member(1)
-    package: gramstax!
-    fullName: sessionFreeVideo(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionFreeVideo(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionFreeVideoNote(params)
-    uid: gramstax!Ctx#sessionFreeVideoNote:member(1)
-    package: gramstax!
-    fullName: sessionFreeVideoNote(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionFreeVideoNote(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionFreeVoice(params)
-    uid: gramstax!Ctx#sessionFreeVoice:member(1)
-    package: gramstax!
-    fullName: sessionFreeVoice(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionFreeVoice(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
-  - name: sessionText(params)
-    uid: gramstax!Ctx#sessionText:member(1)
-    package: gramstax!
-    fullName: sessionText(params)
-    summary: Session set helper methods.
-    remarks: >-
-      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
-      names. Each `session*` method sets the session for the corresponding route handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'sessionText(params?: any): Promise<boolean | null>;'
-      parameters:
-        - id: params
-          description: ''
-          type: any
-      return:
-        type: Promise&lt;boolean | null&gt;
-        description: ''
   - name: setSession(method, params, moreRoot)
     uid: gramstax!Ctx#setSession:member(1)
     package: gramstax!
@@ -6580,3 +5752,831 @@ methods:
       return:
         type: Promise&lt;boolean | null&gt;
         description: True if the session was set successfully, or null on error.
+  - name: setSessionArgsCallbackData(params)
+    uid: gramstax!Ctx#setSessionArgsCallbackData:member(1)
+    package: gramstax!
+    fullName: setSessionArgsCallbackData(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionArgsCallbackData(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionArgsText(params)
+    uid: gramstax!Ctx#setSessionArgsText:member(1)
+    package: gramstax!
+    fullName: setSessionArgsText(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionArgsText(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCallbackData(params)
+    uid: gramstax!Ctx#setSessionCallbackData:member(1)
+    package: gramstax!
+    fullName: setSessionCallbackData(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example:
+      - |-
+        ```typescript
+        async handleCallbackData() {
+          // Set session input for `handleFreeText`
+          await this.setSessionFreeText({data: "12345"})
+          await this.reply()
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCallbackData(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionAnimation(params)
+    uid: gramstax!Ctx#setSessionCaptionAnimation:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionAnimation(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionAnimation(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionArgsAnimation(params)
+    uid: gramstax!Ctx#setSessionCaptionArgsAnimation:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionArgsAnimation(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionArgsAnimation(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionArgsAudio(params)
+    uid: gramstax!Ctx#setSessionCaptionArgsAudio:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionArgsAudio(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionArgsAudio(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionArgsDocument(params)
+    uid: gramstax!Ctx#setSessionCaptionArgsDocument:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionArgsDocument(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionArgsDocument(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionArgsPhoto(params)
+    uid: gramstax!Ctx#setSessionCaptionArgsPhoto:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionArgsPhoto(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionArgsPhoto(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionArgsVideo(params)
+    uid: gramstax!Ctx#setSessionCaptionArgsVideo:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionArgsVideo(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionArgsVideo(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionArgsVoice(params)
+    uid: gramstax!Ctx#setSessionCaptionArgsVoice:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionArgsVoice(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionArgsVoice(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionAudio(params)
+    uid: gramstax!Ctx#setSessionCaptionAudio:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionAudio(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionAudio(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionCommandArgsAudio(params)
+    uid: gramstax!Ctx#setSessionCaptionCommandArgsAudio:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionCommandArgsAudio(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionCommandArgsAudio(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionCommandAudio(params)
+    uid: gramstax!Ctx#setSessionCaptionCommandAudio:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionCommandAudio(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionCommandAudio(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionDocument(params)
+    uid: gramstax!Ctx#setSessionCaptionDocument:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionDocument(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionDocument(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionPhoto(params)
+    uid: gramstax!Ctx#setSessionCaptionPhoto:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionPhoto(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionPhoto(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionVideo(params)
+    uid: gramstax!Ctx#setSessionCaptionVideo:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionVideo(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionVideo(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCaptionVoice(params)
+    uid: gramstax!Ctx#setSessionCaptionVoice:member(1)
+    package: gramstax!
+    fullName: setSessionCaptionVoice(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCaptionVoice(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCommandArgsText(params)
+    uid: gramstax!Ctx#setSessionCommandArgsText:member(1)
+    package: gramstax!
+    fullName: setSessionCommandArgsText(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCommandArgsText(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCommandCaptionAnimation(params)
+    uid: gramstax!Ctx#setSessionCommandCaptionAnimation:member(1)
+    package: gramstax!
+    fullName: setSessionCommandCaptionAnimation(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCommandCaptionAnimation(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCommandCaptionArgsAnimation(params)
+    uid: gramstax!Ctx#setSessionCommandCaptionArgsAnimation:member(1)
+    package: gramstax!
+    fullName: setSessionCommandCaptionArgsAnimation(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCommandCaptionArgsAnimation(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCommandCaptionArgsDocument(params)
+    uid: gramstax!Ctx#setSessionCommandCaptionArgsDocument:member(1)
+    package: gramstax!
+    fullName: setSessionCommandCaptionArgsDocument(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCommandCaptionArgsDocument(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCommandCaptionArgsPhoto(params)
+    uid: gramstax!Ctx#setSessionCommandCaptionArgsPhoto:member(1)
+    package: gramstax!
+    fullName: setSessionCommandCaptionArgsPhoto(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCommandCaptionArgsPhoto(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCommandCaptionArgsVideo(params)
+    uid: gramstax!Ctx#setSessionCommandCaptionArgsVideo:member(1)
+    package: gramstax!
+    fullName: setSessionCommandCaptionArgsVideo(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCommandCaptionArgsVideo(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCommandCaptionArgsVoice(params)
+    uid: gramstax!Ctx#setSessionCommandCaptionArgsVoice:member(1)
+    package: gramstax!
+    fullName: setSessionCommandCaptionArgsVoice(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCommandCaptionArgsVoice(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCommandCaptionDocument(params)
+    uid: gramstax!Ctx#setSessionCommandCaptionDocument:member(1)
+    package: gramstax!
+    fullName: setSessionCommandCaptionDocument(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCommandCaptionDocument(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCommandCaptionPhoto(params)
+    uid: gramstax!Ctx#setSessionCommandCaptionPhoto:member(1)
+    package: gramstax!
+    fullName: setSessionCommandCaptionPhoto(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCommandCaptionPhoto(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCommandCaptionVideo(params)
+    uid: gramstax!Ctx#setSessionCommandCaptionVideo:member(1)
+    package: gramstax!
+    fullName: setSessionCommandCaptionVideo(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCommandCaptionVideo(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCommandCaptionVoice(params)
+    uid: gramstax!Ctx#setSessionCommandCaptionVoice:member(1)
+    package: gramstax!
+    fullName: setSessionCommandCaptionVoice(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCommandCaptionVoice(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionCommandText(params)
+    uid: gramstax!Ctx#setSessionCommandText:member(1)
+    package: gramstax!
+    fullName: setSessionCommandText(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionCommandText(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeAnimation(params)
+    uid: gramstax!Ctx#setSessionFreeAnimation:member(1)
+    package: gramstax!
+    fullName: setSessionFreeAnimation(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionFreeAnimation(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeAudio(params)
+    uid: gramstax!Ctx#setSessionFreeAudio:member(1)
+    package: gramstax!
+    fullName: setSessionFreeAudio(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionFreeAudio(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeContact(params)
+    uid: gramstax!Ctx#setSessionFreeContact:member(1)
+    package: gramstax!
+    fullName: setSessionFreeContact(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionFreeContact(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeDocument(params)
+    uid: gramstax!Ctx#setSessionFreeDocument:member(1)
+    package: gramstax!
+    fullName: setSessionFreeDocument(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionFreeDocument(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeLocation(params)
+    uid: gramstax!Ctx#setSessionFreeLocation:member(1)
+    package: gramstax!
+    fullName: setSessionFreeLocation(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionFreeLocation(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreePhoto(params)
+    uid: gramstax!Ctx#setSessionFreePhoto:member(1)
+    package: gramstax!
+    fullName: setSessionFreePhoto(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionFreePhoto(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeSticker(params)
+    uid: gramstax!Ctx#setSessionFreeSticker:member(1)
+    package: gramstax!
+    fullName: setSessionFreeSticker(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionFreeSticker(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeText(params)
+    uid: gramstax!Ctx#setSessionFreeText:member(1)
+    package: gramstax!
+    fullName: setSessionFreeText(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionFreeText(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeVideo(params)
+    uid: gramstax!Ctx#setSessionFreeVideo:member(1)
+    package: gramstax!
+    fullName: setSessionFreeVideo(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionFreeVideo(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeVideoNote(params)
+    uid: gramstax!Ctx#setSessionFreeVideoNote:member(1)
+    package: gramstax!
+    fullName: setSessionFreeVideoNote(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionFreeVideoNote(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionFreeVoice(params)
+    uid: gramstax!Ctx#setSessionFreeVoice:member(1)
+    package: gramstax!
+    fullName: setSessionFreeVoice(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionFreeVoice(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionText(params)
+    uid: gramstax!Ctx#setSessionText:member(1)
+    package: gramstax!
+    fullName: setSessionText(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionText(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''

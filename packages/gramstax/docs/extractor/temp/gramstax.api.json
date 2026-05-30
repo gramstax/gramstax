@@ -14942,2179 +14942,6 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionArgsCallbackData:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionArgsCallbackData(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionArgsCallbackData"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionArgsText:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionArgsText(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionArgsText"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCallbackData:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   // Set session input for `handleFreeText`\n *   await this.sessionFreeText({data: \"12345\"})\n *   await this.reply()\n * }\n * ```\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCallbackData(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCallbackData"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionAnimation:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionAnimation(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionAnimation"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionArgsAnimation(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionArgsAnimation"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionArgsAudio(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionArgsAudio"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionArgsDocument(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionArgsDocument"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionArgsPhoto(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionArgsPhoto"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionArgsVideo(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionArgsVideo"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionArgsVoice(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionArgsVoice"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionAudio:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionAudio(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionAudio"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionCommandArgsAudio:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionCommandArgsAudio(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionCommandArgsAudio"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionCommandAudio:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionCommandAudio(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionCommandAudio"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionDocument:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionDocument(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionDocument"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionPhoto:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionPhoto(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionPhoto"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionVideo:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionVideo(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionVideo"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCaptionVoice:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCaptionVoice(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCaptionVoice"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCommandArgsText:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCommandArgsText(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCommandArgsText"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCommandCaptionAnimation:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCommandCaptionAnimation(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCommandCaptionAnimation"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCommandCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCommandCaptionArgsAnimation(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCommandCaptionArgsAnimation"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCommandCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCommandCaptionArgsDocument(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCommandCaptionArgsDocument"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCommandCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCommandCaptionArgsPhoto(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCommandCaptionArgsPhoto"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCommandCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCommandCaptionArgsVideo(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCommandCaptionArgsVideo"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCommandCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCommandCaptionArgsVoice(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCommandCaptionArgsVoice"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCommandCaptionDocument:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCommandCaptionDocument(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCommandCaptionDocument"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCommandCaptionPhoto:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCommandCaptionPhoto(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCommandCaptionPhoto"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCommandCaptionVideo:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCommandCaptionVideo(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCommandCaptionVideo"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCommandCaptionVoice:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCommandCaptionVoice(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCommandCaptionVoice"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionCommandText:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionCommandText(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionCommandText"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionFreeAnimation:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionFreeAnimation(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionFreeAnimation"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionFreeAudio:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionFreeAudio(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionFreeAudio"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionFreeContact:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionFreeContact(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionFreeContact"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionFreeDocument:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionFreeDocument(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionFreeDocument"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionFreeLocation:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionFreeLocation(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionFreeLocation"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionFreePhoto:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionFreePhoto(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionFreePhoto"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionFreeSticker:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionFreeSticker(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionFreeSticker"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionFreeText:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionFreeText(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionFreeText"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionFreeVideo:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionFreeVideo(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionFreeVideo"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionFreeVideoNote:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionFreeVideoNote(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionFreeVideoNote"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionFreeVoice:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionFreeVoice(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionFreeVoice"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#sessionText:member(1)",
-              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "sessionText(params?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<boolean | null>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "params",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "sessionText"
-            },
-            {
-              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSession:member(1)",
               "docComment": "/**\n * Sets session data for the current user.\n *\n * @remarks\n *\n * Session data is stored in the external cache and persists across requests. Used to maintain state between different page interactions.\n *\n * @param method - The session method name (typically matches a route handler).\n *\n * @param params - The session parameters to store.\n *\n * @param moreRoot - Additional root-level properties to merge.\n *\n * @returns True if the session was set successfully, or null on error.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   await this.setSession(\"random_172172783jd83\", {step: \"awaiting_name\"})\n *   await this.reply()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -17202,6 +15029,2179 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "setSession"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionArgsCallbackData:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionArgsCallbackData(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionArgsCallbackData"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionArgsText:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionArgsText(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionArgsText"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCallbackData:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   // Set session input for `handleFreeText`\n *   await this.setSessionFreeText({data: \"12345\"})\n *   await this.reply()\n * }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCallbackData(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCallbackData"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionAnimation:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionAnimation(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionAnimation"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionArgsAnimation:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionArgsAnimation(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionArgsAnimation"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionArgsAudio:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionArgsAudio(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionArgsAudio"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionArgsDocument:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionArgsDocument(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionArgsDocument"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionArgsPhoto:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionArgsPhoto(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionArgsPhoto"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionArgsVideo:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionArgsVideo(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionArgsVideo"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionArgsVoice:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionArgsVoice(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionArgsVoice"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionAudio:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionAudio(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionAudio"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionCommandArgsAudio:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionCommandArgsAudio(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionCommandArgsAudio"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionCommandAudio:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionCommandAudio(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionCommandAudio"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionDocument:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionDocument(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionDocument"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionPhoto:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionPhoto(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionPhoto"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionVideo:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionVideo(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionVideo"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCaptionVoice:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCaptionVoice(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCaptionVoice"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCommandArgsText:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCommandArgsText(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCommandArgsText"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionAnimation:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCommandCaptionAnimation(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCommandCaptionAnimation"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionArgsAnimation:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCommandCaptionArgsAnimation(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCommandCaptionArgsAnimation"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionArgsDocument:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCommandCaptionArgsDocument(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCommandCaptionArgsDocument"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionArgsPhoto:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCommandCaptionArgsPhoto(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCommandCaptionArgsPhoto"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionArgsVideo:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCommandCaptionArgsVideo(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCommandCaptionArgsVideo"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionArgsVoice:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCommandCaptionArgsVoice(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCommandCaptionArgsVoice"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionDocument:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCommandCaptionDocument(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCommandCaptionDocument"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionPhoto:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCommandCaptionPhoto(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCommandCaptionPhoto"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionVideo:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCommandCaptionVideo(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCommandCaptionVideo"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionVoice:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCommandCaptionVoice(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCommandCaptionVoice"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionCommandText:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionCommandText(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionCommandText"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreeAnimation:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreeAnimation(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreeAnimation"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreeAudio:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreeAudio(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreeAudio"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreeContact:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreeContact(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreeContact"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreeDocument:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreeDocument(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreeDocument"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreeLocation:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreeLocation(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreeLocation"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreePhoto:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreePhoto(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreePhoto"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreeSticker:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreeSticker(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreeSticker"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreeText:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreeText(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreeText"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreeVideo:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreeVideo(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreeVideo"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreeVideoNote:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreeVideoNote(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreeVideoNote"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionFreeVoice:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionFreeVoice(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionFreeVoice"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionText:member(1)",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link Ctx.setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionText(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionText"
             },
             {
               "kind": "Property",
