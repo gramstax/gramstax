@@ -70,11 +70,7 @@ export class CreatePage extends PageBase {
     await Main.showStep1Form(this)
   }
 
-  async handleFreeText() {
-    if (!this.isSessionFreeText()) {
-      return null
-    }
-
+  async handleSessionFreeText() {
     const {step, title} = Helper.getSessionParams(this)
     const input = this.msgText.trim()
     if (step === Base.s1) {

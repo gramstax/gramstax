@@ -124,11 +124,7 @@ export class DeletePage extends PageBase {
     }
   }
 
-  async handleFreeText() {
-    if (!this.isSessionFreeText()) {
-      return null
-    }
-
+  async handleSessionFreeText() {
     const {step} = this.temp.session.params
     const input = this.msgText.trim()
     if (step === Base.step1) {

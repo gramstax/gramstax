@@ -51,11 +51,7 @@ export class InputTextPage extends PageBase {
     await Main.showStep1Form(this, false)
   }
 
-  async handleFreeText() {
-    if (!this.isSessionFreeText()) {
-      return null
-    }
-
+  async handleSessionFreeText() {
     const {step} = this.temp.session.params
     if (step === Base.step1) {
       await Main.processStep1Answer(this)

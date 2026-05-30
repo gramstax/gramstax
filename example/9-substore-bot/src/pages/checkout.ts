@@ -235,11 +235,7 @@ export class CheckoutPage extends PageBase {
     await Main.processStep1Answer(this, action)
   }
 
-  async handleFreeText() {
-    if (!this.isSessionFreeText()) {
-      return null
-    }
-
+  async handleSessionFreeText() {
     const {position} = Helper.getSession(this)
     if (position === `contact`) {
       await Main.showConfirmForm(this, this.msgText.trim())
