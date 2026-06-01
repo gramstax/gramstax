@@ -3213,8 +3213,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3240,8 +3239,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3267,8 +3265,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3319,8 +3316,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3346,8 +3342,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3373,8 +3368,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3400,8 +3394,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3427,8 +3420,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3454,8 +3446,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3481,8 +3472,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3508,8 +3498,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3535,8 +3524,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3562,8 +3550,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3589,8 +3576,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3616,8 +3602,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3643,8 +3628,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3670,8 +3654,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3697,8 +3680,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3724,8 +3706,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3751,8 +3732,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3778,8 +3758,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3805,8 +3784,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3832,8 +3810,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3859,8 +3836,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3886,8 +3862,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3913,8 +3888,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3940,8 +3914,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3967,8 +3940,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -3994,8 +3966,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4021,8 +3992,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4048,8 +4018,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4075,8 +4044,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4102,8 +4070,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4129,8 +4096,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4156,8 +4122,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4183,8 +4148,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4210,8 +4174,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4237,8 +4200,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4264,8 +4226,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4291,8 +4252,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4318,8 +4278,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4345,8 +4304,7 @@ methods:
 
 
       Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be
-      called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1
-      dispatches before id=2 ever runs.
+      called for non-session flows because id=1 dispatches before id=2 ever runs.
 
 
       Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.
@@ -4483,910 +4441,6 @@ methods:
       return:
         type: <xref uid="grammy!InlineKeyboard:class" />
         description: The inline keyboard instance.
-  - name: isSessionArgsCallbackData()
-    uid: gramstax!Ctx#isSessionArgsCallbackData:member(1)
-    package: gramstax!
-    fullName: isSessionArgsCallbackData()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionArgsCallbackData(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionArgsText()
-    uid: gramstax!Ctx#isSessionArgsText:member(1)
-    package: gramstax!
-    fullName: isSessionArgsText()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionArgsText(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCallbackData()
-    uid: gramstax!Ctx#isSessionCallbackData:member(1)
-    package: gramstax!
-    fullName: isSessionCallbackData()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example:
-      - |-
-        ```typescript
-        async handleFreeText() {
-          if (this.isSessionFreeText()) {
-            // Active session of type "freeText" — handle session flow
-          } else {
-            // No matching session — handle non-session flow
-          }
-        }
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCallbackData(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCaptionAnimation()
-    uid: gramstax!Ctx#isSessionCaptionAnimation:member(1)
-    package: gramstax!
-    fullName: isSessionCaptionAnimation()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCaptionAnimation(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCaptionArgsAnimation()
-    uid: gramstax!Ctx#isSessionCaptionArgsAnimation:member(1)
-    package: gramstax!
-    fullName: isSessionCaptionArgsAnimation()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCaptionArgsAnimation(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCaptionArgsAudio()
-    uid: gramstax!Ctx#isSessionCaptionArgsAudio:member(1)
-    package: gramstax!
-    fullName: isSessionCaptionArgsAudio()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCaptionArgsAudio(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCaptionArgsDocument()
-    uid: gramstax!Ctx#isSessionCaptionArgsDocument:member(1)
-    package: gramstax!
-    fullName: isSessionCaptionArgsDocument()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCaptionArgsDocument(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCaptionArgsPhoto()
-    uid: gramstax!Ctx#isSessionCaptionArgsPhoto:member(1)
-    package: gramstax!
-    fullName: isSessionCaptionArgsPhoto()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCaptionArgsPhoto(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCaptionArgsVideo()
-    uid: gramstax!Ctx#isSessionCaptionArgsVideo:member(1)
-    package: gramstax!
-    fullName: isSessionCaptionArgsVideo()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCaptionArgsVideo(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCaptionArgsVoice()
-    uid: gramstax!Ctx#isSessionCaptionArgsVoice:member(1)
-    package: gramstax!
-    fullName: isSessionCaptionArgsVoice()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCaptionArgsVoice(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCaptionAudio()
-    uid: gramstax!Ctx#isSessionCaptionAudio:member(1)
-    package: gramstax!
-    fullName: isSessionCaptionAudio()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCaptionAudio(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCaptionDocument()
-    uid: gramstax!Ctx#isSessionCaptionDocument:member(1)
-    package: gramstax!
-    fullName: isSessionCaptionDocument()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCaptionDocument(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCaptionPhoto()
-    uid: gramstax!Ctx#isSessionCaptionPhoto:member(1)
-    package: gramstax!
-    fullName: isSessionCaptionPhoto()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCaptionPhoto(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCaptionVideo()
-    uid: gramstax!Ctx#isSessionCaptionVideo:member(1)
-    package: gramstax!
-    fullName: isSessionCaptionVideo()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCaptionVideo(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCaptionVoice()
-    uid: gramstax!Ctx#isSessionCaptionVoice:member(1)
-    package: gramstax!
-    fullName: isSessionCaptionVoice()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCaptionVoice(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandArgsText()
-    uid: gramstax!Ctx#isSessionCommandArgsText:member(1)
-    package: gramstax!
-    fullName: isSessionCommandArgsText()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandArgsText(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandCaptionAnimation()
-    uid: gramstax!Ctx#isSessionCommandCaptionAnimation:member(1)
-    package: gramstax!
-    fullName: isSessionCommandCaptionAnimation()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandCaptionAnimation(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandCaptionArgsAnimation()
-    uid: gramstax!Ctx#isSessionCommandCaptionArgsAnimation:member(1)
-    package: gramstax!
-    fullName: isSessionCommandCaptionArgsAnimation()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandCaptionArgsAnimation(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandCaptionArgsAudio()
-    uid: gramstax!Ctx#isSessionCommandCaptionArgsAudio:member(1)
-    package: gramstax!
-    fullName: isSessionCommandCaptionArgsAudio()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandCaptionArgsAudio(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandCaptionArgsDocument()
-    uid: gramstax!Ctx#isSessionCommandCaptionArgsDocument:member(1)
-    package: gramstax!
-    fullName: isSessionCommandCaptionArgsDocument()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandCaptionArgsDocument(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandCaptionArgsPhoto()
-    uid: gramstax!Ctx#isSessionCommandCaptionArgsPhoto:member(1)
-    package: gramstax!
-    fullName: isSessionCommandCaptionArgsPhoto()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandCaptionArgsPhoto(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandCaptionArgsVideo()
-    uid: gramstax!Ctx#isSessionCommandCaptionArgsVideo:member(1)
-    package: gramstax!
-    fullName: isSessionCommandCaptionArgsVideo()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandCaptionArgsVideo(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandCaptionArgsVoice()
-    uid: gramstax!Ctx#isSessionCommandCaptionArgsVoice:member(1)
-    package: gramstax!
-    fullName: isSessionCommandCaptionArgsVoice()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandCaptionArgsVoice(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandCaptionAudio()
-    uid: gramstax!Ctx#isSessionCommandCaptionAudio:member(1)
-    package: gramstax!
-    fullName: isSessionCommandCaptionAudio()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandCaptionAudio(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandCaptionDocument()
-    uid: gramstax!Ctx#isSessionCommandCaptionDocument:member(1)
-    package: gramstax!
-    fullName: isSessionCommandCaptionDocument()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandCaptionDocument(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandCaptionPhoto()
-    uid: gramstax!Ctx#isSessionCommandCaptionPhoto:member(1)
-    package: gramstax!
-    fullName: isSessionCommandCaptionPhoto()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandCaptionPhoto(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandCaptionVideo()
-    uid: gramstax!Ctx#isSessionCommandCaptionVideo:member(1)
-    package: gramstax!
-    fullName: isSessionCommandCaptionVideo()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandCaptionVideo(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandCaptionVoice()
-    uid: gramstax!Ctx#isSessionCommandCaptionVoice:member(1)
-    package: gramstax!
-    fullName: isSessionCommandCaptionVoice()
-    summary: ''
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandCaptionVoice(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionCommandText()
-    uid: gramstax!Ctx#isSessionCommandText:member(1)
-    package: gramstax!
-    fullName: isSessionCommandText()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionCommandText(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionFreeAnimation()
-    uid: gramstax!Ctx#isSessionFreeAnimation:member(1)
-    package: gramstax!
-    fullName: isSessionFreeAnimation()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionFreeAnimation(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionFreeAudio()
-    uid: gramstax!Ctx#isSessionFreeAudio:member(1)
-    package: gramstax!
-    fullName: isSessionFreeAudio()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionFreeAudio(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionFreeContact()
-    uid: gramstax!Ctx#isSessionFreeContact:member(1)
-    package: gramstax!
-    fullName: isSessionFreeContact()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionFreeContact(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionFreeDocument()
-    uid: gramstax!Ctx#isSessionFreeDocument:member(1)
-    package: gramstax!
-    fullName: isSessionFreeDocument()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionFreeDocument(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionFreeLocation()
-    uid: gramstax!Ctx#isSessionFreeLocation:member(1)
-    package: gramstax!
-    fullName: isSessionFreeLocation()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionFreeLocation(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionFreePhoto()
-    uid: gramstax!Ctx#isSessionFreePhoto:member(1)
-    package: gramstax!
-    fullName: isSessionFreePhoto()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionFreePhoto(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionFreeSticker()
-    uid: gramstax!Ctx#isSessionFreeSticker:member(1)
-    package: gramstax!
-    fullName: isSessionFreeSticker()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionFreeSticker(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionFreeText()
-    uid: gramstax!Ctx#isSessionFreeText:member(1)
-    package: gramstax!
-    fullName: isSessionFreeText()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionFreeText(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionFreeVideo()
-    uid: gramstax!Ctx#isSessionFreeVideo:member(1)
-    package: gramstax!
-    fullName: isSessionFreeVideo()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionFreeVideo(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionFreeVideoNote()
-    uid: gramstax!Ctx#isSessionFreeVideoNote:member(1)
-    package: gramstax!
-    fullName: isSessionFreeVideoNote()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionFreeVideoNote(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionFreeVoice()
-    uid: gramstax!Ctx#isSessionFreeVoice:member(1)
-    package: gramstax!
-    fullName: isSessionFreeVoice()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionFreeVoice(): boolean;'
-      return:
-        type: boolean
-        description: ''
-  - name: isSessionText()
-    uid: gramstax!Ctx#isSessionText:member(1)
-    package: gramstax!
-    fullName: isSessionText()
-    summary: Session validation utilities — check whether the active session corresponds to a specific route type.
-    remarks: >-
-      These are \*\*user-facing helpers\*\* for manual session checks inside a handler. They are NOT used by the routing
-      system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered
-      keys.
-
-
-      Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`<!-- -->.
-      Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*`
-      handlers.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'isSessionText(): boolean;'
-      return:
-        type: boolean
-        description: ''
   - name: keyboardCols(k, l, layout, cb)
     uid: gramstax!Ctx#keyboardCols:member(1)
     package: gramstax!

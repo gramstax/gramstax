@@ -7373,7 +7373,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionArgsCallbackData:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7409,7 +7409,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionArgsText:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7445,7 +7445,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCallbackData:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n *\n * @example\n * ```typescript\n * // handle* — invoked via id=2 (static) when no session matches in id=1\n * async handleCallbackData() {\n *   await this.edit(`normal flow: ${this.callbackData}`)\n * }\n *\n * // handleSession* — invoked via id=1 (session) when session.method matches\n * async handleSessionCallbackData() {\n *   const {inputText} = this.temp.session.params\n *   await this.edit(`session-active: ${inputText}`)\n * }\n * ```\n *\n * @example\n * ```typescript\n * async handleArgsCallbackData() {\n *   await this.edit(`normal: ${this.callbackData}`)\n * }\n * async handleSessionArgsCallbackData() {\n *   const {inputText} = this.temp.session.params\n *   await this.edit(`session: ${this.callbackData}, params: ${inputText}`)\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n *\n * @example\n * ```typescript\n * // handle* — invoked via id=2 (static) when no session matches in id=1\n * async handleCallbackData() {\n *   await this.edit(`normal flow: ${this.callbackData}`)\n * }\n *\n * // handleSession* — invoked via id=1 (session) when session.method matches\n * async handleSessionCallbackData() {\n *   const {inputText} = this.temp.session.params\n *   await this.edit(`session-active: ${inputText}`)\n * }\n * ```\n *\n * @example\n * ```typescript\n * async handleArgsCallbackData() {\n *   await this.edit(`normal: ${this.callbackData}`)\n * }\n * async handleSessionArgsCallbackData() {\n *   const {inputText} = this.temp.session.params\n *   await this.edit(`session: ${this.callbackData}, params: ${inputText}`)\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7481,7 +7481,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionAnimation:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7517,7 +7517,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7553,7 +7553,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7589,7 +7589,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7625,7 +7625,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7661,7 +7661,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7697,7 +7697,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7733,7 +7733,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionAudio:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7769,7 +7769,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionDocument:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7805,7 +7805,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionPhoto:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7841,7 +7841,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionVideo:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7877,7 +7877,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionVoice:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7913,7 +7913,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandArgsText:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7949,7 +7949,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionAnimation:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7985,7 +7985,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8021,7 +8021,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8057,7 +8057,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8093,7 +8093,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8129,7 +8129,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8165,7 +8165,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8201,7 +8201,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionAudio:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8237,7 +8237,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionDocument:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8273,7 +8273,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionPhoto:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8309,7 +8309,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionVideo:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8345,7 +8345,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionVoice:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8381,7 +8381,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandText:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8417,7 +8417,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFree:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8453,7 +8453,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeAnimation:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8489,7 +8489,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeAudio:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8525,7 +8525,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeContact:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8561,7 +8561,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeDocument:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8597,7 +8597,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeLocation:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8633,7 +8633,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreePhoto:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8669,7 +8669,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeSticker:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8705,7 +8705,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeText:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8741,7 +8741,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeVideo:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8777,7 +8777,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeVideoNote:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8813,7 +8813,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeVoice:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8849,7 +8849,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionText:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows — manual `isSession*()` checks inside `handle*` are unnecessary because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9179,1277 +9179,6 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "inlineKeyboardT"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionArgsCallbackData:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionArgsCallbackData(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionArgsCallbackData"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionArgsText:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionArgsText(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionArgsText"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCallbackData:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n *\n * @example\n * ```typescript\n * async handleFreeText() {\n *   if (this.isSessionFreeText()) {\n *     // Active session of type \"freeText\" — handle session flow\n *   } else {\n *     // No matching session — handle non-session flow\n *   }\n * }\n * ```\n *\n * @public\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCallbackData(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCallbackData"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCaptionAnimation:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCaptionAnimation(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCaptionAnimation"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCaptionArgsAnimation(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCaptionArgsAnimation"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCaptionArgsAudio(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCaptionArgsAudio"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCaptionArgsDocument(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCaptionArgsDocument"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCaptionArgsPhoto(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCaptionArgsPhoto"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCaptionArgsVideo(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCaptionArgsVideo"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCaptionArgsVoice(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCaptionArgsVoice"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCaptionAudio:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCaptionAudio(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCaptionAudio"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCaptionDocument:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCaptionDocument(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCaptionDocument"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCaptionPhoto:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCaptionPhoto(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCaptionPhoto"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCaptionVideo:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCaptionVideo(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCaptionVideo"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCaptionVoice:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCaptionVoice(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCaptionVoice"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandArgsText:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandArgsText(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandArgsText"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandCaptionAnimation:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandCaptionAnimation(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandCaptionAnimation"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandCaptionArgsAnimation(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandCaptionArgsAnimation"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandCaptionArgsAudio(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandCaptionArgsAudio"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandCaptionArgsDocument(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandCaptionArgsDocument"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandCaptionArgsPhoto(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandCaptionArgsPhoto"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandCaptionArgsVideo(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandCaptionArgsVideo"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandCaptionArgsVoice(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandCaptionArgsVoice"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandCaptionAudio:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandCaptionAudio(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandCaptionAudio"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandCaptionDocument:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandCaptionDocument(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandCaptionDocument"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandCaptionPhoto:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandCaptionPhoto(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandCaptionPhoto"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandCaptionVideo:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandCaptionVideo(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandCaptionVideo"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandCaptionVoice:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandCaptionVoice(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandCaptionVoice"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionCommandText:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionCommandText(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionCommandText"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionFreeAnimation:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionFreeAnimation(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionFreeAnimation"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionFreeAudio:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionFreeAudio(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionFreeAudio"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionFreeContact:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionFreeContact(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionFreeContact"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionFreeDocument:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionFreeDocument(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionFreeDocument"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionFreeLocation:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionFreeLocation(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionFreeLocation"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionFreePhoto:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionFreePhoto(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionFreePhoto"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionFreeSticker:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionFreeSticker(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionFreeSticker"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionFreeText:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionFreeText(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionFreeText"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionFreeVideo:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionFreeVideo(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionFreeVideo"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionFreeVideoNote:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionFreeVideoNote(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionFreeVideoNote"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionFreeVoice:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionFreeVoice(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionFreeVoice"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "gramstax!Ctx#isSessionText:member(1)",
-              "docComment": "/**\n * Session validation utilities — check whether the active session corresponds to a specific route type.\n *\n * @remarks\n *\n * These are **user-facing helpers** for manual session checks inside a handler. They are NOT used by the routing system — dispatch is handled entirely by `_pageRoutes` id=1 which matches `session.method` against registered keys.\n *\n * Each `isSession*()` compares its own `methodSession*()` result against the current `session.method`. Useful when a single handler needs to branch on the session type, or for defensive checks in `handleFree*` handlers.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "isSessionText(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "isSessionText"
             },
             {
               "kind": "Method",

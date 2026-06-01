@@ -222,48 +222,6 @@ export class Ctx {
     haveArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0]): boolean;
     inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb;
     inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, baseId?: string | null, data?: ITData): InlineKeyboard;
-    isSessionArgsCallbackData(): boolean;
-    isSessionArgsText(): boolean;
-    isSessionCallbackData(): boolean;
-    isSessionCaptionAnimation(): boolean;
-    isSessionCaptionArgsAnimation(): boolean;
-    isSessionCaptionArgsAudio(): boolean;
-    isSessionCaptionArgsDocument(): boolean;
-    isSessionCaptionArgsPhoto(): boolean;
-    isSessionCaptionArgsVideo(): boolean;
-    isSessionCaptionArgsVoice(): boolean;
-    isSessionCaptionAudio(): boolean;
-    isSessionCaptionDocument(): boolean;
-    isSessionCaptionPhoto(): boolean;
-    isSessionCaptionVideo(): boolean;
-    isSessionCaptionVoice(): boolean;
-    isSessionCommandArgsText(): boolean;
-    isSessionCommandCaptionAnimation(): boolean;
-    isSessionCommandCaptionArgsAnimation(): boolean;
-    isSessionCommandCaptionArgsAudio(): boolean;
-    isSessionCommandCaptionArgsDocument(): boolean;
-    isSessionCommandCaptionArgsPhoto(): boolean;
-    isSessionCommandCaptionArgsVideo(): boolean;
-    isSessionCommandCaptionArgsVoice(): boolean;
-    isSessionCommandCaptionAudio(): boolean;
-    isSessionCommandCaptionDocument(): boolean;
-    isSessionCommandCaptionPhoto(): boolean;
-    isSessionCommandCaptionVideo(): boolean;
-    // (undocumented)
-    isSessionCommandCaptionVoice(): boolean;
-    isSessionCommandText(): boolean;
-    isSessionFreeAnimation(): boolean;
-    isSessionFreeAudio(): boolean;
-    isSessionFreeContact(): boolean;
-    isSessionFreeDocument(): boolean;
-    isSessionFreeLocation(): boolean;
-    isSessionFreePhoto(): boolean;
-    isSessionFreeSticker(): boolean;
-    isSessionFreeText(): boolean;
-    isSessionFreeVideo(): boolean;
-    isSessionFreeVideoNote(): boolean;
-    isSessionFreeVoice(): boolean;
-    isSessionText(): boolean;
     keyboardCols<T = any>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;
     methodSession(prefix: string, name: string | undefined): string;
     methodSessionArgsCallbackData(name?: string): string;
@@ -1572,7 +1530,7 @@ export class WorkerThreadRpc {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:8335:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:8228:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
