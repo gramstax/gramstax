@@ -743,7 +743,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   async executeSyncBlocksDescription(pages: typeof Gramstax.prototype.pages) {
     // 1. Collect all unique (scope, language) pairs
     const targets = new Map<string, Set<string>>() // scope -> Set<language>
-    const allCommands = pages.routeStatic.handleCommandText
+    const allCommands = pages?.routeStatic?.handleCommandText
+    if (!allCommands) {
+      return
+    }
 
     for (const [, page] of Object.entries(allCommands)) {
       const name = page.name
