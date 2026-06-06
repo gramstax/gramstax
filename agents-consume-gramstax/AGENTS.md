@@ -6,7 +6,7 @@ This file is the entrypoint for agent-facing rules in this directory.
 
 ### `.rules-pages/`
 
-Use `./.rules-pages/AGENTS.md` as the module index for page-related rules. It currently covers:
+Use this `AGENTS.md` as the module index for page-related rules. It currently covers:
 
 - [`PROJECT_STRUCTURE.md`](./.rules-pages/PROJECT_STRUCTURE.md) — initialization and directory layout
 - [`ROUTING_FLOW.md`](./.rules-pages/ROUTING_FLOW.md) — routing logic, flow, and session handling
@@ -21,7 +21,28 @@ Use `./.rules-pages/AGENTS.md` as the module index for page-related rules. It cu
 
 ### `.rules-helpers/`
 
-Use `./.rules-helpers/AGENTS.md` as the module index for helper-related rules. This rule set is currently a stub and should be expanded as helper conventions are documented.
+Use this `AGENTS.md` as the module index for helper-related rules. This rule set is currently a stub and should be expanded as helper conventions are documented.
+
+### `.rules-core/`
+
+This section documents core architecture patterns and exceptions that apply to any Gramstax project.
+
+#### Worker Bot — templateManager Exception
+
+When a scheduler/worker thread needs a minimal Gramstax instance solely to call raw `bot.api` methods (e.g., `deleteMessage`) — without loading page templates, routing, or sessions — the `templateManager` parameter **must** be passed as `{} as any`.
+
+```typescript
+templateManager: {} as any // intentionally empty: worker bot must NOT load page templates
+```
+
+This is an **intentional exception** to the `any` avoidance guideline:
+
+- `new TemplateManager({path: []})` still triggers internal path resolution that can throw.
+- The worker bot is never used to render pages — only raw `bot.api` calls.
+- The `any` cast is scoped to a single isolated param; the rest of the instance remains type-safe.
+- `_pageLoads()` must also be overridden to return an empty object to prevent page loading.
+
+Do **not** apply this pattern in the main bot instance, which **must** load pages and render templates properly.
 
 ## Rule Folder Convention
 

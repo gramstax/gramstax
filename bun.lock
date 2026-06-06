@@ -82,7 +82,7 @@
     },
     "packages/create-gramstax": {
       "name": "create-gramstax",
-      "version": "0.8.10",
+      "version": "0.8.23",
       "bin": {
         "create-gramstax": "dist/src/index.js",
       },
@@ -101,7 +101,7 @@
     },
     "packages/gramstax": {
       "name": "gramstax",
-      "version": "0.8.10",
+      "version": "0.8.23",
       "dependencies": {
         "@keyv/redis": "^5.1.4",
         "chokidar": "^4.0.3",
