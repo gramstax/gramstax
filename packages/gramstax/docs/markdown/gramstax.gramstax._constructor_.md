@@ -48,17 +48,93 @@ Configuration options. See [ITGramstaxParams](./gramstax.itgramstaxparams.md) fo
 </td></tr>
 </tbody></table>
 
-## Example
+## Example 1
 
 
 ```typescript
-// Polling mode
+// Polling mode (development, local testing)
 new Gramstax({token: "BOT_TOKEN", deploy: "polling"})
 
-// Webhook mode
+// Webhook mode with Bun's HTTP server
 new Gramstax({token: "BOT_TOKEN", deploy: "webhook:https://example.com/bot"})
+```
 
-// Serverless mode
-new Gramstax({token: "BOT_TOKEN", deploy: "serverless:std/http"})
+## Example 2
+
+
+```typescript
+// Serverless mode — Bun std/http adapter
+//
+// The bot does NOT self-host; instead it sets up handlerBotUpdate
+// for your serverless runtime. Export the handler and let your
+// platform invoke it per HTTP request.
+
+// bot.ts — instantiation
+const bot = new Gramstax({
+  token: process.env.BOT_TOKEN!,
+  deploy: "serverless:std/http"
+})
+
+// handler.ts — server entry point
+import {bot} from "./bot"
+
+// Bun's built-in HTTP server
+Bun.serve({
+  port: 3000,
+  async fetch(req) {
+    const url = new URL(req.url)
+    if (url.pathname === "/webhook") {
+      // Forward the request to gramstax's handler
+      return await bot.handlerBotUpdate(req)
+    }
+    return new Response("Not found", {status: 404})
+  }
+})
+```
+
+## Example 3
+
+
+```typescript
+// Serverless mode — AWS Lambda
+//
+// bot.ts
+const bot = new Gramstax({
+  token: process.env.BOT_TOKEN!,
+  deploy: "serverless:aws-lambda"
+})
+
+// lambda.ts
+import {bot} from "./bot"
+import type {APIGatewayProxyEvent, Context} from "aws-lambda"
+
+export const handler = async (event: APIGatewayProxyEvent, _ctx: Context) => {
+  // webhookCallback(bot.bot, "aws-lambda") wraps the raw event
+  // into a grammY-compatible format internally
+  return await bot.handlerBotUpdate(event)
+}
+```
+
+## Example 4
+
+
+```typescript
+// Serverless mode — Cloudflare Workers
+//
+// bot.ts
+const bot = new Gramstax({token: env.BOT_TOKEN, deploy: "serverless:cloudflare-workers-mod"})
+
+// worker.ts
+import {bot} from "./bot"
+
+export default {
+  async fetch(request: Request) {
+    const url = new URL(request.url)
+    if (url.pathname === "/webhook") {
+      return await bot.handlerBotUpdate(request)
+    }
+    return new Response("OK")
+  }
+}
 ```
 

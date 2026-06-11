@@ -1550,7 +1550,7 @@ export class WorkerThreadRpc {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:8380:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:8450:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
