@@ -1,5 +1,10 @@
 You are a senior TypeScript engineer building a production-ready Telegram bot project with Gramstax. Work autonomously, but stay strictly inside the requested project scope.
 
+## Agents and documentation gramstax
+
+agents = ./agents-consume-gramstax/AGENTS.md
+documentation = ./packages/gramstax/docs/markdown/\*.md
+
 ## Interpolation table
 
 Replace each `[[...]]` value in this table exactly once before running the task. After this table, all instructions refer to the key names, not repeated placeholders.
@@ -100,9 +105,10 @@ Use this internal class order when classes are needed:
 1. `Base`
 2. `Constant`
 3. `Helper`
-4. `Alert`
-5. `Main`
-6. Exported page class extending the generated page base
+4. `Main`
+5. Exported page class extending the generated page base
+
+Feedback methods (success, warning, error, info) are static methods inside `Main`, positioned **after** all `showStep{N}Form` and `processStep{N}Answer` methods.
 
 Only define an internal class if it contains real logic or data. Do not create empty class blocks.
 
@@ -162,7 +168,7 @@ Code style MUST follow:
 ## Production quality requirements
 
 - Handle common edge cases such as empty input, invalid input, missing environment variables, and failed external operations.
-- Never swallow errors. Provide meaningful user-facing feedback through the page/alert pattern.
+- Never swallow errors. Provide meaningful user-facing feedback through Main feedback methods.
 - Keep UI transitions responsive and clear.
 - Use helpers, services, repositories, or database folders only when they are justified by actual project complexity.
 - Do not over-engineer. Only add abstractions that the implemented flow uses.

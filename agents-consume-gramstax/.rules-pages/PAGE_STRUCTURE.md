@@ -4,13 +4,12 @@
 
 Each page file must follow a strict modular structure. **Only define internal classes if they contain logic or data.** Empty class blocks are prohibited.
 
-| Class        | Purpose           | Mandatory Naming                           |
-| :----------- | :---------------- | :----------------------------------------- |
-| **Base**     | Base ID constants | static <idName> = `id`                     |
-| **Constant** | Reusable literals | static <CONST_NAME> = value                |
-| **Helper**   | Local utilities   | static kb(ctx, bi) { ... }                 |
-| **Alert**    | Feedback messages | static async showSuccess(ctx, ...) { ... } |
-| **Main**     | Business Logic    | showStep{N}Form, processStep{N}Answer      |
+| Class        | Purpose           | Mandatory Naming                      |
+| :----------- | :---------------- | :------------------------------------ |
+| **Base**     | Base ID constants | static <idName> = `id`                |
+| **Constant** | Reusable literals | static <CONST_NAME> = value           |
+| **Helper**   | Local utilities   | static kb(ctx, bi) { ... }            |
+| **Main**     | Business Logic    | showStep{N}Form, processStep{N}Answer |
 
 ## Execution Path (Main Class)
 
@@ -27,16 +26,19 @@ Classes within the file **MUST** be declared in this exact order:
 1. **Base**
 2. **Constant**
 3. **Helper**
-4. **Alert**
-5. **Main**
-6. **Page** (The exported class, inheriting from PageBase)
+4. **Main**
+5. **Page** (The exported class, inheriting from PageBase)
 
-## Alert Patterns
+## Feedback in Main
 
-Use these prefixes for methods in the Alert class:
+Feedback methods live as **static methods inside `Main`**, **after** all `showStep{N}Form` and `processStep{N}Answer` methods.
 
-- showSuccess: For positive outcomes.
-- showFailed: For business logic failures.
-- showError: For system errors.
-- showWarn: For validation warnings.
-- showInfo: For informative/help content.
+Naming prefixes:
+
+| Prefix        | Use Case                |
+| ------------- | ----------------------- |
+| `showSuccess` | Positive outcomes       |
+| `showFailed`  | Business logic failures |
+| `showError`   | System errors           |
+| `showWarn`    | Validation warnings     |
+| `showInfo`    | Informative content     |

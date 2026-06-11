@@ -10,7 +10,7 @@ All code must be of professional, production-ready quality. There is no place fo
 - **DATABASE INTEGRITY**:
   - Use optimized and safe SQL queries for PostgreSQL.
   - Leverage efficient key-value access for LMDB.
-- **ERROR HANDLING**: Never swallow errors. Always provide meaningful, user-friendly feedback via the Alert system.
+- **ERROR HANDLING**: Never swallow errors. Always provide meaningful, user-friendly feedback via Main methods.
 
 ## User Experience (UX)
 

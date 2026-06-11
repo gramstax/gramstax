@@ -2,13 +2,18 @@
 
 You are a senior TypeScript engineer building a production-ready Telegram bot project with Gramstax. Work autonomously, but stay strictly inside the requested project scope.
 
+## Agents and documentation gramstax
+
+agents = ./agents-consume-gramstax/AGENTS.md
+documentation = ./packages/gramstax/docs/markdown/\*.md
+
 ## Real project values
 
 | Key                       | Value                                                                                                                                                                                                                                                                                                                       |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| PROJECT_NAME              | `preview-content-bot`                                                                                                                                                                                                                                                                                                       |
+| PROJECT_NAME              | `vip-content-bot`                                                                                                                                                                                                                                                                                                           |
 | TARGET_DIRECTORY          | `./real`                                                                                                                                                                                                                                                                                                                    |
-| BOT_PURPOSE               | A private preview-content delivery bot. Users open content through `/start <unique_code>`, receive the mapped preview content, and that delivered message is automatically deleted after a configurable TTL. Admins can manage content codes, broadcast to all known users, and inspect operational stats.                  |
+| BOT_PURPOSE               | A private preview-content VIP delivery bot. Users open content through `/start <unique_code>`, receive the mapped preview content, and that delivered message is automatically deleted after a configurable TTL. Admins can manage content codes, broadcast to all known users, and inspect operational stats.              |
 | TARGET_USERS              | End users who receive short-lived preview content links, plus trusted admins who manage content and broadcasts.                                                                                                                                                                                                             |
 | PRIMARY_USER_JOURNEY      | A user opens a Telegram deep link or sends `/start <unique_code>`. The bot stores the user/chat ID for future broadcast, validates the code, sends the mapped preview content, shows its expiry time, schedules deletion after the content TTL, and gives safe fallback/help text if the code is invalid or expired.        |
 | REQUIRED_PAGES_OR_FLOWS   | `start.ts` for `/start` and `/start <unique_code>`; `admin.ts` for `/admin` dashboard; admin flows for content create/edit/list/disable/delete, default TTL setting, stats, and broadcast; status/help/error pages as needed.                                                                                               |
@@ -24,7 +29,7 @@ You are a senior TypeScript engineer building a production-ready Telegram bot pr
 
 ## Target outcome
 
-Create a new Gramstax project named `preview-content-bot` inside `./real` with the official scaffolding package. Then implement a clean, production-quality Telegram bot that delivers short-lived preview content by unique start code and provides an admin manager for content, broadcast, and stats.
+Create a new Gramstax project named `vip-content-bot` inside `./real` with the official scaffolding package. Then implement a clean, production-quality Telegram bot that delivers short-lived preview content by unique start code and provides an admin manager for content, broadcast, and stats.
 
 The finished project MUST be runnable, lint-clean, type-safe, tested, and aligned with Gramstax page architecture rules.
 
@@ -34,11 +39,11 @@ The finished project MUST be runnable, lint-clean, type-safe, tested, and aligne
 - MUST NOT manually recreate the initial scaffold that the CLI is responsible for generating.
 - MUST use the generated project structure as the source of truth after scaffolding.
 - MUST use the `gramstax` package APIs and conventions produced by `create-gramstax`.
-- MUST keep changes focused inside `./real/preview-content-bot` after scaffolding.
+- MUST keep changes focused inside `./real/vip-content-bot` after scaffolding.
 - MUST NOT modify unrelated parent repositories, global config, CI, or system files.
 - MUST ask before deleting files, adding non-Gramstax dependencies other than the required `lmdb` package, changing database schema after it has data migration implications, or performing destructive terminal commands.
 - NEVER embed bot tokens, admin IDs, API keys, or credentials in source code. Use environment variables.
-- Only make changes directly required for this preview-content bot. Do not add dashboards, web UIs, auth systems, payment systems, queues, or cloud services unless explicitly required by this prompt.
+- Only make changes directly required for this project. Do not add dashboards, web UIs, auth systems, payment systems, queues, or cloud services unless explicitly required by this prompt.
 
 ## Product requirements
 
@@ -201,9 +206,10 @@ Use this internal class order when classes are needed:
 1. `Base`
 2. `Constant`
 3. `Helper`
-4. `Alert`
-5. `Main`
-6. Exported page class extending the generated page base
+4. `Main`
+5. Exported page class extending the generated page base
+
+Feedback methods (success, warning, error, info) are static methods inside `Main`, positioned **after** all `showStep{N}Form` and `processStep{N}Answer` methods.
 
 Only define an internal class if it contains real logic or data. Do not create empty class blocks.
 
@@ -263,7 +269,7 @@ Code style MUST follow:
 ## Production quality requirements
 
 - Handle empty content code, invalid content code, disabled content, expired content, invalid TTL, missing admin env, no known users, broadcast failures, and Telegram delete failures.
-- Never swallow errors. Provide meaningful user-facing feedback through page/alert patterns and store operational failure status where useful.
+- Never swallow errors. Provide meaningful user-facing feedback through Main feedback methods and store operational failure status where useful.
 - Keep UI transitions responsive and clear.
 - Use helpers, services, repositories, or database folders only when justified by actual project complexity.
 - Do not over-engineer. Only add abstractions that the implemented flow uses.
@@ -307,7 +313,7 @@ Add tests that prove the bot works from the user’s point of view and that extr
 ## Required workflow
 
 1. Confirm this prompt uses concrete real project values and contains no placeholder tokens.
-2. Scaffold with `npx create-gramstax@latest` into `./real/preview-content-bot`.
+2. Scaffold with `npx create-gramstax@latest` into `./real/vip-content-bot`.
 3. Inspect the generated project before editing.
 4. Inspect local references before implementing:
    - `example/8-newsletter/src/db/main.ts`
@@ -333,7 +339,7 @@ Add tests that prove the bot works from the user’s point of view and that extr
 
 ## Done when
 
-- The project was initialized through `npx create-gramstax@latest` at `./real/preview-content-bot`.
+- The project was initialized through `npx create-gramstax@latest` at `./real/vip-content-bot`.
 - `/start <unique_code>` loads the correct preview content and stores user/chat ID in LMDB.
 - Delivered preview content is automatically deleted after its configured TTL, with persisted delivery status.
 - `/start` without code gives a clear instruction message and stores the user.

@@ -115,7 +115,7 @@ description: Comprehensive best practices for Gramstax real project structure an
 
 ## Page Class Structure
 
-Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up to **4 inner classes**. Define only what you need — never create empty classes.
+Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up to **3 inner classes**. Define only what you need — never create empty classes.
 
 ### Class Overview
 
@@ -124,7 +124,6 @@ Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up t
 | **Base**     | Base ID strings for template states                                 | When template has multiple `<base id="...">` states |
 | **Helper**   | Reusable utility functions (keyboard builders, formatters)          | When reusable logic appears 2+ times                |
 | **Constant** | Reusable common constant string/number                              | When reusable constants used 2+ times               |
-| **Alert**    | User feedback messages (success, warning, error, info)              | When user feedback with content is needed           |
 | **Main**     | Primary business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)    |
 
 ---
@@ -199,9 +198,17 @@ class Main {
   static async processStep1Answer(ctx: DepositPage) {
     const amountInput = ctx.msgText.trim();
     if (!amountInput) {
-      return await Alert.showWarnInvalid(ctx);
+      return await Main.showWarnInvalid(ctx);
     }
     // ... process the answer
+  }
+
+  // Feedback methods (at the bottom, after all showStep/processStep methods)
+  static async showWarnInvalid(ctx: DepositPage, amount = ``) {
+    const bi = Base.warnInvalid;
+    const kb = Helper.kb(ctx, bi);
+    const da = { amount };
+    await ctx.reply(kb, da, bi);
   }
 }
 ```
@@ -238,9 +245,11 @@ class Main {
 
 ---
 
-### 4. Alert — User Feedback
+### 4. Feedback Methods (Inside Main, at the Bottom)
 
-Displays user feedback messages with consistent naming:
+User feedback methods are **static methods inside `Main`**, positioned **after** all `showStep{N}Form` and `processStep{N}Answer` methods.
+
+Use these naming prefixes:
 
 | Type        | Pattern        | Example                                        |
 | ----------- | -------------- | ---------------------------------------------- |
@@ -251,7 +260,10 @@ Displays user feedback messages with consistent naming:
 | **Info**    | `showInfo*`    | `showInfoHelp(ctx)`                            |
 
 ```typescript
-class Alert {
+class Main {
+  // showStep and processStep methods come first...
+
+  // Feedback methods at the bottom, after all step form/answer methods
   static async showSuccess(ctx: DepositPage, amount: string, balance: string) {
     const bi = Base.success;
     const da = { amount, balance };
@@ -290,22 +302,6 @@ class Helper {
   }
 }
 
-class Alert {
-  static async showSuccess(ctx: DepositPage, amount: string, balance: string) {
-    const bi = Base.success;
-    const da = { amount, balance };
-    const kb = Helper.kb(ctx, bi);
-    await ctx.reply(kb, da, bi);
-  }
-
-  static async showWarnInvalid(ctx: DepositPage, amount = ``) {
-    const bi = Base.warnInvalid;
-    const kb = Helper.kb(ctx, bi);
-    const da = { amount };
-    await ctx.reply(kb, da, bi);
-  }
-}
-
 class Main {
   static async showStep1Form(ctx: DepositPage) {
     await ctx.setSessionFreeText();
@@ -318,10 +314,25 @@ class Main {
   static async processStep1Answer(ctx: DepositPage) {
     const amountInput = ctx.msgText.trim();
     if (!amountInput) {
-      return await Alert.showWarnInvalid(ctx);
+      return await Main.showWarnInvalid(ctx);
     }
     // ... processing logic
-    await Alert.showSuccess(ctx, amount, balance);
+    await Main.showSuccess(ctx, amount, balance);
+  }
+
+  // Feedback methods at the bottom, after all showStep/processStep methods
+  static async showSuccess(ctx: DepositPage, amount: string, balance: string) {
+    const bi = Base.success;
+    const da = { amount, balance };
+    const kb = Helper.kb(ctx, bi);
+    await ctx.reply(kb, da, bi);
+  }
+
+  static async showWarnInvalid(ctx: DepositPage, amount = ``) {
+    const bi = Base.warnInvalid;
+    const kb = Helper.kb(ctx, bi);
+    const da = { amount };
+    await ctx.reply(kb, da, bi);
   }
 }
 
@@ -422,36 +433,39 @@ Classes must appear in this specific order:
 
 ```
 1. Base     (if needed)
-2. Helper   (if needed)
-3. Alert    (if needed)
+2. Constant (if needed)
+3. Helper   (if needed)
 4. Main     (REQUIRED - except for general-status.ts)
 5. *Page    (export class - REQUIRED)
 ```
 
-### Correct Order
+**Note:** Feedback methods live inside `Main` at the **bottom**, after all `showStep{N}Form` and `processStep{N}Answer` methods.
+
+### Correct Order (5 positions, with optional classes)
 
 ```typescript
-class Base {...}
+class Base {...}       // 1. Base (if needed)
 
-class Constant {...}
+class Constant {...}   // 2. Constant (if needed)
 
-class Helper {...}
+class Helper {...}     // 3. Helper (if needed)
 
-class Alert {...}
+class Main {           // 4. Main (REQUIRED)
+  // showStep{N}Form / processStep{N}Answer methods first
 
-class Main {...}
+  // Feedback methods at the bottom
+}
 
-export class DepositPage extends PageBase {...}
+export class DepositPage extends PageBase {...}  // 5. Page (REQUIRED)
 ```
 
 ### Wrong Order
 
 ```typescript
-class Main {...}      // ❌ Must be position 5
+class Main {...}      // ❌ Must be position 4
 class Base {...}      // ❌ Must be position 1
-export class Page {...} // ❌ Must be position 6
-class Alert {...}     // ❌ Must be position 4
-class Constant {...} // Must be position 2
+export class Page {...} // ❌ Must be position 5
+class Constant {...} // ❌ Must be position 2
 class Helper {...}    // ❌ Must be position 3
 ```
 
@@ -508,10 +522,7 @@ Template has >1 <base id="...">? ──Yes──► Add Base class
 Need reusable logic (2+ times)? ──Yes──► Add Helper class
        │ No
        ▼
-Need user feedback messages? ──Yes──► Add Alert class
-       │ No
-       ▼
-Done
+Done — Add feedback methods inside Main at the bottom if needed
 ```
 
 ### Minimal Page Example

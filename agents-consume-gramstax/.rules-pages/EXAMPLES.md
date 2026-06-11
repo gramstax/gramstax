@@ -25,8 +25,28 @@ class Helper {
   }
 }
 
-// 4. ALERTS (User Feedback)
-class Alert {
+// 4. MAIN LOGIC
+class Main {
+  static async showStep1Form(ctx: DepositPage) {
+    await ctx.setSessionFreeText();
+    const bi = Base.step1;
+    const kb = Helper.kb(ctx, bi);
+    const da = {};
+    await ctx.edit(kb, da, bi);
+  }
+
+  static async processStep1Answer(ctx: DepositPage) {
+    const amountInput = ctx.msgText.trim();
+    if (!amountInput) {
+      return await Main.showWarnInvalid(ctx);
+    }
+
+    // Core business logic here...
+    const newBalance = `500`;
+    await Main.showSuccess(ctx, amountInput, newBalance);
+  }
+
+  // Feedback methods at the bottom (after all showStep/processStep)
   static async showSuccess(ctx: DepositPage, amount: string, balance: string) {
     const bi = Base.success;
     const da = { amount, balance };
@@ -42,29 +62,7 @@ class Alert {
   }
 }
 
-// 5. MAIN LOGIC
-class Main {
-  static async showStep1Form(ctx: DepositPage) {
-    await ctx.setSessionFreeText();
-    const bi = Base.step1;
-    const kb = Helper.kb(ctx, bi);
-    const da = {};
-    await ctx.edit(kb, da, bi);
-  }
-
-  static async processStep1Answer(ctx: DepositPage) {
-    const amountInput = ctx.msgText.trim();
-    if (!amountInput) {
-      return await Alert.showWarnInvalid(ctx);
-    }
-
-    // Core business logic here...
-    const newBalance = `500`;
-    await Alert.showSuccess(ctx, amountInput, newBalance);
-  }
-}
-
-// 6. EXPORTED PAGE CLASS
+// 5. EXPORTED PAGE CLASS
 export class DepositPage extends PageBase {
   async handleCallbackData() {
     await Main.showStep1Form(this);
