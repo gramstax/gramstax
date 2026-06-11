@@ -148,7 +148,7 @@ export class WorkerThreadInit {
   }
 
   /**
-   * Initialize message handling from parent port and register event message from parent.
+   * [LOW-LEVEL] Initialize message handling from parent port and register event message from parent.
    * @public
    */
   init() {
@@ -156,7 +156,7 @@ export class WorkerThreadInit {
   }
 
   /**
-   * Handle incoming messages from the main thread.
+   * [LOW-LEVEL] Handle incoming messages from the main thread.
    *
    * @param data - Message data from main thread.
    * @public
@@ -234,10 +234,10 @@ export class WorkerThreadInit {
   }
 
   /**
-   * Create a gateway client to connect to another worker.
+   * [LOW-LEVEL] Create a gateway client to connect to another worker.
    *
    * @remarks
-   * Not recommended for direct use. Use `launchGatewayClient` from `WorkerThreadExport` instead.
+   * Low-level API. Use `launchGatewayClient` from `WorkerThreadExport` instead.
    *
    * @param serverPath - Unix socket path to connect. Matches server gateway.
    * @returns Promise resolving with connected client.

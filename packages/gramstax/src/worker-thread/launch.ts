@@ -149,7 +149,7 @@ export class WorkerThreadLaunch {
   }
 
   /**
-   * Internal method called by worker to signal readiness.
+   * [LOW-LEVEL] Internal method called by worker to signal readiness.
    * @public
    */
   readyResolve() {
@@ -157,7 +157,7 @@ export class WorkerThreadLaunch {
   }
 
   /**
-   * Initialize the worker thread and set up message handlers.
+   * [LOW-LEVEL] Initialize the worker thread and set up message handlers.
    * @public
    */
   init() {
@@ -170,7 +170,7 @@ export class WorkerThreadLaunch {
   }
 
   /**
-   * Handle incoming messages from the worker thread.
+   * [LOW-LEVEL] Handle incoming messages from the worker thread.
    *
    * @param data - Message data from worker.
    * @public

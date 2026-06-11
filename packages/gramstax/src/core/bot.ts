@@ -217,7 +217,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     process.once(`SIGINT`, () => this.stop())
     process.once(`SIGTERM`, () => this.stop())
 
-    this.hookBeforeStart()
+    this.hookBeforeStart?.()
     if (params.deploy.startsWith(`polling`)) {
       this.deployType = `polling`
       this._runPolling()
@@ -270,7 +270,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  hookBeforeStart() {}
+  async hookBeforeStart?(): Promise<any>
 
   /**
    * Hook called after the bot has started.
@@ -278,7 +278,102 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  hookAfterStart() {}
+  async hookAfterStart?(): Promise<any>
+
+  /**
+   * Hook called before routing an update.
+   *
+   * @remarks
+   * Override this method to add pre-routing logic like authentication,
+   * rate limiting, or logging.
+   *
+   * @param ctx - The context instance.
+   * @param listenerName - The name of the listener handling this update.
+   * @returns True to continue routing, false to abort.
+   *
+   * @example
+   * ```typescript
+   * async hookBeforeRoute(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookBeforeRoute`]>>[1]) {
+   *   console.log(`[${data.listenerName}] handled by page: ${ctx.data.name} execute: `)
+   *   if (ctx.userId === blockedUserId) {
+   *     return false // Will not response
+   *   }
+   *   return true
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  async hookBeforeRoute?(ctx: ICtx, data: {listenerName: string}): Promise<boolean>
+
+  /**
+   * Hook called after routing an update.
+   *
+   * @remarks
+   * Override this method to add after routing logic like analytics or logging.
+   * NOTE: only executed when `hookBeforeRoute` set to return true or not define overrides
+   *
+   * @param ctx - The context instance.
+   * @param listenerName - The name of the listener that handled this update.
+   * @param status - Status this update
+   *
+   * @example
+   * ```typescript
+   * async hookAfterRoute(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookAfterRoute`]>>[1]) {
+   *   console.log(`[${data.listenerName}] handled by page: ${ctx.data.name} execute: status: ${data.status}`)
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  async hookAfterRoute?(ctx: ICtx, data: {listenerName: string; status: `success` | `error` | `notfound`}): Promise<void>
+
+  /**
+   * Hook called when a page handler throws an error.
+   *
+   * @remarks
+   * Override this method to handle errors gracefully, e.g., sending
+   * an error message to the user or logging to an external service.
+   *
+   * @param ctx - The context instance.
+   * @param listenerName - The name of the listener handling this update.
+   * @param error - The caught error.
+   * @param isEdit - Whether the handler was editing a message.
+   *
+   * @example
+   * ```typescript
+   * async hookErrorPage(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]) {
+   *   await new GeneralStatusPage(ctx).showError(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  async hookErrorPage?(ctx: ICtx, data: {listenerName: string; error: any; isEdit: boolean}): Promise<void>
+
+  /**
+   * Hook called when no page handler matches the input.
+   *
+   * @remarks
+   * Override this method to send a "command not found" message or
+   * redirect to a help page.
+   *
+   * @param ctx - The context instance.
+   *
+   * @example
+   * ```typescript
+   * async hookErrorInputNotFoundPage(ctx: Ctx) {
+   *   await new GeneralStatusPage(ctx).showErrorInputNotFound()
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  async hookErrorInputNotFoundPage?(ctx: ICtx): Promise<void>
 
   /**
    * Called when the bot successfully starts.
@@ -294,7 +389,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     const {username} = botInfo
     this.log?.success?.(`Telegram bot deploy ${method} started: ${username} ${method == `webhook` || method == `serverless` ? `(${data})` : ``}`)
-    this.hookAfterStart()
+    this.hookAfterStart?.()
   }
 
   /**
@@ -978,11 +1073,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @param ctx - The context instance.
    * @param fromListener - The listener type that triggered the route.
-   * @returns The route handler result, or null if no handler answered.
+   * @returns `result`: The route handler result, or null if no handler answered.
    *
    * @public
    */
-  async _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any> {
+  async _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{result: any}> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: {name: string; routeName: string} | undefined
@@ -1003,11 +1098,15 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       if (session) {
         const mtd = session.method
         const pStaticSession = this.pages.routeStaticSession
+        const methods = Array.isArray(mtd) ? mtd : [mtd]
 
         for (let index = 0; index < this.pages.lenListRouteStaticSession; index++) {
           const routeName = this.pages.listRouteStaticSession[index] as `handleSessionCaptionAnimation`
           if (routeName.toLowerCase().endsWith(fromListener)) {
-            res = pStaticSession[routeName][mtd]
+            for (const m of methods) {
+              res = pStaticSession[routeName][m]
+              if (res) break
+            }
           }
           if (res) break
         }
@@ -1088,12 +1187,19 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (Page !== undefined && res !== undefined) {
       // check first is have route function or not for best performance. if not have return undefined
       if (!Page.prototype[res.routeName as keyof typeof Page.prototype]) {
-        return
+        return {
+          result: undefined
+        }
       }
 
       const initPage = new Page(ctx) as any
-      const initRoute = await initPage[res.routeName]?.()
-      return ctx.temp.isAnswer === true ? initRoute : null
+      if ((await initPage.hookBeforeRoute?.()) !== false) {
+        const initRoute = await initPage[res.routeName]?.()
+        await initPage.hookAfterRoute?.()
+        return {
+          result: ctx.temp.isAnswer === true ? initRoute : null
+        }
+      }
     }
 
     /**
@@ -1121,7 +1227,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       // check first is have route function or not for best performance. if not continue
       if (typeof Page.prototype[value.routeName as keyof typeof Page.prototype] == `function`) {
         const initPage = new Page(ctx) as any
-        await initPage[value.routeName]()
+        if ((await initPage.hookBeforeRoute?.()) !== false) {
+          await initPage[value.routeName]()
+          await initPage.hookAfterRoute?.()
+        }
       }
     }
 
@@ -1146,102 +1255,41 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       // check first is have route function or not for best performance. if not continue
       if (typeof Page.prototype.handleFree == `function`) {
         const initPage = new Page(ctx)
-        await initPage.handleFree!()
+        if ((await initPage.hookBeforeRoute?.()) !== false) {
+          await initPage.handleFree!()
+          await initPage.hookAfterRoute?.()
+        }
       }
     }
 
-    // returning null if "isAnswer" false. will trigger hookErrorInputNotFoundPage
-    if (ctx.temp.isAnswer === false) {
-      return null
+    // returning result null if "isAnswer" false. will trigger hookErrorInputNotFoundPage
+    return {
+      result: ctx.temp.isAnswer === false ? null : undefined
     }
   }
 
-  /**
-   * Hook called before routing an update.
-   *
-   * @remarks
-   * Override this method to add pre-routing logic like authentication,
-   * rate limiting, or logging.
-   *
-   * @param ctx - The context instance.
-   * @param listenerName - The name of the listener handling this update.
-   * @returns True to continue routing, false to abort.
-   *
-   * @example
-   * ```typescript
-   * async hookBeforeRoute(ctx: Ctx, listenerName: string) {
-   *   if (ctx.userId === blockedUserId) {
-   *     return false // Block this user
-   *   }
-   *   return true
-   * }
-   * ```
-   *
-   * @virtual
-   * @public
-   */
-  async hookBeforeRoute(ctx: ICtx, listenerName: string): Promise<boolean> {
-    // must be override
-    if (ctx || listenerName) {
-      return true
-    }
-    return false
-  }
-
-  /**
-   * Hook called when a page handler throws an error.
-   *
-   * @remarks
-   * Override this method to handle errors gracefully, e.g., sending
-   * an error message to the user or logging to an external service.
-   *
-   * @param ctx - The context instance.
-   * @param listenerName - The name of the listener handling this update.
-   * @param error - The caught error.
-   * @param isEdit - Whether the handler was editing a message.
-   *
-   * @example
-   * ```typescript
-   * async hookErrorPage(ctx: Ctx, listenerName: string, error: any) {
-   *   await ctx.reply(undefined, {error: "An error occurred"})
-   *   console.error(error)
-   * }
-   * ```
-   *
-   * @virtual
-   * @public
-   */
-  async hookErrorPage(ctx: ICtx, listenerName: string, error: any, isEdit: boolean): Promise<void> {
-    // must be override
-    if (ctx || listenerName || error || isEdit) {
+  async _onHandle(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific | `onCallbackQueryData`, fromListener: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
+    let status: any
+    const ctx = this.createCtx(ct)
+    const before = await this.hookBeforeRoute?.(ctx, {listenerName})
+    if (before === false) {
       return
     }
-  }
-
-  /**
-   * Hook called when no page handler matches the input.
-   *
-   * @remarks
-   * Override this method to send a "command not found" message or
-   * redirect to a help page.
-   *
-   * @param ctx - The context instance.
-   *
-   * @example
-   * ```typescript
-   * async hookErrorInputNotFoundPage(ctx: Ctx) {
-   *   await ctx.ct.reply("Unknown command. Type /help for assistance.")
-   * }
-   * ```
-   *
-   * @virtual
-   * @public
-   */
-  async hookErrorInputNotFoundPage(ctx: ICtx): Promise<void> {
-    // must be override
-    if (ctx) {
-      return
+    try {
+      const {result} = await this._pageRoutes(ctx, fromListener)
+      if (result === null) {
+        status = `notfound`
+        if (shouldCheckNotFound) {
+          await this.hookErrorInputNotFoundPage?.(ctx)
+        }
+      } else {
+        status = `success`
+      }
+    } catch (error) {
+      status = `error`
+      await this.hookErrorPage?.(ctx, {listenerName, error, isEdit: false})
     }
+    await this.hookAfterRoute?.(ctx, {listenerName, status})
   }
 
   /**
@@ -1253,22 +1301,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   async _onMessage(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<void> {
-    const ctx = this.createCtx(ct)
-    try {
-      const before = await this.hookBeforeRoute(ctx, listenerName)
-      if (before === false) {
-        return
-      }
-
-      // this.log?.time(`1`)
-      const routeResult = await this._pageRoutes(ctx, listenerName)
-      // this.log?.timeEnd(`1`, `call page routes from listener ${listenerName}`)
-      if (routeResult === null) {
-        await this.hookErrorInputNotFoundPage(ctx)
-      }
-    } catch (error) {
-      await this.hookErrorPage(ctx, listenerName, error, false)
-    }
+    await this._onHandle(ct, listenerName, listenerName)
   }
 
   /**
@@ -1278,20 +1311,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   async _onCallbackQueryData(ct: Context): Promise<void> {
-    const ctx = this.createCtx(ct)
-    try {
-      const before = await this.hookBeforeRoute(ctx, `onCallbackQueryData`)
-      if (before === false) {
-        return
-      }
-
-      // Check all route
-      // this.log?.time(`1`)
-      await this._pageRoutes(ctx, `callbackdata`)
-      // this.log?.timeEnd(`1`, `call page routes from listener callbackData`)
-    } catch (error) {
-      await this.hookErrorPage(ctx, `onCallbackQueryData`, error, true)
-    }
+    await this._onHandle(ct, `onCallbackQueryData`, `callbackdata`, false)
   }
 
   /**

@@ -2,23 +2,14 @@ import {Server, type Connection} from "net-ipc"
 import {WorkerThreadRpc} from "./rpc"
 
 /**
- * Provides IPC server functionality for inter-worker communication using Unix domain sockets.
+ * [LOW-LEVEL] Provides IPC server functionality for inter-worker communication using Unix domain sockets.
  *
  * @remarks
+ * Low-level infrastructure. In most cases use
+ * {@link WorkerThreadInit.createGatewayServer} instead of constructing this directly.
+ *
  * Uses `net-ipc` library for Unix domain socket communication.
  * Supports connections from multiple gateway clients.
- * Typically created via {@link WorkerThreadInit.createGatewayServer}.
- *
- * @example
- * ```typescript
- * import { WorkerThreadGatewayServer } from "gramstax";
- *
- * const server = new WorkerThreadGatewayServer();
- * await server.start("/tmp/my-server.sock", {
- *   ping: () => "pong",
- *   getData: (key) => database.get(key),
- * });
- * ```
  *
  * @public
  */

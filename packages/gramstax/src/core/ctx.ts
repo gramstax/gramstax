@@ -900,6 +900,103 @@ export class Ctx {
   }
 
   /**
+   * Page-level hook before route handler execution.
+   *
+   * @remarks
+   * Return `false` to **skip only the target route handler** (e.g.
+   * `handleFreeText`, `handleCallbackData`, etc.). The rest of the
+   * framework is untouched — you can still call `.reply()`, `.edit()`,
+   * `.answerCallbackQuery()`, and other Ctx methods normally inside
+   * this hook before returning `false`.
+   *
+   * In other words: returning `false` does NOT freeze the page — it
+   * only prevents one specific handler from running.
+   *
+   * Useful for:
+   * - Per-page cooldown / rate limiting (reply "please wait" then abort)
+   * - Precondition checks (reply with redirect page then abort)
+   * - Session validity gates
+   *
+   * @returns `true` to continue (handler runs), `false` to abort (handler skipped).
+   *
+   * @example
+   * ```typescript
+   * // Cooldown — reply then abort the handler
+   * async hookBeforeRoute() {
+   *   const last = await this.cacheSession.get(`${this.userId}:lastAction`)
+   *   if (last && Date.now() - Number(last) < 2000) {
+   *     await this.answerCallbackQuery(`Please wait...`) // still works
+   *     return false // only skips the target handler
+   *   }
+   *   await this.cacheSession.set(`${this.userId}:lastAction`, String(Date.now()))
+   *   return true
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * // KYC gate — send redirect page then abort
+   * async hookBeforeRoute() {
+   *   const profile = await this.db.getUser(this.userId)
+   *   if (!profile?.kycVerified) {
+   *     await new KycPage(this).showForm() // redirect works
+   *     return false // only skips the guarded handler
+   *   }
+   *   return true
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  async hookBeforeRoute?(): Promise<boolean>
+
+  /**
+   * Page-level hook after a route handler execution.
+   *
+   * @remarks
+   * Always runs after the handler returns (even when the handler returns
+   * undefined / null). Ideal for cleanup, analytics, or chained side effects.
+   *
+   * Useful for:
+   * - Recording page visit timestamps
+   * - Auto-clearing stale session data
+   * - Firing post-processing jobs
+   *
+   * @example
+   * ```typescript
+   * // Track last visit per page
+   * async hookAfterRoute() {
+   *   await this.cacheSession.set(`${this.userId}:lastPage`, this.data.name)
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * // Auto-clear session when user reaches a terminal step
+   * async hookAfterRoute() {
+   *   if (this.temp.session?.params.step === `completed`) {
+   *     await this.cacheSession.del(String(this.userId))
+   *   }
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * // Notify admins of high-value actions
+   * async hookAfterRoute() {
+   *   if (this.temp.session?.params.amount > 10000) {
+   *     await this.ct.api.sendMessage(ADMIN_CHAT_ID, `Large withdrawal: ${this.temp.session.amount}`)
+   *   }
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  async hookAfterRoute?(): Promise<void>
+
+  /**
    * Sends a message to multiple users in bulk.
    *
    * @remarks
@@ -1163,7 +1260,7 @@ export class Ctx {
    * Only `photo`, `video`, `audio`, and `document` support Telegram media groups.
    * Omit `type` when the template uses `<media-group>` with per-item media types.
    * The first item receives the template caption. Telegram media groups do not support
-   * reply markup, so keyboards should not be passed.
+   * reply markup, so keyboards are ignored for grouped media.
    *
    * @param type - Supported media group type. When the template uses `<media-group>`,
    *   only items matching this type are included. When omitted, all items are sent.
@@ -1199,11 +1296,6 @@ export class Ctx {
     return await this.ct.replyWithMediaGroup(Helper.buildMediaGroup(type, srcList, med.caption), Helper.buildMediaGroupOptions(opt))
   }
 
-  /** Sends a photo media group using pipe-delimited `src` values from the page template. */
-  async replyPhotoGroup(data?: ITData, baseId?: string, options?: ITOptReplyPhoto) {
-    return this.replyMediaGroup(`photo`, data, baseId, options)
-  }
-
   /**
    * Sends a photo message using the page template.
    *
@@ -1224,6 +1316,11 @@ export class Ctx {
    */
   async replyPhoto(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto) {
     return this.replyMedia(`photo`, keyboard, data, baseId, options)
+  }
+
+  /** Sends a photo media group using pipe-delimited `src` values from the page template. */
+  async replyPhotoGroup(data?: ITData, baseId?: string, options?: ITOptReplyPhoto) {
+    return this.replyMediaGroup(`photo`, data, baseId, options)
   }
 
   /**
@@ -1985,28 +2082,39 @@ export class Ctx {
   }
 
   /**
-   * Sets session data for the current user.
+   * [LOW-LEVEL] Sets session data for the current user.
    *
    * @remarks
-   * Session data is stored in the external cache and persists across requests.
-   * Used to maintain state between different page interactions.
+   * Low-level API. In most cases use the shorthand `setSession*` methods instead
+   * (e.g. {@link Ctx.setSessionFreeText}, {@link Ctx.setSessionCallbackData}).
    *
-   * @param method - The session method name (typically matches a route handler).
+   * This method is only needed when:
+   * - **Multi-session** — binding the same params to multiple route handlers at once:
+   *   `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)`
+   * - **Dynamic method name** — method string is computed at runtime
+   *   rather than known at dev-time, so `methodSession*()` cannot be called.
+   *
+   * @param method - Route method name(s). Use `this.methodSession*()` helpers
+   *   for type-safe names, not a hardcoded string.
    * @param params - The session parameters to store.
    * @param moreRoot - Additional root-level properties to merge.
    * @returns True if the session was set successfully, or null on error.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.setSession("random_172172783jd83", {step: "awaiting_name"})
-   *   await this.reply()
-   * }
+   * // ❌ Avoid — use setSessionFreeText({...}) instead
+   * await this.setSession(this.methodSessionFreeText(), {step: "awaiting_name"})
+   *
+   * // ✅ Multi-session — bind one payload to two listeners
+   * await this.setSession(
+   *   [this.methodSessionFreeVideo(), this.methodSessionFreeText()],
+   *   {mediaId: "abc123"}
+   * )
    * ```
    *
    * @public
    */
-  async setSession(method: string, params: any, moreRoot?: Record<any, any>) {
+  async setSession(method: string | string[], params: any, moreRoot?: Record<any, any>) {
     try {
       const value = {method, params, ...moreRoot}
       const result = await this.cacheSession.set(`${this.userId}`, value)
@@ -3270,24 +3378,24 @@ export class Ctx {
    * ```typescript
    * // handle* — invoked via id=2 (static) when no session matches in id=1
    * async handleCallbackData() {
-   *   await this.edit(`normal flow: ${this.callbackData}`)
+   *   await this.ct.editMessageText(`normal flow: ${this.callbackData}`)
    * }
    *
    * // handleSession* — invoked via id=1 (session) when session.method matches
    * async handleSessionCallbackData() {
    *   const {inputText} = this.temp.session.params
-   *   await this.edit(`session-active: ${inputText}`)
+   *   await this.ct.editMessageText(`session-active: ${inputText}`)
    * }
    * ```
    *
    * @example
    * ```typescript
    * async handleArgsCallbackData() {
-   *   await this.edit(`normal: ${this.callbackData}`)
+   *   await this.ct.editMessageText(`normal: ${this.callbackData}`)
    * }
    * async handleSessionArgsCallbackData() {
    *   const {inputText} = this.temp.session.params
-   *   await this.edit(`session: ${this.callbackData}, params: ${inputText}`)
+   *   await this.ct.editMessageText(`session: ${this.callbackData}, params: ${inputText}`)
    * }
    * ```
    *
@@ -3573,12 +3681,27 @@ export class Ctx {
   }
 
   /**
-   * Session method name builders.
+   * [LOW-LEVEL] Session method name builders.
    *
    * @remarks
+   * Low-level API. You rarely need to call these directly — the
+   * {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.
+   *
    * These methods generate unique session method identifiers used by
    * {@link Ctx.setSession} and validation methods. Each `methodSession*`
    * returns a prefixed string like `"1-PageName"`.
+   *
+   * When you DO need to call them (multi-session with `setSession(array, ...)`),
+   * always use the typed helpers — never hardcode the prefix:
+   *
+   * @example
+   * ```typescript
+   * // ✅ Correct
+   * await this.setSession([this.methodSessionFreeText(), this.methodSessionFreeVideo()], {})
+   *
+   * // ❌ Fragile — prefix `7` depends on the listener order
+   * await this.setSession(["7-PageName", "8-PageName"], {})
+   * ```
    *
    * @public
    */

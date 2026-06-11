@@ -5,26 +5,13 @@
 export type ITMapRpc = Map<any, {reject: (error: any) => any; resolve: (result: any) => any}>
 
 /**
- * Handles JSON-RPC style communication between threads.
+ * [LOW-LEVEL] Handles JSON-RPC style communication between threads.
  *
  * @remarks
+ * Low-level internal infrastructure. Used by {@link WorkerThreadInit} and
+ * {@link WorkerThreadLaunch} under the hood — you rarely need to touch it.
+ *
  * Uses simple JSON-RPC style messages with `id`, `method`, `params`, `result`, `error`.
- * Typically used internally by {@link WorkerThreadInit} and {@link WorkerThreadLaunch}.
- *
- * @example
- * ```typescript
- * import { WorkerThreadRpc } from "gramstax";
- *
- * const rpc = new WorkerThreadRpc((data) => postMessage(data), {
- *   add: (a: number, b: number) => a + b,
- *   multiply: (a: number, b: number) => a * b,
- * });
- *
- * // Handle incoming messages
- * parentPort.on("message", (data) => {
- *   rpc.make(data);
- * });
- * ```
  *
  * @public
  */

@@ -7,7 +7,7 @@ type ITMore = Omit<Required<ConstructorParameters<typeof Keyv>>[0], `store` | `n
  * RPC cache request structure.
  * @public
  */
-export type ITCacheRpc = {method: string; params: any; [moreRoot: string]: any}
+export type ITCacheRpc = {method: string | string[]; params: any; [moreRoot: string]: any}
 
 /**
  * Extends {@link https://github.com/jaredwray/keyv | Keyv} to provide a unified caching interface
