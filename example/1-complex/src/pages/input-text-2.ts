@@ -13,15 +13,6 @@ class Helper {
   }
 }
 
-class Alert {
-  static async showSuccess(ctx: InputText2Page) {
-    const bi = Base.success
-    const da = {res: ctx.msgText}
-    const kb = Helper.kb(ctx, bi)
-    await ctx.reply(kb, da, bi)
-  }
-}
-
 class Main {
   static async showStep1Form(ctx: InputText2Page, edit = true) {
     const bi = Base.step1
@@ -37,6 +28,13 @@ class Main {
   static async processStep1Answer(ctx: InputText2Page) {
     throw ctx
   }
+
+  static async showSuccess(ctx: InputText2Page) {
+    const bi = Base.success
+    const da = {res: ctx.msgText}
+    const kb = Helper.kb(ctx, bi)
+    await ctx.reply(kb, da, bi)
+  }
 }
 
 export class InputText2Page extends PageBase {
@@ -51,7 +49,7 @@ export class InputText2Page extends PageBase {
   }
 
   async handleFreeText() {
-    await Alert.showSuccess(this)
+    await Main.showSuccess(this)
   }
 
   static template = `

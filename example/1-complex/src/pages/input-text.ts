@@ -13,15 +13,6 @@ class Helper {
   }
 }
 
-class Alert {
-  static async showSuccess(ctx: InputTextPage) {
-    const bi = Base.success
-    const da = {res: ctx.msgText}
-    const kb = Helper.kb(ctx, bi)
-    await ctx.reply(kb, da, bi)
-  }
-}
-
 class Main {
   static async showStep1Form(ctx: InputTextPage, edit = true) {
     const bi = Base.step1
@@ -36,7 +27,14 @@ class Main {
   }
 
   static async processStep1Answer(ctx: InputTextPage) {
-    await Alert.showSuccess(ctx)
+    await Main.showSuccess(ctx)
+  }
+
+  static async showSuccess(ctx: InputTextPage) {
+    const bi = Base.success
+    const da = {res: ctx.msgText}
+    const kb = Helper.kb(ctx, bi)
+    await ctx.reply(kb, da, bi)
   }
 }
 

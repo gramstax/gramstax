@@ -49,9 +49,61 @@ class Helper {
   }
 }
 
-class Alert {
+class Main {
+  static async showStep1Form(ctx: BroadcastPage, draftText: string, isEmpty = false, edit = true) {
+    await ctx.setSession([ctx.methodSessionFreeText(), ctx.methodSessionFreePhoto(), ctx.methodSessionFreeVideo(), ctx.methodSessionFreeAnimation()], {position: `form`})
+    const bi = Base.step1
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `hybrid`), ctx.data.callbackData(bi, `cancel`), StartPage], `1-2`, bi)
+    const da = {draftText, isEmpty}
+    if (edit) {
+      await ctx.edit(kb, da, bi)
+    } else {
+      await ctx.reply(kb, da, bi)
+    }
+  }
+
+  static async processStep1Answer(ctx: BroadcastPage, action: string) {
+    const {position, draftText, mediaType, fileId, caption} = Helper.getSessionParams(ctx)
+    if (position !== `confirm`) {
+      return
+    }
+
+    if (action === `edit`) {
+      await Main.showStep1Form(ctx, mediaType ? `-` : draftText || `-`, false, true)
+    } else if (action === `send`) {
+      if (!draftText && !mediaType) {
+        return await Main.showStep1Form(ctx, `-`, true, true)
+      }
+
+      const subscribers = await ctx.db.listSubscribers()
+      if (subscribers.length === 0) {
+        return await Main.showInfoEmptySubs(ctx)
+      }
+
+      const ids = subscribers.map((item) => item.id)
+      const langs = subscribers.map((item) => item.language || `default`)
+      let res: Awaited<ReturnType<typeof ctx.broadcast>>
+      if (mediaType && fileId) {
+        const da = {fileId, caption}
+        const bi = mediaType === `photo` ? Base.infoDeliverPhoto : mediaType === `video` ? Base.infoDeliverVideo : Base.infoDeliverAnimation
+
+        res = await ctx.broadcastMedia(ids, langs, undefined, da, bi)
+      } else {
+        const da = {message: draftText}
+        const bi = Base.infoDeliverText
+        res = await ctx.broadcast(ids, langs, undefined, da, bi)
+      }
+
+      await Main.showSuccess(ctx, res.successCount, res.totalCount)
+    } else if (action === `cancel`) {
+      await Main.showInfoCancel(ctx)
+    } else if (action === `hybrid`) {
+      await Main.showInfoHybridMediaNotAvailable(ctx)
+    }
+  }
+
   static async showInfoHybridMedia(ctx: BroadcastPage) {
-    await ctx.setSession(`custom_session`, {position: `form`})
+    await ctx.setSession([ctx.methodSessionFreeText(), ctx.methodSessionFreePhoto(), ctx.methodSessionFreeVideo(), ctx.methodSessionFreeAnimation()], {position: `form`})
     const bi = Base.infoHybridMedia
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `cancel`), StartPage], `2`, bi)
     const da = {}
@@ -95,7 +147,7 @@ class Alert {
     const bi = Base.infoConfirmText
     const kb = Helper.kbConfirm(ctx)
     const da = {draftText}
-    await ctx.setSession(`custom_session`, {position: `confirm`, draftText})
+    await ctx.setSession(ctx.methodSessionArgsCallbackData(), {position: `confirm`, draftText})
     await ctx.reply(kb, da, bi)
   }
 
@@ -110,7 +162,7 @@ class Alert {
     const bi = Base.infoConfirmAnimation
     const kb = Helper.kbConfirm(ctx)
     const da = {fileId, caption}
-    await ctx.setSession(`custom_session`, {position: `confirm`, mediaType: `animation`, fileId, caption})
+    await ctx.setSession(ctx.methodSessionArgsCallbackData(), {position: `confirm`, mediaType: `animation`, fileId, caption})
     await ctx.replyAnimation(kb, da, bi)
   }
 
@@ -126,7 +178,7 @@ class Alert {
     const bi = Base.infoConfirmPhoto
     const kb = Helper.kbConfirm(ctx)
     const da = {fileId, caption}
-    await ctx.setSession(`custom_session`, {position: `confirm`, mediaType: `photo`, fileId, caption})
+    await ctx.setSession(ctx.methodSessionArgsCallbackData(), {position: `confirm`, mediaType: `photo`, fileId, caption})
     await ctx.replyPhoto(kb, da, bi)
   }
 
@@ -141,71 +193,17 @@ class Alert {
     const bi = Base.infoConfirmVideo
     const kb = Helper.kbConfirm(ctx)
     const da = {fileId, caption}
-    await ctx.setSession(`custom_session`, {position: `confirm`, mediaType: `video`, fileId, caption})
+    await ctx.setSession(ctx.methodSessionArgsCallbackData(), {position: `confirm`, mediaType: `video`, fileId, caption})
     await ctx.replyVideo(kb, da, bi)
-  }
-}
-
-class Main {
-  static async showStep1Form(ctx: BroadcastPage, draftText: string, isEmpty = false, edit = true) {
-    if (!AdminGuard.isAdmin(ctx)) {
-      return null
-    }
-
-    await ctx.setSession(`custom_session`, {position: `form`})
-    const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `hybrid`), ctx.data.callbackData(bi, `cancel`), StartPage], `1-2`, bi)
-    const da = {draftText, isEmpty}
-    if (edit) {
-      await ctx.edit(kb, da, bi)
-    } else {
-      await ctx.reply(kb, da, bi)
-    }
-  }
-
-  static async processStep1Answer(ctx: BroadcastPage, action: string) {
-    const {position, draftText, mediaType, fileId, caption} = Helper.getSessionParams(ctx)
-    if (position !== `confirm`) {
-      return
-    }
-
-    if (action === `edit`) {
-      await Main.showStep1Form(ctx, mediaType ? `-` : draftText || `-`, false, true)
-    } else if (action === `send`) {
-      if (!draftText && !mediaType) {
-        return await Main.showStep1Form(ctx, `-`, true, true)
-      }
-
-      const subscribers = await ctx.db.listSubscribers()
-      if (subscribers.length === 0) {
-        return await Alert.showInfoEmptySubs(ctx)
-      }
-
-      const ids = subscribers.map((item) => item.id)
-      const langs = subscribers.map((item) => item.language || `default`)
-      let res: Awaited<ReturnType<typeof ctx.broadcast>>
-      if (mediaType && fileId) {
-        const da = {fileId, caption}
-        const bi = mediaType === `photo` ? Base.infoDeliverPhoto : mediaType === `video` ? Base.infoDeliverVideo : Base.infoDeliverAnimation
-
-        res = await ctx.broadcastMedia(ids, langs, undefined, da, bi)
-      } else {
-        const da = {message: draftText}
-        const bi = Base.infoDeliverText
-        res = await ctx.broadcast(ids, langs, undefined, da, bi)
-      }
-
-      await Alert.showSuccess(ctx, res.successCount, res.totalCount)
-    } else if (action === `cancel`) {
-      await Alert.showInfoCancel(ctx)
-    } else if (action === `hybrid`) {
-      await Alert.showInfoHybridMediaNotAvailable(ctx)
-    }
   }
 }
 
 export class BroadcastPage extends PageBase {
   static data = this.buildData((step?: string, action?: string) => [step, action])
+
+  async hookBeforeRoute() {
+    return AdminGuard.isAdmin(this)
+  }
 
   async handleCallbackData() {
     await Main.showStep1Form(this, `-`, false, true)
@@ -215,59 +213,27 @@ export class BroadcastPage extends PageBase {
     await Main.showStep1Form(this, `-`, false, false)
   }
 
-  async handleArgsCallbackData() {
-    if (!AdminGuard.isAdmin(this)) {
-      return null
-    }
-
+  async handleSessionArgsCallbackData() {
     const [step, action] = this.callbackDataArgs
     if (step === Base.step1) {
       await Main.processStep1Answer(this, action!)
     }
   }
 
-  async handleFreeText() {
-    if (!AdminGuard.isAdmin(this)) {
-      return null
-    }
-
-    const {position} = Helper.getSessionParams(this)
-    if (position === `form`) {
-      await Alert.showInfoConfirmText(this)
-    }
+  async handleSessionFreeText() {
+    await Main.showInfoConfirmText(this)
   }
 
-  async handleFreePhoto() {
-    if (!AdminGuard.isAdmin(this)) {
-      return null
-    }
-
-    const {position} = Helper.getSessionParams(this)
-    if (position === `form`) {
-      await Alert.showInfoConfirmPhoto(this)
-    }
+  async handleSessionFreePhoto() {
+    await Main.showInfoConfirmPhoto(this)
   }
 
-  async handleFreeVideo() {
-    if (!AdminGuard.isAdmin(this)) {
-      return null
-    }
-
-    const {position} = Helper.getSessionParams(this)
-    if (position === `form`) {
-      await Alert.showInfoConfirmVideo(this)
-    }
+  async handleSessionFreeVideo() {
+    await Main.showInfoConfirmVideo(this)
   }
 
-  async handleFreeAnimation() {
-    if (!AdminGuard.isAdmin(this)) {
-      return null
-    }
-
-    const {position} = Helper.getSessionParams(this)
-    if (position === `form`) {
-      await Alert.showInfoConfirmAnimation(this)
-    }
+  async handleSessionFreeAnimation() {
+    await Main.showInfoConfirmAnimation(this)
   }
 
   static template = `

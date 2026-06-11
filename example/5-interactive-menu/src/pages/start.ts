@@ -10,15 +10,6 @@ class Base {
   static infoQuick = `i-quick`
 }
 
-class Alert {
-  static async showInfoQuick(ctx: StartPage) {
-    const bi = Base.infoQuick
-    const bkb = ctx.bottomKeyboardT(`2`, bi)
-    const da = {}
-    await ctx.reply(bkb, da, bi)
-  }
-}
-
 class Main {
   static async showStep1Form(ctx: StartPage, edit = false) {
     const bi = Base.step1
@@ -28,12 +19,19 @@ class Main {
       await ctx.edit(ikb, da, bi)
     } else {
       await ctx.reply(ikb, da, bi)
-      await Alert.showInfoQuick(ctx)
+      await Main.showInfoQuick(ctx)
     }
   }
 
   static async processStep1Answer(ctx: StartPage) {
     throw ctx
+  }
+
+  static async showInfoQuick(ctx: StartPage) {
+    const bi = Base.infoQuick
+    const bkb = ctx.bottomKeyboardT(`2`, bi)
+    const da = {}
+    await ctx.reply(bkb, da, bi)
   }
 }
 
@@ -67,7 +65,6 @@ export class StartPage extends PageBase {
         - ♻️ Reset to clear stored state
       </message>
     </base>
-
     <base id="${Base.infoQuick}">
       <keyboard type="bottom">${this.kbl.home.default}, ${this.kbl.browse.default}, ${this.kbl.help.default}, ${this.kbl.reset.default}</keyboard>
       <message>

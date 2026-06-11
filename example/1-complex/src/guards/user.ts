@@ -7,7 +7,7 @@ export class UserGuard extends GuardBase {
     return null
   }
 
-  async ensureValid() {
+  async overrideLang() {
     try {
       // override language_code
       const lang = await this.cacheData.get(`${this.userId}:lang`)

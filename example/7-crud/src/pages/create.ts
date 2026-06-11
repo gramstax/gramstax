@@ -23,15 +23,6 @@ class Helper {
   }
 }
 
-class Alert {
-  static async showSuccess(ctx: CreatePage, da: {id: string; title: string; description: string; status: string}) {
-    await ctx.clearSession()
-    const bi = Base.success
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    await ctx.reply(kb, da, bi)
-  }
-}
-
 class Main {
   static async showStep1Form(ctx: CreatePage) {
     const bi = Base.s1
@@ -55,12 +46,19 @@ class Main {
 
   static async processStep2Answer(ctx: CreatePage, title: string, description: string) {
     const item = await ctx.db.createItem(ctx.userId, title, description)
-    await Alert.showSuccess(ctx, {
+    await Main.showSuccess(ctx, {
       id: item.id,
       title: item.title,
       description: item.description,
       status: item.status
     })
+  }
+
+  static async showSuccess(ctx: CreatePage, da: {id: string; title: string; description: string; status: string}) {
+    await ctx.clearSession()
+    const bi = Base.success
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    await ctx.reply(kb, da, bi)
   }
 }
 

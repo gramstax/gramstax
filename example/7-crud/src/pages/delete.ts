@@ -36,7 +36,34 @@ class Helper {
   }
 }
 
-class Alert {
+class Main {
+  static async showStep1Form(ctx: DeletePage) {
+    const getItems = await ctx.db.listItems(ctx.userId)
+    const items = getItems.slice(0, Helper.MAX_ITEMS)
+    if (items.length === 0) {
+      await Main.showInfoEmpty(ctx)
+    } else {
+      const bi = Base.step1
+      const kb = Helper.buildListKeyboard(ctx, items)
+      const da = {count: items.length}
+      await ctx.setSessionFreeText({step: bi})
+      await ctx.edit(kb, da, bi)
+    }
+  }
+
+  static async processStep1Answer(ctx: DeletePage, id: string, edit = false) {
+    if (!id) {
+      return await Main.showWarnInvalid(ctx, edit)
+    }
+
+    const deleted = await ctx.db.deleteItem(ctx.userId, id)
+    if (!deleted) {
+      await Main.showErrorNotFound(ctx, id, edit)
+    } else {
+      await Main.showSuccess(ctx, id, edit)
+    }
+  }
+
   static async showSuccess(ctx: DeletePage, id: string, edit: boolean) {
     await ctx.clearSession()
     const bi = Base.success
@@ -76,35 +103,6 @@ class Alert {
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {}
     await ctx.edit(kb, da, bi)
-  }
-}
-
-class Main {
-  static async showStep1Form(ctx: DeletePage) {
-    const getItems = await ctx.db.listItems(ctx.userId)
-    const items = getItems.slice(0, Helper.MAX_ITEMS)
-    if (items.length === 0) {
-      await Alert.showInfoEmpty(ctx)
-    } else {
-      const bi = Base.step1
-      const kb = Helper.buildListKeyboard(ctx, items)
-      const da = {count: items.length}
-      await ctx.setSessionFreeText({step: bi})
-      await ctx.edit(kb, da, bi)
-    }
-  }
-
-  static async processStep1Answer(ctx: DeletePage, id: string, edit = false) {
-    if (!id) {
-      return await Alert.showWarnInvalid(ctx, edit)
-    }
-
-    const deleted = await ctx.db.deleteItem(ctx.userId, id)
-    if (!deleted) {
-      await Alert.showErrorNotFound(ctx, id, edit)
-    } else {
-      await Alert.showSuccess(ctx, id, edit)
-    }
   }
 }
 

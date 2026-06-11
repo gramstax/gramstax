@@ -29,8 +29,8 @@ export class BotCore extends Gramstax {
     return true
   }
 
-  async hookErrorPage(ctx: CtxCore, listenerName: string, error: any, isEdit: boolean) {
-    await new GeneralStatusPage(ctx).showError(`${listenerName}:hookErrorPage`, error, isEdit)
+  async hookErrorPage(ctx: CtxCore, data: Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]) {
+    await new GeneralStatusPage(ctx).showError(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
   }
 
   async hookErrorInputNotFoundPage(ctx: CtxCore) {

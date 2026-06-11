@@ -14,7 +14,39 @@ class Helper {
   }
 }
 
-class Alert {
+class Main {
+  static async showStep1Form(ctx: DepositPage) {
+    await ctx.setSessionFreeText()
+    const bi = Base.step1
+    const kb = Helper.kb(ctx, bi)
+    const da = {}
+    await ctx.edit(kb, da, bi)
+  }
+
+  static async processStep1Answer(ctx: DepositPage) {
+    const amountInput = ctx.msgText.trim()
+    if (!amountInput) {
+      return await Main.showWarnInvalid(ctx)
+    }
+
+    const amount = ctx.bankStore.parseAmount(amountInput)
+    if (amount === null) {
+      return await Main.showWarnInvalid(ctx, amountInput)
+    }
+
+    const current = ctx.bankStore.getBalance(ctx.userId)
+    const next = current + amount
+    const amountHex = ctx.bankStore.toHex(amount)
+    ctx.bankStore.setBalance(ctx.userId, next)
+    ctx.bankStore.recordTransaction(ctx.userId, {
+      type: `deposit`,
+      amountHex,
+      ts: Date.now()
+    })
+
+    await Main.showSuccess(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
+  }
+
   static async showSuccess(ctx: DepositPage, amount: string, balance: string) {
     await ctx.clearSession()
     const bi = Base.success
@@ -28,40 +60,6 @@ class Alert {
     const kb = Helper.kb(ctx, bi)
     const da = {amount}
     await ctx.reply(kb, da, bi)
-  }
-}
-
-class Main {
-  static async showStep1Form(ctx: DepositPage) {
-    await ctx.setSessionFreeText()
-    const bi = Base.step1
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processStep1Answer(ctx: DepositPage) {
-    const amountInput = ctx.msgText.trim()
-    if (!amountInput) {
-      return await Alert.showWarnInvalid(ctx)
-    }
-
-    const amount = ctx.bankStore.parseAmount(amountInput)
-    if (amount === null) {
-      return await Alert.showWarnInvalid(ctx, amountInput)
-    }
-
-    const current = ctx.bankStore.getBalance(ctx.userId)
-    const next = current + amount
-    const amountHex = ctx.bankStore.toHex(amount)
-    ctx.bankStore.setBalance(ctx.userId, next)
-    ctx.bankStore.recordTransaction(ctx.userId, {
-      type: `deposit`,
-      amountHex,
-      ts: Date.now()
-    })
-
-    await Alert.showSuccess(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
   }
 }
 

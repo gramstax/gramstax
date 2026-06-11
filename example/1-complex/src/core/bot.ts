@@ -28,15 +28,15 @@ export class BotCore extends Gramstax {
   }
 
   async hookBeforeRoute(ctx: CtxCore) {
-    const user = await new UserGuard(ctx).ensureValid()
+    const user = await new UserGuard(ctx).overrideLang()
     if (user === null) {
       return false
     }
     return true
   }
 
-  async hookErrorPage(ctx: CtxCore, listenerName: string, error: any, isEdit: boolean) {
-    await new GeneralStatusPage(ctx).showError(`${listenerName}:hookErrorPage`, error, isEdit)
+  async hookErrorPage(ctx: CtxCore, data: Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]) {
+    await new GeneralStatusPage(ctx).showError(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
   }
 
   async hookErrorInputNotFoundPage(ctx: CtxCore) {

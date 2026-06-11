@@ -31,7 +31,64 @@ class Helper {
   }
 }
 
-class Alert {
+class Main {
+  static async showStep1Form(ctx: TransferPage) {
+    const bi = Base.step1
+    const kb = Helper.kb(ctx, bi)
+    const da = {}
+    await ctx.edit(kb, da, bi)
+  }
+
+  static async processStep1Answer(ctx: TransferPage) {
+    const [amountInput, targetInput] = ctx.msgText.trim().split(/\s+/)
+    if (!amountInput || !targetInput) {
+      return await Main.showWarnInvalid(ctx)
+    }
+
+    const amount = ctx.bankStore.parseAmount(amountInput)
+    if (amount === null) {
+      return await Main.showWarnInvalid(ctx, amountInput)
+    }
+
+    const target = Helper.resolveTarget(ctx, targetInput)
+    if (!target) {
+      return await Main.showWarnUnknownUser(ctx, targetInput)
+    }
+
+    if (target.id === ctx.userId) {
+      return await Main.showWarnSelf(ctx)
+    }
+
+    const current = ctx.bankStore.getBalance(ctx.userId)
+    if (current < amount) {
+      return await Main.showWarnInsufficient(ctx, ctx.bankStore.formatAmount(current))
+    }
+
+    const nextSender = current - amount
+    const targetBalance = ctx.bankStore.getBalance(target.id)
+    const nextTarget = targetBalance + amount
+    const amountHex = ctx.bankStore.toHex(amount)
+
+    ctx.bankStore.setBalance(ctx.userId, nextSender)
+    ctx.bankStore.setBalance(target.id, nextTarget)
+    ctx.bankStore.recordTransaction(ctx.userId, {
+      type: `transfer-out`,
+      amountHex,
+      peerId: target.id,
+      peerName: target.label,
+      ts: Date.now()
+    })
+    ctx.bankStore.recordTransaction(target.id, {
+      type: `transfer-in`,
+      amountHex,
+      peerId: ctx.userId,
+      peerName: ctx.userName || `user-${ctx.userId}`,
+      ts: Date.now()
+    })
+
+    await Main.showSuccess(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(nextSender), target.label)
+  }
+
   static async showWarnInvalid(ctx: TransferPage, amount = ``) {
     const bi = Base.warnInvalid
     const kb = Helper.kb(ctx, bi)
@@ -66,65 +123,6 @@ class Alert {
     const kb = Helper.kb(ctx, bi)
     const da = {amount, balance, target}
     await ctx.reply(kb, da, bi)
-  }
-}
-
-class Main {
-  static async showStep1Form(ctx: TransferPage) {
-    const bi = Base.step1
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processStep1Answer(ctx: TransferPage) {
-    const [amountInput, targetInput] = ctx.msgText.trim().split(/\s+/)
-    if (!amountInput || !targetInput) {
-      return await Alert.showWarnInvalid(ctx)
-    }
-
-    const amount = ctx.bankStore.parseAmount(amountInput)
-    if (amount === null) {
-      return await Alert.showWarnInvalid(ctx, amountInput)
-    }
-
-    const target = Helper.resolveTarget(ctx, targetInput)
-    if (!target) {
-      return await Alert.showWarnUnknownUser(ctx, targetInput)
-    }
-
-    if (target.id === ctx.userId) {
-      return await Alert.showWarnSelf(ctx)
-    }
-
-    const current = ctx.bankStore.getBalance(ctx.userId)
-    if (current < amount) {
-      return await Alert.showWarnInsufficient(ctx, ctx.bankStore.formatAmount(current))
-    }
-
-    const nextSender = current - amount
-    const targetBalance = ctx.bankStore.getBalance(target.id)
-    const nextTarget = targetBalance + amount
-    const amountHex = ctx.bankStore.toHex(amount)
-
-    ctx.bankStore.setBalance(ctx.userId, nextSender)
-    ctx.bankStore.setBalance(target.id, nextTarget)
-    ctx.bankStore.recordTransaction(ctx.userId, {
-      type: `transfer-out`,
-      amountHex,
-      peerId: target.id,
-      peerName: target.label,
-      ts: Date.now()
-    })
-    ctx.bankStore.recordTransaction(target.id, {
-      type: `transfer-in`,
-      amountHex,
-      peerId: ctx.userId,
-      peerName: ctx.userName || `user-${ctx.userId}`,
-      ts: Date.now()
-    })
-
-    await Alert.showSuccess(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(nextSender), target.label)
   }
 }
 

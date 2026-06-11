@@ -17,16 +17,6 @@ class Helper {
   }
 }
 
-class Alert {
-  static async showSuccess(ctx: SumNumberPage, left: number, right: number) {
-    await ctx.clearSession()
-    const bi = Base.success
-    const kb = Helper.kb(ctx, bi)
-    const da = {result: left! + right}
-    await ctx.reply(kb, da, bi)
-  }
-}
-
 class Main {
   static async showStep1Form(ctx: SumNumberPage, edit: boolean) {
     const bi = Base.step1
@@ -62,8 +52,16 @@ class Main {
     } else if (!Number.isFinite(right ?? NaN)) {
       await Main.showStep1Form(ctx, false)
     } else {
-      await Alert.showSuccess(ctx, left, right)
+      await Main.showSuccess(ctx, left, right)
     }
+  }
+
+  static async showSuccess(ctx: SumNumberPage, left: number, right: number) {
+    await ctx.clearSession()
+    const bi = Base.success
+    const kb = Helper.kb(ctx, bi)
+    const da = {result: left! + right}
+    await ctx.reply(kb, da, bi)
   }
 }
 

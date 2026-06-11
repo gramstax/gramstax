@@ -14,7 +14,7 @@ class Helper {
   }
 }
 
-class Alert {
+class Main {
   static async showError(ctx: GeneralStatusPage, funcName: string, error: any, edit = true) {
     LogHe.errorMake(error, ctx.constructorName, funcName)
 
@@ -45,12 +45,12 @@ export class GeneralStatusPage extends PageBase {
     this.constructorName = p?.constructor?.name
   }
 
-  async showError(...args: Parameters<typeof Alert.showError> extends [any, ...infer R] ? R : []) {
-    await Alert.showError(this, ...args)
+  async showError(...args: Parameters<typeof Main.showError> extends [any, ...infer R] ? R : []) {
+    await Main.showError(this, ...args)
   }
 
   async showErrorInputNotFound() {
-    await Alert.showErrorInputNotFound(this)
+    await Main.showErrorInputNotFound(this)
   }
 
   static template = `

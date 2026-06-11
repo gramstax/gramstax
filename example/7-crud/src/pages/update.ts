@@ -57,7 +57,63 @@ class Helper {
   }
 }
 
-class Alert {
+class Main {
+  static async showStep1Form(ctx: UpdatePage, page = 0, edit = true) {
+    const allItems = await ctx.db.listItems(ctx.userId)
+    const totalPages = Math.max(Math.ceil(allItems.length / Helper.PAGE_SIZE), 1)
+    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
+    const start = safePage * Helper.PAGE_SIZE
+    const end = start + Helper.PAGE_SIZE
+    const items = allItems.slice(start, end)
+
+    if (items.length === 0) {
+      return await Main.showInfoEmpty(ctx, edit)
+    }
+
+    const bi = Base.step1
+    const da = {count: allItems.length, page: safePage + 1, totalPages}
+    const kb = await Helper.buildStep1Keyboard(ctx, safePage, items)
+    if (edit) {
+      await ctx.edit(kb, da, bi)
+    } else {
+      await ctx.reply(kb, da, bi)
+    }
+  }
+
+  static async processStep1Answer(ctx: UpdatePage, type: string, idOrPage: string) {
+    if (type === `page`) {
+      return await Main.showStep1Form(ctx, parseInt(idOrPage))
+    } else if (type === `select`) {
+      const item = await ctx.db.getItem(ctx.userId, idOrPage)
+      if (item) {
+        await Main.showStep2Form(ctx, item)
+      } else {
+        await Main.showInfoNotFound(ctx, idOrPage)
+      }
+    }
+  }
+
+  static async showStep2Form(ctx: UpdatePage, item: {id: string; title: string; status: string}) {
+    const bi = Base.step2
+    const kb = Helper.buildStep2Keyboard(ctx, item.id)
+    const da = {id: item.id, title: item.title, status: item.status}
+    await ctx.edit(kb, da, bi)
+  }
+
+  static async processStep2Answer(ctx: UpdatePage, status: MainItem[`status`], id: string, edit = true) {
+    const item = await ctx.db.getItem(ctx.userId, id)
+    if (!item) {
+      return await Main.showStep1Form(ctx, 0, edit)
+    }
+
+    const updated = await ctx.db.updateItem(ctx.userId, id, item.title, item.description, status)
+    if (updated) {
+      await Main.showSuccess(ctx, id, status)
+    } else {
+      await Main.showStep1Form(ctx, 0, edit)
+    }
+  }
+
   static async showSuccess(ctx: UpdatePage, id: string, status: MainItem[`status`]) {
     const bi = Base.success
     const kb = Helper.buildHomeKeyboard(ctx, bi)
@@ -81,64 +137,6 @@ class Alert {
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {id}
     await ctx.edit(kb, da, bi)
-  }
-}
-
-class Main {
-  static async showStep1Form(ctx: UpdatePage, page = 0, edit = true) {
-    const allItems = await ctx.db.listItems(ctx.userId)
-    const totalPages = Math.max(Math.ceil(allItems.length / Helper.PAGE_SIZE), 1)
-    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-    const start = safePage * Helper.PAGE_SIZE
-    const end = start + Helper.PAGE_SIZE
-    const items = allItems.slice(start, end)
-
-    if (items.length === 0) {
-      return await Alert.showInfoEmpty(ctx, edit)
-    }
-
-    const bi = Base.step1
-    const da = {count: allItems.length, page: safePage + 1, totalPages}
-    const kb = await Helper.buildStep1Keyboard(ctx, safePage, items)
-    if (edit) {
-      await ctx.edit(kb, da, bi)
-    } else {
-      await ctx.reply(kb, da, bi)
-    }
-  }
-
-  static async processStep1Answer(ctx: UpdatePage, type: string, idOrPage: string) {
-    if (type === `page`) {
-      return await Main.showStep1Form(ctx, parseInt(idOrPage))
-    } else if (type === `select`) {
-      const item = await ctx.db.getItem(ctx.userId, idOrPage)
-      if (item) {
-        await Main.showStep2Form(ctx, item)
-      } else {
-        await Alert.showInfoNotFound(ctx, idOrPage)
-      }
-    }
-  }
-
-  static async showStep2Form(ctx: UpdatePage, item: {id: string; title: string; status: string}) {
-    const bi = Base.step2
-    const kb = Helper.buildStep2Keyboard(ctx, item.id)
-    const da = {id: item.id, title: item.title, status: item.status}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processStep2Answer(ctx: UpdatePage, status: MainItem[`status`], id: string, edit = true) {
-    const item = await ctx.db.getItem(ctx.userId, id)
-    if (!item) {
-      return await Main.showStep1Form(ctx, 0, edit)
-    }
-
-    const updated = await ctx.db.updateItem(ctx.userId, id, item.title, item.description, status)
-    if (updated) {
-      await Alert.showSuccess(ctx, id, status)
-    } else {
-      await Main.showStep1Form(ctx, 0, edit)
-    }
   }
 }
 

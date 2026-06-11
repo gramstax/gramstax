@@ -20,7 +20,7 @@ import {CounterThreadPage} from "./counter-thread"
 import {TestAnimationPage} from "./test-animation"
 import {TestVideoNotePage} from "./test-video-note"
 import {KeyboardBottomPage} from "./keyboard-bottom"
-import {TestPhotoGroupPage} from "./test-photo-group"
+import {TestMediaGroupPage} from "./test-media-group"
 
 class Base {
   static step1 = `s1`
@@ -41,7 +41,7 @@ class Helper {
           .text(l[3]!, LanguagePage.data.callbackData())
           .row()
           .text(l[4]!, TestPhotoPage.data.callbackData())
-          .text(l[5]!, TestPhotoGroupPage.data.callbackData())
+          .text(l[5]!, TestMediaGroupPage.data.callbackData())
           .row()
           .text(l[6]!, TestVideoPage.data.callbackData())
           .text(l[7]!, TestAudioPage.data.callbackData())
@@ -154,8 +154,8 @@ export class StartPage extends PageBase {
       <description>Default description command /start</description>
       <description lang="en">[EN] Description command /start</description>
       <description lang="id">[ID] Deskripsi perintah /start</description>
-      <keyboard>🔢 Counter, 🧵 Counter Thread, ❓ Help, 🌐 Language, 🖼️ Test Photo, 🖼️ Test Photo Group, 🎥 Test Video, 🎧 Test Audio, 📄 Test Document, 🎞️ Test Animation, 🎙️ Test Voice, 🎬 Test VideoN, 😀 Test Sticker, 📍 Test Location, 👤 Test Contact, 🧪 Test Error, 📝 Input Text2, ✍️ Input Text, 🧭 Block Map, 📦 Block Import, 🔀 Block Switch, ⌨️ KB Bottom, 🔄 Refresh</keyboard>
-      <keyboard lang="id">🔢 Kounter, 🧵 Kounter Thread, ❓ Bantuan, 🌐 Bahasa, 🖼️ Test Foto, 🖼️ Test Foto Grup, 🎥 Test Video, 🎧 Test Suara, 📄 Test Dokumen, 🎞️ Test Animasi, 🎙️ Test Suara, 🎬 Test VideoN, 😀 Test Stiker, 📍 Test Lokasi, 👤 Test Kontak, 🧪 Test Salah, 📝 Masukkan Teks2, ✍️ Masukkan Teks, 🧭 Blok Map, 📦 Blok Import, 🔀 Blok Switch, ⌨️ KB Bottom, 🔄 Segarkan</keyboard>
+      <keyboard>🔢 Counter, 🧵 Counter Thread, ❓ Help, 🌐 Language, 🖼️ Test Photo, 🖼️ Test Media Group, 🎥 Test Video, 🎧 Test Audio, 📄 Test Document, 🎞️ Test Animation, 🎙️ Test Voice, 🎬 Test VideoN, 😀 Test Sticker, 📍 Test Location, 👤 Test Contact, 🧪 Test Error, 📝 Input Text2, ✍️ Input Text, 🧭 Block Map, 📦 Block Import, 🔀 Block Switch, ⌨️ KB Bottom, 🔄 Refresh</keyboard>
+      <keyboard lang="id">🔢 Kounter, 🧵 Kounter Thread, ❓ Bantuan, 🌐 Bahasa, 🖼️ Test Foto, 🖼️ Test Media Grup, 🎥 Test Video, 🎧 Test Suara, 📄 Test Dokumen, 🎞️ Test Animasi, 🎙️ Test Suara, 🎬 Test VideoN, 😀 Test Stiker, 📍 Test Lokasi, 👤 Test Kontak, 🧪 Test Salah, 📝 Masukkan Teks2, ✍️ Masukkan Teks, 🧭 Blok Map, 📦 Blok Import, 🔀 Blok Switch, ⌨️ KB Bottom, 🔄 Segarkan</keyboard>
       <message>
         {{time}}
 

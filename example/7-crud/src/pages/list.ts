@@ -34,20 +34,11 @@ class Helper {
   }
 }
 
-class Alert {
-  static async showInfoEmpty(ctx: ListPage) {
-    const bi = Base.infoEmpty
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-}
-
 class Main {
   static async showStep1Form(ctx: ListPage, page = 0) {
     const totalItems = await ctx.db.countItems(ctx.userId)
     if (totalItems === 0) {
-      return await Alert.showInfoEmpty(ctx)
+      return await Main.showInfoEmpty(ctx)
     }
 
     const totalPages = Math.max(Math.ceil(totalItems / Helper.PAGE_SIZE), 1)
@@ -73,6 +64,13 @@ class Main {
     const nextPage = Number(page)
     const pageNum = Number.isNaN(nextPage) ? 0 : nextPage
     await Main.showStep1Form(ctx, pageNum)
+  }
+
+  static async showInfoEmpty(ctx: ListPage) {
+    const bi = Base.infoEmpty
+    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const da = {}
+    await ctx.edit(kb, da, bi)
   }
 }
 

@@ -47,15 +47,6 @@ class Helper {
   }
 }
 
-class Alert {
-  static async showInfoCleared(ctx: CartPage) {
-    const bi = Base.infoCleared
-    const kb = Helper.kbEmpty(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-}
-
 class Main {
   static async showStep1Form(ctx: CartPage, edit = true) {
     const cart = await Helper.getCart(ctx)
@@ -87,11 +78,18 @@ class Main {
     } else if (action === `clear`) {
       next = CartStore.clear()
       await Helper.setCart(ctx, next)
-      return await Alert.showInfoCleared(ctx)
+      return await Main.showInfoCleared(ctx)
     }
 
     await Helper.setCart(ctx, next)
     await Main.showStep1Form(ctx, true)
+  }
+
+  static async showInfoCleared(ctx: CartPage) {
+    const bi = Base.infoCleared
+    const kb = Helper.kbEmpty(ctx, bi)
+    const da = {}
+    await ctx.edit(kb, da, bi)
   }
 }
 

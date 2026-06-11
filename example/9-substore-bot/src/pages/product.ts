@@ -29,7 +29,54 @@ class Helper {
   }
 }
 
-class Alert {
+class Main {
+  static async showStep1Form(ctx: ProductPage, productId: string) {
+    const product = ProductCatalog.getById(productId)
+    if (!product) {
+      return await Main.showWarnMissing(ctx)
+    }
+
+    const bi = Base.step1
+    const kb = Helper.kb(ctx, productId, bi)
+    const da = {
+      name: product.name,
+      service: product.service,
+      duration: product.duration,
+      accountType: product.accountType,
+      stock: ProductCatalog.detailStockLabel(product),
+      price: ProductCatalog.formatPrice(product.price),
+      description: product.description,
+      benefits: product.benefits.map((benefit) => `• ${benefit}`).join(`\n`),
+      delivery: product.deliveryEstimate
+    }
+    await ctx.edit(kb, da, bi)
+  }
+
+  static async processStep1Answer(ctx: ProductPage, action?: string, productId?: string) {
+    if (!productId) {
+      return await Main.showWarnMissing(ctx)
+    }
+
+    const product = ProductCatalog.getById(productId)
+    if (!product) {
+      return await Main.showWarnMissing(ctx)
+    }
+
+    if (product.stockStatus !== `available`) {
+      return await Main.showWarnStock(ctx, productId)
+    }
+
+    const cart = await Helper.getCart(ctx)
+    const next = CartStore.addItem(cart, productId)
+    await Helper.setCart(ctx, next)
+
+    if (action === `buy`) {
+      await new CheckoutPage(ctx).showStep1Form(true)
+    } else if (action === `add`) {
+      await Main.showInfoAdded(ctx, productId)
+    }
+  }
+
   static async showInfoAdded(ctx: ProductPage, productId: string) {
     const product = ProductCatalog.getById(productId)
     const bi = Base.infoAdded
@@ -51,55 +98,6 @@ class Alert {
     const kb = Helper.kbBack(ctx, bi)
     const da = {}
     await ctx.edit(kb, da, bi)
-  }
-}
-
-class Main {
-  static async showStep1Form(ctx: ProductPage, productId: string) {
-    const product = ProductCatalog.getById(productId)
-    if (!product) {
-      return await Alert.showWarnMissing(ctx)
-    }
-
-    const bi = Base.step1
-    const kb = Helper.kb(ctx, productId, bi)
-    const da = {
-      name: product.name,
-      service: product.service,
-      duration: product.duration,
-      accountType: product.accountType,
-      stock: ProductCatalog.detailStockLabel(product),
-      price: ProductCatalog.formatPrice(product.price),
-      description: product.description,
-      benefits: product.benefits.map((benefit) => `• ${benefit}`).join(`\n`),
-      delivery: product.deliveryEstimate
-    }
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processStep1Answer(ctx: ProductPage, action?: string, productId?: string) {
-    if (!productId) {
-      return await Alert.showWarnMissing(ctx)
-    }
-
-    const product = ProductCatalog.getById(productId)
-    if (!product) {
-      return await Alert.showWarnMissing(ctx)
-    }
-
-    if (product.stockStatus !== `available`) {
-      return await Alert.showWarnStock(ctx, productId)
-    }
-
-    const cart = await Helper.getCart(ctx)
-    const next = CartStore.addItem(cart, productId)
-    await Helper.setCart(ctx, next)
-
-    if (action === `buy`) {
-      await new CheckoutPage(ctx).showStep1Form(true)
-    } else if (action === `add`) {
-      await Alert.showInfoAdded(ctx, productId)
-    }
   }
 }
 

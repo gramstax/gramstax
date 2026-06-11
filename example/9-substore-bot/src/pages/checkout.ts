@@ -73,7 +73,62 @@ class Helper {
   }
 }
 
-class Alert {
+class Main {
+  static async showStep1Form(ctx: CheckoutPage, edit = true) {
+    const cart = await Helper.getCart(ctx)
+    const summary = CartStore.getSummary(cart)
+    if (summary.isEmpty) {
+      return await Main.showWarnEmpty(ctx)
+    }
+
+    await ctx.setSessionFreeText({position: `contact`})
+    const bi = Base.step1
+    const kb = Helper.kbCart(ctx, bi)
+    const da = {
+      items: OrderStore.formatCart(summary),
+      subtotal: ProductCatalog.formatPrice(summary.subtotal)
+    }
+    if (edit) {
+      await ctx.edit(kb, da, bi)
+    } else {
+      await ctx.reply(kb, da, bi)
+    }
+  }
+
+  static async showConfirmForm(ctx: CheckoutPage, input: string) {
+    const {contact, notes} = Helper.splitContactNotes(input)
+    if (!Helper.isValidContact(contact)) {
+      return await Main.showWarnInvalid(ctx, contact)
+    }
+
+    const cart = await Helper.getCart(ctx)
+    const summary = CartStore.getSummary(cart)
+    if (summary.isEmpty) {
+      return await Main.showWarnEmpty(ctx)
+    }
+
+    await ctx.setSessionFreeText({position: `confirm`, contact, notes})
+    const bi = Base.confirm
+    const kb = Helper.kbConfirm(ctx, bi)
+    const da = {
+      items: OrderStore.formatCart(summary),
+      subtotal: ProductCatalog.formatPrice(summary.subtotal),
+      contact,
+      notes
+    }
+    await ctx.reply(kb, da, bi)
+  }
+
+  static async processStep1Answer(ctx: CheckoutPage, action?: string) {
+    if (action === `confirm`) {
+      return await Main.showSuccess(ctx)
+    } else if (action === Base.refresh) {
+      return await Main.showRefreshedStatus(ctx, ctx.callbackDataArgs[1])
+    } else if (action === `cancel`) {
+      return await Main.showInfoCancel(ctx)
+    }
+  }
+
   static async showWarnEmpty(ctx: CheckoutPage) {
     const bi = Base.warnEmpty
     const kb = Helper.kbCart(ctx, bi)
@@ -142,7 +197,7 @@ class Alert {
     await Helper.setHistory(ctx, refreshedHistory)
     const order = orderId ? refreshedHistory.find((item) => item.id === orderId) : refreshedHistory[0]
     if (!order) {
-      return await Alert.showInfoMissing(ctx)
+      return await Main.showInfoMissing(ctx)
     }
 
     const bi = Base.success
@@ -161,65 +216,6 @@ class Alert {
       qrisImageUrl: order.qrisImageUrl
     }
     await ctx.editPhoto(kb, da, bi)
-  }
-}
-
-class Main {
-  static async showStep1Form(ctx: CheckoutPage, edit = true) {
-    const cart = await Helper.getCart(ctx)
-    const summary = CartStore.getSummary(cart)
-    if (summary.isEmpty) {
-      return await Alert.showWarnEmpty(ctx)
-    }
-
-    await ctx.setSessionFreeText({position: `contact`})
-    const bi = Base.step1
-    const kb = Helper.kbCart(ctx, bi)
-    const da = {
-      items: OrderStore.formatCart(summary),
-      subtotal: ProductCatalog.formatPrice(summary.subtotal)
-    }
-    if (edit) {
-      await ctx.edit(kb, da, bi)
-    } else {
-      await ctx.reply(kb, da, bi)
-    }
-  }
-
-  static async showConfirmForm(ctx: CheckoutPage, input: string) {
-    const {contact, notes} = Helper.splitContactNotes(input)
-    if (!Helper.isValidContact(contact)) {
-      return await Alert.showWarnInvalid(ctx, contact)
-    }
-
-    const cart = await Helper.getCart(ctx)
-    const summary = CartStore.getSummary(cart)
-    if (summary.isEmpty) {
-      return await Alert.showWarnEmpty(ctx)
-    }
-
-    await ctx.setSessionFreeText({position: `confirm`, contact, notes})
-    const bi = Base.confirm
-    const kb = Helper.kbConfirm(ctx, bi)
-    const da = {
-      items: OrderStore.formatCart(summary),
-      subtotal: ProductCatalog.formatPrice(summary.subtotal),
-      contact,
-      notes
-    }
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async processStep1Answer(ctx: CheckoutPage, action?: string) {
-    if (action === `confirm`) {
-      return await Alert.showSuccess(ctx)
-    }
-    if (action === Base.refresh) {
-      return await Alert.showRefreshedStatus(ctx, ctx.callbackDataArgs[1])
-    }
-    if (action === `cancel`) {
-      return await Alert.showInfoCancel(ctx)
-    }
   }
 }
 
