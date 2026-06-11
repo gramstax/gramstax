@@ -213,8 +213,8 @@ methods:
     uid: gramstax!WorkerThreadInit#createGatewayClient:member(1)
     package: gramstax!
     fullName: createGatewayClient(serverPath)
-    summary: Create a gateway client to connect to another worker.
-    remarks: Not recommended for direct use. Use `launchGatewayClient` from `WorkerThreadExport` instead.
+    summary: \[LOW-LEVEL\] Create a gateway client to connect to another worker.
+    remarks: Low-level API. Use `launchGatewayClient` from `WorkerThreadExport` instead.
     example:
       - |-
         ```typescript
@@ -268,7 +268,7 @@ methods:
     uid: gramstax!WorkerThreadInit#handleOnMessage:member(1)
     package: gramstax!
     fullName: handleOnMessage(data)
-    summary: Handle incoming messages from the main thread.
+    summary: \[LOW-LEVEL\] Handle incoming messages from the main thread.
     remarks: ''
     example: []
     isPreview: false
@@ -286,7 +286,7 @@ methods:
     uid: gramstax!WorkerThreadInit#init:member(1)
     package: gramstax!
     fullName: init()
-    summary: Initialize message handling from parent port and register event message from parent.
+    summary: \[LOW-LEVEL\] Initialize message handling from parent port and register event message from parent.
     remarks: ''
     example: []
     isPreview: false

@@ -4,7 +4,7 @@
 
 ## WorkerThreadLaunch.handleOnMessage() method
 
-Handle incoming messages from the worker thread.
+\[LOW-LEVEL\] Handle incoming messages from the worker thread.
 
 **Signature:**
 

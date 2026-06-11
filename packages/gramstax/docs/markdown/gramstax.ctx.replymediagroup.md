@@ -9,7 +9,7 @@ Sends a Telegram media group using pipe-delimited `src` values or a `<media-grou
 **Signature:**
 
 ```typescript
-replyMediaGroup(type?: ITMediaGroupType, keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+replyMediaGroup(type?: ITMediaGroupType, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
 ```
 
 ## Parameters
@@ -42,23 +42,7 @@ ITMediaGroupType
 
 </td><td>
 
-_(Optional)_ Supported media group type.
-
-
-</td></tr>
-<tr><td>
-
-keyboard
-
-
-</td><td>
-
-[ITInBoKb](./gramstax.itinbokb.md)
-
-
-</td><td>
-
-_(Optional)_ Ignored for media groups; kept for API symmetry with replyMedia.
+_(Optional)_ Supported media group type. When the template uses `<media-group>`<!-- -->, only items matching this type are included. When omitted, all items are sent.
 
 
 </td></tr>

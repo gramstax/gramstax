@@ -10,7 +10,11 @@ Hook called when a page handler throws an error.
 
 ```typescript
 /** @virtual */
-hookErrorPage(ctx: ICtx, listenerName: string, error: any, isEdit: boolean): Promise<void>;
+hookErrorPage?(ctx: ICtx, data: {
+        listenerName: string;
+        error: any;
+        isEdit: boolean;
+    }): Promise<void>;
 ```
 
 ## Parameters
@@ -49,49 +53,15 @@ The context instance.
 </td></tr>
 <tr><td>
 
-listenerName
+data
 
 
 </td><td>
 
-string
+{ listenerName: string; error: any; isEdit: boolean; }
 
 
 </td><td>
-
-The name of the listener handling this update.
-
-
-</td></tr>
-<tr><td>
-
-error
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-The caught error.
-
-
-</td></tr>
-<tr><td>
-
-isEdit
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-Whether the handler was editing a message.
 
 
 </td></tr>
@@ -109,9 +79,8 @@ Override this method to handle errors gracefully, e.g., sending an error message
 
 
 ```typescript
-async hookErrorPage(ctx: Ctx, listenerName: string, error: any) {
-  await ctx.reply(undefined, {error: "An error occurred"})
-  console.error(error)
+async hookErrorPage(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]) {
+  await new GeneralStatusPage(ctx).showError(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
 }
 ```
 

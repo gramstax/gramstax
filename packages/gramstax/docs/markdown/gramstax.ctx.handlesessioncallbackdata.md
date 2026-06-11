@@ -30,13 +30,13 @@ Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, F
 ```typescript
 // handle* — invoked via id=2 (static) when no session matches in id=1
 async handleCallbackData() {
-  await this.edit(`normal flow: ${this.callbackData}`)
+  await this.ct.editMessageText(`normal flow: ${this.callbackData}`)
 }
 
 // handleSession* — invoked via id=1 (session) when session.method matches
 async handleSessionCallbackData() {
   const {inputText} = this.temp.session.params
-  await this.edit(`session-active: ${inputText}`)
+  await this.ct.editMessageText(`session-active: ${inputText}`)
 }
 ```
 
@@ -45,11 +45,11 @@ async handleSessionCallbackData() {
 
 ```typescript
 async handleArgsCallbackData() {
-  await this.edit(`normal: ${this.callbackData}`)
+  await this.ct.editMessageText(`normal: ${this.callbackData}`)
 }
 async handleSessionArgsCallbackData() {
   const {inputText} = this.temp.session.params
-  await this.edit(`session: ${this.callbackData}, params: ${inputText}`)
+  await this.ct.editMessageText(`session: ${this.callbackData}, params: ${inputText}`)
 }
 ```
 

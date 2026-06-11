@@ -360,7 +360,7 @@ Description
 
 </td><td>
 
-Create a gateway client to connect to another worker.
+\[LOW-LEVEL\] Create a gateway client to connect to another worker.
 
 
 </td></tr>
@@ -388,7 +388,7 @@ Create a gateway server for inter-worker communication.
 
 </td><td>
 
-Handle incoming messages from the main thread.
+\[LOW-LEVEL\] Handle incoming messages from the main thread.
 
 
 </td></tr>
@@ -402,7 +402,7 @@ Handle incoming messages from the main thread.
 
 </td><td>
 
-Initialize message handling from parent port and register event message from parent.
+\[LOW-LEVEL\] Initialize message handling from parent port and register event message from parent.
 
 
 </td></tr>

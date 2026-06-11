@@ -10,7 +10,7 @@ Hook called when no page handler matches the input.
 
 ```typescript
 /** @virtual */
-hookErrorInputNotFoundPage(ctx: ICtx): Promise<void>;
+hookErrorInputNotFoundPage?(ctx: ICtx): Promise<void>;
 ```
 
 ## Parameters
@@ -62,7 +62,7 @@ Override this method to send a "command not found" message or redirect to a help
 
 ```typescript
 async hookErrorInputNotFoundPage(ctx: Ctx) {
-  await ctx.ct.reply("Unknown command. Type /help for assistance.")
+  await new GeneralStatusPage(ctx).showErrorInputNotFound()
 }
 ```
 

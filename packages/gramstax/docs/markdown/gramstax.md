@@ -156,7 +156,7 @@ Provides a unified interface for creating and managing worker threads with autom
 
 </td><td>
 
-Provides IPC client functionality for inter-worker communication using Unix domain sockets.
+\[LOW-LEVEL\] Provides IPC client functionality for inter-worker communication using Unix domain sockets.
 
 
 </td></tr>
@@ -167,7 +167,7 @@ Provides IPC client functionality for inter-worker communication using Unix doma
 
 </td><td>
 
-Provides IPC server functionality for inter-worker communication using Unix domain sockets.
+\[LOW-LEVEL\] Provides IPC server functionality for inter-worker communication using Unix domain sockets.
 
 
 </td></tr>
@@ -211,7 +211,7 @@ Manages multiple worker thread instances, providing pooled access and broadcast 
 
 </td><td>
 
-Handles JSON-RPC style communication between threads.
+\[LOW-LEVEL\] Handles JSON-RPC style communication between threads.
 
 
 </td></tr>

@@ -4,7 +4,7 @@
 
 ## WorkerThreadLaunch.readyResolve() method
 
-Internal method called by worker to signal readiness.
+\[LOW-LEVEL\] Internal method called by worker to signal readiness.
 
 **Signature:**
 

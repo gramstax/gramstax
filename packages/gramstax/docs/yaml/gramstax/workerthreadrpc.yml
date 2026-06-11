@@ -3,26 +3,15 @@ name: WorkerThreadRpc
 uid: gramstax!WorkerThreadRpc:class
 package: gramstax!
 fullName: WorkerThreadRpc
-summary: Handles JSON-RPC style communication between threads.
+summary: \[LOW-LEVEL\] Handles JSON-RPC style communication between threads.
 remarks: >-
+  Low-level internal infrastructure. Used by [WorkerThreadInit](xref:gramstax!WorkerThreadInit:class) and
+  [WorkerThreadLaunch](xref:gramstax!WorkerThreadLaunch:class) under the hood — you rarely need to touch it.
+
+
   Uses simple JSON-RPC style messages with `id`<!-- -->, `method`<!-- -->, `params`<!-- -->, `result`<!-- -->,
-  `error`<!-- -->. Typically used internally by [WorkerThreadInit](xref:gramstax!WorkerThreadInit:class) and
-  [WorkerThreadLaunch](xref:gramstax!WorkerThreadLaunch:class)<!-- -->.
-example:
-  - |-
-    ```typescript
-    import { WorkerThreadRpc } from "gramstax";
-
-    const rpc = new WorkerThreadRpc((data) => postMessage(data), {
-      add: (a: number, b: number) => a + b,
-      multiply: (a: number, b: number) => a * b,
-    });
-
-    // Handle incoming messages
-    parentPort.on("message", (data) => {
-      rpc.make(data);
-    });
-    ```
+  `error`<!-- -->.
+example: []
 isPreview: false
 isDeprecated: false
 type: class

@@ -239,6 +239,36 @@ methods:
       return:
         type: void
         description: ''
+  - name: _onHandle(ct, listenerName, fromListener, shouldCheckNotFound)
+    uid: gramstax!Gramstax#_onHandle:member(1)
+    package: gramstax!
+    fullName: _onHandle(ct, listenerName, fromListener, shouldCheckNotFound)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        _onHandle(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific |
+        `onCallbackQueryData`, fromListener: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound?: boolean):
+        Promise<void>;
+      parameters:
+        - id: ct
+          description: ''
+          type: <xref uid="grammy!Context:class" />
+        - id: listenerName
+          description: ''
+          type: keyof typeof gramstax!~__type#<xref uid="routeDynamicSpesific:member" /> | `onCallbackQueryData`
+        - id: fromListener
+          description: ''
+          type: Parameters&lt;<xref uid="gramstax!Gramstax:class" />[`_pageRoutes`]&gt;[1]
+        - id: shouldCheckNotFound
+          description: ''
+          type: boolean
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
   - name: _onMessage(ct, listenerName)
     uid: gramstax!Gramstax#_onMessage:member(1)
     package: gramstax!
@@ -1257,7 +1287,9 @@ methods:
     syntax:
       content: >-
         _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof
-        Gramstax.prototype.pages.routeDynamicSpesific): Promise<any>;
+        Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
+                result: any;
+            }>;
       parameters:
         - id: ctx
           description: The context instance.
@@ -1266,8 +1298,11 @@ methods:
           description: The listener type that triggered the route.
           type: '`callbackdata` | keyof typeof gramstax!~__type#<xref uid="routeDynamicSpesific:member" />'
       return:
-        type: Promise&lt;any&gt;
-        description: The route handler result, or null if no handler answered.
+        type: |-
+          Promise&lt;{
+                  result: any;
+              }&gt;
+        description: '`result`<!-- -->: The route handler result, or null if no handler answered.'
   - name: _pageSorts(Page, pages, indexPage)
     uid: gramstax!Gramstax#_pageSorts:member(1)
     package: gramstax!
@@ -1626,6 +1661,44 @@ methods:
                   blockWhenFull: boolean;
               } | null
         description: Stats object when queue is enabled, otherwise `null`<!-- -->.
+  - name: hookAfterRoute(ctx, data)
+    uid: gramstax!Gramstax#hookAfterRoute:member(1)
+    package: gramstax!
+    fullName: hookAfterRoute(ctx, data)
+    summary: Hook called after routing an update.
+    remarks: >-
+      Override this method to add after routing logic like analytics or logging. NOTE: only executed when
+      `hookBeforeRoute` set to return true or not define overrides
+    example:
+      - |-
+        ```typescript
+        async hookAfterRoute(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookAfterRoute`]>>[1]) {
+          console.log(`[${data.listenerName}] handled by page: ${ctx.data.name} execute: status: ${data.status}`)
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        hookAfterRoute?(ctx: ICtx, data: {
+                listenerName: string;
+                status: `success` | `error` | `notfound`;
+            }): Promise<void>;
+      parameters:
+        - id: ctx
+          description: The context instance.
+          type: ICtx
+        - id: data
+          description: ''
+          type: |-
+            {
+                    listenerName: string;
+                    status: `success` | `error` | `notfound`;
+                }
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
   - name: hookAfterStart()
     uid: gramstax!Gramstax#hookAfterStart:member(1)
     package: gramstax!
@@ -1638,22 +1711,23 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookAfterStart(): void;
+        hookAfterStart?(): Promise<any>;
       return:
-        type: void
+        type: Promise&lt;any&gt;
         description: ''
-  - name: hookBeforeRoute(ctx, listenerName)
+  - name: hookBeforeRoute(ctx, data)
     uid: gramstax!Gramstax#hookBeforeRoute:member(1)
     package: gramstax!
-    fullName: hookBeforeRoute(ctx, listenerName)
+    fullName: hookBeforeRoute(ctx, data)
     summary: Hook called before routing an update.
     remarks: Override this method to add pre-routing logic like authentication, rate limiting, or logging.
     example:
       - |-
         ```typescript
-        async hookBeforeRoute(ctx: Ctx, listenerName: string) {
+        async hookBeforeRoute(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookBeforeRoute`]>>[1]) {
+          console.log(`[${data.listenerName}] handled by page: ${ctx.data.name} execute: `)
           if (ctx.userId === blockedUserId) {
-            return false // Block this user
+            return false // Will not response
           }
           return true
         }
@@ -1663,14 +1737,19 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookBeforeRoute(ctx: ICtx, listenerName: string): Promise<boolean>;
+        hookBeforeRoute?(ctx: ICtx, data: {
+                listenerName: string;
+            }): Promise<boolean>;
       parameters:
         - id: ctx
           description: The context instance.
           type: ICtx
-        - id: listenerName
-          description: The name of the listener handling this update.
-          type: string
+        - id: data
+          description: ''
+          type: |-
+            {
+                    listenerName: string;
+                }
       return:
         type: Promise&lt;boolean&gt;
         description: True to continue routing, false to abort.
@@ -1686,9 +1765,9 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookBeforeStart(): void;
+        hookBeforeStart?(): Promise<any>;
       return:
-        type: void
+        type: Promise&lt;any&gt;
         description: ''
   - name: hookErrorInputNotFoundPage(ctx)
     uid: gramstax!Gramstax#hookErrorInputNotFoundPage:member(1)
@@ -1700,7 +1779,7 @@ methods:
       - |-
         ```typescript
         async hookErrorInputNotFoundPage(ctx: Ctx) {
-          await ctx.ct.reply("Unknown command. Type /help for assistance.")
+          await new GeneralStatusPage(ctx).showErrorInputNotFound()
         }
         ```
     isPreview: false
@@ -1708,7 +1787,7 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookErrorInputNotFoundPage(ctx: ICtx): Promise<void>;
+        hookErrorInputNotFoundPage?(ctx: ICtx): Promise<void>;
       parameters:
         - id: ctx
           description: The context instance.
@@ -1716,10 +1795,10 @@ methods:
       return:
         type: Promise&lt;void&gt;
         description: ''
-  - name: hookErrorPage(ctx, listenerName, error, isEdit)
+  - name: hookErrorPage(ctx, data)
     uid: gramstax!Gramstax#hookErrorPage:member(1)
     package: gramstax!
-    fullName: hookErrorPage(ctx, listenerName, error, isEdit)
+    fullName: hookErrorPage(ctx, data)
     summary: Hook called when a page handler throws an error.
     remarks: >-
       Override this method to handle errors gracefully, e.g., sending an error message to the user or logging to an
@@ -1727,9 +1806,8 @@ methods:
     example:
       - |-
         ```typescript
-        async hookErrorPage(ctx: Ctx, listenerName: string, error: any) {
-          await ctx.reply(undefined, {error: "An error occurred"})
-          console.error(error)
+        async hookErrorPage(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]) {
+          await new GeneralStatusPage(ctx).showError(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
         }
         ```
     isPreview: false
@@ -1737,20 +1815,23 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookErrorPage(ctx: ICtx, listenerName: string, error: any, isEdit: boolean): Promise<void>;
+        hookErrorPage?(ctx: ICtx, data: {
+                listenerName: string;
+                error: any;
+                isEdit: boolean;
+            }): Promise<void>;
       parameters:
         - id: ctx
           description: The context instance.
           type: ICtx
-        - id: listenerName
-          description: The name of the listener handling this update.
-          type: string
-        - id: error
-          description: The caught error.
-          type: any
-        - id: isEdit
-          description: Whether the handler was editing a message.
-          type: boolean
+        - id: data
+          description: ''
+          type: |-
+            {
+                    listenerName: string;
+                    error: any;
+                    isEdit: boolean;
+                }
       return:
         type: Promise&lt;void&gt;
         description: ''

@@ -210,7 +210,7 @@ methods:
     uid: gramstax!WorkerThreadLaunch#handleOnMessage:member(1)
     package: gramstax!
     fullName: handleOnMessage(data)
-    summary: Handle incoming messages from the worker thread.
+    summary: \[LOW-LEVEL\] Handle incoming messages from the worker thread.
     remarks: ''
     example: []
     isPreview: false
@@ -228,7 +228,7 @@ methods:
     uid: gramstax!WorkerThreadLaunch#init:member(1)
     package: gramstax!
     fullName: init()
-    summary: Initialize the worker thread and set up message handlers.
+    summary: \[LOW-LEVEL\] Initialize the worker thread and set up message handlers.
     remarks: ''
     example: []
     isPreview: false
@@ -280,7 +280,7 @@ methods:
     uid: gramstax!WorkerThreadLaunch#readyResolve:member(1)
     package: gramstax!
     fullName: readyResolve()
-    summary: Internal method called by worker to signal readiness.
+    summary: \[LOW-LEVEL\] Internal method called by worker to signal readiness.
     remarks: ''
     example: []
     isPreview: false

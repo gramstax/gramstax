@@ -4,7 +4,7 @@
 
 ## WorkerThreadInit.createGatewayClient() method
 
-Create a gateway client to connect to another worker.
+\[LOW-LEVEL\] Create a gateway client to connect to another worker.
 
 **Signature:**
 
@@ -56,7 +56,7 @@ Promise resolving with connected client.
 
 ## Remarks
 
-Not recommended for direct use. Use `launchGatewayClient` from `WorkerThreadExport` instead.
+Low-level API. Use `launchGatewayClient` from `WorkerThreadExport` instead.
 
 ## Example
 

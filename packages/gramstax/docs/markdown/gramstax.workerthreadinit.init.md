@@ -4,7 +4,7 @@
 
 ## WorkerThreadInit.init() method
 
-Initialize message handling from parent port and register event message from parent.
+\[LOW-LEVEL\] Initialize message handling from parent port and register event message from parent.
 
 **Signature:**
 

@@ -1214,7 +1214,7 @@ Edits an existing message to show an audio.
 </td></tr>
 <tr><td>
 
-[editAudioGroup(keyboard, data, baseId, options)](./gramstax.ctx.editaudiogroup.md)
+[editAudioGroup(data, baseId, options)](./gramstax.ctx.editaudiogroup.md)
 
 
 </td><td>
@@ -1256,7 +1256,7 @@ Edits an existing message to show a document.
 </td></tr>
 <tr><td>
 
-[editDocumentGroup(keyboard, data, baseId, options)](./gramstax.ctx.editdocumentgroup.md)
+[editDocumentGroup(data, baseId, options)](./gramstax.ctx.editdocumentgroup.md)
 
 
 </td><td>
@@ -1298,6 +1298,20 @@ Edits an existing media message with dynamic type selection.
 </td></tr>
 <tr><td>
 
+[editMediaGroup(type, data, baseId, options)](./gramstax.ctx.editmediagroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a media group filtered by the given type.
+
+
+</td></tr>
+<tr><td>
+
 [editPhoto(keyboardInline, data, baseId, options1, options2)](./gramstax.ctx.editphoto.md)
 
 
@@ -1312,7 +1326,7 @@ Edits an existing message to show a photo.
 </td></tr>
 <tr><td>
 
-[editPhotoGroup(keyboard, data, baseId, options)](./gramstax.ctx.editphotogroup.md)
+[editPhotoGroup(data, baseId, options)](./gramstax.ctx.editphotogroup.md)
 
 
 </td><td>
@@ -1354,7 +1368,7 @@ Edits an existing message to show a video.
 </td></tr>
 <tr><td>
 
-[editVideoGroup(keyboard, data, baseId, options)](./gramstax.ctx.editvideogroup.md)
+[editVideoGroup(data, baseId, options)](./gramstax.ctx.editvideogroup.md)
 
 
 </td><td>
@@ -2642,6 +2656,34 @@ Checks if a string contains arg separators.
 </td></tr>
 <tr><td>
 
+[hookAfterRoute()?](./gramstax.ctx.hookafterroute.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Page-level hook after a route handler execution.
+
+
+</td></tr>
+<tr><td>
+
+[hookBeforeRoute()?](./gramstax.ctx.hookbeforeroute.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Page-level hook before route handler execution.
+
+
+</td></tr>
+<tr><td>
+
 [inlineKeyboard(callback, params)](./gramstax.ctx.inlinekeyboard.md)
 
 
@@ -2692,7 +2734,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2706,7 +2748,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2720,7 +2762,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2734,7 +2776,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2748,7 +2790,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2762,7 +2804,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2776,7 +2818,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2790,7 +2832,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2804,7 +2846,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2818,7 +2860,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2832,7 +2874,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2846,7 +2888,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2860,7 +2902,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2874,7 +2916,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2888,7 +2930,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2902,7 +2944,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2916,7 +2958,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2930,7 +2972,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2944,7 +2986,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2958,7 +3000,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2972,7 +3014,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -2986,7 +3028,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3000,7 +3042,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3014,7 +3056,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3028,7 +3070,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3042,7 +3084,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3056,7 +3098,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3070,7 +3112,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3084,7 +3126,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3098,7 +3140,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3112,7 +3154,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3126,7 +3168,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3140,7 +3182,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3154,7 +3196,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3168,7 +3210,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3182,7 +3224,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3196,7 +3238,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3210,7 +3252,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3224,7 +3266,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3238,7 +3280,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3252,7 +3294,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3266,7 +3308,7 @@ Session method name builders.
 
 </td><td>
 
-Session method name builders.
+\[LOW-LEVEL\] Session method name builders.
 
 
 </td></tr>
@@ -3328,7 +3370,7 @@ Sends an audio message using the page template.
 </td></tr>
 <tr><td>
 
-[replyAudioGroup(keyboard, data, baseId, options)](./gramstax.ctx.replyaudiogroup.md)
+[replyAudioGroup(data, baseId, options)](./gramstax.ctx.replyaudiogroup.md)
 
 
 </td><td>
@@ -3370,7 +3412,7 @@ Sends a document message using the page template.
 </td></tr>
 <tr><td>
 
-[replyDocumentGroup(keyboard, data, baseId, options)](./gramstax.ctx.replydocumentgroup.md)
+[replyDocumentGroup(data, baseId, options)](./gramstax.ctx.replydocumentgroup.md)
 
 
 </td><td>
@@ -3412,7 +3454,7 @@ Sends a media message reply with dynamic type selection.
 </td></tr>
 <tr><td>
 
-[replyMediaGroup(type, keyboard, data, baseId, options)](./gramstax.ctx.replymediagroup.md)
+[replyMediaGroup(type, data, baseId, options)](./gramstax.ctx.replymediagroup.md)
 
 
 </td><td>
@@ -3440,7 +3482,7 @@ Sends a photo message using the page template.
 </td></tr>
 <tr><td>
 
-[replyPhotoGroup(keyboard, data, baseId, options)](./gramstax.ctx.replyphotogroup.md)
+[replyPhotoGroup(data, baseId, options)](./gramstax.ctx.replyphotogroup.md)
 
 
 </td><td>
@@ -3482,7 +3524,7 @@ Sends a video message using the page template.
 </td></tr>
 <tr><td>
 
-[replyVideoGroup(keyboard, data, baseId, options)](./gramstax.ctx.replyvideogroup.md)
+[replyVideoGroup(data, baseId, options)](./gramstax.ctx.replyvideogroup.md)
 
 
 </td><td>
@@ -3532,7 +3574,7 @@ Sends a voice message using the page template.
 
 </td><td>
 
-Sets session data for the current user.
+\[LOW-LEVEL\] Sets session data for the current user.
 
 
 </td></tr>

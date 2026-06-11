@@ -3,22 +3,15 @@ name: WorkerThreadGatewayServer
 uid: gramstax!WorkerThreadGatewayServer:class
 package: gramstax!
 fullName: WorkerThreadGatewayServer
-summary: Provides IPC server functionality for inter-worker communication using Unix domain sockets.
+summary: \[LOW-LEVEL\] Provides IPC server functionality for inter-worker communication using Unix domain sockets.
 remarks: >-
-  Uses `net-ipc` library for Unix domain socket communication. Supports connections from multiple gateway clients.
-  Typically created via
-  [WorkerThreadInit.createGatewayServer()](xref:gramstax!WorkerThreadInit%23createGatewayServer:member(1))<!-- -->.
-example:
-  - |-
-    ```typescript
-    import { WorkerThreadGatewayServer } from "gramstax";
+  Low-level infrastructure. In most cases use
+  [WorkerThreadInit.createGatewayServer()](xref:gramstax!WorkerThreadInit%23createGatewayServer:member(1)) instead of
+  constructing this directly.
 
-    const server = new WorkerThreadGatewayServer();
-    await server.start("/tmp/my-server.sock", {
-      ping: () => "pong",
-      getData: (key) => database.get(key),
-    });
-    ```
+
+  Uses `net-ipc` library for Unix domain socket communication. Supports connections from multiple gateway clients.
+example: []
 isPreview: false
 isDeprecated: false
 type: class

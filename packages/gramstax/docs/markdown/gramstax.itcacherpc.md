@@ -10,7 +10,7 @@ RPC cache request structure.
 
 ```typescript
 type ITCacheRpc = {
-    method: string;
+    method: string | string[];
     params: any;
     [moreRoot: string]: any;
 };

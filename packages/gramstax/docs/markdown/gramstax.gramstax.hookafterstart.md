@@ -10,11 +10,11 @@ Hook called after the bot has started.
 
 ```typescript
 /** @virtual */
-hookAfterStart(): void;
+hookAfterStart?(): Promise<any>;
 ```
 **Returns:**
 
-void
+Promise&lt;any&gt;
 
 ## Remarks
 

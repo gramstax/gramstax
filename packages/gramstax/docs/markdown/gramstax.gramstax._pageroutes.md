@@ -9,7 +9,9 @@ Routes an incoming update to the appropriate page handler.
 **Signature:**
 
 ```typescript
-_pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<any>;
+_pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
+        result: any;
+    }>;
 ```
 
 ## Parameters
@@ -66,9 +68,9 @@ The listener type that triggered the route.
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;{ result: any; }&gt;
 
-The route handler result, or null if no handler answered.
+`result`<!-- -->: The route handler result, or null if no handler answered.
 
 ## Remarks
 

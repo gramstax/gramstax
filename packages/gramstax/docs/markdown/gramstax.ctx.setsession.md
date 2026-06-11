@@ -4,12 +4,12 @@
 
 ## Ctx.setSession() method
 
-Sets session data for the current user.
+\[LOW-LEVEL\] Sets session data for the current user.
 
 **Signature:**
 
 ```typescript
-setSession(method: string, params: any, moreRoot?: Record<any, any>): Promise<boolean | null>;
+setSession(method: string | string[], params: any, moreRoot?: Record<any, any>): Promise<boolean | null>;
 ```
 
 ## Parameters
@@ -37,12 +37,12 @@ method
 
 </td><td>
 
-string
+string \| string\[\]
 
 
 </td><td>
 
-The session method name (typically matches a route handler).
+Route method name(s). Use `this.methodSession*()` helpers for type-safe names, not a hardcoded string.
 
 
 </td></tr>
@@ -88,15 +88,21 @@ True if the session was set successfully, or null on error.
 
 ## Remarks
 
-Session data is stored in the external cache and persists across requests. Used to maintain state between different page interactions.
+Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g. [Ctx.setSessionFreeText()](./gramstax.ctx.setsessionfreetext.md)<!-- -->, [Ctx.setSessionCallbackData()](./gramstax.ctx.setsessioncallbackdata.md)<!-- -->).
+
+This method is only needed when: - \*\*Multi-session\*\* — binding the same params to multiple route handlers at once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - \*\*Dynamic method name\*\* — method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.
 
 ## Example
 
 
 ```typescript
-async handleCallbackData() {
-  await this.setSession("random_172172783jd83", {step: "awaiting_name"})
-  await this.reply()
-}
+// ❌ Avoid — use setSessionFreeText({...}) instead
+await this.setSession(this.methodSessionFreeText(), {step: "awaiting_name"})
+
+// ✅ Multi-session — bind one payload to two listeners
+await this.setSession(
+  [this.methodSessionFreeVideo(), this.methodSessionFreeText()],
+  {mediaId: "abc123"}
+)
 ```
 

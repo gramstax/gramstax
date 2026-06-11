@@ -4,7 +4,7 @@
 
 ## WorkerThreadGatewayClient class
 
-Provides IPC client functionality for inter-worker communication using Unix domain sockets.
+\[LOW-LEVEL\] Provides IPC client functionality for inter-worker communication using Unix domain sockets.
 
 **Signature:**
 
@@ -14,18 +14,9 @@ declare class WorkerThreadGatewayClient
 
 ## Remarks
 
-Uses `net-ipc` library for Unix domain socket communication. Typically created via [WorkerThreadInit.createGatewayClient()](./gramstax.workerthreadinit.creategatewayclient.md)<!-- -->.
+Low-level infrastructure. In most cases use [WorkerThreadInit.createGatewayClient()](./gramstax.workerthreadinit.creategatewayclient.md) instead of constructing this directly.
 
-## Example
-
-
-```typescript
-import { WorkerThreadGatewayClient } from "gramstax";
-
-const client = new WorkerThreadGatewayClient();
-await client.connect("/tmp/my-server.sock");
-const result = await client.request("ping", []);
-```
+Uses `net-ipc` library for Unix domain socket communication.
 
 ## Constructors
 

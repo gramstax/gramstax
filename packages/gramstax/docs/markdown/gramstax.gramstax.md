@@ -347,6 +347,18 @@ Global error handler for bot errors.
 </td></tr>
 <tr><td>
 
+[\_onHandle(ct, listenerName, fromListener, shouldCheckNotFound)](./gramstax.gramstax._onhandle.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [\_onMessage(ct, listenerName)](./gramstax.gramstax._onmessage.md)
 
 
@@ -849,7 +861,7 @@ Get current webhook queue statistics.
 </td></tr>
 <tr><td>
 
-[hookAfterStart()](./gramstax.gramstax.hookafterstart.md)
+[hookAfterRoute(ctx, data)?](./gramstax.gramstax.hookafterroute.md)
 
 
 </td><td>
@@ -857,13 +869,13 @@ Get current webhook queue statistics.
 
 </td><td>
 
-Hook called after the bot has started.
+_(Optional)_ Hook called after routing an update.
 
 
 </td></tr>
 <tr><td>
 
-[hookBeforeRoute(ctx, listenerName)](./gramstax.gramstax.hookbeforeroute.md)
+[hookAfterStart()?](./gramstax.gramstax.hookafterstart.md)
 
 
 </td><td>
@@ -871,13 +883,13 @@ Hook called after the bot has started.
 
 </td><td>
 
-Hook called before routing an update.
+_(Optional)_ Hook called after the bot has started.
 
 
 </td></tr>
 <tr><td>
 
-[hookBeforeStart()](./gramstax.gramstax.hookbeforestart.md)
+[hookBeforeRoute(ctx, data)?](./gramstax.gramstax.hookbeforeroute.md)
 
 
 </td><td>
@@ -885,13 +897,13 @@ Hook called before routing an update.
 
 </td><td>
 
-Hook called before the bot starts.
+_(Optional)_ Hook called before routing an update.
 
 
 </td></tr>
 <tr><td>
 
-[hookErrorInputNotFoundPage(ctx)](./gramstax.gramstax.hookerrorinputnotfoundpage.md)
+[hookBeforeStart()?](./gramstax.gramstax.hookbeforestart.md)
 
 
 </td><td>
@@ -899,13 +911,13 @@ Hook called before the bot starts.
 
 </td><td>
 
-Hook called when no page handler matches the input.
+_(Optional)_ Hook called before the bot starts.
 
 
 </td></tr>
 <tr><td>
 
-[hookErrorPage(ctx, listenerName, error, isEdit)](./gramstax.gramstax.hookerrorpage.md)
+[hookErrorInputNotFoundPage(ctx)?](./gramstax.gramstax.hookerrorinputnotfoundpage.md)
 
 
 </td><td>
@@ -913,7 +925,21 @@ Hook called when no page handler matches the input.
 
 </td><td>
 
-Hook called when a page handler throws an error.
+_(Optional)_ Hook called when no page handler matches the input.
+
+
+</td></tr>
+<tr><td>
+
+[hookErrorPage(ctx, data)?](./gramstax.gramstax.hookerrorpage.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Hook called when a page handler throws an error.
 
 
 </td></tr>

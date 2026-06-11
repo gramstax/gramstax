@@ -9,7 +9,7 @@ Sends a photo media group using pipe-delimited `src` values from the page templa
 **Signature:**
 
 ```typescript
-replyPhotoGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+replyPhotoGroup(data?: ITData, baseId?: string, options?: ITOptReplyPhoto): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
 ```
 
 ## Parameters
@@ -31,22 +31,6 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
-
-keyboard
-
-
-</td><td>
-
-[ITInBoKb](./gramstax.itinbokb.md)
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-<tr><td>
 
 data
 

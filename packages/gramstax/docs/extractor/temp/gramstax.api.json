@@ -2604,20 +2604,11 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editAudioGroup:member(1)",
-              "docComment": "/**\n * Replaces the current message with an audio media group.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. Useful when the template uses pipe-delimited `src` values.\n *\n * @param keyboard - Optional keyboard markup for the new message.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type audio.\n *\n * @param options - Optional audio-specific options.\n *\n * @returns The sent media group message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editAudioGroup()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with an audio media group.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. Useful when the template uses pipe-delimited `src` values.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type audio.\n *\n * @param options - Optional audio-specific options.\n *\n * @returns The sent media group message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editAudioGroup()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "editAudioGroup(keyboard?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITInBoKb",
-                  "canonicalReference": "gramstax!ITInBoKb:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", data?: "
+                  "text": "editAudioGroup(data?: "
                 },
                 {
                   "kind": "Reference",
@@ -2706,15 +2697,15 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 21
+                "startIndex": 7,
+                "endIndex": 19
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "keyboard",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -2722,7 +2713,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "data",
+                  "parameterName": "baseId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -2730,18 +2721,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "baseId",
+                  "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
                   },
                   "isOptional": true
                 }
@@ -3266,20 +3249,11 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editDocumentGroup:member(1)",
-              "docComment": "/**\n * Replaces the current message with a document media group.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. Useful when the template uses pipe-delimited `src` values.\n *\n * @param keyboard - Optional keyboard markup for the new message.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type document.\n *\n * @param options - Optional document-specific options.\n *\n * @returns The sent media group message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editDocumentGroup()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a document media group.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. Useful when the template uses pipe-delimited `src` values.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type document.\n *\n * @param options - Optional document-specific options.\n *\n * @returns The sent media group message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editDocumentGroup()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "editDocumentGroup(keyboard?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITInBoKb",
-                  "canonicalReference": "gramstax!ITInBoKb:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", data?: "
+                  "text": "editDocumentGroup(data?: "
                 },
                 {
                   "kind": "Reference",
@@ -3368,15 +3342,15 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 21
+                "startIndex": 7,
+                "endIndex": 19
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "keyboard",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -3384,7 +3358,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "data",
+                  "parameterName": "baseId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -3392,18 +3366,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "baseId",
+                  "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
                   },
                   "isOptional": true
                 }
@@ -4043,6 +4009,182 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#editMediaGroup:member(1)",
+              "docComment": "/**\n * Replaces the current message with a media group filtered by the given type.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. When `type` is omitted or `undefined`, all items in the `<media-group>` are sent. For a hardcoded type, use the convenience methods (`editPhotoGroup`, `editVideoGroup`, etc.).\n *\n * @param type - Optional media type filter. All items sent when omitted.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media.\n *\n * @param options - Optional media-agnostic options.\n *\n * @returns The sent media group messages.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   // send only photos\n *   await this.editMediaGroup(\"photo\")\n * }\n *\n * async handleShowAll() {\n *   // send all media-group items\n *   await this.editMediaGroup()\n * }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "editMediaGroup(type?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITMediaGroupType",
+                  "canonicalReference": "gramstax!~ITMediaGroupType:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITData",
+                  "canonicalReference": "gramstax!ITData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyPhoto",
+                  "canonicalReference": "gramstax!ITOptReplyPhoto:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyVideo",
+                  "canonicalReference": "gramstax!ITOptReplyVideo:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyAudio",
+                  "canonicalReference": "gramstax!ITOptReplyAudio:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyDocument",
+                  "canonicalReference": "gramstax!ITOptReplyDocument:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.PhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.VideoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.AudioMessage",
+                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.DocumentMessage",
+                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.LivePhotoMessage",
+                  "canonicalReference": "@grammyjs/types!Message.LivePhotoMessage:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 15,
+                "endIndex": 27
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "type",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 14
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "editMediaGroup"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editPhoto:member(1)",
               "docComment": "/**\n * Edits an existing message to show a photo.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type photo.\n *\n * @param options1 - Optional media options.\n *\n * @param options2 - Optional edit options.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editPhoto()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -4309,20 +4451,11 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editPhotoGroup:member(1)",
-              "docComment": "/**\n * Replaces the current message with a photo media group.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. Useful when the template uses pipe-delimited `src` values.\n *\n * @param keyboard - Optional keyboard markup for the new message.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type photo.\n *\n * @param options - Optional photo-specific options.\n *\n * @returns The sent media group message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editPhotoGroup()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a photo media group.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. Useful when the template uses pipe-delimited `src` values.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type photo.\n *\n * @param options - Optional photo-specific options.\n *\n * @returns The sent media group message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editPhotoGroup()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "editPhotoGroup(keyboard?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITInBoKb",
-                  "canonicalReference": "gramstax!ITInBoKb:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", data?: "
+                  "text": "editPhotoGroup(data?: "
                 },
                 {
                   "kind": "Reference",
@@ -4411,15 +4544,15 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 21
+                "startIndex": 7,
+                "endIndex": 19
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "keyboard",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -4427,7 +4560,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "data",
+                  "parameterName": "baseId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -4435,18 +4568,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "baseId",
+                  "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
                   },
                   "isOptional": true
                 }
@@ -4971,20 +5096,11 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editVideoGroup:member(1)",
-              "docComment": "/**\n * Replaces the current message with a video media group.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. Useful when the template uses pipe-delimited `src` values.\n *\n * @param keyboard - Optional keyboard markup for the new message.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type video.\n *\n * @param options - Optional video-specific options.\n *\n * @returns The sent media group message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editVideoGroup()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Replaces the current message with a video media group.\n *\n * @remarks\n *\n * Deletes the original message and sends a new media group via `replyMediaGroup`. Useful when the template uses pipe-delimited `src` values.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media type video.\n *\n * @param options - Optional video-specific options.\n *\n * @returns The sent media group message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   await this.editVideoGroup()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "editVideoGroup(keyboard?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITInBoKb",
-                  "canonicalReference": "gramstax!ITInBoKb:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", data?: "
+                  "text": "editVideoGroup(data?: "
                 },
                 {
                   "kind": "Reference",
@@ -5073,15 +5189,15 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 21
+                "startIndex": 7,
+                "endIndex": 19
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "keyboard",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -5089,7 +5205,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "data",
+                  "parameterName": "baseId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -5097,18 +5213,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "baseId",
+                  "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
                   },
                   "isOptional": true
                 }
@@ -7445,7 +7553,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCallbackData:member(1)",
-              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n *\n * @example\n * ```typescript\n * // handle* — invoked via id=2 (static) when no session matches in id=1\n * async handleCallbackData() {\n *   await this.edit(`normal flow: ${this.callbackData}`)\n * }\n *\n * // handleSession* — invoked via id=1 (session) when session.method matches\n * async handleSessionCallbackData() {\n *   const {inputText} = this.temp.session.params\n *   await this.edit(`session-active: ${inputText}`)\n * }\n * ```\n *\n * @example\n * ```typescript\n * async handleArgsCallbackData() {\n *   await this.edit(`normal: ${this.callbackData}`)\n * }\n * async handleSessionArgsCallbackData() {\n *   const {inputText} = this.temp.session.params\n *   await this.edit(`session: ${this.callbackData}, params: ${inputText}`)\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackData, ArgsCallbackData, Text, CommandText, FreeText, CaptionPhoto, etc.\n *\n * @example\n * ```typescript\n * // handle* — invoked via id=2 (static) when no session matches in id=1\n * async handleCallbackData() {\n *   await this.ct.editMessageText(`normal flow: ${this.callbackData}`)\n * }\n *\n * // handleSession* — invoked via id=1 (session) when session.method matches\n * async handleSessionCallbackData() {\n *   const {inputText} = this.temp.session.params\n *   await this.ct.editMessageText(`session-active: ${inputText}`)\n * }\n * ```\n *\n * @example\n * ```typescript\n * async handleArgsCallbackData() {\n *   await this.ct.editMessageText(`normal: ${this.callbackData}`)\n * }\n * async handleSessionArgsCallbackData() {\n *   const {inputText} = this.temp.session.params\n *   await this.ct.editMessageText(`session: ${this.callbackData}, params: ${inputText}`)\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8998,6 +9106,78 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#hookAfterRoute:member(1)",
+              "docComment": "/**\n * Page-level hook after a route handler execution.\n *\n * @remarks\n *\n * Always runs after the handler returns (even when the handler returns undefined / null). Ideal for cleanup, analytics, or chained side effects.\n *\n * Useful for: - Recording page visit timestamps - Auto-clearing stale session data - Firing post-processing jobs\n *\n * @example\n * ```typescript\n * // Track last visit per page\n * async hookAfterRoute() {\n *   await this.cacheSession.set(`${this.userId}:lastPage`, this.data.name)\n * }\n * ```\n *\n * @example\n * ```typescript\n * // Auto-clear session when user reaches a terminal step\n * async hookAfterRoute() {\n *   if (this.temp.session?.params.step === `completed`) {\n *     await this.cacheSession.del(String(this.userId))\n *   }\n * }\n * ```\n *\n * @example\n * ```typescript\n * // Notify admins of high-value actions\n * async hookAfterRoute() {\n *   if (this.temp.session?.params.amount > 10000) {\n *     await this.ct.api.sendMessage(ADMIN_CHAT_ID, `Large withdrawal: ${this.temp.session.amount}`)\n *   }\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "hookAfterRoute?(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": true,
+              "isAbstract": false,
+              "name": "hookAfterRoute"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#hookBeforeRoute:member(1)",
+              "docComment": "/**\n * Page-level hook before route handler execution.\n *\n * @remarks\n *\n * Return `false` to **skip only the target route handler** (e.g. `handleFreeText`, `handleCallbackData`, etc.). The rest of the framework is untouched — you can still call `.reply()`, `.edit()`, `.answerCallbackQuery()`, and other Ctx methods normally inside this hook before returning `false`.\n *\n * In other words: returning `false` does NOT freeze the page — it only prevents one specific handler from running.\n *\n * Useful for: - Per-page cooldown / rate limiting (reply \"please wait\" then abort) - Precondition checks (reply with redirect page then abort) - Session validity gates\n *\n * @returns `true` to continue (handler runs), `false` to abort (handler skipped).\n *\n * @example\n * ```typescript\n * // Cooldown — reply then abort the handler\n * async hookBeforeRoute() {\n *   const last = await this.cacheSession.get(`${this.userId}:lastAction`)\n *   if (last && Date.now() - Number(last) < 2000) {\n *     await this.answerCallbackQuery(`Please wait...`) // still works\n *     return false // only skips the target handler\n *   }\n *   await this.cacheSession.set(`${this.userId}:lastAction`, String(Date.now()))\n *   return true\n * }\n * ```\n *\n * @example\n * ```typescript\n * // KYC gate — send redirect page then abort\n * async hookBeforeRoute() {\n *   const profile = await this.db.getUser(this.userId)\n *   if (!profile?.kycVerified) {\n *     await new KycPage(this).showForm() // redirect works\n *     return false // only skips the guarded handler\n *   }\n *   return true\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "hookBeforeRoute?(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": true,
+              "isAbstract": false,
+              "name": "hookBeforeRoute"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#inlineKeyboard:member(1)",
               "docComment": "/**\n * Creates an inline keyboard using a builder callback.\n *\n * @remarks\n *\n * The callback receives the keyboard instance and an array of button labels from the template. Supports optional caching for performance.\n *\n * @param callback - Builder function that receives keyboard and labels.\n *\n * @param params - Optional parameters. {@link ITInlineKbParams} for details.\n *\n * @returns The inline keyboard instance.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   const kb = this.inlineKeyboard((k, labels) => {\n *     labels.forEach((label, i) => k.text(label, `action:${i}`))\n *     return k\n *   })\n *   await this.reply(kb)\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -9301,7 +9481,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSession:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * @public\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n *\n * @example\n * ```typescript\n * // ✅ Correct\n * await this.setSession([this.methodSessionFreeText(), this.methodSessionFreeVideo()], {})\n *\n * // ❌ Fragile — prefix `7` depends on the listener order\n * await this.setSession([\"7-PageName\", \"8-PageName\"], {})\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9365,7 +9545,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionArgsCallbackData:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9413,7 +9593,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionArgsText:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9461,7 +9641,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCallbackData:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9509,7 +9689,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionAnimation:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9557,7 +9737,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9605,7 +9785,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9653,7 +9833,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9701,7 +9881,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9749,7 +9929,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9797,7 +9977,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9845,7 +10025,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionAudio:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9893,7 +10073,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionDocument:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9941,7 +10121,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionPhoto:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9989,7 +10169,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionVideo:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10037,7 +10217,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionVoice:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10085,7 +10265,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandArgsText:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10133,7 +10313,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionAnimation:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10181,7 +10361,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10229,7 +10409,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10277,7 +10457,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10325,7 +10505,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10373,7 +10553,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10421,7 +10601,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10469,7 +10649,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionAudio:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10517,7 +10697,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionDocument:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10565,7 +10745,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionPhoto:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10613,7 +10793,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionVideo:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10661,7 +10841,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionVoice:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10709,7 +10889,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandText:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10757,7 +10937,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeAnimation:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10805,7 +10985,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeAudio:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10853,7 +11033,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeContact:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10901,7 +11081,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeDocument:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10949,7 +11129,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeLocation:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10997,7 +11177,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreePhoto:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -11045,7 +11225,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeSticker:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -11093,7 +11273,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeText:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -11141,7 +11321,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeVideo:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -11189,7 +11369,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeVideoNote:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -11237,7 +11417,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeVoice:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -11285,7 +11465,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionText:member(1)",
-              "docComment": "/**\n * Session method name builders.\n *\n * @remarks\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link Ctx.setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link Ctx.setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -12594,16 +12774,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "replyAudioGroup(keyboard?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITInBoKb",
-                  "canonicalReference": "gramstax!ITInBoKb:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", data?: "
+                  "text": "replyAudioGroup(data?: "
                 },
                 {
                   "kind": "Reference",
@@ -12692,15 +12863,15 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 21
+                "startIndex": 7,
+                "endIndex": 19
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "keyboard",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -12708,7 +12879,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "data",
+                  "parameterName": "baseId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -12716,18 +12887,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "baseId",
+                  "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
                   },
                   "isOptional": true
                 }
@@ -13113,16 +13276,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "replyDocumentGroup(keyboard?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITInBoKb",
-                  "canonicalReference": "gramstax!ITInBoKb:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", data?: "
+                  "text": "replyDocumentGroup(data?: "
                 },
                 {
                   "kind": "Reference",
@@ -13211,15 +13365,15 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 21
+                "startIndex": 7,
+                "endIndex": 19
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "keyboard",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -13227,7 +13381,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "data",
+                  "parameterName": "baseId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -13235,18 +13389,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "baseId",
+                  "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
                   },
                   "isOptional": true
                 }
@@ -13768,7 +13914,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyMediaGroup:member(1)",
-              "docComment": "/**\n * Sends a Telegram media group using pipe-delimited `src` values or a `<media-group>` block from the page template.\n *\n * @remarks\n *\n * Only `photo`, `video`, `audio`, and `document` support Telegram media groups. Omit `type` when the template uses `<media-group>` with per-item media types. The first item receives the template caption. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media.\n *\n * @param type - Supported media group type.\n *\n * @param keyboard - Ignored for media groups; kept for API symmetry with replyMedia.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media.\n *\n * @param options - Optional media-group send options.\n *\n * @returns The sent media group messages.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   await this.replyMediaGroup(\"photo\")\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a Telegram media group using pipe-delimited `src` values or a `<media-group>` block from the page template.\n *\n * @remarks\n *\n * Only `photo`, `video`, `audio`, and `document` support Telegram media groups. Omit `type` when the template uses `<media-group>` with per-item media types. The first item receives the template caption. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media.\n *\n * @param type - Supported media group type. When the template uses `<media-group>`, only items matching this type are included. When omitted, all items are sent.\n *\n * @param data - Optional template interpolation data.\n *\n * @param baseId - Optional template base ID position for block media.\n *\n * @param options - Optional media-group send options.\n *\n * @returns The sent media group messages.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   await this.replyMediaGroup(\"photo\")\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -13778,15 +13924,6 @@
                   "kind": "Reference",
                   "text": "ITMediaGroupType",
                   "canonicalReference": "gramstax!~ITMediaGroupType:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", keyboard?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITInBoKb",
-                  "canonicalReference": "gramstax!ITInBoKb:type"
                 },
                 {
                   "kind": "Content",
@@ -13906,8 +14043,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 17,
-                "endIndex": 29
+                "startIndex": 15,
+                "endIndex": 27
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -13922,7 +14059,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "keyboard",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -13930,7 +14067,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "data",
+                  "parameterName": "baseId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
@@ -13938,18 +14075,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "baseId",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
-                  },
-                  "isOptional": true
-                },
-                {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
-                    "startIndex": 9,
-                    "endIndex": 16
+                    "startIndex": 7,
+                    "endIndex": 14
                   },
                   "isOptional": true
                 }
@@ -14150,16 +14279,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "replyPhotoGroup(keyboard?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITInBoKb",
-                  "canonicalReference": "gramstax!ITInBoKb:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", data?: "
+                  "text": "replyPhotoGroup(data?: "
                 },
                 {
                   "kind": "Reference",
@@ -14248,15 +14368,15 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 21
+                "startIndex": 7,
+                "endIndex": 19
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "keyboard",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -14264,7 +14384,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "data",
+                  "parameterName": "baseId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -14272,18 +14392,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "baseId",
+                  "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
                   },
                   "isOptional": true
                 }
@@ -14669,16 +14781,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "replyVideoGroup(keyboard?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITInBoKb",
-                  "canonicalReference": "gramstax!ITInBoKb:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", data?: "
+                  "text": "replyVideoGroup(data?: "
                 },
                 {
                   "kind": "Reference",
@@ -14767,15 +14870,15 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 21
+                "startIndex": 7,
+                "endIndex": 19
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "keyboard",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -14783,7 +14886,7 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "data",
+                  "parameterName": "baseId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -14791,18 +14894,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "baseId",
+                  "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
                   },
                   "isOptional": true
                 }
@@ -15184,7 +15279,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSession:member(1)",
-              "docComment": "/**\n * Sets session data for the current user.\n *\n * @remarks\n *\n * Session data is stored in the external cache and persists across requests. Used to maintain state between different page interactions.\n *\n * @param method - The session method name (typically matches a route handler).\n *\n * @param params - The session parameters to store.\n *\n * @param moreRoot - Additional root-level properties to merge.\n *\n * @returns True if the session was set successfully, or null on error.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   await this.setSession(\"random_172172783jd83\", {step: \"awaiting_name\"})\n *   await this.reply()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Sets session data for the current user.\n *\n * @remarks\n *\n * Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g. {@link Ctx.setSessionFreeText}, {@link Ctx.setSessionCallbackData}).\n *\n * This method is only needed when: - **Multi-session** — binding the same params to multiple route handlers at once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - **Dynamic method name** — method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.\n *\n * @param method - Route method name(s). Use `this.methodSession*()` helpers for type-safe names, not a hardcoded string.\n *\n * @param params - The session parameters to store.\n *\n * @param moreRoot - Additional root-level properties to merge.\n *\n * @returns True if the session was set successfully, or null on error.\n *\n * @example\n * ```typescript\n * // ❌ Avoid — use setSessionFreeText({...}) instead\n * await this.setSession(this.methodSessionFreeText(), {step: \"awaiting_name\"})\n *\n * // ✅ Multi-session — bind one payload to two listeners\n * await this.setSession(\n *   [this.methodSessionFreeVideo(), this.methodSessionFreeText()],\n *   {mediaId: \"abc123\"}\n * )\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15192,7 +15287,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "string"
+                  "text": "string | string[]"
                 },
                 {
                   "kind": "Content",
@@ -17944,6 +18039,131 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Gramstax#_onHandle:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "_onHandle(ct: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Context",
+                  "canonicalReference": "grammy!Context:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", listenerName: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "keyof typeof "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Gramstax.prototype.pages.routeDynamicSpesific",
+                  "canonicalReference": "gramstax!~__type#routeDynamicSpesific:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | `onCallbackQueryData`"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", fromListener: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Parameters",
+                  "canonicalReference": "!Parameters:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Gramstax",
+                  "canonicalReference": "gramstax!Gramstax:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[`_pageRoutes`]>[1]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", shouldCheckNotFound?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 14,
+                "endIndex": 16
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "ct",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "listenerName",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 6
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "fromListener",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 11
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "shouldCheckNotFound",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 12,
+                    "endIndex": 13
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_onHandle"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#_onMessage:member(1)",
               "docComment": "/**\n * Handles incoming messages of a specific type and process route.\n *\n * @param ct - The grammY Context object.\n *\n * @param listenerName - The message type being handled.\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -19457,7 +19677,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#_pageRoutes:member(1)",
-              "docComment": "/**\n * Routes an incoming update to the appropriate page handler.\n *\n * @remarks\n *\n * The routing follows a strict **priority hierarchy**. When a match is found at any level, the method executes the handler and returns immediately. If no match is found, it falls through to the next level.\n *\n * **Routing Priority (executed in order):**\n *\n * 1. **staticSession** — Session-aware routes, filtered by input type (O(n) lookup) - Only runs when the user has an active session (`session.method` is set) - Iterates `routeStaticSession` and matches by `session.method` value - **Filtered by input type**: only routes whose name ends with `fromListener` are checked (e.g., callback queries only match `*CallbackData` session routes, text only matches `*Text`, photo captions only match `*CaptionPhoto`, etc.) - This prevents cross-type handler misdispatch (e.g., a callback query accidentally matching `handleSessionFreeText`) - Example: session with method \"7-mypage\" → finds `handleSessionFreeText[\"7-mypage\"]` when `fromListener = \"text\"`\n *\n * 2. **static** — Exact intent match routes (O(1) lookup) - Matches exact text/callback data to page intents - Example: \"start\" → `handleText()`, \"/help\" → `handleCommandText()`\n *\n * 3. **staticIntent** — Intent with args routes (O(1) lookup) - Matches intent prefix when args are present - Example: \"start:123\" → `handleArgsCallbackData()`, \"/add item\" → `handleCommandArgsText()`\n *\n * 4. **dynamicSpesific** — Non-session free handlers (O(n) iteration) - Runs all `handleFree*` handlers (defined directly on the page, not inherited) - `handleSessionFree*` variants are NOT dispatched here — they go through id=1 - Example: `handleFreeText()`, `handleFreePhoto()` - **All matching handlers are executed** (no early return)\n *\n * 5. **dynamic** — Global fallback handlers (O(n) iteration) - Runs all `handleFree()` handlers from pages that define them - Last resort when nothing else matches - **All matching handlers are executed** (no early return)\n *\n * @param ctx - The context instance.\n *\n * @param fromListener - The listener type that triggered the route.\n *\n * @returns The route handler result, or null if no handler answered.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Routes an incoming update to the appropriate page handler.\n *\n * @remarks\n *\n * The routing follows a strict **priority hierarchy**. When a match is found at any level, the method executes the handler and returns immediately. If no match is found, it falls through to the next level.\n *\n * **Routing Priority (executed in order):**\n *\n * 1. **staticSession** — Session-aware routes, filtered by input type (O(n) lookup) - Only runs when the user has an active session (`session.method` is set) - Iterates `routeStaticSession` and matches by `session.method` value - **Filtered by input type**: only routes whose name ends with `fromListener` are checked (e.g., callback queries only match `*CallbackData` session routes, text only matches `*Text`, photo captions only match `*CaptionPhoto`, etc.) - This prevents cross-type handler misdispatch (e.g., a callback query accidentally matching `handleSessionFreeText`) - Example: session with method \"7-mypage\" → finds `handleSessionFreeText[\"7-mypage\"]` when `fromListener = \"text\"`\n *\n * 2. **static** — Exact intent match routes (O(1) lookup) - Matches exact text/callback data to page intents - Example: \"start\" → `handleText()`, \"/help\" → `handleCommandText()`\n *\n * 3. **staticIntent** — Intent with args routes (O(1) lookup) - Matches intent prefix when args are present - Example: \"start:123\" → `handleArgsCallbackData()`, \"/add item\" → `handleCommandArgsText()`\n *\n * 4. **dynamicSpesific** — Non-session free handlers (O(n) iteration) - Runs all `handleFree*` handlers (defined directly on the page, not inherited) - `handleSessionFree*` variants are NOT dispatched here — they go through id=1 - Example: `handleFreeText()`, `handleFreePhoto()` - **All matching handlers are executed** (no early return)\n *\n * 5. **dynamic** — Global fallback handlers (O(n) iteration) - Runs all `handleFree()` handlers from pages that define them - Last resort when nothing else matches - **All matching handlers are executed** (no early return)\n *\n * @param ctx - The context instance.\n *\n * @param fromListener - The listener type that triggered the route.\n *\n * @returns `result`: The route handler result, or null if no handler answered.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19491,7 +19711,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<any>"
+                  "text": "<{\n        result: any;\n    }>"
                 },
                 {
                   "kind": "Content",
@@ -20594,16 +20814,90 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Gramstax#hookAfterRoute:member(1)",
+              "docComment": "/**\n * Hook called after routing an update.\n *\n * @remarks\n *\n * Override this method to add after routing logic like analytics or logging. NOTE: only executed when `hookBeforeRoute` set to return true or not define overrides\n *\n * @param ctx - The context instance.\n *\n * @param listenerName - The name of the listener that handled this update.\n *\n * @param status - Status this update\n *\n * @example\n * ```typescript\n * async hookAfterRoute(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookAfterRoute`]>>[1]) {\n *   console.log(`[${data.listenerName}] handled by page: ${ctx.data.name} execute: status: ${data.status}`)\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "hookAfterRoute?(ctx: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "ICtx"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        listenerName: string;\n        status: `success` | `error` | `notfound`;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "ctx",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": true,
+              "isAbstract": false,
+              "name": "hookAfterRoute"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#hookAfterStart:member(1)",
               "docComment": "/**\n * Hook called after the bot has started.\n *\n * @remarks\n *\n * Override this method to run post-start logic.\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "hookAfterStart(): "
+                  "text": "hookAfterStart?(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
                 },
                 {
                   "kind": "Content",
-                  "text": "void"
+                  "text": "<any>"
                 },
                 {
                   "kind": "Content",
@@ -20613,24 +20907,24 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 2
+                "endIndex": 3
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [],
-              "isOptional": false,
+              "isOptional": true,
               "isAbstract": false,
               "name": "hookAfterStart"
             },
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#hookBeforeRoute:member(1)",
-              "docComment": "/**\n * Hook called before routing an update.\n *\n * @remarks\n *\n * Override this method to add pre-routing logic like authentication, rate limiting, or logging.\n *\n * @param ctx - The context instance.\n *\n * @param listenerName - The name of the listener handling this update.\n *\n * @returns True to continue routing, false to abort.\n *\n * @example\n * ```typescript\n * async hookBeforeRoute(ctx: Ctx, listenerName: string) {\n *   if (ctx.userId === blockedUserId) {\n *     return false // Block this user\n *   }\n *   return true\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Hook called before routing an update.\n *\n * @remarks\n *\n * Override this method to add pre-routing logic like authentication, rate limiting, or logging.\n *\n * @param ctx - The context instance.\n *\n * @param listenerName - The name of the listener handling this update.\n *\n * @returns True to continue routing, false to abort.\n *\n * @example\n * ```typescript\n * async hookBeforeRoute(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookBeforeRoute`]>>[1]) {\n *   console.log(`[${data.listenerName}] handled by page: ${ctx.data.name} execute: `)\n *   if (ctx.userId === blockedUserId) {\n *     return false // Will not response\n *   }\n *   return true\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "hookBeforeRoute(ctx: "
+                  "text": "hookBeforeRoute?(ctx: "
                 },
                 {
                   "kind": "Content",
@@ -20638,11 +20932,11 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", listenerName: "
+                  "text": ", data: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string"
+                  "text": "{\n        listenerName: string;\n    }"
                 },
                 {
                   "kind": "Content",
@@ -20680,7 +20974,7 @@
                   "isOptional": false
                 },
                 {
-                  "parameterName": "listenerName",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -20688,7 +20982,7 @@
                   "isOptional": false
                 }
               ],
-              "isOptional": false,
+              "isOptional": true,
               "isAbstract": false,
               "name": "hookBeforeRoute"
             },
@@ -20699,11 +20993,16 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "hookBeforeStart(): "
+                  "text": "hookBeforeStart?(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
                 },
                 {
                   "kind": "Content",
-                  "text": "void"
+                  "text": "<any>"
                 },
                 {
                   "kind": "Content",
@@ -20713,24 +21012,24 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 2
+                "endIndex": 3
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [],
-              "isOptional": false,
+              "isOptional": true,
               "isAbstract": false,
               "name": "hookBeforeStart"
             },
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#hookErrorInputNotFoundPage:member(1)",
-              "docComment": "/**\n * Hook called when no page handler matches the input.\n *\n * @remarks\n *\n * Override this method to send a \"command not found\" message or redirect to a help page.\n *\n * @param ctx - The context instance.\n *\n * @example\n * ```typescript\n * async hookErrorInputNotFoundPage(ctx: Ctx) {\n *   await ctx.ct.reply(\"Unknown command. Type /help for assistance.\")\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Hook called when no page handler matches the input.\n *\n * @remarks\n *\n * Override this method to send a \"command not found\" message or redirect to a help page.\n *\n * @param ctx - The context instance.\n *\n * @example\n * ```typescript\n * async hookErrorInputNotFoundPage(ctx: Ctx) {\n *   await new GeneralStatusPage(ctx).showErrorInputNotFound()\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "hookErrorInputNotFoundPage(ctx: "
+                  "text": "hookErrorInputNotFoundPage?(ctx: "
                 },
                 {
                   "kind": "Content",
@@ -20772,18 +21071,18 @@
                   "isOptional": false
                 }
               ],
-              "isOptional": false,
+              "isOptional": true,
               "isAbstract": false,
               "name": "hookErrorInputNotFoundPage"
             },
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#hookErrorPage:member(1)",
-              "docComment": "/**\n * Hook called when a page handler throws an error.\n *\n * @remarks\n *\n * Override this method to handle errors gracefully, e.g., sending an error message to the user or logging to an external service.\n *\n * @param ctx - The context instance.\n *\n * @param listenerName - The name of the listener handling this update.\n *\n * @param error - The caught error.\n *\n * @param isEdit - Whether the handler was editing a message.\n *\n * @example\n * ```typescript\n * async hookErrorPage(ctx: Ctx, listenerName: string, error: any) {\n *   await ctx.reply(undefined, {error: \"An error occurred\"})\n *   console.error(error)\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Hook called when a page handler throws an error.\n *\n * @remarks\n *\n * Override this method to handle errors gracefully, e.g., sending an error message to the user or logging to an external service.\n *\n * @param ctx - The context instance.\n *\n * @param listenerName - The name of the listener handling this update.\n *\n * @param error - The caught error.\n *\n * @param isEdit - Whether the handler was editing a message.\n *\n * @example\n * ```typescript\n * async hookErrorPage(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]) {\n *   await new GeneralStatusPage(ctx).showError(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "hookErrorPage(ctx: "
+                  "text": "hookErrorPage?(ctx: "
                 },
                 {
                   "kind": "Content",
@@ -20791,27 +21090,11 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", listenerName: "
+                  "text": ", data: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", error: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", isEdit: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
+                  "text": "{\n        listenerName: string;\n        error: any;\n        isEdit: boolean;\n    }"
                 },
                 {
                   "kind": "Content",
@@ -20833,8 +21116,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 11
+                "startIndex": 5,
+                "endIndex": 7
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -20849,31 +21132,15 @@
                   "isOptional": false
                 },
                 {
-                  "parameterName": "listenerName",
+                  "parameterName": "data",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
                   },
                   "isOptional": false
-                },
-                {
-                  "parameterName": "error",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 5,
-                    "endIndex": 6
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "isEdit",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
-                  },
-                  "isOptional": false
                 }
               ],
-              "isOptional": false,
+              "isOptional": true,
               "isAbstract": false,
               "name": "hookErrorPage"
             },
@@ -21215,7 +21482,7 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    method: string;\n    params: any;\n    [moreRoot: string]: any;\n}"
+              "text": "{\n    method: string | string[];\n    params: any;\n    [moreRoot: string]: any;\n}"
             },
             {
               "kind": "Content",
@@ -30564,7 +30831,7 @@
         {
           "kind": "Class",
           "canonicalReference": "gramstax!WorkerThreadGatewayClient:class",
-          "docComment": "/**\n * Provides IPC client functionality for inter-worker communication using Unix domain sockets.\n *\n * @remarks\n *\n * Uses `net-ipc` library for Unix domain socket communication. Typically created via {@link WorkerThreadInit.createGatewayClient}.\n *\n * @example\n * ```typescript\n * import { WorkerThreadGatewayClient } from \"gramstax\";\n *\n * const client = new WorkerThreadGatewayClient();\n * await client.connect(\"/tmp/my-server.sock\");\n * const result = await client.request(\"ping\", []);\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * [LOW-LEVEL] Provides IPC client functionality for inter-worker communication using Unix domain sockets.\n *\n * @remarks\n *\n * Low-level infrastructure. In most cases use {@link WorkerThreadInit.createGatewayClient} instead of constructing this directly.\n *\n * Uses `net-ipc` library for Unix domain socket communication.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -30889,7 +31156,7 @@
         {
           "kind": "Class",
           "canonicalReference": "gramstax!WorkerThreadGatewayServer:class",
-          "docComment": "/**\n * Provides IPC server functionality for inter-worker communication using Unix domain sockets.\n *\n * @remarks\n *\n * Uses `net-ipc` library for Unix domain socket communication. Supports connections from multiple gateway clients. Typically created via {@link WorkerThreadInit.createGatewayServer}.\n *\n * @example\n * ```typescript\n * import { WorkerThreadGatewayServer } from \"gramstax\";\n *\n * const server = new WorkerThreadGatewayServer();\n * await server.start(\"/tmp/my-server.sock\", {\n *   ping: () => \"pong\",\n *   getData: (key) => database.get(key),\n * });\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * [LOW-LEVEL] Provides IPC server functionality for inter-worker communication using Unix domain sockets.\n *\n * @remarks\n *\n * Low-level infrastructure. In most cases use {@link WorkerThreadInit.createGatewayServer} instead of constructing this directly.\n *\n * Uses `net-ipc` library for Unix domain socket communication. Supports connections from multiple gateway clients.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -31158,7 +31425,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!WorkerThreadInit#createGatewayClient:member(1)",
-              "docComment": "/**\n * Create a gateway client to connect to another worker.\n *\n * @remarks\n *\n * Not recommended for direct use. Use `launchGatewayClient` from `WorkerThreadExport` instead.\n *\n * @param serverPath - Unix socket path to connect. Matches server gateway.\n *\n * @returns Promise resolving with connected client.\n *\n * @example\n * ```typescript\n * const client = await this.createGatewayClient(\"/tmp/other-worker.sock\");\n * const result = await client.request(\"ping\", []);\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Create a gateway client to connect to another worker.\n *\n * @remarks\n *\n * Low-level API. Use `launchGatewayClient` from `WorkerThreadExport` instead.\n *\n * @param serverPath - Unix socket path to connect. Matches server gateway.\n *\n * @returns Promise resolving with connected client.\n *\n * @example\n * ```typescript\n * const client = await this.createGatewayClient(\"/tmp/other-worker.sock\");\n * const result = await client.request(\"ping\", []);\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -31490,7 +31757,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!WorkerThreadInit#handleOnMessage:member(1)",
-              "docComment": "/**\n * Handle incoming messages from the main thread.\n *\n * @param data - Message data from main thread.\n *\n * @public\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Handle incoming messages from the main thread.\n *\n * @param data - Message data from main thread.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -31568,7 +31835,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!WorkerThreadInit#init:member(1)",
-              "docComment": "/**\n * Initialize message handling from parent port and register event message from parent.\n *\n * @public\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Initialize message handling from parent port and register event message from parent.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -31987,7 +32254,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!WorkerThreadLaunch#handleOnMessage:member(1)",
-              "docComment": "/**\n * Handle incoming messages from the worker thread.\n *\n * @param data - Message data from worker.\n *\n * @public\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Handle incoming messages from the worker thread.\n *\n * @param data - Message data from worker.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -32040,7 +32307,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!WorkerThreadLaunch#init:member(1)",
-              "docComment": "/**\n * Initialize the worker thread and set up message handlers.\n *\n * @public\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Initialize the worker thread and set up message handlers.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -32228,7 +32495,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!WorkerThreadLaunch#readyResolve:member(1)",
-              "docComment": "/**\n * Internal method called by worker to signal readiness.\n *\n * @public\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Internal method called by worker to signal readiness.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -33083,7 +33350,7 @@
         {
           "kind": "Class",
           "canonicalReference": "gramstax!WorkerThreadRpc:class",
-          "docComment": "/**\n * Handles JSON-RPC style communication between threads.\n *\n * @remarks\n *\n * Uses simple JSON-RPC style messages with `id`, `method`, `params`, `result`, `error`. Typically used internally by {@link WorkerThreadInit} and {@link WorkerThreadLaunch}.\n *\n * @example\n * ```typescript\n * import { WorkerThreadRpc } from \"gramstax\";\n *\n * const rpc = new WorkerThreadRpc((data) => postMessage(data), {\n *   add: (a: number, b: number) => a + b,\n *   multiply: (a: number, b: number) => a * b,\n * });\n *\n * // Handle incoming messages\n * parentPort.on(\"message\", (data) => {\n *   rpc.make(data);\n * });\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * [LOW-LEVEL] Handles JSON-RPC style communication between threads.\n *\n * @remarks\n *\n * Low-level internal infrastructure. Used by {@link WorkerThreadInit} and {@link WorkerThreadLaunch} under the hood — you rarely need to touch it.\n *\n * Uses simple JSON-RPC style messages with `id`, `method`, `params`, `result`, `error`.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

@@ -311,7 +311,7 @@ Description
 
 </td><td>
 
-Handle incoming messages from the worker thread.
+\[LOW-LEVEL\] Handle incoming messages from the worker thread.
 
 
 </td></tr>
@@ -325,7 +325,7 @@ Handle incoming messages from the worker thread.
 
 </td><td>
 
-Initialize the worker thread and set up message handlers.
+\[LOW-LEVEL\] Initialize the worker thread and set up message handlers.
 
 
 </td></tr>
@@ -367,7 +367,7 @@ Wait for the worker to signal it's ready.
 
 </td><td>
 
-Internal method called by worker to signal readiness.
+\[LOW-LEVEL\] Internal method called by worker to signal readiness.
 
 
 </td></tr>

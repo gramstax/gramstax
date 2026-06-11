@@ -9,7 +9,7 @@ Replaces the current message with a photo media group.
 **Signature:**
 
 ```typescript
-editPhotoGroup(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+editPhotoGroup(data?: ITData, baseId?: string, options?: ITOptReplyPhoto): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
 ```
 
 ## Parameters
@@ -31,22 +31,6 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
-
-keyboard
-
-
-</td><td>
-
-[ITInBoKb](./gramstax.itinbokb.md)
-
-
-</td><td>
-
-_(Optional)_ Optional keyboard markup for the new message.
-
-
-</td></tr>
-<tr><td>
 
 data
 

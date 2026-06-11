@@ -4,7 +4,7 @@
 
 ## WorkerThreadLaunch.init() method
 
-Initialize the worker thread and set up message handlers.
+\[LOW-LEVEL\] Initialize the worker thread and set up message handlers.
 
 **Signature:**
 
