@@ -170,7 +170,7 @@ describe(`Ctx.broadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.replyMediaGroup(`document`, new InlineKeyboard())
+    await ctx.replyMediaGroup(`document`)
 
     expect(replyWithDocument).not.toHaveBeenCalled()
     expect(replyWithMediaGroup).toHaveBeenCalledTimes(1)
@@ -260,7 +260,7 @@ describe(`Ctx.broadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.replyMediaGroup(undefined, undefined, {photoUrl: `photo.jpg`, videoUrl: `video.mp4`, title: `Album`})
+    await ctx.replyMediaGroup(undefined, {photoUrl: `photo.jpg`, videoUrl: `video.mp4`, title: `Album`})
 
     expect(replyWithMediaGroup).toHaveBeenCalledWith(
       [
@@ -303,7 +303,7 @@ describe(`Ctx.broadcastMedia`, () => {
     })
 
     // Default language: only items without lang (2 items)
-    await ctxDefault.replyMediaGroup(undefined, new InlineKeyboard())
+    await ctxDefault.replyMediaGroup(undefined)
 
     expect(replyWithMediaGroup).toHaveBeenCalledTimes(1)
     expect(replyWithMediaGroup).toHaveBeenCalledWith(
