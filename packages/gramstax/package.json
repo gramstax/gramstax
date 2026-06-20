@@ -15,7 +15,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gramstax/gramstax.git"
+    "url": "git+https://github.com/gramstax/gramstax.git",
+    "directory": "packages/gramstax"
   },
   "bugs": {
     "url": "https://github.com/gramstax/gramstax/issues"
@@ -47,9 +48,8 @@
   "dependencies": {
     "@keyv/redis": "^5.1.4",
     "chokidar": "^4.0.3",
-    "grammy": "^1.43.0",
+    "grammy": "^1.44.0",
     "keyv": "^5.5.4",
-    "logging-pretty": "^3.0.0",
-    "net-ipc": "^2.2.2"
+    "logging-pretty": "^3.0.0"
   }
 }

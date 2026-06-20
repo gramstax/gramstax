@@ -243,9 +243,9 @@ export class CheckoutPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>🛒 Cart, 🔎 Browse Products</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>🛒 Cart, 🔎 Browse Products</g-keyboard>
+      <g-message>
         💳 Checkout Details
 
         Your order:
@@ -257,12 +257,12 @@ export class CheckoutPage extends PageBase {
         Example:
         @yourusername
         Please deliver after payment confirmation.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.confirm}">
-      <keyboard>✅ Confirm, ❌ Cancel, 🛒 Cart</keyboard>
-      <message>
+    <g-base id="${Base.confirm}">
+      <g-keyboard>✅ Confirm, ❌ Cancel, 🛒 Cart</g-keyboard>
+      <g-message>
         ✅ Confirm Order
 
         Items:
@@ -273,12 +273,12 @@ export class CheckoutPage extends PageBase {
         Notes: {{notes}}
 
         Confirm when the details are correct.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
-      <keyboard>🔄 refresh, 🧾 History, 🏠 Home, 🔎 Browse Products</keyboard>
-      <media type="photo" src="{{qrisImageUrl}}">
+    <g-base id="${Base.success}">
+      <g-keyboard>🔄 refresh, 🧾 History, 🏠 Home, 🔎 Browse Products</g-keyboard>
+      <g-media type="photo" src="{{qrisImageUrl}}">
         🎉 Order Created
 
         Order ID: {{orderId}}
@@ -296,43 +296,43 @@ export class CheckoutPage extends PageBase {
 
         💳 Payment Method: QRIS
         QRIS only: scan the store QRIS code using DANA, ShopeePay, or any QRIS-supported banking app. After payment, send proof to {{support}} with your Order ID.
-      </media>
-    </base>
+      </g-media>
+    </g-base>
 
-    <base id="${Base.warnEmpty}">
-      <keyboard>🛒 Cart, 🔎 Browse Products</keyboard>
-      <message>
+    <g-base id="${Base.warnEmpty}">
+      <g-keyboard>🛒 Cart, 🔎 Browse Products</g-keyboard>
+      <g-message>
         🛒 Empty cart
 
         Add at least one available subscription before checkout.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnInvalid}">
-      <keyboard>🛒 Cart, 🔎 Browse Products</keyboard>
-      <message>
+    <g-base id="${Base.warnInvalid}">
+      <g-keyboard>🛒 Cart, 🔎 Browse Products</g-keyboard>
+      <g-message>
         ⚠️ Contact needed
 
         We could not use "{{contact}}" as contact information. Send a Telegram username, email, or WhatsApp number with at least 5 characters.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoCancel}">
-      <keyboard>🏠 Home, 🔎 Browse Products</keyboard>
-      <message>
+    <g-base id="${Base.infoCancel}">
+      <g-keyboard>🏠 Home, 🔎 Browse Products</g-keyboard>
+      <g-message>
         ❌ Checkout cancelled
 
         Your cart is preserved. You can continue shopping or checkout again later.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoMissing}">
-      <keyboard>🧾 History, 🏠 Home, 🔎 Browse Products</keyboard>
-      <message>
+    <g-base id="${Base.infoMissing}">
+      <g-keyboard>🧾 History, 🏠 Home, 🔎 Browse Products</g-keyboard>
+      <g-message>
         ⚠️ Order not found
 
         Open history to review your latest orders, then try refresh again from an active order card.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

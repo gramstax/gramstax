@@ -18,7 +18,7 @@ Demonstrates that using the standard {{key}} syntax is highly secure against use
 
 ## 4-untrusted-template-rce.ts:
 
-Demonstrates the most dangerous scenario where user input is directly embedded into the template string (rather than as a data variable), allowing users to inject <script> tags for full control over the server.
+Demonstrates the most dangerous scenario where user input is directly embedded into the template string (rather than as a data variable), allowing users to inject <g-script> tags for full control over the server.
 
 # Key Security Recommendation:
 

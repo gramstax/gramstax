@@ -6,7 +6,7 @@
  *
  * Vulnerability: If a developer allows a user to provide text that is then
  * concatenated into the template string before compilation, the user can
- * inject any Gramstax tag, including <script> or execution blocks {~ ~}.
+ * inject any Gramstax tag, including <g-script> or execution blocks {~ ~}.
  *
  * Risk: Immediate and complete Remote Code Execution (RCE).
  */
@@ -17,19 +17,19 @@ console.log(`--- CASE 4: UNTRUSTED TEMPLATE INPUT ---`)
 
 // Imagine the developer allows a user to "customize" their welcome message
 // by providing a string that is inserted directly into the template.
-const userCustomMessage = `Welcome! <script> console.log("!!! VULNERABILITY ALERT: RCE via <script> tag !!!"); process.exit(); </script>`
+const userCustomMessage = `Welcome! <g-script> console.log("!!! VULNERABILITY ALERT: RCE via <g-script> tag !!!"); process.exit(); </g-script>`
 
 // DANGEROUS: Concatenating user input into the template source
 const maliciousTemplate = `
-  <base>
-    <message>
+  <g-base>
+    <g-message>
       ${userCustomMessage}
-    </message>
-  </base>
+    </g-message>
+  </g-base>
 `
 
 console.log(`Compiling malicious template...`)
-// The engine will see the <script> tag and process it as a real instruction.
+// The engine will see the <g-script> tag and process it as a real instruction.
 const messages = TemplateEngine.compileBlockMessage(maliciousTemplate)
 
 console.log(`Executing compiled function...`)

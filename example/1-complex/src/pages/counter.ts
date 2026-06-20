@@ -55,23 +55,23 @@ export class CounterPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>➕ Increase, ➖ Decrease, ${this.kbl.back.default}</keyboard>
-      <keyboard lang="id">➕ Tambah, ➖ Kurang, ${this.kbl.back.id}</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>➕ Increase, ➖ Decrease, ${this.kbl.back.default}</g-keyboard>
+      <g-keyboard lang="id">➕ Tambah, ➖ Kurang, ${this.kbl.back.id}</g-keyboard>
+      <g-message>
         🔢 Counter
 
         Current count: {{count}}
 
         Use Increase or Decrease to update the cached counter value.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         🔢 Kounter
 
         Jumlah saat ini: {{count}}
 
         Gunakan Tambah atau Kurang untuk memperbarui nilai kounter yang tersimpan.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

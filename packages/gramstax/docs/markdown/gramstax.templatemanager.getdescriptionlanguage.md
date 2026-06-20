@@ -58,7 +58,7 @@ string
 
 </td><td>
 
-_(Optional)_ Base block ID matching `<base id="...">`
+_(Optional)_ Base block ID matching `<g-base id="...">`
 
 
 </td></tr>

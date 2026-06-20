@@ -24,18 +24,18 @@ export class TestVideoPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <media type="video" src="https://www.w3schools.com/html/mov_bbb.mp4">
+      <g-media type="video" src="https://www.w3schools.com/html/mov_bbb.mp4">
         🎥 Video demo
         
         This is a sample video reply with a caption.
-      </media>
-      <media lang="id" type="video" src="https://www.w3schools.com/html/mov_bbb.mp4">
+      </g-media>
+      <g-media lang="id" type="video" src="https://www.w3schools.com/html/mov_bbb.mp4">
         🎥 Demo video
         
         Ini adalah contoh balasan video dengan caption.
-      </media>
-    </base>
+      </g-media>
+    </g-base>
   `
 }

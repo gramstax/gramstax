@@ -116,9 +116,9 @@ Error if the specified method name does not exist in the label class.
 
 const kbk = BlockKeyboard
 kbk._build("backNext");
-// => '<keyboard type="inline" lang="en">Back, Next</keyboard> ...'
+// => '<g-keyboard type="inline" lang="en">Back, Next</g-keyboard> ...'
 
 kbk._build("backNext", "en", "bottom");
-// => '<keyboard type="bottom" lang="en">Back, Next</keyboard>'
+// => '<g-keyboard type="bottom" lang="en">Back, Next</g-keyboard>'
 ```
 

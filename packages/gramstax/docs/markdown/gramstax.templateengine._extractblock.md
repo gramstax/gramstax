@@ -127,10 +127,10 @@ This internal method extracts content from templates based on base ID, block typ
 
 ```typescript
 const template = `
-  <base id="main">
-    <message>Hello</message>
-    <keyboard>Yes, No</keyboard>
-  </base>
+  <g-base id="main">
+    <g-message>Hello</g-message>
+    <g-keyboard>Yes, No</g-keyboard>
+  </g-base>
 `;
 const result = TemplateEngine._extractBlock(template, 'message', 'main', 'value');
 // Result: 'Hello'

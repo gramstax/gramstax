@@ -64,17 +64,17 @@ An object with a `valid` boolean and an `errors` array containing line numbers a
 
 This method checks that each block tag uses the correct syntax format:
 
-\*\*Must be self-closing:\*\* - `<space />` — whitespace control block - `<import ... />` — import directive block
+\*\*Must be self-closing:\*\* - `<g-space />` — whitespace control block - `<g-import ... />` — import directive block - `<hr/>`<!-- -->, `<img/>`<!-- -->, `<input/>`<!-- -->, `<br/>`<!-- -->, `<tg-map/>` — Telegram Rich HTML void elements
 
-\*\*Must NOT be self-closing (must use open/close tags):\*\* - `<base>...</base>`<!-- -->, `<message>...</message>`<!-- -->, `<keyboard>...</keyboard>`<!-- -->, `<media>...</media>`<!-- -->, `<description>...</description>`<!-- -->, `<script>...</script>`<!-- -->, `<switch>...</switch>`<!-- -->, `<case>...</case>`<!-- -->, `<default>...</default>`<!-- -->, `<map>...</map>`<!-- -->, `<div>...</div>`
+\*\*Must NOT be self-closing (must use open/close tags):\*\* - `<g-base>...</g-base>`<!-- -->, `<g-message>...</g-message>`<!-- -->, `<g-keyboard>...</g-keyboard>`<!-- -->, `<g-media>...</g-media>`<!-- -->, `<g-description>...</g-description>`<!-- -->, `<g-script>...</g-script>`<!-- -->, `<g-switch>...</g-switch>`<!-- -->, `<g-case>...</g-case>`<!-- -->, `<g-default>...</g-default>`<!-- -->, `<g-map>...</g-map>`<!-- -->, `<g-div>...</g-div>`
 
-Telegram HTML formatting tags passthrough and are ignored.
+Telegram HTML formatting tags with content (e.g. `<b>`<!-- -->, `<p>`<!-- -->, `<table>`<!-- -->) passthrough and are not format-checked — both `<b>text</b>` and `<b/>` are accepted.
 
 ## Example
 
 
 ```typescript
-const result = TemplateEngine.validateFormatBlock(`<space>content</space>`);
-// Result: { valid: false, errors: [{ line: 1, message: 'Block <space> must be self-closing: use <space /> instead' }] }
+const result = TemplateEngine.validateFormatBlock(`<g-space>content</g-space>`);
+// Result: { valid: false, errors: [{ line: 1, message: 'Block <g-space> must be self-closing: use <g-space /> instead' }] }
 ```
 

@@ -89,13 +89,13 @@ export class ItemListPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.back.default}</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.back.default}</g-keyboard>
+      <g-message>
         📦 Items in {{category}}
 
         Use Prev/Next to navigate the list.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

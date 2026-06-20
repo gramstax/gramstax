@@ -14,7 +14,7 @@ declare class BlockKeyboard
 
 ## Remarks
 
-This class generates HTML-like `<keyboard>` blocks for the template engine. Requires `LabelKeyboard` to be set via [BlockKeyboard.label](./gramstax.blockkeyboard.label.md) before using [BlockKeyboard.\_build()](./gramstax.blockkeyboard._build.md)<!-- -->.
+This class generates HTML-like `<g-keyboard>` blocks for the template engine. Requires `LabelKeyboard` to be set via [BlockKeyboard.label](./gramstax.blockkeyboard.label.md) before using [BlockKeyboard.\_build()](./gramstax.blockkeyboard._build.md)<!-- -->.
 
 ## Example
 
@@ -41,17 +41,17 @@ export abstract class PageBase extends CtxCore {
 import {PageBase} from "~/base/page"
 export class SomePage extends PageBase {
   static template = `
-    <base>
+    <g-base>
       ${this.kbk.backNext()}
-      <message>Default message hello world</message>
-    </base>
-    <base id="others-id-1">
-      <message>Message from others id 1 with keyboard from base id default</message>
-    </base>
-    <base id="others-id-2">
-      <base>${this.kbk.backNext()}</base>
-      <message>Message from others id 3 with keyboard in same base</message>
-    </base>
+      <g-message>Default message hello world</g-message>
+    </g-base>
+    <g-base id="others-id-1">
+      <g-message>Message from others id 1 with keyboard from base id default</g-message>
+    </g-base>
+    <g-base id="others-id-2">
+      <g-base>${this.kbk.backNext()}</g-base>
+      <g-message>Message from others id 3 with keyboard in same base</g-message>
+    </g-base>
   `
 }
 

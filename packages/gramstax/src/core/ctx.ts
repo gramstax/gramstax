@@ -32,7 +32,8 @@ import type {
   ITPageData,
   ITKbCols,
   ITKbDest,
-  ITCtxParams
+  ITCtxParams,
+  ITOptReplyRich
 } from "~/types/t.ctx"
 
 type ITMediaGroupType = Extract<ITMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
@@ -98,10 +99,10 @@ class Helper {
  *   }
  *
  *   static template = `
- *     <base>
- *       <keyboard>Button 1, Button 2</keyboard>
- *       <message>Hello {{name}}!</message>
- *     </base>
+ *     <g-base>
+ *       <g-keyboard>Button 1, Button 2</g-keyboard>
+ *       <g-message>Hello {{name}}!</g-message>
+ *     </g-base>
  *   `
  * }
  * ```
@@ -119,12 +120,12 @@ class Helper {
  *   }
  *
  *   static template = `
- *     <base id="special-kb">
- *       <keyboard>Button 1, Button 2</keyboard>
- *     </base>
- *     <base>
- *       <message>Hello {{name}}!</message>
- *     </base>
+ *     <g-base id="special-kb">
+ *       <g-keyboard>Button 1, Button 2</g-keyboard>
+ *     </g-base>
+ *     <g-base>
+ *       <g-message>Hello {{name}}!</g-message>
+ *     </g-base>
  *   `
  * }
  * ```
@@ -136,16 +137,16 @@ export class Ctx {
    * HTML-like template string for the page.
    *
    * @remarks
-   * Must contain a `<base></base>` block. Supports template interpolation with `{{variable}}` syntax.
+   * Must contain a `<g-base></g-base>` block. Supports template interpolation with `{{variable}}` syntax.
    *
    * @example Basic
    * ```typescript
    * class MyPage extends Ctx {
    *   static template = `
-   *     <base>
-   *       <keyboard>Button 1, Button 2</keyboard>
-   *       <message>Hello {{name}}!</message>
-   *     </base>
+   *     <g-base>
+   *       <g-keyboard>Button 1, Button 2</g-keyboard>
+   *       <g-message>Hello {{name}}!</g-message>
+   *     </g-base>
    *   `
    * }
    * ```
@@ -154,12 +155,12 @@ export class Ctx {
    * ```typescript
    * class MyPage extends Ctx {
    *   static template = `
-   *     <base id="lah">
-   *       <keyboard>Button 1, Button 2</keyboard>
-   *     </base>
-   *     <base>
-   *       <message>Hello {{name}}!</message>
-   *     </base>
+   *     <g-base id="lah">
+   *       <g-keyboard>Button 1, Button 2</g-keyboard>
+   *     </g-base>
+   *     <g-base>
+   *       <g-message>Hello {{name}}!</g-message>
+   *     </g-base>
    *   `
    * }
    * ```
@@ -168,14 +169,14 @@ export class Ctx {
    * ```typescript
    * class MyPage extends Ctx {
    *   static template = `
-   *     <base id="lah">
-   *       <keyboard>Button 1, Button 2</keyboard>
-   *       <keyboard lang="id">Tombol 1, Tombol 2</keyboard>
-   *     </base>
-   *     <base>
-   *       <message>Hello {{name}}!</message>
-   *       <message lang="id">Halo {{name}}!</message>
-   *     </base>
+   *     <g-base id="lah">
+   *       <g-keyboard>Button 1, Button 2</g-keyboard>
+   *       <g-keyboard lang="id">Tombol 1, Tombol 2</g-keyboard>
+   *     </g-base>
+   *     <g-base>
+   *       <g-message>Hello {{name}}!</g-message>
+   *       <g-message lang="id">Halo {{name}}!</g-message>
+   *     </g-base>
    *   `
    * }
    * ```
@@ -1056,7 +1057,7 @@ export class Ctx {
    * Sends a media message to multiple users in bulk.
    *
    * @remarks
-   * Media type and arg are inferred from the template `<media>` block.
+   * Media type and arg are inferred from the template `<g-media>` block.
    * If a supported media type (`photo`, `video`, `audio`, `document`) uses a pipe-delimited
    * `src`, it is sent as a Telegram media group. Telegram media groups do not support
    * reply markup, so keyboards are ignored for grouped media.
@@ -1187,6 +1188,21 @@ export class Ctx {
   }
 
   /**
+   * still construction!
+   */
+  async replyRich(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1]) {
+    this.temp.isAnswer = true
+    const msg = this.templateManager.getMessage(this.data.name, baseId, this.userLanguage, data)
+    return await this.ct.replyWithRichMessage(
+      {html: msg, ...options1},
+      {
+        reply_markup: keyboard,
+        ...options2
+      }
+    )
+  }
+
+  /**
    * Sends a media message reply with dynamic type selection.
    *
    * @remarks
@@ -1254,15 +1270,15 @@ export class Ctx {
   }
 
   /**
-   * Sends a Telegram media group using pipe-delimited `src` values or a `<media-group>` block from the page template.
+   * Sends a Telegram media group using pipe-delimited `src` values or a `<g-media-group>` block from the page template.
    *
    * @remarks
    * Only `photo`, `video`, `audio`, and `document` support Telegram media groups.
-   * Omit `type` when the template uses `<media-group>` with per-item media types.
+   * Omit `type` when the template uses `<g-media-group>` with per-item media types.
    * The first item receives the template caption. Telegram media groups do not support
    * reply markup, so keyboards are ignored for grouped media.
    *
-   * @param type - Supported media group type. When the template uses `<media-group>`,
+   * @param type - Supported media group type. When the template uses `<g-media-group>`,
    *   only items matching this type are included. When omitted, all items are sent.
    * @param data - Optional template interpolation data.
    * @param baseId - Optional template base ID position for block media.
@@ -1285,12 +1301,12 @@ export class Ctx {
     if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
       const items = type ? med.mediaGroup.filter((item) => item.type === type) : med.mediaGroup
       if (items.length === 0) {
-        throw new Error(`replyMediaGroup: no items of type "${type}" found in <media-group>`)
+        throw new Error(`replyMediaGroup: no items of type "${type}" found in <g-media-group>`)
       }
       return await this.ct.replyWithMediaGroup(Helper.buildMediaGroupFromItems(items, med.caption), Helper.buildMediaGroupOptions(opt))
     }
     if (!type) {
-      throw new Error(`replyMediaGroup type is required when template media is not <media-group>`)
+      throw new Error(`replyMediaGroup type is required when template media is not <g-media-group>`)
     }
     const srcList = med.srcList && med.srcList.length > 1 ? med.srcList : med.src ? [med.src] : []
     return await this.ct.replyWithMediaGroup(Helper.buildMediaGroup(type, srcList, med.caption), Helper.buildMediaGroupOptions(opt))
@@ -1792,7 +1808,7 @@ export class Ctx {
    *
    * @remarks
    * Deletes the original message and sends a new media group via `replyMediaGroup`.
-   * When `type` is omitted or `undefined`, all items in the `<media-group>` are sent.
+   * When `type` is omitted or `undefined`, all items in the `<g-media-group>` are sent.
    * For a hardcoded type, use the convenience methods (`editPhotoGroup`, `editVideoGroup`, etc.).
    *
    * @param type - Optional media type filter. All items sent when omitted.
@@ -2330,7 +2346,7 @@ export class Ctx {
    * Shorthand for {@link Ctx.bottomKeyboard} with automatic text button creation.
    *
    * @param layout - Layout format: "cols" or "cols-lastRow". Default: "1".
-   * @param baseId - Optional template base ID position for block keyboard. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
+   * @param baseId - Optional template base ID position for block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
    * @param data - Optional template interpolation data.
    * @returns The bottom keyboard instance.
    *
@@ -2361,7 +2377,7 @@ export class Ctx {
    *
    * @param PageDest - Array of page classes or callback data strings.
    * @param layout - Layout format: "cols" or "cols-lastRow". Default: "1".
-   * @param baseId - Optional template base ID position block keyboard. IMPORTANT: If a `<base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
+   * @param baseId - Optional template base ID position block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
    * @param data - Optional template interpolation data.
    * @returns The inline keyboard instance.
    *

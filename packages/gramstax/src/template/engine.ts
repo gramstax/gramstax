@@ -6,7 +6,7 @@
  * including file-based media (photo, video, audio, document, animation, voice,
  * video_note, sticker), location, and contact.
  * Pipe-delimited `src` values such as `a.jpg|b.jpg` are also exposed as
- * `srcList` for Telegram media groups. `<media-group>` blocks are exposed as
+ * `srcList` for Telegram media groups. `<g-media-group>` blocks are exposed as
  * `mediaGroup` items and may mix photo/video items. Telegram media groups
  * support up to 10 items and only for photo, video, audio, and document media.
  *
@@ -66,8 +66,8 @@ export type ITMediaBlock = {
  * compiling them into executable functions. It supports variable interpolation,
  * conditional rendering, array mapping, script execution, and template imports.
  *
- * Templates are typically organized into `<base>` blocks containing various
- * content blocks like `<message>`, `<keyboard>`, `<media>`, and `<description>`.
+ * Templates are typically organized into `<g-base>` blocks containing various
+ * content blocks like `<g-message>`, `<g-keyboard>`, `<g-media>`, and `<g-description>`.
  * Each block supports a `lang` attribute for internationalization.
  *
  * @example
@@ -75,14 +75,14 @@ export type ITMediaBlock = {
  * import { TemplateEngine } from 'gramstax';
  *
  * const template = `
- *   <base>
- *     <keyboard>Back, Next</keyboard>
- *     <message>Welcome {{name}}!</message>
- *   </base>
+ *   <g-base>
+ *     <g-keyboard>Back, Next</g-keyboard>
+ *     <g-message>Welcome {{name}}!</g-message>
+ *   </g-base>
  * `;
  *
- * const messages = TemplateEngine.compileBlockMessages(template);
- * const keyboards = TemplateEngine.compileBlockKeyboards(template);
+ * const messages = TemplateEngine.compileBlockGMessages(template);
+ * const keyboards = TemplateEngine.compileBlockGKeyboards(template);
  *
  * const msg = messages.default?.default?.({ name: 'John' });
  * // Result: 'Welcome John!'
@@ -92,38 +92,8 @@ export type ITMediaBlock = {
  */
 export class TemplateEngine {
   static MAX_MEDIA_GROUP_ITEMS = 10
-
-  /**
-   * Registry of all supported template block tags.
-   *
-   * @remarks
-   * These are the actual XML-like tags recognized by `TemplateEngine`.
-   * Each corresponds to a `<tagName>` element in template strings.
-   *
-   * **Content blocks:** `base`, `message`, `keyboard`, `media`, `description`
-   * **Logic blocks:** `script`, `switch`, `case`, `default`, `map`, `div`
-   * **Utility blocks:** `import`, `space`
-   * **Telegram HTML formatting (passed through, not compiled):** `b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`, `blockquote expandable`
-   */
-  static ALLOWED_BLOCKS = [
-    // Content blocks
-    `<base>`,
-    `<message>`,
-    `<keyboard>`,
-    `<media>`,
-    `<media-group>`,
-    `<description>`,
-    // Logic blocks
-    `<script>`,
-    `<switch>`,
-    `<case>`,
-    `<default>`,
-    `<map>`,
-    `<div>`,
-    // Utility blocks
-    `<import/>`,
-    `<space/>`,
-    // Telegram HTML formatting (passed through to message text)
+  static ALLOWED_BLOCKS_TELEGRAM_LEGACY = [
+    // Original Telegram HTML mode tags (parse_mode="HTML", pre-Rich spec)
     `<b>`,
     `<i>`,
     `<u>`,
@@ -134,6 +104,277 @@ export class TemplateEngine {
     `<blockquote>`,
     `<blockquote expandable>`
   ]
+  static ALLOWED_BLOCKS_TELEGRAM_RICH = [
+    // Telegram Rich HTML (passed through to message `html` field)
+    // New tags added by the Rich HTML spec (excludes legacy)
+    // Inline formatting
+    `<del>`,
+    `<em>`,
+    `<ins>`,
+    `<mark>`,
+    `<strike>`,
+    `<strong>`,
+    `<sub>`,
+    `<sup>`,
+    `<tg-spoiler>`,
+    // Block/structural
+    `<aside>`,
+    `<br/>`,
+    `<details>`,
+    `<footer>`,
+    `<h1>`,
+    `<h2>`,
+    `<h3>`,
+    `<h4>`,
+    `<h5>`,
+    `<h6>`,
+    `<hr/>`,
+    `<li>`,
+    `<ol>`,
+    `<p>`,
+    `<summary>`,
+    `<table>`,
+    `<td>`,
+    `<th>`,
+    `<tr>`,
+    `<ul>`,
+    // Telegram-specific
+    `<tg-collage>`,
+    `<tg-emoji>`,
+    `<tg-map/>`,
+    `<tg-math>`,
+    `<tg-math-block>`,
+    `<tg-reference>`,
+    `<tg-slideshow>`,
+    `<tg-time>`,
+    // Media
+    `<audio>`,
+    `<cite>`,
+    `<figcaption>`,
+    `<figure>`,
+    `<img/>`,
+    `<video>`,
+    // Forms
+    `<input/>`
+  ]
+  static ALLOWED_BLOCKS_TELEGRAM = [...TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_LEGACY, ...TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH]
+  static ALLOWED_BLOCKS_PAGE = [
+    // Content blocks
+    `<g-base>`,
+    `<g-message>`,
+    `<g-keyboard>`,
+    `<g-media>`,
+    `<g-media-group>`,
+    `<g-description>`,
+    // Logic blocks
+    `<g-script>`,
+    `<g-switch>`,
+    `<g-case>`,
+    `<g-default>`,
+    `<g-map>`,
+    `<g-div>`,
+    // Utility blocks
+    `<g-import/>`,
+    `<g-space/>`
+  ]
+
+  /**
+   * Registry of all supported template block tags.
+   *
+   * @remarks
+   * These are the actual XML-like tags recognized by `TemplateEngine`.
+   * Each corresponds to a `<tagName>` element in template strings.
+   *
+   * **Content blocks:** `g-base`, `g-message`, `g-keyboard`, `g-media`, `g-description`
+   * **Logic blocks:** `g-script`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`
+   * **Utility blocks:** `import`, `space`
+   *
+   * **Telegram Rich HTML (passed through to `html` field):**
+   * - *Inline:* `a`, `b`, `code`, `del`, `em`, `i`, `ins`, `mark`, `s`, `strike`, `strong`, `sub`, `sup`, `tg-spoiler`, `u`
+   * - *Block/structural:* `aside`, `blockquote`, `blockquote expandable`, `br`, `details`, `footer`, `h1`-`h6`, `hr`, `li`, `ol`, `p`, `pre`, `summary`, `table`, `td`, `th`, `tr`, `ul`
+   * - *Telegram-specific:* `tg-collage`, `tg-emoji`, `tg-map`, `tg-math`, `tg-math-block`, `tg-reference`, `tg-slideshow`, `tg-time`
+   * - *Media:* `audio`, `cite`, `figcaption`, `figure`, `img`, `video`
+   * - *Forms:* `input`
+   */
+  static ALLOWED_BLOCKS = [...this.ALLOWED_BLOCKS_PAGE, ...this.ALLOWED_BLOCKS_TELEGRAM]
+
+  /**
+   * Extracts lowercase block tag names from an array of tag literals.
+   *
+   * @remarks
+   * Strips leading `</` or `<`, any trailing `>`, any attributes that follow
+   * a space, and lowercases the result. Self-closing tags like `<g-import/>`
+   * are normalised to their bare name. Entries with attributes after a space
+   * (e.g. `<blockquote expandable>`) are returned with the attribute suffix
+   * preserved.
+   *
+   * @param blocks - Array of tag literals (e.g. `["<g-base>", "<message/>", "<blockquote expandable>"]`)
+   * @returns Set of normalized lowercase block names
+   *
+   * @example
+   * ```typescript
+   * const names = TemplateEngine._extractBlockNames([
+   *   "<g-base>",
+   *   "<g-import/>",
+   *   "<BLOCKQUOTE expandable>"
+   * ]);
+   * // => Set { "g-base", "g-import", "blockquote expandable" }
+   * ```
+   *
+   * @public
+   */
+  static _extractBlockNames(blocks: string[]): Set<string> {
+    return new Set(
+      blocks.map((block) =>
+        block
+          .replace(/^<\/?/, ``)
+          .replace(/\s.*?>$/, ``)
+          .replace(/\/?>$/, ``)
+          .toLowerCase()
+      )
+    )
+  }
+  /**
+   * Required-attribute specification for Telegram Rich HTML tags.
+   *
+   * @remarks
+   * Per-tag table mapping tag name to the attribute(s) it must have. Two shapes
+   * are supported:
+   * - `string[]` — every entry must be present
+   * - `{ oneOf: string[][] }` — at least one of the listed sets must be fully
+   *   present (used for `<a>` which can be either a link or an anchor)
+   *
+   * Tags not listed here have no required attributes.
+   *
+   * @example
+   * ```typescript
+   * TemplateEngine._TELEGRAM_REQUIRED_ATTRS["a"]       // => { oneOf: [["href"], ["name"]] }
+   * TemplateEngine._TELEGRAM_REQUIRED_ATTRS["tg-time"] // => ["unix", "format"]
+   * ```
+   *
+   * @public
+   */
+  static _TELEGRAM_REQUIRED_ATTRS: Record<string, string[] | {oneOf: string[][]}> = {
+    a: {oneOf: [[`href`], [`name`]]},
+    img: [`src`],
+    video: [`src`],
+    audio: [`src`],
+    "tg-emoji": [`emoji-id`],
+    "tg-time": [`unix`, `format`],
+    "tg-map": [`lat`, `long`, `zoom`],
+    "tg-reference": [`name`],
+    input: [`type`]
+  }
+  /**
+   * Attribute value validators for Telegram Rich HTML tags.
+   *
+   * @remarks
+   * Per-tag, per-attribute map of validators. Each validator receives the
+   * raw attribute value (after quote-stripping) and returns either `null`
+   * (valid) or a descriptive error string. The value validation runs after
+   * the required-attribute check, so missing attributes are reported
+   * separately by {@link TemplateEngine._TELEGRAM_REQUIRED_ATTRS}.
+   *
+   * Validators are intentionally lenient — they catch obvious bugs (wrong
+   * type, invalid scheme) but do not enforce every Telegram-side constraint.
+   *
+   * @example
+   * ```typescript
+   * TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS["tg-time"].unix("1647531900") // => null
+   * TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS["tg-time"].unix("abc")       // => "unix must be a positive integer (got \"abc\")"
+   * ```
+   *
+   * @public
+   */
+  static _TELEGRAM_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>> = {
+    "tg-time": {
+      unix: (v) => (/^\d+$/.test(v) ? null : `unix must be a positive integer (got "${v}")`),
+      format: (v) => (v.length > 0 ? null : `format must not be empty`)
+    },
+    "tg-map": {
+      lat: (v) => {
+        const n = Number(v)
+        return !isNaN(n) && n >= -90 && n <= 90 ? null : `lat must be a number between -90 and 90 (got "${v}")`
+      },
+      long: (v) => {
+        const n = Number(v)
+        return !isNaN(n) && n >= -180 && n <= 180 ? null : `long must be a number between -180 and 180 (got "${v}")`
+      },
+      zoom: (v) => (/^\d+$/.test(v) && Number(v) <= 24 ? null : `zoom must be a non-negative integer ≤ 24 (got "${v}")`)
+    },
+    "tg-emoji": {
+      "emoji-id": (v) => (/^\d+$/.test(v) ? null : `emoji-id must be a numeric string (got "${v}")`)
+    },
+    a: {
+      href: (v) => (/^(https?:\/\/|mailto:|tel:|tg:\/\/|#)/i.test(v) ? null : `href must use http(s)://, mailto:, tel:, tg://, or # scheme (got "${v}")`)
+    },
+    input: {
+      type: (v) => {
+        const allowed = [`checkbox`, `text`, `number`, `email`, `password`, `submit`, `radio`, `hidden`, `tel`, `url`]
+        return allowed.includes(v.toLowerCase()) ? null : `type must be one of: ${allowed.join(`, `)} (got "${v}")`
+      }
+    }
+  }
+  /**
+   * Required-attribute specification for `<g-*>` PAGE blocks.
+   *
+   * @remarks
+   * Most PAGE block attributes are optional — there are no strictly required
+   * attributes. This spec is reserved for future use (e.g. context-dependent
+   * requirements). The shape mirrors {@link TemplateEngine._TELEGRAM_REQUIRED_ATTRS}:
+   * - `string[]` — every entry must be present
+   * - `{ oneOf: string[][] }` — at least one of the listed sets must be fully present
+   *
+   * @example
+   * ```typescript
+   * TemplateEngine._PAGE_REQUIRED_ATTRS  // => {} (no strictly required attrs yet)
+   * ```
+   *
+   * @public
+   */
+  static _PAGE_REQUIRED_ATTRS: Record<string, string[] | {oneOf: string[][]}> = {}
+  /**
+   * Attribute value validators for `<g-*>` PAGE blocks.
+   *
+   * @remarks
+   * Per-tag, per-attribute map of validators. Each validator receives the
+   * raw attribute value (after quote-stripping) and returns either `null`
+   * (valid) or a descriptive error string. The value validation runs after
+   * the per-block attribute validation, so unknown attributes are reported
+   * separately by `validateBlockG*Attributes` methods.
+   *
+   * Currently covers:
+   * - `<g-base id>` — must not be empty
+   * - `<g-keyboard type>` — must be `inline` or `bottom`
+   * - `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video_note, sticker, location, contact
+   * - `<g-media shared>` — must be `true` or `false`
+   *
+   * Validators are intentionally lenient — they catch obvious bugs (wrong
+   * type, invalid value) but do not enforce every framework-level constraint.
+   *
+   * @example
+   * ```typescript
+   * TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS["g-keyboard"].type("inline")   // => null
+   * TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS["g-keyboard"].type("sidebar") // => "Attribute \"type\" on <g-keyboard> must be \"inline\" or \"bottom\", got \"sidebar\""
+   * ```
+   *
+   * @public
+   */
+  static _PAGE_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>> = {
+    "g-base": {
+      id: (v) => (v ? null : `Attribute "id" on <g-base> must not be empty`)
+    },
+    "g-keyboard": {
+      type: (v) => (v === `inline` || v === `bottom` ? null : `Attribute "type" on <g-keyboard> must be "inline" or "bottom", got "${v}"`)
+    },
+    "g-media": {
+      type: (v) => {
+        const validTypes = new Set([`photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, `sticker`, `location`, `contact`])
+        return validTypes.has(v) ? null : `Attribute "type" on <g-media> must be one of: ${[...validTypes].join(`, `)}, got "${v}"`
+      },
+      shared: (v) => (v === `true` || v === `false` ? null : `Attribute "shared" on <g-media> must be "true" or "false", got "${v}"`)
+    }
+  }
   /**
    * Registry of supported scope interpolation syntaxes.
    *
@@ -236,11 +477,11 @@ export class TemplateEngine {
   }
 
   /**
-   * Block: base
-   * Extracts and parses `<base>` blocks from a template string.
+   * Block: g-base
+   * Extracts and parses `<g-base>` blocks from a template string.
    *
    * @remarks
-   * This internal method identifies all `<base>` blocks in the template and extracts
+   * This internal method identifies all `<g-base>` blocks in the template and extracts
    * their content, organizing them by their `id` attribute. Blocks without an `id`
    * are stored under the key `"default"`. Leading whitespace and surrounding
    * newlines are trimmed from the inner content.
@@ -250,34 +491,34 @@ export class TemplateEngine {
    *                      defaults to `"default"`. Used to reference specific base blocks when compiling
    *                      templates or extracting content.
    *
-   * @param template - The raw template string containing `<base>` blocks
+   * @param template - The raw template string containing `<g-base>` blocks
    * @returns An object mapping base IDs to their cleaned inner content
    *
    * @example
    * ```typescript
    * const template = `
-   *   <base id="main">
-   *     <message>Hello World</message>
-   *   </base>
-   *   <base id="error">
-   *     <message>Error occurred</message>
-   *   </base>
-   *   <base>
-   *     <message>Default block</message>
-   *   </base>
+   *   <g-base id="main">
+   *     <g-message>Hello World</g-message>
+   *   </g-base>
+   *   <g-base id="error">
+   *     <g-message>Error occurred</g-message>
+   *   </g-base>
+   *   <g-base>
+   *     <g-message>Default block</g-message>
+   *   </g-base>
    * `;
-   * const bases = TemplateEngine._processBaseBlocks(template);
+   * const bases = TemplateEngine._processGBaseBlocks(template);
    * // Result: {
-   * //   main: '<message>Hello World</message>',
-   * //   error: '<message>Error occurred</message>',
-   * //   default: '<message>Default block</message>'
+   * //   main: '<g-message>Hello World</g-message>',
+   * //   error: '<g-message>Error occurred</g-message>',
+   * //   default: '<g-message>Default block</g-message>'
    * // }
    * ```
    *
    * @public
    */
-  static _processBaseBlocks(template: string) {
-    const baseRegex = /<base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/base>/g
+  static _processGBaseBlocks(template: string) {
+    const baseRegex = /<g-base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/g-base>/g
     const result: {
       [baseId: string]: string
     } = {}
@@ -297,31 +538,31 @@ export class TemplateEngine {
   }
 
   /**
-   * Block: script
-   * Transforms `<script>` blocks into executable JavaScript expressions.
+   * Block: g-script
+   * Transforms `<g-script>` blocks into executable JavaScript expressions.
    *
    * @remarks
-   * This internal method converts `<script>` blocks into self-invoking functions
+   * This internal method converts `<g-script>` blocks into self-invoking functions
    * that execute with access to the `data` object via `with(data)`. If the script
    * throws an error or `data` is undefined, an empty string is returned.
    *
    * **Attributes:**
    *   - none
    *
-   * @param template - The template string containing `<script>` blocks
-   * @returns The template with `<script>` blocks converted to executable expressions
+   * @param template - The template string containing `<g-script>` blocks
+   * @returns The template with `<g-script>` blocks converted to executable expressions
    *
    * @example
    * ```typescript
-   * const template = '<script>return name ? `Hello ${name}` : `Hello`;</script>';
-   * const processed = TemplateEngine._processScriptBlocks(template);
+   * const template = '<g-script>return name ? `Hello ${name}` : `Hello`;</g-script>';
+   * const processed = TemplateEngine._processGScriptBlocks(template);
    * // Result: '${(() => { if (!data) return ''; try { with(data) { return name ? `Hello ${name}` : `Hello`; } } catch(e) { return '' } })()}'
    * ```
    *
    * @public
    */
-  static _processScriptBlocks(template: string) {
-    return template.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, (_, rawCode: string) => {
+  static _processGScriptBlocks(template: string) {
+    return template.replace(/<g-script\b[^>]*>([\s\S]*?)<\/g-script>/gi, (_, rawCode: string) => {
       const innerCode = rawCode.trim()
       if (!innerCode) return ``
 
@@ -330,59 +571,59 @@ export class TemplateEngine {
   }
 
   /**
-   * Block: space
-   * Removes lines containing self-closing `<space />` tags.
+   * Block: g-space
+   * Removes lines containing self-closing `<g-space />` tags.
    *
    * @remarks
-   * This internal method identifies lines that contain only a `<space />` tag
+   * This internal method identifies lines that contain only a `<g-space />` tag
    * (with optional surrounding whitespace) and removes the entire line.
    * This is useful for controlling whitespace in templates.
    *
    * **Attributes:**
    *   - none
    *
-   * @param template - The template string containing `<space />` tags
-   * @returns The template with `<space />` lines removed
+   * @param template - The template string containing `<g-space />` tags
+   * @returns The template with `<g-space />` lines removed
    *
    * @example
    * ```typescript
-   * const template = 'Line 1\n<space />\nLine 2';
-   * const processed = TemplateEngine._processSpaceBlocks(template);
+   * const template = 'Line 1\n<g-space />\nLine 2';
+   * const processed = TemplateEngine._processGSpaceBlocks(template);
    * // Result: 'Line 1\n\nLine 2'
    * ```
    *
    * @public
    */
-  static _processSpaceBlocks(template: string) {
-    return template.replace(/^[ \t]*<space\s*\/>[ \t]*$/gim, ``)
+  static _processGSpaceBlocks(template: string) {
+    return template.replace(/^[ \t]*<g-space\s*\/>[ \t]*$/gim, ``)
   }
 
   /**
-   * Block: div
-   * Normalizes content within `<div>` blocks by removing indentation.
+   * Block: g-div
+   * Normalizes content within `<g-div>` blocks by removing indentation.
    *
    * @remarks
-   * This internal method processes `<div>` blocks and cleans their inner content
+   * This internal method processes `<g-div>` blocks and cleans their inner content
    * by removing leading tabs/spaces per line and trimming surrounding newlines.
-   * The `<div>` tags themselves are removed from the output.
+   * The `<g-div>` tags themselves are removed from the output.
    *
    * **Attributes:**
    *   - none
    *
-   * @param template - The template string containing `<div>` blocks
-   * @returns The template with `<div>` blocks replaced by their de-indented content
+   * @param template - The template string containing `<g-div>` blocks
+   * @returns The template with `<g-div>` blocks replaced by their de-indented content
    *
    * @example
    * ```typescript
-   * const template = '<div>\n    Line 1\n    Line 2\n</div>';
-   * const processed = TemplateEngine._processDivBlocks(template);
+   * const template = '<g-div>\n    Line 1\n    Line 2\n</g-div>';
+   * const processed = TemplateEngine._processGDivBlocks(template);
    * // Result: 'Line 1\nLine 2'
    * ```
    *
    * @public
    */
-  static _processDivBlocks(template: string) {
-    return template.replace(/<div>([\s\S]*?)<\/div>/gi, (_, inner: string) => {
+  static _processGDivBlocks(template: string) {
+    return template.replace(/<g-div>([\s\S]*?)<\/g-div>/gi, (_, inner: string) => {
       const cleaned = inner
         .replace(/^[\t ]+/gm, ``)
         .replace(/^\n+/, ``)
@@ -392,49 +633,49 @@ export class TemplateEngine {
   }
 
   /**
-   * Block: switch
-   * Transforms `<switch>` blocks into JavaScript switch statement expressions.
+   * Block: g-switch
+   * Transforms `<g-switch>` blocks into JavaScript switch statement expressions.
    *
    * @remarks
-   * This internal method converts `<switch>` blocks with `<case>` and `<default>`
+   * This internal method converts `<g-switch>` blocks with `<g-case>` and `<g-default>`
    * sub-blocks into self-invoking JavaScript switch expressions. The `value`
    * attribute specifies which data key to switch on. Case values can be
    * comma-separated for multiple matches.
    *
    * **Attributes:**
-   *   - <switch>
+   *   - <g-switch>
    *      - `value` (required): The key name in the `data` object whose value will be used as the switch expression.
-   *   - <case>
+   *   - <g-case>
    *      - `is` (required): One or more literal match values. Multiple values may be provided as a comma-separated list.
-   *   - <default>
+   *   - <g-default>
    *      - none
    *
-   * @param template - The template string containing `<switch>` blocks
-   * @returns The template with `<switch>` blocks converted to executable switch expressions
+   * @param template - The template string containing `<g-switch>` blocks
+   * @returns The template with `<g-switch>` blocks converted to executable switch expressions
    *
    * @example
    * ```typescript
    * const template = `
-   *   <switch value="status">
-   *     <case is="active">Active status</case>
-   *     <case is="pending">Pending status</case>
-   *     <default>Unknown status</default>
-   *   </switch>
+   *   <g-switch value="status">
+   *     <g-case is="active">Active status</g-case>
+   *     <g-case is="pending">Pending status</g-case>
+   *     <g-default>Unknown status</g-default>
+   *   </g-switch>
    * `;
-   * const processed = TemplateEngine._processSwitchBlocks(template);
+   * const processed = TemplateEngine._processGSwitchBlocks(template);
    * // Result: '${(() => { switch((data && data["status"])) { case "active": return `Active status`; ... } })()}'
    * ```
    *
    * @public
    */
-  static _processSwitchBlocks(template: string) {
-    const switchRegex = /<switch\b(?:\s+value="([^"]+)")?>([\s\S]*?)<\/switch>/gi
+  static _processGSwitchBlocks(template: string) {
+    const switchRegex = /<g-switch\b(?:\s+value="([^"]+)")?>([\s\S]*?)<\/g-switch>/gi
     return template.replace(switchRegex, (_, valueKey, innerContent) => {
       if (!valueKey) return ``
 
       let casesJs = ``
-      const caseRegex = /<case\b(?:\s+is="([^"]+)")?>([\s\S]*?)<\/case>/gi
-      const defaultRegex = /<default>([\s\S]*?)<\/default>/gi
+      const caseRegex = /<g-case\b(?:\s+is="([^"]+)")?>([\s\S]*?)<\/g-case>/gi
+      const defaultRegex = /<g-default>([\s\S]*?)<\/g-default>/gi
 
       let match
       while ((match = caseRegex.exec(innerContent)) !== null) {
@@ -471,11 +712,11 @@ export class TemplateEngine {
   }
 
   /**
-   * Block: map
-   * Transforms `<map>` blocks into JavaScript array map expressions.
+   * Block: g-map
+   * Transforms `<g-map>` blocks into JavaScript array map expressions.
    *
    * @remarks
-   * This internal method converts `<map>` blocks into array mapping operations.
+   * This internal method converts `<g-map>` blocks into array mapping operations.
    * The `src` attribute specifies which data key contains the array. Inside the
    * block, `{{e}}` refers to the current element, `{{e.prop}}` to element properties,
    * and `{{i}}` to the current index. The `join` attribute specifies the separator.
@@ -484,20 +725,20 @@ export class TemplateEngine {
    *   - `src` (required): The key name in the `data` object whose value is treated as an array.
    *   - `join` (optional): Join separator string. Defaults to `"\\n"` (a newline escape sequence).
    *
-   * @param template - The template string containing `<map>` blocks
-   * @returns The template with `<map>` blocks converted to map expressions
+   * @param template - The template string containing `<g-map>` blocks
+   * @returns The template with `<g-map>` blocks converted to map expressions
    *
    * @example
    * ```typescript
-   * const template = '<map src="items" join=", "> - {{e.name}} ({{i}})</map>';
-   * const processed = TemplateEngine._processMapBlocks(template);
+   * const template = '<g-map src="items" join=", "> - {{e.name}} ({{i}})</g-map>';
+   * const processed = TemplateEngine._processGMapBlocks(template);
    * // Result: '${(data && data["items"] || []).map((e, i) => ` - ${e.name} (${i})`).join(", ")}'
    * ```
    *
    * @public
    */
-  static _processMapBlocks(template: string) {
-    const mapRegex = /<map(?:\s+([^>]*))?>([\s\S]*?)<\/map>/gi
+  static _processGMapBlocks(template: string) {
+    const mapRegex = /<g-map(?:\s+([^>]*))?>([\s\S]*?)<\/g-map>/gi
     return template.replace(mapRegex, (_, attributesStr, rawContent) => {
       const attrs: {[key: string]: string} = {}
       const attrRegex = /(\w+)="([^"]*)"/g
@@ -538,11 +779,11 @@ export class TemplateEngine {
   }
 
   /**
-   * Block: media
-   * Extracts and parses `<media>` blocks from a template string.
+   * Block: g-media
+   * Extracts and parses `<g-media>` blocks from a template string.
    *
    * @remarks
-   * This internal method identifies all `<media>` blocks and extracts their
+   * This internal method identifies all `<g-media>` blocks and extracts their
    * attributes and content. It supports various media types including photo,
    * video, audio, document, animation, voice, video_note, sticker, location,
    * and contact. The inner content becomes the caption for supported types.
@@ -572,23 +813,23 @@ export class TemplateEngine {
    *   are copied if present, and caption (if present) is also allowed.
    *
    * Note:
-   * - If multiple `<media>` blocks share the same `lang`, the last one wins
+   * - If multiple `<g-media>` blocks share the same `lang`, the last one wins
    *   (it overwrites the previous entry).
    *
-   * @param template - The template string containing `<media>` blocks
+   * @param template - The template string containing `<g-media>` blocks
    * @returns An object mapping language keys to their corresponding media block configurations
    *
    * @example
    * ```typescript
-   * const template = '<media type="photo" src="image.jpg|image-2.jpg" lang="en">Hello</media>';
-   * const media = TemplateEngine._processMediaBlocks(template);
+   * const template = '<g-media type="photo" src="image.jpg|image-2.jpg" lang="en">Hello</g-media>';
+   * const media = TemplateEngine._processGMediaBlocks(template);
    * // Result: { en: { type: 'photo', src: 'image.jpg|image-2.jpg', srcList: ['image.jpg', 'image-2.jpg'], caption: 'Hello' } }
    * ```
    *
    * @public
    */
-  static _processMediaBlocks(template: string) {
-    const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
+  static _processGMediaBlocks(template: string) {
+    const mediaRegex = /<g-media(?:\s+([^>]*))?>([\s\S]*?)<\/g-media>/gi
     const result: {[lang: string]: ITMediaBlock} = {}
 
     for (const match of template.matchAll(mediaRegex)) {
@@ -664,9 +905,9 @@ export class TemplateEngine {
       .slice(0, this.MAX_MEDIA_GROUP_ITEMS)
   }
 
-  /** Parses `<media-group>` blocks into Telegram media group item definitions. */
-  static _processMediaGroupBlocks(template: string) {
-    const mediaGroupRegex = /<media-group(?:\s+([^>]*))?>([\s\S]*?)<\/media-group>/gi
+  /** Parses `<g-media-group>` blocks into Telegram media group item definitions. */
+  static _processGMediaGroupBlocks(template: string) {
+    const mediaGroupRegex = /<g-media-group(?:\s+([^>]*))?>([\s\S]*?)<\/g-media-group>/gi
     const result: {[lang: string]: ITMediaBlock} = {}
 
     for (const match of template.matchAll(mediaGroupRegex)) {
@@ -707,17 +948,17 @@ export class TemplateEngine {
   }
 
   /**
-   * Parses inner `<media>` items inside a `<media-group>` block body.
+   * Parses inner `<g-media>` items inside a `<g-media-group>` block body.
    *
    * Extracts `type`, `src`, `lang`, and `shared` attributes plus the caption
-   * body for each inner `<media>` element. `shared` supports both standalone
-   * boolean (`<media shared>`) and explicit (`<media shared="true">`) syntax.
+   * body for each inner `<g-media>` element. `shared` supports both standalone
+   * boolean (`<g-media shared>`) and explicit (`<g-media shared="true">`) syntax.
    *
-   * @param groupContent - The content between `<media-group>` and `</media-group>`
+   * @param groupContent - The content between `<g-media-group>` and `</g-media-group>`
    * @returns An array of parsed media item descriptors, preserving document order
    */
   private static _processMediaGroupItems(groupContent: string): Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string; lang?: string; shared?: boolean}> {
-    const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
+    const mediaRegex = /<g-media(?:\s+([^>]*))?>([\s\S]*?)<\/g-media>/gi
     const mediaGroup: Array<{type: `photo` | `video` | `audio` | `document`; src: string; caption?: string; lang?: string; shared?: boolean}> = []
     const supportedTypes = new Set([`photo`, `video`, `audio`, `document`])
 
@@ -760,34 +1001,34 @@ export class TemplateEngine {
   }
 
   /**
-   * Block: message
-   * Extracts and parses `<message>` blocks from a template string.
+   * Block: g-message
+   * Extracts and parses `<g-message>` blocks from a template string.
    *
    * @remarks
-   * This internal method identifies all `<message>` blocks and extracts their
+   * This internal method identifies all `<g-message>` blocks and extracts their
    * content organized by language. Blocks without a `lang` attribute are stored
    * under `"default"`. Leading whitespace and surrounding newlines are trimmed.
    *
    * **Attributes:**
    *   - `lang` (optional): Language key for the output map. Defaults to `"default"`.
    *
-   * @param template - The template string containing `<message>` blocks
+   * @param template - The template string containing `<g-message>` blocks
    * @returns An object mapping language keys to their cleaned message content
    *
    * @example
    * ```typescript
    * const template = `
-   *   <message>Hello World</message>
-   *   <message lang="id">Halo Dunia</message>
+   *   <g-message>Hello World</g-message>
+   *   <g-message lang="id">Halo Dunia</g-message>
    * `;
-   * const messages = TemplateEngine._processMessageBlocks(template);
+   * const messages = TemplateEngine._processGMessageBlocks(template);
    * // Result: { default: 'Hello World', id: 'Halo Dunia' }
    * ```
    *
    * @public
    */
-  static _processMessageBlocks(template: string) {
-    const messageRegex = /<message(?:\s+([^>]*))?>([\s\S]*?)<\/message>/gi
+  static _processGMessageBlocks(template: string) {
+    const messageRegex = /<g-message(?:\s+([^>]*))?>([\s\S]*?)<\/g-message>/gi
     const result: {
       [lang: string]: string
     } = {}
@@ -815,11 +1056,11 @@ export class TemplateEngine {
   }
 
   /**
-   * Block: description
-   * Extracts and parses `<description>` blocks from a template string.
+   * Block: g-description
+   * Extracts and parses `<g-description>` blocks from a template string.
    *
    * @remarks
-   * This internal method identifies all `<description>` blocks and extracts their
+   * This internal method identifies all `<g-description>` blocks and extracts their
    * content organized by language and scope. Blocks without a `lang` attribute
    * are stored under `"default"` language, and blocks without a `scope` attribute
    * are stored under `"default"` scope.
@@ -828,17 +1069,17 @@ export class TemplateEngine {
    *   - `lang` (optional): Language key for the output map. Defaults to `"default"`.
    *   - `scope` (optional): Scope key for the nested output map. Defaults to `"default"`.
    *
-   * @param template - The template string containing `<description>` blocks
+   * @param template - The template string containing `<g-description>` blocks
    * @returns A nested object mapping language keys to scopes to their cleaned content
    *
    * @example
    * ```typescript
    * const template = `
-   *   <description>Start the bot</description>
-   *   <description lang="id">Mulai bot</description>
-   *   <description scope="chat_administrators">Admin command</description>
+   *   <g-description>Start the bot</g-description>
+   *   <g-description lang="id">Mulai bot</g-description>
+   *   <g-description scope="chat_administrators">Admin command</g-description>
    * `;
-   * const descriptions = TemplateEngine._processDescriptionBlocks(template);
+   * const descriptions = TemplateEngine._processGDescriptionBlocks(template);
    * // Result: {
    * //   default: { default: 'Start the bot', chat_administrators: 'Admin command' },
    * //   id: { default: 'Mulai bot' }
@@ -847,8 +1088,8 @@ export class TemplateEngine {
    *
    * @public
    */
-  static _processDescriptionBlocks(template: string) {
-    const descriptionRegex = /<description(?:\s+([^>]*))?>([\s\S]*?)<\/description>/gi
+  static _processGDescriptionBlocks(template: string) {
+    const descriptionRegex = /<g-description(?:\s+([^>]*))?>([\s\S]*?)<\/g-description>/gi
     const result: {
       [lang: string]: {
         [scope: string]: string
@@ -882,11 +1123,11 @@ export class TemplateEngine {
   }
 
   /**
-   * Block: keyboard
-   * Extracts and parses `<keyboard>` blocks from a template string.
+   * Block: g-keyboard
+   * Extracts and parses `<g-keyboard>` blocks from a template string.
    *
    * @remarks
-   * This internal method identifies all `<keyboard>` blocks and extracts their
+   * This internal method identifies all `<g-keyboard>` blocks and extracts their
    * content organized by language and type (inline or bottom). Blocks without
    * a `lang` attribute are stored under `"default"`. The `type` attribute
    * defaults to `"inline"` unless explicitly set to `"bottom"`.
@@ -897,17 +1138,17 @@ export class TemplateEngine {
    *     - `"inline"` (default)
    *     - `"bottom"`
    *
-   * @param template - The template string containing `<keyboard>` blocks
+   * @param template - The template string containing `<g-keyboard>` blocks
    * @returns A nested object mapping language keys to keyboard mode configurations
    *
    * @example
    * ```typescript
    * const template = `
-   *   <keyboard>Yes, No</keyboard>
-   *   <keyboard type="bottom">Button 1, Button 2</keyboard>
-   *   <keyboard lang="id">Ya, Tidak</keyboard>
+   *   <g-keyboard>Yes, No</g-keyboard>
+   *   <g-keyboard type="bottom">Button 1, Button 2</g-keyboard>
+   *   <g-keyboard lang="id">Ya, Tidak</g-keyboard>
    * `;
-   * const keyboards = TemplateEngine._processKeyboardBlocks(template);
+   * const keyboards = TemplateEngine._processGKeyboardBlocks(template);
    * // Result: {
    * //   default: { inline: 'Yes, No', bottom: 'Button 1, Button 2' },
    * //   id: { inline: 'Ya, Tidak' }
@@ -916,8 +1157,8 @@ export class TemplateEngine {
    *
    * @public
    */
-  static _processKeyboardBlocks(template: string) {
-    const keyboardRegex = /<keyboard(?:\s+([^>]*))?>([\s\S]*?)<\/keyboard>/gi
+  static _processGKeyboardBlocks(template: string) {
+    const keyboardRegex = /<g-keyboard(?:\s+([^>]*))?>([\s\S]*?)<\/g-keyboard>/gi
     const result: {
       [lang: string]: {
         inline?: string
@@ -980,7 +1221,7 @@ export class TemplateEngine {
     }
 
     let processed = singleOrCombined
-    processed = this._processScriptBlocks(this._processDivBlocks(this._processSpaceBlocks(processed)))
+    processed = this._processGScriptBlocks(this._processGDivBlocks(this._processGSpaceBlocks(processed)))
 
     if (isArray) {
       const functionBody = `return [${processed}]`
@@ -995,30 +1236,30 @@ export class TemplateEngine {
    * Compiles media blocks from a template into executable functions.
    *
    * @remarks
-   * This method parses `<media>` blocks from the template and compiles them into
+   * This method parses `<g-media>` blocks from the template and compiles them into
    * functions that generate `ITMediaBlock` objects. The result is organized by
    * base ID and language. Pre-parsed base blocks can be provided for efficiency.
    *
-   * @param template - Raw template string containing `<base>` and `<media>` blocks
+   * @param template - Raw template string containing `<g-base>` and `<g-media>` blocks
    * @param baseBlocks - Optional pre-parsed base blocks for reuse
    * @returns Compiled media functions organized by base ID and language
    *
    * @example
    * ```typescript
    * const template = `
-   *   <base>
-   *     <media type="photo" src="{{image}}">{{caption}}</media>
-   *   </base>
+   *   <g-base>
+   *     <g-media type="photo" src="{{image}}">{{caption}}</g-media>
+   *   </g-base>
    * `;
-   * const media = TemplateEngine.compileBlockMedia(template);
+   * const media = TemplateEngine.compileBlockGMedia(template);
    * const result = media.default?.default?.({ image: 'photo.jpg', caption: 'Hello' });
    * // Result: { type: 'photo', src: 'photo.jpg', caption: 'Hello' }
    * ```
    *
    * @public
    */
-  static compileBlockMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
-    const bases = baseBlocks || this._processBaseBlocks(template)
+  static compileBlockGMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [baseId: string]: {
         [lang: string]: (data?: Record<string, any>) => ITMediaBlock
@@ -1026,21 +1267,21 @@ export class TemplateEngine {
     } = {}
 
     for (const [baseId, baseContent] of Object.entries(bases)) {
-      const mediaBlocks = {...this._processMediaBlocks(baseContent), ...this._processMediaGroupBlocks(baseContent)}
+      const mediaBlocks = {...this._processGMediaBlocks(baseContent), ...this._processGMediaGroupBlocks(baseContent)}
       result[baseId] = {}
 
       for (const [lang, mediaBlock] of Object.entries(mediaBlocks)) {
         const compiledProps: Record<string, (data?: Record<string, any>) => string> = {}
         const compiledMediaGroup = mediaBlock.mediaGroup?.map((item) => ({
           type: item.type,
-          src: this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(item.src))))), false),
-          caption: item.caption ? this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(item.caption))))), false) : undefined
+          src: this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(item.src))))), false),
+          caption: item.caption ? this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(item.caption))))), false) : undefined
         }))
 
         for (const [key, value] of Object.entries(mediaBlock)) {
           if (key === `type` || typeof value !== `string`) continue
 
-          const processed = this._processScopeVariables(this._processScopeExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(value)))))
+          const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(value)))))
           compiledProps[key] = this._compileToFunction(processed, false)
         }
 
@@ -1074,44 +1315,44 @@ export class TemplateEngine {
    * Compiles message blocks from a template into executable functions.
    *
    * @remarks
-   * This method parses `<message>` blocks from the template and compiles them into
+   * This method parses `<g-message>` blocks from the template and compiles them into
    * functions that generate rendered message strings. The result is organized by
    * base ID and language. Pre-parsed base blocks can be provided for efficiency.
    *
    * Processing pipeline (in order, per message):
-   * 1. `_processScriptBlocks` - converts `<script>` blocks into executable expressions
-   * 2. `_processMapBlocks` - converts `<map>` blocks into array map expressions
-   * 3. `_processSwitchBlocks` - converts `<switch>` blocks into switch expressions
+   * 1. `_processGScriptBlocks` - converts `<g-script>` blocks into executable expressions
+   * 2. `_processGMapBlocks` - converts `<g-map>` blocks into array map expressions
+   * 3. `_processGSwitchBlocks` - converts `<g-switch>` blocks into switch expressions
    * 4. `_processScopeExec` - evaluates scope execution blocks (implementation-defined)
    * 5. `_processScopeVariables` - resolves scope variables (implementation-defined)
    * 6. `_compileToFunction(processed, false)` - produces the final render function
    *
    * Output shape:
-   * - First level key: `baseId` (from `<base id="...">`, or `"default"` if omitted)
-   * - Second level key: `lang` (from `<message lang="...">`, or `"default"` if omitted)
+   * - First level key: `baseId` (from `<g-base id="...">`, or `"default"` if omitted)
+   * - Second level key: `lang` (from `<g-message lang="...">`, or `"default"` if omitted)
    * - Value: `(data?: Record<string, any>) => string`
    *
-   * @param template - Raw template string containing `<base>` and `<message>` blocks
+   * @param template - Raw template string containing `<g-base>` and `<g-message>` blocks
    * @param baseBlocks - Optional pre-parsed base blocks for reuse
    * @returns Compiled message functions organized by base ID and language
    *
    * @example
    * ```typescript
    * const template = `
-   *   <base>
-   *     <message>Hello {{name}}!</message>
-   *     <message lang="id">Halo {{name}}!</message>
-   *   </base>
+   *   <g-base>
+   *     <g-message>Hello {{name}}!</g-message>
+   *     <g-message lang="id">Halo {{name}}!</g-message>
+   *   </g-base>
    * `;
-   * const messages = TemplateEngine.compileBlockMessages(template);
+   * const messages = TemplateEngine.compileBlockGMessages(template);
    * const result = messages.default?.default?.({ name: 'John' });
    * // Result: 'Hello John!'
    * ```
    *
    * @public
    */
-  static compileBlockMessage(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
-    const bases = baseBlocks || this._processBaseBlocks(template)
+  static compileBlockGMessage(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [baseId: string]: {
         [lang: string]: (data?: Record<string, any>) => string
@@ -1119,11 +1360,11 @@ export class TemplateEngine {
     } = {}
 
     for (const [baseId, baseContent] of Object.entries(bases)) {
-      const messages = this._processMessageBlocks(baseContent)
+      const messages = this._processGMessageBlocks(baseContent)
       result[baseId] = {}
 
       for (const [lang, content] of Object.entries(messages)) {
-        const processed = this._processScopeVariables(this._processScopeExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(content)))))
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
         result[baseId][lang] = this._compileToFunction(processed, false)
       }
     }
@@ -1135,45 +1376,45 @@ export class TemplateEngine {
    * Compiles description blocks from a template into executable functions.
    *
    * @remarks
-   * This method parses `<description>` blocks from the template and compiles them
+   * This method parses `<g-description>` blocks from the template and compiles them
    * into functions that generate rendered description strings. The result is organized
    * by base ID, scope, and language. Used for Telegram bot command descriptions.
    *
    * Processing pipeline (in order, per description):
-   * 1. `_processScriptBlocks` – converts `<script>` blocks into executable expressions
-   * 2. `_processMapBlocks` – converts `<map>` blocks into array map expressions
-   * 3. `_processSwitchBlocks` – converts `<switch>` blocks into switch expressions
+   * 1. `_processGScriptBlocks` – converts `<g-script>` blocks into executable expressions
+   * 2. `_processGMapBlocks` – converts `<g-map>` blocks into array map expressions
+   * 3. `_processGSwitchBlocks` – converts `<g-switch>` blocks into switch expressions
    * 4. `_processScopeExec` – evaluates scope execution blocks (implementation-defined)
    * 5. `_processScopeVariables` – resolves scope variables (implementation-defined)
    * 6. `_compileToFunction(processed, false)` – produces the final render function
    *
    * Output shape:
-   * - First level key: `baseId` (from `<base id="...">`, or `"default"` if omitted)
-   * - Second level key: `scope` (from `<description scope="...">`, or `"default"` if omitted)
-   * - Third level key: `lang` (from `<description lang="...">`, or `"default"` if omitted)
+   * - First level key: `baseId` (from `<g-base id="...">`, or `"default"` if omitted)
+   * - Second level key: `scope` (from `<g-description scope="...">`, or `"default"` if omitted)
+   * - Third level key: `lang` (from `<g-description lang="...">`, or `"default"` if omitted)
    * - Value: `(data?: Record<string, any>) => string`
    *
-   * @param template - Raw template string containing `<base>` and `<description>` blocks
+   * @param template - Raw template string containing `<g-base>` and `<g-description>` blocks
    * @param baseBlocks - Optional pre-parsed base blocks for reuse
    * @returns Compiled description functions organized by base ID, scope, and language
    *
    * @example
    * ```typescript
    * const template = `
-   *   <base>
-   *     <description>Start the bot</description>
-   *     <description scope="chat_administrators">Admin command</description>
-   *   </base>
+   *   <g-base>
+   *     <g-description>Start the bot</g-description>
+   *     <g-description scope="chat_administrators">Admin command</g-description>
+   *   </g-base>
    * `;
-   * const descriptions = TemplateEngine.compileBlockDescription(template);
+   * const descriptions = TemplateEngine.compileBlockGDescription(template);
    * const result = descriptions.default?.default?.default?.({});
    * // Result: 'Start the bot'
    * ```
    *
    * @public
    */
-  static compileBlockDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
-    const bases = baseBlocks || this._processBaseBlocks(template)
+  static compileBlockGDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [baseId: string]: {
         [scope: string]: {
@@ -1183,7 +1424,7 @@ export class TemplateEngine {
     } = {}
 
     for (const [baseId, baseContent] of Object.entries(bases)) {
-      const descriptions = this._processDescriptionBlocks(baseContent)
+      const descriptions = this._processGDescriptionBlocks(baseContent)
       result[baseId] = {}
 
       for (const [lang, scopes] of Object.entries(descriptions)) {
@@ -1191,7 +1432,7 @@ export class TemplateEngine {
           if (!result[baseId][scope]) {
             result[baseId][scope] = {}
           }
-          const processed = this._processScopeVariables(this._processScopeExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(content)))))
+          const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
           result[baseId][scope][lang] = this._compileToFunction(processed, false)
         }
       }
@@ -1204,15 +1445,15 @@ export class TemplateEngine {
    * Compiles keyboard blocks from a template into executable functions.
    *
    * @remarks
-   * This method parses `<keyboard>` blocks from the template and compiles them
+   * This method parses `<g-keyboard>` blocks from the template and compiles them
    * into functions that generate button label arrays. The result is organized by
    * base ID and language, with separate `inline` and `bottom` keyboard modes.
    * Comma-separated labels are split into individual button strings.
    *
    * Processing pipeline (in order, per keyboard label):
-   * 1. `_processScriptBlocks` – converts `<script>` blocks into executable expressions
-   * 2. `_processMapBlocks` – converts `<map>` blocks into array map expressions
-   * 3. `_processSwitchBlocks` – converts `<switch>` blocks into switch expressions
+   * 1. `_processGScriptBlocks` – converts `<g-script>` blocks into executable expressions
+   * 2. `_processGMapBlocks` – converts `<g-map>` blocks into array map expressions
+   * 3. `_processGSwitchBlocks` – converts `<g-switch>` blocks into switch expressions
    * 4. `_processScopeExec` – evaluates scope execution blocks (implementation-defined)
    * 5. `_processScopeVariables` – resolves scope variables (implementation-defined)
    * 6. `_compileToFunction(processedLabels, true)` – produces the final render function
@@ -1223,34 +1464,34 @@ export class TemplateEngine {
    * - Each label is processed independently through the pipeline.
    *
    * Output shape:
-   * - First level key: `baseId` (from `<base id="...">`, or `"default"` if omitted)
-   * - Second level key: `lang` (from `<keyboard lang="...">`, or `"default"` if omitted)
+   * - First level key: `baseId` (from `<g-base id="...">`, or `"default"` if omitted)
+   * - Second level key: `lang` (from `<g-keyboard lang="...">`, or `"default"` if omitted)
    * - Third level key: `mode`:
    *   - `inline` (default)
    *   - `bottom`
    * - Value: `(data?: Record<string, any>) => string[]`
    *
-   * @param template - Raw template string containing `<base>` and `<keyboard>` blocks
+   * @param template - Raw template string containing `<g-base>` and `<g-keyboard>` blocks
    * @param baseBlocks - Optional pre-parsed base blocks for reuse
    * @returns Compiled keyboard functions organized by base ID, language, and mode
    *
    * @example
    * ```typescript
    * const template = `
-   *   <base>
-   *     <keyboard>Yes, No, {{action}}</keyboard>
-   *     <keyboard type="bottom">Menu, Help</keyboard>
-   *   </base>
+   *   <g-base>
+   *     <g-keyboard>Yes, No, {{action}}</g-keyboard>
+   *     <g-keyboard type="bottom">Menu, Help</g-keyboard>
+   *   </g-base>
    * `;
-   * const keyboards = TemplateEngine.compileBlockKeyboards(template);
+   * const keyboards = TemplateEngine.compileBlockGKeyboards(template);
    * const inline = keyboards.default?.default?.inline?.({ action: 'Cancel' });
    * // Result: ['Yes', 'No', 'Cancel']
    * ```
    *
    * @public
    */
-  static compileBlockKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>) {
-    const bases = baseBlocks || this._processBaseBlocks(template)
+  static compileBlockGKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [baseId: string]: {
         [lang: string]: {
@@ -1261,7 +1502,7 @@ export class TemplateEngine {
     } = {}
 
     for (const [baseId, baseContent] of Object.entries(bases)) {
-      const keyboards = this._processKeyboardBlocks(baseContent)
+      const keyboards = this._processGKeyboardBlocks(baseContent)
       result[baseId] = {}
 
       for (const [lang, modes] of Object.entries(keyboards)) {
@@ -1271,7 +1512,7 @@ export class TemplateEngine {
           // Seperates label, handle escaped comma
           const labels = content.split(/(?<!\\),\s*/).map((label: string) => label.replace(/\\,/g, `,`).trim())
 
-          const processedLabels = labels.map((label) => this._processScopeVariables(this._processScopeExec(this._processSwitchBlocks(this._processMapBlocks(this._processScriptBlocks(label))))))
+          const processedLabels = labels.map((label) => this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(label))))))
 
           result[baseId][lang][mode as `inline` | `bottom`] = this._compileToFunction(processedLabels, true)
         }
@@ -1299,10 +1540,10 @@ export class TemplateEngine {
    * @example
    * ```typescript
    * const template = `
-   *   <base id="main">
-   *     <message>Hello</message>
-   *     <keyboard>Yes, No</keyboard>
-   *   </base>
+   *   <g-base id="main">
+   *     <g-message>Hello</g-message>
+   *     <g-keyboard>Yes, No</g-keyboard>
+   *   </g-base>
    * `;
    * const result = TemplateEngine._extractBlock(template, 'message', 'main', 'value');
    * // Result: 'Hello'
@@ -1312,7 +1553,7 @@ export class TemplateEngine {
    */
   static _extractBlock(content: string, blocks?: string | string[], baseId: string = `default`, section: `all` | `value` = `all`, lang?: string) {
     // 1. Extract Base Block
-    const baseRegex = /<base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/base>/g
+    const baseRegex = /<g-base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/g-base>/g
     let baseContent = content
     let foundBase = false
 
@@ -1328,7 +1569,7 @@ export class TemplateEngine {
 
     // If base not found
     if (!foundBase) {
-      const hasAnyBase = /<base\b/.test(content)
+      const hasAnyBase = /<g-base\b/.test(content)
       if (baseId === `default` && !hasAnyBase) {
         // use whole content as base
       } else {
@@ -1417,12 +1658,12 @@ export class TemplateEngine {
   }
 
   /**
-   * Parses `<import>` directives from a template and extracts import metadata.
+   * Parses `<g-import>` directives from a template and extracts import metadata.
    *
    * @remarks
-   * This internal method identifies all `<import>` tags in a template and replaces
+   * This internal method identifies all `<g-import>` tags in a template and replaces
    * them with placeholders while collecting their metadata (src, blocks, base, lang,
-   * section, indent). The placeholders are later resolved by `processImportBlocks`.
+   * section, indent). The placeholders are later resolved by `processGImportBlocks`.
    *
    * **Attributes:**
    *   - `src` (required): Import source identifier (e.g., template/page key). If missing, the tag is removed (replaced with an empty string).
@@ -1436,21 +1677,21 @@ export class TemplateEngine {
    *     - `"all"` (default): include block
    *     - `"value"`: only value
    *
-   * @param template - The template string containing `<import>` directives
+   * @param template - The template string containing `<g-import>` directives
    * @returns An object containing the processed template with placeholders and an array of import metadata
    *
    * @example
    * ```typescript
-   * const template = '<import src="other-page" block="message" />';
-   * const { processed, imports } = TemplateEngine._processImportBlocks(template);
+   * const template = '<g-import src="other-page" block="message" />';
+   * const { processed, imports } = TemplateEngine._processGImportBlocks(template);
    * // processed: '__IMPORT_0__'
    * // imports: [{ src: 'other-page', blocks: 'message', base: 'default', ... }]
    * ```
    *
    * @public
    */
-  static _processImportBlocks(template: string) {
-    const importRegex = /([ \t]*)<import(?:\s+([^>]*))?\/?>/gi
+  static _processGImportBlocks(template: string) {
+    const importRegex = /([ \t]*)<g-import(?:\s+([^>]*))?\/?>/gi
     const imports: Array<{src: string; blocks?: string | string[]; base: string; lang?: string; section: `all` | `value`; indent: string}> = []
     const processed = template.replace(importRegex, (_, indent, attributesStr) => {
       const attrs: {[key: string]: string} = {}
@@ -1464,19 +1705,19 @@ export class TemplateEngine {
       const src = attrs.src
       if (!src) return `` // 'src' is required
 
-      // Parse blocks attribute: "all" | "block1,block2" | "block1, block2" | single block
+      const withGBPrefix = (b: string) => (b.startsWith(`g-`) ? b : `g-${b}`)
       let blocks: string | string[] | undefined
       if (attrs.block) {
         if (attrs.block === `all`) {
           blocks = `all`
         } else if (attrs.block.includes(`,`)) {
-          // Split by comma and trim each value to support both "a,b" and "a, b"
           blocks = attrs.block
             .split(`,`)
             .map((b) => b.trim())
             .filter((b) => b)
+            .map(withGBPrefix)
         } else {
-          blocks = attrs.block
+          blocks = withGBPrefix(attrs.block)
         }
       }
 
@@ -1497,16 +1738,16 @@ export class TemplateEngine {
   }
 
   /**
-   * Recursively processes and resolves `<import>` blocks in a template.
+   * Recursively processes and resolves `<g-import>` blocks in a template.
    *
    * @remarks
-   * This method resolves all `<import>` placeholders produced by `_processImportBlocks` by invoking a user-provided `resolver` function.
+   * This method resolves all `<g-import>` placeholders produced by `_processGImportBlocks` by invoking a user-provided `resolver` function.
    *
    * Resolution behavior:
-   * - Each `<import>` is resolved by calling `resolver(src)` to obtain raw template content.
+   * - Each `<g-import>` is resolved by calling `resolver(src)` to obtain raw template content.
    * - The resolved content is filtered using `_extractBlock` based on the import metadata
    *   (`blocks`, `base`, `section`, `lang`).
-   * - If the resolved content itself contains `<import>` directives, they are processed
+   * - If the resolved content itself contains `<g-import>` directives, they are processed
    *   recursively.
    *
    * Recursion and safety:
@@ -1515,33 +1756,33 @@ export class TemplateEngine {
    * - If the depth limit is exceeded, an empty string is returned.
    *
    * Output behavior:
-   * - `<import>` placeholders (`__IMPORT_N__`) are replaced sequentially.
+   * - `<g-import>` placeholders (`__IMPORT_N__`) are replaced sequentially.
    * - If the resolver returns `null` or an empty result, the import is replaced with
    *   an empty string.
    *
-   * @param template - Template string containing `<import>` directives
+   * @param template - Template string containing `<g-import>` directives
    * @param resolver - Function that resolves import sources to template content
    * @param depth - Current recursion depth (defaults to 0)
    * @param importCache - Optional Map to cache resolved imports for reuse
-   * @returns Template with all `<import>` blocks resolved and replaced
+   * @returns Template with all `<g-import>` blocks resolved and replaced
    *
    * @example
    * ```typescript
-   * const template = '<import src="header" block="message" />\n<message>Main content</message>';
+   * const template = '<g-import src="header" block="message" />\n<g-message>Main content</g-message>';
    * const resolver = (src: string) => {
-   *   if (src === 'header') return '<message>Header text</message>';
+   *   if (src === 'header') return '<g-message>Header text</g-message>';
    *   return null;
    * };
-   * const result = TemplateEngine.processImportBlocks(template, resolver);
-   * // Result: '<message>Header text</message>\n<message>Main content</message>'
+   * const result = TemplateEngine.processGImportBlocks(template, resolver);
+   * // Result: '<g-message>Header text</g-message>\n<g-message>Main content</g-message>'
    * ```
    *
    * @public
    */
-  static processImportBlocks(template: string, resolver: (src: string) => string | null, depth = 0, importCache?: Map<string, string>): string {
+  static processGImportBlocks(template: string, resolver: (src: string) => string | null, depth = 0, importCache?: Map<string, string>): string {
     if (depth > 10) return `` // recursive limit
 
-    const {processed, imports} = this._processImportBlocks(template)
+    const {processed, imports} = this._processGImportBlocks(template)
 
     let result = processed
     for (let i = 0; i < imports.length; i++) {
@@ -1558,8 +1799,8 @@ export class TemplateEngine {
         resolved = content ? this._extractBlock(content, importInfo.blocks, importInfo.base, importInfo.section, importInfo.lang) : ``
 
         // Recursive process: resolve imports within the resolved content
-        if (resolved && resolved.includes(`<import`)) {
-          resolved = this.processImportBlocks(resolved, resolver, depth + 1, importCache)
+        if (resolved && resolved.includes(`<` + `g-import`)) {
+          resolved = this.processGImportBlocks(resolved, resolver, depth + 1, importCache)
         }
 
         if (importCache) {
@@ -1603,16 +1844,8 @@ export class TemplateEngine {
    */
   static validateNamesBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
-    const allowedBlockNames = new Set(
-      TemplateEngine.ALLOWED_BLOCKS.map((block) =>
-        block
-          .replace(/^<\/?/, ``)
-          .replace(/\s.*?>$/, ``)
-          .replace(/\/?>$/, ``)
-          .toLowerCase()
-      )
-    )
-    const passthroughTags = new Set([`b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`])
+    const allowedBlockNames = this._extractBlockNames(TemplateEngine.ALLOWED_BLOCKS)
+    const passthroughTags = this._extractBlockNames(TemplateEngine.ALLOWED_BLOCKS_TELEGRAM)
     const tagRegex = /<\/?\s*([a-z][\w-]*)(?:\s[^<>]*)?\/?\s*>/gi
 
     for (const match of template.matchAll(tagRegex)) {
@@ -1683,47 +1916,47 @@ export class TemplateEngine {
    * **Nesting hierarchy:**
    * ```
    * __root__
-   *   ├── base             (root level only)
-   *   │   ├── message      (content block)
-   *   │   │   ├── switch   (logic block)
+   *   ├── g-base             (root level only)
+   *   │   ├── g-message      (content block)
+   *   │   │   ├── g-switch   (logic block)
    *   │   │   │   ├── case
    *   │   │   │   └── default
-   *   │   │   ├── map      (logic block)
-   *   │   │   ├── script   (logic block)
-   *   │   │   └── space    (utility)
-   *   │   ├── keyboard     (content block)
-   *   │   │   ├── switch   (logic block)
-   *   │   │   │   ├── case
-   *   │   │   │   └── default
-   *   │   │   ├── map      (logic block)
-   *   │   │   ├── script   (logic block)
-   *   │   │   └── space    (utility)
-   *   │   ├── media        (content block)
-   *   │   │   ├── switch   (logic block)
-   *   │   │   │   ├── case
-   *   │   │   │   └── default
-   *   │   │   ├── map      (logic block)
-   *   │   │   ├── script   (logic block)
-   *   │   │   └── space    (utility)
-   *   │   ├── description  (content block)
-   *   │   │   ├── switch   (logic block)
-   *   │   │   │   ├── case
-   *   │   │   │   └── default
-   *   │   │   ├── map      (logic block)
-   *   │   │   ├── script   (logic block)
-   *   │   │   └── space    (utility)
-   *   │   ├── import       (utility)
-   *   │   ├── description  (utility)
-   *   │   ├── script       (logic block)
-   *   └   └── space        (utility)
+   *   │   │   ├── g-map      (logic block)
+   *   │   │   ├── g-script   (logic block)
+   *   │   │   └── g-space    (utility)
+   *   │   ├── g-keyboard     (content block)
+   *   │   │   ├── g-switch   (logic block)
+   *   │   │   │   ├── g-case
+   *   │   │   │   └── g-default
+   *   │   │   ├── g-map      (logic block)
+   *   │   │   ├── g-script   (logic block)
+   *   │   │   └── g-space    (utility)
+   *   │   ├── g-media        (content block)
+   *   │   │   ├── g-switch   (logic block)
+   *   │   │   │   ├── g-case
+   *   │   │   │   └── g-default
+   *   │   │   ├── g-map      (logic block)
+   *   │   │   ├── g-script   (logic block)
+   *   │   │   └── g-space    (utility)
+   *   │   ├── g-description  (content block)
+   *   │   │   ├── g-switch   (logic block)
+   *   │   │   │   ├── g-case
+   *   │   │   │   └── g-default
+   *   │   │   ├── g-map      (logic block)
+   *   │   │   ├── g-script   (logic block)
+   *   │   │   └── g-space    (utility)
+   *   │   ├── g-import       (utility)
+   *   │   ├── g-description  (utility)
+   *   │   ├── g-script       (logic block)
+   *   └   └── g-space        (utility)
    * ```
    *
    * **Enforced rules:**
-   * - `<base>` must be at the outermost level and cannot be nested inside any other block.
-   * - `<message>`, `<keyboard>`, `<media>`, `<media-group>`, `<description>`, `<import>`, `<script>`, `<space>` can only appear directly inside `<base>`.
-   * - `<media>` can also appear directly inside `<media-group>` as a group item.
-   * - `<switch>`, `<map>` can only appear inside `<message>`, `<keyboard>`, `<media>`, or `<description>`.
-   * - `<case>` and `<default>` can only appear inside `<switch>`.
+   * - `<g-base>` must be at the outermost level and cannot be nested inside any other block.
+   * - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`.
+   * - `<g-media>` can also appear directly inside `<g-media-group>` as a group item.
+   * - `<g-switch>`, `<g-map>` can only appear inside `<g-message>`, `<g-keyboard>`, `<g-media>`, or `<g-description>`.
+   * - `<g-case>` and `<g-default>` can only appear inside `<g-switch>`.
    * - Telegram formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`, `<blockquote expandable>`)
    *   are passthrough and ignored during validation.
    *
@@ -1735,22 +1968,22 @@ export class TemplateEngine {
    * ```typescript
    * // Valid template
    * const result = TemplateEngine.validatePositionsBlock(`
-   *   <base>
-   *     <message>Hello {{name}}!</message>
-   *     <keyboard>Yes, No</keyboard>
-   *   </base>
+   *   <g-base>
+   *     <g-message>Hello {{name}}!</g-message>
+   *     <g-keyboard>Yes, No</g-keyboard>
+   *   </g-base>
    * `);
    * // Result: { valid: true, errors: [] }
    *
-   * // Invalid: <base> nested inside <message>
+   * // Invalid: <g-base> nested inside <g-message>
    * const bad = TemplateEngine.validatePositionsBlock(`
-   *   <base>
-   *     <message>
-   *       <base>Nested base</base>
-   *     </message>
-   *   </base>
+   *   <g-base>
+   *     <g-message>
+   *       <g-base>Nested base</g-base>
+   *     </g-message>
+   *   </g-base>
    * `);
-   * // Result: { valid: false, errors: [{ line: 4, message: 'Block <base> is not allowed inside <message>' }] }
+   * // Result: { valid: false, errors: [{ line: 4, message: 'Block <g-base> is not allowed inside <g-message>' }] }
    * ```
    *
    * @public
@@ -1760,25 +1993,25 @@ export class TemplateEngine {
     const stack: Array<{block: string; line: number}> = []
 
     // Passthrough Telegram HTML tags that are not structural
-    const passthroughTags = new Set([`b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`])
+    const passthroughTags = this._extractBlockNames(TemplateEngine.ALLOWED_BLOCKS_TELEGRAM)
 
     // Allowed parent context for each structural block.
     // `__root__` represents the outermost level (outside any block).
     const allowedParents: Record<string, Set<string>> = {
-      base: new Set([`__root__`]),
-      message: new Set([`base`]),
-      keyboard: new Set([`base`]),
-      media: new Set([`base`, `media-group`]),
-      "media-group": new Set([`base`]),
-      description: new Set([`base`]),
-      switch: new Set([`message`, `keyboard`, `media`, `description`]),
-      case: new Set([`switch`]),
-      default: new Set([`switch`]),
-      map: new Set([`message`, `keyboard`, `media`, `description`]),
-      div: new Set([`base`, `message`, `description`, `keyboard`, `case`, `default`, `map`]),
-      script: new Set([`base`, `message`, `description`, `keyboard`, `case`, `default`, `map`, `div`]),
-      import: new Set([`base`]),
-      space: new Set([`base`, `message`, `description`, `keyboard`, `case`, `default`, `switch`, `map`, `div`])
+      "g-base": new Set([`__root__`]),
+      "g-message": new Set([`g-base`]),
+      "g-keyboard": new Set([`g-base`]),
+      "g-media": new Set([`g-base`, `g-media-group`]),
+      "g-media-group": new Set([`g-base`]),
+      "g-description": new Set([`g-base`]),
+      "g-switch": new Set([`g-message`, `g-keyboard`, `g-media`, `g-description`]),
+      "g-case": new Set([`g-switch`]),
+      "g-default": new Set([`g-switch`]),
+      "g-map": new Set([`g-message`, `g-keyboard`, `g-media`, `g-description`]),
+      "g-div": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-case`, `g-default`, `g-map`]),
+      "g-script": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-case`, `g-default`, `g-map`, `g-div`]),
+      "g-import": new Set([`g-base`]),
+      "g-space": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-case`, `g-default`, `g-switch`, `g-map`, `g-div`])
     }
 
     // Matches all HTML-like tags: <tagname>, <tagname attr="val">, </tagname>, <tagname />
@@ -1836,37 +2069,37 @@ export class TemplateEngine {
       errors.push({line: item.line, message: `Unclosed block <${item.block}>: missing closing tag </${item.block}>`})
     }
 
-    // Check for content outside <base> blocks.
-    // All template content must be enclosed in <base>...</base>.
+    // Check for content outside <g-base> blocks.
+    // All template content must be enclosed in <g-base>...</g-base>.
     if (errors.length === 0) {
       const baseBlocks: Array<{start: number; end: number}> = []
-      const baseTag = /<base\b[^>]*>[\s\S]*?<\/base>/g
+      const baseTag = /<g-base\b[^>]*>[\s\S]*?<\/g-base>/g
       let blockMatch: RegExpExecArray | null
       while ((blockMatch = baseTag.exec(template)) !== null) {
         baseBlocks.push({start: blockMatch.index, end: blockMatch.index + blockMatch[0].length})
       }
 
       if (baseBlocks.length === 0 && template.trim()) {
-        // No <base> block at all
-        errors.push({line: 1, message: `Missing <base> block: template content must be wrapped in <base>...</base>`})
+        // No <g-base> block at all
+        errors.push({line: 1, message: `Missing <g-base> block: template content must be wrapped in <g-base>...</g-base>`})
       } else {
-        // Check before first <base>
+        // Check before first <g-base>
         let prevEnd = 0
         for (const block of baseBlocks) {
           if (block.start > prevEnd) {
             const slice = template.slice(prevEnd, block.start)
             if (slice.trim()) {
               const line = (template.slice(0, prevEnd).match(/\n/g) || []).length + 1
-              errors.push({line, message: `Content found outside <base> block: move content inside a <base>...</base>`})
+              errors.push({line, message: `Content found outside <g-base> block: move content inside a <g-base>...</g-base>`})
               break
             }
           }
           prevEnd = block.end
         }
-        // Check after last </base>
+        // Check after last </g-base>
         if (errors.length === 0 && prevEnd < template.length && template.slice(prevEnd).trim()) {
           const line = (template.slice(0, prevEnd).match(/\n/g) || []).length + 1
-          errors.push({line, message: `Content found outside <base> block: move content inside a <base>...</base>`})
+          errors.push({line, message: `Content found outside <g-base> block: move content inside a <g-base>...</g-base>`})
         }
       }
     }
@@ -1884,16 +2117,18 @@ export class TemplateEngine {
    * This method checks that each block tag uses the correct syntax format:
    *
    * **Must be self-closing:**
-   * - `<space />` — whitespace control block
-   * - `<import ... />` — import directive block
+   * - `<g-space />` — whitespace control block
+   * - `<g-import ... />` — import directive block
+   * - `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>` — Telegram Rich HTML void elements
    *
    * **Must NOT be self-closing (must use open/close tags):**
-   * - `<base>...</base>`, `<message>...</message>`, `<keyboard>...</keyboard>`,
-   *   `<media>...</media>`, `<description>...</description>`, `<script>...</script>`,
-   *   `<switch>...</switch>`, `<case>...</case>`, `<default>...</default>`,
-   *   `<map>...</map>`, `<div>...</div>`
+   * - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`,
+   *   `<g-media>...</g-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
+   *   `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`,
+   *   `<g-map>...</g-map>`, `<g-div>...</g-div>`
    *
-   * Telegram HTML formatting tags passthrough and are ignored.
+   * Telegram HTML formatting tags with content (e.g. `<b>`, `<p>`, `<table>`) passthrough
+   * and are not format-checked — both `<b>text</b>` and `<b/>` are accepted.
    *
    * @param template - The raw template string to validate
    * @returns An object with a `valid` boolean and an `errors` array containing
@@ -1901,16 +2136,16 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateFormatBlock(`<space>content</space>`);
-   * // Result: { valid: false, errors: [{ line: 1, message: 'Block <space> must be self-closing: use <space /> instead' }] }
+   * const result = TemplateEngine.validateFormatBlock(`<g-space>content</g-space>`);
+   * // Result: { valid: false, errors: [{ line: 1, message: 'Block <g-space> must be self-closing: use <g-space /> instead' }] }
    * ```
    *
    * @public
    */
   static validateFormatBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
-    const selfClosingBlocks = new Set([`space`, `import`])
-    const regularBlocks = new Set([`base`, `message`, `keyboard`, `media`, `media-group`, `description`, `script`, `switch`, `case`, `default`, `map`, `div`])
+    const selfClosingBlocks = new Set([`space`, `import`, `hr`, `img`, `input`, `br`, `tg-map`])
+    const regularBlocks = new Set([`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-description`, `g-script`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`])
 
     const tagRegex = /<(\/?)(\w[\w-]*)([^>]*)>/g
     let match: RegExpExecArray | null
@@ -1949,7 +2184,7 @@ export class TemplateEngine {
    * Shared helper: validates attributes on a specific block tag.
    *
    * @param template - The raw template string
-   * @param tagName - Block tag name (e.g. `base`, `message`)
+   * @param tagName - Block tag name (e.g. `g-base`, `g-message`)
    * @param allowedAttributes - Set of allowed attribute names
    * @param allowedLabel - Text listing allowed attributes for error messages (e.g. `"id"`)
    * @param valueValidators - Optional per-attribute value validators; return error message or null
@@ -1992,7 +2227,410 @@ export class TemplateEngine {
   }
 
   /**
-   * Validates attributes on `<base>` blocks.
+   * Scans a template for Telegram Rich HTML tags that are missing required attributes.
+   *
+   * @remarks
+   * Iterates every opening tag in the template and, for any tag listed in
+   * {@link TemplateEngine._TELEGRAM_REQUIRED_ATTRS}, checks that the required
+   * attribute set is fully present. Both value attributes (`href="..."`) and
+   * boolean attributes (`checked`, `reversed`, `open`) are recognized.
+   *
+   * For tags with `oneOf` spec (e.g. `<a>`), at least one of the listed sets
+   * must be fully present. Returns one error per offending tag with the 1-based
+   * line number.
+   *
+   * @param template - The raw template string to scan
+   * @returns Array of `{line, message}` errors (empty if all required attrs are present)
+   *
+   * @example
+   * ```typescript
+   * const errors = TemplateEngine._validateTelegramTagAttributes(`
+   *   <a>link</a>
+   *   <img src="x.png"/>
+   *   <tg-time unix="1" format="wDT">x</tg-time>
+   * `);
+   * // => [{line: 2, message: "<a> must have one of: href | name"}]
+   * ```
+   *
+   * @public
+   */
+  static _validateTelegramTagAttributes(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const tagRegex = /<(\w[\w-]*)([^>]*?)\/?>/g
+    let match: RegExpExecArray | null
+
+    while ((match = tagRegex.exec(template)) !== null) {
+      const tagName = match[1]!.toLowerCase()
+      const attrsStr = match[2] ?? ``
+      const tagDisplay = match[0]!.endsWith(`/>`) ? `<${tagName}/>` : `<${tagName}>`
+
+      const spec = this._TELEGRAM_REQUIRED_ATTRS[tagName]
+      if (!spec) continue
+
+      // Extract attribute names: both `name="value"` and boolean `name`
+      const attrNames = new Set<string>()
+      const attrRegex = /([\w-]+)(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/g
+      let am: RegExpExecArray | null
+      while ((am = attrRegex.exec(attrsStr)) !== null) {
+        attrNames.add(am[1]!.toLowerCase())
+      }
+
+      const line = (template.slice(0, match.index).match(/\n/g) || []).length + 1
+
+      if (Array.isArray(spec)) {
+        const missing = spec.filter((a) => !attrNames.has(a))
+        if (missing.length > 0) {
+          errors.push({line, message: `${tagDisplay} is missing required attribute(s): ${missing.join(`, `)}`})
+        }
+      } else {
+        const matched = spec.oneOf.find((set) => set.every((a) => attrNames.has(a)))
+        if (!matched) {
+          const alternatives = spec.oneOf.map((set) => set.join(` + `)).join(` | `)
+          errors.push({line, message: `<${tagName}> must have one of: ${alternatives}`})
+        }
+      }
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates that Telegram Rich HTML tags in the template carry their required attributes.
+   *
+   * @remarks
+   * Telegram tags with required attributes (per the Rich HTML spec) are checked:
+   * `<a>` (href or name), `<img/>`, `<video>`, `<audio>` (src), `<tg-emoji>`
+   * (emoji-id), `<tg-time>` (unix, format), `<tg-map/>` (lat, long, zoom),
+   * `<tg-reference>` (name), `<input/>` (type). For `<a>`, at least one of
+   * `href` (link) or `name` (anchor) must be present.
+   *
+   * Tags without required attributes (e.g. `<b>`, `<table>`, `<p>`) are not
+   * checked. See {@link TemplateEngine._TELEGRAM_REQUIRED_ATTRS} for the full spec.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateTelegramAttributesBlock(`
+   *   <g-base>
+   *     <g-message><a href="https://t.me/">link</a></g-message>
+   *   </g-base>
+   * `);
+   * // Result: { valid: true, errors: [] }
+   *
+   * const bad = TemplateEngine.validateTelegramAttributesBlock(`
+   *   <g-base>
+   *     <g-message><a>broken</a></g-message>
+   *   </g-base>
+   * `);
+   * // Result: { valid: false, errors: [{ line: 3, message: '<a> must have one of: href | name' }] }
+   * ```
+   *
+   * @public
+   */
+  static validateTelegramAttributesBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateTelegramTagAttributes(template)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Scans a template for Telegram Rich HTML tags whose attribute values fail format checks.
+   *
+   * @remarks
+   * For every tag in {@link TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS},
+   * each present attribute is extracted and run through its validator. Boolean
+   * attributes (without `=value`) are skipped. Only attributes with value
+   * declarations are checked. Missing required attributes are NOT reported here
+   * — that is {@link TemplateEngine._validateTelegramTagAttributes}'s job.
+   *
+   * @param template - The raw template string to scan
+   * @returns Array of `{line, message}` errors (empty if all values are valid)
+   *
+   * @example
+   * ```typescript
+   * const errors = TemplateEngine._validateTelegramTagAttributeValues(`
+   *   <tg-time unix="abc" format="wDT">x</tg-time>
+   *   <a href="javascript:alert(1)">x</a>
+   * `);
+   * // => [
+   * //   {line: 2, message: '<tg-time> unix must be a positive integer (got "abc")'},
+   * //   {line: 3, message: '<a> href must use http(s)://, mailto:, tel:, tg://, or # scheme (got "javascript:alert(1)")'}
+   * // ]
+   * ```
+   *
+   * @public
+   */
+  static _validateTelegramTagAttributeValues(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const tagRegex = /<(\w[\w-]*)([^>]*?)\/?>/g
+    let match: RegExpExecArray | null
+
+    while ((match = tagRegex.exec(template)) !== null) {
+      const tagName = match[1]!.toLowerCase()
+      const attrsStr = match[2] ?? ``
+      const tagDisplay = match[0]!.endsWith(`/>`) ? `<${tagName}/>` : `<${tagName}>`
+
+      const validators = this._TELEGRAM_ATTR_VALUE_VALIDATORS[tagName]
+      if (!validators) continue
+
+      // Extract `name="value"` / `name='value'` / `name=value` pairs
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+))/g
+      let am: RegExpExecArray | null
+      while ((am = attrRegex.exec(attrsStr)) !== null) {
+        const attrName = am[1]!.toLowerCase()
+        const attrValue = am[2] ?? am[3] ?? am[4] ?? ``
+        // Skip pure template variable placeholders — they're substituted at compile time
+        if (/^\{\{[\w-]+\}\}$/.test(attrValue)) continue
+        const validator = validators[attrName]
+        if (!validator) continue
+
+        const error = validator(attrValue)
+        if (error) {
+          const line = (template.slice(0, match.index).match(/\n/g) || []).length + 1
+          errors.push({line, message: `${tagDisplay} ${error}`})
+        }
+      }
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates that Telegram Rich HTML tag attribute values match their expected formats.
+   *
+   * @remarks
+   * Runs after {@link TemplateEngine.validateTelegramAttributesBlock} (which checks
+   * presence) to catch format-level issues. Validates:
+   * - `<tg-time unix>` must be a positive integer; `<tg-time format>` must be non-empty
+   * - `<tg-map lat>` ∈ [-90, 90], `<tg-map long>` ∈ [-180, 180], `<tg-map zoom>` ∈ [0, 24]
+   * - `<tg-emoji emoji-id>` must be a numeric string
+   * - `<a href>` must use http(s)://, mailto:, tel:, tg://, or # scheme
+   * - `<input type>` must be a known HTML input type
+   *
+   * Tags without value validators (e.g. `<b>`, `<p>`, `<table>`) are skipped.
+   * See {@link TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS} for the full spec.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateTelegramAttributeValuesBlock(`
+   *   <g-base>
+   *     <g-message><tg-time unix="1647531900" format="wDT">22:45</tg-time></g-message>
+   *   </g-base>
+   * `);
+   * // Result: { valid: true, errors: [] }
+   *
+   * const bad = TemplateEngine.validateTelegramAttributeValuesBlock(`
+   *   <g-base>
+   *     <g-message><tg-time unix="abc" format="wDT">x</tg-time></g-message>
+   *   </g-base>
+   * `);
+   * // Result: { valid: false, errors: [{ line: 3, message: '<tg-time> unix must be a positive integer (got "abc")' }] }
+   * ```
+   *
+   * @public
+   */
+  static validateTelegramAttributeValuesBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateTelegramTagAttributeValues(template)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Scans a template for `<g-*>` PAGE blocks that are missing required attributes.
+   *
+   * @remarks
+   * Iterates every opening tag in the template and, for any tag listed in
+   * {@link TemplateEngine._PAGE_REQUIRED_ATTRS}, checks that the required
+   * attribute set is fully present. Both value attributes (`href="..."`) and
+   * boolean attributes (`checked`, `reversed`, `open`) are recognized.
+   *
+   * For tags with `oneOf` spec, at least one of the listed sets must be
+   * fully present. Returns one error per offending tag with the 1-based
+   * line number.
+   *
+   * @param template - The raw template string to scan
+   * @returns Array of `{line, message}` errors (empty if all required attrs are present)
+   *
+   * @example
+   * ```typescript
+   * const errors = TemplateEngine._validatePageTagAttributes(`<g-base id=""></g-base>`);
+   * // => [{line: 1, message: "<g-base> is missing required attribute(s): id"}]  (if id is in spec)
+   * ```
+   *
+   * @public
+   */
+  static _validatePageTagAttributes(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const tagRegex = /<(\w[\w-]*)([^>]*?)\/?>/g
+    let match: RegExpExecArray | null
+
+    while ((match = tagRegex.exec(template)) !== null) {
+      const tagName = match[1]!.toLowerCase()
+      const attrsStr = match[2] ?? ``
+      const tagDisplay = match[0]!.endsWith(`/>`) ? `<${tagName}/>` : `<${tagName}>`
+
+      const spec = this._TELEGRAM_REQUIRED_ATTRS[tagName]
+      if (!spec) continue
+
+      // Extract attribute names: both `name="value"` and boolean `name`
+      const attrNames = new Set<string>()
+      const attrRegex = /([\w-]+)(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/g
+      let am: RegExpExecArray | null
+      while ((am = attrRegex.exec(attrsStr)) !== null) {
+        attrNames.add(am[1]!.toLowerCase())
+      }
+
+      const line = (template.slice(0, match.index).match(/\n/g) || []).length + 1
+
+      if (Array.isArray(spec)) {
+        const missing = spec.filter((a) => !attrNames.has(a))
+        if (missing.length > 0) {
+          errors.push({line, message: `${tagDisplay} is missing required attribute(s): ${missing.join(`, `)}`})
+        }
+      } else {
+        const matched = spec.oneOf.find((set) => set.every((a) => attrNames.has(a)))
+        if (!matched) {
+          const alternatives = spec.oneOf.map((set) => set.join(` + `)).join(` | `)
+          errors.push({line, message: `${tagDisplay} must have one of: ${alternatives}`})
+        }
+      }
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates that `<g-*>` PAGE blocks in the template carry their required attributes.
+   *
+   * @remarks
+   * PAGE block attributes are mostly optional, so {@link TemplateEngine._PAGE_REQUIRED_ATTRS}
+   * is currently empty. This method exists to mirror the Telegram validation pattern
+   * (`validateTelegramAttributesBlock`) and is reserved for future use — e.g. context-dependent
+   * requirements that may be added as the framework evolves.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validatePageAttributesBlock(`<g-base id="main"></g-base>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validatePageAttributesBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validatePageTagAttributes(template)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Scans a template for `<g-*>` PAGE blocks whose attribute values fail format checks.
+   *
+   * @remarks
+   * For every tag in {@link TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS}, each
+   * present attribute is extracted and run through its validator. Boolean
+   * attributes (without `=value`) are skipped. Only attributes with value
+   * declarations are checked. Missing required attributes are NOT reported
+   * here — that is {@link TemplateEngine._validatePageTagAttributes}'s job.
+   *
+   * @param template - The raw template string to scan
+   * @returns Array of `{line, message}` errors (empty if all values are valid)
+   *
+   * @example
+   * ```typescript
+   * const errors = TemplateEngine._validatePageTagAttributeValues(`
+   *   <g-keyboard type="sidebar">A, B</g-keyboard>
+   *   <g-media type="unknown" src="x.jpg"/>
+   * `);
+   * // => [
+   * //   {line: 2, message: 'Attribute "type" on <g-keyboard> must be "inline" or "bottom", got "sidebar"'},
+   * //   {line: 3, message: 'Attribute "type" on <g-media> must be one of: photo, video, ..., got "unknown"'}
+   * // ]
+   * ```
+   *
+   * @public
+   */
+  static _validatePageTagAttributeValues(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const tagRegex = /<(\w[\w-]*)([^>]*?)\/?>/g
+    let match: RegExpExecArray | null
+
+    while ((match = tagRegex.exec(template)) !== null) {
+      const tagName = match[1]!.toLowerCase()
+      const attrsStr = match[2] ?? ``
+
+      const validators = this._PAGE_ATTR_VALUE_VALIDATORS[tagName]
+      if (!validators) continue
+
+      // Extract `name="value"` / `name='value'` / `name=value` pairs
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+))/g
+      let am: RegExpExecArray | null
+      while ((am = attrRegex.exec(attrsStr)) !== null) {
+        const attrName = am[1]!.toLowerCase()
+        const attrValue = am[2] ?? am[3] ?? am[4] ?? ``
+        // Skip pure template variable placeholders — they're substituted at compile time
+        if (/^\{\{[\w-]+\}\}$/.test(attrValue)) continue
+        const validator = validators[attrName]
+        if (!validator) continue
+
+        const error = validator(attrValue)
+        if (error) {
+          const line = (template.slice(0, match.index).match(/\n/g) || []).length + 1
+          errors.push({line, message: error})
+        }
+      }
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates that `<g-*>` PAGE block attribute values match their expected formats.
+   *
+   * @remarks
+   * Runs after `TemplateEngine.validateBlockG*Attributes` (which check
+   * allowed attrs) to catch format-level issues. Currently validates:
+   * - `<g-base id>` — must not be empty
+   * - `<g-keyboard type>` — must be `inline` or `bottom`
+   * - `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video_note, sticker, location, contact
+   * - `<g-media shared>` — must be `true` or `false`
+   *
+   * Tags without value validators (e.g. `<g-message>`, `<g-script>`, `<g-div>`) are
+   * skipped. See {@link TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS} for the full spec.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validatePageAttributeValuesBlock(`
+   *   <g-base>
+   *     <g-keyboard type="inline">A, B</g-keyboard>
+   *   </g-base>
+   * `);
+   * // Result: { valid: true, errors: [] }
+   *
+   * const bad = TemplateEngine.validatePageAttributeValuesBlock(`
+   *   <g-base>
+   *     <g-keyboard type="sidebar">A, B</g-keyboard>
+   *   </g-base>
+   * `);
+   * // Result: { valid: false, errors: [{ line: 3, message: 'Attribute "type" on <g-keyboard> must be "inline" or "bottom", got "sidebar"' }] }
+   * ```
+   *
+   * @public
+   */
+  static validatePageAttributeValuesBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validatePageTagAttributeValues(template)
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes on `<g-base>` blocks.
    *
    * @remarks
    * The only allowed attribute is `id`.
@@ -2002,21 +2640,19 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockBaseAttributes(`<base id="main"></base>`);
+   * const result = TemplateEngine.validateBlockGBaseAttributes(`<g-base id="main"></g-base>`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockBaseAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `base`, new Set([`id`]), `"id"`, {
-      id: (v) => (v ? null : `Attribute "id" on <base> must not be empty`)
-    })
+  static validateBlockGBaseAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-base`, new Set([`id`]), `"id"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-base`])
     return {valid: errors.length === 0, errors}
   }
 
   /**
-   * Validates attributes on `<message>` blocks.
+   * Validates attributes on `<g-message>` blocks.
    *
    * @remarks
    * The only allowed attribute is `lang`.
@@ -2026,19 +2662,19 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockMessageAttributes(`<message lang="en">Hi</message>`);
+   * const result = TemplateEngine.validateBlockGMessageAttributes(`<g-message lang="en">Hi</g-message>`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockMessageAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `message`, new Set([`lang`]), `"lang"`)
+  static validateBlockGMessageAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-message`, new Set([`lang`]), `"lang"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-message`])
     return {valid: errors.length === 0, errors}
   }
 
   /**
-   * Validates attributes on `<keyboard>` blocks.
+   * Validates attributes on `<g-keyboard>` blocks.
    *
    * @remarks
    * Allowed attributes are `lang` and `type`.
@@ -2048,21 +2684,19 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard type="bottom">A, B</keyboard>`);
+   * const result = TemplateEngine.validateBlockGKeyboardAttributes(`<g-keyboard type="bottom">A, B</g-keyboard>`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockKeyboardAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `keyboard`, new Set([`lang`, `type`]), `"lang" and "type"`, {
-      type: (v) => (v === `inline` || v === `bottom` ? null : `Attribute "type" on <keyboard> must be "inline" or "bottom", got "${v}"`)
-    })
+  static validateBlockGKeyboardAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-keyboard`, new Set([`lang`, `type`]), `"lang" and "type"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-keyboard`])
     return {valid: errors.length === 0, errors}
   }
 
   /**
-   * Validates attributes on `<media>` blocks.
+   * Validates attributes on `<g-media>` blocks.
    *
    * @remarks
    * Allowed attributes are `lang`, `type`, `src`, `shared`, `latitude`, `longitude`,
@@ -2070,39 +2704,41 @@ export class TemplateEngine {
    *
    * `shared` is a boolean attribute — it can be written as `shared`, `shared="true"`,
    * or `shared="false"`. When `true`, the media item is included in all language
-   * variants of the enclosing `<media-group>`. Only valid inside `<media-group>`.
+   * variants of the enclosing `<g-media-group>`. Only valid inside `<g-media-group>`.
    *
    * @param template - The raw template string to validate
    * @returns An object with a `valid` boolean and an `errors` array
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockMediaAttributes(`<media type="photo" src="img.jpg">Caption</media>`);
+   * const result = TemplateEngine.validateBlockGMediaAttributes(`<g-media type="photo" src="img.jpg">Caption</g-media>`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockMediaAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const validTypes = new Set([`photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, `sticker`, `location`, `contact`])
-    const errors = this._validateBlockAttributes(template, `media`, new Set([`lang`, `type`, `src`, `shared`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, `vcard`]), `"lang", "type", "src", "shared", "latitude", "longitude", "phone", "first_name", "last_name", and "vcard"`, {
-      type: (v) => (validTypes.has(v) ? null : `Attribute "type" on <media> must be one of: ${[...validTypes].join(`, `)}, got "${v}"`),
-      shared: (v) => (v === `true` || v === `false` ? null : `Attribute "shared" on <media> must be "true" or "false", got "${v}"`)
-    })
+  static validateBlockGMediaAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(
+      template,
+      `g-media`,
+      new Set([`lang`, `type`, `src`, `shared`, `latitude`, `longitude`, `phone`, `first_name`, `last_name`, `vcard`]),
+      `"lang", "type", "src", "shared", "latitude", "longitude", "phone", "first_name", "last_name", and "vcard"`,
+      this._PAGE_ATTR_VALUE_VALIDATORS[`g-media`]
+    )
     return {valid: errors.length === 0, errors}
   }
 
-  /** Validates attributes and item constraints on `<media-group>` blocks. */
-  static validateBlockMediaGroupAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `media-group`, new Set([`lang`]), `"lang"`)
+  /** Validates attributes and item constraints on `<g-media-group>` blocks. */
+  static validateBlockGMediaGroupAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-media-group`, new Set([`lang`]), `"lang"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-media-group`])
     errors.push(...this._validateMediaGroupItems(template))
     return {valid: errors.length === 0, errors}
   }
 
   private static _validateMediaGroupItems(template: string): Array<{line: number; message: string}> {
     const errors: Array<{line: number; message: string}> = []
-    const mediaGroupRegex = /<media-group(?:\s+[^>]*)?>([\s\S]*?)<\/media-group>/gi
-    const mediaRegex = /<media(?:\s+([^>]*))?>([\s\S]*?)<\/media>/gi
+    const mediaGroupRegex = /<g-media-group(?:\s+[^>]*)?>([\s\S]*?)<\/g-media-group>/gi
+    const mediaRegex = /<g-media(?:\s+([^>]*))?>([\s\S]*?)<\/g-media>/gi
     const supportedTypes = new Set([`photo`, `video`, `audio`, `document`])
 
     for (const groupMatch of template.matchAll(mediaGroupRegex)) {
@@ -2119,27 +2755,27 @@ export class TemplateEngine {
         const src = attrsStr.match(/\bsrc\s*=\s*"([^"]*)"/)?.[1]
 
         if (!type || !supportedTypes.has(type)) {
-          errors.push({line, message: `Attribute "type" on <media> inside <media-group> must be one of: photo, video, audio, document`})
+          errors.push({line, message: `Attribute "type" on <g-media> inside <g-media-group> must be one of: photo, video, audio, document`})
           continue
         }
         if (!src) {
-          errors.push({line, message: `Attribute "src" on <media> inside <media-group> is required`})
+          errors.push({line, message: `Attribute "src" on <g-media> inside <g-media-group> is required`})
         }
         itemTypes.push(type)
       }
 
       if (itemCount === 0) {
-        errors.push({line: groupLine, message: `<media-group> must contain at least one <media> item`})
+        errors.push({line: groupLine, message: `<g-media-group> must contain at least one <g-media> item`})
       }
       if (itemCount > this.MAX_MEDIA_GROUP_ITEMS) {
-        errors.push({line: groupLine, message: `<media-group> must contain at most ${this.MAX_MEDIA_GROUP_ITEMS} <media> items`})
+        errors.push({line: groupLine, message: `<g-media-group> must contain at most ${this.MAX_MEDIA_GROUP_ITEMS} <g-media> items`})
       }
       const uniqueTypes = new Set(itemTypes)
       if (uniqueTypes.has(`audio`) && uniqueTypes.size > 1) {
-        errors.push({line: groupLine, message: `<media-group> with audio items can only contain audio items`})
+        errors.push({line: groupLine, message: `<g-media-group> with audio items can only contain audio items`})
       }
       if (uniqueTypes.has(`document`) && uniqueTypes.size > 1) {
-        errors.push({line: groupLine, message: `<media-group> with document items can only contain document items`})
+        errors.push({line: groupLine, message: `<g-media-group> with document items can only contain document items`})
       }
     }
 
@@ -2147,7 +2783,7 @@ export class TemplateEngine {
   }
 
   /**
-   * Validates attributes on `<description>` blocks.
+   * Validates attributes on `<g-description>` blocks.
    *
    * @remarks
    * Allowed attributes are `lang` and `scope`.
@@ -2157,41 +2793,41 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockDescriptionAttributes(`<description scope="chat_administrators">Admin cmd</description>`);
+   * const result = TemplateEngine.validateBlockGDescriptionAttributes(`<g-description scope="chat_administrators">Admin cmd</g-description>`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockDescriptionAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `description`, new Set([`lang`, `scope`]), `"lang" and "scope"`)
+  static validateBlockGDescriptionAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-description`, new Set([`lang`, `scope`]), `"lang" and "scope"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-description`])
     return {valid: errors.length === 0, errors}
   }
 
   /**
-   * Validates attributes on `<script>` blocks.
+   * Validates attributes on `<g-script>` blocks.
    *
    * @remarks
-   * No attributes are allowed on `<script>` blocks.
+   * No attributes are allowed on `<g-script>` blocks.
    *
    * @param template - The raw template string to validate
    * @returns An object with a `valid` boolean and an `errors` array
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockScriptAttributes(`<script>return x;</script>`);
+   * const result = TemplateEngine.validateBlockGScriptAttributes(`<g-script>return x;</g-script>`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockScriptAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `script`, new Set(), ``)
+  static validateBlockGScriptAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-script`, new Set(), ``, this._PAGE_ATTR_VALUE_VALIDATORS[`g-script`])
     return {valid: errors.length === 0, errors}
   }
 
   /**
-   * Validates attributes on `<switch>` blocks.
+   * Validates attributes on `<g-switch>` blocks.
    *
    * @remarks
    * The only allowed attribute is `value`.
@@ -2201,19 +2837,19 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockSwitchAttributes(`<switch value="status">...</switch>`);
+   * const result = TemplateEngine.validateBlockGSwitchAttributes(`<g-switch value="status">...</g-switch>`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockSwitchAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `switch`, new Set([`value`]), `"value"`)
+  static validateBlockGSwitchAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-switch`, new Set([`value`]), `"value"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-switch`])
     return {valid: errors.length === 0, errors}
   }
 
   /**
-   * Validates attributes on `<case>` blocks.
+   * Validates attributes on `<g-case>` blocks.
    *
    * @remarks
    * The only allowed attribute is `is`.
@@ -2223,41 +2859,41 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockCaseAttributes(`<case is="active">Active</case>`);
+   * const result = TemplateEngine.validateBlockGCaseAttributes(`<g-case is="active">Active</g-case>`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockCaseAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `case`, new Set([`is`]), `"is"`)
+  static validateBlockGCaseAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-case`, new Set([`is`]), `"is"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-case`])
     return {valid: errors.length === 0, errors}
   }
 
   /**
-   * Validates attributes on `<default>` blocks.
+   * Validates attributes on `<g-default>` blocks.
    *
    * @remarks
-   * No attributes are allowed on `<default>` blocks.
+   * No attributes are allowed on `<g-default>` blocks.
    *
    * @param template - The raw template string to validate
    * @returns An object with a `valid` boolean and an `errors` array
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockDefaultAttributes(`<default>Unknown</default>`);
+   * const result = TemplateEngine.validateBlockGDefaultAttributes(`<g-default>Unknown</g-default>`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockDefaultAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `default`, new Set(), ``)
+  static validateBlockGDefaultAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-default`, new Set(), ``, this._PAGE_ATTR_VALUE_VALIDATORS[`g-default`])
     return {valid: errors.length === 0, errors}
   }
 
   /**
-   * Validates attributes on `<map>` blocks.
+   * Validates attributes on `<g-map>` blocks.
    *
    * @remarks
    * Allowed attributes are `src` and `join`.
@@ -2267,41 +2903,41 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockMapAttributes(`<map src="items" join=", ">{{e}}</map>`);
+   * const result = TemplateEngine.validateBlockGMapAttributes(`<g-map src="items" join=", ">{{e}}</g-map>`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockMapAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `map`, new Set([`src`, `join`]), `"src" and "join"`)
+  static validateBlockGMapAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-map`, new Set([`src`, `join`]), `"src" and "join"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-map`])
     return {valid: errors.length === 0, errors}
   }
 
   /**
-   * Validates attributes on `<div>` blocks.
+   * Validates attributes on `<g-div>` blocks.
    *
    * @remarks
-   * No attributes are allowed on `<div>` blocks.
+   * No attributes are allowed on `<g-div>` blocks.
    *
    * @param template - The raw template string to validate
    * @returns An object with a `valid` boolean and an `errors` array
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockDivAttributes(`<div>content</div>`);
+   * const result = TemplateEngine.validateBlockGDivAttributes(`<g-div>content</g-div>`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockDivAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `div`, new Set(), ``)
+  static validateBlockGDivAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-div`, new Set(), ``, this._PAGE_ATTR_VALUE_VALIDATORS[`g-div`])
     return {valid: errors.length === 0, errors}
   }
 
   /**
-   * Validates attributes on `<import>` blocks.
+   * Validates attributes on `<g-import>` blocks.
    *
    * @remarks
    * Allowed attributes are `src`, `block`, `base`, `lang`, and `section`.
@@ -2311,36 +2947,36 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockImportAttributes(`<import src="other" block="message" />`);
+   * const result = TemplateEngine.validateBlockGImportAttributes(`<g-import src="other" block="message" />`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockImportAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `import`, new Set([`src`, `block`, `base`, `lang`, `section`]), `"src", "block", "base", "lang", and "section"`)
+  static validateBlockGImportAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-import`, new Set([`src`, `block`, `base`, `lang`, `section`]), `"src", "block", "base", "lang", and "section"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-import`])
     return {valid: errors.length === 0, errors}
   }
 
   /**
-   * Validates attributes on `<space>` blocks.
+   * Validates attributes on `<g-space>` blocks.
    *
    * @remarks
-   * No attributes are allowed on `<space>` blocks.
+   * No attributes are allowed on `<g-space>` blocks.
    *
    * @param template - The raw template string to validate
    * @returns An object with a `valid` boolean and an `errors` array
    *
    * @example
    * ```typescript
-   * const result = TemplateEngine.validateBlockSpaceAttributes(`<space />`);
+   * const result = TemplateEngine.validateBlockGSpaceAttributes(`<g-space />`);
    * // Result: { valid: true, errors: [] }
    * ```
    *
    * @public
    */
-  static validateBlockSpaceAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const errors = this._validateBlockAttributes(template, `space`, new Set(), ``)
+  static validateBlockGSpaceAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-space`, new Set(), ``, this._PAGE_ATTR_VALUE_VALIDATORS[`g-space`])
     return {valid: errors.length === 0, errors}
   }
 
@@ -2354,19 +2990,24 @@ export class TemplateEngine {
    * 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known
    * 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax
    * 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules
-   * 5. {@link TemplateEngine.validateBlockBaseAttributes} — checks `<base>` block attributes
-   * 6. {@link TemplateEngine.validateBlockMessageAttributes} — checks `<message>` block attributes
-   * 7. {@link TemplateEngine.validateBlockKeyboardAttributes} — checks `<keyboard>` block attributes
-   * 8. {@link TemplateEngine.validateBlockMediaAttributes} — checks `<media>` block attributes
-   * 9. {@link TemplateEngine.validateBlockDescriptionAttributes} — checks `<description>` block attributes
-   * 10. {@link TemplateEngine.validateBlockScriptAttributes} — checks `<script>` block attributes
-   * 11. {@link TemplateEngine.validateBlockSwitchAttributes} — checks `<switch>` block attributes
-   * 12. {@link TemplateEngine.validateBlockCaseAttributes} — checks `<case>` block attributes
-   * 13. {@link TemplateEngine.validateBlockDefaultAttributes} — checks `<default>` block attributes
-   * 14. {@link TemplateEngine.validateBlockMapAttributes} — checks `<map>` block attributes
-   * 15. {@link TemplateEngine.validateBlockDivAttributes} — checks `<div>` block attributes
-   * 16. {@link TemplateEngine.validateBlockImportAttributes} — checks `<import>` block attributes
-   * 17. {@link TemplateEngine.validateBlockSpaceAttributes} — checks `<space>` block attributes
+   * 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags
+   * 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes
+   * 7. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes
+   * 8. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes
+   * 9. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes
+   * 10. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes
+   * 11. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
+   * 12. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
+   * 13. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
+   * 14. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
+   * 15. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
+   * 16. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
+   * 17. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
+   * 18. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
+   * 19. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
+   * 20. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
+   * 21. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+   * 22. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *
@@ -2377,9 +3018,9 @@ export class TemplateEngine {
    * @example
    * ```typescript
    * const result = TemplateEngine.validateTemplate(`
-   *   <base>
-   *     <message>Hello {{name}}!</message>
-   *   </base>
+   *   <g-base>
+   *     <g-message>Hello {{name}}!</g-message>
+   *   </g-base>
    * `);
    * // Result: { valid: true, errors: [] }
    * ```
@@ -2391,26 +3032,32 @@ export class TemplateEngine {
     const scopesResult = this.validateScopes(template)
     const formatResult = this.validateFormatBlock(template)
     const positionsResult = this.validatePositionsBlock(template)
-    const baseAttrResult = this.validateBlockBaseAttributes(template)
-    const messageAttrResult = this.validateBlockMessageAttributes(template)
-    const keyboardAttrResult = this.validateBlockKeyboardAttributes(template)
-    const mediaAttrResult = this.validateBlockMediaAttributes(template)
-    const mediaGroupAttrResult = this.validateBlockMediaGroupAttributes(template)
-    const descriptionAttrResult = this.validateBlockDescriptionAttributes(template)
-    const scriptAttrResult = this.validateBlockScriptAttributes(template)
-    const switchAttrResult = this.validateBlockSwitchAttributes(template)
-    const caseAttrResult = this.validateBlockCaseAttributes(template)
-    const defaultAttrResult = this.validateBlockDefaultAttributes(template)
-    const mapAttrResult = this.validateBlockMapAttributes(template)
-    const divAttrResult = this.validateBlockDivAttributes(template)
-    const importAttrResult = this.validateBlockImportAttributes(template)
-    const spaceAttrResult = this.validateBlockSpaceAttributes(template)
+    const telegramAttrResult = this.validateTelegramAttributesBlock(template)
+    const telegramValueResult = this.validateTelegramAttributeValuesBlock(template)
+    const baseAttrResult = this.validateBlockGBaseAttributes(template)
+    const messageAttrResult = this.validateBlockGMessageAttributes(template)
+    const keyboardAttrResult = this.validateBlockGKeyboardAttributes(template)
+    const mediaAttrResult = this.validateBlockGMediaAttributes(template)
+    const mediaGroupAttrResult = this.validateBlockGMediaGroupAttributes(template)
+    const descriptionAttrResult = this.validateBlockGDescriptionAttributes(template)
+    const scriptAttrResult = this.validateBlockGScriptAttributes(template)
+    const switchAttrResult = this.validateBlockGSwitchAttributes(template)
+    const caseAttrResult = this.validateBlockGCaseAttributes(template)
+    const defaultAttrResult = this.validateBlockGDefaultAttributes(template)
+    const mapAttrResult = this.validateBlockGMapAttributes(template)
+    const divAttrResult = this.validateBlockGDivAttributes(template)
+    const importAttrResult = this.validateBlockGImportAttributes(template)
+    const spaceAttrResult = this.validateBlockGSpaceAttributes(template)
+    const pageAttrResult = this.validatePageAttributesBlock(template)
+    const pageValueResult = this.validatePageAttributeValuesBlock(template)
 
     const errors = [
       ...blockNamesResult.errors,
       ...scopesResult.errors,
       ...formatResult.errors,
       ...positionsResult.errors,
+      ...telegramAttrResult.errors,
+      ...telegramValueResult.errors,
       ...baseAttrResult.errors,
       ...messageAttrResult.errors,
       ...keyboardAttrResult.errors,
@@ -2424,7 +3071,9 @@ export class TemplateEngine {
       ...mapAttrResult.errors,
       ...divAttrResult.errors,
       ...importAttrResult.errors,
-      ...spaceAttrResult.errors
+      ...spaceAttrResult.errors,
+      ...pageAttrResult.errors,
+      ...pageValueResult.errors
     ]
 
     return {

@@ -36,23 +36,23 @@ export class RandomNumberPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>🎲 Shake, ${this.kbl.back.default}</keyboard>
-      <keyboard lang="id">🎲 Kocok, ${this.kbl.back.id}</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>🎲 Shake, ${this.kbl.back.default}</g-keyboard>
+      <g-keyboard lang="id">🎲 Kocok, ${this.kbl.back.id}</g-keyboard>
+      <g-message>
         <b>🎰 Random Number</b>
 
         {{result}}
 
         Generated automatically based SCALE 18.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         <b>🎰 Angka Acak</b>
 
         {{result}}
 
         Dihasilkan secara otomatis berdasarkan SCALE 18.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

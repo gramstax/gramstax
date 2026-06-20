@@ -32,10 +32,10 @@ class StartPage extends Ctx {
   }
 
   static template = `
-    <base>
-      <keyboard>Button 1, Button 2</keyboard>
-      <message>Hello {{name}}!</message>
-    </base>
+    <g-base>
+      <g-keyboard>Button 1, Button 2</g-keyboard>
+      <g-message>Hello {{name}}!</g-message>
+    </g-base>
   `
 }
 ```
@@ -56,12 +56,12 @@ class StartPage extends Ctx {
   }
 
   static template = `
-    <base id="special-kb">
-      <keyboard>Button 1, Button 2</keyboard>
-    </base>
-    <base>
-      <message>Hello {{name}}!</message>
-    </base>
+    <g-base id="special-kb">
+      <g-keyboard>Button 1, Button 2</g-keyboard>
+    </g-base>
+    <g-base>
+      <g-message>Hello {{name}}!</g-message>
+    </g-base>
   `
 }
 ```
@@ -3462,7 +3462,7 @@ Sends a media message reply with dynamic type selection.
 
 </td><td>
 
-Sends a Telegram media group using pipe-delimited `src` values or a `<media-group>` block from the page template.
+Sends a Telegram media group using pipe-delimited `src` values or a `<g-media-group>` block from the page template.
 
 
 </td></tr>
@@ -3491,6 +3491,20 @@ Sends a photo message using the page template.
 </td><td>
 
 Sends a photo media group using pipe-delimited `src` values from the page template.
+
+
+</td></tr>
+<tr><td>
+
+[replyRich(keyboard, data, baseId, options1, options2)](./gramstax.ctx.replyrich.md)
+
+
+</td><td>
+
+
+</td><td>
+
+still construction!
 
 
 </td></tr>

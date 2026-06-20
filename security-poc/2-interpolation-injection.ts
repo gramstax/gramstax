@@ -18,11 +18,11 @@ console.log(`--- CASE 2: INTERPOLATION INJECTION ---`)
 // The developer/attacker puts ${} directly in the message block.
 // This is evaluated because the result of compilation is a `...` string.
 const maliciousTemplate = `
-  <base>
-    <message>
+  <g-base>
+    <g-message>
       Server Time: \${console.log("!!! VULNERABILITY ALERT: Interpolation injection successful !!!") || new Date()}
-    </message>
-  </base>
+    </g-message>
+  </g-base>
 `
 
 console.log(`Compiling template...`)

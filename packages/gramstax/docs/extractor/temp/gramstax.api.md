@@ -7,7 +7,6 @@
 import { Bot } from 'grammy';
 import { BotConfig } from 'grammy';
 import { BotError } from 'grammy';
-import { Client } from 'net-ipc';
 import { Context } from 'grammy';
 import { FSWatcher } from 'chokidar';
 import * as grammy from 'grammy';
@@ -16,10 +15,7 @@ import { InlineKeyboard } from 'grammy';
 import { Keyboard } from 'grammy';
 import { Keyv } from 'keyv';
 import { LoggingPretty } from 'logging-pretty';
-import * as node_worker_threads from 'node:worker_threads';
-import { Server } from 'net-ipc';
 import { UserFromGetMe } from 'grammy/types';
-import { Worker as Worker_2 } from 'node:worker_threads';
 
 // @public
 export class BlockKeyboard {
@@ -72,7 +68,9 @@ export class Ctx {
         text: string;
     } & Partial<{
         entities: grammy_types.MessageEntity[];
-    }>) | undefined>;
+    }>) | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        rich_message: grammy_types.RichMessage;
+    }) | undefined>;
     editAnimation(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
     editAudio(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
     editAudioGroup(data?: ITData, baseId?: string, options?: ITOptReplyAudio): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
@@ -306,6 +304,7 @@ export class Ctx {
     replyMediaGroup(type?: ITMediaGroupType, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
     replyPhoto(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     replyPhotoGroup(data?: ITData, baseId?: string, options?: ITOptReplyPhoto): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    replyRich(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1]): Promise<grammy_types.Message.RichMessageMessage>;
     replySticker(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplySticker): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     replyVideo(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVideo): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     replyVideoGroup(data?: ITData, baseId?: string, options?: ITOptReplyVideo): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
@@ -843,10 +842,10 @@ export type ITCacheRpc = {
 
 // @public
 export type ITCompiledTemplate = {
-    media: ReturnType<typeof TemplateEngine.compileBlockMedia>;
-    message: ReturnType<typeof TemplateEngine.compileBlockMessage>;
-    keyboard: ReturnType<typeof TemplateEngine.compileBlockKeyboards>;
-    description: ReturnType<typeof TemplateEngine.compileBlockDescription>;
+    media: ReturnType<typeof TemplateEngine.compileBlockGMedia>;
+    message: ReturnType<typeof TemplateEngine.compileBlockGMessage>;
+    keyboard: ReturnType<typeof TemplateEngine.compileBlockGKeyboards>;
+    description: ReturnType<typeof TemplateEngine.compileBlockGDescription>;
 };
 
 // @public
@@ -897,12 +896,6 @@ export type ITKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${
 
 // @public
 export type ITKbDest = typeof Ctx | Ctx | string;
-
-// @public
-export type ITMapRpc = Map<any, {
-    reject: (error: any) => any;
-    resolve: (result: any) => any;
-}>;
 
 // @public
 export type ITMediaBlock = {
@@ -1038,6 +1031,9 @@ export type ITOptReplyLocation = Parameters<Context[`replyWithLocation`]>[2];
 export type ITOptReplyPhoto = Parameters<Context[`replyWithPhoto`]>[1];
 
 // @public
+export type ITOptReplyRich = Parameters<Context[`replyWithRichMessage`]>;
+
+// @public
 export type ITOptReplySticker = Parameters<Context[`replyWithSticker`]>[1];
 
 // @public
@@ -1159,15 +1155,23 @@ export class PageManager {
 // @public
 export class TemplateEngine {
     static ALLOWED_BLOCKS: string[];
+    // (undocumented)
+    static ALLOWED_BLOCKS_PAGE: string[];
+    // (undocumented)
+    static ALLOWED_BLOCKS_TELEGRAM: string[];
+    // (undocumented)
+    static ALLOWED_BLOCKS_TELEGRAM_LEGACY: string[];
+    // (undocumented)
+    static ALLOWED_BLOCKS_TELEGRAM_RICH: string[];
     static ALLOWED_SCOPE: string[];
-    static compileBlockDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
+    static compileBlockGDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [baseId: string]: {
             [scope: string]: {
                 [lang: string]: (data?: Record<string, any>) => string;
             };
         };
     };
-    static compileBlockKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
+    static compileBlockGKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [baseId: string]: {
             [lang: string]: {
                 inline?: (data?: Record<string, any>) => string[];
@@ -1175,12 +1179,12 @@ export class TemplateEngine {
             };
         };
     };
-    static compileBlockMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
+    static compileBlockGMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [baseId: string]: {
             [lang: string]: (data?: Record<string, any>) => ITMediaBlock;
         };
     };
-    static compileBlockMessage(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
+    static compileBlockGMessage(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [baseId: string]: {
             [lang: string]: (data?: Record<string, any>) => string;
         };
@@ -1188,19 +1192,24 @@ export class TemplateEngine {
     static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): T extends true ? (data?: Record<string, any>) => string[] : (data?: Record<string, any>) => string;
     static _escape(str: string): string;
     static _extractBlock(content: string, blocks?: string | string[], baseId?: string, section?: `all` | `value`, lang?: string): string;
+    static _extractBlockNames(blocks: string[]): Set<string>;
     // (undocumented)
     static MAX_MEDIA_GROUP_ITEMS: number;
-    static _processBaseBlocks(template: string): {
+    static _PAGE_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>>;
+    static _PAGE_REQUIRED_ATTRS: Record<string, string[] | {
+        oneOf: string[][];
+    }>;
+    static _processGBaseBlocks(template: string): {
         [baseId: string]: string;
     };
-    static _processDescriptionBlocks(template: string): {
+    static _processGDescriptionBlocks(template: string): {
         [lang: string]: {
             [scope: string]: string;
         };
     };
-    static _processDivBlocks(template: string): string;
-    static processImportBlocks(template: string, resolver: (src: string) => string | null, depth?: number, importCache?: Map<string, string>): string;
-    static _processImportBlocks(template: string): {
+    static _processGDivBlocks(template: string): string;
+    static processGImportBlocks(template: string, resolver: (src: string) => string | null, depth?: number, importCache?: Map<string, string>): string;
+    static _processGImportBlocks(template: string): {
         processed: string;
         imports: {
             src: string;
@@ -1211,121 +1220,125 @@ export class TemplateEngine {
             indent: string;
         }[];
     };
-    static _processKeyboardBlocks(template: string): {
+    static _processGKeyboardBlocks(template: string): {
         [lang: string]: {
             inline?: string;
             bottom?: string;
         };
     };
-    static _processMapBlocks(template: string): string;
-    static _processMediaBlocks(template: string): {
+    static _processGMapBlocks(template: string): string;
+    static _processGMediaBlocks(template: string): {
         [lang: string]: ITMediaBlock;
     };
-    static _processMediaGroupBlocks(template: string): {
+    static _processGMediaGroupBlocks(template: string): {
         [lang: string]: ITMediaBlock;
     };
-    static _processMessageBlocks(template: string): {
+    static _processGMessageBlocks(template: string): {
         [lang: string]: string;
     };
+    static _processGScriptBlocks(template: string): string;
+    static _processGSpaceBlocks(template: string): string;
+    static _processGSwitchBlocks(template: string): string;
     static _processScopeExec(template: string): string;
     static _processScopeVariables(template: string): string;
-    static _processScriptBlocks(template: string): string;
-    static _processSpaceBlocks(template: string): string;
-    static _processSwitchBlocks(template: string): string;
     // (undocumented)
     static _splitMediaSrcList(src: string): string[];
-    static validateBlockBaseAttributes(template: string): {
+    static _TELEGRAM_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>>;
+    static _TELEGRAM_REQUIRED_ATTRS: Record<string, string[] | {
+        oneOf: string[][];
+    }>;
+    static validateBlockGBaseAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockCaseAttributes(template: string): {
+    static validateBlockGCaseAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockDefaultAttributes(template: string): {
+    static validateBlockGDefaultAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockDescriptionAttributes(template: string): {
+    static validateBlockGDescriptionAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockDivAttributes(template: string): {
+    static validateBlockGDivAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockImportAttributes(template: string): {
+    static validateBlockGImportAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockKeyboardAttributes(template: string): {
+    static validateBlockGKeyboardAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockMapAttributes(template: string): {
+    static validateBlockGMapAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockMediaAttributes(template: string): {
+    static validateBlockGMediaAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockMediaGroupAttributes(template: string): {
+    static validateBlockGMediaGroupAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockMessageAttributes(template: string): {
+    static validateBlockGMessageAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockScriptAttributes(template: string): {
+    static validateBlockGScriptAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockSpaceAttributes(template: string): {
+    static validateBlockGSpaceAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
             message: string;
         }>;
     };
-    static validateBlockSwitchAttributes(template: string): {
+    static validateBlockGSwitchAttributes(template: string): {
         valid: boolean;
         errors: Array<{
             line: number;
@@ -1346,6 +1359,28 @@ export class TemplateEngine {
             message: string;
         }>;
     };
+    static validatePageAttributesBlock(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validatePageAttributeValuesBlock(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static _validatePageTagAttributes(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
+    static _validatePageTagAttributeValues(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
     static validatePositionsBlock(template: string): {
         valid: boolean;
         errors: Array<{
@@ -1360,6 +1395,28 @@ export class TemplateEngine {
             message: string;
         }>;
     };
+    static validateTelegramAttributesBlock(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateTelegramAttributeValuesBlock(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static _validateTelegramTagAttributes(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
+    static _validateTelegramTagAttributeValues(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
     static validateTemplate(template: string): {
         valid: boolean;
         errors: Array<{
@@ -1425,132 +1482,9 @@ export class WebhookQueue<T = unknown> {
     get length(): number;
 }
 
-// @public
-export type WorkerThreadAsyncMethods<T> = {
-    [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: any[]) => any ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<Awaited<R>> : never;
-};
-
-// @public
-export class WorkerThreadExport {
-    static init<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap = Record<any, any>>(options: WorkerThreadExportOpt<TWorker, TMain, TWrap>): TWrap & WorkerThreadAsyncMethods<TWorker> & {
-        launchWorker: (argv?: any[]) => Promise<TMain>;
-        launchGatewayClient: (serverPath?: string) => WorkerThreadGatewayProxy<TWorker> & {
-            new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>;
-        };
-    };
-    static launchGatewayClient<TWorker extends WorkerThreadInit>(path: string): WorkerThreadGatewayProxy<TWorker> & {
-        new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>;
-    };
-}
-
-// @public
-export type WorkerThreadExportOpt<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap> = {
-    path: string;
-    WTInit: new () => TWorker;
-    WTLaunch?: new (path: string, argv?: any[]) => TMain;
-    wrap?: (main: TMain) => TWrap;
-};
-
-// @public
-export class WorkerThreadGatewayClient {
-    constructor();
-    client: Client;
-    connect(path: string): Promise<unknown>;
-    request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;
-    rpc: WorkerThreadRpc;
-}
-
-// @public
-export type WorkerThreadGatewayProxy<T> = {
-    [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: any[]) => any ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (owner: WorkerThreadInit, ...args: A) => Promise<Awaited<R>> : never;
-};
-
-// @public
-export class WorkerThreadGatewayServer {
-    constructor();
-    register: any;
-    rpc: Map<string, WorkerThreadRpc>;
-    server: Server;
-    start(path: string, register?: any): Promise<unknown>;
-}
-
-// @public
-export class WorkerThreadInit {
-    constructor();
-    argv: string[];
-    createGatewayClient(serverPath: string): Promise<WorkerThreadGatewayClient>;
-    createGatewayServer(register?: any, path?: string): Promise<boolean>;
-    get gatewayClient(): WorkerThreadGatewayClient | undefined;
-    gatewayClientLatest?: WorkerThreadGatewayClient;
-    gatewayClients: Map<string, WorkerThreadGatewayClient>;
-    gatewayServer?: WorkerThreadGatewayServer;
-    // @virtual
-    static gatewayServerPath?: string;
-    gatewayServerPath: any;
-    handleOnMessage(data: any): void;
-    id: number;
-    init(): void;
-    static isMainThread: boolean;
-    parentPort: node_worker_threads.MessagePort | null;
-    pid: number;
-    request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;
-    rpc: WorkerThreadRpc;
-    send(payload: any): void;
-}
-
-// @public
-export class WorkerThreadLaunch {
-    constructor(path: string, argv: any[], register?: any | undefined);
-    // (undocumented)
-    argv: any[];
-    handleOnMessage(data: any): Promise<void>;
-    init(): void;
-    static isMainThread: boolean;
-    kill(): void;
-    // (undocumented)
-    path: string;
-    pid: number;
-    ready(): Promise<void>;
-    readyResolve(): void;
-    // (undocumented)
-    register?: any | undefined;
-    request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;
-    rpc: WorkerThreadRpc;
-    send(payload: any): void;
-    thread: Worker_2;
-    threadId: number;
-}
-
-// @public
-export class WorkerThreadPool {
-    constructor(instance: WorkerThreadLaunch[]);
-    add(instance: WorkerThreadLaunch): void;
-    addMany(instance: WorkerThreadLaunch[]): void;
-    broadcastRequest(method: string, params: any): Promise<any[]>;
-    getInstance(threadId: number): WorkerThreadLaunch | undefined;
-    kill(threadId: number): number | undefined;
-    killAll(): void;
-    request(threadId: number, method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;
-    thread: Map<number, WorkerThreadLaunch>;
-    threadCount: number;
-}
-
-// @public
-export class WorkerThreadRpc {
-    constructor(send: (data: any) => any, register: Record<any, any>);
-    make(data: any): Promise<void>;
-    makeId(): number;
-    makeRequest(method: string, params: any, _wait?: boolean, _others?: Record<string, any>): Promise<any>;
-    map: ITMapRpc;
-    // (undocumented)
-    register: Record<any, any>;
-    // (undocumented)
-    send: (data: any) => any;
-}
-
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:8450:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:7990:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

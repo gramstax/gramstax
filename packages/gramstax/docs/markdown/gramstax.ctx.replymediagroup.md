@@ -4,7 +4,7 @@
 
 ## Ctx.replyMediaGroup() method
 
-Sends a Telegram media group using pipe-delimited `src` values or a `<media-group>` block from the page template.
+Sends a Telegram media group using pipe-delimited `src` values or a `<g-media-group>` block from the page template.
 
 **Signature:**
 
@@ -42,7 +42,7 @@ ITMediaGroupType
 
 </td><td>
 
-_(Optional)_ Supported media group type. When the template uses `<media-group>`<!-- -->, only items matching this type are included. When omitted, all items are sent.
+_(Optional)_ Supported media group type. When the template uses `<g-media-group>`<!-- -->, only items matching this type are included. When omitted, all items are sent.
 
 
 </td></tr>
@@ -104,7 +104,7 @@ The sent media group messages.
 
 ## Remarks
 
-Only `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, and `document` support Telegram media groups. Omit `type` when the template uses `<media-group>` with per-item media types. The first item receives the template caption. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media.
+Only `photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, and `document` support Telegram media groups. Omit `type` when the template uses `<g-media-group>` with per-item media types. The first item receives the template caption. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media.
 
 ## Example
 

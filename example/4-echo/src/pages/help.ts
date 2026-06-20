@@ -33,9 +33,9 @@ export class HelpPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <message>
+      <g-message>
         ❓ Help
         
         Available commands:
@@ -43,7 +43,7 @@ export class HelpPage extends PageBase {
         - /help: Show this help
 
         You can also send any message to echo it back.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

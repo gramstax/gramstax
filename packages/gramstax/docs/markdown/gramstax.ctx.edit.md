@@ -13,7 +13,9 @@ edit(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOp
         text: string;
     } & Partial<{
         entities: grammy_types.MessageEntity[];
-    }>) | undefined>;
+    }>) | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        rich_message: grammy_types.RichMessage;
+    }) | undefined>;
 ```
 
 ## Parameters
@@ -118,7 +120,7 @@ _(Optional)_ If true, sends a reply if edit fails. Default: true.
 
 **Returns:**
 
-Promise&lt;true \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { text: string; } &amp; Partial&lt;{ entities: grammy\_types.MessageEntity\[\]; }&gt;) \| undefined&gt;
+Promise&lt;true \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { text: string; } &amp; Partial&lt;{ entities: grammy\_types.MessageEntity\[\]; }&gt;) \| (grammy\_types.Update.Edited &amp; grammy\_types.Message.CommonMessage &amp; { rich\_message: grammy\_types.RichMessage; }) \| undefined&gt;
 
 The edited message object.
 

@@ -73,30 +73,30 @@ export class DepositPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ➕ Deposit funds
         Please enter the amount you wish to deposit.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
+    <g-base id="${Base.success}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ✅ Deposit completed
         * Amount: {{amount}}
         * Balance: {{balance}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnInvalid}">
+    <g-base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ⚠️ Invalid amount
         Please enter a numeric value greater than 0.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `;
 }
 ```

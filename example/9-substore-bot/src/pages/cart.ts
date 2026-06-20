@@ -112,9 +112,9 @@ export class CartPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>➕, ➖, 🗑️ Remove, 💳 Checkout, 🧹 Clear, 🔎 Browse Products, 🏠 Home</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>➕, ➖, 🗑️ Remove, 💳 Checkout, 🧹 Clear, 🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-message>
         🛒 Your Cart
 
         {{items}}
@@ -122,25 +122,25 @@ export class CartPage extends PageBase {
         Subtotal: {{subtotal}}
 
         Adjust quantities or continue to checkout.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.empty}">
-      <keyboard>🔎 Browse Products, 🏠 Home</keyboard>
-      <message>
+    <g-base id="${Base.empty}">
+      <g-keyboard>🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-message>
         🛒 Your Cart is Empty
 
         Browse subscription products and add your favorites before checkout.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoCleared}">
-      <keyboard>🔎 Browse Products, 🏠 Home</keyboard>
-      <message>
+    <g-base id="${Base.infoCleared}">
+      <g-keyboard>🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-message>
         🧹 Cart cleared
 
         Your cart is empty now. You can continue browsing anytime.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

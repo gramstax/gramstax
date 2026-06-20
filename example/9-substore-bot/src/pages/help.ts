@@ -40,9 +40,9 @@ export class HelpPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>🔎 Browse Products, 🏠 Home</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-message>
         ❓ Store Help
 
         1. Browse products with Prev and Next.
@@ -51,7 +51,7 @@ export class HelpPage extends PageBase {
         4. Confirm checkout after sending your contact and notes.
 
         Support: {{support}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

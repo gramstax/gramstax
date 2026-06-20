@@ -1422,9 +1422,23 @@ methods:
     uid: gramstax!Gramstax#_registerOnCallbackQueryData:member(1)
     package: gramstax!
     fullName: _registerOnCallbackQueryData()
-    summary: Registers handlers message\*.
-    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
-    example: []
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
+      specific event or message type is routed to its handler.
+    example:
+      - |-
+        ```typescript
+        class MyBot extends Gramstax {
+          // Override if need to route via a custom event bus instead of the default bot
+          _registerOnCallbackQueryData() {
+            // default is `callback_query:data`
+            this.bot.on('cb_data', this._onCallbackQueryData.bind(this))
+          }
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1436,8 +1450,12 @@ methods:
     uid: gramstax!Gramstax#_registerOnMessageAnimation:member(1)
     package: gramstax!
     fullName: _registerOnMessageAnimation()
-    summary: Registers handlers message\*.
-    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
+      specific event or message type is routed to its handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1450,8 +1468,12 @@ methods:
     uid: gramstax!Gramstax#_registerOnMessageAudio:member(1)
     package: gramstax!
     fullName: _registerOnMessageAudio()
-    summary: Registers handlers message\*.
-    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
+      specific event or message type is routed to its handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1464,8 +1486,12 @@ methods:
     uid: gramstax!Gramstax#_registerOnMessageContact:member(1)
     package: gramstax!
     fullName: _registerOnMessageContact()
-    summary: Registers handlers message\*.
-    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
+      specific event or message type is routed to its handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1478,8 +1504,12 @@ methods:
     uid: gramstax!Gramstax#_registerOnMessageDocument:member(1)
     package: gramstax!
     fullName: _registerOnMessageDocument()
-    summary: Registers handlers message\*.
-    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
+      specific event or message type is routed to its handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1492,8 +1522,12 @@ methods:
     uid: gramstax!Gramstax#_registerOnMessageLocation:member(1)
     package: gramstax!
     fullName: _registerOnMessageLocation()
-    summary: Registers handlers message\*.
-    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
+      specific event or message type is routed to its handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1506,8 +1540,12 @@ methods:
     uid: gramstax!Gramstax#_registerOnMessagePhoto:member(1)
     package: gramstax!
     fullName: _registerOnMessagePhoto()
-    summary: Registers handlers message\*.
-    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
+      specific event or message type is routed to its handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1520,8 +1558,12 @@ methods:
     uid: gramstax!Gramstax#_registerOnMessageSticker:member(1)
     package: gramstax!
     fullName: _registerOnMessageSticker()
-    summary: Registers handlers message\*.
-    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
+      specific event or message type is routed to its handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1534,8 +1576,12 @@ methods:
     uid: gramstax!Gramstax#_registerOnMessageText:member(1)
     package: gramstax!
     fullName: _registerOnMessageText()
-    summary: Registers handlers message\*.
-    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
+      specific event or message type is routed to its handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1548,8 +1594,12 @@ methods:
     uid: gramstax!Gramstax#_registerOnMessageVideo:member(1)
     package: gramstax!
     fullName: _registerOnMessageVideo()
-    summary: Registers handlers message\*.
-    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
+      specific event or message type is routed to its handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1562,8 +1612,12 @@ methods:
     uid: gramstax!Gramstax#_registerOnMessageVideoNote:member(1)
     package: gramstax!
     fullName: _registerOnMessageVideoNote()
-    summary: Registers handlers message\*.
-    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
+      specific event or message type is routed to its handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1576,8 +1630,12 @@ methods:
     uid: gramstax!Gramstax#_registerOnMessageVoice:member(1)
     package: gramstax!
     fullName: _registerOnMessageVoice()
-    summary: Registers handlers message\*.
-    remarks: These methods register grammY event handlers for different message types. Override to customize message filtering.
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
+      specific event or message type is routed to its handler.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1771,8 +1829,22 @@ methods:
     package: gramstax!
     fullName: hookAfterStart()
     summary: Hook called after the bot has started.
-    remarks: Override this method to run post-start logic.
-    example: []
+    remarks: >-
+      Override this method to run post-start logic. The common use case is initializing background workers —
+      long-running tasks that need the bot to be fully alive (scheduled jobs, periodic cleanup, queue processors,
+      cron-like tasks). Unlike `hookBeforeStart` which runs before the bot is up, this hook guarantees the bot is fully
+      started and `this.bot.api` is operational, so any task that needs to make API calls or interact with the bot
+      instance should be started here.
+    example:
+      - |-
+        ```typescript
+        class MyBot extends Gramstax {
+          async hookAfterStart() {
+            // Init worker thread from sub WorkerThreadInit
+            await IncrementJob.launchWorker([5000]) // 5s
+          }
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -1825,8 +1897,25 @@ methods:
     package: gramstax!
     fullName: hookBeforeStart()
     summary: Hook called before the bot starts.
-    remarks: Override this method to run initialization logic.
-    example: []
+    remarks: >-
+      Override this method to run initialization logic. The common use case is to register low-level grammy.js
+      middleware via `this.bot.use(...)` — note that `this.bot` is a raw grammy.js `Bot` instance (not a this wrapper),
+      so you can call any grammy.js API here (plugins, filters, event handlers, etc.), not just middleware. Middleware
+      registered here runs for every incoming update before the router dispatches it, making it suitable for
+      cross-cutting concerns like logging, rate limiting, sessions, or authentication.
+    example:
+      - |-
+        ```typescript
+        class MyBot extends Gramstax {
+          async hookBeforeStart() {
+            // Register grammy.js middleware (low-level)
+            this.bot.use(async (ctx, next) => {
+              this.log?.info?.(`Update ${ctx.update.update_id} from ${ctx.from?.id}`)
+              await next()
+            })
+          }
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:

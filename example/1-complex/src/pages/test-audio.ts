@@ -24,18 +24,18 @@ export class TestAudioPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <media type="audio" src="https://www.w3schools.com/html/horse.ogg">
+      <g-media type="audio" src="https://www.w3schools.com/html/horse.ogg">
         🎧 Audio demo
         
         This is a sample audio reply with a caption.
-      </media>
-      <media lang="id" type="audio" src="https://www.w3schools.com/html/horse.ogg">
+      </g-media>
+      <g-media lang="id" type="audio" src="https://www.w3schools.com/html/horse.ogg">
         🎧 Demo audio
         
         Ini adalah contoh balasan audio dengan caption.
-      </media>
-    </base>
+      </g-media>
+    </g-base>
   `
 }

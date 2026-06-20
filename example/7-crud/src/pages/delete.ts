@@ -131,74 +131,74 @@ export class DeletePage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         🗑️ Select an item to delete, or type an ID.
 
         Showing {{count}} items. Deletions are permanent.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         🗑️ Pilih item untuk dihapus, atau ketik ID.
 
         Menampilkan {{count}} item. Penghapusan bersifat permanen.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
+    <g-base id="${Base.success}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ✅ Item deleted
 
         Removed item #{{id}} from your list. You can continue managing the remaining items.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ✅ Item dihapus
 
         Item #{{id}} dihapus dari daftar. Anda dapat melanjutkan pengelolaan item lainnya.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.errorNotFound}">
+    <g-base id="${Base.errorNotFound}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ❌ Item not found: {{id}}
 
         This item may have already been deleted or the ID is incorrect.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ❌ Item tidak ditemukan: {{id}}
 
         Item ini mungkin sudah dihapus atau ID tidak sesuai.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnInvalid}">
+    <g-base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ⚠️ Invalid ID
 
         Please send a numeric item ID (e.g., 1, 2, 3).
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ⚠️ ID tidak valid
 
         Mohon kirim ID item angka (mis. 1, 2, 3).
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoEmpty}">
+    <g-base id="${Base.infoEmpty}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         📭 No items available to delete
 
         Create items first, then return here to delete them if needed.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         📭 Tidak ada item untuk dihapus
 
         Buat item terlebih dahulu, lalu kembali untuk menghapus bila perlu.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

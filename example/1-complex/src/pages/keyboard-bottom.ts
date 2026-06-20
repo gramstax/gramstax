@@ -86,48 +86,48 @@ export class KeyboardBottomPage extends PageBase {
   }
 
   static template = `    
-    <base id="${Base.step1}">
-      <keyboard type="inline">${this.kbl.home.default}</keyboard>
-      <keyboard lang="id" type="inline">${this.kbl.home.id}</keyboard>
-      <keyboard type="bottom">{{first}}, ${this.kbl.home.default}</keyboard>
-      <keyboard lang="id" type="bottom">{{first}}, ${this.kbl.home.id}</keyboard>
+    <g-base id="${Base.step1}">
+      <g-keyboard type="inline">${this.kbl.home.default}</g-keyboard>
+      <g-keyboard lang="id" type="inline">${this.kbl.home.id}</g-keyboard>
+      <g-keyboard type="bottom">{{first}}, ${this.kbl.home.default}</g-keyboard>
+      <g-keyboard lang="id" type="bottom">{{first}}, ${this.kbl.home.id}</g-keyboard>
 
-      <message>
+      <g-message>
         ⌨️ Bottom keyboard
 
         Use the bottom keyboard with emojis and dynamic arg for quick actions.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ⌨️ Keyboard bawah
 
         Gunakan keyboard bawah dengan emoji dan argument dinamis untuk aksi cepat.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
     
-    <base id="${Base.reset}">
-      <message>
+    <g-base id="${Base.reset}">
+      <g-message>
         ✅ Keyboard reset
 
         Bottom keyboard has been reset successfully.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ✅ Keyboard direset
 
         Keyboard bawah berhasil direset.
-      </message>    
-    </base>
+      </g-message>    
+    </g-base>
 
-    <base id="${Base.delete}">
-      <message>
+    <g-base id="${Base.delete}">
+      <g-message>
         ✅ Keyboard removed
 
         Bottom keyboard has been removed successfully.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ✅ Keyboard dihapus
 
         Keyboard bawah berhasil dihapus.
-      </message>    
-    </base>
+      </g-message>    
+    </g-base>
   `
 }

@@ -64,11 +64,11 @@ export class CategoryPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <message>
+      <g-message>
         Choose a category to continue browsing.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

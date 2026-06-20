@@ -125,8 +125,40 @@
 - Prefer deterministic inputs; avoid timers unless required.
 
 ## Template Guidelines
-- When multiple `<base>` blocks share identical `<keyboard>` content, define it once in the default `<base>` (no `id`) and omit duplicates in other bases.
+- When multiple `<g-base>` blocks share identical `<g-keyboard>` content, define it once in the default `<g-base>` (no `id`) and omit duplicates in other bases.
 - Reuse the default keyboard by calling the inline/bottom keyboard builder without a `baseId`.
+
+## Telegram Rich HTML
+Templates support 53 HTML/tg-* tags passed through to the message `html` field, in 5 categories:
+- *Inline (15):* `a`, `b`, `code`, `del`, `em`, `i`, `ins`, `mark`, `s`, `strike`, `strong`, `sub`, `sup`, `tg-spoiler`, `u`
+- *Block/structural (23):* `aside`, `blockquote`, `blockquote expandable`, `br`, `details`, `footer`, `h1`-`h6`, `hr`, `li`, `ol`, `p`, `pre`, `summary`, `table`, `td`, `th`, `tr`, `ul`
+- *Telegram-specific (8):* `tg-collage`, `tg-emoji`, `tg-map`, `tg-math`, `tg-math-block`, `tg-reference`, `tg-slideshow`, `tg-time`
+- *Media (6):* `audio`, `cite`, `figcaption`, `figure`, `img`, `video`
+- *Forms (1):* `input`
+
+**Format rules:**
+- Void elements must be self-closing: `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>`. Content tags are not format-checked (both `<b>x</b>` and `<b/>` accepted).
+- Enforced by `validateFormatBlock` in the same way as `<g-space/>` and `<g-import/>`.
+
+**Attribute validation** (two layers, both wired into `validateTemplate` as steps 5 and 6):
+- **Required attributes** — `TemplateEngine._TELEGRAM_REQUIRED_ATTRS` + `validateTelegramAttributesBlock`: e.g. `<a>` needs `href` or `name`; `<img>`/`<video>`/`<audio>` need `src`; `<tg-emoji>` needs `emoji-id`; `<tg-time>` needs `unix` + `format`; `<tg-map>` needs `lat` + `long` + `zoom`; `<tg-reference>` needs `name`; `<input>` needs `type`.
+- **Value formats** — `TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS` + `validateTelegramAttributeValuesBlock`: e.g. `<tg-time unix>` must be a positive integer; `<tg-map lat>` ∈ [-90, 90], `<tg-map long>` ∈ [-180, 180], `<tg-map zoom>` ∈ [0, 24]; `<tg-emoji emoji-id>` must be numeric; `<a href>` must use `http(s)://`, `mailto:`, `tel:`, `tg://`, or `#` scheme; `<input type>` must be a known HTML input type.
+
+Validators are intentionally lenient — they catch obvious bugs (wrong type, invalid scheme) but do not enforce every Telegram-side constraint. Text passthrough patterns (`#hashtag`, `$USD`, `+phone`, `card:`, `https://`, `t.me`, `a@t.me`, `/command`, `@username`) need no markup and are not in the tag list.
+
+## PAGE Attribute Validation
+`<g-*>` PAGE blocks follow the same two-layer validation pattern as Telegram Rich HTML, mirrored through the centralized specs `TemplateEngine._PAGE_REQUIRED_ATTRS` and `TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS`. Both layers are wired into `validateTemplate` as steps 21 and 22 (the per-block `validateBlockG*Attributes` methods at steps 7–20 stay for granular access and also delegate to the same value spec).
+
+- **`_PAGE_REQUIRED_ATTRS`** — currently empty. PAGE block attributes are mostly optional; this spec is reserved for future context-dependent requirements.
+- **`_PAGE_ATTR_VALUE_VALIDATORS`** — centralizes format checks for:
+  - `<g-base id>` — must not be empty
+  - `<g-keyboard type>` — must be `inline` or `bottom`
+  - `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video_note, sticker, location, contact
+  - `<g-media shared>` — must be `true` or `false`
+
+Boolean attributes (without `=value`, e.g. `<g-media type="photo" src="x" shared>`) are intentionally skipped — they do not trigger the empty-string check. Per-block `validateBlockG*Attributes` methods have been refactored to read from `_PAGE_ATTR_VALUE_VALIDATORS`, so there is a single source of truth for value formats.
+
+To add a new PAGE value validator: extend `_PAGE_ATTR_VALUE_VALIDATORS[tagName]` and the corresponding per-block method picks it up automatically. To add a new required-attr rule: extend `_PAGE_REQUIRED_ATTRS` and `validatePageAttributesBlock` will start enforcing it.
 
 ## Package: gramstax
 - Source root is `packages/gramstax/src`; update `packages/gramstax/src/index.ts` when adding exports.

@@ -6,7 +6,7 @@
 
 Validates template syntax and throws a descriptive error on failure.
 
-The error message includes the enclosing `<base id="...">` based on the error line. If the `<base>` has no `id` or no `<base>` tag is found, the `on base` prefix is omitted.
+The error message includes the enclosing `<g-base id="...">` based on the error line. If the `<g-base>` has no `id` or no `<g-base>` tag is found, the `on base` prefix is omitted.
 
 **Signature:**
 
@@ -95,11 +95,11 @@ Error with format: `Template on base "${id}" (file, line X): msg` or `Template (
 
 ```typescript
 // base with id:
-this._validateTemplate("start", '<base id="kb"><kop/></base>', "start.html")
+this._validateTemplate("start", '<g-base id="kb"><kop/></g-base>', "start.html")
 // => throws: Template on base "kb" (start.html, line 1): Unsupported template block: <kop>
 
 // base without id:
-this._validateTemplate("start", '<base><kop/></base>', "start.html")
+this._validateTemplate("start", '<g-base><kop/></g-base>', "start.html")
 // => throws: Template (start.html, line 1): Unsupported template block: <kop>
 ```
 

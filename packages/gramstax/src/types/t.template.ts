@@ -11,13 +11,13 @@ import type {TemplateEngine} from "~/template/engine"
  */
 export type ITCompiledTemplate = {
   /** Compiled media blocks indexed by base ID and language */
-  media: ReturnType<typeof TemplateEngine.compileBlockMedia>
+  media: ReturnType<typeof TemplateEngine.compileBlockGMedia>
   /** Compiled message blocks indexed by base ID and language */
-  message: ReturnType<typeof TemplateEngine.compileBlockMessage>
+  message: ReturnType<typeof TemplateEngine.compileBlockGMessage>
   /** Compiled keyboard blocks indexed by base ID, language, and type */
-  keyboard: ReturnType<typeof TemplateEngine.compileBlockKeyboards>
+  keyboard: ReturnType<typeof TemplateEngine.compileBlockGKeyboards>
   /** Compiled description blocks indexed by base ID, scope, and language */
-  description: ReturnType<typeof TemplateEngine.compileBlockDescription>
+  description: ReturnType<typeof TemplateEngine.compileBlockGDescription>
 }
 
 /**

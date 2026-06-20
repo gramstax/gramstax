@@ -605,7 +605,7 @@ Sorts and categorizes page routes into routing tables.
 
 </td><td>
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 
 </td></tr>
@@ -619,7 +619,7 @@ Registers handlers message\*.
 
 </td><td>
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 
 </td></tr>
@@ -633,7 +633,7 @@ Registers handlers message\*.
 
 </td><td>
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 
 </td></tr>
@@ -647,7 +647,7 @@ Registers handlers message\*.
 
 </td><td>
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 
 </td></tr>
@@ -661,7 +661,7 @@ Registers handlers message\*.
 
 </td><td>
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 
 </td></tr>
@@ -675,7 +675,7 @@ Registers handlers message\*.
 
 </td><td>
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 
 </td></tr>
@@ -689,7 +689,7 @@ Registers handlers message\*.
 
 </td><td>
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 
 </td></tr>
@@ -703,7 +703,7 @@ Registers handlers message\*.
 
 </td><td>
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 
 </td></tr>
@@ -717,7 +717,7 @@ Registers handlers message\*.
 
 </td><td>
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 
 </td></tr>
@@ -731,7 +731,7 @@ Registers handlers message\*.
 
 </td><td>
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 
 </td></tr>
@@ -745,7 +745,7 @@ Registers handlers message\*.
 
 </td><td>
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 
 </td></tr>
@@ -759,7 +759,7 @@ Registers handlers message\*.
 
 </td><td>
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 
 </td></tr>

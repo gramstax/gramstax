@@ -25,8 +25,8 @@ export class BlockImportPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <import src="start" base="for-block-import" />
-    </base>
+    <g-base id="${Base.step1}">
+      <g-import src="start" base="for-block-import" />
+    </g-base>
   `
 }

@@ -158,84 +158,84 @@ export class UpdatePage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</keyboard>
-      <keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</g-keyboard>
+      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</g-keyboard>
+      <g-message>
         ✏️ Select an item to update its status.
 
         Showing {{count}} items • Page {{page}}/{{totalPages}}
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ✏️ Pilih item untuk memperbarui status.
 
         Menampilkan {{count}} item • Halaman {{page}}/{{totalPages}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.step2}">
-      <keyboard>📝 Todo, 🔄 In Progress, ✅ Done, 🏠 Home</keyboard>
-      <keyboard lang="id">📝 Todo, 🔄 Proses, ✅ Selesai, 🏠 Beranda</keyboard>
-      <message>
+    <g-base id="${Base.step2}">
+      <g-keyboard>📝 Todo, 🔄 In Progress, ✅ Done, 🏠 Home</g-keyboard>
+      <g-keyboard lang="id">📝 Todo, 🔄 Proses, ✅ Selesai, 🏠 Beranda</g-keyboard>
+      <g-message>
         📋 Item #{{id}}: {{title}}
 
         Current status: {{status}}
 
         Choose the next status for this item.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         📋 Item #{{id}}: {{title}}
 
         Status saat ini: {{status}}
 
         Pilih status berikutnya untuk item ini.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
+    <g-base id="${Base.success}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ✅ Status updated
 
         Item #{{id}} is now: {{status}}
 
         You can keep updating other items from the list.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ✅ Status diperbarui
 
         Item #{{id}} sekarang: {{status}}
 
         Anda dapat memperbarui item lain dari daftar.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoEmpty}">
+    <g-base id="${Base.infoEmpty}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         📭 No items available to update
 
         Create items first, then return here to update their status.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         📭 Tidak ada item untuk diperbarui
 
         Buat item terlebih dahulu, lalu kembali untuk memperbarui status.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoNotFound}">
+    <g-base id="${Base.infoNotFound}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ❌ Item not found: {{id}}
 
         This item may have been deleted or never existed.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ❌ Item tidak ditemukan: {{id}}
 
         Item ini mungkin sudah dihapus atau memang tidak ada.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

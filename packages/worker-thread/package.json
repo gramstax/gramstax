@@ -1,0 +1,64 @@
+{
+  "name": "@gramstax/worker-thread",
+  "version": "0.8.24",
+  "private": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": false
+  },
+  "description": "Worker thread utilities with RPC and Unix socket gateway (Bun, Node.js).",
+  "keywords": [
+    "worker",
+    "worker-thread",
+    "thread",
+    "rpc",
+    "ipc",
+    "unix-socket",
+    "bun",
+    "nodejs",
+    "gramstax"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "nx-release-publish": "npm publish --access public"
+  },
+  "engines": {
+    "node": ">=18",
+    "bun": ">=1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gramstax/gramstax.git",
+    "directory": "packages/worker-thread"
+  },
+  "bugs": {
+    "url": "https://github.com/gramstax/gramstax/issues"
+  },
+  "homepage": "https://github.com/gramstax/gramstax",
+  "author": "gramstax",
+  "license": "PROPRIETARY",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.mjs",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/bun": "latest",
+    "tsup": "^8.5.1"
+  },
+  "peerDependencies": {
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "net-ipc": "^2.2.2"
+  }
+}

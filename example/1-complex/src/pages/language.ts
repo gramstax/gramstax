@@ -66,20 +66,20 @@ export class LanguagePage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>🇺🇸 EN, 🇮🇩 ID, ${this.kbl.back.default}</keyboard>
-      <keyboard lang="id">🇺🇸 EN, 🇮🇩 ID, ${this.kbl.back.id}</keyboard>
+    <g-base id="${Base.step1}">
+      <g-keyboard>🇺🇸 EN, 🇮🇩 ID, ${this.kbl.back.default}</g-keyboard>
+      <g-keyboard lang="id">🇺🇸 EN, 🇮🇩 ID, ${this.kbl.back.id}</g-keyboard>
 
-      <message>
+      <g-message>
         🌐 Language
 
         Choose your preferred language. The UI will update immediately.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         🌐 Bahasa
 
         Pilih bahasa yang diinginkan. Antarmuka akan langsung diperbarui.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

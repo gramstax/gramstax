@@ -1,0 +1,173 @@
+### YamlMime:TSType
+name: WorkerThreadExport
+uid: '@gramstax/worker-thread!WorkerThreadExport:class'
+package: '@gramstax/worker-thread!'
+fullName: WorkerThreadExport
+summary: Provides a unified interface for creating and managing worker threads with automatic RPC proxying.
+remarks: >-
+  Automatically detects if running in main thread or worker thread. Provides type-safe method calls to worker thread via
+  RPC proxy.
+example:
+  - |-
+    Basic Usage
+
+    ```typescript
+    import { WorkerThreadExport, WorkerThreadInit } from "gramstax";
+
+    class MyWorker extends WorkerThreadInit {
+      count = 0;
+
+      mtdIncrement() {
+        return ++this.count;
+      }
+
+      mtdGetCount() {
+        return this.count;
+      }
+    }
+
+    export const CounterJob = WorkerThreadExport.init({
+      path: __filename,
+      WTInit: MyWorker,
+    });
+
+    // In main thread:
+    await CounterJob.launchWorker();
+    await CounterJob.mtdIncrement(); // 1
+    await CounterJob.mtdGetCount(); // 1
+    ```
+  - |-
+    Inter-Worker Communication with launchGatewayClient
+
+    ```typescript
+    // ./worker/server.ts
+    class ServerWorker extends WorkerThreadInit {
+      static gatewayServerPath = "/tmp/server.sock";
+
+      mtdHello(from: string) {
+        return `Hello ${from}!`;
+      }
+
+      async mtdStartServer() {
+        return await this.createGatewayServer();
+      }
+    }
+
+    export const WorkerServer = WorkerThreadExport.init({
+      path: __filename,
+      WTInit: ServerWorker,
+    });
+    export const WorkerServerGateway = WorkerServer.launchGatewayClient();
+
+    // ./worker/client.ts
+    import { WorkerServerGateway } from "./server";
+
+    class ClientWorker extends WorkerThreadInit {
+      async mtdCallServer() {
+        // Static usage: pass `this` as first argument
+        return await WorkerServerGateway.mtdHello(this, "ClientWorker");
+      }
+    }
+
+    // ./main.ts
+    await WorkerServer.launchWorker();
+    await WorkerClient.launchWorker();
+    await WorkerServer.mtdStartServer();
+    const result = await WorkerClient.mtdCallServer(); // "Hello ClientWorker!"
+    ```
+isPreview: false
+isDeprecated: false
+type: class
+methods:
+  - name: init(options)
+    uid: '@gramstax/worker-thread!WorkerThreadExport.init:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: init(options)
+    summary: Initialize a worker thread export with automatic environment detection.
+    remarks: >-
+      In worker thread context, only returns `launchGatewayClient`<!-- -->. In main thread context, returns full proxy
+      with `launchWorker`<!-- -->, `launchGatewayClient`<!-- -->, and all worker methods.
+    example:
+      - |-
+        ```typescript
+        // jobs/counter.ts
+        import { WorkerThreadExport, WorkerThreadInit } from "gramstax";
+
+        class Worker extends WorkerThreadInit {
+          count = 0;
+
+          mtdGetCount() {
+            return this.count;
+          }
+        }
+
+        export const CounterJob = WorkerThreadExport.init({
+          path: __filename,
+          WTInit: Worker,
+        });
+
+        // main.ts
+        import { CounterJob } from "./jobs/counter";
+
+        await CounterJob.launchWorker();
+        const count = await CounterJob.mtdGetCount();
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static init<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap = Record<any,
+        any>>(options: WorkerThreadExportOpt<TWorker, TMain, TWrap>): TWrap & WorkerThreadAsyncMethods<TWorker> & {
+                launchWorker: (argv?: any[]) => Promise<TMain>;
+                launchGatewayClient: (serverPath?: string) => WorkerThreadGatewayProxy<TWorker> & {
+                    new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>;
+                };
+            };
+      parameters:
+        - id: options
+          description: Configuration options for the worker thread export.
+          type: <xref uid="@gramstax/worker-thread!WorkerThreadExportOpt:type" />&lt;TWorker, TMain, TWrap&gt;
+      return:
+        type: |-
+          TWrap & <xref uid="@gramstax/worker-thread!WorkerThreadAsyncMethods:type" />&lt;TWorker&gt; & {
+                  launchWorker: (argv?: any[]) =&gt; Promise&lt;TMain&gt;;
+                  launchGatewayClient: (serverPath?: string) =&gt; <xref uid="@gramstax/worker-thread!WorkerThreadGatewayProxy:type" />&lt;TWorker&gt; & {
+                      new (owner: <xref uid="@gramstax/worker-thread!WorkerThreadInit:class" />): <xref uid="@gramstax/worker-thread!WorkerThreadAsyncMethods:type" />&lt;TWorker&gt;;
+                  };
+              }
+        description: Proxied object with `launchWorker`<!-- -->, `launchGatewayClient`<!-- -->, and worker methods.
+  - name: launchGatewayClient(path)
+    uid: '@gramstax/worker-thread!WorkerThreadExport.launchGatewayClient:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: launchGatewayClient(path)
+    summary: Create a typed gateway client proxy for inter-worker communication.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        // Static usage
+        const OtherWorkerGateway = WorkerThreadExport.launchGatewayClient<OtherWorkerClass>("/path/to/other.ts");
+        await OtherWorkerGateway.someMethod(this, arg1, arg2);
+
+        // Constructor usage
+        const client = new OtherWorkerGateway(this);
+        await client.someMethod(arg1, arg2);
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static launchGatewayClient<TWorker extends WorkerThreadInit>(path: string): WorkerThreadGatewayProxy<TWorker> &
+        {
+                new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>;
+            };
+      parameters:
+        - id: path
+          description: Path to the target worker file. Must match target init `path`<!-- -->.
+          type: string
+      return:
+        type: |-
+          <xref uid="@gramstax/worker-thread!WorkerThreadGatewayProxy:type" />&lt;TWorker&gt; & {
+                  new (owner: <xref uid="@gramstax/worker-thread!WorkerThreadInit:class" />): <xref uid="@gramstax/worker-thread!WorkerThreadAsyncMethods:type" />&lt;TWorker&gt;;
+              }
+        description: Proxy that can be used as static methods or as constructor.

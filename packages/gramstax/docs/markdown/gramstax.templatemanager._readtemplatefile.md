@@ -63,6 +63,6 @@ If no extension is provided, tries `.ts`<!-- -->, `.js`<!-- -->, then `.html` in
 
 ```typescript
 this._readTemplateFile("welcome")
-// => "<base>...</base>"
+// => "<g-base>...</g-base>"
 ```
 

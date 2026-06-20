@@ -41,8 +41,6 @@ items:
             uid: gramstax!ITKbCols:type
           - name: ITKbDest
             uid: gramstax!ITKbDest:type
-          - name: ITMapRpc
-            uid: gramstax!ITMapRpc:type
           - name: ITMediaBlock
             uid: gramstax!ITMediaBlock:type
           - name: ITMockTelegramCallbackQueryOptions
@@ -87,6 +85,8 @@ items:
             uid: gramstax!ITOptReplyLocation:type
           - name: ITOptReplyPhoto
             uid: gramstax!ITOptReplyPhoto:type
+          - name: ITOptReplyRich
+            uid: gramstax!ITOptReplyRich:type
           - name: ITOptReplySticker
             uid: gramstax!ITOptReplySticker:type
           - name: ITOptReplyVideo
@@ -119,23 +119,3 @@ items:
             uid: gramstax!TemplateManager:class
           - name: WebhookQueue
             uid: gramstax!WebhookQueue:class
-          - name: WorkerThreadAsyncMethods
-            uid: gramstax!WorkerThreadAsyncMethods:type
-          - name: WorkerThreadExport
-            uid: gramstax!WorkerThreadExport:class
-          - name: WorkerThreadExportOpt
-            uid: gramstax!WorkerThreadExportOpt:type
-          - name: WorkerThreadGatewayClient
-            uid: gramstax!WorkerThreadGatewayClient:class
-          - name: WorkerThreadGatewayProxy
-            uid: gramstax!WorkerThreadGatewayProxy:type
-          - name: WorkerThreadGatewayServer
-            uid: gramstax!WorkerThreadGatewayServer:class
-          - name: WorkerThreadInit
-            uid: gramstax!WorkerThreadInit:class
-          - name: WorkerThreadLaunch
-            uid: gramstax!WorkerThreadLaunch:class
-          - name: WorkerThreadPool
-            uid: gramstax!WorkerThreadPool:class
-          - name: WorkerThreadRpc
-            uid: gramstax!WorkerThreadRpc:class

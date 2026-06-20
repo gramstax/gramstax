@@ -42,15 +42,15 @@ export class StartPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>🔎 Browse Products, 🛒 Cart, 🧾 History, ❓ Help</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>🔎 Browse Products, 🛒 Cart, 🧾 History, ❓ Help</g-keyboard>
+      <g-message>
         🛒 SubStore Bot
 
         Buy digital subscriptions directly from Telegram. Browse Netflix, Spotify, YouTube Premium, Canva Pro, VPN access, and more with a fast inline checkout flow.
 
         Choose an action below to browse, checkout, or review recent orders.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

@@ -39,19 +39,19 @@ export class StartPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>➕ Create, 📋 List, 🔎 Detail, ✅ Update, 🗑️ Delete, ❓ Help</keyboard>
-      <keyboard lang="id">➕ Buat, 📋 Daftar, 🔎 Detail, ✅ Perbarui, 🗑️ Hapus, ❓ Bantuan</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>➕ Create, 📋 List, 🔎 Detail, ✅ Update, 🗑️ Delete, ❓ Help</g-keyboard>
+      <g-keyboard lang="id">➕ Buat, 📋 Daftar, 🔎 Detail, ✅ Perbarui, 🗑️ Hapus, ❓ Bantuan</g-keyboard>
+      <g-message>
         ✅ CRUD Menu
 
         Manage your items quickly using the actions below. Create new entries, browse the list, view details, update status, or remove items when needed.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ✅ Menu CRUD
 
         Kelola item dengan cepat melalui aksi di bawah. Buat item baru, lihat daftar, cek detail, perbarui status, atau hapus item saat diperlukan.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

@@ -446,7 +446,7 @@ export class TemplateManager {
    * @example
    * ```typescript
    * this._readTemplateFile("welcome")
-   * // => "<base>...</base>"
+   * // => "<g-base>...</g-base>"
    * ```
    *
    * @public
@@ -519,21 +519,21 @@ export class TemplateManager {
   }
 
   /**
-   * Finds the `<base>` block (open + close) that encloses the given line number.
+   * Finds the `<g-base>` block (open + close) that encloses the given line number.
    *
    * @param template - Processed template string
    * @param line - 1-based line number to check
-   * @returns Object with `baseId` and `hasId`, or `null` if not inside any `<base>` block
+   * @returns Object with `baseId` and `hasId`, or `null` if not inside any `<g-base>` block
    *
    * @example
    * ```typescript
-   * const tpl = '<base id="kb">\n<kop/></base>';
+   * const tpl = '<g-base id="kb">\n<kop/></g-base>';
    * this._getBaseAtLine(tpl, 2) // => { baseId: "kb", hasId: true }
    *
-   * const tpl2 = '<base>\n<kop/></base>';
+   * const tpl2 = '<g-base>\n<kop/></g-base>';
    * this._getBaseAtLine(tpl2, 2) // => { baseId: null, hasId: false }
    *
-   * const tpl3 = '</base>\n{-lah-}\n<base>';
+   * const tpl3 = '</g-base>\n{-lah-}\n<g-base>';
    * this._getBaseAtLine(tpl3, 2) // => null
    * ```
    *
@@ -541,7 +541,7 @@ export class TemplateManager {
    */
   _getBaseAtLine(template: string, line: number): {baseId: string | null; hasId: boolean} | null {
     const openRegex = /<base\b([^>]*?)>/gi
-    const closeRegex = /<\/base>/gi
+    const closeRegex = /<\/g-base>/gi
     const lines = line
     let openMatch: RegExpExecArray | null
     let closeMatch: RegExpExecArray | null
@@ -555,7 +555,7 @@ export class TemplateManager {
       const baseId = idMatch?.[2] ?? null
       const hasId = !!idMatch
 
-      // Find the matching </base> after this <base>
+      // Find the matching </g-base> after this <g-base>
       if (!closeRegex.lastIndex) closeRegex.lastIndex = openRegex.lastIndex
       while ((closeMatch = closeRegex.exec(template)) !== null) {
         const closeLine = (template.slice(0, closeMatch.index).match(/\n/g) || []).length + 1
@@ -563,7 +563,7 @@ export class TemplateManager {
           // Error line is inside this base block (openLine <= lines <= closeLine)
           return {baseId, hasId}
         }
-        // Move past this </base>, find the next <base>
+        // Move past this </g-base>, find the next <g-base>
         openRegex.lastIndex = closeRegex.lastIndex
         break
       }
@@ -574,8 +574,8 @@ export class TemplateManager {
   /**
    * Validates template syntax and throws a descriptive error on failure.
    *
-   * The error message includes the enclosing `<base id="...">` based on the error line.
-   * If the `<base>` has no `id` or no `<base>` tag is found, the `on base` prefix is omitted.
+   * The error message includes the enclosing `<g-base id="...">` based on the error line.
+   * If the `<g-base>` has no `id` or no `<g-base>` tag is found, the `on base` prefix is omitted.
    *
    * @param baseId - Cache key (filename without extension), used as default filename
    * @param template - Template content to validate
@@ -586,11 +586,11 @@ export class TemplateManager {
    * @example
    * ```typescript
    * // base with id:
-   * this._validateTemplate("start", '<base id="kb"><kop/></base>', "start.html")
+   * this._validateTemplate("start", '<g-base id="kb"><kop/></g-base>', "start.html")
    * // => throws: Template on base "kb" (start.html, line 1): Unsupported template block: <kop>
    *
    * // base without id:
-   * this._validateTemplate("start", '<base><kop/></base>', "start.html")
+   * this._validateTemplate("start", '<g-base><kop/></g-base>', "start.html")
    * // => throws: Template (start.html, line 1): Unsupported template block: <kop>
    * ```
    *
@@ -659,7 +659,7 @@ export class TemplateManager {
     this._validateTemplate(key, template, filename)
 
     // Process Imports
-    const processedTemplate = TemplateEngine.processImportBlocks(
+    const processedTemplate = TemplateEngine.processGImportBlocks(
       template,
       (src) => {
         // 1. Check rawCache (for batch loading)
@@ -676,22 +676,22 @@ export class TemplateManager {
     this._validateTemplate(key, processedTemplate, filename)
 
     // Memoize base blocks to avoid redundant regex parsing
-    const baseBlocks = TemplateEngine._processBaseBlocks(processedTemplate)
+    const baseBlocks = TemplateEngine._processGBaseBlocks(processedTemplate)
 
     if (keepIfExist === undefined || keepIfExist?.media === false || existing?.media === undefined) {
-      compiled.media = TemplateEngine.compileBlockMedia(processedTemplate, baseBlocks)
+      compiled.media = TemplateEngine.compileBlockGMedia(processedTemplate, baseBlocks)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.message === false || existing?.message === undefined) {
-      compiled.message = TemplateEngine.compileBlockMessage(processedTemplate, baseBlocks)
+      compiled.message = TemplateEngine.compileBlockGMessage(processedTemplate, baseBlocks)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.keyboard === false || existing?.keyboard === undefined) {
-      compiled.keyboard = TemplateEngine.compileBlockKeyboards(processedTemplate, baseBlocks)
+      compiled.keyboard = TemplateEngine.compileBlockGKeyboards(processedTemplate, baseBlocks)
       updated = true
     }
     if (keepIfExist === undefined || keepIfExist?.description === false || existing?.description === undefined) {
-      compiled.description = TemplateEngine.compileBlockDescription(processedTemplate, baseBlocks)
+      compiled.description = TemplateEngine.compileBlockGDescription(processedTemplate, baseBlocks)
       updated = true
     }
 
@@ -704,7 +704,7 @@ export class TemplateManager {
    * Gets compiled media template data.
    *
    * @param key - Template identifier (filename without extension)
-   * @param baseId - Base block ID matching `<base id="...">`
+   * @param baseId - Base block ID matching `<g-base id="...">`
    * @param language - Target language code (falls back to `default`)
    * @param data - Template variables for interpolation
    * @returns Media object containing type, src, and caption
@@ -741,7 +741,7 @@ export class TemplateManager {
    * Gets a compiled message template string.
    *
    * @param key - Template identifier (filename without extension)
-   * @param baseId - Base block ID matching `<base id="...">`
+   * @param baseId - Base block ID matching `<g-base id="...">`
    * @param language - Target language code (falls back to `default`)
    * @param data - Template variables for interpolation
    * @returns Rendered message string, or empty string if not found
@@ -777,7 +777,7 @@ export class TemplateManager {
    * Gets a command description for Telegram menu.
    *
    * @param key - Template identifier (filename without extension)
-   * @param baseId - Base block ID matching `<base id="...">`
+   * @param baseId - Base block ID matching `<g-base id="...">`
    * @param language - Target language code (falls back to `default`)
    * @param scope - Telegram bot command scope (e.g., `default`, `admin`)
    * @param data - Template variables for interpolation
@@ -814,7 +814,7 @@ export class TemplateManager {
    * Gets available languages for a description.
    *
    * @param key - Template identifier (filename without extension)
-   * @param baseId - Base block ID matching `<base id="...">`
+   * @param baseId - Base block ID matching `<g-base id="...">`
    * @param scope - Telegram bot command scope
    * @returns Array of language codes present for the scope
    *
@@ -847,7 +847,7 @@ export class TemplateManager {
    * Gets available scopes for a description.
    *
    * @param key - Template identifier (filename without extension)
-   * @param baseId - Base block ID matching `<base id="...">`
+   * @param baseId - Base block ID matching `<g-base id="...">`
    * @returns Array of scope keys for the description
    *
    * @remarks
@@ -879,7 +879,7 @@ export class TemplateManager {
    * Gets compiled keyboard template labels.
    *
    * @param key - Template identifier (filename without extension)
-   * @param baseId - Base block ID matching `<base id="...">`
+   * @param baseId - Base block ID matching `<g-base id="...">`
    * @param language - Target language code (falls back to `default`)
    * @param type - Keyboard type: `inline` or `bottom`
    * @param data - Template variables for interpolation

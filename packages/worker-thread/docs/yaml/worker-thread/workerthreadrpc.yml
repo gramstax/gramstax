@@ -1,0 +1,159 @@
+### YamlMime:TSType
+name: WorkerThreadRpc
+uid: '@gramstax/worker-thread!WorkerThreadRpc:class'
+package: '@gramstax/worker-thread!'
+fullName: WorkerThreadRpc
+summary: \[LOW-LEVEL\] Handles JSON-RPC style communication between threads.
+remarks: >-
+  Low-level internal infrastructure. Used by [WorkerThreadInit](xref:@gramstax/worker-thread!WorkerThreadInit:class) and
+  [WorkerThreadLaunch](xref:@gramstax/worker-thread!WorkerThreadLaunch:class) under the hood — you rarely need to touch
+  it.
+
+
+  Uses simple JSON-RPC style messages with `id`<!-- -->, `method`<!-- -->, `params`<!-- -->, `result`<!-- -->,
+  `error`<!-- -->.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(send, register)
+    uid: '@gramstax/worker-thread!WorkerThreadRpc:constructor(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: (constructor)(send, register)
+    summary: Creates a new WorkerThreadRpc instance.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(send: (data: any) => any, register: Record<any, any>);'
+      parameters:
+        - id: send
+          description: Function to send data. Called with RPC payload.
+          type: '(data: any) =&gt; any'
+        - id: register
+          description: Object with callable methods. Exposed RPC method map.
+          type: Record&lt;any, any&gt;
+properties:
+  - name: map
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#map:member'
+    package: '@gramstax/worker-thread!'
+    fullName: map
+    summary: Map of pending requests by ID. Stores promise handlers for pending requests.
+    remarks: Uses [ITMapRpc](xref:@gramstax/worker-thread!ITMapRpc:type) for the map value shape.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'map: ITMapRpc;'
+      return:
+        type: <xref uid="@gramstax/worker-thread!ITMapRpc:type" />
+  - name: register
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#register:member'
+    package: '@gramstax/worker-thread!'
+    fullName: register
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'register: Record<any, any>;'
+      return:
+        type: Record&lt;any, any&gt;
+  - name: send
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#send:member'
+    package: '@gramstax/worker-thread!'
+    fullName: send
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'send: (data: any) => any;'
+      return:
+        type: '(data: any) =&gt; any'
+methods:
+  - name: make(data)
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#make:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: make(data)
+    summary: Process an incoming RPC message.
+    remarks: >-
+      Message types: - \*\*Request:\*\* `{ id, method, params }` - Calls registered method and sends result/error back.
+      - \*\*Result:\*\* `{ id, result }` - Resolves pending request promise. - \*\*Error:\*\* `{ id, error }` - Rejects
+      pending request promise.
+    example:
+      - |-
+        ```typescript
+        worker.on("message", (data) => {
+          rpc.make(data);
+        });
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'make(data: any): Promise<void>;'
+      parameters:
+        - id: data
+          description: RPC message object. Shape is request/result/error.
+          type: any
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: makeId()
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#makeId:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: makeId()
+    summary: Generate a unique request ID.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const id = rpc.makeId();
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'makeId(): number;'
+      return:
+        type: number
+        description: A random number ID.
+  - name: makeRequest(method, params, _wait, _others)
+    uid: '@gramstax/worker-thread!WorkerThreadRpc#makeRequest:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: makeRequest(method, params, _wait, _others)
+    summary: Create and send an RPC request.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        // Wait for response
+        const result = await rpc.makeRequest("add", [1, 2]);
+        console.log(result); // 3
+
+        // Fire and forget
+        rpc.makeRequest("log", ["message"], false);
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'makeRequest(method: string, params: any, _wait?: boolean, _others?: Record<string, any>): Promise<any>;'
+      parameters:
+        - id: method
+          description: Method name to call. Targets registered method.
+          type: string
+        - id: params
+          description: Method parameters. Sent as positional array.
+          type: any
+        - id: _wait
+          description: Wait for response. If false, returns send result. Defaults to `true`<!-- -->.
+          type: boolean
+        - id: _others
+          description: Additional data to include. Merged into RPC payload.
+          type: Record&lt;string, any&gt;
+      return:
+        type: Promise&lt;any&gt;
+        description: Promise resolving to the result if waiting, or send result if not.

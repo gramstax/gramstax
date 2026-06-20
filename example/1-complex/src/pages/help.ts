@@ -24,18 +24,18 @@ export class HelpPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <message>
+      <g-message>
         ❓ Help & Navigation
 
         Use the menu to explore each demo page. Most pages can be refreshed, and you can always return Home.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ❓ Bantuan & Navigasi
 
         Gunakan menu untuk menjelajahi setiap halaman demo. Sebagian besar halaman bisa disegarkan, dan Anda selalu dapat kembali ke Beranda.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

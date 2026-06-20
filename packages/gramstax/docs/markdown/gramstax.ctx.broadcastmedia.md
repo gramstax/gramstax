@@ -154,7 +154,7 @@ Promise&lt;{ successCount: number; failedCount: number; totalCount: number; }&gt
 
 ## Remarks
 
-Media type and arg are inferred from the template `<media>` block. If a supported media type (`photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, `document`<!-- -->) uses a pipe-delimited `src`<!-- -->, it is sent as a Telegram media group. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media. Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.
+Media type and arg are inferred from the template `<g-media>` block. If a supported media type (`photo`<!-- -->, `video`<!-- -->, `audio`<!-- -->, `document`<!-- -->) uses a pipe-delimited `src`<!-- -->, it is sent as a Telegram media group. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media. Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.
 
 ## Example
 

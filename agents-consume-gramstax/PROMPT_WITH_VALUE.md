@@ -216,8 +216,8 @@ Only define an internal class if it contains real logic or data. Do not create e
 ## Template rules
 
 - All conditional rendering MUST live inside template strings.
-- Use Gramstax template constructs such as `{~ .. ~}`, `<switch>`, or `<script>` for view logic.
-- Do not use the `+` operator inside `{~ .. ~}` or `<script>` blocks. Use template literals or non-`+` composition.
+- Use Gramstax template constructs such as `{~ .. ~}`, `<g-switch>`, or `<g-script>` for view logic.
+- Do not use the `+` operator inside `{~ .. ~}` or `<g-script>` blocks. Use template literals or non-`+` composition.
 - Escape nested backticks and `${}` when writing template literals inside template logic.
 - Use `\\n` when declaring multiline strings inside template contexts.
 - Every message should have at least a heading and useful content.
@@ -228,7 +228,7 @@ Only define an internal class if it contains real logic or data. Do not create e
 
 ## Base block rules
 
-- If a page has only one `<base>` block, do not give it an `id`.
+- If a page has only one `<g-base>` block, do not give it an `id`.
 - Use base IDs only for distinct layouts or fundamentally different views.
 - Merge base blocks that share keyboard structure by using template conditionals where practical.
 - Define base IDs as static properties in an internal `Base` class.

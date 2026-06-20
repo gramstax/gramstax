@@ -68,41 +68,41 @@ This method checks a template string for structural block nesting violations. It
 
 ```
 __root__
-  ├── base             (root level only)
-  │   ├── message      (content block)
-  │   │   ├── switch   (logic block)
+  ├── g-base             (root level only)
+  │   ├── g-message      (content block)
+  │   │   ├── g-switch   (logic block)
   │   │   │   ├── case
   │   │   │   └── default
-  │   │   ├── map      (logic block)
-  │   │   ├── script   (logic block)
-  │   │   └── space    (utility)
-  │   ├── keyboard     (content block)
-  │   │   ├── switch   (logic block)
-  │   │   │   ├── case
-  │   │   │   └── default
-  │   │   ├── map      (logic block)
-  │   │   ├── script   (logic block)
-  │   │   └── space    (utility)
-  │   ├── media        (content block)
-  │   │   ├── switch   (logic block)
-  │   │   │   ├── case
-  │   │   │   └── default
-  │   │   ├── map      (logic block)
-  │   │   ├── script   (logic block)
-  │   │   └── space    (utility)
-  │   ├── description  (content block)
-  │   │   ├── switch   (logic block)
-  │   │   │   ├── case
-  │   │   │   └── default
-  │   │   ├── map      (logic block)
-  │   │   ├── script   (logic block)
-  │   │   └── space    (utility)
-  │   ├── import       (utility)
-  │   ├── description  (utility)
-  │   ├── script       (logic block)
-  └   └── space        (utility)
+  │   │   ├── g-map      (logic block)
+  │   │   ├── g-script   (logic block)
+  │   │   └── g-space    (utility)
+  │   ├── g-keyboard     (content block)
+  │   │   ├── g-switch   (logic block)
+  │   │   │   ├── g-case
+  │   │   │   └── g-default
+  │   │   ├── g-map      (logic block)
+  │   │   ├── g-script   (logic block)
+  │   │   └── g-space    (utility)
+  │   ├── g-media        (content block)
+  │   │   ├── g-switch   (logic block)
+  │   │   │   ├── g-case
+  │   │   │   └── g-default
+  │   │   ├── g-map      (logic block)
+  │   │   ├── g-script   (logic block)
+  │   │   └── g-space    (utility)
+  │   ├── g-description  (content block)
+  │   │   ├── g-switch   (logic block)
+  │   │   │   ├── g-case
+  │   │   │   └── g-default
+  │   │   ├── g-map      (logic block)
+  │   │   ├── g-script   (logic block)
+  │   │   └── g-space    (utility)
+  │   ├── g-import       (utility)
+  │   ├── g-description  (utility)
+  │   ├── g-script       (logic block)
+  └   └── g-space        (utility)
 ```
-\*\*Enforced rules:\*\* - `<base>` must be at the outermost level and cannot be nested inside any other block. - `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, `<media-group>`<!-- -->, `<description>`<!-- -->, `<import>`<!-- -->, `<script>`<!-- -->, `<space>` can only appear directly inside `<base>`<!-- -->. - `<media>` can also appear directly inside `<media-group>` as a group item. - `<switch>`<!-- -->, `<map>` can only appear inside `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, or `<description>`<!-- -->. - `<case>` and `<default>` can only appear inside `<switch>`<!-- -->. - Telegram formatting tags (`<b>`<!-- -->, `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->, `<a>`<!-- -->, `<blockquote>`<!-- -->, `<blockquote expandable>`<!-- -->) are passthrough and ignored during validation.
+\*\*Enforced rules:\*\* - `<g-base>` must be at the outermost level and cannot be nested inside any other block. - `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, `<g-media-group>`<!-- -->, `<g-description>`<!-- -->, `<g-import>`<!-- -->, `<g-script>`<!-- -->, `<g-space>` can only appear directly inside `<g-base>`<!-- -->. - `<g-media>` can also appear directly inside `<g-media-group>` as a group item. - `<g-switch>`<!-- -->, `<g-map>` can only appear inside `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, or `<g-description>`<!-- -->. - `<g-case>` and `<g-default>` can only appear inside `<g-switch>`<!-- -->. - Telegram formatting tags (`<b>`<!-- -->, `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->, `<a>`<!-- -->, `<blockquote>`<!-- -->, `<blockquote expandable>`<!-- -->) are passthrough and ignored during validation.
 
 ## Example
 
@@ -110,21 +110,21 @@ __root__
 ```typescript
 // Valid template
 const result = TemplateEngine.validatePositionsBlock(`
-  <base>
-    <message>Hello {{name}}!</message>
-    <keyboard>Yes, No</keyboard>
-  </base>
+  <g-base>
+    <g-message>Hello {{name}}!</g-message>
+    <g-keyboard>Yes, No</g-keyboard>
+  </g-base>
 `);
 // Result: { valid: true, errors: [] }
 
-// Invalid: <base> nested inside <message>
+// Invalid: <g-base> nested inside <g-message>
 const bad = TemplateEngine.validatePositionsBlock(`
-  <base>
-    <message>
-      <base>Nested base</base>
-    </message>
-  </base>
+  <g-base>
+    <g-message>
+      <g-base>Nested base</g-base>
+    </g-message>
+  </g-base>
 `);
-// Result: { valid: false, errors: [{ line: 4, message: 'Block <base> is not allowed inside <message>' }] }
+// Result: { valid: false, errors: [{ line: 4, message: 'Block <g-base> is not allowed inside <g-message>' }] }
 ```
 

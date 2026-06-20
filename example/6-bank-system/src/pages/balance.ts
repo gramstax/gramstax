@@ -27,15 +27,15 @@ export class BalancePage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <message>
+      <g-message>
         💳 Account balance
 
         Available balance: {{balance}}
 
         Use the menu to deposit, withdraw, or transfer funds.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

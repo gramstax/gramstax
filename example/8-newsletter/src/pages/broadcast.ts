@@ -86,7 +86,6 @@ class Main {
       if (mediaType && fileId) {
         const da = {fileId, caption}
         const bi = mediaType === `photo` ? Base.infoDeliverPhoto : mediaType === `video` ? Base.infoDeliverVideo : Base.infoDeliverAnimation
-
         res = await ctx.broadcastMedia(ids, langs, undefined, da, bi)
       } else {
         const da = {message: draftText}
@@ -147,7 +146,7 @@ class Main {
     const bi = Base.infoConfirmText
     const kb = Helper.kbConfirm(ctx)
     const da = {draftText}
-    await ctx.setSession(ctx.methodSessionArgsCallbackData(), {position: `confirm`, draftText})
+    await ctx.setSessionArgsCallbackData({position: `confirm`, draftText})
     await ctx.reply(kb, da, bi)
   }
 
@@ -162,7 +161,7 @@ class Main {
     const bi = Base.infoConfirmAnimation
     const kb = Helper.kbConfirm(ctx)
     const da = {fileId, caption}
-    await ctx.setSession(ctx.methodSessionArgsCallbackData(), {position: `confirm`, mediaType: `animation`, fileId, caption})
+    await ctx.setSessionArgsCallbackData({position: `confirm`, mediaType: `animation`, fileId, caption})
     await ctx.replyAnimation(kb, da, bi)
   }
 
@@ -178,7 +177,7 @@ class Main {
     const bi = Base.infoConfirmPhoto
     const kb = Helper.kbConfirm(ctx)
     const da = {fileId, caption}
-    await ctx.setSession(ctx.methodSessionArgsCallbackData(), {position: `confirm`, mediaType: `photo`, fileId, caption})
+    await ctx.setSessionArgsCallbackData({position: `confirm`, mediaType: `photo`, fileId, caption})
     await ctx.replyPhoto(kb, da, bi)
   }
 
@@ -193,7 +192,7 @@ class Main {
     const bi = Base.infoConfirmVideo
     const kb = Helper.kbConfirm(ctx)
     const da = {fileId, caption}
-    await ctx.setSession(ctx.methodSessionArgsCallbackData(), {position: `confirm`, mediaType: `video`, fileId, caption})
+    await ctx.setSessionArgsCallbackData({position: `confirm`, mediaType: `video`, fileId, caption})
     await ctx.replyVideo(kb, da, bi)
   }
 }
@@ -237,19 +236,19 @@ export class BroadcastPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.kbHome}">
+    <g-base id="${Base.kbHome}">
       ${this.kbk.home()}
-    </base>
+    </g-base>
 
-    <base id="${Base.kbConfirm}">
-      <keyboard>✅ Send, ✏️ Edit, ${this.kbl.cancelHome.default}</keyboard>
-      <keyboard lang="id">✅ Kirim, ✏️ Edit, ${this.kbl.cancelHome.id}</keyboard>
-    </base>
+    <g-base id="${Base.kbConfirm}">
+      <g-keyboard>✅ Send, ✏️ Edit, ${this.kbl.cancelHome.default}</g-keyboard>
+      <g-keyboard lang="id">✅ Kirim, ✏️ Edit, ${this.kbl.cancelHome.id}</g-keyboard>
+    </g-base>
 
-    <base id="${Base.step1}">
-      <keyboard>📰 Hybrid Media, ${this.kbl.cancelHome.default}</keyboard>
-      <keyboard lang="id">📰 Media Hibrid, ${this.kbl.cancelHome.id}</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>📰 Hybrid Media, ${this.kbl.cancelHome.default}</g-keyboard>
+      <g-keyboard lang="id">📰 Media Hibrid, ${this.kbl.cancelHome.id}</g-keyboard>
+      <g-message>
         📣 Broadcast Message
 
         {~isEmpty ? "⚠️ Message cannot be empty.\\n" : ""~}
@@ -257,8 +256,8 @@ export class BroadcastPage extends PageBase {
 
         Send the announcement text now. This will be delivered to every subscriber who is currently active.
         You can also send a photo, video, or animation with an optional caption.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         📣 Pesan Siaran
 
         {~isEmpty ? "⚠️ Pesan tidak boleh kosong.\\n" : ""~}
@@ -266,12 +265,12 @@ export class BroadcastPage extends PageBase {
 
         Kirim teks siaran sekarang. Pesan ini akan dikirim ke semua pelanggan yang aktif.
         Anda juga dapat mengirim foto, video, atau animasi dengan caption opsional.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoHybridMedia}">
+    <g-base id="${Base.infoHybridMedia}">
       ${this.kbk.cancelHome()}
-      <message>
+      <g-message>
         📣 Broadcast Message With Bundle Media Hybrid
 
         {~isEmpty ? "⚠️ Message cannot be empty.\\n" : ""~}
@@ -280,8 +279,8 @@ export class BroadcastPage extends PageBase {
         Send the announcement media now. This will be delivered to every subscriber who is currently active.
         Onlt can send a photo, video, or animation with an optional caption.
         You can send mix foto, video and animation.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         📣 Pesan Siaran Dengan Bandle Media Hibrid
 
         {~isEmpty ? "⚠️ Pesan tidak boleh kosong.\\n" : ""~}
@@ -290,149 +289,149 @@ export class BroadcastPage extends PageBase {
         Kirim media siaran sekarang. Pesan ini akan dikirim ke semua pelanggan yang aktif.
         Hanya dapat mengirim foto, video, atau animasi dengan caption opsional.
         Anda dapat mengirim campuran foto, video dan animasi.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoHybridMediaNotAvailable}">
-      <message>
+    <g-base id="${Base.infoHybridMediaNotAvailable}">
+      <g-message>
         Bundle media hybrid for now not available.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         Bandel media hibrid untuk sekarang tidak terseda.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
-      <message>
+    <g-base id="${Base.success}">
+      <g-message>
         🎉 Broadcast sent
 
         Delivered to {{successCount}}/{{totalCount}} subscribers.
         You can send another update anytime from the admin route.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         🎉 Siaran terkirim
 
         Dikirim ke {{successCount}}/{{totalCount}} pelanggan.
         Anda bisa mengirim pembaruan lagi kapan saja lewat rute admin.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoConfirmAnimation}">
+    <g-base id="${Base.infoConfirmAnimation}">
       ${this.kbk.broadcastConfirm()}
-      <media type="animation" src="{{fileId}}">
+      <g-media type="animation" src="{{fileId}}">
         🆗 Confirm broadcast animation
 
         caption: {{caption}}
-      </media>
-      <media lang="id" type="animation" src="{{fileId}}">
+      </g-media>
+      <g-media lang="id" type="animation" src="{{fileId}}">
         🆗 Konfirmasi siaran animasi
 
         caption: {{caption}}
-      </media>
-    </base>
+      </g-media>
+    </g-base>
 
-    <base id="${Base.infoConfirmPhoto}">
+    <g-base id="${Base.infoConfirmPhoto}">
       ${this.kbk.broadcastConfirm()}
-      <media type="photo" src="{{fileId}}">
+      <g-media type="photo" src="{{fileId}}">
         🆗 Confirm broadcast photo
 
         caption: {{caption}}
-      </media>
-      <media lang="id" type="photo" src="{{fileId}}">
+      </g-media>
+      <g-media lang="id" type="photo" src="{{fileId}}">
         🆗 Konfirmasi siaran foto
 
         caption: {{caption}}
-      </media>
-    </base>
+      </g-media>
+    </g-base>
 
-    <base id="${Base.infoConfirmText}">
+    <g-base id="${Base.infoConfirmText}">
       ${this.kbk.broadcastConfirm()}
-      <message>
+      <g-message>
         🆗 Confirm broadcast text
 
         text: {{draftText}}
 
         Review the message carefully. Once sent, it will be delivered to all subscribers.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         🆗 Konfirmasi siaran text
 
         text: {{draftText}}
 
         Tinjau pesan dengan saksama. Setelah dikirim, pesan akan diterima oleh semua pelanggan.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoConfirmVideo}">
+    <g-base id="${Base.infoConfirmVideo}">
       ${this.kbk.broadcastConfirm()}
-      <media type="video" src="{{fileId}}">
+      <g-media type="video" src="{{fileId}}">
         🆗 Confirm broadcast video
 
         caption: {{caption}}
-      </media>
-      <media lang="id" type="video" src="{{fileId}}">
+      </g-media>
+      <g-media lang="id" type="video" src="{{fileId}}">
         🆗 Konfirmasi siaran video
 
         caption: {{caption}}
-      </media>
-    </base>
+      </g-media>
+    </g-base>
 
-    <base id="${Base.infoEmptySubs}">
-      <message>
+    <g-base id="${Base.infoEmptySubs}">
+      <g-message>
         📭 No subscribers yet.
         There is no one to broadcast to at the moment.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         📭 Belum ada pelanggan.
         Belum ada penerima untuk siaran saat ini.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoCancel}">
-      <message>
+    <g-base id="${Base.infoCancel}">
+      <g-message>
         ✖️ Broadcast cancelled.
         Draft discarded. You can restart the broadcast flow anytime.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ✖️ Siaran dibatalkan.
         Draf dibatalkan. Anda dapat memulai siaran lagi kapan saja.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoDeliverText}">
-      <message>
+    <g-base id="${Base.infoDeliverText}">
+      <g-message>
         {{message}}
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         {{message}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoDeliverPhoto}">
-      <media type="photo" src="{{fileId}}">
+    <g-base id="${Base.infoDeliverPhoto}">
+      <g-media type="photo" src="{{fileId}}">
         {{caption}}
-      </media>
-      <media lang="id" type="photo" src="{{fileId}}">
+      </g-media>
+      <g-media lang="id" type="photo" src="{{fileId}}">
         {{caption}}
-      </media>
-    </base>
+      </g-media>
+    </g-base>
 
-    <base id="${Base.infoDeliverVideo}">
-      <media type="video" src="{{fileId}}">
+    <g-base id="${Base.infoDeliverVideo}">
+      <g-media type="video" src="{{fileId}}">
         {{caption}}
-      </media>
-      <media lang="id" type="video" src="{{fileId}}">
+      </g-media>
+      <g-media lang="id" type="video" src="{{fileId}}">
         {{caption}}
-      </media>
-    </base>
+      </g-media>
+    </g-base>
 
-    <base id="${Base.infoDeliverAnimation}">
-      <media type="animation" src="{{fileId}}">
+    <g-base id="${Base.infoDeliverAnimation}">
+      <g-media type="animation" src="{{fileId}}">
         {{caption}}
-      </media>
-      <media lang="id" type="animation" src="{{fileId}}">
+      </g-media>
+      <g-media lang="id" type="animation" src="{{fileId}}">
         {{caption}}
-      </media>
-    </base>
+      </g-media>
+    </g-base>
   `
 }

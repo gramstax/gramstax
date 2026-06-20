@@ -30,7 +30,7 @@ type ITMediaBlock = {
 
 ## Remarks
 
-This type defines the structure for various media types supported by Telegram, including file-based media (photo, video, audio, document, animation, voice, video\_note, sticker), location, and contact. Pipe-delimited `src` values such as `a.jpg|b.jpg` are also exposed as `srcList` for Telegram media groups. `<media-group>` blocks are exposed as `mediaGroup` items and may mix photo/video items. Telegram media groups support up to 10 items and only for photo, video, audio, and document media.
+This type defines the structure for various media types supported by Telegram, including file-based media (photo, video, audio, document, animation, voice, video\_note, sticker), location, and contact. Pipe-delimited `src` values such as `a.jpg|b.jpg` are also exposed as `srcList` for Telegram media groups. `<g-media-group>` blocks are exposed as `mediaGroup` items and may mix photo/video items. Telegram media groups support up to 10 items and only for photo, video, audio, and document media.
 
 ## Example
 

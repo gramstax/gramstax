@@ -86,44 +86,44 @@ export class WithdrawPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ➖ Withdraw funds
 
         Enter the amount as a whole number. Dots are allowed for thousand separators.
         Example: 50.000
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
+    <g-base id="${Base.success}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ✅ Withdrawal completed
 
         Amount withdrawn: {{amount}}
         Updated balance: {{balance}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnInsufficient}">
+    <g-base id="${Base.warnInsufficient}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ⚠️ Insufficient funds
 
         Available balance: {{balance}}
         Please enter a smaller amount.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnInvalid}">
+    <g-base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ⚠️ Invalid amount
 
         We couldn't read: "{{amount}}".
         Please enter a whole number only.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

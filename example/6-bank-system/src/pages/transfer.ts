@@ -137,66 +137,66 @@ export class TransferPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         🔁 Transfer funds
 
         Enter: [amount] [recipient]
         Amounts must be whole numbers. Dots are allowed for thousand separators.
 
         Example: 125.000 12345
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
+    <g-base id="${Base.success}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ✅ Transfer completed
 
         Sent {{amount}} to {{target}}
         Updated balance: {{balance}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnInsufficient}">
+    <g-base id="${Base.warnInsufficient}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ⚠️ Insufficient funds
 
         Available balance: {{balance}}
         Please enter a smaller amount.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnUnknownUser}">
+    <g-base id="${Base.warnUnknownUser}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ⚠️ Recipient not found
 
         We couldn't resolve: "{{target}}".
         Provide a numeric ID or a registered username.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnSelf}">
+    <g-base id="${Base.warnSelf}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ⚠️ Transfer blocked
 
         Transfers to your own account are not permitted.
         Please choose a different recipient.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnInvalid}">
+    <g-base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ⚠️ Invalid transfer format
 
         Use the format: [amount] [recipient]
         Example: 125.000 12345
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

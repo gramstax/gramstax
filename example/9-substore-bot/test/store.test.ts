@@ -124,7 +124,7 @@ describe(`CheckoutPage QRIS media`, () => {
     expect(checkoutSource).toContain(`editPhoto`)
     expect(checkoutSource).toContain(`refresh`)
     expect(checkoutSource).toContain(`deadlineAt`)
-    expect(checkoutSource).toContain(`<media type="photo" src="{{qrisImageUrl}}">`)
+    expect(checkoutSource).toContain(`<g-media type="photo" src="{{qrisImageUrl}}">`)
   })
 
   it(`refreshes the QRIS order card as media instead of empty text`, () => {

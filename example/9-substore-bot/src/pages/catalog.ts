@@ -79,9 +79,9 @@ export class CatalogPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>⬅️ Prev, ➡️ Next, 🛒 Cart, ❓ Help, 🏠 Home</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>⬅️ Prev, ➡️ Next, 🛒 Cart, ❓ Help, 🏠 Home</g-keyboard>
+      <g-message>
         🔎 Subscription Catalog
 
         Page {{page}} of {{totalPages}} — {{totalItems}} products available.
@@ -89,7 +89,7 @@ export class CatalogPage extends PageBase {
         {{products}}
 
         Open a product to view details, buy now, or add it to your cart.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

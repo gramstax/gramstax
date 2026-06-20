@@ -18,14 +18,14 @@ console.log(`--- CASE 1: BACKTICK BREAKOUT ---`)
 // The template contains a backtick followed by code execution logic.
 // The engine wraps this in `...`, resulting in: `... ` + code + ` ...`
 const maliciousTemplate = `
-  <base>
-    <message>
+  <g-base>
+    <g-message>
       Safe Text \` + (function(){ 
         console.log("!!! VULNERABILITY ALERT: Backtick breakout successful !!!"); 
         return "[CODE EXECUTED]"; 
       })() + \` More Safe Text
-    </message>
-  </base>
+    </g-message>
+  </g-base>
 `
 
 console.log(`Compiling template...`)

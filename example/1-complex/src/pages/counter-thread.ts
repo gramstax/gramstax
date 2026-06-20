@@ -35,24 +35,24 @@ export class CounterThreadPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.refresh_back()}
-      <message>
+      <g-message>
         🧵 Worker counter
 
         Count: {{count}}
         Timestamp: {{timestamp}}
 
         This counter is updated by a worker thread running in the background.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         🧵 Kounter worker
 
         Kounter: {{count}}
         Waktu: {{timestamp}}
 
         Kounter ini diperbarui oleh worker thread yang berjalan di latar belakang.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

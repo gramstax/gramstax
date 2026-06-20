@@ -15,7 +15,7 @@ static template?: string;
 
 ## Remarks
 
-Must contain a `<base></base>` block. Supports template interpolation with `{{variable}}` syntax.
+Must contain a `<g-base></g-base>` block. Supports template interpolation with `{{variable}}` syntax.
 
 ## Example 1
 
@@ -24,10 +24,10 @@ Basic
 ```typescript
 class MyPage extends Ctx {
   static template = `
-    <base>
-      <keyboard>Button 1, Button 2</keyboard>
-      <message>Hello {{name}}!</message>
-    </base>
+    <g-base>
+      <g-keyboard>Button 1, Button 2</g-keyboard>
+      <g-message>Hello {{name}}!</g-message>
+    </g-base>
   `
 }
 ```
@@ -39,12 +39,12 @@ Multi Id
 ```typescript
 class MyPage extends Ctx {
   static template = `
-    <base id="lah">
-      <keyboard>Button 1, Button 2</keyboard>
-    </base>
-    <base>
-      <message>Hello {{name}}!</message>
-    </base>
+    <g-base id="lah">
+      <g-keyboard>Button 1, Button 2</g-keyboard>
+    </g-base>
+    <g-base>
+      <g-message>Hello {{name}}!</g-message>
+    </g-base>
   `
 }
 ```
@@ -56,14 +56,14 @@ Multi Language
 ```typescript
 class MyPage extends Ctx {
   static template = `
-    <base id="lah">
-      <keyboard>Button 1, Button 2</keyboard>
-      <keyboard lang="id">Tombol 1, Tombol 2</keyboard>
-    </base>
-    <base>
-      <message>Hello {{name}}!</message>
-      <message lang="id">Halo {{name}}!</message>
-    </base>
+    <g-base id="lah">
+      <g-keyboard>Button 1, Button 2</g-keyboard>
+      <g-keyboard lang="id">Tombol 1, Tombol 2</g-keyboard>
+    </g-base>
+    <g-base>
+      <g-message>Hello {{name}}!</g-message>
+      <g-message lang="id">Halo {{name}}!</g-message>
+    </g-base>
   `
 }
 ```

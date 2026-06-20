@@ -2,7 +2,7 @@
 
 ## Identification Strategy
 
-- **OMISSION**: If a page has only one <base> block, do not provide an id.
+- **OMISSION**: If a page has only one <g-base> block, do not provide an id.
 - **EXPLICIT IDS**: Use base IDs only when the page switches between fundamentally different layouts or views.
 - **CONSOLIDATION**: Merge base blocks that share the same keyboard structure by using template conditionals for the message content.
 
@@ -21,6 +21,6 @@ class Base {
 }
 
 // In Template:
-// <base id="${Base.step1}">...</base>
-// <base id="${Base.error}">...</base>
+// <g-base id="${Base.step1}">...</g-base>
+// <g-base id="${Base.error}">...</g-base>
 ```

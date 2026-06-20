@@ -63,11 +63,11 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
     await writeFile(
       join(TEST_DIR, `cmd1.html`),
       `
-      <base>
-        <description>Default Description</description>
-        <description lang="es">Descripción en Español</description>
-        <description scope="private">Private Description</description>
-      </base>
+      <g-base>
+        <g-description>Default Description</g-description>
+        <g-description lang="es">Descripción en Español</g-description>
+        <g-description scope="private">Private Description</g-description>
+      </g-base>
     `
     )
 
@@ -91,7 +91,7 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
     expect(setMyCommands).toHaveBeenCalledWith([{command: `cmd1`, description: `Descripción en Español`}], {scope: {type: `default`}, language_code: `es`})
 
     // 3. Private scope, Default lang (mapped to undefined)
-    // Note: If no lang specified on <description scope="private">, it defaults to "default" lang
+    // Note: If no lang specified on <g-description scope="private">, it defaults to "default" lang
     expect(setMyCommands).toHaveBeenCalledWith([{command: `cmd1`, description: `Private Description`}], {scope: {type: `private`}, language_code: undefined})
   })
 
@@ -99,9 +99,9 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
     await writeFile(
       join(TEST_DIR, `cmd1.html`),
       `
-      <base>
-        <description>Match Me</description>
-      </base>
+      <g-base>
+        <g-description>Match Me</g-description>
+      </g-base>
     `
     )
 
@@ -128,18 +128,18 @@ describe(`Gramstax.executeSyncBlocksDescription (Integration)`, () => {
     await writeFile(
       join(TEST_DIR, `cmd1.html`),
       `
-      <base>
-        <description>Cmd1 Default</description>
-        <description lang="es">Cmd1 ES</description>
-      </base>
+      <g-base>
+        <g-description>Cmd1 Default</g-description>
+        <g-description lang="es">Cmd1 ES</g-description>
+      </g-base>
     `
     )
     await writeFile(
       join(TEST_DIR, `cmd2.html`),
       `
-      <base>
-        <description>Cmd2 Default</description>
-      </base>
+      <g-base>
+        <g-description>Cmd2 Default</g-description>
+      </g-base>
     `
     )
 

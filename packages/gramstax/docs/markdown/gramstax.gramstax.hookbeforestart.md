@@ -18,5 +18,20 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Override this method to run initialization logic.
+Override this method to run initialization logic. The common use case is to register low-level grammy.js middleware via `this.bot.use(...)` — note that `this.bot` is a raw grammy.js `Bot` instance (not a this wrapper), so you can call any grammy.js API here (plugins, filters, event handlers, etc.), not just middleware. Middleware registered here runs for every incoming update before the router dispatches it, making it suitable for cross-cutting concerns like logging, rate limiting, sessions, or authentication.
+
+## Example
+
+
+```typescript
+class MyBot extends Gramstax {
+  async hookBeforeStart() {
+    // Register grammy.js middleware (low-level)
+    this.bot.use(async (ctx, next) => {
+      this.log?.info?.(`Update ${ctx.update.update_id} from ${ctx.from?.id}`)
+      await next()
+    })
+  }
+}
+```
 

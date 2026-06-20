@@ -9,6 +9,7 @@
     "test:all": "bun run test && bun run test:e2e"
   },
   "dependencies": {
-    "gramstax": "workspace:*"
+    "gramstax": "workspace:*",
+    "@gramstax/worker-thread": "workspace:*"
   }
 }

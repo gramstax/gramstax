@@ -52,9 +52,9 @@ export class StartPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard type="inline">🔎 Browse, 📊 Inline Range, 🧾 Inline WRange, ❓ Help, ♻️ Reset</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard type="inline">🔎 Browse, 📊 Inline Range, 🧾 Inline WRange, ❓ Help, ♻️ Reset</g-keyboard>
+      <g-message>
         🧭 Main Menu
 
         Choose how you want to explore the catalog:
@@ -63,15 +63,15 @@ export class StartPage extends PageBase {
         - 🧾 Inline Simple for quick lists without totals
         - ❓ Help for navigation tips
         - ♻️ Reset to clear stored state
-      </message>
-    </base>
-    <base id="${Base.infoQuick}">
-      <keyboard type="bottom">${this.kbl.home.default}, ${this.kbl.browse.default}, ${this.kbl.help.default}, ${this.kbl.reset.default}</keyboard>
-      <message>
+      </g-message>
+    </g-base>
+    <g-base id="${Base.infoQuick}">
+      <g-keyboard type="bottom">${this.kbl.home.default}, ${this.kbl.browse.default}, ${this.kbl.help.default}, ${this.kbl.reset.default}</g-keyboard>
+      <g-message>
         ✅ Quick actions enabled
 
         Use the bottom keyboard anytime to jump back to core actions.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

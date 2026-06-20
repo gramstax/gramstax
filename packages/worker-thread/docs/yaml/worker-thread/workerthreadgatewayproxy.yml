@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: WorkerThreadGatewayProxy
+uid: '@gramstax/worker-thread!WorkerThreadGatewayProxy:type'
+package: '@gramstax/worker-thread!'
+fullName: WorkerThreadGatewayProxy
+summary: Proxy type for gateway client methods. Transforms worker methods to accept `owner` as first parameter.
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type WorkerThreadGatewayProxy<T> = {
+      [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: any[]) => any ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (owner: WorkerThreadInit, ...args: A) => Promise<Awaited<R>> : never;
+  };

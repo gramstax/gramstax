@@ -2,74 +2,74 @@ import {describe, it, expect} from "bun:test"
 import {TemplateEngine} from "~/template/engine"
 
 describe(`TemplateEngine`, () => {
-  describe(`_processMessageBlocks`, () => {
+  describe(`_processGMessageBlocks`, () => {
     it(`should parse message with explicit lang`, () => {
-      const template = `<message lang="en">Hello</message>`
-      const result = TemplateEngine._processMessageBlocks(template)
+      const template = `<g-message lang="en">Hello</g-message>`
+      const result = TemplateEngine._processGMessageBlocks(template)
       expect(result).toEqual({en: `Hello`})
     })
 
-    it(`should parse message with default lang (missing attr lang)`, () => {
-      const template = `<message>Hello</message>`
-      const result = TemplateEngine._processMessageBlocks(template)
+    it(`should parse <g-message> with default lang (missing attr lang)`, () => {
+      const template = `<g-message>Hello</g-message>`
+      const result = TemplateEngine._processGMessageBlocks(template)
       expect(result).toEqual({default: `Hello`})
     })
 
-    it(`should parse message with mixed attributes`, () => {
-      const template = `<message id="1" lang="es">Hola</message>`
-      const result = TemplateEngine._processMessageBlocks(template)
+    it(`should parse <g-message> with mixed attributes`, () => {
+      const template = `<g-message id="1" lang="es">Hola</g-message>`
+      const result = TemplateEngine._processGMessageBlocks(template)
       expect(result).toEqual({es: `Hola`})
     })
   })
 
-  describe(`_processDescriptionBlocks`, () => {
-    it(`should parse description with explicit lang and scope`, () => {
-      const template = `<description lang="en" scope="private">Desc</description>`
-      const result = TemplateEngine._processDescriptionBlocks(template)
+  describe(`_processGDescriptionBlocks`, () => {
+    it(`should parse <g-description> with explicit lang and scope`, () => {
+      const template = `<g-description lang="en" scope="private">Desc</g-description>`
+      const result = TemplateEngine._processGDescriptionBlocks(template)
       expect(result).toEqual({en: {private: `Desc`}})
     })
 
-    it(`should parse description with default lang and scope`, () => {
-      const template = `<description>Desc</description>`
-      const result = TemplateEngine._processDescriptionBlocks(template)
+    it(`should parse <g-description> with default lang and scope`, () => {
+      const template = `<g-description>Desc</g-description>`
+      const result = TemplateEngine._processGDescriptionBlocks(template)
       expect(result).toEqual({default: {default: `Desc`}})
     })
 
-    it(`should parse description with mixed attributes`, () => {
-      const template = `<description scope="group" lang="id">Deskripsi</description>`
-      const result = TemplateEngine._processDescriptionBlocks(template)
+    it(`should parse <g-description> with mixed attributes`, () => {
+      const template = `<g-description scope="group" lang="id">Deskripsi</g-description>`
+      const result = TemplateEngine._processGDescriptionBlocks(template)
       expect(result).toEqual({id: {group: `Deskripsi`}})
     })
   })
 
-  describe(`_processMediaBlocks`, () => {
-    it(`should parse media with explicit lang`, () => {
-      const template = `<media lang="en" type="photo" src="url">Caption</media>`
-      const result = TemplateEngine._processMediaBlocks(template)
+  describe(`_processGMediaBlocks`, () => {
+    it(`should parse <g-media> with explicit lang`, () => {
+      const template = `<g-media lang="en" type="photo" src="url">Caption</g-media>`
+      const result = TemplateEngine._processGMediaBlocks(template)
       expect(result.en).toBeDefined()
       expect(result.en?.type).toBe(`photo`)
       expect(result.en?.caption).toBe(`Caption`)
     })
 
-    it(`should parse media with default lang`, () => {
-      const template = `<media type="photo" src="url">Caption</media>`
-      const result = TemplateEngine._processMediaBlocks(template)
+    it(`should parse <g-media> with default lang`, () => {
+      const template = `<g-media type="photo" src="url">Caption</g-media>`
+      const result = TemplateEngine._processGMediaBlocks(template)
       expect(result.default).toBeDefined()
       expect(result?.default?.type).toBe(`photo`)
     })
 
-    it(`should parse pipe-delimited media src values as srcList`, () => {
-      const template = `<media type="photo" src="a.jpg | b.jpg | c.jpg">Album</media>`
-      const result = TemplateEngine._processMediaBlocks(template)
+    it(`should parse pipe-delimited <g-media> src values as srcList`, () => {
+      const template = `<g-media type="photo" src="a.jpg | b.jpg | c.jpg">Album</g-media>`
+      const result = TemplateEngine._processGMediaBlocks(template)
 
       expect(result.default?.src).toBe(`a.jpg | b.jpg | c.jpg`)
       expect(result.default?.srcList).toEqual([`a.jpg`, `b.jpg`, `c.jpg`])
     })
 
-    it(`should cap pipe-delimited media srcList to Telegram media group limit`, () => {
+    it(`should cap pipe-delimited <g-media> srcList to Telegram media group limit`, () => {
       const src = Array.from({length: 12}, (_, index) => `file-${index + 1}.jpg`).join(`|`)
-      const template = `<media type="photo" src="${src}">Album</media>`
-      const result = TemplateEngine._processMediaBlocks(template)
+      const template = `<g-media type="photo" src="${src}">Album</g-media>`
+      const result = TemplateEngine._processGMediaBlocks(template)
 
       expect(result.default?.srcList).toHaveLength(10)
       expect(result.default?.srcList?.at(0)).toBe(`file-1.jpg`)
@@ -77,33 +77,33 @@ describe(`TemplateEngine`, () => {
     })
   })
 
-  describe(`_processKeyboardBlocks`, () => {
-    it(`should parse keyboard with explicit lang`, () => {
-      const template = `<keyboard lang="en">Button</keyboard>`
-      const result = TemplateEngine._processKeyboardBlocks(template)
+  describe(`_processGKeyboardBlocks`, () => {
+    it(`should parse <g=keyboard> with explicit lang`, () => {
+      const template = `<g-keyboard lang="en">Button</g-keyboard>`
+      const result = TemplateEngine._processGKeyboardBlocks(template)
       expect(result.en).toBeDefined()
       expect(result?.en?.inline).toBe(`Button`)
     })
 
-    it(`should parse keyboard with default lang`, () => {
-      const template = `<keyboard>Button</keyboard>`
-      const result = TemplateEngine._processKeyboardBlocks(template)
+    it(`should parse <g=keyboard> with default lang`, () => {
+      const template = `<g-keyboard>Button</g-keyboard>`
+      const result = TemplateEngine._processGKeyboardBlocks(template)
       expect(result.default).toBeDefined()
       expect(result?.default?.inline).toBe(`Button`)
     })
 
-    it(`should parse comma-separated buttons`, () => {
-      const template = `<keyboard>test, 1, 666, 27</keyboard>`
-      const result = TemplateEngine._processKeyboardBlocks(template)
+    it(`should parse <g=keyboard> with comma-separated buttons`, () => {
+      const template = `<g-keyboard>test, 1, 666, 27</g-keyboard>`
+      const result = TemplateEngine._processGKeyboardBlocks(template)
       const labels = result.default?.inline?.split(/(?<!\\),\s*/).map((l: string) => l.trim())
       expect(labels).toEqual([`test`, `1`, `666`, `27`])
     })
   })
 
-  describe(`_processMapBlocks`, () => {
+  describe(`_processGMapBlocks`, () => {
     it(`should iterate over a list with e and i`, () => {
-      const template = `<map src="users">{{i}}. {{e.name}}</map>`
-      const processed = TemplateEngine._processMapBlocks(template)
+      const template = `<g-map src="users">{{i}}. {{e.name}}</g-map>`
+      const processed = TemplateEngine._processGMapBlocks(template)
       const fn = TemplateEngine._compileToFunction(processed, false)
 
       const data = {
@@ -113,8 +113,8 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should support custom join separator`, () => {
-      const template = `<map src="tags" join=", ">{{e}}</map>`
-      const processed = TemplateEngine._processMapBlocks(template)
+      const template = `<g-map src="tags" join=", ">{{e}}</g-map>`
+      const processed = TemplateEngine._processGMapBlocks(template)
       const fn = TemplateEngine._compileToFunction(processed, false)
 
       const data = {
@@ -124,8 +124,8 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should support nested properties and global variables`, () => {
-      const template = `<map src="items">{{e.id}}: {{globalPrefix}}-{{e.value}}</map>`
-      let processed = TemplateEngine._processMapBlocks(template)
+      const template = `<g-map src="items">{{e.id}}: {{globalPrefix}}-{{e.value}}</g-map>`
+      let processed = TemplateEngine._processGMapBlocks(template)
       processed = TemplateEngine._processScopeExec(processed)
       processed = TemplateEngine._processScopeVariables(processed)
 
@@ -142,8 +142,8 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should handle empty list`, () => {
-      const template = `List:\n<map src="emptyList">{{e}}</map>`
-      const processed = TemplateEngine._processMapBlocks(template)
+      const template = `List:\n<g-map src="emptyList">{{e}}</g-map>`
+      const processed = TemplateEngine._processGMapBlocks(template)
       const fn = TemplateEngine._compileToFunction(processed, false)
 
       const data = {emptyList: []}
@@ -167,8 +167,8 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should work inside map block`, () => {
-      const template = `<map src="nums">{~ e * 2 ~}</map>`
-      let processed = TemplateEngine._processMapBlocks(template)
+      const template = `<g-map src="nums">{~ e * 2 ~}</g-map>`
+      let processed = TemplateEngine._processGMapBlocks(template)
       processed = TemplateEngine._processScopeExec(processed)
       const fn = TemplateEngine._compileToFunction(processed, false)
 
@@ -177,8 +177,8 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should support index math inside map`, () => {
-      const template = `<map src="nums">{~ i + 1 ~}. {{e}}</map>`
-      let processed = TemplateEngine._processMapBlocks(template)
+      const template = `<g-map src="nums">{~ i + 1 ~}. {{e}}</g-map>`
+      let processed = TemplateEngine._processGMapBlocks(template)
       processed = TemplateEngine._processScopeExec(processed)
 
       const fn = TemplateEngine._compileToFunction(processed, false)
@@ -189,13 +189,13 @@ describe(`TemplateEngine`, () => {
   })
 
   describe(`compileMedia`, () => {
-    it(`should compile dynamic attributes in media blocks`, () => {
+    it(`should compile dynamic attributes in <g-media> blocks`, () => {
       const template = `
-        <base id="profile">
-          <media type="photo" src="{{avatar}}">Name: {{name}}</media>
-        </base>
+        <g-base id="profile">
+          <g-media type="photo" src="{{avatar}}">Name: {{name}}</g-media>
+        </g-base>
       `
-      const compiled = TemplateEngine.compileBlockMedia(template)
+      const compiled = TemplateEngine.compileBlockGMedia(template)
       const data = {avatar: `http://alice.png`, name: `Alice`}
       const media = compiled.profile!.default!(data)
 
@@ -204,13 +204,13 @@ describe(`TemplateEngine`, () => {
       expect(media.caption).toBe(`Name: Alice`)
     })
 
-    it(`should compile dynamic pipe-delimited media src values as srcList`, () => {
+    it(`should compile dynamic pipe-delimited <g-media> src values as srcList`, () => {
       const template = `
-        <base id="album">
-          <media type="photo" src="{{first}}|{{second}}">Album: {{title}}</media>
-        </base>
+        <g-base id="album">
+          <g-media type="photo" src="{{first}}|{{second}}">Album: {{title}}</g-media>
+        </g-base>
       `
-      const compiled = TemplateEngine.compileBlockMedia(template)
+      const compiled = TemplateEngine.compileBlockGMedia(template)
       const media = compiled.album!.default!({first: `a.jpg`, second: `b.jpg`, title: `Photos`})
 
       expect(media.src).toBe(`a.jpg|b.jpg`)
@@ -218,17 +218,17 @@ describe(`TemplateEngine`, () => {
       expect(media.caption).toBe(`Album: Photos`)
     })
 
-    it(`should compile media-group blocks with mixed photo and video items`, () => {
+    it(`should compile <g-media-group> blocks with mixed photo and video items`, () => {
       const template = `
-        <base id="album">
-          <media-group>
-            <media type="photo" src="{{photoUrl}}">Album: {{title}}</media>
-            <media type="video" src="{{videoUrl}}"></media>
-            <media type="photo" src="static.jpg"></media>
-          </media-group>
-        </base>
+        <g-base id="album">
+          <g-media-group>
+            <g-media type="photo" src="{{photoUrl}}">Album: {{title}}</g-media>
+            <g-media type="video" src="{{videoUrl}}"></g-media>
+            <g-media type="photo" src="static.jpg"></g-media>
+          </g-media-group>
+        </g-base>
       `
-      const compiled = TemplateEngine.compileBlockMedia(template)
+      const compiled = TemplateEngine.compileBlockGMedia(template)
       const media = compiled.album!.default!({photoUrl: `photo.jpg`, videoUrl: `video.mp4`, title: `Trip`})
 
       expect(media.type).toBe(`group`)
@@ -240,17 +240,17 @@ describe(`TemplateEngine`, () => {
       ])
     })
 
-    it(`should filter inner media items by lang attribute inside media-group`, () => {
+    it(`should filter inner <g-media> items by lang attribute inside <g-media-group>`, () => {
       const template = `
-        <base id="langGroup">
-          <media-group>
-            <media type="photo" src="en.jpg">English caption</media>
-            <media lang="wkwkland" type="photo" src="wkwk.jpg">Wkwkland caption</media>
-            <media type="photo" src="shared.jpg"></media>
-          </media-group>
-        </base>
+        <g-base id="langGroup">
+          <g-media-group>
+            <g-media type="photo" src="en.jpg">English caption</g-media>
+            <g-media lang="wkwkland" type="photo" src="wkwk.jpg">Wkwkland caption</g-media>
+            <g-media type="photo" src="shared.jpg"></g-media>
+          </g-media-group>
+        </g-base>
       `
-      const compiled = TemplateEngine.compileBlockMedia(template)
+      const compiled = TemplateEngine.compileBlockGMedia(template)
 
       // Default language: only items without lang
       const defaultMedia = compiled.langGroup!.default!({})
@@ -267,30 +267,28 @@ describe(`TemplateEngine`, () => {
       expect(wkwkMedia.type).toBe(`group`)
       expect(wkwkMedia.mediaGroup).toHaveLength(1)
       expect(wkwkMedia.caption).toBe(`Wkwkland caption`)
-      expect(wkwkMedia.mediaGroup).toEqual([
-        {type: `photo`, src: `wkwk.jpg`, caption: `Wkwkland caption`}
-      ])
+      expect(wkwkMedia.mediaGroup).toEqual([{type: `photo`, src: `wkwk.jpg`, caption: `Wkwkland caption`}])
     })
 
-    it(`should filter inner media items by lang id exclusive (user's exact template)`, () => {
+    it(`should filter inner <g-media> items by lang id exclusive (user's exact template)`, () => {
       const template = `
-        <base id="s1">
-          <media-group>
-            <media type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
+        <g-base id="s1">
+          <g-media-group>
+            <g-media type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
               🖼️ Photo group demo
 
               ENGLISH This is caption first photo
-            </media>
-            <media lang="id" type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
+            </g-media>
+            <g-media lang="id" type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
               🖼️ Demo grup foto
 
               Ini adalah caption pertama.
-            </media>
-            <media type="photo" src="https://www.w3schools.com/html/pic_trulli.jpg"></media>
-          </media-group>
-        </base>
+            </g-media>
+            <g-media type="photo" src="https://www.w3schools.com/html/pic_trulli.jpg"></g-media>
+          </g-media-group>
+        </g-base>
       `
-      const compiled = TemplateEngine.compileBlockMedia(template)
+      const compiled = TemplateEngine.compileBlockGMedia(template)
 
       // Default language: only items without lang
       const defaultMedia = compiled.s1!.default!({})
@@ -307,17 +305,17 @@ describe(`TemplateEngine`, () => {
       expect(idMedia.mediaGroup![0]!.src).toContain(`img_girl.jpg`)
     })
 
-    it(`should include shared items in all language variants inside media-group, preserving document order`, () => {
+    it(`should include shared items in all language variants inside <g-media-group>, preserving document order`, () => {
       const template = `
-        <base id="shareTest">
-          <media-group>
-            <media shared type="photo" src="shared.jpg">Shared caption</media>
-            <media type="photo" src="default.jpg">Default only</media>
-            <media lang="id" type="photo" src="id.jpg">ID only</media>
-          </media-group>
-        </base>
+        <g-base id="shareTest">
+          <g-media-group>
+            <g-media shared type="photo" src="shared.jpg">Shared caption</g-media>
+            <g-media type="photo" src="default.jpg">Default only</g-media>
+            <g-media lang="id" type="photo" src="id.jpg">ID only</g-media>
+          </g-media-group>
+        </g-base>
       `
-      const compiled = TemplateEngine.compileBlockMedia(template)
+      const compiled = TemplateEngine.compileBlockGMedia(template)
 
       // Default: items where !lang OR shared — e.g. shared.jpg (shared) + default.jpg (no lang)
       // Order: pic_trulli.jpg (index 0), default.jpg (index 1)
@@ -342,15 +340,15 @@ describe(`TemplateEngine`, () => {
 
     it(`should respect shared="false" as not shared`, () => {
       const template = `
-        <base id="shareFalse">
-          <media-group>
-            <media type="photo" src="default.jpg">Default</media>
-            <media lang="id" type="photo" src="id.jpg">ID</media>
-            <media shared="false" type="photo" src="notshared.jpg">Not shared</media>
-          </media-group>
-        </base>
+        <g-base id="shareFalse">
+          <g-media-group>
+            <g-media type="photo" src="default.jpg">Default</g-media>
+            <g-media lang="id" type="photo" src="id.jpg">ID</g-media>
+            <g-media shared="false" type="photo" src="notshared.jpg">Not shared</g-media>
+          </g-media-group>
+        </g-base>
       `
-      const compiled = TemplateEngine.compileBlockMedia(template)
+      const compiled = TemplateEngine.compileBlockGMedia(template)
 
       const idMedia = compiled.shareFalse!.id!({})
       // shared="false" item should NOT appear in id variant
@@ -360,11 +358,11 @@ describe(`TemplateEngine`, () => {
 
     it(`should support expressions in coordinates`, () => {
       const template = `
-        <base id="loc">
-          <media type="location" latitude="{~ lat + 1 ~}" longitude="{{lng}}"></media>
-        </base>
+        <g-base id="loc">
+          <g-media type="location" latitude="{~ lat + 1 ~}" longitude="{{lng}}"></g-media>
+        </g-base>
       `
-      const compiled = TemplateEngine.compileBlockMedia(template)
+      const compiled = TemplateEngine.compileBlockGMedia(template)
       const data = {lat: 10, lng: `20`}
       const media = compiled.loc!.default!(data)
 
@@ -374,12 +372,12 @@ describe(`TemplateEngine`, () => {
 
     it(`should prioritize local variables for both {{...}} and {~ ... ~} syntax`, () => {
       // Test {{e}}
-      const template1 = `<map src="arr">{{e}}</map>`
-      const fn1 = TemplateEngine._compileToFunction(TemplateEngine._processScopeVariables(TemplateEngine._processMapBlocks(template1)), false)
+      const template1 = `<g-map src="arr">{{e}}</g-map>`
+      const fn1 = TemplateEngine._compileToFunction(TemplateEngine._processScopeVariables(TemplateEngine._processGMapBlocks(template1)), false)
 
       // Test {~ e ~}
-      const template2 = `<map src="arr">{~ e ~}</map>`
-      const fn2 = TemplateEngine._compileToFunction(TemplateEngine._processScopeExec(TemplateEngine._processMapBlocks(template2)), false)
+      const template2 = `<g-map src="arr">{~ e ~}</g-map>`
+      const fn2 = TemplateEngine._compileToFunction(TemplateEngine._processScopeExec(TemplateEngine._processGMapBlocks(template2)), false)
 
       const data = {
         arr: [`local`],
@@ -391,15 +389,15 @@ describe(`TemplateEngine`, () => {
   })
 
   describe(`Integration in compileMessages`, () => {
-    it(`should compile messages with map and exec`, () => {
+    it(`should compile <g-message> with <g-map> and exec`, () => {
       const template = `
-        <base id="list">
-          <message>
-            <map src="users" join=", ">{~ i + 1 ~}. {{e.name}}</map>
-          </message>
-        </base>
+        <g-base id="list">
+          <g-message>
+            <g-map src="users" join=", ">{~ i + 1 ~}. {{e.name}}</g-map>
+          </g-message>
+        </g-base>
       `
-      const compiled = TemplateEngine.compileBlockMessage(template)
+      const compiled = TemplateEngine.compileBlockGMessage(template)
       const fn = compiled[`list`]![`default`]
 
       const data = {users: [{name: `X`}, {name: `Y`}]}
@@ -408,108 +406,108 @@ describe(`TemplateEngine`, () => {
   })
 
   describe(`validateBlockMediaGroup`, () => {
-    it(`should allow media-group blocks directly inside base`, () => {
+    it(`should allow <g-media-group> blocks directly inside <g-base>`, () => {
       const template = `
-        <base>
-          <media-group>
-            <media type="photo" src="a.jpg">Caption</media>
-            <media type="video" src="b.mp4"></media>
-          </media-group>
-        </base>
+        <g-base>
+          <g-media-group>
+            <g-media type="photo" src="a.jpg">Caption</g-media>
+            <g-media type="video" src="b.mp4"></g-media>
+          </g-media-group>
+        </g-base>
       `
 
       expect(TemplateEngine.validateTemplate(template).valid).toBe(true)
     })
 
-    it(`should reject unknown media-group attributes`, () => {
-      const template = `<base><media-group id="bad"><media type="photo" src="a.jpg"></media></media-group></base>`
+    it(`should reject unknown <g-media-group> attributes`, () => {
+      const template = `<g-base><g-media-group id="bad"><g-media type="photo" src="a.jpg"></g-media></g-media-group></g-base>`
       const result = TemplateEngine.validateTemplate(template)
 
       expect(result.valid).toBe(false)
-      expect(result.errors.some((error) => error.message.includes(`Unknown attribute "id" on <media-group>`))).toBe(true)
+      expect(result.errors.some((error) => error.message.includes(`Unknown attribute "id" on <g-media-group>`))).toBe(true)
     })
 
-    it(`should reject unsupported media types inside media-group`, () => {
-      const template = `<base><media-group><media type="animation" src="a.gif"></media></media-group></base>`
+    it(`should reject unsupported <g-media> types inside <g-media-group>`, () => {
+      const template = `<g-base><g-media-group><g-media type="animation" src="a.gif"></g-media></g-media-group></g-base>`
       const result = TemplateEngine.validateTemplate(template)
 
       expect(result.valid).toBe(false)
-      expect(result.errors.some((error) => error.message.includes(`Attribute "type" on <media> inside <media-group>`))).toBe(true)
+      expect(result.errors.some((error) => error.message.includes(`Attribute "type" on <g-media> inside <g-media-group>`))).toBe(true)
     })
   })
   describe(`_extractBlock`, () => {
-    it(`should extract default base content`, () => {
-      const content = `<base>Content</base>`
+    it(`should extract default <g-base> content`, () => {
+      const content = `<g-base>Content</g-base>`
       expect(TemplateEngine._extractBlock(content)).toBe(`Content`)
     })
 
-    it(`should extract named base content`, () => {
-      const content = `<base id="other">Other</base><base id="main">Main</base>`
+    it(`should extract named <g-base> content`, () => {
+      const content = `<g-base id="other">Other</g-base><g-base id="main">Main</g-base>`
       expect(TemplateEngine._extractBlock(content, undefined, `main`)).toBe(`Main`)
     })
 
-    it(`should return empty if base not found`, () => {
-      const content = `<base id="other">Other</base>`
+    it(`should return empty if <g-base> not found`, () => {
+      const content = `<g-base id="other">Other</g-base>`
       expect(TemplateEngine._extractBlock(content, undefined, `main`)).toBe(``)
     })
 
     it(`should extract specific block`, () => {
-      const content = `<base><message>Msg</message><media>Med</media></base>`
-      expect(TemplateEngine._extractBlock(content, `message`)).toBe(`<message>Msg</message>`)
+      const content = `<g-base><g-message>Msg</g-message><g-media>Med</g-media></g-base>`
+      expect(TemplateEngine._extractBlock(content, `g-message`)).toBe(`<g-message>Msg</g-message>`)
     })
 
     it(`should return inner content if section is value`, () => {
-      const content = `<base><message>Msg</message></base>`
-      expect(TemplateEngine._extractBlock(content, `message`, `default`, `value`)).toBe(`Msg`)
+      const content = `<g-base><g-message>Msg</g-message></g-base>`
+      expect(TemplateEngine._extractBlock(content, `g-message`, `default`, `value`)).toBe(`Msg`)
     })
 
     // New tests for multi-block support
     it(`should extract all blocks when blocks="all"`, () => {
-      const content = `<base><message>Msg</message><keyboard>Btn</keyboard></base>`
+      const content = `<g-base><g-message>Msg</g-message><g-keyboard>Btn</g-keyboard></g-base>`
       const result = TemplateEngine._extractBlock(content, `all`)
-      expect(result).toContain(`<message>Msg</message>`)
-      expect(result).toContain(`<keyboard>Btn</keyboard>`)
+      expect(result).toContain(`<g-message>Msg</g-message>`)
+      expect(result).toContain(`<g-keyboard>Btn</g-keyboard>`)
     })
 
     it(`should extract multiple specific blocks with array`, () => {
-      const content = `<base><message>Msg</message><keyboard>Btn</keyboard><media>Med</media></base>`
-      const result = TemplateEngine._extractBlock(content, [`message`, `keyboard`])
-      expect(result).toContain(`<message>Msg</message>`)
-      expect(result).toContain(`<keyboard>Btn</keyboard>`)
-      expect(result).not.toContain(`<media>Med</media>`)
+      const content = `<g-base><g-message>Msg</g-message><g-keyboard>Btn</g-keyboard><g-media>Med</g-media></g-base>`
+      const result = TemplateEngine._extractBlock(content, [`g-message`, `g-keyboard`])
+      expect(result).toContain(`<g-message>Msg</g-message>`)
+      expect(result).toContain(`<g-keyboard>Btn</g-keyboard>`)
+      expect(result).not.toContain(`<g-media>Med</g-media>`)
     })
 
     it(`should handle multi-block with section="value"`, () => {
-      const content = `<base><message>Msg</message><keyboard>Btn</keyboard></base>`
-      const result = TemplateEngine._extractBlock(content, [`message`, `keyboard`], `default`, `value`)
+      const content = `<g-base><g-message>Msg</g-message><g-keyboard>Btn</g-keyboard></g-base>`
+      const result = TemplateEngine._extractBlock(content, [`g-message`, `g-keyboard`], `default`, `value`)
       expect(result).toContain(`Msg`)
       expect(result).toContain(`Btn`)
     })
 
     it(`should filter blocks by lang if specified`, () => {
-      const content = `<base><message lang="en">En</message><message lang="id">Id</message></base>`
-      const result = TemplateEngine._extractBlock(content, `message`, `default`, `value`, `en`)
+      const content = `<g-base><g-message lang="en">En</g-message><g-message lang="id">Id</g-message></g-base>`
+      const result = TemplateEngine._extractBlock(content, `g-message`, `default`, `value`, `en`)
       expect(result).toBe(`En`)
-      const resultId = TemplateEngine._extractBlock(content, `message`, `default`, `value`, `id`)
+      const resultId = TemplateEngine._extractBlock(content, `g-message`, `default`, `value`, `id`)
       expect(resultId).toBe(`Id`)
     })
   })
 
   describe(`_parseImportBlocks`, () => {
     it(`should extract import info and return placeholders`, () => {
-      const template = `Start <import src="file" /> End`
-      const result = TemplateEngine._processImportBlocks(template)
+      const template = `Start <g-import src="file" /> End`
+      const result = TemplateEngine._processGImportBlocks(template)
       expect(result.processed).toBe(`Start __IMPORT_0__ End`)
       expect(result.imports.length).toBe(1)
       expect(result.imports[0]?.src).toBe(`file`)
     })
 
     it(`should parse all attributes correctly`, () => {
-      const template = `<import src="file" block="message" base="main" section="value" />`
-      const result = TemplateEngine._processImportBlocks(template)
+      const template = `<g-import src="file" block="g-message" base="main" section="value" />`
+      const result = TemplateEngine._processGImportBlocks(template)
       expect(result.imports[0]).toEqual({
         src: `file`,
-        blocks: `message`,
+        blocks: `g-message`,
         base: `main`,
         section: `value`,
         indent: ``
@@ -517,8 +515,8 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should handle multiple imports`, () => {
-      const template = `<import src="A" /><import src="B" />`
-      const result = TemplateEngine._processImportBlocks(template)
+      const template = `<g-import src="A" /><g-import src="B" />`
+      const result = TemplateEngine._processGImportBlocks(template)
       expect(result.processed).toBe(`__IMPORT_0____IMPORT_1__`)
       expect(result.imports.length).toBe(2)
       expect(result.imports[0]?.src).toBe(`A`)
@@ -526,84 +524,84 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should parse lang attribute correctly`, () => {
-      const template = `<import src="file" lang="en" />`
-      const result = TemplateEngine._processImportBlocks(template)
+      const template = `<g-import src="file" lang="en" />`
+      const result = TemplateEngine._processGImportBlocks(template)
       expect(result.imports[0]?.lang).toBe(`en`)
     })
 
     // New tests for multi-block parsing
     it(`should parse block="all" as string "all"`, () => {
-      const template = `<import src="file" block="all" />`
-      const result = TemplateEngine._processImportBlocks(template)
+      const template = `<g-import src="file" block="all" />`
+      const result = TemplateEngine._processGImportBlocks(template)
       expect(result.imports[0]?.blocks).toBe(`all`)
     })
 
     it(`should parse comma-separated blocks without spaces`, () => {
-      const template = `<import src="file" block="keyboard,message" />`
-      const result = TemplateEngine._processImportBlocks(template)
-      expect(result.imports[0]?.blocks).toEqual([`keyboard`, `message`])
+      const template = `<g-import src="file" block="keyboard,message" />`
+      const result = TemplateEngine._processGImportBlocks(template)
+      expect(result.imports[0]?.blocks).toEqual([`g-keyboard`, `g-message`])
     })
 
     it(`should parse comma-separated blocks with spaces`, () => {
-      const template = `<import src="file" block="keyboard, message" />`
-      const result = TemplateEngine._processImportBlocks(template)
-      expect(result.imports[0]?.blocks).toEqual([`keyboard`, `message`])
+      const template = `<g-import src="file" block="keyboard, message" />`
+      const result = TemplateEngine._processGImportBlocks(template)
+      expect(result.imports[0]?.blocks).toEqual([`g-keyboard`, `g-message`])
     })
 
     it(`should parse comma-separated blocks with mixed spaces`, () => {
-      const template = `<import src="file" block="keyboard,  message, media" />`
-      const result = TemplateEngine._processImportBlocks(template)
-      expect(result.imports[0]?.blocks).toEqual([`keyboard`, `message`, `media`])
+      const template = `<g-import src="file" block="keyboard,  message, media" />`
+      const result = TemplateEngine._processGImportBlocks(template)
+      expect(result.imports[0]?.blocks).toEqual([`g-keyboard`, `g-message`, `g-media`])
     })
   })
 
   describe(`processImports`, () => {
-    it(`should resolve imports using file resolver callback`, () => {
-      const template = `Start <import src="header" /> End`
-      const fileResolver = (src: string) => (src === `header` ? `<message>Hello</message>` : null)
-      const result = TemplateEngine.processImportBlocks(template, fileResolver)
-      expect(result).toBe(`Start <message>Hello</message> End`)
+    it(`should resolve <g-imports> using file resolver callback`, () => {
+      const template = `Start <g-import src="header" /> End`
+      const fileResolver = (src: string) => (src === `header` ? `<g-message>Hello</g-message>` : null)
+      const result = TemplateEngine.processGImportBlocks(template, fileResolver)
+      expect(result).toBe(`Start <g-message>Hello</g-message> End`)
     })
 
-    it(`should resolve imports with block="all"`, () => {
-      const template = `<import src="shared" block="all" />`
-      const fileResolver = (src: string) => (src === `shared` ? `<base><message>Msg</message><keyboard>Btn</keyboard></base>` : null)
-      const result = TemplateEngine.processImportBlocks(template, fileResolver)
-      expect(result).toContain(`<message>Msg</message>`)
-      expect(result).toContain(`<keyboard>Btn</keyboard>`)
+    it(`should resolve <g-imports> with block="all"`, () => {
+      const template = `<g-import src="shared" block="all" />`
+      const fileResolver = (src: string) => (src === `shared` ? `<g-base><g-message>Msg</g-message><g-keyboard>Btn</g-keyboard></g-base>` : null)
+      const result = TemplateEngine.processGImportBlocks(template, fileResolver)
+      expect(result).toContain(`<g-message>Msg</g-message>`)
+      expect(result).toContain(`<g-keyboard>Btn</g-keyboard>`)
     })
 
-    it(`should resolve imports with multi-block`, () => {
-      const template = `<import src="shared" block="keyboard,message" />`
-      const fileResolver = (src: string) => (src === `shared` ? `<base><message>Msg</message><keyboard>Btn</keyboard><media>Med</media></base>` : null)
-      const result = TemplateEngine.processImportBlocks(template, fileResolver)
-      expect(result).toContain(`<message>Msg</message>`)
-      expect(result).toContain(`<keyboard>Btn</keyboard>`)
-      expect(result).not.toContain(`<media>Med</media>`)
+    it(`should resolve <g-imports> with multi-block`, () => {
+      const template = `<g-import src="shared" block="keyboard,message" />`
+      const fileResolver = (src: string) => (src === `shared` ? `<g-base><g-message>Msg</g-message><g-keyboard>Btn</g-keyboard><g-media>Med</g-media></g-base>` : null)
+      const result = TemplateEngine.processGImportBlocks(template, fileResolver)
+      expect(result).toContain(`<g-message>Msg</g-message>`)
+      expect(result).toContain(`<g-keyboard>Btn</g-keyboard>`)
+      expect(result).not.toContain(`<g-media>Med</g-media>`)
     })
 
-    it(`should resolve imports recursively`, () => {
-      const template = `<import src="A" />`
+    it(`should resolve <g-imports> recursively`, () => {
+      const template = `<g-import src="A" />`
       const fileResolver = (src: string) => {
-        if (src === `A`) return `<import src="B" />`
+        if (src === `A`) return `<g-import src="B" />`
         if (src === `B`) return `Resolved B`
         return null
       }
-      const result = TemplateEngine.processImportBlocks(template, fileResolver)
+      const result = TemplateEngine.processGImportBlocks(template, fileResolver)
       expect(result.trim()).toBe(`Resolved B`)
     })
 
     it(`should prevent infinite recursion`, () => {
-      const template = `<import src="loop" />`
-      const fileResolver = (src: string) => (src === `loop` ? `<import src="loop" />` : null)
-      const result = TemplateEngine.processImportBlocks(template, fileResolver)
+      const template = `<g-import src="loop" />`
+      const fileResolver = (src: string) => (src === `loop` ? `<g-import src="loop" />` : null)
+      const result = TemplateEngine.processGImportBlocks(template, fileResolver)
       expect(result.trim()).toBe(``)
     })
 
-    it(`should filter imports by lang`, () => {
-      const template = `<import src="shared" block="message" lang="id" section="value" />`
-      const fileResolver = (src: string) => (src === `shared` ? `<base><message lang="en">En</message><message lang="id">Id</message></base>` : null)
-      const result = TemplateEngine.processImportBlocks(template, fileResolver)
+    it(`should filter <g-imports> by lang`, () => {
+      const template = `<g-import src="shared" block="g-message" lang="id" section="value" />`
+      const fileResolver = (src: string) => (src === `shared` ? `<g-base><g-message lang="en">En</g-message><g-message lang="id">Id</g-message></g-base>` : null)
+      const result = TemplateEngine.processGImportBlocks(template, fileResolver)
       expect(result).toBe(`Id`)
     })
   })
@@ -615,77 +613,77 @@ describe(`TemplateEngine`, () => {
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for plain text without <base> block`, () => {
+    it(`should return invalid for plain text without <g-base> block`, () => {
       const result = TemplateEngine.validatePositionsBlock(`Just some text`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBeGreaterThan(0)
-      expect(result.errors[0]!.message).toContain(`Missing <base> block`)
+      expect(result.errors[0]!.message).toContain(`Missing <g-base> block`)
     })
 
     it(`should return valid for a well-formed template`, () => {
       const template = `
-        <base>
-          <message>Hello {{name}}!</message>
-          <keyboard>Yes, No</keyboard>
-        </base>
+        <g-base>
+          <g-message>Hello {{name}}!</g-message>
+          <g-keyboard>Yes, No</g-keyboard>
+        </g-base>
       `
       const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for multiple base blocks`, () => {
+    it(`should return valid for multiple <g-base> blocks`, () => {
       const template = `
-        <base id="main">
-          <message>Hello</message>
-        </base>
-        <base id="error">
-          <message>Error</message>
-        </base>
+        <g-base id="main">
+          <g-message>Hello</g-message>
+        </g-base>
+        <g-base id="error">
+          <g-message>Error</g-message>
+        </g-base>
       `
       const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for switch with case and default inside message`, () => {
+    it(`should return valid for <g-switch> with <g-case> and <g-default> inside <g-message>`, () => {
       const template = `
-        <base>
-          <message>
-            <switch value="status">
-              <case is="active">Active</case>
-              <default>Unknown</default>
-            </switch>
-          </message>
-        </base>
+        <g-base>
+          <g-message>
+            <g-switch value="status">
+              <g-case is="active">Active</g-case>
+              <g-default>Unknown</g-default>
+            </g-switch>
+          </g-message>
+        </g-base>
       `
       const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for map and div blocks inside message`, () => {
+    it(`should return valid for <g-map> and <g-div> blocks inside <g-message>`, () => {
       const template = `
-        <base>
-          <message>
-            <map src="items">
-              <div>{{e.name}}</div>
-            </map>
-          </message>
-        </base>
+        <g-base>
+          <g-message>
+            <g-map src="items">
+              <g-div>{{e.name}}</g-div>
+            </g-map>
+          </g-message>
+        </g-base>
       `
       const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for import and space blocks`, () => {
+    it(`should return valid for <g-import> and <g-space> blocks`, () => {
       const template = `
-        <base>
-          <import src="header" block="message" />
-          <message>Content</message>
-          <space />
-        </base>
+        <g-base>
+          <g-import src="header" block="g-message" />
+          <g-message>Content</g-message>
+          <g-space />
+        </g-base>
       `
       const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
@@ -694,59 +692,59 @@ describe(`TemplateEngine`, () => {
 
     it(`should ignore passthrough Telegram HTML tags`, () => {
       const template = `
-        <base>
-          <message><b>Bold</b> and <i>italic</i></message>
-        </base>
+        <g-base>
+          <g-message><b>Bold</b> and <i>italic</i></g-message>
+        </g-base>
       `
       const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should detect base nested inside message`, () => {
+    it(`should detect base nested inside <g-message>`, () => {
       const result = TemplateEngine.validatePositionsBlock(`
-        <base>
-          <message>
-            <base>Nested base</base>
-          </message>
-        </base>
+        <g-base>
+          <g-message>
+            <g-base>Nested base</g-base>
+          </g-message>
+        </g-base>
       `)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBeGreaterThanOrEqual(1)
-      expect(result.errors[0]?.message).toContain(`base`)
-      expect(result.errors[0]?.message).toContain(`message`)
+      expect(result.errors[0]?.message).toContain(`g-base`)
+      expect(result.errors[0]?.message).toContain(`g-message`)
     })
 
-    it(`should detect message inside message`, () => {
+    it(`should detect message inside <g-message>`, () => {
       const result = TemplateEngine.validatePositionsBlock(`
-        <base>
-          <message>
-            <message>Nested message</message>
-          </message>
-        </base>
+        <g-base>
+          <g-message>
+            <g-message>Nested message</g-message>
+          </g-message>
+        </g-base>
       `)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBeGreaterThanOrEqual(1)
-      expect(result.errors[0]?.message).toContain(`message`)
+      expect(result.errors[0]?.message).toContain(`g-message`)
     })
 
-    it(`should detect case outside switch`, () => {
+    it(`should detect <g-case> outside <g-switch>`, () => {
       const result = TemplateEngine.validatePositionsBlock(`
-        <base>
-          <case is="test">Outside</case>
-        </base>
+        <g-base>
+          <g-case is="test">Outside</g-case>
+        </g-base>
       `)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBeGreaterThanOrEqual(1)
-      expect(result.errors[0]?.message).toContain(`case`)
+      expect(result.errors[0]?.message).toContain(`g-case`)
     })
 
     it(`should detect mismatched closing tags`, () => {
       const result = TemplateEngine.validatePositionsBlock(`
-        <base>
-          <message>Hello</message>
-          </keyboard>
-        </base>
+        <g-base>
+          <g-message>Hello</g-message>
+          </g-keyboard>
+        </g-base>
       `)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBeGreaterThanOrEqual(1)
@@ -755,10 +753,10 @@ describe(`TemplateEngine`, () => {
 
     it(`should detect unexpected closing tag`, () => {
       const result = TemplateEngine.validatePositionsBlock(`
-        <base>
-          <message>Hello</message>
-        </base>
-        </message>
+        <g-base>
+          <g-message>Hello</g-message>
+        </g-base>
+        </g-message>
       `)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBeGreaterThanOrEqual(1)
@@ -767,17 +765,17 @@ describe(`TemplateEngine`, () => {
 
     it(`should detect unclosed block`, () => {
       const result = TemplateEngine.validatePositionsBlock(`
-        <base>
-          <message>Unclosed
-        </base>
+        <g-base>
+          <g-message>Unclosed
+        </g-base>
       `)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBeGreaterThanOrEqual(1)
-      expect(result.errors.some((e) => e.message.includes(`Unclosed`) && e.message.includes(`message`))).toBe(true)
+      expect(result.errors.some((e) => e.message.includes(`Unclosed`) && e.message.includes(`g-message`))).toBe(true)
     })
 
     it(`should return correct line numbers for errors`, () => {
-      const result = TemplateEngine.validatePositionsBlock(`<base>\n  <message>\n    <base>Inner</base>\n  </message>\n</base>`)
+      const result = TemplateEngine.validatePositionsBlock(`<g-base>\n  <g-message>\n    <g-base>Inner</g-base>\n  </g-message>\n</g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBeGreaterThanOrEqual(1)
       expect(result.errors[0]?.line).toBe(3)
@@ -785,35 +783,35 @@ describe(`TemplateEngine`, () => {
   })
 
   describe(`validateBaseAttributes`, () => {
-    it(`should return valid for base with no attributes`, () => {
-      const result = TemplateEngine.validateBlockBaseAttributes(`<base></base>`)
+    it(`should return valid for <g-base> with no attributes`, () => {
+      const result = TemplateEngine.validateBlockGBaseAttributes(`<g-base></g-base>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for base with valid id attribute`, () => {
-      const result = TemplateEngine.validateBlockBaseAttributes(`<base id="main"></base>`)
+    it(`should return valid for <g-base> with valid id attribute`, () => {
+      const result = TemplateEngine.validateBlockGBaseAttributes(`<g-base id="main"></g-base>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for base with unknown attribute`, () => {
-      const result = TemplateEngine.validateBlockBaseAttributes(`<base lang="en"></base>`)
+    it(`should return invalid for <g-base> with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockGBaseAttributes(`<g-base lang="en"></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`lang`)
     })
 
-    it(`should return invalid for base with empty id`, () => {
-      const result = TemplateEngine.validateBlockBaseAttributes(`<base id=""></base>`)
+    it(`should return invalid for <g-base> with empty id`, () => {
+      const result = TemplateEngine.validateBlockGBaseAttributes(`<g-base id=""></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`id`)
       expect(result.errors[0]?.message).toContain(`empty`)
     })
 
-    it(`should report all invalid attributes on a single base`, () => {
-      const result = TemplateEngine.validateBlockBaseAttributes(`<base id="x" class="y" data-x="z"></base>`)
+    it(`should report all invalid attributes on a single <g-base>`, () => {
+      const result = TemplateEngine.validateBlockGBaseAttributes(`<g-base id="x" class="y" data-x="z"></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(2)
       expect(result.errors[0]?.message).toContain(`class`)
@@ -821,127 +819,127 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should report unknown attribute on the correct line`, () => {
-      const result = TemplateEngine.validateBlockBaseAttributes(`<base></base>\n<base lang="en"></base>`)
+      const result = TemplateEngine.validateBlockGBaseAttributes(`<g-base></g-base>\n<g-base lang="en"></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.line).toBe(2)
     })
 
     it(`should be included in validateTemplate full validation`, () => {
-      const result = TemplateEngine.validateTemplate(`<base lang="en"><message>Hi</message></base>`)
+      const result = TemplateEngine.validateTemplate(`<g-base lang="en"><g-message>Hi</g-message></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.some((e) => e.message.includes(`lang`))).toBe(true)
     })
   })
 
   describe(`validateMessageAttributes`, () => {
-    it(`should return valid for message with no attributes`, () => {
-      const result = TemplateEngine.validateBlockMessageAttributes(`<message>Hello</message>`)
+    it(`should return valid for <g-message> with no attributes`, () => {
+      const result = TemplateEngine.validateBlockGMessageAttributes(`<g-message>Hello</g-message>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for message with valid lang attribute`, () => {
-      const result = TemplateEngine.validateBlockMessageAttributes(`<message lang="en">Hello</message>`)
+    it(`should return valid for <g-message> with valid lang attribute`, () => {
+      const result = TemplateEngine.validateBlockGMessageAttributes(`<g-message lang="en">Hello</g-message>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for message with unknown attribute`, () => {
-      const result = TemplateEngine.validateBlockMessageAttributes(`<message id="1">Hello</message>`)
+    it(`should return invalid for <g-message> with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockGMessageAttributes(`<g-message id="1">Hello</g-message>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`id`)
     })
 
     it(`should report unknown attribute on the correct line`, () => {
-      const result = TemplateEngine.validateBlockMessageAttributes(`<message>Ok</message>\n<message class="x">Bad</message>`)
+      const result = TemplateEngine.validateBlockGMessageAttributes(`<g-message>Ok</g-message>\n<g-message class="x">Bad</g-message>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.line).toBe(2)
     })
 
     it(`should be included in validateTemplate full validation`, () => {
-      const result = TemplateEngine.validateTemplate(`<base><message id="x">Hi</message></base>`)
+      const result = TemplateEngine.validateTemplate(`<g-base><g-message id="x">Hi</g-message></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
     })
   })
 
   describe(`validateKeyboardAttributes`, () => {
-    it(`should return valid for keyboard with no attributes`, () => {
-      const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard>A, B</keyboard>`)
+    it(`should return valid for <g-keyboard> with no attributes`, () => {
+      const result = TemplateEngine.validateBlockGKeyboardAttributes(`<g-keyboard>A, B</g-keyboard>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for keyboard with type inline`, () => {
-      const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard type="inline">A, B</keyboard>`)
+    it(`should return valid for <g-keyboard> with type inline`, () => {
+      const result = TemplateEngine.validateBlockGKeyboardAttributes(`<g-keyboard type="inline">A, B</g-keyboard>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for keyboard with type bottom`, () => {
-      const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard type="bottom">A, B</keyboard>`)
+    it(`should return valid for <g-keyboard> with type bottom`, () => {
+      const result = TemplateEngine.validateBlockGKeyboardAttributes(`<g-keyboard type="bottom">A, B</g-keyboard>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for keyboard with valid lang and type`, () => {
-      const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard lang="id" type="bottom">Ya, Tidak</keyboard>`)
+    it(`should return valid for <g-keyboard> with valid lang and type`, () => {
+      const result = TemplateEngine.validateBlockGKeyboardAttributes(`<g-keyboard lang="id" type="bottom">Ya, Tidak</g-keyboard>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for keyboard with invalid type value`, () => {
-      const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard type="top">A, B</keyboard>`)
+    it(`should return invalid for <g-keyboard> with invalid type value`, () => {
+      const result = TemplateEngine.validateBlockGKeyboardAttributes(`<g-keyboard type="top">A, B</g-keyboard>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`must be "inline" or "bottom"`)
     })
 
-    it(`should return invalid for keyboard with unknown attribute`, () => {
-      const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard id="x">A, B</keyboard>`)
+    it(`should return invalid for <g-keyboard> with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockGKeyboardAttributes(`<g-keyboard id="x">A, B</g-keyboard>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`id`)
     })
 
     it(`should be included in validateTemplate full validation`, () => {
-      const result = TemplateEngine.validateTemplate(`<base><keyboard id="x">A</keyboard></base>`)
+      const result = TemplateEngine.validateTemplate(`<g-base><g-keyboard id="x">A</g-keyboard></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
     })
   })
 
   describe(`validateMediaAttributes`, () => {
-    it(`should return valid for media with all valid attributes`, () => {
-      const result = TemplateEngine.validateBlockMediaAttributes(`<media type="photo" src="img.jpg" lang="en">Caption</media>`)
+    it(`should return valid for <g-media> with all valid attributes`, () => {
+      const result = TemplateEngine.validateBlockGMediaAttributes(`<g-media type="photo" src="img.jpg" lang="en">Caption</g-media>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for media with location attributes`, () => {
-      const result = TemplateEngine.validateBlockMediaAttributes(`<media type="location" latitude="-6.2" longitude="106.8">Loc</media>`)
+    it(`should return valid for <g-media> with location attributes`, () => {
+      const result = TemplateEngine.validateBlockGMediaAttributes(`<g-media type="location" latitude="-6.2" longitude="106.8">Loc</g-media>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for media with contact attributes`, () => {
-      const result = TemplateEngine.validateBlockMediaAttributes(`<media type="contact" phone="123" first_name="John" last_name="Doe" vcard="BEGIN:VCARD">Contact</media>`)
+    it(`should return valid for <g-media> with contact attributes`, () => {
+      const result = TemplateEngine.validateBlockGMediaAttributes(`<g-media type="contact" phone="123" first_name="John" last_name="Doe" vcard="BEGIN:VCARD">Contact</g-media>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for media with unknown attribute`, () => {
-      const result = TemplateEngine.validateBlockMediaAttributes(`<media type="photo" id="x">Cap</media>`)
+    it(`should return invalid for <g-media> with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockGMediaAttributes(`<g-media type="photo" id="x">Cap</g-media>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`id`)
     })
 
-    it(`should return invalid for media with invalid type value`, () => {
-      const result = TemplateEngine.validateBlockMediaAttributes(`<media type="gif">Cap</media>`)
+    it(`should return invalid for <g-media> with invalid type value`, () => {
+      const result = TemplateEngine.validateBlockGMediaAttributes(`<g-media type="gif">Cap</g-media>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`must be one of`)
@@ -949,90 +947,90 @@ describe(`TemplateEngine`, () => {
     })
 
     it(`should be included in validateTemplate full validation`, () => {
-      const result = TemplateEngine.validateTemplate(`<base><media type="photo" id="x">Cap</media></base>`)
+      const result = TemplateEngine.validateTemplate(`<g-base><g-media type="photo" id="x">Cap</g-media></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
     })
   })
 
   describe(`validateDescriptionAttributes`, () => {
-    it(`should return valid for description with no attributes`, () => {
-      const result = TemplateEngine.validateBlockDescriptionAttributes(`<description>Start</description>`)
+    it(`should return valid for <g-description> with no attributes`, () => {
+      const result = TemplateEngine.validateBlockGDescriptionAttributes(`<g-description>Start</g-description>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for description with lang and scope`, () => {
-      const result = TemplateEngine.validateBlockDescriptionAttributes(`<description lang="id" scope="chat_administrators">Mulai</description>`)
+    it(`should return valid for <g-description> with lang and scope`, () => {
+      const result = TemplateEngine.validateBlockGDescriptionAttributes(`<g-description lang="id" scope="chat_administrators">Mulai</g-description>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for description with unknown attribute`, () => {
-      const result = TemplateEngine.validateBlockDescriptionAttributes(`<description id="x">Start</description>`)
+    it(`should return invalid for <g-description> with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockGDescriptionAttributes(`<g-description id="x">Start</g-description>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`id`)
     })
 
     it(`should be included in validateTemplate full validation`, () => {
-      const result = TemplateEngine.validateTemplate(`<base><description id="x">Start</description></base>`)
+      const result = TemplateEngine.validateTemplate(`<g-base><g-description id="x">Start</g-description></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
     })
   })
 
   describe(`validateScriptAttributes`, () => {
-    it(`should return valid for script with no attributes`, () => {
-      const result = TemplateEngine.validateBlockScriptAttributes(`<script>return x;</script>`)
+    it(`should return valid for <g-script> with no attributes`, () => {
+      const result = TemplateEngine.validateBlockGScriptAttributes(`<g-script>return x;</g-script>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for script with any attribute`, () => {
-      const result = TemplateEngine.validateBlockScriptAttributes(`<script lang="en">return x;</script>`)
+    it(`should return invalid for <g-script> with any attribute`, () => {
+      const result = TemplateEngine.validateBlockGScriptAttributes(`<g-script lang="en">return x;</g-script>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`lang`)
     })
 
     it(`should be included in validateTemplate full validation`, () => {
-      const result = TemplateEngine.validateTemplate(`<base><script id="x">return 1;</script></base>`)
+      const result = TemplateEngine.validateTemplate(`<g-base><g-script id="x">return 1;</g-script></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
     })
   })
 
   describe(`validateSwitchAttributes`, () => {
-    it(`should return valid for switch with value attribute`, () => {
-      const result = TemplateEngine.validateBlockSwitchAttributes(`<switch value="status"><case is="a">A</case></switch>`)
+    it(`should return valid for <g-switch> with value attribute`, () => {
+      const result = TemplateEngine.validateBlockGSwitchAttributes(`<g-switch value="status"><g-case is="a">A</g-case></g-switch>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for switch with unknown attribute`, () => {
-      const result = TemplateEngine.validateBlockSwitchAttributes(`<switch value="status" id="x"><case is="a">A</case></switch>`)
+    it(`should return invalid for <g-switch> with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockGSwitchAttributes(`<g-switch value="status" id="x"><g-case is="a">A</g-case></g-switch>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`id`)
     })
 
     it(`should be included in validateTemplate full validation`, () => {
-      const result = TemplateEngine.validateTemplate(`<base><message><switch id="x"><case is="a">A</case></switch></message></base>`)
+      const result = TemplateEngine.validateTemplate(`<g-base><g-message><g-switch id="x"><g-case is="a">A</g-case></g-switch></g-message></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
     })
   })
 
   describe(`validateCaseAttributes`, () => {
-    it(`should return valid for case with is attribute`, () => {
-      const result = TemplateEngine.validateBlockCaseAttributes(`<case is="active">Active</case>`)
+    it(`should return valid for <g-case> with is attribute`, () => {
+      const result = TemplateEngine.validateBlockGCaseAttributes(`<g-case is="active">Active</g-case>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for case with unknown attribute`, () => {
-      const result = TemplateEngine.validateBlockCaseAttributes(`<case is="a" id="x">A</case>`)
+    it(`should return invalid for <g-case> with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockGCaseAttributes(`<g-case is="a" id="x">A</g-case>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`id`)
@@ -1040,14 +1038,14 @@ describe(`TemplateEngine`, () => {
   })
 
   describe(`validateDefaultAttributes`, () => {
-    it(`should return valid for default with no attributes`, () => {
-      const result = TemplateEngine.validateBlockDefaultAttributes(`<default>Unknown</default>`)
+    it(`should return valid for <g-default> with no attributes`, () => {
+      const result = TemplateEngine.validateBlockGDefaultAttributes(`<g-default>Unknown</g-default>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for default with any attribute`, () => {
-      const result = TemplateEngine.validateBlockDefaultAttributes(`<default id="x">Unknown</default>`)
+    it(`should return invalid for <g-default> with any attribute`, () => {
+      const result = TemplateEngine.validateBlockGDefaultAttributes(`<g-default id="x">Unknown</g-default>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`id`)
@@ -1055,41 +1053,41 @@ describe(`TemplateEngine`, () => {
   })
 
   describe(`validateMapAttributes`, () => {
-    it(`should return valid for map with src and join`, () => {
-      const result = TemplateEngine.validateBlockMapAttributes(`<map src="items" join=", ">{{e}}</map>`)
+    it(`should return valid for <g-map> with src and join`, () => {
+      const result = TemplateEngine.validateBlockGMapAttributes(`<g-map src="items" join=", ">{{e}}</g-map>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for map with src only`, () => {
-      const result = TemplateEngine.validateBlockMapAttributes(`<map src="items">{{e}}</map>`)
+    it(`should return valid for <g-map> with src only`, () => {
+      const result = TemplateEngine.validateBlockGMapAttributes(`<g-map src="items">{{e}}</g-map>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for map with unknown attribute`, () => {
-      const result = TemplateEngine.validateBlockMapAttributes(`<map src="items" id="x">{{e}}</map>`)
+    it(`should return invalid for <g-map> with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockGMapAttributes(`<g-map src="items" id="x">{{e}}</g-map>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`id`)
     })
 
     it(`should be included in validateTemplate full validation`, () => {
-      const result = TemplateEngine.validateTemplate(`<base><message><map src="x" id="y">{{e}}</map></message></base>`)
+      const result = TemplateEngine.validateTemplate(`<g-base><g-message><g-map src="x" id="y">{{e}}</g-map></g-message></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
     })
   })
 
   describe(`validateDivAttributes`, () => {
-    it(`should return valid for div with no attributes`, () => {
-      const result = TemplateEngine.validateBlockDivAttributes(`<div>content</div>`)
+    it(`should return valid for <g-div> with no attributes`, () => {
+      const result = TemplateEngine.validateBlockGDivAttributes(`<g-div>content</g-div>`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for div with any attribute`, () => {
-      const result = TemplateEngine.validateBlockDivAttributes(`<div class="x">content</div>`)
+    it(`should return invalid for <g-div> with any attribute`, () => {
+      const result = TemplateEngine.validateBlockGDivAttributes(`<g-div class="x">content</g-div>`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`class`)
@@ -1097,44 +1095,649 @@ describe(`TemplateEngine`, () => {
   })
 
   describe(`validateImportAttributes`, () => {
-    it(`should return valid for import with src only`, () => {
-      const result = TemplateEngine.validateBlockImportAttributes(`<import src="other" />`)
+    it(`should return valid for <g-import/> with src only`, () => {
+      const result = TemplateEngine.validateBlockGImportAttributes(`<g-import src="other" />`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return valid for import with all valid attributes`, () => {
-      const result = TemplateEngine.validateBlockImportAttributes(`<import src="other" block="message" base="main" lang="en" section="value" />`)
+    it(`should return valid for <g-import/> with all valid attributes`, () => {
+      const result = TemplateEngine.validateBlockGImportAttributes(`<g-import src="other" block="g-message" base="main" lang="en" section="value" />`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for import with unknown attribute`, () => {
-      const result = TemplateEngine.validateBlockImportAttributes(`<import src="other" id="x" />`)
+    it(`should return invalid for <g-import/> with unknown attribute`, () => {
+      const result = TemplateEngine.validateBlockGImportAttributes(`<g-import src="other" id="x" />`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`id`)
     })
 
     it(`should be included in validateTemplate full validation`, () => {
-      const result = TemplateEngine.validateTemplate(`<base><import src="x" id="y" /></base>`)
+      const result = TemplateEngine.validateTemplate(`<g-base><g-import src="x" id="y" /></g-base>`)
       expect(result.valid).toBe(false)
       expect(result.errors.some((e) => e.message.includes(`id`))).toBe(true)
     })
   })
 
   describe(`validateSpaceAttributes`, () => {
-    it(`should return valid for space with no attributes`, () => {
-      const result = TemplateEngine.validateBlockSpaceAttributes(`<space />`)
+    it(`should return valid for <g-space/> with no attributes`, () => {
+      const result = TemplateEngine.validateBlockGSpaceAttributes(`<g-space />`)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
     })
 
-    it(`should return invalid for space with any attribute`, () => {
-      const result = TemplateEngine.validateBlockSpaceAttributes(`<space id="x" />`)
+    it(`should return invalid for <g-space/> with any attribute`, () => {
+      const result = TemplateEngine.validateBlockGSpaceAttributes(`<g-space id="x" />`)
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBe(1)
       expect(result.errors[0]?.message).toContain(`id`)
+    })
+  })
+
+  describe(`validateTelegramAttributes`, () => {
+    it(`should return valid for empty template`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(``)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for plain text without any tags`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`Just some text`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for <a> with href (link)`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<a href="https://t.me/">link</a>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for <a> with name (anchor)`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<a name="chapter-1"></a>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for <a> with both href and name`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<a href="x" name="y">x</a>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for <a> with neither href nor name`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<a>broken</a>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toBe(`<a> must have one of: href | name`)
+    })
+
+    it(`should return valid for <img/> with src`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<img src="https://telegram.org/x.jpg"/>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for <img/> without src`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<img/>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toBe(`<img/> is missing required attribute(s): src`)
+    })
+
+    it(`should return valid for <video> with src`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<video src="https://x/v.mp4"></video>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for <video> without src`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<video></video>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`src`)
+    })
+
+    it(`should return valid for <audio> with src`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<audio src="https://x/a.mp3"></audio>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for <audio> without src`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<audio></audio>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`src`)
+    })
+
+    it(`should return valid for <tg-emoji> with emoji-id`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<tg-emoji emoji-id="5368324170671202286">👍</tg-emoji>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for <tg-emoji> without emoji-id`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<tg-emoji>👍</tg-emoji>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toBe(`<tg-emoji> is missing required attribute(s): emoji-id`)
+    })
+
+    it(`should return valid for <tg-time> with unix and format`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<tg-time unix="1647531900" format="wDT">22:45</tg-time>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for <tg-time> with only unix`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<tg-time unix="1647531900">x</tg-time>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toBe(`<tg-time> is missing required attribute(s): format`)
+    })
+
+    it(`should return invalid for <tg-time> with only format`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<tg-time format="wDT">x</tg-time>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toBe(`<tg-time> is missing required attribute(s): unix`)
+    })
+
+    it(`should return valid for <tg-map> with all three required attrs`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<tg-map lat="41.9" long="12.5" zoom="14"/>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for <tg-map/> missing one required attr`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<tg-map lat="41.9" long="12.5"/>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toBe(`<tg-map/> is missing required attribute(s): zoom`)
+    })
+
+    it(`should return valid for <tg-reference> with name`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<tg-reference name="note-1">x</tg-reference>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for <tg-reference> without name`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<tg-reference>x</tg-reference>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toBe(`<tg-reference> is missing required attribute(s): name`)
+    })
+
+    it(`should return valid for <input type="checkbox" checked/> (boolean attr)`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<input type="checkbox" checked>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return invalid for <input/> without type`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<input/>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toBe(`<input/> is missing required attribute(s): type`)
+    })
+
+    it(`should not flag tags without required attrs (<b>, <p>, <hr/>, <table>)`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<b>bold</b> <p>para</p> <hr/> <table></table>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should not flag <g-base>, <g-message>, etc. (different validator)`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<g-base><g-message>Hi</g-message></g-base>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should report correct line number for multiline template`, () => {
+      const template = `<g-base>
+  <g-message>
+    <a>broken</a>
+  </g-message>
+</g-base>`
+      const result = TemplateEngine.validateTelegramAttributesBlock(template)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.line).toBe(3)
+    })
+
+    it(`should report multiple errors for multiple bad tags`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<a>x</a><img/><video></video>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(3)
+    })
+
+    it(`should accept single-quoted attribute values`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<a href='https://t.me/'>x</a>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should accept unquoted attribute values`, () => {
+      const result = TemplateEngine.validateTelegramAttributesBlock(`<a href=https://t.me/>x</a>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should be included in validateTemplate full validation`, () => {
+      const result = TemplateEngine.validateTemplate(`<g-base><g-message><a>broken</a></g-message></g-base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((e) => e.message.includes(`<a> must have one of:`))).toBe(true)
+    })
+  })
+
+  describe(`validateFormatBlock with Rich HTML void tags`, () => {
+    it(`<hr/> is valid (self-closing)`, () => {
+      const result = TemplateEngine.validateFormatBlock(`<hr/>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`<hr> is invalid (not self-closing)`, () => {
+      const result = TemplateEngine.validateFormatBlock(`<hr>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(1)
+      expect(result.errors[0]?.message).toBe(`Block <hr> must be self-closing: use <hr /> instead`)
+    })
+
+    it(`<hr></hr> is invalid (open+close, void must be self-closing)`, () => {
+      const result = TemplateEngine.validateFormatBlock(`<hr></hr>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`must be self-closing`)
+    })
+
+    it(`<img src="x.jpg"/> is valid`, () => {
+      const result = TemplateEngine.validateFormatBlock(`<img src="x.jpg"/>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`<img src="x.jpg"> is invalid (not self-closing)`, () => {
+      const result = TemplateEngine.validateFormatBlock(`<img src="x.jpg">`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toBe(`Block <img> must be self-closing: use <img /> instead`)
+    })
+
+    it(`<input type="checkbox"/> is valid (self-closing)`, () => {
+      const result = TemplateEngine.validateFormatBlock(`<input type="checkbox"/>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`<input type="checkbox"> is invalid (not self-closing)`, () => {
+      const result = TemplateEngine.validateFormatBlock(`<input type="checkbox">`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`must be self-closing`)
+    })
+
+    it(`<br/> is valid`, () => {
+      const result = TemplateEngine.validateFormatBlock(`<br/>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`<br> is invalid (not self-closing)`, () => {
+      const result = TemplateEngine.validateFormatBlock(`<br>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toBe(`Block <br> must be self-closing: use <br /> instead`)
+    })
+
+    it(`<tg-map lat="1" long="2" zoom="3"/> is valid`, () => {
+      const result = TemplateEngine.validateFormatBlock(`<tg-map lat="1" long="2" zoom="3"/>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`<tg-map lat="1" long="2" zoom="3"></tg-map> is invalid (not self-closing)`, () => {
+      const result = TemplateEngine.validateFormatBlock(`<tg-map lat="1" long="2" zoom="3"></tg-map>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`must be self-closing`)
+    })
+
+    it(`content tags (<b>, <p>, <table>) are not format-checked — both forms accepted`, () => {
+      const result1 = TemplateEngine.validateFormatBlock(`<b>bold</b>`)
+      const result2 = TemplateEngine.validateFormatBlock(`<b/>`)
+      const result3 = TemplateEngine.validateFormatBlock(`<p>para</p>`)
+      const result4 = TemplateEngine.validateFormatBlock(`<p/>`)
+      const result5 = TemplateEngine.validateFormatBlock(`<table></table>`)
+      const result6 = TemplateEngine.validateFormatBlock(`<table/>`)
+      expect(result1.valid).toBe(true)
+      expect(result2.valid).toBe(true)
+      expect(result3.valid).toBe(true)
+      expect(result4.valid).toBe(true)
+      expect(result5.valid).toBe(true)
+      expect(result6.valid).toBe(true)
+    })
+
+    it(`multiple void tag errors are all reported`, () => {
+      const result = TemplateEngine.validateFormatBlock(`<hr><img src="x"><br><input type="checkbox">`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(4)
+    })
+  })
+
+  describe(`validateNamesBlock recognizes all Rich HTML tags`, () => {
+    for (const tagLiteral of TemplateEngine.ALLOWED_BLOCKS_TELEGRAM) {
+      it(`should recognize ${tagLiteral}`, () => {
+        const template = `<g-base><g-message>${tagLiteral}</g-message></g-base>`
+        const result = TemplateEngine.validateNamesBlock(template)
+        expect(result.valid).toBe(true)
+        expect(result.errors).toEqual([])
+      })
+    }
+  })
+
+  describe(`validateTelegramAttributeValues`, () => {
+    it(`should return valid for empty template`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(``)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for plain text`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`just text`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`<tg-time unix> accepts valid positive integer`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-time unix="1647531900" format="wDT">x</tg-time>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`<tg-time unix> rejects non-numeric value`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-time unix="abc" format="wDT">x</tg-time>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`unix must be a positive integer`)
+    })
+
+    it(`<tg-time unix> rejects negative value`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-time unix="-1" format="wDT">x</tg-time>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`unix must be a positive integer`)
+    })
+
+    it(`<tg-time format> rejects empty value`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-time unix="1" format="">x</tg-time>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`format must not be empty`)
+    })
+
+    it(`<tg-map lat> accepts valid number in range`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="41.9" long="12.5" zoom="14"/>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`<tg-map lat> rejects out-of-range value (>90)`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="91" long="12.5" zoom="14"/>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`lat must be a number between -90 and 90`)
+    })
+
+    it(`<tg-map lat> rejects non-numeric value`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="x" long="12.5" zoom="14"/>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`lat must be a number between -90 and 90`)
+    })
+
+    it(`<tg-map long> accepts boundary values -180 and 180`, () => {
+      const result1 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="-180" zoom="0"/>`)
+      const result2 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="180" zoom="0"/>`)
+      expect(result1.valid).toBe(true)
+      expect(result2.valid).toBe(true)
+    })
+
+    it(`<tg-map long> rejects out-of-range value`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="181" zoom="0"/>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`long must be a number between -180 and 180`)
+    })
+
+    it(`<tg-map zoom> accepts 0 and 24`, () => {
+      const result1 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="0"/>`)
+      const result2 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="24"/>`)
+      expect(result1.valid).toBe(true)
+      expect(result2.valid).toBe(true)
+    })
+
+    it(`<tg-map zoom> rejects value > 24`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="25"/>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`zoom must be a non-negative integer ≤ 24`)
+    })
+
+    it(`<tg-map zoom> rejects non-integer value`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-map lat="0" long="0" zoom="1.5"/>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`zoom must be a non-negative integer ≤ 24`)
+    })
+
+    it(`<tg-emoji emoji-id> accepts valid numeric string`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-emoji emoji-id="5368324170671202286">👍</tg-emoji>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`<tg-emoji emoji-id> rejects non-numeric value`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-emoji emoji-id="abc">👍</tg-emoji>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`emoji-id must be a numeric string`)
+    })
+
+    it(`<a href> accepts http, https, mailto, tel, tg schemes`, () => {
+      const cases = [`<a href="https://t.me/">x</a>`, `<a href="http://example.com">x</a>`, `<a href="mailto:user@example.com">x</a>`, `<a href="tel:+123456789">x</a>`, `<a href="tg://user?id=123">x</a>`, `<a href="#chapter-1">x</a>`]
+      for (const c of cases) {
+        expect(TemplateEngine.validateTelegramAttributeValuesBlock(c).valid).toBe(true)
+      }
+    })
+
+    it(`<a href> rejects javascript: and unknown schemes`, () => {
+      const result1 = TemplateEngine.validateTelegramAttributeValuesBlock(`<a href="javascript:alert(1)">x</a>`)
+      const result2 = TemplateEngine.validateTelegramAttributeValuesBlock(`<a href="data:text/html,x">x</a>`)
+      const result3 = TemplateEngine.validateTelegramAttributeValuesBlock(`<a href="relative/path">x</a>`)
+      expect(result1.valid).toBe(false)
+      expect(result2.valid).toBe(false)
+      expect(result3.valid).toBe(false)
+    })
+
+    it(`<input type> accepts known HTML input types`, () => {
+      const cases = [`checkbox`, `text`, `number`, `email`, `password`, `submit`, `radio`, `hidden`, `tel`, `url`]
+      for (const t of cases) {
+        expect(TemplateEngine.validateTelegramAttributeValuesBlock(`<input type="${t}"/>`).valid).toBe(true)
+      }
+    })
+
+    it(`<input type> rejects unknown input type`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<input type="foobar"/>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`type must be one of`)
+    })
+
+    it(`boolean attributes are skipped (not validated as values)`, () => {
+      // <input type="checkbox" checked> — checked is boolean, no value
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<input type="checkbox" checked>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`tags without value validators are skipped`, () => {
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(`<b>bold</b> <p>x</p> <table></table> <h1>h</h1>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`single-quoted and unquoted values are also validated`, () => {
+      const result1 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-time unix='abc' format="wDT">x</tg-time>`)
+      const result2 = TemplateEngine.validateTelegramAttributeValuesBlock(`<tg-time unix=abc format="wDT">x</tg-time>`)
+      expect(result1.valid).toBe(false)
+      expect(result2.valid).toBe(false)
+    })
+
+    it(`reports correct line number for multiline template`, () => {
+      const template = `<g-base>
+  <g-message>
+    <tg-time unix="abc" format="wDT">x</tg-time>
+  </g-message>
+</g-base>`
+      const result = TemplateEngine.validateTelegramAttributeValuesBlock(template)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.line).toBe(3)
+    })
+
+    it(`value errors and required-attr errors are independent (both reported by validateTemplate)`, () => {
+      const result = TemplateEngine.validateTemplate(`<g-base><g-message><a>x</a><tg-time unix="abc" format="wDT">x</tg-time></g-message></g-base>`)
+      expect(result.valid).toBe(false)
+      const messages = result.errors.map((e) => e.message)
+      expect(messages.some((m) => m.includes(`<a> must have one of:`))).toBe(true)
+      expect(messages.some((m) => m.includes(`<tg-time> unix must be a positive integer`))).toBe(true)
+    })
+  })
+
+  describe(`validatePageAttributes`, () => {
+    it(`should return valid for empty template (no required attrs in spec)`, () => {
+      const result = TemplateEngine.validatePageAttributesBlock(``)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for typical templates (all PAGE attrs are optional)`, () => {
+      const result = TemplateEngine.validatePageAttributesBlock(`<g-base><g-message lang="en">Hi</g-message></g-base>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`exposes the empty spec as a public static for future use`, () => {
+      expect(TemplateEngine._PAGE_REQUIRED_ATTRS).toEqual({})
+    })
+
+    it(`is included in validateTemplate full validation`, () => {
+      const result = TemplateEngine.validateTemplate(`<g-base><g-message>Hi</g-message></g-base>`)
+      expect(result.valid).toBe(true)
+    })
+  })
+
+  describe(`validatePageAttributeValues`, () => {
+    it(`should return valid for empty template`, () => {
+      const result = TemplateEngine.validatePageAttributeValuesBlock(``)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`<g-base id> rejects empty value`, () => {
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-base id=""></g-base>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toBe(`Attribute "id" on <g-base> must not be empty`)
+    })
+
+    it(`<g-base id> as boolean (no =value) is skipped, not treated as empty`, () => {
+      // Consistent with <g-media shared> — boolean attrs without =value are not
+      // validated as empty strings; the spec only fires on name=value declarations.
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-base id></g-base>`)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`<g-base id> accepts non-empty value`, () => {
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-base id="main"></g-base>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`<g-keyboard type> accepts "inline"`, () => {
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-keyboard type="inline">A, B</g-keyboard>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`<g-keyboard type> accepts "bottom"`, () => {
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-keyboard type="bottom">A, B</g-keyboard>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`<g-keyboard type> rejects invalid value`, () => {
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-keyboard type="sidebar">A, B</g-keyboard>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toBe(`Attribute "type" on <g-keyboard> must be "inline" or "bottom", got "sidebar"`)
+    })
+
+    it(`<g-media type> accepts all 10 valid types`, () => {
+      const types = [`photo`, `video`, `audio`, `document`, `animation`, `voice`, `video_note`, `sticker`, `location`, `contact`]
+      for (const t of types) {
+        const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-media type="${t}" src="x"/>`)
+        expect(result.valid).toBe(true)
+      }
+    })
+
+    it(`<g-media type> rejects invalid type`, () => {
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-media type="unknown" src="x"/>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toContain(`Attribute "type" on <g-media> must be one of`)
+      expect(result.errors[0]?.message).toContain(`got "unknown"`)
+    })
+
+    it(`<g-media shared> accepts "true"`, () => {
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-media type="photo" src="x" shared="true"/>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`<g-media shared> accepts "false"`, () => {
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-media type="photo" src="x" shared="false"/>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`<g-media shared> rejects non-boolean value`, () => {
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-media type="photo" src="x" shared="yes"/>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.message).toBe(`Attribute "shared" on <g-media> must be "true" or "false", got "yes"`)
+    })
+
+    it(`tags without value validators are skipped (<g-message>, <g-script>, <g-div>)`, () => {
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-message lang="en">x</g-message><g-script>y</g-script><g-div>z</g-div>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`single-quoted and unquoted values are also validated`, () => {
+      const result1 = TemplateEngine.validatePageAttributeValuesBlock(`<g-keyboard type='sidebar'>A, B</g-keyboard>`)
+      const result2 = TemplateEngine.validatePageAttributeValuesBlock(`<g-keyboard type=sidebar>A, B</g-keyboard>`)
+      expect(result1.valid).toBe(false)
+      expect(result2.valid).toBe(false)
+    })
+
+    it(`boolean attributes (without =value) are skipped, not validated as empty strings`, () => {
+      // <g-media type="photo" src="x" shared> — shared is boolean, no value
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-media type="photo" src="x" shared></g-media>`)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`reports correct line number for multiline template`, () => {
+      const template = `<g-base>
+  <g-message>
+    <g-keyboard type="sidebar">A, B</g-keyboard>
+  </g-message>
+</g-base>`
+      const result = TemplateEngine.validatePageAttributeValuesBlock(template)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0]?.line).toBe(3)
+    })
+
+    it(`multiple value errors are all reported`, () => {
+      const result = TemplateEngine.validatePageAttributeValuesBlock(`<g-base id=""></g-base><g-keyboard type="sidebar">A</g-keyboard><g-media type="bad" src="x"/>`)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(3)
+    })
+
+    it(`exposes the spec as a public static`, () => {
+      expect(TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS[`g-base`]).toBeDefined()
+      expect(TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS[`g-keyboard`]).toBeDefined()
+      expect(TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS[`g-media`]).toBeDefined()
+      expect(TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS[`g-message`]).toBeUndefined()
+    })
+
+    it(`per-block validators and centralized validator produce consistent value errors (same spec)`, () => {
+      const template = `<g-keyboard type="sidebar">A, B</g-keyboard>`
+      const perBlock = TemplateEngine.validateBlockGKeyboardAttributes(template)
+      const centralized = TemplateEngine.validatePageAttributeValuesBlock(template)
+      expect(perBlock.errors[0]?.message).toBe(centralized.errors[0]?.message)
+    })
+
+    it(`is included in validateTemplate full validation`, () => {
+      const result = TemplateEngine.validateTemplate(`<g-base id=""><g-message>x</g-message></g-base>`)
+      expect(result.valid).toBe(false)
+      const messages = result.errors.map((e) => e.message)
+      expect(messages.some((m) => m.includes(`Attribute "id" on <g-base> must not be empty`))).toBe(true)
     })
   })
 })

@@ -10,10 +10,10 @@ Compiled template structure containing all parsed template components.
 
 ```typescript
 type ITCompiledTemplate = {
-    media: ReturnType<typeof TemplateEngine.compileBlockMedia>;
-    message: ReturnType<typeof TemplateEngine.compileBlockMessage>;
-    keyboard: ReturnType<typeof TemplateEngine.compileBlockKeyboards>;
-    description: ReturnType<typeof TemplateEngine.compileBlockDescription>;
+    media: ReturnType<typeof TemplateEngine.compileBlockGMedia>;
+    message: ReturnType<typeof TemplateEngine.compileBlockGMessage>;
+    keyboard: ReturnType<typeof TemplateEngine.compileBlockGKeyboards>;
+    description: ReturnType<typeof TemplateEngine.compileBlockGDescription>;
 };
 ```
 

@@ -86,46 +86,46 @@ export class SumNumberPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         <b>📚 Input Left Number</b>
 
         Example: 23
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         <b>📚 Masukan Angka Kiri</b>
 
         Contoh: 23
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.step2}">
+    <g-base id="${Base.step2}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         <b>📚 Input Right Number</b>
 
         Example: 10
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         <b>📚 Masukan Angka Kanan</b>
 
         Contoh: 10
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
+    <g-base id="${Base.success}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         <b>📚 Result Sum</b>
 
         {{result}}
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         <b>📚 Hasil Sum</b>
 
         {{result}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

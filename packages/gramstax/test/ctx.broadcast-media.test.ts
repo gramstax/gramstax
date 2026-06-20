@@ -31,10 +31,10 @@ describe(`Ctx.broadcastMedia`, () => {
     await writeFile(
       join(TEST_DIR, `broadcast.html`),
       `
-      <base>
-        <media type="photo" src="photo-default.jpg">Hello</media>
-        <media lang="id" type="photo" src="photo-id.jpg">Halo</media>
-      </base>
+      <g-base>
+        <g-media type="photo" src="photo-default.jpg">Hello</g-media>
+        <g-media lang="id" type="photo" src="photo-id.jpg">Halo</g-media>
+      </g-base>
     `
     )
 
@@ -66,9 +66,9 @@ describe(`Ctx.broadcastMedia`, () => {
     await writeFile(
       join(TEST_DIR, `broadcast.html`),
       `
-      <base>
-        <media type="photo" src="one.jpg|two.jpg|three.jpg">Album</media>
-      </base>
+      <g-base>
+        <g-media type="photo" src="one.jpg|two.jpg|three.jpg">Album</g-media>
+      </g-base>
     `
     )
 
@@ -110,9 +110,9 @@ describe(`Ctx.broadcastMedia`, () => {
     await writeFile(
       join(TEST_DIR, `broadcast.html`),
       `
-      <base>
-        <media type="animation" src="one.gif|two.gif">Animation</media>
-      </base>
+      <g-base>
+        <g-media type="animation" src="one.gif|two.gif">Animation</g-media>
+      </g-base>
     `
     )
 
@@ -146,9 +146,9 @@ describe(`Ctx.broadcastMedia`, () => {
     await writeFile(
       join(TEST_DIR, `broadcast.html`),
       `
-      <base>
-        <media type="document" src="one.pdf|two.pdf">Docs</media>
-      </base>
+      <g-base>
+        <g-media type="document" src="one.pdf|two.pdf">Docs</g-media>
+      </g-base>
     `
     )
 
@@ -234,13 +234,13 @@ describe(`Ctx.broadcastMedia`, () => {
     await writeFile(
       join(TEST_DIR, `broadcast.html`),
       `
-      <base>
-        <media-group>
-          <media type="photo" src="{{photoUrl}}">Mixed {{title}}</media>
-          <media type="video" src="{{videoUrl}}"></media>
-          <media type="photo" src="static.jpg"></media>
-        </media-group>
-      </base>
+      <g-base>
+        <g-media-group>
+          <g-media type="photo" src="{{photoUrl}}">Mixed {{title}}</g-media>
+          <g-media type="video" src="{{videoUrl}}"></g-media>
+          <g-media type="photo" src="static.jpg"></g-media>
+        </g-media-group>
+      </g-base>
     `
     )
 
@@ -276,13 +276,13 @@ describe(`Ctx.broadcastMedia`, () => {
     await writeFile(
       join(TEST_DIR, `broadcast.html`),
       `
-      <base>
-        <media-group>
-          <media type="photo" src="en.jpg">English</media>
-          <media lang="wkwkland" type="photo" src="wkwk.jpg">Wkwkland</media>
-          <media type="photo" src="shared.jpg"></media>
-        </media-group>
-      </base>
+      <g-base>
+        <g-media-group>
+          <g-media type="photo" src="en.jpg">English</g-media>
+          <g-media lang="wkwkland" type="photo" src="wkwk.jpg">Wkwkland</g-media>
+          <g-media type="photo" src="shared.jpg"></g-media>
+        </g-media-group>
+      </g-base>
     `
     )
 
@@ -319,9 +319,9 @@ describe(`Ctx.broadcastMedia`, () => {
     await writeFile(
       join(TEST_DIR, `broadcast.html`),
       `
-      <base>
-        <media type="video" src="one.mp4|two.mp4">Videos</media>
-      </base>
+      <g-base>
+        <g-media type="video" src="one.mp4|two.mp4">Videos</g-media>
+      </g-base>
     `
     )
 

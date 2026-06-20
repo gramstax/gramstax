@@ -138,83 +138,6 @@ In-memory bounded queue for webhook updates.
 
 
 </td></tr>
-<tr><td>
-
-[WorkerThreadExport](./gramstax.workerthreadexport.md)
-
-
-</td><td>
-
-Provides a unified interface for creating and managing worker threads with automatic RPC proxying.
-
-
-</td></tr>
-<tr><td>
-
-[WorkerThreadGatewayClient](./gramstax.workerthreadgatewayclient.md)
-
-
-</td><td>
-
-\[LOW-LEVEL\] Provides IPC client functionality for inter-worker communication using Unix domain sockets.
-
-
-</td></tr>
-<tr><td>
-
-[WorkerThreadGatewayServer](./gramstax.workerthreadgatewayserver.md)
-
-
-</td><td>
-
-\[LOW-LEVEL\] Provides IPC server functionality for inter-worker communication using Unix domain sockets.
-
-
-</td></tr>
-<tr><td>
-
-[WorkerThreadInit](./gramstax.workerthreadinit.md)
-
-
-</td><td>
-
-Base class for worker thread implementations. Handles communication with the main thread and provides RPC functionality.
-
-
-</td></tr>
-<tr><td>
-
-[WorkerThreadLaunch](./gramstax.workerthreadlaunch.md)
-
-
-</td><td>
-
-Manages worker thread lifecycle from the main thread. Handles spawning, communication, and termination of worker threads.
-
-
-</td></tr>
-<tr><td>
-
-[WorkerThreadPool](./gramstax.workerthreadpool.md)
-
-
-</td><td>
-
-Manages multiple worker thread instances, providing pooled access and broadcast functionality.
-
-
-</td></tr>
-<tr><td>
-
-[WorkerThreadRpc](./gramstax.workerthreadrpc.md)
-
-
-</td><td>
-
-\[LOW-LEVEL\] Handles JSON-RPC style communication between threads.
-
-
-</td></tr>
 </tbody></table>
 
 ## Variables
@@ -407,17 +330,6 @@ Keyboard column configuration.
 </td><td>
 
 Keyboard column configuration pattern.
-
-
-</td></tr>
-<tr><td>
-
-[ITMapRpc](./gramstax.itmaprpc.md)
-
-
-</td><td>
-
-Map type for storing pending RPC request handlers.
 
 
 </td></tr>
@@ -665,6 +577,17 @@ Options for sending photo messages.
 </td></tr>
 <tr><td>
 
+[ITOptReplyRich](./gramstax.itoptreplyrich.md)
+
+
+</td><td>
+
+Options for sending text rich messages.
+
+
+</td></tr>
+<tr><td>
+
 [ITOptReplySticker](./gramstax.itoptreplysticker.md)
 
 
@@ -759,39 +682,6 @@ Configuration options for TemplateManager initialization.
 </td><td>
 
 Webhook queue configuration for backpressure and worker pooling.
-
-
-</td></tr>
-<tr><td>
-
-[WorkerThreadAsyncMethods](./gramstax.workerthreadasyncmethods.md)
-
-
-</td><td>
-
-Async methods type for worker thread. Transforms all worker methods to return Promises.
-
-
-</td></tr>
-<tr><td>
-
-[WorkerThreadExportOpt](./gramstax.workerthreadexportopt.md)
-
-
-</td><td>
-
-Options for initializing a worker thread export.
-
-
-</td></tr>
-<tr><td>
-
-[WorkerThreadGatewayProxy](./gramstax.workerthreadgatewayproxy.md)
-
-
-</td><td>
-
-Proxy type for gateway client methods. Transforms worker methods to accept `owner` as first parameter.
 
 
 </td></tr>

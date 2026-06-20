@@ -18,15 +18,15 @@ export class InputTextPage extends PageBase {
   }
 
   static template = `
-    <base>
+    <g-base>
       ${this.kbk.cancel()}
-      <message>Send any text and it will be echoed back on the next step.</message>
-      <message lang="id">Kirim teks apa pun dan hasilnya akan ditampilkan pada langkah berikutnya.</message>
-    </base>
-    <base id="success">
+      <g-message>Send any text and it will be echoed back on the next step.</g-message>
+      <g-message lang="id">Kirim teks apa pun dan hasilnya akan ditampilkan pada langkah berikutnya.</g-message>
+    </g-base>
+    <g-base id="success">
       ${this.kbk.home()}
-      <message>✅ Result: {{res}}</message>
-      <message lang="id">✅ Hasil: {{res}}</message>
-    </base>
+      <g-message>✅ Result: {{res}}</g-message>
+      <g-message lang="id">✅ Hasil: {{res}}</g-message>
+    </g-base>
     `
 }

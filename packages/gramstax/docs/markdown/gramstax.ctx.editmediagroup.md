@@ -104,7 +104,7 @@ The sent media group messages.
 
 ## Remarks
 
-Deletes the original message and sends a new media group via `replyMediaGroup`<!-- -->. When `type` is omitted or `undefined`<!-- -->, all items in the `<media-group>` are sent. For a hardcoded type, use the convenience methods (`editPhotoGroup`<!-- -->, `editVideoGroup`<!-- -->, etc.).
+Deletes the original message and sends a new media group via `replyMediaGroup`<!-- -->. When `type` is omitted or `undefined`<!-- -->, all items in the `<g-media-group>` are sent. For a hardcoded type, use the convenience methods (`editPhotoGroup`<!-- -->, `editVideoGroup`<!-- -->, etc.).
 
 ## Example
 

@@ -4,7 +4,7 @@ import {LabelKeyboard} from "~/labels/keyboard"
  * Provides static methods for generating keyboard template blocks from `LabelKeyboard` definitions.
  *
  * @remarks
- * This class generates HTML-like `<keyboard>` blocks for the template engine.
+ * This class generates HTML-like `<g-keyboard>` blocks for the template engine.
  * Requires `LabelKeyboard` to be set via {@link BlockKeyboard.label} before using {@link BlockKeyboard._build}.
  *
  * @example
@@ -30,17 +30,17 @@ import {LabelKeyboard} from "~/labels/keyboard"
  * import {PageBase} from "~/base/page"
  * export class SomePage extends PageBase {
  *   static template = `
- *     <base>
+ *     <g-base>
  *       ${this.kbk.backNext()}
- *       <message>Default message hello world</message>
- *     </base>
- *     <base id="others-id-1">
- *       <message>Message from others id 1 with keyboard from base id default</message>
- *     </base>
- *     <base id="others-id-2">
- *       <base>${this.kbk.backNext()}</base>
- *       <message>Message from others id 3 with keyboard in same base</message>
- *     </base>
+ *       <g-message>Default message hello world</g-message>
+ *     </g-base>
+ *     <g-base id="others-id-1">
+ *       <g-message>Message from others id 1 with keyboard from base id default</g-message>
+ *     </g-base>
+ *     <g-base id="others-id-2">
+ *       <g-base>${this.kbk.backNext()}</g-base>
+ *       <g-message>Message from others id 3 with keyboard in same base</g-message>
+ *     </g-base>
  *   `
  * }
  *
@@ -80,10 +80,10 @@ export class BlockKeyboard {
    *
    * const kbk = BlockKeyboard
    * kbk._build("backNext");
-   * // => '<keyboard type="inline" lang="en">Back, Next</keyboard> ...'
+   * // => '<g-keyboard type="inline" lang="en">Back, Next</g-keyboard> ...'
    *
    * kbk._build("backNext", "en", "bottom");
-   * // => '<keyboard type="bottom" lang="en">Back, Next</keyboard>'
+   * // => '<g-keyboard type="bottom" lang="en">Back, Next</g-keyboard>'
    * ```
    * @public
    */
@@ -100,7 +100,7 @@ export class BlockKeyboard {
     if (!obj) {
       throw new Error(`Object value ${key} not found`)
     }
-    const pro = (v: string, lang: string) => `<keyboard type="${type}" lang="${lang}">${reverse ? this.label._reverse(v) : v}</keyboard>`
+    const pro = (v: string, lang: string) => `<g-keyboard type="${type}" lang="${lang}">${reverse ? this.label._reverse(v) : v}</g-keyboard>`
     return lang
       ? pro(obj[lang], lang)
       : Object.keys(obj)

@@ -214,71 +214,71 @@ export class EchoPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         🔁 Echo Tips
 
         Send any message or media and the bot will echo it back. Use this to test formatting, media handling, or message flow.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.forText}">
-      <message>
+    <g-base id="${Base.forText}">
+      <g-message>
         {{text}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.forPhoto}">
-      <media type="photo" src="{{fileId}}">
+    <g-base id="${Base.forPhoto}">
+      <g-media type="photo" src="{{fileId}}">
         {{caption}}
-      </media>
-    </base>
+      </g-media>
+    </g-base>
 
-    <base id="${Base.forVideo}">
-      <media type="video" src="{{fileId}}">
+    <g-base id="${Base.forVideo}">
+      <g-media type="video" src="{{fileId}}">
         {{caption}}
-      </media>
-    </base>
+      </g-media>
+    </g-base>
 
-    <base id="${Base.forAudio}">
-      <media type="audio" src="{{fileId}}">
+    <g-base id="${Base.forAudio}">
+      <g-media type="audio" src="{{fileId}}">
         {{caption}}
-      </media>
-    </base>
+      </g-media>
+    </g-base>
 
-    <base id="${Base.forDocument}">
-      <media type="document" src="{{fileId}}">
+    <g-base id="${Base.forDocument}">
+      <g-media type="document" src="{{fileId}}">
         {{caption}}
-      </media>
-    </base>
+      </g-media>
+    </g-base>
 
-    <base id="${Base.forAnimation}">
-      <media type="animation" src="{{fileId}}">
+    <g-base id="${Base.forAnimation}">
+      <g-media type="animation" src="{{fileId}}">
         {{caption}}
-      </media>
-    </base>
+      </g-media>
+    </g-base>
 
-    <base id="${Base.forVoice}">
-      <media type="voice" src="{{fileId}}">
+    <g-base id="${Base.forVoice}">
+      <g-media type="voice" src="{{fileId}}">
         {{caption}}
-      </media>
-    </base>
+      </g-media>
+    </g-base>
 
-    <base id="${Base.forVideoNote}">
-      <media type="video_note" src="{{fileId}}"></media>
-    </base>
+    <g-base id="${Base.forVideoNote}">
+      <g-media type="video_note" src="{{fileId}}"></g-media>
+    </g-base>
 
-    <base id="${Base.forSticker}">
-      <media type="sticker" src="{{fileId}}"></media>
-    </base>
+    <g-base id="${Base.forSticker}">
+      <g-media type="sticker" src="{{fileId}}"></g-media>
+    </g-base>
 
-    <base id="${Base.forLocation}">
-      <media type="location" latitude="{{latitude}}" longitude="{{longitude}}"></media>
-    </base>
+    <g-base id="${Base.forLocation}">
+      <g-media type="location" latitude="{{latitude}}" longitude="{{longitude}}"></g-media>
+    </g-base>
 
-    <base id="${Base.forContact}">
-      <media type="contact" phone="{{phone_number}}" first_name="{{first_name}}" last_name="{{last_name}}" vcard="{{vcard}}"></media>
-    </base>
+    <g-base id="${Base.forContact}">
+      <g-media type="contact" phone="{{phone_number}}" first_name="{{first_name}}" last_name="{{last_name}}" vcard="{{vcard}}"></g-media>
+    </g-base>
   `
 }

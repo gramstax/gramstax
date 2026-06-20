@@ -87,37 +87,37 @@ export class ListPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</keyboard>
-      <keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</g-keyboard>
+      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</g-keyboard>
+      <g-message>
         📋 Cached items
 
         Page {{page}}/{{totalPages}} • Browse and select an item by ID.
 
         {{items}}
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         📋 Daftar item tersimpan
 
         Halaman {{page}}/{{totalPages}} • Pilih item berdasarkan ID.
 
         {{items}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoEmpty}">
+    <g-base id="${Base.infoEmpty}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         📭 No cached items yet.
 
         Start by creating your first item, then come back here to review it.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         📭 Belum ada item tersimpan.
 
         Mulailah dengan membuat item pertama, lalu kembali ke sini untuk melihatnya.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

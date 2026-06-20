@@ -24,9 +24,9 @@ export class HelpPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ❓ Help
 
         ✅ Subscribe: receive new announcements and product updates.
@@ -34,8 +34,8 @@ export class HelpPage extends PageBase {
         📊 Stats: check subscriber count and your current status.
 
         Use the buttons below to manage your subscription without typing commands.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ❓ Bantuan
 
         ✅ Langganan: terima pengumuman dan pembaruan produk.
@@ -43,7 +43,7 @@ export class HelpPage extends PageBase {
         📊 Statistik: cek jumlah pelanggan dan status Anda.
 
         Gunakan tombol di bawah untuk mengelola langganan tanpa mengetik perintah.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

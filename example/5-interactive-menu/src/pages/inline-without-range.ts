@@ -88,15 +88,15 @@ export class InlineWithoutRangePage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, 📄 Page, ${this.kbl.home.default}</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, 📄 Page, ${this.kbl.home.default}</g-keyboard>
+      <g-message>
         🧾 Inline Menu (Without Range (only count))
 
         Page {{page}}
 
         Use Prev/Next to navigate, or tap Home to exit.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

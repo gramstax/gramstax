@@ -24,18 +24,18 @@ export class TestVoicePage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <media type="voice" src="https://www.w3schools.com/html/horse.ogg">
+      <g-media type="voice" src="https://www.w3schools.com/html/horse.ogg">
         🎙️ Voice demo
         
         This is a voice reply without a caption attachment.
-      </media>
-      <media lang="id" type="voice" src="https://www.w3schools.com/html/horse.ogg">
+      </g-media>
+      <g-media lang="id" type="voice" src="https://www.w3schools.com/html/horse.ogg">
         🎙️ Demo voice
         
         Ini adalah balasan voice tanpa lampiran caption.
-      </media>
-    </base>
+      </g-media>
+    </g-base>
   `
 }

@@ -24,18 +24,18 @@ export class TestVideoNotePage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <media type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4">
+      <g-media type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4">
         🎬 Video note demo
         
         This is a short video note reply.
-      </media>
-      <media lang="id" type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4">
+      </g-media>
+      <g-media lang="id" type="video_note" src="https://www.w3schools.com/html/mov_bbb.mp4">
         🎬 Demo video note
         
         Ini adalah balasan video note singkat.
-      </media>
-    </base>
+      </g-media>
+    </g-base>
   `
 }

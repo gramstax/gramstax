@@ -50,15 +50,15 @@ export class HistoryPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>🔎 Browse Products, 🏠 Home</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-message>
         🧾 Order History
 
         {{history}}
 
         We keep the latest 10 orders in this session-based example.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

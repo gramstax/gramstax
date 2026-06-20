@@ -7,6 +7,9 @@
     "paths": {
       "gramstax": [
         "./packages/gramstax/src/index.ts"
+      ],
+      "@gramstax/worker-thread": [
+        "./packages/worker-thread/src/index.ts"
       ]
     },
     "composite": true, // Must be enable when use "references"
@@ -45,6 +48,9 @@
     },
     {
       "path": "./packages/create-gramstax"
+    },
+    {
+      "path": "./packages/worker-thread"
     },
     {
       "path": "./example/1-complex"

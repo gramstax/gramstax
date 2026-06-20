@@ -58,23 +58,23 @@ export class StartPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>{~subscribed ? "🚫 Unsubscribe" : "✅ Subscribe"~}, 📊 Stats, ❓ Help</keyboard>
-      <keyboard lang="id">{~subscribed ? "🚫 Berhenti" : "✅ Langganan"~}, 📊 Statistik, ❓ Bantuan</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>{~subscribed ? "🚫 Unsubscribe" : "✅ Subscribe"~}, 📊 Stats, ❓ Help</g-keyboard>
+      <g-keyboard lang="id">{~subscribed ? "🚫 Berhenti" : "✅ Langganan"~}, 📊 Statistik, ❓ Bantuan</g-keyboard>
+      <g-message>
         📰 Newsletter Hub
 
         {~subscribed ? "Status: Subscribed" : "Status: Not subscribed"~}
 
         Stay in the loop with curated updates, release notes, and important announcements. Use the button below to manage your subscription or explore more details.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         📰 Pusat Newsletter
 
         {~subscribed ? "Status: Berlangganan" : "Status: Belum berlangganan"~}
 
         Dapatkan pembaruan pilihan, catatan rilis, dan pengumuman penting. Gunakan tombol di bawah untuk mengelola langganan atau melihat informasi lainnya.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

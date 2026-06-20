@@ -29,26 +29,26 @@ export class BlockMapPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.refresh_back()}
-      <message>
+      <g-message>
         <b>🧭 Template map demo</b>
 
-        <map src="arr" join="\\n\\n">
+        <g-map src="arr" join="\\n\\n">
           Position: {~i - -1~}
           Number: {{e.number}}
           Status: {{status}}
-        </map>
-      </message>
-      <message lang="id">
+        </g-map>
+      </g-message>
+      <g-message lang="id">
         <b>🧭 Demo map template</b>
 
-        <map src="arr" join="\\n\\n">
+        <g-map src="arr" join="\\n\\n">
           Posisi: {~i - -1~}
           Nomor: {{e.number}}
           Status: {{status}}
-        </map>
-      </message>
-    </base>
+        </g-map>
+      </g-message>
+    </g-base>
   `
 }

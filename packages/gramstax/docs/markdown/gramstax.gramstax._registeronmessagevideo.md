@@ -4,7 +4,7 @@
 
 ## Gramstax.\_registerOnMessageVideo() method
 
-Registers handlers message\*.
+Registers an event handler for a bot event.
 
 **Signature:**
 
@@ -17,5 +17,5 @@ void
 
 ## Remarks
 
-These methods register grammY event handlers for different message types. Override to customize message filtering.
+These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate with a different bot library, custom event system, or alternative routing approach. The default implementation delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a specific event or message type is routed to its handler.
 

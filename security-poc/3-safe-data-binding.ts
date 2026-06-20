@@ -18,11 +18,11 @@ console.log(`--- CASE 3: SAFE DATA BINDING ---`)
 
 // Static template defined by developer
 const safeTemplate = `
-  <base>
-    <message>
+  <g-base>
+    <g-message>
       Hello {{username}}, welcome to the bot!
-    </message>
-  </base>
+    </g-message>
+  </g-base>
 `
 
 console.log(`Compiling template...`)

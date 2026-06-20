@@ -54,13 +54,13 @@ export class GeneralStatusPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.dynamic}">
+    <g-base id="${Base.dynamic}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         {~isNotFound ? "🔎 Route not found" : "❌ Something went wrong"~}
 
         {~isNotFound ? "Use Home to return to the main menu and try a different action." : "Please try again in a moment, or return Home if the issue persists."~}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

@@ -74,34 +74,34 @@ export class DepositPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ➕ Deposit funds
 
         Enter the amount as a whole number. Dots are allowed for thousand separators.
         Example: 125.000
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
+    <g-base id="${Base.success}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ✅ Deposit completed
 
         Amount received: {{amount}}
         Updated balance: {{balance}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnInvalid}">
+    <g-base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ⚠️ Invalid amount
 
         We couldn't read: "{{amount}}".
         Please enter a whole number only.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

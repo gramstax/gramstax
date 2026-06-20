@@ -7,12 +7,12 @@ export class TestErrorPage extends PageBase {
   }
 
   static template = `
-    <base>
-      <message>
+    <g-base>
+      <g-message>
         🧪 Error test
 
         This page intentionally throws an error to demonstrate global error handling.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

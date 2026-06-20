@@ -79,41 +79,41 @@ export class CreatePage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.s1}">
+    <g-base id="${Base.s1}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ✏️ Create a new item
 
         Send a clear title for the item.
         Example: Coffee Beans
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ✏️ Buat item baru
 
         Kirim judul item yang jelas.
         Contoh: Biji Kopi
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.s2}">
+    <g-base id="${Base.s2}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ✅ Title saved: {{title}}
 
         Now send a short description or notes.
         Example: Medium roast, 250g
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ✅ Judul tersimpan: {{title}}
 
         Sekarang kirim deskripsi singkat atau catatan.
         Contoh: Medium roast, 250g
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
+    <g-base id="${Base.success}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ✅ Item created (#{{id}})
 
         🏷️ Title: {{title}}
@@ -121,8 +121,8 @@ export class CreatePage extends PageBase {
         📌 Status: {{status}}
 
         You can update or delete it anytime from the menu.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ✅ Item dibuat (#{{id}})
 
         🏷️ Judul: {{title}}
@@ -130,7 +130,7 @@ export class CreatePage extends PageBase {
         📌 Status: {{status}}
 
         Anda dapat memperbarui atau menghapusnya kapan saja dari menu.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

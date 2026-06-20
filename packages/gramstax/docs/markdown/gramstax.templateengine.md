@@ -16,7 +16,7 @@ declare class TemplateEngine
 
 The `TemplateEngine` provides methods for parsing HTML-like template syntax with custom blocks (base, message, keyboard, media, description, etc.) and compiling them into executable functions. It supports variable interpolation, conditional rendering, array mapping, script execution, and template imports.
 
-Templates are typically organized into `<base>` blocks containing various content blocks like `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, and `<description>`<!-- -->. Each block supports a `lang` attribute for internationalization.
+Templates are typically organized into `<g-base>` blocks containing various content blocks like `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, and `<g-description>`<!-- -->. Each block supports a `lang` attribute for internationalization.
 
 ## Example
 
@@ -25,14 +25,14 @@ Templates are typically organized into `<base>` blocks containing various conten
 import { TemplateEngine } from 'gramstax';
 
 const template = `
-  <base>
-    <keyboard>Back, Next</keyboard>
-    <message>Welcome {{name}}!</message>
-  </base>
+  <g-base>
+    <g-keyboard>Back, Next</g-keyboard>
+    <g-message>Welcome {{name}}!</g-message>
+  </g-base>
 `;
 
-const messages = TemplateEngine.compileBlockMessages(template);
-const keyboards = TemplateEngine.compileBlockKeyboards(template);
+const messages = TemplateEngine.compileBlockGMessages(template);
+const keyboards = TemplateEngine.compileBlockGKeyboards(template);
 
 const msg = messages.default?.default?.({ name: 'John' });
 // Result: 'Welcome John!'
@@ -62,6 +62,166 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[\_PAGE\_ATTR\_VALUE\_VALIDATORS](./gramstax.templateengine._page_attr_value_validators.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Record&lt;string, Record&lt;string, (value: string) =&gt; string \| null&gt;&gt;
+
+
+</td><td>
+
+Attribute value validators for `<g-*>` PAGE blocks.
+
+
+</td></tr>
+<tr><td>
+
+[\_PAGE\_REQUIRED\_ATTRS](./gramstax.templateengine._page_required_attrs.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Record&lt;string, string\[\] \| { oneOf: string\[\]\[\]; }&gt;
+
+
+</td><td>
+
+Required-attribute specification for `<g-*>` PAGE blocks.
+
+
+</td></tr>
+<tr><td>
+
+[\_TELEGRAM\_ATTR\_VALUE\_VALIDATORS](./gramstax.templateengine._telegram_attr_value_validators.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Record&lt;string, Record&lt;string, (value: string) =&gt; string \| null&gt;&gt;
+
+
+</td><td>
+
+Attribute value validators for Telegram Rich HTML tags.
+
+
+</td></tr>
+<tr><td>
+
+[\_TELEGRAM\_REQUIRED\_ATTRS](./gramstax.templateengine._telegram_required_attrs.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Record&lt;string, string\[\] \| { oneOf: string\[\]\[\]; }&gt;
+
+
+</td><td>
+
+Required-attribute specification for Telegram Rich HTML tags.
+
+
+</td></tr>
+<tr><td>
+
+[ALLOWED\_BLOCKS\_PAGE](./gramstax.templateengine.allowed_blocks_page.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[ALLOWED\_BLOCKS\_TELEGRAM\_LEGACY](./gramstax.templateengine.allowed_blocks_telegram_legacy.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[ALLOWED\_BLOCKS\_TELEGRAM\_RICH](./gramstax.templateengine.allowed_blocks_telegram_rich.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[ALLOWED\_BLOCKS\_TELEGRAM](./gramstax.templateengine.allowed_blocks_telegram.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
 
 [ALLOWED\_BLOCKS](./gramstax.templateengine.allowed_blocks.md)
 
@@ -192,7 +352,7 @@ Extracts specific blocks from template content with optional filtering.
 </td></tr>
 <tr><td>
 
-[\_processBaseBlocks(template)](./gramstax.templateengine._processbaseblocks.md)
+[\_extractBlockNames(blocks)](./gramstax.templateengine._extractblocknames.md)
 
 
 </td><td>
@@ -202,13 +362,13 @@ Extracts specific blocks from template content with optional filtering.
 
 </td><td>
 
-Block: base Extracts and parses `<base>` blocks from a template string.
+Extracts lowercase block tag names from an array of tag literals.
 
 
 </td></tr>
 <tr><td>
 
-[\_processDescriptionBlocks(template)](./gramstax.templateengine._processdescriptionblocks.md)
+[\_processGBaseBlocks(template)](./gramstax.templateengine._processgbaseblocks.md)
 
 
 </td><td>
@@ -218,13 +378,13 @@ Block: base Extracts and parses `<base>` blocks from a template string.
 
 </td><td>
 
-Block: description Extracts and parses `<description>` blocks from a template string.
+Block: g-base Extracts and parses `<g-base>` blocks from a template string.
 
 
 </td></tr>
 <tr><td>
 
-[\_processDivBlocks(template)](./gramstax.templateengine._processdivblocks.md)
+[\_processGDescriptionBlocks(template)](./gramstax.templateengine._processgdescriptionblocks.md)
 
 
 </td><td>
@@ -234,13 +394,13 @@ Block: description Extracts and parses `<description>` blocks from a template st
 
 </td><td>
 
-Block: div Normalizes content within `<div>` blocks by removing indentation.
+Block: g-description Extracts and parses `<g-description>` blocks from a template string.
 
 
 </td></tr>
 <tr><td>
 
-[\_processImportBlocks(template)](./gramstax.templateengine._processimportblocks.md)
+[\_processGDivBlocks(template)](./gramstax.templateengine._processgdivblocks.md)
 
 
 </td><td>
@@ -250,13 +410,13 @@ Block: div Normalizes content within `<div>` blocks by removing indentation.
 
 </td><td>
 
-Parses `<import>` directives from a template and extracts import metadata.
+Block: g-div Normalizes content within `<g-div>` blocks by removing indentation.
 
 
 </td></tr>
 <tr><td>
 
-[\_processKeyboardBlocks(template)](./gramstax.templateengine._processkeyboardblocks.md)
+[\_processGImportBlocks(template)](./gramstax.templateengine._processgimportblocks.md)
 
 
 </td><td>
@@ -266,13 +426,13 @@ Parses `<import>` directives from a template and extracts import metadata.
 
 </td><td>
 
-Block: keyboard Extracts and parses `<keyboard>` blocks from a template string.
+Parses `<g-import>` directives from a template and extracts import metadata.
 
 
 </td></tr>
 <tr><td>
 
-[\_processMapBlocks(template)](./gramstax.templateengine._processmapblocks.md)
+[\_processGKeyboardBlocks(template)](./gramstax.templateengine._processgkeyboardblocks.md)
 
 
 </td><td>
@@ -282,13 +442,13 @@ Block: keyboard Extracts and parses `<keyboard>` blocks from a template string.
 
 </td><td>
 
-Block: map Transforms `<map>` blocks into JavaScript array map expressions.
+Block: g-keyboard Extracts and parses `<g-keyboard>` blocks from a template string.
 
 
 </td></tr>
 <tr><td>
 
-[\_processMediaBlocks(template)](./gramstax.templateengine._processmediablocks.md)
+[\_processGMapBlocks(template)](./gramstax.templateengine._processgmapblocks.md)
 
 
 </td><td>
@@ -298,13 +458,13 @@ Block: map Transforms `<map>` blocks into JavaScript array map expressions.
 
 </td><td>
 
-Block: media Extracts and parses `<media>` blocks from a template string.
+Block: g-map Transforms `<g-map>` blocks into JavaScript array map expressions.
 
 
 </td></tr>
 <tr><td>
 
-[\_processMediaGroupBlocks(template)](./gramstax.templateengine._processmediagroupblocks.md)
+[\_processGMediaBlocks(template)](./gramstax.templateengine._processgmediablocks.md)
 
 
 </td><td>
@@ -314,13 +474,13 @@ Block: media Extracts and parses `<media>` blocks from a template string.
 
 </td><td>
 
-Parses `<media-group>` blocks into Telegram media group item definitions.
+Block: g-media Extracts and parses `<g-media>` blocks from a template string.
 
 
 </td></tr>
 <tr><td>
 
-[\_processMessageBlocks(template)](./gramstax.templateengine._processmessageblocks.md)
+[\_processGMediaGroupBlocks(template)](./gramstax.templateengine._processgmediagroupblocks.md)
 
 
 </td><td>
@@ -330,7 +490,71 @@ Parses `<media-group>` blocks into Telegram media group item definitions.
 
 </td><td>
 
-Block: message Extracts and parses `<message>` blocks from a template string.
+Parses `<g-media-group>` blocks into Telegram media group item definitions.
+
+
+</td></tr>
+<tr><td>
+
+[\_processGMessageBlocks(template)](./gramstax.templateengine._processgmessageblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-message Extracts and parses `<g-message>` blocks from a template string.
+
+
+</td></tr>
+<tr><td>
+
+[\_processGScriptBlocks(template)](./gramstax.templateengine._processgscriptblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-script Transforms `<g-script>` blocks into executable JavaScript expressions.
+
+
+</td></tr>
+<tr><td>
+
+[\_processGSpaceBlocks(template)](./gramstax.templateengine._processgspaceblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-space Removes lines containing self-closing `<g-space />` tags.
+
+
+</td></tr>
+<tr><td>
+
+[\_processGSwitchBlocks(template)](./gramstax.templateengine._processgswitchblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-switch Transforms `<g-switch>` blocks into JavaScript switch statement expressions.
 
 
 </td></tr>
@@ -368,54 +592,6 @@ Scope: `{{}}` Converts `{{variable}}` placeholders to JavaScript template litera
 </td></tr>
 <tr><td>
 
-[\_processScriptBlocks(template)](./gramstax.templateengine._processscriptblocks.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-Block: script Transforms `<script>` blocks into executable JavaScript expressions.
-
-
-</td></tr>
-<tr><td>
-
-[\_processSpaceBlocks(template)](./gramstax.templateengine._processspaceblocks.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-Block: space Removes lines containing self-closing `<space />` tags.
-
-
-</td></tr>
-<tr><td>
-
-[\_processSwitchBlocks(template)](./gramstax.templateengine._processswitchblocks.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-Block: switch Transforms `<switch>` blocks into JavaScript switch statement expressions.
-
-
-</td></tr>
-<tr><td>
-
 [\_splitMediaSrcList(src)](./gramstax.templateengine._splitmediasrclist.md)
 
 
@@ -430,7 +606,71 @@ Block: switch Transforms `<switch>` blocks into JavaScript switch statement expr
 </td></tr>
 <tr><td>
 
-[compileBlockDescription(template, baseBlocks)](./gramstax.templateengine.compileblockdescription.md)
+[\_validatePageTagAttributes(template)](./gramstax.templateengine._validatepagetagattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Scans a template for `<g-*>` PAGE blocks that are missing required attributes.
+
+
+</td></tr>
+<tr><td>
+
+[\_validatePageTagAttributeValues(template)](./gramstax.templateengine._validatepagetagattributevalues.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Scans a template for `<g-*>` PAGE blocks whose attribute values fail format checks.
+
+
+</td></tr>
+<tr><td>
+
+[\_validateTelegramTagAttributes(template)](./gramstax.templateengine._validatetelegramtagattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Scans a template for Telegram Rich HTML tags that are missing required attributes.
+
+
+</td></tr>
+<tr><td>
+
+[\_validateTelegramTagAttributeValues(template)](./gramstax.templateengine._validatetelegramtagattributevalues.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Scans a template for Telegram Rich HTML tags whose attribute values fail format checks.
+
+
+</td></tr>
+<tr><td>
+
+[compileBlockGDescription(template, baseBlocks)](./gramstax.templateengine.compileblockgdescription.md)
 
 
 </td><td>
@@ -446,7 +686,7 @@ Compiles description blocks from a template into executable functions.
 </td></tr>
 <tr><td>
 
-[compileBlockKeyboards(template, baseBlocks)](./gramstax.templateengine.compileblockkeyboards.md)
+[compileBlockGKeyboards(template, baseBlocks)](./gramstax.templateengine.compileblockgkeyboards.md)
 
 
 </td><td>
@@ -462,7 +702,7 @@ Compiles keyboard blocks from a template into executable functions.
 </td></tr>
 <tr><td>
 
-[compileBlockMedia(template, baseBlocks)](./gramstax.templateengine.compileblockmedia.md)
+[compileBlockGMedia(template, baseBlocks)](./gramstax.templateengine.compileblockgmedia.md)
 
 
 </td><td>
@@ -478,7 +718,7 @@ Compiles media blocks from a template into executable functions.
 </td></tr>
 <tr><td>
 
-[compileBlockMessage(template, baseBlocks)](./gramstax.templateengine.compileblockmessage.md)
+[compileBlockGMessage(template, baseBlocks)](./gramstax.templateengine.compileblockgmessage.md)
 
 
 </td><td>
@@ -494,7 +734,7 @@ Compiles message blocks from a template into executable functions.
 </td></tr>
 <tr><td>
 
-[processImportBlocks(template, resolver, depth, importCache)](./gramstax.templateengine.processimportblocks.md)
+[processGImportBlocks(template, resolver, depth, importCache)](./gramstax.templateengine.processgimportblocks.md)
 
 
 </td><td>
@@ -504,13 +744,13 @@ Compiles message blocks from a template into executable functions.
 
 </td><td>
 
-Recursively processes and resolves `<import>` blocks in a template.
+Recursively processes and resolves `<g-import>` blocks in a template.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockBaseAttributes(template)](./gramstax.templateengine.validateblockbaseattributes.md)
+[validateBlockGBaseAttributes(template)](./gramstax.templateengine.validateblockgbaseattributes.md)
 
 
 </td><td>
@@ -520,13 +760,13 @@ Recursively processes and resolves `<import>` blocks in a template.
 
 </td><td>
 
-Validates attributes on `<base>` blocks.
+Validates attributes on `<g-base>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockCaseAttributes(template)](./gramstax.templateengine.validateblockcaseattributes.md)
+[validateBlockGCaseAttributes(template)](./gramstax.templateengine.validateblockgcaseattributes.md)
 
 
 </td><td>
@@ -536,13 +776,13 @@ Validates attributes on `<base>` blocks.
 
 </td><td>
 
-Validates attributes on `<case>` blocks.
+Validates attributes on `<g-case>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockDefaultAttributes(template)](./gramstax.templateengine.validateblockdefaultattributes.md)
+[validateBlockGDefaultAttributes(template)](./gramstax.templateengine.validateblockgdefaultattributes.md)
 
 
 </td><td>
@@ -552,13 +792,13 @@ Validates attributes on `<case>` blocks.
 
 </td><td>
 
-Validates attributes on `<default>` blocks.
+Validates attributes on `<g-default>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockDescriptionAttributes(template)](./gramstax.templateengine.validateblockdescriptionattributes.md)
+[validateBlockGDescriptionAttributes(template)](./gramstax.templateengine.validateblockgdescriptionattributes.md)
 
 
 </td><td>
@@ -568,13 +808,13 @@ Validates attributes on `<default>` blocks.
 
 </td><td>
 
-Validates attributes on `<description>` blocks.
+Validates attributes on `<g-description>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockDivAttributes(template)](./gramstax.templateengine.validateblockdivattributes.md)
+[validateBlockGDivAttributes(template)](./gramstax.templateengine.validateblockgdivattributes.md)
 
 
 </td><td>
@@ -584,13 +824,13 @@ Validates attributes on `<description>` blocks.
 
 </td><td>
 
-Validates attributes on `<div>` blocks.
+Validates attributes on `<g-div>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockImportAttributes(template)](./gramstax.templateengine.validateblockimportattributes.md)
+[validateBlockGImportAttributes(template)](./gramstax.templateengine.validateblockgimportattributes.md)
 
 
 </td><td>
@@ -600,13 +840,13 @@ Validates attributes on `<div>` blocks.
 
 </td><td>
 
-Validates attributes on `<import>` blocks.
+Validates attributes on `<g-import>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockKeyboardAttributes(template)](./gramstax.templateengine.validateblockkeyboardattributes.md)
+[validateBlockGKeyboardAttributes(template)](./gramstax.templateengine.validateblockgkeyboardattributes.md)
 
 
 </td><td>
@@ -616,13 +856,13 @@ Validates attributes on `<import>` blocks.
 
 </td><td>
 
-Validates attributes on `<keyboard>` blocks.
+Validates attributes on `<g-keyboard>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockMapAttributes(template)](./gramstax.templateengine.validateblockmapattributes.md)
+[validateBlockGMapAttributes(template)](./gramstax.templateengine.validateblockgmapattributes.md)
 
 
 </td><td>
@@ -632,13 +872,13 @@ Validates attributes on `<keyboard>` blocks.
 
 </td><td>
 
-Validates attributes on `<map>` blocks.
+Validates attributes on `<g-map>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockMediaAttributes(template)](./gramstax.templateengine.validateblockmediaattributes.md)
+[validateBlockGMediaAttributes(template)](./gramstax.templateengine.validateblockgmediaattributes.md)
 
 
 </td><td>
@@ -648,13 +888,13 @@ Validates attributes on `<map>` blocks.
 
 </td><td>
 
-Validates attributes on `<media>` blocks.
+Validates attributes on `<g-media>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockMediaGroupAttributes(template)](./gramstax.templateengine.validateblockmediagroupattributes.md)
+[validateBlockGMediaGroupAttributes(template)](./gramstax.templateengine.validateblockgmediagroupattributes.md)
 
 
 </td><td>
@@ -664,13 +904,13 @@ Validates attributes on `<media>` blocks.
 
 </td><td>
 
-Validates attributes and item constraints on `<media-group>` blocks.
+Validates attributes and item constraints on `<g-media-group>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockMessageAttributes(template)](./gramstax.templateengine.validateblockmessageattributes.md)
+[validateBlockGMessageAttributes(template)](./gramstax.templateengine.validateblockgmessageattributes.md)
 
 
 </td><td>
@@ -680,13 +920,13 @@ Validates attributes and item constraints on `<media-group>` blocks.
 
 </td><td>
 
-Validates attributes on `<message>` blocks.
+Validates attributes on `<g-message>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockScriptAttributes(template)](./gramstax.templateengine.validateblockscriptattributes.md)
+[validateBlockGScriptAttributes(template)](./gramstax.templateengine.validateblockgscriptattributes.md)
 
 
 </td><td>
@@ -696,13 +936,13 @@ Validates attributes on `<message>` blocks.
 
 </td><td>
 
-Validates attributes on `<script>` blocks.
+Validates attributes on `<g-script>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockSpaceAttributes(template)](./gramstax.templateengine.validateblockspaceattributes.md)
+[validateBlockGSpaceAttributes(template)](./gramstax.templateengine.validateblockgspaceattributes.md)
 
 
 </td><td>
@@ -712,13 +952,13 @@ Validates attributes on `<script>` blocks.
 
 </td><td>
 
-Validates attributes on `<space>` blocks.
+Validates attributes on `<g-space>` blocks.
 
 
 </td></tr>
 <tr><td>
 
-[validateBlockSwitchAttributes(template)](./gramstax.templateengine.validateblockswitchattributes.md)
+[validateBlockGSwitchAttributes(template)](./gramstax.templateengine.validateblockgswitchattributes.md)
 
 
 </td><td>
@@ -728,7 +968,7 @@ Validates attributes on `<space>` blocks.
 
 </td><td>
 
-Validates attributes on `<switch>` blocks.
+Validates attributes on `<g-switch>` blocks.
 
 
 </td></tr>
@@ -766,6 +1006,38 @@ Validates that all block tags in a template are recognized.
 </td></tr>
 <tr><td>
 
+[validatePageAttributesBlock(template)](./gramstax.templateengine.validatepageattributesblock.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates that `<g-*>` PAGE blocks in the template carry their required attributes.
+
+
+</td></tr>
+<tr><td>
+
+[validatePageAttributeValuesBlock(template)](./gramstax.templateengine.validatepageattributevaluesblock.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates that `<g-*>` PAGE block attribute values match their expected formats.
+
+
+</td></tr>
+<tr><td>
+
 [validatePositionsBlock(template)](./gramstax.templateengine.validatepositionsblock.md)
 
 
@@ -793,6 +1065,38 @@ Validates block positioning and nesting rules in a template string.
 </td><td>
 
 Validates that all interpolation scope syntaxes in a template are recognized.
+
+
+</td></tr>
+<tr><td>
+
+[validateTelegramAttributesBlock(template)](./gramstax.templateengine.validatetelegramattributesblock.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates that Telegram Rich HTML tags in the template carry their required attributes.
+
+
+</td></tr>
+<tr><td>
+
+[validateTelegramAttributeValuesBlock(template)](./gramstax.templateengine.validatetelegramattributevaluesblock.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates that Telegram Rich HTML tag attribute values match their expected formats.
 
 
 </td></tr>

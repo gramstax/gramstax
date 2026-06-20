@@ -43,13 +43,13 @@ export class ResetPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <message>
+      <g-message>
         ✅ Reset complete
 
         Tap Back to return to the main menu.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

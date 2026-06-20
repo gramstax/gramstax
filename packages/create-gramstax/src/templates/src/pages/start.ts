@@ -39,10 +39,10 @@ export class StartPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>🎰 Random Number, ➕ Sum Number, 🆘 Help</keyboard>
-      <keyboard lang="id">🎰 Angka Acak, ➕ Jumlah Angka, 🆘 Bantuan</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>🎰 Random Number, ➕ Sum Number, 🆘 Help</g-keyboard>
+      <g-keyboard lang="id">🎰 Angka Acak, ➕ Jumlah Angka, 🆘 Bantuan</g-keyboard>
+      <g-message>
         <b>👋 Welcome to the bot {{userName}}</b>
 
         This bot was initially generated using Gramstax as the base setup and starting structure. It provides a clean foundation that can be extended with custom features, commands, and integrations as needed.
@@ -50,8 +50,12 @@ export class StartPage extends PageBase {
         <b>🎰 Random Number</b> - Generate a random number
         <b>➕ Sum Number</b> - Add two numbers together
         <b>❓ Help</b> - View help and available commands
-      </message>
-      <message lang="id">
+
+        <tg-spoiler>🎁 Hidden tip: try /help for a surprise</tg-spoiler>
+
+        <a href="https://github.com/gramstax/gramstax">📚 Documentation</a>
+      </g-message>
+      <g-message lang="id">
         <b>👋 Selamat datang di bot {{userName}}</b>
 
         Bot ini dibuat menggunakan Gramstax sebagai generator awal dan struktur dasar. Dari sini, bot dapat dikembangkan lebih lanjut dengan fitur, perintah, dan integrasi sesuai kebutuhan.
@@ -59,7 +63,11 @@ export class StartPage extends PageBase {
         <b>🎰 Angka Acak</b> - Menghasilkan angka secara acak
         <b>➕ Jumlah Angka</b> - Menjumlahkan dua angka
         <b>❓ Bantuan</b> - Lihat bantuan dan daftar perintah
-      </message>
-    </base>
+
+        <tg-spoiler>🎁 Tips tersembunyi: coba /help untuk kejutan</tg-spoiler>
+
+        <a href="https://github.com/gramstax/gramstax">📚 Dokumentasi</a>
+      </g-message>
+    </g-base>
   `
 }

@@ -31,12 +31,12 @@ export class StartPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>Refresh</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>Refresh</g-keyboard>
+      <g-message>
         Hello World! 
         Time now: {{time}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

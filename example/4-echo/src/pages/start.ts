@@ -34,13 +34,13 @@ export class StartPage extends PageBase {
   }
 
   static template = `
-    <base id=${Base.step1}>
-      <keyboard>❓ Help, 🔁 Echo Tips</keyboard>
-      <message>
+    <g-base id=${Base.step1}>
+      <g-keyboard>❓ Help, 🔁 Echo Tips</g-keyboard>
+      <g-message>
         🔊 Echo Bot
 
         Send any message and I will repeat it back exactly as received. You can try text, photos, videos, documents, and more.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

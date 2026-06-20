@@ -37,13 +37,13 @@ export class StartPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>💳 Balance, ➕ Deposit, ➖ Withdraw, 🔁 Transfer, 📜 History</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>💳 Balance, ➕ Deposit, ➖ Withdraw, 🔁 Transfer, 📜 History</g-keyboard>
+      <g-message>
         💼 Banking Menu
 
         Manage your account with the actions below. Check your balance, move funds, or review recent activity at any time.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

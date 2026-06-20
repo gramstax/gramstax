@@ -32,24 +32,38 @@ export class HelpPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <message>
+      <g-message>
         <b>🆘 Help Message</b>
 
         Use this command to get help and instructions.
 
         <b>🎰 Random Number</b> - Generate a random number
         <b>➕ Sum Number</b> - Add two numbers together
-      </message>
-      <message lang="id">
+
+        <details><summary>📋 More commands</summary>
+          /start - Show welcome message
+          /help - Show this help
+          /random - Generate a random number
+          /sum - Add two numbers
+        </details>
+      </g-message>
+      <g-message lang="id">
         <b>🆘 Pesan Bantuan</b>
 
         Gunakan perintah ini untuk melihat bantuan dan petunjuk.
 
         <b>🎰 Angka Acak</b> - Menghasilkan angka secara acak
         <b>➕ Jumlah Angka</b> - Menjumlahkan dua angka
-      </message>
-    </base>
+
+        <details><summary>📋 Perintah lainnya</summary>
+          /start - Tampilkan pesan selamat datang
+          /help - Tampilkan bantuan ini
+          /random - Hasilkan angka acak
+          /sum - Jumlahkan dua angka
+        </details>
+      </g-message>
+    </g-base>
   `
 }

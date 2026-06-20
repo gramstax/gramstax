@@ -14,7 +14,7 @@ declare class TemplateManager
 
 ## Remarks
 
-The `TemplateManager` class provides a centralized system for handling templates used in Gramstax bots. It supports: - Loading templates from static `template` properties in page classes - Loading templates from external `.html` files - Hot-reloading templates during development via file watching - Multi-language support with fallback to `default`
+The `TemplateManager` class provides a centralized system for handling templates used in Gramstax bots. It supports: - Loading templates from static `template` properties in page classes - Loading templates from external `.html` files - Hot-reloading templates during development via file watching - Multi-language support with fallback to `g-default`
 
 Templates are compiled once and cached for efficient retrieval.
 
@@ -272,7 +272,7 @@ Compiles a raw template string and stores the result in the cache.
 
 </td><td>
 
-Finds the `<base>` block (open + close) that encloses the given line number.
+Finds the `<g-base>` block (open + close) that encloses the given line number.
 
 
 </td></tr>
@@ -456,7 +456,7 @@ Validates and ensures all template directories exist.
 
 Validates template syntax and throws a descriptive error on failure.
 
-The error message includes the enclosing `<base id="...">` based on the error line. If the `<base>` has no `id` or no `<base>` tag is found, the `on base` prefix is omitted.
+The error message includes the enclosing `<g-base id="...">` based on the error line. If the `<g-base>` has no `id` or no `<g-base>` tag is found, the `on base` prefix is omitted.
 
 
 </td></tr>

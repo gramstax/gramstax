@@ -53,36 +53,36 @@ export class InputText2Page extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         📝 Input text (no session)
 
         Send a message to see an immediate echo response.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         📝 Masukkan teks (tanpa session)
 
         Kirim pesan untuk melihat balasan secara langsung.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
+    <g-base id="${Base.success}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ✅ Result (no session)
 
         {{res}}
 
         Send another text to see a different result.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ✅ Hasil (tanpa session)
 
         {{res}}
 
         Kirim teks lain untuk melihat hasil yang berbeda.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

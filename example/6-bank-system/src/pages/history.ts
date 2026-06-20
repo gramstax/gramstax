@@ -59,13 +59,13 @@ export class HistoryPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <message>
+      <g-message>
         📜 Recent transactions
 
         {{history}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

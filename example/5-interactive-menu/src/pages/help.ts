@@ -35,14 +35,14 @@ export class HelpPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <message>
+      <g-message>
         ❓ Help & Navigation
 
         Use inline buttons to explore menus, and the bottom keyboard for quick actions.
         Pagination buttons appear when lists are long.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

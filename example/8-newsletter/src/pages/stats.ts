@@ -26,24 +26,24 @@ export class StatsPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         📊 Newsletter Stats
 
         Total subscribers: {{count}}
         Your status: {~subscribed ? "Subscribed" : "Not subscribed"~}
 
         This view helps you confirm whether you are on the list and how large the community is right now.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         📊 Statistik Newsletter
 
         Total pelanggan: {{count}}
         Status Anda: {~subscribed ? "Berlangganan" : "Belum berlangganan"~}
 
         Tampilan ini membantu Anda memastikan status langganan dan melihat total komunitas saat ini.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

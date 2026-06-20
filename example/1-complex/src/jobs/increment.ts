@@ -1,5 +1,5 @@
 import {LogHe} from "~/helpers/log"
-import {WorkerThreadExport, WorkerThreadInit} from "gramstax"
+import {WorkerThreadExport, WorkerThreadInit} from "@gramstax/worker-thread"
 
 export class Worker extends WorkerThreadInit {
   count = 0

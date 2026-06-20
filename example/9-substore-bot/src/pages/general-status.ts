@@ -42,24 +42,24 @@ export class GeneralStatusPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.error}">
+    <g-base id="${Base.error}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ⚠️ Store temporarily unavailable
 
         We could not complete that action safely.
         Code: {{code}}
         Detail: {{error}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.notFound}">
+    <g-base id="${Base.notFound}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         🔎 Action not found
 
         Please return home and choose an action from the store menu.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

@@ -58,7 +58,7 @@ string
 
 </td><td>
 
-_(Optional)_ Base block ID matching `<base id="...">`
+_(Optional)_ Base block ID matching `<g-base id="...">`
 
 
 </td></tr>
@@ -74,7 +74,7 @@ string
 
 </td><td>
 
-_(Optional)_ Target language code (falls back to `default`<!-- -->)
+_(Optional)_ Target language code (falls back to `g-default`<!-- -->)
 
 
 </td></tr>

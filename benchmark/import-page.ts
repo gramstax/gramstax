@@ -13,9 +13,9 @@ async function setup() {
   await mkdir(BENCH_DIR, {recursive: true})
 
   // 1. Create a large "start" template with many blocks
-  let startTemplate = `<base id="common"><keyboard>Item 1, Item 2, Item 3</keyboard><message>Common Header</message></base>\n`
+  let startTemplate = `<g-base id="common"><g-keyboard>Item 1, Item 2, Item 3</g-keyboard><g-message>Common Header</g-message></g-base>\n`
   for (let i = 0; i < 50; i++) {
-    startTemplate += `<base id="block-${i}"><message>Block ${i} content</message></base>\n`
+    startTemplate += `<g-base id="block-${i}"><g-message>Block ${i} content</g-message></g-base>\n`
   }
   await writeFile(join(BENCH_DIR, `start.html`), startTemplate)
 
@@ -23,11 +23,11 @@ async function setup() {
   const pageCount = 104
   for (let i = 0; i < pageCount; i++) {
     const pageTemplate = `
-        <base>
-            <import src="start" base="common" />
-            <import src="start" base="block-${i % 50}" />
-            <message>Page ${i} unique content</message>
-        </base>`
+        <g-base>
+            <g-import src="start" base="common" />
+            <g-import src="start" base="block-${i % 50}" />
+            <g-message>Page ${i} unique content</g-message>
+        </g-base>`
     await writeFile(join(BENCH_DIR, `page-${i}.html`), pageTemplate)
   }
 }

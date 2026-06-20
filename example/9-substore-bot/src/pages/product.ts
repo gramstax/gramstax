@@ -114,9 +114,9 @@ export class ProductPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>✅ Buy Now, ➕ Add Cart, 🛒 Cart, ⬅️ Back</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>✅ Buy Now, ➕ Add Cart, 🛒 Cart, ⬅️ Back</g-keyboard>
+      <g-message>
         📦 {{name}}
 
         Service: {{service}}
@@ -130,34 +130,34 @@ export class ProductPage extends PageBase {
 
         Benefits:
         {{benefits}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoAdded}">
-      <keyboard>🔎 Browse Products, 🛒 Cart</keyboard>
-      <message>
+    <g-base id="${Base.infoAdded}">
+      <g-keyboard>🔎 Browse Products, 🛒 Cart</g-keyboard>
+      <g-message>
         ✅ Added to cart
 
         {{name}} is now in your cart. You can continue shopping or review the cart whenever you're ready.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnStock}">
-      <keyboard>🔎 Browse Products, 🛒 Cart</keyboard>
-      <message>
+    <g-base id="${Base.warnStock}">
+      <g-keyboard>🔎 Browse Products, 🛒 Cart</g-keyboard>
+      <g-message>
         ⛔ Out of stock
 
         {{name}} is currently unavailable. Please choose another product or check again later.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnMissing}">
-      <keyboard>🔎 Browse Products, 🛒 Cart</keyboard>
-      <message>
+    <g-base id="${Base.warnMissing}">
+      <g-keyboard>🔎 Browse Products, 🛒 Cart</g-keyboard>
+      <g-message>
         ⚠️ Product not found
 
         We could not find that subscription product. Please return to the catalog.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

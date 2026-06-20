@@ -28,18 +28,18 @@ export class UserNameNotFoundPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         <b>⚠️ Username Required</b>
 
         Please set the username first before using the bot.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         <b>⚠️ Username Diperlukan</b>
 
         Tolong set username dulu sebelum memakai bot.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

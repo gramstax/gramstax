@@ -54,18 +54,18 @@ export class GeneralStatusPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.dynamic}">
+    <g-base id="${Base.dynamic}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         <b>{~isNotFound ? "🔎 Route Not Found" : "❌ Error Occurred"~}</b>
 
         {~isNotFound ? "The requested route does not exist or is unavailable." : "Something went wrong while processing your request. Please try again."~}
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         <b>{~isNotFound ? "🔎 Rute Tidak Ditemukan" : "❌ Terjadi Kesalahan"~}</b>
 
         {~isNotFound ? "Rute yang diminta tidak tersedia atau tidak ada." : "Terjadi kesalahan saat memproses permintaan. Silakan coba lagi."~}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

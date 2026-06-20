@@ -87,25 +87,25 @@ export class DetailPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         🔎 View item details
 
         Enter the item ID to see the full record.
         Example: 1
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         🔎 Lihat detail item
 
         Masukkan ID item untuk melihat data lengkap.
         Contoh: 1
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
+    <g-base id="${Base.success}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         📋 Item #{{id}}
 
         🏷️ Title: {{title}}
@@ -113,8 +113,8 @@ export class DetailPage extends PageBase {
         📌 Status: {{status}}
         🕒 Created: {{createdAt}}
         🔄 Updated: {{updatedAt}}
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         📋 Item #{{id}}
 
         🏷️ Judul: {{title}}
@@ -122,35 +122,35 @@ export class DetailPage extends PageBase {
         📌 Status: {{status}}
         🕒 Dibuat: {{createdAt}}
         🔄 Diperbarui: {{updatedAt}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.infoNotFound}">
+    <g-base id="${Base.infoNotFound}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ❌ Item not found: {{id}}
 
         Double-check the ID and try again, or return to the list to browse.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ❌ Item tidak ditemukan: {{id}}
 
         Periksa kembali ID, atau kembali ke daftar untuk melihat item.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnInvalid}">
+    <g-base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ⚠️ Invalid ID
 
         Please send a numeric item ID (example: 1).
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         ⚠️ ID tidak valid
 
         Mohon kirim ID item angka (contoh: 1).
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

@@ -39,13 +39,13 @@ export class ItemDetailPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>⬅️ Back to List</keyboard>
-      <message>
+    <g-base id="${Base.step1}">
+      <g-keyboard>⬅️ Back to List</g-keyboard>
+      <g-message>
         📌 {~name || "Unknown"~}
 
         {~description || "No description found."~}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

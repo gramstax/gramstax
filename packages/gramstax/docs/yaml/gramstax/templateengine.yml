@@ -10,8 +10,8 @@ remarks: >-
   conditional rendering, array mapping, script execution, and template imports.
 
 
-  Templates are typically organized into `<base>` blocks containing various content blocks like `<message>`<!-- -->,
-  `<keyboard>`<!-- -->, `<media>`<!-- -->, and `<description>`<!-- -->. Each block supports a `lang` attribute for
+  Templates are typically organized into `<g-base>` blocks containing various content blocks like `<g-message>`<!-- -->,
+  `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, and `<g-description>`<!-- -->. Each block supports a `lang` attribute for
   internationalization.
 example:
   - |-
@@ -19,14 +19,14 @@ example:
     import { TemplateEngine } from 'gramstax';
 
     const template = `
-      <base>
-        <keyboard>Back, Next</keyboard>
-        <message>Welcome {{name}}!</message>
-      </base>
+      <g-base>
+        <g-keyboard>Back, Next</g-keyboard>
+        <g-message>Welcome {{name}}!</g-message>
+      </g-base>
     `;
 
-    const messages = TemplateEngine.compileBlockMessages(template);
-    const keyboards = TemplateEngine.compileBlockKeyboards(template);
+    const messages = TemplateEngine.compileBlockGMessages(template);
+    const keyboards = TemplateEngine.compileBlockGKeyboards(template);
 
     const msg = messages.default?.default?.({ name: 'John' });
     // Result: 'Welcome John!'
@@ -35,6 +35,181 @@ isPreview: false
 isDeprecated: false
 type: class
 properties:
+  - name: _PAGE_ATTR_VALUE_VALIDATORS
+    uid: gramstax!TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS:member
+    package: gramstax!
+    fullName: _PAGE_ATTR_VALUE_VALIDATORS
+    summary: Attribute value validators for `<g-*>` PAGE blocks.
+    remarks: >-
+      Per-tag, per-attribute map of validators. Each validator receives the raw attribute value (after quote-stripping)
+      and returns either `null` (valid) or a descriptive error string. The value validation runs after the per-block
+      attribute validation, so unknown attributes are reported separately by `validateBlockG*Attributes` methods.
+
+
+      Currently covers: - `<g-base id>` — must not be empty - `<g-keyboard type>` — must be `inline` or `bottom` -
+      `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video\_note, sticker,
+      location, contact - `<g-media shared>` — must be `true` or `false`
+
+
+      Validators are intentionally lenient — they catch obvious bugs (wrong type, invalid value) but do not enforce
+      every framework-level constraint.
+    example:
+      - >-
+        ```typescript
+
+        TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS["g-keyboard"].type("inline")   // => null
+
+        TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS["g-keyboard"].type("sidebar") // => "Attribute \"type\" on
+        <g-keyboard> must be \"inline\" or \"bottom\", got \"sidebar\""
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _PAGE_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>>;'
+      return:
+        type: 'Record&lt;string, Record&lt;string, (value: string) =&gt; string | null&gt;&gt;'
+  - name: _PAGE_REQUIRED_ATTRS
+    uid: gramstax!TemplateEngine._PAGE_REQUIRED_ATTRS:member
+    package: gramstax!
+    fullName: _PAGE_REQUIRED_ATTRS
+    summary: Required-attribute specification for `<g-*>` PAGE blocks.
+    remarks: >-
+      Most PAGE block attributes are optional — there are no strictly required attributes. This spec is reserved for
+      future use (e.g. context-dependent requirements). The shape mirrors
+      [TemplateEngine.\_TELEGRAM\_REQUIRED\_ATTRS](xref:gramstax!TemplateEngine._TELEGRAM_REQUIRED_ATTRS:member)<!--
+      -->: - `string[]` — every entry must be present - `{ oneOf: string[][] }` — at least one of the listed sets must
+      be fully present
+    example:
+      - |-
+        ```typescript
+        TemplateEngine._PAGE_REQUIRED_ATTRS  // => {} (no strictly required attrs yet)
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _PAGE_REQUIRED_ATTRS: Record<string, string[] | {
+                oneOf: string[][];
+            }>;
+      return:
+        type: |-
+          Record&lt;string, string[] | {
+                  oneOf: string[][];
+              }&gt;
+  - name: _TELEGRAM_ATTR_VALUE_VALIDATORS
+    uid: gramstax!TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS:member
+    package: gramstax!
+    fullName: _TELEGRAM_ATTR_VALUE_VALIDATORS
+    summary: Attribute value validators for Telegram Rich HTML tags.
+    remarks: >-
+      Per-tag, per-attribute map of validators. Each validator receives the raw attribute value (after quote-stripping)
+      and returns either `null` (valid) or a descriptive error string. The value validation runs after the
+      required-attribute check, so missing attributes are reported separately by
+      [TemplateEngine.\_TELEGRAM\_REQUIRED\_ATTRS](xref:gramstax!TemplateEngine._TELEGRAM_REQUIRED_ATTRS:member)<!--
+      -->.
+
+
+      Validators are intentionally lenient — they catch obvious bugs (wrong type, invalid scheme) but do not enforce
+      every Telegram-side constraint.
+    example:
+      - >-
+        ```typescript
+
+        TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS["tg-time"].unix("1647531900") // => null
+
+        TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS["tg-time"].unix("abc")       // => "unix must be a positive
+        integer (got \"abc\")"
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _TELEGRAM_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>>;'
+      return:
+        type: 'Record&lt;string, Record&lt;string, (value: string) =&gt; string | null&gt;&gt;'
+  - name: _TELEGRAM_REQUIRED_ATTRS
+    uid: gramstax!TemplateEngine._TELEGRAM_REQUIRED_ATTRS:member
+    package: gramstax!
+    fullName: _TELEGRAM_REQUIRED_ATTRS
+    summary: Required-attribute specification for Telegram Rich HTML tags.
+    remarks: >-
+      Per-tag table mapping tag name to the attribute(s) it must have. Two shapes are supported: - `string[]` — every
+      entry must be present - `{ oneOf: string[][] }` — at least one of the listed sets must be fully present (used for
+      `<a>` which can be either a link or an anchor)
+
+
+      Tags not listed here have no required attributes.
+    example:
+      - |-
+        ```typescript
+        TemplateEngine._TELEGRAM_REQUIRED_ATTRS["a"]       // => { oneOf: [["href"], ["name"]] }
+        TemplateEngine._TELEGRAM_REQUIRED_ATTRS["tg-time"] // => ["unix", "format"]
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _TELEGRAM_REQUIRED_ATTRS: Record<string, string[] | {
+                oneOf: string[][];
+            }>;
+      return:
+        type: |-
+          Record&lt;string, string[] | {
+                  oneOf: string[][];
+              }&gt;
+  - name: ALLOWED_BLOCKS_PAGE
+    uid: gramstax!TemplateEngine.ALLOWED_BLOCKS_PAGE:member
+    package: gramstax!
+    fullName: ALLOWED_BLOCKS_PAGE
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static ALLOWED_BLOCKS_PAGE: string[];'
+      return:
+        type: string[]
+  - name: ALLOWED_BLOCKS_TELEGRAM_LEGACY
+    uid: gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_LEGACY:member
+    package: gramstax!
+    fullName: ALLOWED_BLOCKS_TELEGRAM_LEGACY
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static ALLOWED_BLOCKS_TELEGRAM_LEGACY: string[];'
+      return:
+        type: string[]
+  - name: ALLOWED_BLOCKS_TELEGRAM_RICH
+    uid: gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM_RICH:member
+    package: gramstax!
+    fullName: ALLOWED_BLOCKS_TELEGRAM_RICH
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static ALLOWED_BLOCKS_TELEGRAM_RICH: string[];'
+      return:
+        type: string[]
+  - name: ALLOWED_BLOCKS_TELEGRAM
+    uid: gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM:member
+    package: gramstax!
+    fullName: ALLOWED_BLOCKS_TELEGRAM
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static ALLOWED_BLOCKS_TELEGRAM: string[];'
+      return:
+        type: string[]
   - name: ALLOWED_BLOCKS
     uid: gramstax!TemplateEngine.ALLOWED_BLOCKS:member
     package: gramstax!
@@ -45,11 +220,20 @@ properties:
       element in template strings.
 
 
-      \*\*Content blocks:\*\* `base`<!-- -->, `message`<!-- -->, `keyboard`<!-- -->, `media`<!-- -->, `description`
-      \*\*Logic blocks:\*\* `script`<!-- -->, `switch`<!-- -->, `case`<!-- -->, `default`<!-- -->, `map`<!-- -->, `div`
-      \*\*Utility blocks:\*\* `import`<!-- -->, `space` \*\*Telegram HTML formatting (passed through, not compiled):\*\*
-      `b`<!-- -->, `i`<!-- -->, `u`<!-- -->, `s`<!-- -->, `code`<!-- -->, `pre`<!-- -->, `a`<!-- -->, `blockquote`<!--
-      -->, `blockquote expandable`
+      \*\*Content blocks:\*\* `g-base`<!-- -->, `g-message`<!-- -->, `g-keyboard`<!-- -->, `g-media`<!-- -->,
+      `g-description` \*\*Logic blocks:\*\* `g-script`<!-- -->, `g-switch`<!-- -->, `g-case`<!-- -->, `g-default`<!--
+      -->, `g-map`<!-- -->, `g-div` \*\*Utility blocks:\*\* `import`<!-- -->, `space`
+
+
+      \*\*Telegram Rich HTML (passed through to `html` field):\*\* - \*Inline:\* `a`<!-- -->, `b`<!-- -->, `code`<!--
+      -->, `del`<!-- -->, `em`<!-- -->, `i`<!-- -->, `ins`<!-- -->, `mark`<!-- -->, `s`<!-- -->, `strike`<!-- -->,
+      `strong`<!-- -->, `sub`<!-- -->, `sup`<!-- -->, `tg-spoiler`<!-- -->, `u` - \*Block/structural:\* `aside`<!-- -->,
+      `blockquote`<!-- -->, `blockquote expandable`<!-- -->, `br`<!-- -->, `details`<!-- -->, `footer`<!-- -->, `h1`<!--
+      -->-`h6`<!-- -->, `hr`<!-- -->, `li`<!-- -->, `ol`<!-- -->, `p`<!-- -->, `pre`<!-- -->, `summary`<!-- -->,
+      `table`<!-- -->, `td`<!-- -->, `th`<!-- -->, `tr`<!-- -->, `ul` - \*Telegram-specific:\* `tg-collage`<!-- -->,
+      `tg-emoji`<!-- -->, `tg-map`<!-- -->, `tg-math`<!-- -->, `tg-math-block`<!-- -->, `tg-reference`<!-- -->,
+      `tg-slideshow`<!-- -->, `tg-time` - \*Media:\* `audio`<!-- -->, `cite`<!-- -->, `figcaption`<!-- -->, `figure`<!--
+      -->, `img`<!-- -->, `video` - \*Forms:\* `input`
     example: []
     isPreview: false
     isDeprecated: false
@@ -173,10 +357,10 @@ methods:
       - |-
         ```typescript
         const template = `
-          <base id="main">
-            <message>Hello</message>
-            <keyboard>Yes, No</keyboard>
-          </base>
+          <g-base id="main">
+            <g-message>Hello</g-message>
+            <g-keyboard>Yes, No</g-keyboard>
+          </g-base>
         `;
         const result = TemplateEngine._extractBlock(template, 'message', 'main', 'value');
         // Result: 'Hello'
@@ -206,15 +390,45 @@ methods:
       return:
         type: string
         description: The extracted content as a string
-  - name: _processBaseBlocks(template)
-    uid: gramstax!TemplateEngine._processBaseBlocks:member(1)
+  - name: _extractBlockNames(blocks)
+    uid: gramstax!TemplateEngine._extractBlockNames:member(1)
     package: gramstax!
-    fullName: _processBaseBlocks(template)
-    summary: 'Block: base Extracts and parses `<base>` blocks from a template string.'
+    fullName: _extractBlockNames(blocks)
+    summary: Extracts lowercase block tag names from an array of tag literals.
     remarks: >-
-      This internal method identifies all `<base>` blocks in the template and extracts their content, organizing them by
-      their `id` attribute. Blocks without an `id` are stored under the key `"default"`<!-- -->. Leading whitespace and
-      surrounding newlines are trimmed from the inner content.
+      Strips leading `</` or `<`<!-- -->, any trailing `>`<!-- -->, any attributes that follow a space, and lowercases
+      the result. Self-closing tags like `<g-import/>` are normalised to their bare name. Entries with attributes after
+      a space (e.g. `<blockquote expandable>`<!-- -->) are returned with the attribute suffix preserved.
+    example:
+      - |-
+        ```typescript
+        const names = TemplateEngine._extractBlockNames([
+          "<g-base>",
+          "<g-import/>",
+          "<BLOCKQUOTE expandable>"
+        ]);
+        // => Set { "g-base", "g-import", "blockquote expandable" }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _extractBlockNames(blocks: string[]): Set<string>;'
+      parameters:
+        - id: blocks
+          description: Array of tag literals (e.g. `["<g-base>", "<message/>", "<blockquote expandable>"]`<!-- -->)
+          type: string[]
+      return:
+        type: Set&lt;string&gt;
+        description: Set of normalized lowercase block names
+  - name: _processGBaseBlocks(template)
+    uid: gramstax!TemplateEngine._processGBaseBlocks:member(1)
+    package: gramstax!
+    fullName: _processGBaseBlocks(template)
+    summary: 'Block: g-base Extracts and parses `<g-base>` blocks from a template string.'
+    remarks: >-
+      This internal method identifies all `<g-base>` blocks in the template and extracts their content, organizing them
+      by their `id` attribute. Blocks without an `id` are stored under the key `"default"`<!-- -->. Leading whitespace
+      and surrounding newlines are trimmed from the inner content.
 
 
       \*\*Attributes:\*\* - `id` (optional): Identifier for the base block. If not specified, defaults to
@@ -223,33 +437,33 @@ methods:
       - |-
         ```typescript
         const template = `
-          <base id="main">
-            <message>Hello World</message>
-          </base>
-          <base id="error">
-            <message>Error occurred</message>
-          </base>
-          <base>
-            <message>Default block</message>
-          </base>
+          <g-base id="main">
+            <g-message>Hello World</g-message>
+          </g-base>
+          <g-base id="error">
+            <g-message>Error occurred</g-message>
+          </g-base>
+          <g-base>
+            <g-message>Default block</g-message>
+          </g-base>
         `;
-        const bases = TemplateEngine._processBaseBlocks(template);
+        const bases = TemplateEngine._processGBaseBlocks(template);
         // Result: {
-        //   main: '<message>Hello World</message>',
-        //   error: '<message>Error occurred</message>',
-        //   default: '<message>Default block</message>'
+        //   main: '<g-message>Hello World</g-message>',
+        //   error: '<g-message>Error occurred</g-message>',
+        //   default: '<g-message>Default block</g-message>'
         // }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static _processBaseBlocks(template: string): {
+        static _processGBaseBlocks(template: string): {
                 [baseId: string]: string;
             };
       parameters:
         - id: template
-          description: The raw template string containing `<base>` blocks
+          description: The raw template string containing `<g-base>` blocks
           type: string
       return:
         type: |-
@@ -257,13 +471,13 @@ methods:
                   [baseId: string]: string;
               }
         description: An object mapping base IDs to their cleaned inner content
-  - name: _processDescriptionBlocks(template)
-    uid: gramstax!TemplateEngine._processDescriptionBlocks:member(1)
+  - name: _processGDescriptionBlocks(template)
+    uid: gramstax!TemplateEngine._processGDescriptionBlocks:member(1)
     package: gramstax!
-    fullName: _processDescriptionBlocks(template)
-    summary: 'Block: description Extracts and parses `<description>` blocks from a template string.'
+    fullName: _processGDescriptionBlocks(template)
+    summary: 'Block: g-description Extracts and parses `<g-description>` blocks from a template string.'
     remarks: >-
-      This internal method identifies all `<description>` blocks and extracts their content organized by language and
+      This internal method identifies all `<g-description>` blocks and extracts their content organized by language and
       scope. Blocks without a `lang` attribute are stored under `"default"` language, and blocks without a `scope`
       attribute are stored under `"default"` scope.
 
@@ -274,11 +488,11 @@ methods:
       - |-
         ```typescript
         const template = `
-          <description>Start the bot</description>
-          <description lang="id">Mulai bot</description>
-          <description scope="chat_administrators">Admin command</description>
+          <g-description>Start the bot</g-description>
+          <g-description lang="id">Mulai bot</g-description>
+          <g-description scope="chat_administrators">Admin command</g-description>
         `;
-        const descriptions = TemplateEngine._processDescriptionBlocks(template);
+        const descriptions = TemplateEngine._processGDescriptionBlocks(template);
         // Result: {
         //   default: { default: 'Start the bot', chat_administrators: 'Admin command' },
         //   id: { default: 'Mulai bot' }
@@ -288,14 +502,14 @@ methods:
     isDeprecated: false
     syntax:
       content: |-
-        static _processDescriptionBlocks(template: string): {
+        static _processGDescriptionBlocks(template: string): {
                 [lang: string]: {
                     [scope: string]: string;
                 };
             };
       parameters:
         - id: template
-          description: The template string containing `<description>` blocks
+          description: The template string containing `<g-description>` blocks
           type: string
       return:
         type: |-
@@ -305,44 +519,44 @@ methods:
                   };
               }
         description: A nested object mapping language keys to scopes to their cleaned content
-  - name: _processDivBlocks(template)
-    uid: gramstax!TemplateEngine._processDivBlocks:member(1)
+  - name: _processGDivBlocks(template)
+    uid: gramstax!TemplateEngine._processGDivBlocks:member(1)
     package: gramstax!
-    fullName: _processDivBlocks(template)
-    summary: 'Block: div Normalizes content within `<div>` blocks by removing indentation.'
+    fullName: _processGDivBlocks(template)
+    summary: 'Block: g-div Normalizes content within `<g-div>` blocks by removing indentation.'
     remarks: >-
-      This internal method processes `<div>` blocks and cleans their inner content by removing leading tabs/spaces per
-      line and trimming surrounding newlines. The `<div>` tags themselves are removed from the output.
+      This internal method processes `<g-div>` blocks and cleans their inner content by removing leading tabs/spaces per
+      line and trimming surrounding newlines. The `<g-div>` tags themselves are removed from the output.
 
 
       \*\*Attributes:\*\* - none
     example:
       - |-
         ```typescript
-        const template = '<div>\n    Line 1\n    Line 2\n</div>';
-        const processed = TemplateEngine._processDivBlocks(template);
+        const template = '<g-div>\n    Line 1\n    Line 2\n</g-div>';
+        const processed = TemplateEngine._processGDivBlocks(template);
         // Result: 'Line 1\nLine 2'
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static _processDivBlocks(template: string): string;'
+      content: 'static _processGDivBlocks(template: string): string;'
       parameters:
         - id: template
-          description: The template string containing `<div>` blocks
+          description: The template string containing `<g-div>` blocks
           type: string
       return:
         type: string
-        description: The template with `<div>` blocks replaced by their de-indented content
-  - name: _processImportBlocks(template)
-    uid: gramstax!TemplateEngine._processImportBlocks:member(1)
+        description: The template with `<g-div>` blocks replaced by their de-indented content
+  - name: _processGImportBlocks(template)
+    uid: gramstax!TemplateEngine._processGImportBlocks:member(1)
     package: gramstax!
-    fullName: _processImportBlocks(template)
-    summary: Parses `<import>` directives from a template and extracts import metadata.
+    fullName: _processGImportBlocks(template)
+    summary: Parses `<g-import>` directives from a template and extracts import metadata.
     remarks: >-
-      This internal method identifies all `<import>` tags in a template and replaces them with placeholders while
+      This internal method identifies all `<g-import>` tags in a template and replaces them with placeholders while
       collecting their metadata (src, blocks, base, lang, section, indent). The placeholders are later resolved by
-      `processImportBlocks`<!-- -->.
+      `processGImportBlocks`<!-- -->.
 
 
       \*\*Attributes:\*\* - `src` (required): Import source identifier (e.g., template/page key). If missing, the tag is
@@ -355,8 +569,8 @@ methods:
     example:
       - |-
         ```typescript
-        const template = '<import src="other-page" block="message" />';
-        const { processed, imports } = TemplateEngine._processImportBlocks(template);
+        const template = '<g-import src="other-page" block="message" />';
+        const { processed, imports } = TemplateEngine._processGImportBlocks(template);
         // processed: '__IMPORT_0__'
         // imports: [{ src: 'other-page', blocks: 'message', base: 'default', ... }]
         ```
@@ -364,7 +578,7 @@ methods:
     isDeprecated: false
     syntax:
       content: |-
-        static _processImportBlocks(template: string): {
+        static _processGImportBlocks(template: string): {
                 processed: string;
                 imports: {
                     src: string;
@@ -377,7 +591,7 @@ methods:
             };
       parameters:
         - id: template
-          description: The template string containing `<import>` directives
+          description: The template string containing `<g-import>` directives
           type: string
       return:
         type: |-
@@ -393,15 +607,15 @@ methods:
                   }[];
               }
         description: An object containing the processed template with placeholders and an array of import metadata
-  - name: _processKeyboardBlocks(template)
-    uid: gramstax!TemplateEngine._processKeyboardBlocks:member(1)
+  - name: _processGKeyboardBlocks(template)
+    uid: gramstax!TemplateEngine._processGKeyboardBlocks:member(1)
     package: gramstax!
-    fullName: _processKeyboardBlocks(template)
-    summary: 'Block: keyboard Extracts and parses `<keyboard>` blocks from a template string.'
+    fullName: _processGKeyboardBlocks(template)
+    summary: 'Block: g-keyboard Extracts and parses `<g-keyboard>` blocks from a template string.'
     remarks: >-
-      This internal method identifies all `<keyboard>` blocks and extracts their content organized by language and type
-      (inline or bottom). Blocks without a `lang` attribute are stored under `"default"`<!-- -->. The `type` attribute
-      defaults to `"inline"` unless explicitly set to `"bottom"`<!-- -->.
+      This internal method identifies all `<g-keyboard>` blocks and extracts their content organized by language and
+      type (inline or bottom). Blocks without a `lang` attribute are stored under `"default"`<!-- -->. The `type`
+      attribute defaults to `"inline"` unless explicitly set to `"bottom"`<!-- -->.
 
 
       \*\*Attributes:\*\* - `lang` (optional): Language key for the output map. Defaults to `"default"`<!-- -->. -
@@ -410,11 +624,11 @@ methods:
       - |-
         ```typescript
         const template = `
-          <keyboard>Yes, No</keyboard>
-          <keyboard type="bottom">Button 1, Button 2</keyboard>
-          <keyboard lang="id">Ya, Tidak</keyboard>
+          <g-keyboard>Yes, No</g-keyboard>
+          <g-keyboard type="bottom">Button 1, Button 2</g-keyboard>
+          <g-keyboard lang="id">Ya, Tidak</g-keyboard>
         `;
-        const keyboards = TemplateEngine._processKeyboardBlocks(template);
+        const keyboards = TemplateEngine._processGKeyboardBlocks(template);
         // Result: {
         //   default: { inline: 'Yes, No', bottom: 'Button 1, Button 2' },
         //   id: { inline: 'Ya, Tidak' }
@@ -424,7 +638,7 @@ methods:
     isDeprecated: false
     syntax:
       content: |-
-        static _processKeyboardBlocks(template: string): {
+        static _processGKeyboardBlocks(template: string): {
                 [lang: string]: {
                     inline?: string;
                     bottom?: string;
@@ -432,7 +646,7 @@ methods:
             };
       parameters:
         - id: template
-          description: The template string containing `<keyboard>` blocks
+          description: The template string containing `<g-keyboard>` blocks
           type: string
       return:
         type: |-
@@ -443,13 +657,13 @@ methods:
                   };
               }
         description: A nested object mapping language keys to keyboard mode configurations
-  - name: _processMapBlocks(template)
-    uid: gramstax!TemplateEngine._processMapBlocks:member(1)
+  - name: _processGMapBlocks(template)
+    uid: gramstax!TemplateEngine._processGMapBlocks:member(1)
     package: gramstax!
-    fullName: _processMapBlocks(template)
-    summary: 'Block: map Transforms `<map>` blocks into JavaScript array map expressions.'
+    fullName: _processGMapBlocks(template)
+    summary: 'Block: g-map Transforms `<g-map>` blocks into JavaScript array map expressions.'
     remarks: >-
-      This internal method converts `<map>` blocks into array mapping operations. The `src` attribute specifies which
+      This internal method converts `<g-map>` blocks into array mapping operations. The `src` attribute specifies which
       data key contains the array. Inside the block, `{{e}}` refers to the current element, `{{e.prop}}` to element
       properties, and `{{i}}` to the current index. The `join` attribute specifies the separator.
 
@@ -459,28 +673,28 @@ methods:
     example:
       - |-
         ```typescript
-        const template = '<map src="items" join=", "> - {{e.name}} ({{i}})</map>';
-        const processed = TemplateEngine._processMapBlocks(template);
+        const template = '<g-map src="items" join=", "> - {{e.name}} ({{i}})</g-map>';
+        const processed = TemplateEngine._processGMapBlocks(template);
         // Result: '${(data && data["items"] || []).map((e, i) => ` - ${e.name} (${i})`).join(", ")}'
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static _processMapBlocks(template: string): string;'
+      content: 'static _processGMapBlocks(template: string): string;'
       parameters:
         - id: template
-          description: The template string containing `<map>` blocks
+          description: The template string containing `<g-map>` blocks
           type: string
       return:
         type: string
-        description: The template with `<map>` blocks converted to map expressions
-  - name: _processMediaBlocks(template)
-    uid: gramstax!TemplateEngine._processMediaBlocks:member(1)
+        description: The template with `<g-map>` blocks converted to map expressions
+  - name: _processGMediaBlocks(template)
+    uid: gramstax!TemplateEngine._processGMediaBlocks:member(1)
     package: gramstax!
-    fullName: _processMediaBlocks(template)
-    summary: 'Block: media Extracts and parses `<media>` blocks from a template string.'
+    fullName: _processGMediaBlocks(template)
+    summary: 'Block: g-media Extracts and parses `<g-media>` blocks from a template string.'
     remarks: >-
-      This internal method identifies all `<media>` blocks and extracts their attributes and content. It supports
+      This internal method identifies all `<g-media>` blocks and extracts their attributes and content. It supports
       various media types including photo, video, audio, document, animation, voice, video\_note, sticker, location, and
       contact. The inner content becomes the caption for supported types.
 
@@ -505,15 +719,15 @@ methods:
       allowed.
 
 
-      Note: - If multiple `<media>` blocks share the same `lang`<!-- -->, the last one wins (it overwrites the previous
-      entry).
+      Note: - If multiple `<g-media>` blocks share the same `lang`<!-- -->, the last one wins (it overwrites the
+      previous entry).
     example:
       - >-
         ```typescript
 
-        const template = '<media type="photo" src="image.jpg|image-2.jpg" lang="en">Hello</media>';
+        const template = '<g-media type="photo" src="image.jpg|image-2.jpg" lang="en">Hello</g-media>';
 
-        const media = TemplateEngine._processMediaBlocks(template);
+        const media = TemplateEngine._processGMediaBlocks(template);
 
         // Result: { en: { type: 'photo', src: 'image.jpg|image-2.jpg', srcList: ['image.jpg', 'image-2.jpg'], caption:
         'Hello' } }
@@ -523,12 +737,12 @@ methods:
     isDeprecated: false
     syntax:
       content: |-
-        static _processMediaBlocks(template: string): {
+        static _processGMediaBlocks(template: string): {
                 [lang: string]: ITMediaBlock;
             };
       parameters:
         - id: template
-          description: The template string containing `<media>` blocks
+          description: The template string containing `<g-media>` blocks
           type: string
       return:
         type: |-
@@ -536,18 +750,18 @@ methods:
                   [lang: string]: <xref uid="gramstax!ITMediaBlock:type" />;
               }
         description: An object mapping language keys to their corresponding media block configurations
-  - name: _processMediaGroupBlocks(template)
-    uid: gramstax!TemplateEngine._processMediaGroupBlocks:member(1)
+  - name: _processGMediaGroupBlocks(template)
+    uid: gramstax!TemplateEngine._processGMediaGroupBlocks:member(1)
     package: gramstax!
-    fullName: _processMediaGroupBlocks(template)
-    summary: Parses `<media-group>` blocks into Telegram media group item definitions.
+    fullName: _processGMediaGroupBlocks(template)
+    summary: Parses `<g-media-group>` blocks into Telegram media group item definitions.
     remarks: ''
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static _processMediaGroupBlocks(template: string): {
+        static _processGMediaGroupBlocks(template: string): {
                 [lang: string]: ITMediaBlock;
             };
       parameters:
@@ -560,13 +774,13 @@ methods:
                   [lang: string]: <xref uid="gramstax!ITMediaBlock:type" />;
               }
         description: ''
-  - name: _processMessageBlocks(template)
-    uid: gramstax!TemplateEngine._processMessageBlocks:member(1)
+  - name: _processGMessageBlocks(template)
+    uid: gramstax!TemplateEngine._processGMessageBlocks:member(1)
     package: gramstax!
-    fullName: _processMessageBlocks(template)
-    summary: 'Block: message Extracts and parses `<message>` blocks from a template string.'
+    fullName: _processGMessageBlocks(template)
+    summary: 'Block: g-message Extracts and parses `<g-message>` blocks from a template string.'
     remarks: >-
-      This internal method identifies all `<message>` blocks and extracts their content organized by language. Blocks
+      This internal method identifies all `<g-message>` blocks and extracts their content organized by language. Blocks
       without a `lang` attribute are stored under `"default"`<!-- -->. Leading whitespace and surrounding newlines are
       trimmed.
 
@@ -576,22 +790,22 @@ methods:
       - |-
         ```typescript
         const template = `
-          <message>Hello World</message>
-          <message lang="id">Halo Dunia</message>
+          <g-message>Hello World</g-message>
+          <g-message lang="id">Halo Dunia</g-message>
         `;
-        const messages = TemplateEngine._processMessageBlocks(template);
+        const messages = TemplateEngine._processGMessageBlocks(template);
         // Result: { default: 'Hello World', id: 'Halo Dunia' }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static _processMessageBlocks(template: string): {
+        static _processGMessageBlocks(template: string): {
                 [lang: string]: string;
             };
       parameters:
         - id: template
-          description: The template string containing `<message>` blocks
+          description: The template string containing `<g-message>` blocks
           type: string
       return:
         type: |-
@@ -599,6 +813,108 @@ methods:
                   [lang: string]: string;
               }
         description: An object mapping language keys to their cleaned message content
+  - name: _processGScriptBlocks(template)
+    uid: gramstax!TemplateEngine._processGScriptBlocks:member(1)
+    package: gramstax!
+    fullName: _processGScriptBlocks(template)
+    summary: 'Block: g-script Transforms `<g-script>` blocks into executable JavaScript expressions.'
+    remarks: >-
+      This internal method converts `<g-script>` blocks into self-invoking functions that execute with access to the
+      `data` object via `with(data)`<!-- -->. If the script throws an error or `data` is undefined, an empty string is
+      returned.
+
+
+      \*\*Attributes:\*\* - none
+    example:
+      - >-
+        ```typescript
+
+        const template = '<g-script>return name ? `Hello ${name}` : `Hello`;</g-script>';
+
+        const processed = TemplateEngine._processGScriptBlocks(template);
+
+        // Result: '${(() => { if (!data) return ''; try { with(data) { return name ? `Hello ${name}` : `Hello`; } }
+        catch(e) { return '' } })()}'
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _processGScriptBlocks(template: string): string;'
+      parameters:
+        - id: template
+          description: The template string containing `<g-script>` blocks
+          type: string
+      return:
+        type: string
+        description: The template with `<g-script>` blocks converted to executable expressions
+  - name: _processGSpaceBlocks(template)
+    uid: gramstax!TemplateEngine._processGSpaceBlocks:member(1)
+    package: gramstax!
+    fullName: _processGSpaceBlocks(template)
+    summary: 'Block: g-space Removes lines containing self-closing `<g-space />` tags.'
+    remarks: >-
+      This internal method identifies lines that contain only a `<g-space />` tag (with optional surrounding whitespace)
+      and removes the entire line. This is useful for controlling whitespace in templates.
+
+
+      \*\*Attributes:\*\* - none
+    example:
+      - |-
+        ```typescript
+        const template = 'Line 1\n<g-space />\nLine 2';
+        const processed = TemplateEngine._processGSpaceBlocks(template);
+        // Result: 'Line 1\n\nLine 2'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _processGSpaceBlocks(template: string): string;'
+      parameters:
+        - id: template
+          description: The template string containing `<g-space />` tags
+          type: string
+      return:
+        type: string
+        description: The template with `<g-space />` lines removed
+  - name: _processGSwitchBlocks(template)
+    uid: gramstax!TemplateEngine._processGSwitchBlocks:member(1)
+    package: gramstax!
+    fullName: _processGSwitchBlocks(template)
+    summary: 'Block: g-switch Transforms `<g-switch>` blocks into JavaScript switch statement expressions.'
+    remarks: >-
+      This internal method converts `<g-switch>` blocks with `<g-case>` and `<g-default>` sub-blocks into self-invoking
+      JavaScript switch expressions. The `value` attribute specifies which data key to switch on. Case values can be
+      comma-separated for multiple matches.
+
+
+      \*\*Attributes:\*\* - <g-switch> - `value` (required): The key name in the `data` object whose value will be used
+      as the switch expression. - <g-case> - `is` (required): One or more literal match values. Multiple values may be
+      provided as a comma-separated list. - <g-default> - none
+    example:
+      - |-
+        ```typescript
+        const template = `
+          <g-switch value="status">
+            <g-case is="active">Active status</g-case>
+            <g-case is="pending">Pending status</g-case>
+            <g-default>Unknown status</g-default>
+          </g-switch>
+        `;
+        const processed = TemplateEngine._processGSwitchBlocks(template);
+        // Result: '${(() => { switch((data && data["status"])) { case "active": return `Active status`; ... } })()}'
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static _processGSwitchBlocks(template: string): string;'
+      parameters:
+        - id: template
+          description: The template string containing `<g-switch>` blocks
+          type: string
+      return:
+        type: string
+        description: The template with `<g-switch>` blocks converted to executable switch expressions
   - name: _processScopeExec(template)
     uid: gramstax!TemplateEngine._processScopeExec:member(1)
     package: gramstax!
@@ -655,108 +971,6 @@ methods:
       return:
         type: string
         description: The processed template with placeholders converted to `${data["key"]}` syntax
-  - name: _processScriptBlocks(template)
-    uid: gramstax!TemplateEngine._processScriptBlocks:member(1)
-    package: gramstax!
-    fullName: _processScriptBlocks(template)
-    summary: 'Block: script Transforms `<script>` blocks into executable JavaScript expressions.'
-    remarks: >-
-      This internal method converts `<script>` blocks into self-invoking functions that execute with access to the
-      `data` object via `with(data)`<!-- -->. If the script throws an error or `data` is undefined, an empty string is
-      returned.
-
-
-      \*\*Attributes:\*\* - none
-    example:
-      - >-
-        ```typescript
-
-        const template = '<script>return name ? `Hello ${name}` : `Hello`;</script>';
-
-        const processed = TemplateEngine._processScriptBlocks(template);
-
-        // Result: '${(() => { if (!data) return ''; try { with(data) { return name ? `Hello ${name}` : `Hello`; } }
-        catch(e) { return '' } })()}'
-
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'static _processScriptBlocks(template: string): string;'
-      parameters:
-        - id: template
-          description: The template string containing `<script>` blocks
-          type: string
-      return:
-        type: string
-        description: The template with `<script>` blocks converted to executable expressions
-  - name: _processSpaceBlocks(template)
-    uid: gramstax!TemplateEngine._processSpaceBlocks:member(1)
-    package: gramstax!
-    fullName: _processSpaceBlocks(template)
-    summary: 'Block: space Removes lines containing self-closing `<space />` tags.'
-    remarks: >-
-      This internal method identifies lines that contain only a `<space />` tag (with optional surrounding whitespace)
-      and removes the entire line. This is useful for controlling whitespace in templates.
-
-
-      \*\*Attributes:\*\* - none
-    example:
-      - |-
-        ```typescript
-        const template = 'Line 1\n<space />\nLine 2';
-        const processed = TemplateEngine._processSpaceBlocks(template);
-        // Result: 'Line 1\n\nLine 2'
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'static _processSpaceBlocks(template: string): string;'
-      parameters:
-        - id: template
-          description: The template string containing `<space />` tags
-          type: string
-      return:
-        type: string
-        description: The template with `<space />` lines removed
-  - name: _processSwitchBlocks(template)
-    uid: gramstax!TemplateEngine._processSwitchBlocks:member(1)
-    package: gramstax!
-    fullName: _processSwitchBlocks(template)
-    summary: 'Block: switch Transforms `<switch>` blocks into JavaScript switch statement expressions.'
-    remarks: >-
-      This internal method converts `<switch>` blocks with `<case>` and `<default>` sub-blocks into self-invoking
-      JavaScript switch expressions. The `value` attribute specifies which data key to switch on. Case values can be
-      comma-separated for multiple matches.
-
-
-      \*\*Attributes:\*\* - <switch> - `value` (required): The key name in the `data` object whose value will be used as
-      the switch expression. - <case> - `is` (required): One or more literal match values. Multiple values may be
-      provided as a comma-separated list. - <default> - none
-    example:
-      - |-
-        ```typescript
-        const template = `
-          <switch value="status">
-            <case is="active">Active status</case>
-            <case is="pending">Pending status</case>
-            <default>Unknown status</default>
-          </switch>
-        `;
-        const processed = TemplateEngine._processSwitchBlocks(template);
-        // Result: '${(() => { switch((data && data["status"])) { case "active": return `Active status`; ... } })()}'
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'static _processSwitchBlocks(template: string): string;'
-      parameters:
-        - id: template
-          description: The template string containing `<switch>` blocks
-          type: string
-      return:
-        type: string
-        description: The template with `<switch>` blocks converted to executable switch expressions
   - name: _splitMediaSrcList(src)
     uid: gramstax!TemplateEngine._splitMediaSrcList:member(1)
     package: gramstax!
@@ -775,38 +989,215 @@ methods:
       return:
         type: string[]
         description: ''
-  - name: compileBlockDescription(template, baseBlocks)
-    uid: gramstax!TemplateEngine.compileBlockDescription:member(1)
+  - name: _validatePageTagAttributes(template)
+    uid: gramstax!TemplateEngine._validatePageTagAttributes:member(1)
     package: gramstax!
-    fullName: compileBlockDescription(template, baseBlocks)
+    fullName: _validatePageTagAttributes(template)
+    summary: Scans a template for `<g-*>` PAGE blocks that are missing required attributes.
+    remarks: >-
+      Iterates every opening tag in the template and, for any tag listed in
+      [TemplateEngine.\_PAGE\_REQUIRED\_ATTRS](xref:gramstax!TemplateEngine._PAGE_REQUIRED_ATTRS:member)<!-- -->, checks
+      that the required attribute set is fully present. Both value attributes (`href="..."`<!-- -->) and boolean
+      attributes (`checked`<!-- -->, `reversed`<!-- -->, `open`<!-- -->) are recognized.
+
+
+      For tags with `oneOf` spec, at least one of the listed sets must be fully present. Returns one error per offending
+      tag with the 1-based line number.
+    example:
+      - |-
+        ```typescript
+        const errors = TemplateEngine._validatePageTagAttributes(`<g-base id=""></g-base>`);
+        // => [{line: 1, message: "<g-base> is missing required attribute(s): id"}]  (if id is in spec)
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validatePageTagAttributes(template: string): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template string to scan
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Array of `{line, message}` errors (empty if all required attrs are present)
+  - name: _validatePageTagAttributeValues(template)
+    uid: gramstax!TemplateEngine._validatePageTagAttributeValues:member(1)
+    package: gramstax!
+    fullName: _validatePageTagAttributeValues(template)
+    summary: Scans a template for `<g-*>` PAGE blocks whose attribute values fail format checks.
+    remarks: >-
+      For every tag in
+      [TemplateEngine.\_PAGE\_ATTR\_VALUE\_VALIDATORS](xref:gramstax!TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS:member)<!--
+      -->, each present attribute is extracted and run through its validator. Boolean attributes (without `=value`<!--
+      -->) are skipped. Only attributes with value declarations are checked. Missing required attributes are NOT
+      reported here — that is
+      [TemplateEngine.\_validatePageTagAttributes()](xref:gramstax!TemplateEngine._validatePageTagAttributes:member(1))<!--
+      -->'s job.
+    example:
+      - |-
+        ```typescript
+        const errors = TemplateEngine._validatePageTagAttributeValues(`
+          <g-keyboard type="sidebar">A, B</g-keyboard>
+          <g-media type="unknown" src="x.jpg"/>
+        `);
+        // => [
+        //   {line: 2, message: 'Attribute "type" on <g-keyboard> must be "inline" or "bottom", got "sidebar"'},
+        //   {line: 3, message: 'Attribute "type" on <g-media> must be one of: photo, video, ..., got "unknown"'}
+        // ]
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validatePageTagAttributeValues(template: string): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template string to scan
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Array of `{line, message}` errors (empty if all values are valid)
+  - name: _validateTelegramTagAttributes(template)
+    uid: gramstax!TemplateEngine._validateTelegramTagAttributes:member(1)
+    package: gramstax!
+    fullName: _validateTelegramTagAttributes(template)
+    summary: Scans a template for Telegram Rich HTML tags that are missing required attributes.
+    remarks: >-
+      Iterates every opening tag in the template and, for any tag listed in
+      [TemplateEngine.\_TELEGRAM\_REQUIRED\_ATTRS](xref:gramstax!TemplateEngine._TELEGRAM_REQUIRED_ATTRS:member)<!--
+      -->, checks that the required attribute set is fully present. Both value attributes (`href="..."`<!-- -->) and
+      boolean attributes (`checked`<!-- -->, `reversed`<!-- -->, `open`<!-- -->) are recognized.
+
+
+      For tags with `oneOf` spec (e.g. `<a>`<!-- -->), at least one of the listed sets must be fully present. Returns
+      one error per offending tag with the 1-based line number.
+    example:
+      - |-
+        ```typescript
+        const errors = TemplateEngine._validateTelegramTagAttributes(`
+          <a>link</a>
+          <img src="x.png"/>
+          <tg-time unix="1" format="wDT">x</tg-time>
+        `);
+        // => [{line: 2, message: "<a> must have one of: href | name"}]
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validateTelegramTagAttributes(template: string): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template string to scan
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Array of `{line, message}` errors (empty if all required attrs are present)
+  - name: _validateTelegramTagAttributeValues(template)
+    uid: gramstax!TemplateEngine._validateTelegramTagAttributeValues:member(1)
+    package: gramstax!
+    fullName: _validateTelegramTagAttributeValues(template)
+    summary: Scans a template for Telegram Rich HTML tags whose attribute values fail format checks.
+    remarks: >-
+      For every tag in
+      [TemplateEngine.\_TELEGRAM\_ATTR\_VALUE\_VALIDATORS](xref:gramstax!TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS:member)<!--
+      -->, each present attribute is extracted and run through its validator. Boolean attributes (without `=value`<!--
+      -->) are skipped. Only attributes with value declarations are checked. Missing required attributes are NOT
+      reported here — that is
+      [TemplateEngine.\_validateTelegramTagAttributes()](xref:gramstax!TemplateEngine._validateTelegramTagAttributes:member(1))<!--
+      -->'s job.
+    example:
+      - >-
+        ```typescript
+
+        const errors = TemplateEngine._validateTelegramTagAttributeValues(`
+          <tg-time unix="abc" format="wDT">x</tg-time>
+          <a href="javascript:alert(1)">x</a>
+        `);
+
+        // => [
+
+        //   {line: 2, message: '<tg-time> unix must be a positive integer (got "abc")'},
+
+        //   {line: 3, message: '<a> href must use http(s)://, mailto:, tel:, tg://, or # scheme (got
+        "javascript:alert(1)")'}
+
+        // ]
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validateTelegramTagAttributeValues(template: string): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template string to scan
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Array of `{line, message}` errors (empty if all values are valid)
+  - name: compileBlockGDescription(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGDescription:member(1)
+    package: gramstax!
+    fullName: compileBlockGDescription(template, baseBlocks)
     summary: Compiles description blocks from a template into executable functions.
     remarks: >-
-      This method parses `<description>` blocks from the template and compiles them into functions that generate
+      This method parses `<g-description>` blocks from the template and compiles them into functions that generate
       rendered description strings. The result is organized by base ID, scope, and language. Used for Telegram bot
       command descriptions.
 
 
-      Processing pipeline (in order, per description): 1. `_processScriptBlocks` – converts `<script>` blocks into
-      executable expressions 2. `_processMapBlocks` – converts `<map>` blocks into array map expressions 3.
-      `_processSwitchBlocks` – converts `<switch>` blocks into switch expressions 4. `_processScopeExec` – evaluates
+      Processing pipeline (in order, per description): 1. `_processGScriptBlocks` – converts `<g-script>` blocks into
+      executable expressions 2. `_processGMapBlocks` – converts `<g-map>` blocks into array map expressions 3.
+      `_processGSwitchBlocks` – converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` – evaluates
       scope execution blocks (implementation-defined) 5. `_processScopeVariables` – resolves scope variables
       (implementation-defined) 6. `_compileToFunction(processed, false)` – produces the final render function
 
 
-      Output shape: - First level key: `baseId` (from `<base id="...">`<!-- -->, or `"default"` if omitted) - Second
-      level key: `scope` (from `<description scope="...">`<!-- -->, or `"default"` if omitted) - Third level key: `lang`
-      (from `<description lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?: Record<string, any>) =>
-      string`
+      Output shape: - First level key: `baseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
+      level key: `scope` (from `<g-description scope="...">`<!-- -->, or `"default"` if omitted) - Third level key:
+      `lang` (from `<g-description lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?: Record<string,
+      any>) => string`
     example:
       - |-
         ```typescript
         const template = `
-          <base>
-            <description>Start the bot</description>
-            <description scope="chat_administrators">Admin command</description>
-          </base>
+          <g-base>
+            <g-description>Start the bot</g-description>
+            <g-description scope="chat_administrators">Admin command</g-description>
+          </g-base>
         `;
-        const descriptions = TemplateEngine.compileBlockDescription(template);
+        const descriptions = TemplateEngine.compileBlockGDescription(template);
         const result = descriptions.default?.default?.default?.({});
         // Result: 'Start the bot'
         ```
@@ -814,8 +1205,8 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        static compileBlockDescription(template: string, baseBlocks?: ReturnType<typeof
-        TemplateEngine._processBaseBlocks>): {
+        static compileBlockGDescription(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
                 [baseId: string]: {
                     [scope: string]: {
                         [lang: string]: (data?: Record<string, any>) => string;
@@ -824,11 +1215,11 @@ methods:
             };
       parameters:
         - id: template
-          description: Raw template string containing `<base>` and `<description>` blocks
+          description: Raw template string containing `<g-base>` and `<g-description>` blocks
           type: string
         - id: baseBlocks
           description: Optional pre-parsed base blocks for reuse
-          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processBaseBlocks:member" />&gt;
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
       return:
         type: |-
           {
@@ -839,20 +1230,20 @@ methods:
                   };
               }
         description: Compiled description functions organized by base ID, scope, and language
-  - name: compileBlockKeyboards(template, baseBlocks)
-    uid: gramstax!TemplateEngine.compileBlockKeyboards:member(1)
+  - name: compileBlockGKeyboards(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGKeyboards:member(1)
     package: gramstax!
-    fullName: compileBlockKeyboards(template, baseBlocks)
+    fullName: compileBlockGKeyboards(template, baseBlocks)
     summary: Compiles keyboard blocks from a template into executable functions.
     remarks: >-
-      This method parses `<keyboard>` blocks from the template and compiles them into functions that generate button
+      This method parses `<g-keyboard>` blocks from the template and compiles them into functions that generate button
       label arrays. The result is organized by base ID and language, with separate `inline` and `bottom` keyboard modes.
       Comma-separated labels are split into individual button strings.
 
 
-      Processing pipeline (in order, per keyboard label): 1. `_processScriptBlocks` – converts `<script>` blocks into
-      executable expressions 2. `_processMapBlocks` – converts `<map>` blocks into array map expressions 3.
-      `_processSwitchBlocks` – converts `<switch>` blocks into switch expressions 4. `_processScopeExec` – evaluates
+      Processing pipeline (in order, per keyboard label): 1. `_processGScriptBlocks` – converts `<g-script>` blocks into
+      executable expressions 2. `_processGMapBlocks` – converts `<g-map>` blocks into array map expressions 3.
+      `_processGSwitchBlocks` – converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` – evaluates
       scope execution blocks (implementation-defined) 5. `_processScopeVariables` – resolves scope variables
       (implementation-defined) 6. `_compileToFunction(processedLabels, true)` – produces the final render function
 
@@ -861,19 +1252,19 @@ methods:
       (`\\,`<!-- -->) are preserved as literal commas. - Each label is processed independently through the pipeline.
 
 
-      Output shape: - First level key: `baseId` (from `<base id="...">`<!-- -->, or `"default"` if omitted) - Second
-      level key: `lang` (from `<keyboard lang="...">`<!-- -->, or `"default"` if omitted) - Third level key: `mode`<!--
-      -->: - `inline` (default) - `bottom` - Value: `(data?: Record<string, any>) => string[]`
+      Output shape: - First level key: `baseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
+      level key: `lang` (from `<g-keyboard lang="...">`<!-- -->, or `"default"` if omitted) - Third level key:
+      `mode`<!-- -->: - `inline` (default) - `bottom` - Value: `(data?: Record<string, any>) => string[]`
     example:
       - |-
         ```typescript
         const template = `
-          <base>
-            <keyboard>Yes, No, {{action}}</keyboard>
-            <keyboard type="bottom">Menu, Help</keyboard>
-          </base>
+          <g-base>
+            <g-keyboard>Yes, No, {{action}}</g-keyboard>
+            <g-keyboard type="bottom">Menu, Help</g-keyboard>
+          </g-base>
         `;
-        const keyboards = TemplateEngine.compileBlockKeyboards(template);
+        const keyboards = TemplateEngine.compileBlockGKeyboards(template);
         const inline = keyboards.default?.default?.inline?.({ action: 'Cancel' });
         // Result: ['Yes', 'No', 'Cancel']
         ```
@@ -881,8 +1272,8 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        static compileBlockKeyboards(template: string, baseBlocks?: ReturnType<typeof
-        TemplateEngine._processBaseBlocks>): {
+        static compileBlockGKeyboards(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
                 [baseId: string]: {
                     [lang: string]: {
                         inline?: (data?: Record<string, any>) => string[];
@@ -892,11 +1283,11 @@ methods:
             };
       parameters:
         - id: template
-          description: Raw template string containing `<base>` and `<keyboard>` blocks
+          description: Raw template string containing `<g-base>` and `<g-keyboard>` blocks
           type: string
         - id: baseBlocks
           description: Optional pre-parsed base blocks for reuse
-          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processBaseBlocks:member" />&gt;
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
       return:
         type: |-
           {
@@ -908,43 +1299,44 @@ methods:
                   };
               }
         description: Compiled keyboard functions organized by base ID, language, and mode
-  - name: compileBlockMedia(template, baseBlocks)
-    uid: gramstax!TemplateEngine.compileBlockMedia:member(1)
+  - name: compileBlockGMedia(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGMedia:member(1)
     package: gramstax!
-    fullName: compileBlockMedia(template, baseBlocks)
+    fullName: compileBlockGMedia(template, baseBlocks)
     summary: Compiles media blocks from a template into executable functions.
     remarks: >-
-      This method parses `<media>` blocks from the template and compiles them into functions that generate
+      This method parses `<g-media>` blocks from the template and compiles them into functions that generate
       `ITMediaBlock` objects. The result is organized by base ID and language. Pre-parsed base blocks can be provided
       for efficiency.
     example:
       - |-
         ```typescript
         const template = `
-          <base>
-            <media type="photo" src="{{image}}">{{caption}}</media>
-          </base>
+          <g-base>
+            <g-media type="photo" src="{{image}}">{{caption}}</g-media>
+          </g-base>
         `;
-        const media = TemplateEngine.compileBlockMedia(template);
+        const media = TemplateEngine.compileBlockGMedia(template);
         const result = media.default?.default?.({ image: 'photo.jpg', caption: 'Hello' });
         // Result: { type: 'photo', src: 'photo.jpg', caption: 'Hello' }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: |-
-        static compileBlockMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>): {
+      content: >-
+        static compileBlockGMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>):
+        {
                 [baseId: string]: {
                     [lang: string]: (data?: Record<string, any>) => ITMediaBlock;
                 };
             };
       parameters:
         - id: template
-          description: Raw template string containing `<base>` and `<media>` blocks
+          description: Raw template string containing `<g-base>` and `<g-media>` blocks
           type: string
         - id: baseBlocks
           description: Optional pre-parsed base blocks for reuse
-          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processBaseBlocks:member" />&gt;
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
       return:
         type: |-
           {
@@ -953,37 +1345,37 @@ methods:
                   };
               }
         description: Compiled media functions organized by base ID and language
-  - name: compileBlockMessage(template, baseBlocks)
-    uid: gramstax!TemplateEngine.compileBlockMessage:member(1)
+  - name: compileBlockGMessage(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGMessage:member(1)
     package: gramstax!
-    fullName: compileBlockMessage(template, baseBlocks)
+    fullName: compileBlockGMessage(template, baseBlocks)
     summary: Compiles message blocks from a template into executable functions.
     remarks: >-
-      This method parses `<message>` blocks from the template and compiles them into functions that generate rendered
+      This method parses `<g-message>` blocks from the template and compiles them into functions that generate rendered
       message strings. The result is organized by base ID and language. Pre-parsed base blocks can be provided for
       efficiency.
 
 
-      Processing pipeline (in order, per message): 1. `_processScriptBlocks` - converts `<script>` blocks into
-      executable expressions 2. `_processMapBlocks` - converts `<map>` blocks into array map expressions 3.
-      `_processSwitchBlocks` - converts `<switch>` blocks into switch expressions 4. `_processScopeExec` - evaluates
+      Processing pipeline (in order, per message): 1. `_processGScriptBlocks` - converts `<g-script>` blocks into
+      executable expressions 2. `_processGMapBlocks` - converts `<g-map>` blocks into array map expressions 3.
+      `_processGSwitchBlocks` - converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` - evaluates
       scope execution blocks (implementation-defined) 5. `_processScopeVariables` - resolves scope variables
       (implementation-defined) 6. `_compileToFunction(processed, false)` - produces the final render function
 
 
-      Output shape: - First level key: `baseId` (from `<base id="...">`<!-- -->, or `"default"` if omitted) - Second
-      level key: `lang` (from `<message lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?:
+      Output shape: - First level key: `baseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
+      level key: `lang` (from `<g-message lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?:
       Record<string, any>) => string`
     example:
       - |-
         ```typescript
         const template = `
-          <base>
-            <message>Hello {{name}}!</message>
-            <message lang="id">Halo {{name}}!</message>
-          </base>
+          <g-base>
+            <g-message>Hello {{name}}!</g-message>
+            <g-message lang="id">Halo {{name}}!</g-message>
+          </g-base>
         `;
-        const messages = TemplateEngine.compileBlockMessages(template);
+        const messages = TemplateEngine.compileBlockGMessages(template);
         const result = messages.default?.default?.({ name: 'John' });
         // Result: 'Hello John!'
         ```
@@ -991,19 +1383,19 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        static compileBlockMessage(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processBaseBlocks>):
-        {
+        static compileBlockGMessage(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
                 [baseId: string]: {
                     [lang: string]: (data?: Record<string, any>) => string;
                 };
             };
       parameters:
         - id: template
-          description: Raw template string containing `<base>` and `<message>` blocks
+          description: Raw template string containing `<g-base>` and `<g-message>` blocks
           type: string
         - id: baseBlocks
           description: Optional pre-parsed base blocks for reuse
-          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processBaseBlocks:member" />&gt;
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
       return:
         type: |-
           {
@@ -1012,48 +1404,48 @@ methods:
                   };
               }
         description: Compiled message functions organized by base ID and language
-  - name: processImportBlocks(template, resolver, depth, importCache)
-    uid: gramstax!TemplateEngine.processImportBlocks:member(1)
+  - name: processGImportBlocks(template, resolver, depth, importCache)
+    uid: gramstax!TemplateEngine.processGImportBlocks:member(1)
     package: gramstax!
-    fullName: processImportBlocks(template, resolver, depth, importCache)
-    summary: Recursively processes and resolves `<import>` blocks in a template.
+    fullName: processGImportBlocks(template, resolver, depth, importCache)
+    summary: Recursively processes and resolves `<g-import>` blocks in a template.
     remarks: >-
-      This method resolves all `<import>` placeholders produced by `_processImportBlocks` by invoking a user-provided
+      This method resolves all `<g-import>` placeholders produced by `_processGImportBlocks` by invoking a user-provided
       `resolver` function.
 
 
-      Resolution behavior: - Each `<import>` is resolved by calling `resolver(src)` to obtain raw template content. -
+      Resolution behavior: - Each `<g-import>` is resolved by calling `resolver(src)` to obtain raw template content. -
       The resolved content is filtered using `_extractBlock` based on the import metadata (`blocks`<!-- -->, `base`<!--
-      -->, `section`<!-- -->, `lang`<!-- -->). - If the resolved content itself contains `<import>` directives, they are
-      processed recursively.
+      -->, `section`<!-- -->, `lang`<!-- -->). - If the resolved content itself contains `<g-import>` directives, they
+      are processed recursively.
 
 
       Recursion and safety: - Recursive import resolution is limited to a maximum depth of \*\*10\*\* to prevent
       infinite import loops. - If the depth limit is exceeded, an empty string is returned.
 
 
-      Output behavior: - `<import>` placeholders (`__IMPORT_N__`<!-- -->) are replaced sequentially. - If the resolver
+      Output behavior: - `<g-import>` placeholders (`__IMPORT_N__`<!-- -->) are replaced sequentially. - If the resolver
       returns `null` or an empty result, the import is replaced with an empty string.
     example:
       - |-
         ```typescript
-        const template = '<import src="header" block="message" />\n<message>Main content</message>';
+        const template = '<g-import src="header" block="message" />\n<g-message>Main content</g-message>';
         const resolver = (src: string) => {
-          if (src === 'header') return '<message>Header text</message>';
+          if (src === 'header') return '<g-message>Header text</g-message>';
           return null;
         };
-        const result = TemplateEngine.processImportBlocks(template, resolver);
-        // Result: '<message>Header text</message>\n<message>Main content</message>'
+        const result = TemplateEngine.processGImportBlocks(template, resolver);
+        // Result: '<g-message>Header text</g-message>\n<g-message>Main content</g-message>'
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: >-
-        static processImportBlocks(template: string, resolver: (src: string) => string | null, depth?: number,
+        static processGImportBlocks(template: string, resolver: (src: string) => string | null, depth?: number,
         importCache?: Map<string, string>): string;
       parameters:
         - id: template
-          description: Template string containing `<import>` directives
+          description: Template string containing `<g-import>` directives
           type: string
         - id: resolver
           description: Function that resolves import sources to template content
@@ -1066,24 +1458,24 @@ methods:
           type: Map&lt;string, string&gt;
       return:
         type: string
-        description: Template with all `<import>` blocks resolved and replaced
-  - name: validateBlockBaseAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockBaseAttributes:member(1)
+        description: Template with all `<g-import>` blocks resolved and replaced
+  - name: validateBlockGBaseAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGBaseAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockBaseAttributes(template)
-    summary: Validates attributes on `<base>` blocks.
+    fullName: validateBlockGBaseAttributes(template)
+    summary: Validates attributes on `<g-base>` blocks.
     remarks: The only allowed attribute is `id`<!-- -->.
     example:
       - |-
         ```typescript
-        const result = TemplateEngine.validateBlockBaseAttributes(`<base id="main"></base>`);
+        const result = TemplateEngine.validateBlockGBaseAttributes(`<g-base id="main"></g-base>`);
         // Result: { valid: true, errors: [] }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockBaseAttributes(template: string): {
+        static validateBlockGBaseAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1104,23 +1496,23 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
-  - name: validateBlockCaseAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockCaseAttributes:member(1)
+  - name: validateBlockGCaseAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGCaseAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockCaseAttributes(template)
-    summary: Validates attributes on `<case>` blocks.
+    fullName: validateBlockGCaseAttributes(template)
+    summary: Validates attributes on `<g-case>` blocks.
     remarks: The only allowed attribute is `is`<!-- -->.
     example:
       - |-
         ```typescript
-        const result = TemplateEngine.validateBlockCaseAttributes(`<case is="active">Active</case>`);
+        const result = TemplateEngine.validateBlockGCaseAttributes(`<g-case is="active">Active</g-case>`);
         // Result: { valid: true, errors: [] }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockCaseAttributes(template: string): {
+        static validateBlockGCaseAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1141,23 +1533,23 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
-  - name: validateBlockDefaultAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockDefaultAttributes:member(1)
+  - name: validateBlockGDefaultAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGDefaultAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockDefaultAttributes(template)
-    summary: Validates attributes on `<default>` blocks.
-    remarks: No attributes are allowed on `<default>` blocks.
+    fullName: validateBlockGDefaultAttributes(template)
+    summary: Validates attributes on `<g-default>` blocks.
+    remarks: No attributes are allowed on `<g-default>` blocks.
     example:
       - |-
         ```typescript
-        const result = TemplateEngine.validateBlockDefaultAttributes(`<default>Unknown</default>`);
+        const result = TemplateEngine.validateBlockGDefaultAttributes(`<g-default>Unknown</g-default>`);
         // Result: { valid: true, errors: [] }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockDefaultAttributes(template: string): {
+        static validateBlockGDefaultAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1178,18 +1570,18 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
-  - name: validateBlockDescriptionAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockDescriptionAttributes:member(1)
+  - name: validateBlockGDescriptionAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGDescriptionAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockDescriptionAttributes(template)
-    summary: Validates attributes on `<description>` blocks.
+    fullName: validateBlockGDescriptionAttributes(template)
+    summary: Validates attributes on `<g-description>` blocks.
     remarks: Allowed attributes are `lang` and `scope`<!-- -->.
     example:
       - >-
         ```typescript
 
-        const result = TemplateEngine.validateBlockDescriptionAttributes(`<description scope="chat_administrators">Admin
-        cmd</description>`);
+        const result = TemplateEngine.validateBlockGDescriptionAttributes(`<g-description
+        scope="chat_administrators">Admin cmd</g-description>`);
 
         // Result: { valid: true, errors: [] }
 
@@ -1198,7 +1590,7 @@ methods:
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockDescriptionAttributes(template: string): {
+        static validateBlockGDescriptionAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1219,23 +1611,23 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
-  - name: validateBlockDivAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockDivAttributes:member(1)
+  - name: validateBlockGDivAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGDivAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockDivAttributes(template)
-    summary: Validates attributes on `<div>` blocks.
-    remarks: No attributes are allowed on `<div>` blocks.
+    fullName: validateBlockGDivAttributes(template)
+    summary: Validates attributes on `<g-div>` blocks.
+    remarks: No attributes are allowed on `<g-div>` blocks.
     example:
       - |-
         ```typescript
-        const result = TemplateEngine.validateBlockDivAttributes(`<div>content</div>`);
+        const result = TemplateEngine.validateBlockGDivAttributes(`<g-div>content</g-div>`);
         // Result: { valid: true, errors: [] }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockDivAttributes(template: string): {
+        static validateBlockGDivAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1256,23 +1648,23 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
-  - name: validateBlockImportAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockImportAttributes:member(1)
+  - name: validateBlockGImportAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGImportAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockImportAttributes(template)
-    summary: Validates attributes on `<import>` blocks.
+    fullName: validateBlockGImportAttributes(template)
+    summary: Validates attributes on `<g-import>` blocks.
     remarks: Allowed attributes are `src`<!-- -->, `block`<!-- -->, `base`<!-- -->, `lang`<!-- -->, and `section`<!-- -->.
     example:
       - |-
         ```typescript
-        const result = TemplateEngine.validateBlockImportAttributes(`<import src="other" block="message" />`);
+        const result = TemplateEngine.validateBlockGImportAttributes(`<g-import src="other" block="message" />`);
         // Result: { valid: true, errors: [] }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockImportAttributes(template: string): {
+        static validateBlockGImportAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1293,23 +1685,23 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
-  - name: validateBlockKeyboardAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockKeyboardAttributes:member(1)
+  - name: validateBlockGKeyboardAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGKeyboardAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockKeyboardAttributes(template)
-    summary: Validates attributes on `<keyboard>` blocks.
+    fullName: validateBlockGKeyboardAttributes(template)
+    summary: Validates attributes on `<g-keyboard>` blocks.
     remarks: Allowed attributes are `lang` and `type`<!-- -->.
     example:
       - |-
         ```typescript
-        const result = TemplateEngine.validateBlockKeyboardAttributes(`<keyboard type="bottom">A, B</keyboard>`);
+        const result = TemplateEngine.validateBlockGKeyboardAttributes(`<g-keyboard type="bottom">A, B</g-keyboard>`);
         // Result: { valid: true, errors: [] }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockKeyboardAttributes(template: string): {
+        static validateBlockGKeyboardAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1330,23 +1722,23 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
-  - name: validateBlockMapAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockMapAttributes:member(1)
+  - name: validateBlockGMapAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGMapAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockMapAttributes(template)
-    summary: Validates attributes on `<map>` blocks.
+    fullName: validateBlockGMapAttributes(template)
+    summary: Validates attributes on `<g-map>` blocks.
     remarks: Allowed attributes are `src` and `join`<!-- -->.
     example:
       - |-
         ```typescript
-        const result = TemplateEngine.validateBlockMapAttributes(`<map src="items" join=", ">{{e}}</map>`);
+        const result = TemplateEngine.validateBlockGMapAttributes(`<g-map src="items" join=", ">{{e}}</g-map>`);
         // Result: { valid: true, errors: [] }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockMapAttributes(template: string): {
+        static validateBlockGMapAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1367,11 +1759,11 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
-  - name: validateBlockMediaAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockMediaAttributes:member(1)
+  - name: validateBlockGMediaAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGMediaAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockMediaAttributes(template)
-    summary: Validates attributes on `<media>` blocks.
+    fullName: validateBlockGMediaAttributes(template)
+    summary: Validates attributes on `<g-media>` blocks.
     remarks: >-
       Allowed attributes are `lang`<!-- -->, `type`<!-- -->, `src`<!-- -->, `shared`<!-- -->, `latitude`<!-- -->,
       `longitude`<!-- -->, `phone`<!-- -->, `first_name`<!-- -->, `last_name`<!-- -->, and `vcard`<!-- -->.
@@ -1379,18 +1771,22 @@ methods:
 
       `shared` is a boolean attribute — it can be written as `shared`<!-- -->, `shared="true"`<!-- -->, or
       `shared="false"`<!-- -->. When `true`<!-- -->, the media item is included in all language variants of the
-      enclosing `<media-group>`<!-- -->. Only valid inside `<media-group>`<!-- -->.
+      enclosing `<g-media-group>`<!-- -->. Only valid inside `<g-media-group>`<!-- -->.
     example:
-      - |-
+      - >-
         ```typescript
-        const result = TemplateEngine.validateBlockMediaAttributes(`<media type="photo" src="img.jpg">Caption</media>`);
+
+        const result = TemplateEngine.validateBlockGMediaAttributes(`<g-media type="photo"
+        src="img.jpg">Caption</g-media>`);
+
         // Result: { valid: true, errors: [] }
+
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockMediaAttributes(template: string): {
+        static validateBlockGMediaAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1411,18 +1807,18 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
-  - name: validateBlockMediaGroupAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockMediaGroupAttributes:member(1)
+  - name: validateBlockGMediaGroupAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGMediaGroupAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockMediaGroupAttributes(template)
-    summary: Validates attributes and item constraints on `<media-group>` blocks.
+    fullName: validateBlockGMediaGroupAttributes(template)
+    summary: Validates attributes and item constraints on `<g-media-group>` blocks.
     remarks: ''
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockMediaGroupAttributes(template: string): {
+        static validateBlockGMediaGroupAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1443,23 +1839,23 @@ methods:
                   }&gt;;
               }
         description: ''
-  - name: validateBlockMessageAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockMessageAttributes:member(1)
+  - name: validateBlockGMessageAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGMessageAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockMessageAttributes(template)
-    summary: Validates attributes on `<message>` blocks.
+    fullName: validateBlockGMessageAttributes(template)
+    summary: Validates attributes on `<g-message>` blocks.
     remarks: The only allowed attribute is `lang`<!-- -->.
     example:
       - |-
         ```typescript
-        const result = TemplateEngine.validateBlockMessageAttributes(`<message lang="en">Hi</message>`);
+        const result = TemplateEngine.validateBlockGMessageAttributes(`<g-message lang="en">Hi</g-message>`);
         // Result: { valid: true, errors: [] }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockMessageAttributes(template: string): {
+        static validateBlockGMessageAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1480,23 +1876,23 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
-  - name: validateBlockScriptAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockScriptAttributes:member(1)
+  - name: validateBlockGScriptAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGScriptAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockScriptAttributes(template)
-    summary: Validates attributes on `<script>` blocks.
-    remarks: No attributes are allowed on `<script>` blocks.
+    fullName: validateBlockGScriptAttributes(template)
+    summary: Validates attributes on `<g-script>` blocks.
+    remarks: No attributes are allowed on `<g-script>` blocks.
     example:
       - |-
         ```typescript
-        const result = TemplateEngine.validateBlockScriptAttributes(`<script>return x;</script>`);
+        const result = TemplateEngine.validateBlockGScriptAttributes(`<g-script>return x;</g-script>`);
         // Result: { valid: true, errors: [] }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockScriptAttributes(template: string): {
+        static validateBlockGScriptAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1517,23 +1913,23 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
-  - name: validateBlockSpaceAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockSpaceAttributes:member(1)
+  - name: validateBlockGSpaceAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGSpaceAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockSpaceAttributes(template)
-    summary: Validates attributes on `<space>` blocks.
-    remarks: No attributes are allowed on `<space>` blocks.
+    fullName: validateBlockGSpaceAttributes(template)
+    summary: Validates attributes on `<g-space>` blocks.
+    remarks: No attributes are allowed on `<g-space>` blocks.
     example:
       - |-
         ```typescript
-        const result = TemplateEngine.validateBlockSpaceAttributes(`<space />`);
+        const result = TemplateEngine.validateBlockGSpaceAttributes(`<g-space />`);
         // Result: { valid: true, errors: [] }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockSpaceAttributes(template: string): {
+        static validateBlockGSpaceAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1554,23 +1950,23 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
-  - name: validateBlockSwitchAttributes(template)
-    uid: gramstax!TemplateEngine.validateBlockSwitchAttributes:member(1)
+  - name: validateBlockGSwitchAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGSwitchAttributes:member(1)
     package: gramstax!
-    fullName: validateBlockSwitchAttributes(template)
-    summary: Validates attributes on `<switch>` blocks.
+    fullName: validateBlockGSwitchAttributes(template)
+    summary: Validates attributes on `<g-switch>` blocks.
     remarks: The only allowed attribute is `value`<!-- -->.
     example:
       - |-
         ```typescript
-        const result = TemplateEngine.validateBlockSwitchAttributes(`<switch value="status">...</switch>`);
+        const result = TemplateEngine.validateBlockGSwitchAttributes(`<g-switch value="status">...</g-switch>`);
         // Result: { valid: true, errors: [] }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
-        static validateBlockSwitchAttributes(template: string): {
+        static validateBlockGSwitchAttributes(template: string): {
                 valid: boolean;
                 errors: Array<{
                     line: number;
@@ -1600,23 +1996,27 @@ methods:
       This method checks that each block tag uses the correct syntax format:
 
 
-      \*\*Must be self-closing:\*\* - `<space />` — whitespace control block - `<import ... />` — import directive block
+      \*\*Must be self-closing:\*\* - `<g-space />` — whitespace control block - `<g-import ... />` — import directive
+      block - `<hr/>`<!-- -->, `<img/>`<!-- -->, `<input/>`<!-- -->, `<br/>`<!-- -->, `<tg-map/>` — Telegram Rich HTML
+      void elements
 
 
-      \*\*Must NOT be self-closing (must use open/close tags):\*\* - `<base>...</base>`<!-- -->,
-      `<message>...</message>`<!-- -->, `<keyboard>...</keyboard>`<!-- -->, `<media>...</media>`<!-- -->,
-      `<description>...</description>`<!-- -->, `<script>...</script>`<!-- -->, `<switch>...</switch>`<!-- -->,
-      `<case>...</case>`<!-- -->, `<default>...</default>`<!-- -->, `<map>...</map>`<!-- -->, `<div>...</div>`
+      \*\*Must NOT be self-closing (must use open/close tags):\*\* - `<g-base>...</g-base>`<!-- -->,
+      `<g-message>...</g-message>`<!-- -->, `<g-keyboard>...</g-keyboard>`<!-- -->, `<g-media>...</g-media>`<!-- -->,
+      `<g-description>...</g-description>`<!-- -->, `<g-script>...</g-script>`<!-- -->, `<g-switch>...</g-switch>`<!--
+      -->, `<g-case>...</g-case>`<!-- -->, `<g-default>...</g-default>`<!-- -->, `<g-map>...</g-map>`<!-- -->,
+      `<g-div>...</g-div>`
 
 
-      Telegram HTML formatting tags passthrough and are ignored.
+      Telegram HTML formatting tags with content (e.g. `<b>`<!-- -->, `<p>`<!-- -->, `<table>`<!-- -->) passthrough and
+      are not format-checked — both `<b>text</b>` and `<b/>` are accepted.
     example:
       - >-
         ```typescript
 
-        const result = TemplateEngine.validateFormatBlock(`<space>content</space>`);
+        const result = TemplateEngine.validateFormatBlock(`<g-space>content</g-space>`);
 
-        // Result: { valid: false, errors: [{ line: 1, message: 'Block <space> must be self-closing: use <space />
+        // Result: { valid: false, errors: [{ line: 1, message: 'Block <g-space> must be self-closing: use <g-space />
         instead' }] }
 
         ```
@@ -1693,6 +2093,111 @@ methods:
         description: >-
           An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
           each unknown block found
+  - name: validatePageAttributesBlock(template)
+    uid: gramstax!TemplateEngine.validatePageAttributesBlock:member(1)
+    package: gramstax!
+    fullName: validatePageAttributesBlock(template)
+    summary: Validates that `<g-*>` PAGE blocks in the template carry their required attributes.
+    remarks: >-
+      PAGE block attributes are mostly optional, so
+      [TemplateEngine.\_PAGE\_REQUIRED\_ATTRS](xref:gramstax!TemplateEngine._PAGE_REQUIRED_ATTRS:member) is currently
+      empty. This method exists to mirror the Telegram validation pattern (`validateTelegramAttributesBlock`<!-- -->)
+      and is reserved for future use — e.g. context-dependent requirements that may be added as the framework evolves.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validatePageAttributesBlock(`<g-base id="main"></g-base>`);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validatePageAttributesBlock(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validatePageAttributeValuesBlock(template)
+    uid: gramstax!TemplateEngine.validatePageAttributeValuesBlock:member(1)
+    package: gramstax!
+    fullName: validatePageAttributeValuesBlock(template)
+    summary: Validates that `<g-*>` PAGE block attribute values match their expected formats.
+    remarks: >-
+      Runs after `TemplateEngine.validateBlockG*Attributes` (which check allowed attrs) to catch format-level issues.
+      Currently validates: - `<g-base id>` — must not be empty - `<g-keyboard type>` — must be `inline` or `bottom` -
+      `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video\_note, sticker,
+      location, contact - `<g-media shared>` — must be `true` or `false`
+
+
+      Tags without value validators (e.g. `<g-message>`<!-- -->, `<g-script>`<!-- -->, `<g-div>`<!-- -->) are skipped.
+      See
+      [TemplateEngine.\_PAGE\_ATTR\_VALUE\_VALIDATORS](xref:gramstax!TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS:member)
+      for the full spec.
+    example:
+      - >-
+        ```typescript
+
+        const result = TemplateEngine.validatePageAttributeValuesBlock(`
+          <g-base>
+            <g-keyboard type="inline">A, B</g-keyboard>
+          </g-base>
+        `);
+
+        // Result: { valid: true, errors: [] }
+
+
+        const bad = TemplateEngine.validatePageAttributeValuesBlock(`
+          <g-base>
+            <g-keyboard type="sidebar">A, B</g-keyboard>
+          </g-base>
+        `);
+
+        // Result: { valid: false, errors: [{ line: 3, message: 'Attribute "type" on <g-keyboard> must be "inline" or
+        "bottom", got "sidebar"' }] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validatePageAttributeValuesBlock(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
   - name: validatePositionsBlock(template)
     uid: gramstax!TemplateEngine.validatePositionsBlock:member(1)
     package: gramstax!
@@ -1709,70 +2214,71 @@ methods:
       ```
 
       __root__
-        ├── base             (root level only)
-        │   ├── message      (content block)
-        │   │   ├── switch   (logic block)
+        ├── g-base             (root level only)
+        │   ├── g-message      (content block)
+        │   │   ├── g-switch   (logic block)
         │   │   │   ├── case
         │   │   │   └── default
-        │   │   ├── map      (logic block)
-        │   │   ├── script   (logic block)
-        │   │   └── space    (utility)
-        │   ├── keyboard     (content block)
-        │   │   ├── switch   (logic block)
-        │   │   │   ├── case
-        │   │   │   └── default
-        │   │   ├── map      (logic block)
-        │   │   ├── script   (logic block)
-        │   │   └── space    (utility)
-        │   ├── media        (content block)
-        │   │   ├── switch   (logic block)
-        │   │   │   ├── case
-        │   │   │   └── default
-        │   │   ├── map      (logic block)
-        │   │   ├── script   (logic block)
-        │   │   └── space    (utility)
-        │   ├── description  (content block)
-        │   │   ├── switch   (logic block)
-        │   │   │   ├── case
-        │   │   │   └── default
-        │   │   ├── map      (logic block)
-        │   │   ├── script   (logic block)
-        │   │   └── space    (utility)
-        │   ├── import       (utility)
-        │   ├── description  (utility)
-        │   ├── script       (logic block)
-        └   └── space        (utility)
+        │   │   ├── g-map      (logic block)
+        │   │   ├── g-script   (logic block)
+        │   │   └── g-space    (utility)
+        │   ├── g-keyboard     (content block)
+        │   │   ├── g-switch   (logic block)
+        │   │   │   ├── g-case
+        │   │   │   └── g-default
+        │   │   ├── g-map      (logic block)
+        │   │   ├── g-script   (logic block)
+        │   │   └── g-space    (utility)
+        │   ├── g-media        (content block)
+        │   │   ├── g-switch   (logic block)
+        │   │   │   ├── g-case
+        │   │   │   └── g-default
+        │   │   ├── g-map      (logic block)
+        │   │   ├── g-script   (logic block)
+        │   │   └── g-space    (utility)
+        │   ├── g-description  (content block)
+        │   │   ├── g-switch   (logic block)
+        │   │   │   ├── g-case
+        │   │   │   └── g-default
+        │   │   ├── g-map      (logic block)
+        │   │   ├── g-script   (logic block)
+        │   │   └── g-space    (utility)
+        │   ├── g-import       (utility)
+        │   ├── g-description  (utility)
+        │   ├── g-script       (logic block)
+        └   └── g-space        (utility)
       ```
 
-      \*\*Enforced rules:\*\* - `<base>` must be at the outermost level and cannot be nested inside any other block. -
-      `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, `<media-group>`<!-- -->, `<description>`<!-- -->,
-      `<import>`<!-- -->, `<script>`<!-- -->, `<space>` can only appear directly inside `<base>`<!-- -->. - `<media>`
-      can also appear directly inside `<media-group>` as a group item. - `<switch>`<!-- -->, `<map>` can only appear
-      inside `<message>`<!-- -->, `<keyboard>`<!-- -->, `<media>`<!-- -->, or `<description>`<!-- -->. - `<case>` and
-      `<default>` can only appear inside `<switch>`<!-- -->. - Telegram formatting tags (`<b>`<!-- -->, `<i>`<!-- -->,
-      `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->, `<a>`<!-- -->, `<blockquote>`<!-- -->,
-      `<blockquote expandable>`<!-- -->) are passthrough and ignored during validation.
+      \*\*Enforced rules:\*\* - `<g-base>` must be at the outermost level and cannot be nested inside any other block. -
+      `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, `<g-media-group>`<!-- -->,
+      `<g-description>`<!-- -->, `<g-import>`<!-- -->, `<g-script>`<!-- -->, `<g-space>` can only appear directly inside
+      `<g-base>`<!-- -->. - `<g-media>` can also appear directly inside `<g-media-group>` as a group item. -
+      `<g-switch>`<!-- -->, `<g-map>` can only appear inside `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->,
+      `<g-media>`<!-- -->, or `<g-description>`<!-- -->. - `<g-case>` and `<g-default>` can only appear inside
+      `<g-switch>`<!-- -->. - Telegram formatting tags (`<b>`<!-- -->, `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->,
+      `<code>`<!-- -->, `<pre>`<!-- -->, `<a>`<!-- -->, `<blockquote>`<!-- -->, `<blockquote expandable>`<!-- -->) are
+      passthrough and ignored during validation.
     example:
       - |-
         ```typescript
         // Valid template
         const result = TemplateEngine.validatePositionsBlock(`
-          <base>
-            <message>Hello {{name}}!</message>
-            <keyboard>Yes, No</keyboard>
-          </base>
+          <g-base>
+            <g-message>Hello {{name}}!</g-message>
+            <g-keyboard>Yes, No</g-keyboard>
+          </g-base>
         `);
         // Result: { valid: true, errors: [] }
 
-        // Invalid: <base> nested inside <message>
+        // Invalid: <g-base> nested inside <g-message>
         const bad = TemplateEngine.validatePositionsBlock(`
-          <base>
-            <message>
-              <base>Nested base</base>
-            </message>
-          </base>
+          <g-base>
+            <g-message>
+              <g-base>Nested base</g-base>
+            </g-message>
+          </g-base>
         `);
-        // Result: { valid: false, errors: [{ line: 4, message: 'Block <base> is not allowed inside <message>' }] }
+        // Result: { valid: false, errors: [{ line: 4, message: 'Block <g-base> is not allowed inside <g-message>' }] }
         ```
     isPreview: false
     isDeprecated: false
@@ -1846,6 +2352,128 @@ methods:
         description: >-
           An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for
           each unsupported scope found
+  - name: validateTelegramAttributesBlock(template)
+    uid: gramstax!TemplateEngine.validateTelegramAttributesBlock:member(1)
+    package: gramstax!
+    fullName: validateTelegramAttributesBlock(template)
+    summary: Validates that Telegram Rich HTML tags in the template carry their required attributes.
+    remarks: >-
+      Telegram tags with required attributes (per the Rich HTML spec) are checked: `<a>` (href or name), `<img/>`<!--
+      -->, `<video>`<!-- -->, `<audio>` (src), `<tg-emoji>` (emoji-id), `<tg-time>` (unix, format), `<tg-map/>` (lat,
+      long, zoom), `<tg-reference>` (name), `<input/>` (type). For `<a>`<!-- -->, at least one of `href` (link) or
+      `name` (anchor) must be present.
+
+
+      Tags without required attributes (e.g. `<b>`<!-- -->, `<table>`<!-- -->, `<p>`<!-- -->) are not checked. See
+      [TemplateEngine.\_TELEGRAM\_REQUIRED\_ATTRS](xref:gramstax!TemplateEngine._TELEGRAM_REQUIRED_ATTRS:member) for the
+      full spec.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateTelegramAttributesBlock(`
+          <g-base>
+            <g-message><a href="https://t.me/">link</a></g-message>
+          </g-base>
+        `);
+        // Result: { valid: true, errors: [] }
+
+        const bad = TemplateEngine.validateTelegramAttributesBlock(`
+          <g-base>
+            <g-message><a>broken</a></g-message>
+          </g-base>
+        `);
+        // Result: { valid: false, errors: [{ line: 3, message: '<a> must have one of: href | name' }] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateTelegramAttributesBlock(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateTelegramAttributeValuesBlock(template)
+    uid: gramstax!TemplateEngine.validateTelegramAttributeValuesBlock:member(1)
+    package: gramstax!
+    fullName: validateTelegramAttributeValuesBlock(template)
+    summary: Validates that Telegram Rich HTML tag attribute values match their expected formats.
+    remarks: >-
+      Runs after
+      [TemplateEngine.validateTelegramAttributesBlock()](xref:gramstax!TemplateEngine.validateTelegramAttributesBlock:member(1))
+      (which checks presence) to catch format-level issues. Validates: - `<tg-time unix>` must be a positive integer;
+      `<tg-time format>` must be non-empty - `<tg-map lat>` ∈ \[-90, 90\], `<tg-map long>` ∈ \[-180, 180\], `<tg-map
+      zoom>` ∈ \[0, 24\] - `<tg-emoji emoji-id>` must be a numeric string - `<a href>` must use http(s)://, mailto:,
+      tel:, tg://, or \# scheme - `<input type>` must be a known HTML input type
+
+
+      Tags without value validators (e.g. `<b>`<!-- -->, `<p>`<!-- -->, `<table>`<!-- -->) are skipped. See
+      [TemplateEngine.\_TELEGRAM\_ATTR\_VALUE\_VALIDATORS](xref:gramstax!TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS:member)
+      for the full spec.
+    example:
+      - >-
+        ```typescript
+
+        const result = TemplateEngine.validateTelegramAttributeValuesBlock(`
+          <g-base>
+            <g-message><tg-time unix="1647531900" format="wDT">22:45</tg-time></g-message>
+          </g-base>
+        `);
+
+        // Result: { valid: true, errors: [] }
+
+
+        const bad = TemplateEngine.validateTelegramAttributeValuesBlock(`
+          <g-base>
+            <g-message><tg-time unix="abc" format="wDT">x</tg-time></g-message>
+          </g-base>
+        `);
+
+        // Result: { valid: false, errors: [{ line: 3, message: '<tg-time> unix must be a positive integer (got "abc")'
+        }] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateTelegramAttributeValuesBlock(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
   - name: validateTemplate(template)
     uid: gramstax!TemplateEngine.validateTemplate:member(1)
     package: gramstax!
@@ -1862,32 +2490,42 @@ methods:
       self-closing vs regular tag syntax 4.
       [TemplateEngine.validatePositionsBlock()](xref:gramstax!TemplateEngine.validatePositionsBlock:member(1)) — checks
       structural nesting rules 5.
-      [TemplateEngine.validateBlockBaseAttributes()](xref:gramstax!TemplateEngine.validateBlockBaseAttributes:member(1))
-      — checks `<base>` block attributes 6.
-      [TemplateEngine.validateBlockMessageAttributes()](xref:gramstax!TemplateEngine.validateBlockMessageAttributes:member(1))
-      — checks `<message>` block attributes 7.
-      [TemplateEngine.validateBlockKeyboardAttributes()](xref:gramstax!TemplateEngine.validateBlockKeyboardAttributes:member(1))
-      — checks `<keyboard>` block attributes 8.
-      [TemplateEngine.validateBlockMediaAttributes()](xref:gramstax!TemplateEngine.validateBlockMediaAttributes:member(1))
-      — checks `<media>` block attributes 9.
-      [TemplateEngine.validateBlockDescriptionAttributes()](xref:gramstax!TemplateEngine.validateBlockDescriptionAttributes:member(1))
-      — checks `<description>` block attributes 10.
-      [TemplateEngine.validateBlockScriptAttributes()](xref:gramstax!TemplateEngine.validateBlockScriptAttributes:member(1))
-      — checks `<script>` block attributes 11.
-      [TemplateEngine.validateBlockSwitchAttributes()](xref:gramstax!TemplateEngine.validateBlockSwitchAttributes:member(1))
-      — checks `<switch>` block attributes 12.
-      [TemplateEngine.validateBlockCaseAttributes()](xref:gramstax!TemplateEngine.validateBlockCaseAttributes:member(1))
-      — checks `<case>` block attributes 13.
-      [TemplateEngine.validateBlockDefaultAttributes()](xref:gramstax!TemplateEngine.validateBlockDefaultAttributes:member(1))
-      — checks `<default>` block attributes 14.
-      [TemplateEngine.validateBlockMapAttributes()](xref:gramstax!TemplateEngine.validateBlockMapAttributes:member(1)) —
-      checks `<map>` block attributes 15.
-      [TemplateEngine.validateBlockDivAttributes()](xref:gramstax!TemplateEngine.validateBlockDivAttributes:member(1)) —
-      checks `<div>` block attributes 16.
-      [TemplateEngine.validateBlockImportAttributes()](xref:gramstax!TemplateEngine.validateBlockImportAttributes:member(1))
-      — checks `<import>` block attributes 17.
-      [TemplateEngine.validateBlockSpaceAttributes()](xref:gramstax!TemplateEngine.validateBlockSpaceAttributes:member(1))
-      — checks `<space>` block attributes
+      [TemplateEngine.validateTelegramAttributesBlock()](xref:gramstax!TemplateEngine.validateTelegramAttributesBlock:member(1))
+      — checks required attributes on Telegram Rich HTML tags 6.
+      [TemplateEngine.validateTelegramAttributeValuesBlock()](xref:gramstax!TemplateEngine.validateTelegramAttributeValuesBlock:member(1))
+      — checks value formats on Telegram Rich HTML tag attributes 7.
+      [TemplateEngine.validateBlockGBaseAttributes()](xref:gramstax!TemplateEngine.validateBlockGBaseAttributes:member(1))
+      — checks `<g-base>` block attributes 8.
+      [TemplateEngine.validateBlockGMessageAttributes()](xref:gramstax!TemplateEngine.validateBlockGMessageAttributes:member(1))
+      — checks `<g-message>` block attributes 9.
+      [TemplateEngine.validateBlockGKeyboardAttributes()](xref:gramstax!TemplateEngine.validateBlockGKeyboardAttributes:member(1))
+      — checks `<g-keyboard>` block attributes 10.
+      [TemplateEngine.validateBlockGMediaAttributes()](xref:gramstax!TemplateEngine.validateBlockGMediaAttributes:member(1))
+      — checks `<g-media>` block attributes 11.
+      [TemplateEngine.validateBlockGMediaGroupAttributes()](xref:gramstax!TemplateEngine.validateBlockGMediaGroupAttributes:member(1))
+      — checks `<g-media-group>` block attributes 12.
+      [TemplateEngine.validateBlockGDescriptionAttributes()](xref:gramstax!TemplateEngine.validateBlockGDescriptionAttributes:member(1))
+      — checks `<g-description>` block attributes 13.
+      [TemplateEngine.validateBlockGScriptAttributes()](xref:gramstax!TemplateEngine.validateBlockGScriptAttributes:member(1))
+      — checks `<g-script>` block attributes 14.
+      [TemplateEngine.validateBlockGSwitchAttributes()](xref:gramstax!TemplateEngine.validateBlockGSwitchAttributes:member(1))
+      — checks `<g-switch>` block attributes 15.
+      [TemplateEngine.validateBlockGCaseAttributes()](xref:gramstax!TemplateEngine.validateBlockGCaseAttributes:member(1))
+      — checks `<g-case>` block attributes 16.
+      [TemplateEngine.validateBlockGDefaultAttributes()](xref:gramstax!TemplateEngine.validateBlockGDefaultAttributes:member(1))
+      — checks `<g-default>` block attributes 17.
+      [TemplateEngine.validateBlockGMapAttributes()](xref:gramstax!TemplateEngine.validateBlockGMapAttributes:member(1))
+      — checks `<g-map>` block attributes 18.
+      [TemplateEngine.validateBlockGDivAttributes()](xref:gramstax!TemplateEngine.validateBlockGDivAttributes:member(1))
+      — checks `<g-div>` block attributes 19.
+      [TemplateEngine.validateBlockGImportAttributes()](xref:gramstax!TemplateEngine.validateBlockGImportAttributes:member(1))
+      — checks `<g-import>` block attributes 20.
+      [TemplateEngine.validateBlockGSpaceAttributes()](xref:gramstax!TemplateEngine.validateBlockGSpaceAttributes:member(1))
+      — checks `<g-space>` block attributes 21.
+      [TemplateEngine.validatePageAttributesBlock()](xref:gramstax!TemplateEngine.validatePageAttributesBlock:member(1))
+      — checks required attributes on `<g-*>` PAGE blocks (centralized) 22.
+      [TemplateEngine.validatePageAttributeValuesBlock()](xref:gramstax!TemplateEngine.validatePageAttributeValuesBlock:member(1))
+      — checks value formats on `<g-*>` PAGE block attributes (centralized)
 
 
       Errors from all validators are combined into a single result.
@@ -1895,9 +2533,9 @@ methods:
       - |-
         ```typescript
         const result = TemplateEngine.validateTemplate(`
-          <base>
-            <message>Hello {{name}}!</message>
-          </base>
+          <g-base>
+            <g-message>Hello {{name}}!</g-message>
+          </g-base>
         `);
         // Result: { valid: true, errors: [] }
         ```

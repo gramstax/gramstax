@@ -3,7 +3,7 @@
 ## View Logic
 
 - **STRICT RULE**: All conditional rendering logic (if/else, switch) **MUST** reside within the template string.
-- **SYNTAX**: Use Gramstax-specific blocks: {~ .. ~}, <switch>, or <script>.
+- **SYNTAX**: Use Gramstax-specific blocks: {~ .. ~}, <g-switch>, or <g-script>.
 - **DEDUPLICATION**: Instead of creating multiple Base IDs for small changes, use template conditionals to toggle content visibility within a single base.
 
 ## Syntax & Escaping

@@ -4,7 +4,7 @@
 
 ## TemplateManager.\_getBaseAtLine() method
 
-Finds the `<base>` block (open + close) that encloses the given line number.
+Finds the `<g-base>` block (open + close) that encloses the given line number.
 
 **Signature:**
 
@@ -71,19 +71,19 @@ number
 
 { baseId: string \| null; hasId: boolean; } \| null
 
-Object with `baseId` and `hasId`<!-- -->, or `null` if not inside any `<base>` block
+Object with `baseId` and `hasId`<!-- -->, or `null` if not inside any `<g-base>` block
 
 ## Example
 
 
 ```typescript
-const tpl = '<base id="kb">\n<kop/></base>';
+const tpl = '<g-base id="kb">\n<kop/></g-base>';
 this._getBaseAtLine(tpl, 2) // => { baseId: "kb", hasId: true }
 
-const tpl2 = '<base>\n<kop/></base>';
+const tpl2 = '<g-base>\n<kop/></g-base>';
 this._getBaseAtLine(tpl2, 2) // => { baseId: null, hasId: false }
 
-const tpl3 = '</base>\n{-lah-}\n<base>';
+const tpl3 = '</g-base>\n{-lah-}\n<g-base>';
 this._getBaseAtLine(tpl3, 2) // => null
 ```
 

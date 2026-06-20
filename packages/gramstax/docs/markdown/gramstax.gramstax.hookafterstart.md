@@ -18,5 +18,17 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Override this method to run post-start logic.
+Override this method to run post-start logic. The common use case is initializing background workers — long-running tasks that need the bot to be fully alive (scheduled jobs, periodic cleanup, queue processors, cron-like tasks). Unlike `hookBeforeStart` which runs before the bot is up, this hook guarantees the bot is fully started and `this.bot.api` is operational, so any task that needs to make API calls or interact with the bot instance should be started here.
+
+## Example
+
+
+```typescript
+class MyBot extends Gramstax {
+  async hookAfterStart() {
+    // Init worker thread from sub WorkerThreadInit
+    await IncrementJob.launchWorker([5000]) // 5s
+  }
+}
+```
 

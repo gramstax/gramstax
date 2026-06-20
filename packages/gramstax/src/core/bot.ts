@@ -6,7 +6,7 @@ import {fileURLToPath} from "node:url"
 import {dirname, join, parse} from "node:path"
 import {TemplateManager} from "~/template/manager"
 import {CacheExternal, ITCacheRpc} from "~/cache/external"
-import {Bot, webhookCallback, type BotConfig, type BotError, type Context} from "grammy"
+import {Bot, webhookCallback, type BotConfig, type BotError, type Context, type Middleware} from "grammy"
 import type {UserFromGetMe} from "grammy/types"
 import type {ITGramstaxParams, ITWebhookQueueConfig} from "~/types/t.bot"
 import {WebhookQueue} from "~/webhook/queue"
@@ -264,18 +264,18 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     this.bot = this.createBot(params.token)
     this.bot.catch(this._onCatch)
-    this._registerOnCallbackQueryData() // Handle callback queries from inline keyboards
-    this._registerOnMessageText() // Handle global text messages
-    this._registerOnMessagePhoto() // Handle global photo messages
-    this._registerOnMessageVideo() // Handle global video messages
-    this._registerOnMessageAudio() // Handle global audio messages
-    this._registerOnMessageDocument() // Handle global document messages
-    this._registerOnMessageAnimation() // Handle global animation messages
-    this._registerOnMessageVoice() // Handle global voice messages
-    this._registerOnMessageVideoNote() // Handle global video note messages
-    this._registerOnMessageSticker() // Handle global sticker messages
-    this._registerOnMessageLocation() // Handle global location messages
-    this._registerOnMessageContact() // Handle global contact messages
+    this.registerLowOnCallbackData() // Handle callback queries from inline keyboards
+    this.registerLowOnMessageText() // Handle global text messages
+    this.registerLowOnMessagePhoto() // Handle global photo messages
+    this.registerLowOnMessageVideo() // Handle global video messages
+    this.registerLowOnMessageAudio() // Handle global audio messages
+    this.registerLowOnMessageDocument() // Handle global document messages
+    this.registerLowOnMessageAnimation() // Handle global animation messages
+    this.registerLowOnMessageVoice() // Handle global voice messages
+    this.registerLowOnMessageVideoNote() // Handle global video note messages
+    this.registerLowOnMessageSticker() // Handle global sticker messages
+    this.registerLowOnMessageLocation() // Handle global location messages
+    this.registerLowOnMessageContact() // Handle global contact messages
 
     // Default for customize (very rarely used)
     this.handlerBotUpdate = this.bot.handleUpdate
@@ -287,18 +287,21 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     process.once(`SIGINT`, () => this.stop())
     process.once(`SIGTERM`, () => this.stop())
 
-    this.hookBeforeStart?.()
     if (params.deploy.startsWith(`polling`)) {
       this.deployType = `polling`
+      this.hookBeforeStart?.()
       this._runPolling()
     } else if (params.deploy.startsWith(`webhook:`)) {
       this.deployType = `webhook`
+      this.hookBeforeStart?.()
       this._runWebhook(params.deploy.split(`webhook:`)[1] as string)
     } else if (params.deploy.startsWith(`serverless:`)) {
       this.deployType = `serverless`
+      this.hookBeforeStart?.()
       this._runServerless(params.deploy.split(`serverless:`)[1] as string)
     } else if (params.deploy.startsWith(`test`)) {
       this.deployType = `test`
+      this.hookBeforeStart?.()
       // nothing, for test unit internal area
     } else {
       throw new Error(`Params deploy is not valid, expected: polling, webhook:<public-url>, serverless:<your-adapter>`)
@@ -335,8 +338,58 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   /**
+   * Called when the bot successfully starts.
+   *
+   * @param botInfo - Information about the bot from Telegram.
+   * @param method - The deployment method used.
+   * @param data - Additional data (URL for webhook/serverless).
+   *
+   * @public
+   */
+  async _onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
+    await this.executeSyncBlocksDescription(this.pages)
+
+    const {username} = botInfo
+    this.log?.success?.(`Telegram bot deploy ${method} started: ${username} ${method == `webhook` || method == `serverless` ? `(${data})` : ``}`)
+    this.hookAfterStart?.()
+  }
+
+  /**
    * Hook called before the bot starts.
-   * @remarks Override this method to run initialization logic.
+   *
+   * @remarks
+   * Override this method to run **one-off initialization logic** that must
+   * complete before the bot begins dispatching updates — for example,
+   * connecting to a database, warming a cache, validating external service
+   * credentials, or setting up shared singletons that pages will read from.
+   *
+   * This hook fires exactly once, after `cacheSession`, `templateManager`,
+   * `bot`, and `pages` are initialized, and before polling/webhook/serverless
+   * actually begins receiving updates.
+   *
+   * **Do NOT register grammY middleware here.** Middleware belongs in
+   * {@link Gramstax.registerLowPlugin}, which is the dedicated channel for
+   * code that should run on every incoming update. `hookBeforeStart` runs
+   * once and is the wrong place for per-update logic.
+   *
+   * For background tasks that need the bot to be alive (cron jobs, periodic
+   * cleanup, queue processors), use {@link Gramstax.hookAfterStart} instead.
+   *
+   * @example
+   * ```typescript
+   * class MyBot extends Gramstax {
+   *   async hookBeforeStart() {
+   *     // Validate external service credentials before the bot goes live
+   *     if (!process.env.REDIS_URL) {
+   *       throw new Error(`REDIS_URL is required`)
+   *     }
+   *     this.log?.info?.(`Verifying external service connection...`)
+   *     await pingRedis(process.env.REDIS_URL)
+   *     this.log?.success?.(`External services ready`)
+   *   }
+   * }
+   * ```
+   *
    * @virtual
    * @public
    */
@@ -344,7 +397,26 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
   /**
    * Hook called after the bot has started.
-   * @remarks Override this method to run post-start logic.
+   *
+   * @remarks
+   * Override this method to run post-start logic. The common use case is
+   * initializing background workers — long-running tasks that need the bot
+   * to be fully alive (scheduled jobs, periodic cleanup, queue processors,
+   * cron-like tasks). Unlike `hookBeforeStart` which runs before the bot
+   * is up, this hook guarantees the bot is fully started and `this.bot.api`
+   * is operational, so any task that needs to make API calls or interact
+   * with the bot instance should be started here.
+   *
+   * @example
+   * ```typescript
+   * class MyBot extends Gramstax {
+   *   async hookAfterStart() {
+   *     // Init worker thread from sub WorkerThreadInit
+   *     await IncrementJob.launchWorker([5000]) // 5s
+   *   }
+   * }
+   * ```
+   *
    * @virtual
    * @public
    */
@@ -444,23 +516,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   async hookErrorInputNotFoundPage?(ctx: ICtx): Promise<void>
-
-  /**
-   * Called when the bot successfully starts.
-   *
-   * @param botInfo - Information about the bot from Telegram.
-   * @param method - The deployment method used.
-   * @param data - Additional data (URL for webhook/serverless).
-   *
-   * @public
-   */
-  async _onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
-    await this.executeSyncBlocksDescription(this.pages)
-
-    const {username} = botInfo
-    this.log?.success?.(`Telegram bot deploy ${method} started: ${username} ${method == `webhook` || method == `serverless` ? `(${data})` : ``}`)
-    this.hookAfterStart?.()
-  }
 
   /**
    * Creates the grammY Bot instance.
@@ -888,8 +943,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // dynamicSpesific — handleFree* (non-session) defined directly on this page
     // (handleSessionFree* variants are dispatched exclusively via session routing id=1,
     //  NOT via dynamicSpesific — dynamic dispatch doesn't check for sessions)
-    const nonSessionFreeRoutes = [`handleFreeText`, `handleFreePhoto`, `handleFreeVideo`, `handleFreeAudio`, `handleFreeDocument`, `handleFreeAnimation`, `handleFreeVoice`, `handleFreeVideoNote`, `handleFreeSticker`, `handleFreeLocation`, `handleFreeContact`] as const
-    for (const routeName of nonSessionFreeRoutes) {
+    for (const routeName of pages.listRouteDynamicSpesific) {
       if (Object.hasOwn(proto, routeName) && typeof (proto as any)[routeName] === `function`) {
         const pureName = routeName.replace(partHandle, ``).replace(partArgs, ``).replace(partCommand, ``).replace(partCaption, ``).replace(partFree, ``).toLowerCase()
         const alreadyExists = pds[pureName as keyof typeof pds]?.some((item) => item.name === name)
@@ -979,6 +1033,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   _pageLoads() {
     this.log?.info?.(`Load pages..`)
 
+    // Helper to keep map result as literal types (prevents widening to string[])
+    const toSession = <T extends string>(route: T): `handleSession${T extends `handle${infer R}` ? R : T}` => {
+      return `handleSession${route.startsWith(`handle`) ? route.slice(6) : route}` as any
+    }
     const listRouteStatic = [
       // callback
       `handleCallbackData`,
@@ -1029,10 +1087,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `handleCaptionArgsVoice`,
       `handleCommandCaptionArgsVoice`
     ] as const
-    // Helper to keep map result as literal types (prevents widening to string[])
-    const toSession = <T extends string>(route: T): `handleSession${T extends `handle${infer R}` ? R : T}` => {
-      return `handleSession${route.startsWith(`handle`) ? route.slice(6) : route}` as any
-    }
     const listRouteStaticSession = [
       ...listRouteStatic.map(toSession),
       ...listRouteStaticIntent.map(toSession),
@@ -1059,6 +1113,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       // contact
       `handleSessionFreeContact`
     ] as const
+    const listRouteDynamicSpesific = [`handleFreeText`, `handleFreePhoto`, `handleFreeVideo`, `handleFreeAudio`, `handleFreeDocument`, `handleFreeAnimation`, `handleFreeVoice`, `handleFreeVideoNote`, `handleFreeSticker`, `handleFreeLocation`, `handleFreeContact`] as const
 
     const makeObject = <const T extends readonly string[], V extends () => any>(keys: T, val: V): {[K in T[number]]: ReturnType<V>} => Object.fromEntries(keys.map((k) => [k, val()])) as {[K in T[number]]: ReturnType<V>}
     const initDynamicSpesific = () => [] as {name: string; routeName: string}[] // [0]{name: Page.data.name, routeName: routeFunctionName}
@@ -1086,9 +1141,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       listRouteStatic,
       listRouteStaticIntent,
       listRouteStaticSession,
+      listRouteDynamicSpesific,
       lenListRouteStatic: listRouteStatic.length,
       lenListRouteStaticIntent: listRouteStaticIntent.length,
-      lenListRouteStaticSession: listRouteStaticSession.length
+      lenListRouteStaticSession: listRouteStaticSession.length,
+      lenListRouteDynamicSpesific: listRouteDynamicSpesific.length
     }
 
     PageManager.getFileManySync(undefined).forEach(({path, page}, index) => {
@@ -1338,7 +1395,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
   }
 
-  async _onHandle(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific | `onCallbackQueryData`, fromListener: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
+  async _onHandle(ct: Context, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
     let status: any
     const ctx = this.createCtx(ct)
     const before = await this.hookBeforeRoute?.(ctx, {listenerName})
@@ -1346,7 +1403,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       return
     }
     try {
-      const {result} = await this._pageRoutes(ctx, fromListener)
+      const {result} = await this._pageRoutes(ctx, listenerName)
       if (result === null) {
         status = `notfound`
         if (shouldCheckNotFound) {
@@ -1363,131 +1420,130 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   /**
-   * Handles incoming messages of a specific type and process route.
-   *
-   * @param ct - The grammY Context object.
-   * @param listenerName - The message type being handled.
-   *
-   * @public
-   */
-  async _onMessage(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<void> {
-    await this._onHandle(ct, listenerName, listenerName)
-  }
-
-  /**
-   * Handles incoming callback queries from inline keyboards and process route.
-   *
-   * @param ct - The grammY Context object.
-   * @public
-   */
-  async _onCallbackQueryData(ct: Context): Promise<void> {
-    await this._onHandle(ct, `onCallbackQueryData`, `callbackdata`, false)
-  }
-
-  /**
-   * Handles incoming messages*
-   *
-   * @param ct - The grammY Context object.
-   * @public
-   */
-  async _onMessageText(ct: Context): Promise<void> {
-    await this._onMessage(ct, `text`)
-  }
-  /** {@inheritDoc Gramstax._onMessageText} */
-  async _onMessagePhoto(ct: Context): Promise<void> {
-    await this._onMessage(ct, `photo`)
-  }
-  /** {@inheritDoc Gramstax._onMessageText} */
-  async _onMessageVideo(ct: Context): Promise<void> {
-    await this._onMessage(ct, `video`)
-  }
-  /** {@inheritDoc Gramstax._onMessageText} */
-  async _onMessageAudio(ct: Context): Promise<void> {
-    await this._onMessage(ct, `audio`)
-  }
-  /** {@inheritDoc Gramstax._onMessageText} */
-  async _onMessageDocument(ct: Context): Promise<void> {
-    await this._onMessage(ct, `document`)
-  }
-  /** {@inheritDoc Gramstax._onMessageText} */
-  async _onMessageAnimation(ct: Context): Promise<void> {
-    await this._onMessage(ct, `animation`)
-  }
-  /** {@inheritDoc Gramstax._onMessageText} */
-  async _onMessageVoice(ct: Context): Promise<void> {
-    await this._onMessage(ct, `voice`)
-  }
-  /** {@inheritDoc Gramstax._onMessageText} */
-  async _onMessageVideoNote(ct: Context): Promise<void> {
-    await this._onMessage(ct, `videonote`)
-  }
-  /** {@inheritDoc Gramstax._onMessageText} */
-  async _onMessageSticker(ct: Context): Promise<void> {
-    await this._onMessage(ct, `sticker`)
-  }
-  /** {@inheritDoc Gramstax._onMessageText} */
-  async _onMessageLocation(ct: Context): Promise<void> {
-    await this._onMessage(ct, `location`)
-  }
-  /** {@inheritDoc Gramstax._onMessageText} */
-  async _onMessageContact(ct: Context): Promise<void> {
-    await this._onMessage(ct, `contact`)
-  }
-
-  /**
-   * Registers handlers message*.
+   * Returns grammY middleware to register as low-level plugins on the bot.
    *
    * @remarks
-   * These methods register grammY event handlers for different message types.
-   * Override to customize message filtering.
+   * Override this method in a subclass to inject custom plugin middleware
+   * (sessions, i18n, rate limiting, logging, authentication, etc.) into the
+   * underlying grammY bot instance.
+   *
+   * Each element of the returned array is a {@link Middleware} value (either a
+   * `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that
+   * grammY will install via `this.bot.use(...)`. The array is meant to be
+   * spread into `bot.use`, so the order of elements determines the order in
+   * which middleware runs — earlier entries wrap later ones (outermost first).
+   *
+   * Difference vs. the other lifecycle hooks:
+   *
+   * - `hookBeforeStart` — for one-off side effects before the bot starts.
+   *   Anything you want to happen exactly once at boot goes there.
+   * - `registerLowPlugin` — for middleware that must run on **every update**.
+   *   Use this when you need grammY middleware semantics (filter queries,
+   *   `next()` chaining, scope-aware registration).
+   * - `hookBeforeRoute` / `hookAfterRoute` — for per-update hooks that run
+   *   inside the router, after gramstax has already routed to a page.
+   *
+   * The base implementation is not provided — subclasses override this to
+   * contribute their own plugins. Returning an empty array (or not
+   * overriding) installs no plugins, which is the default behavior.
+   *
+   * @returns A promise resolving to an array of grammY {@link Middleware}
+   * values, ready to be spread into `this.bot.use(...result)`.
+   *
+   * @example
+   * ```typescript
+   * class MyBot extends Gramstax {
+   *   async registerLowPlugin() {
+   *     return [
+   *       // 1. Logging middleware (outermost — runs first, exits last)
+   *       async (ctx, next) => {
+   *         this.log?.info?.(`update ${ctx.update.update_id} from ${ctx.from?.id}`)
+   *         await next()
+   *       },
+   *       // 2. Per-chat rate limit (inner)
+   *       async (ctx, next) => {
+   *         // ... check + throttle ...
+   *         await next()
+   *       }
+   *     ]
+   *   }
+   * }
+   * ```
+   *
+   * @virtual
+   * @public
+   */
+  async registerLowPlugin?(): Promise<Array<Middleware<Context>>>
+
+  /**
+   * Registers an event handler for a bot event.
+   *
+   * @remarks
+   * These registration methods (`registerLowOn*`) are designed to be overridable
+   * so subclasses can integrate with a different bot library, custom event
+   * system, or alternative routing approach. The default implementation
+   * delegates to `this.bot` to subscribe to the relevant event. Override any
+   * `registerLowOn*` method to customize how a specific event or message type
+   * is routed to its handler.
+   *
+   * @example
+   * ```typescript
+   * class MyBot extends Gramstax {
+   *   // Override if need to route via a custom event bus instead of the default bot
+   *   registerLowOnCallbackData() {
+   *     // default is `callback_query:data`
+   *     this.bot.on(`cb_data`, (ctx) => this._onHandle(ctx, `callbackdata`))
+   *   }
+   * }
+   * ```
    *
    * @public
    */
-  _registerOnCallbackQueryData() {
-    this.bot.on(`callback_query:data`, this._onCallbackQueryData.bind(this)) // Handle callback queries from inline keyboards
+  registerLowOnCallbackData() {
+    this.bot.on(`callback_query:data`, (ctx) => this._onHandle(ctx, `callbackdata`)) // Handle callback queries from inline keyboards
   }
-  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
-  _registerOnMessageText() {
-    this.bot.on(`message:text`, this._onMessageText.bind(this)) // Handle global text messages
+  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  registerLowOnMessageText() {
+    this.bot.on(`message:text`, (ctx) => this._onHandle(ctx, `text`)) // Handle global text messages
   }
-  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
-  _registerOnMessagePhoto() {
-    this.bot.on(`message:photo`, this._onMessagePhoto.bind(this)) // Handle global photo messages
+  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  registerLowOnMessagePhoto() {
+    this.bot.on(`message:photo`, (ctx) => this._onHandle(ctx, `photo`)) // Handle global photo messages
   }
-  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
-  _registerOnMessageVideo() {
-    this.bot.on(`message:video`, this._onMessageVideo.bind(this)) // Handle global video messages
+  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  registerLowOnMessageVideo() {
+    this.bot.on(`message:video`, (ctx) => this._onHandle(ctx, `video`)) // Handle global video messages
   }
-  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
-  _registerOnMessageAudio() {
-    this.bot.on(`message:audio`, this._onMessageAudio.bind(this)) // Handle global audio messages
+  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  registerLowOnMessageAudio() {
+    this.bot.on(`message:audio`, (ctx) => this._onHandle(ctx, `audio`)) // Handle global audio messages
   }
-  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
-  _registerOnMessageDocument() {
-    this.bot.on(`message:document`, this._onMessageDocument.bind(this)) // Handle global document messages
+  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  registerLowOnMessageDocument() {
+    this.bot.on(`message:document`, (ctx) => this._onHandle(ctx, `document`)) // Handle global document messages
   }
-  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
-  _registerOnMessageAnimation() {
-    this.bot.on(`message:animation`, this._onMessageAnimation.bind(this)) // Handle global animation messages
+  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  registerLowOnMessageAnimation() {
+    this.bot.on(`message:animation`, (ctx) => this._onHandle(ctx, `animation`)) // Handle global animation messages
   }
-  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
-  _registerOnMessageVoice() {
-    this.bot.on(`message:voice`, this._onMessageVoice.bind(this)) // Handle global voice messages
+  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  registerLowOnMessageVoice() {
+    this.bot.on(`message:voice`, (ctx) => this._onHandle(ctx, `voice`)) // Handle global voice messages
   }
-  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
-  _registerOnMessageVideoNote() {
-    this.bot.on(`message:video_note`, this._onMessageVideoNote.bind(this)) // Handle global video note messages
+  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  registerLowOnMessageVideoNote() {
+    this.bot.on(`message:video_note`, (ctx) => this._onHandle(ctx, `videonote`)) // Handle global video note messages
   }
-  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
-  _registerOnMessageSticker() {
-    this.bot.on(`message:sticker`, this._onMessageSticker.bind(this)) // Handle global sticker messages
+  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  registerLowOnMessageSticker() {
+    this.bot.on(`message:sticker`, (ctx) => this._onHandle(ctx, `sticker`)) // Handle global sticker messages
   }
-  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
-  _registerOnMessageLocation() {
-    this.bot.on(`message:location`, this._onMessageLocation.bind(this)) // Handle global location messages
+  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  registerLowOnMessageLocation() {
+    this.bot.on(`message:location`, (ctx) => this._onHandle(ctx, `location`)) // Handle global location messages
   }
-  /** {@inheritDoc Gramstax._registerOnCallbackQueryData} */
-  _registerOnMessageContact() {
-    this.bot.on(`message:contact`, this._onMessageContact.bind(this)) // Handle global contact messages
+  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  registerLowOnMessageContact() {
+    this.bot.on(`message:contact`, (ctx) => this._onHandle(ctx, `contact`)) // Handle global contact messages
   }
 }

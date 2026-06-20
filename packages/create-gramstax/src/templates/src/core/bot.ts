@@ -4,6 +4,10 @@ import {GeneralStatusPage} from "~/pages/general-status"
 import type {CtxCore} from "./ctx"
 
 export class BotCore extends Gramstax {
+  async hookBeforeStart() {
+    this.bot.use(() => {})
+  }
+
   async hookBeforeRoute(ctx: CtxCore) {
     const result = await new UserGuard(ctx).ensureUsername(false)
     if (result === null) {

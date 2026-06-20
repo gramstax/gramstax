@@ -57,36 +57,36 @@ export class TestAnimationPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.default}</keyboard>
-      <keyboard lang="id">🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.id}</keyboard>
-      <media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
+    <g-base id="${Base.step1}">
+      <g-keyboard>🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.default}</g-keyboard>
+      <g-keyboard lang="id">🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.id}</g-keyboard>
+      <g-media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
         🎞️ Animation demo
         
         This animation shows a static media source with caption.
-      </media>
-      <media lang="id" type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
+      </g-media>
+      <g-media lang="id" type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
         🎞️ Demo animasi
         
         Animasi ini menunjukkan sumber media statis dengan caption.
-      </media>
-    </base>
+      </g-media>
+    </g-base>
     
-    <base id="${Base.dynamicAttr}">
-      <media type="animation" src="{{src}}">
+    <g-base id="${Base.dynamicAttr}">
+      <g-media type="animation" src="{{src}}">
         🧩 Dynamic attribute demo
 
         Supports dynamic variables and exec in attributes (except lang/type) for &lt;media&gt; blocks.
 
         This is a caption text for media <b>animation</b>.
-      </media>
-      <media lang="id" type="animation" src="{{src}}">
+      </g-media>
+      <g-media lang="id" type="animation" src="{{src}}">
         🧩 Demo atribut dinamis
 
         Mendukung variabel dinamis dan exec di atribut (kecuali lang/type) untuk blok &lt;media&gt;.
 
         Ini adalah caption text untuk media <b>animasi</b>.
-      </media>
-    </base>
+      </g-media>
+    </g-base>
   `
 }

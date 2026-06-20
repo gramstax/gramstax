@@ -33,42 +33,42 @@ export class BlockSwitchPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>
-        <switch value="status">
-          <case is="1">🔴 Off</case>
-          <default>🟢 On</default>
-        </switch>,
+    <g-base id="${Base.step1}">
+      <g-keyboard>
+        <g-switch value="status">
+          <g-case is="1">🔴 Off</g-case>
+          <g-default>🟢 On</g-default>
+        </g-switch>,
         ${this.kbl.back.default}
-      </keyboard>
-      <keyboard lang="id">
-        <switch value="status">
-          <case is="1">🔴 Mati</case>
-          <default>🟢 Nyala</default>
-        </switch>,
+      </g-keyboard>
+      <g-keyboard lang="id">
+        <g-switch value="status">
+          <g-case is="1">🔴 Mati</g-case>
+          <g-default>🟢 Nyala</g-default>
+        </g-switch>,
         ${this.kbl.back.id}
-      </keyboard>
+      </g-keyboard>
 
-      <message>
+      <g-message>
         <b>🔀 Template switch demo</b>
 
-        <switch value="status">
-          <case is="1">Active</case>
-          <default>Inactive</default>
-        </switch>
+        <g-switch value="status">
+          <g-case is="1">Active</g-case>
+          <g-default>Inactive</g-default>
+        </g-switch>
 
         Toggle the button to see the template update in real time.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         <b>🔀 Demo switch template</b>
 
-        <switch value="status">
-          <case is="1">Aktif</case>
-          <default>Tidak Aktif</default>
-        </switch>
+        <g-switch value="status">
+          <g-case is="1">Aktif</g-case>
+          <g-default>Tidak Aktif</g-default>
+        </g-switch>
 
         Tekan tombol untuk melihat pembaruan template secara langsung.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

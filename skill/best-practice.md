@@ -64,12 +64,12 @@ description: Comprehensive best practices for Gramstax real project structure an
 
 ## Templates and Conditional Rendering
 
-- Use `{~..~}`, `<switch>`, or `<script>` for conditional content inside templates.
+- Use `{~..~}`, `<g-switch>`, or `<g-script>` for conditional content inside templates.
 - Keep conditional view logic in templates rather than handler functions.
 - Do not write multi-language content in page functions; keep it in templates.
 - Avoid separate base blocks when only small parts differ; merge and use template conditionals.
 - Avoid inline error strings in handlers; render via template conditional or a base variant.
-- Do not use `+` inside `{~..~}` and `<script></script>`; use template literals or other non-`+` composition.
+- Do not use `+` inside `{~..~}` and `<g-script></g-script>`; use template literals or other non-`+` composition.
 - When using template literals inside `{~..~}`, escape backticks and `${}`.
 - **IMPORTANT**: Always use `\\n` (double slash) if declare in template string when used.
 - Use at least a heading + content format for message blocks.
@@ -121,7 +121,7 @@ Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up t
 
 | Class        | Purpose                                                             | Required                                            |
 | ------------ | ------------------------------------------------------------------- | --------------------------------------------------- |
-| **Base**     | Base ID strings for template states                                 | When template has multiple `<base id="...">` states |
+| **Base**     | Base ID strings for template states                                 | When template has multiple `<g-base id="...">` states |
 | **Helper**   | Reusable utility functions (keyboard builders, formatters)          | When reusable logic appears 2+ times                |
 | **Constant** | Reusable common constant string/number                              | When reusable constants used 2+ times               |
 | **Main**     | Primary business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)    |
@@ -130,7 +130,7 @@ Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up t
 
 ### 1. Base — Base ID Constants
 
-Defines static string constants for `<base id="...">` identifiers in templates.
+Defines static string constants for `<g-base id="...">` identifiers in templates.
 
 ```typescript
 class Base {
@@ -144,13 +144,13 @@ class Base {
 
 ```typescript
 static template = `
-  <base id="${Base.step1}">
+  <g-base id="${Base.step1}">
     <!-- form content -->
-  </base>
+  </g-base>
 
-  <base id="${Base.success}">
+  <g-base id="${Base.success}">
     <!-- success content -->
-  </base>
+  </g-base>
 `;
 ```
 
@@ -346,29 +346,29 @@ export class DepositPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ➕ Deposit funds
         Enter the amount...
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.success}">
+    <g-base id="${Base.success}">
       ${this.kbk.home()}
-      <message>
+      <g-message>
         ✅ Deposit completed
         Amount: {{amount}}
         Balance: {{balance}}
-      </message>
-    </base>
+      </g-message>
+    </g-base>
 
-    <base id="${Base.warnInvalid}">
+    <g-base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
-      <message>
+      <g-message>
         ⚠️ Invalid amount
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `;
 }
 ```
@@ -390,7 +390,7 @@ Use standardized variable names across all page classes:
 **Use `bi` when template has explicit base ID:**
 
 ```typescript
-// Template: <base id="${Base.step1}">
+// Template: <g-base id="${Base.step1}">
 const bi = Base.step1;
 const kb = Helper.kb(ctx, bi);
 const da = { name: value };
@@ -400,7 +400,7 @@ await ctx.edit(kb, da, bi);
 **Don't use `bi` when template has no base ID (default base):**
 
 ```typescript
-// Template: <base> (without id)
+// Template: <g-base> (without id)
 const kb = Helper.kb(ctx);
 const da = { text: "message" };
 await ctx.edit(kb, da);
@@ -516,7 +516,7 @@ Page file created
 Need Main class? ──No──► Exception: general-status.ts only
        │ Yes
        ▼
-Template has >1 <base id="...">? ──Yes──► Add Base class
+Template has >1 <g-base id="...">? ──Yes──► Add Base class
        │ No
        ▼
 Need reusable logic (2+ times)? ──Yes──► Add Helper class
@@ -551,10 +551,10 @@ export class StartPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
-      <keyboard>Refresh</keyboard>
-      <message>Hello {{name}}, {{random}}</message>
-    </base>
+    <g-base id="${Base.step1}">
+      <g-keyboard>Refresh</g-keyboard>
+      <g-message>Hello {{name}}, {{random}}</g-message>
+    </g-base>
   `;
 }
 ```

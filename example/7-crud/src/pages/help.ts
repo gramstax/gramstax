@@ -25,9 +25,9 @@ export class HelpPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <message>
+      <g-message>
         🧭 CRUD Help
 
         ➕ Create: add a title and description in two steps.
@@ -35,8 +35,8 @@ export class HelpPage extends PageBase {
         🔎 Detail: view full item data by ID.
         ✅ Update: change an item status from todo → in progress → done.
         🗑️ Delete: remove an item by ID with confirmation prompts.
-      </message>
-      <message lang="id">
+      </g-message>
+      <g-message lang="id">
         🧭 Bantuan CRUD
 
         ➕ Buat: tambah judul dan deskripsi dalam dua langkah.
@@ -44,7 +44,7 @@ export class HelpPage extends PageBase {
         🔎 Detail: tampilkan data lengkap berdasarkan ID.
         ✅ Perbarui: ubah status item dari todo → proses → selesai.
         🗑️ Hapus: hapus item berdasarkan ID dengan konfirmasi.
-      </message>
-    </base>
+      </g-message>
+    </g-base>
   `
 }

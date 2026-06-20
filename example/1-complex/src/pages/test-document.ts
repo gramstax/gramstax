@@ -24,18 +24,18 @@ export class TestDocumentPage extends PageBase {
   }
 
   static template = `
-    <base id="${Base.step1}">
+    <g-base id="${Base.step1}">
       ${this.kbk.back()}
-      <media type="document" src="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf">
+      <g-media type="document" src="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf">
         📄 Document demo
         
         This is a sample document reply with a caption.
-      </media>
-      <media lang="id" type="document" src="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf">
+      </g-media>
+      <g-media lang="id" type="document" src="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf">
         📄 Demo dokumen
         
         Ini adalah contoh balasan dokumen dengan caption.
-      </media>
-    </base>
+      </g-media>
+    </g-base>
   `
 }
