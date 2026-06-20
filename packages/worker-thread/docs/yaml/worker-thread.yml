@@ -1,0 +1,18 @@
+### YamlMime:TSPackage
+uid: '@gramstax/worker-thread!'
+name: '@gramstax/worker-thread'
+type: package
+summary: ''
+typeAliases:
+  - '@gramstax/worker-thread!ITMapRpc:type'
+  - '@gramstax/worker-thread!WorkerThreadAsyncMethods:type'
+  - '@gramstax/worker-thread!WorkerThreadExportOpt:type'
+  - '@gramstax/worker-thread!WorkerThreadGatewayProxy:type'
+classes:
+  - '@gramstax/worker-thread!WorkerThreadExport:class'
+  - '@gramstax/worker-thread!WorkerThreadGatewayClient:class'
+  - '@gramstax/worker-thread!WorkerThreadGatewayServer:class'
+  - '@gramstax/worker-thread!WorkerThreadInit:class'
+  - '@gramstax/worker-thread!WorkerThreadLaunch:class'
+  - '@gramstax/worker-thread!WorkerThreadPool:class'
+  - '@gramstax/worker-thread!WorkerThreadRpc:class'

@@ -1,0 +1,29 @@
+items:
+  - name: SharePoint Framework reference
+    href: ~/overview/sharepoint.md
+    items:
+      - name: worker-thread
+        uid: '@gramstax/worker-thread!'
+        items:
+          - name: ITMapRpc
+            uid: '@gramstax/worker-thread!ITMapRpc:type'
+          - name: WorkerThreadAsyncMethods
+            uid: '@gramstax/worker-thread!WorkerThreadAsyncMethods:type'
+          - name: WorkerThreadExport
+            uid: '@gramstax/worker-thread!WorkerThreadExport:class'
+          - name: WorkerThreadExportOpt
+            uid: '@gramstax/worker-thread!WorkerThreadExportOpt:type'
+          - name: WorkerThreadGatewayClient
+            uid: '@gramstax/worker-thread!WorkerThreadGatewayClient:class'
+          - name: WorkerThreadGatewayProxy
+            uid: '@gramstax/worker-thread!WorkerThreadGatewayProxy:type'
+          - name: WorkerThreadGatewayServer
+            uid: '@gramstax/worker-thread!WorkerThreadGatewayServer:class'
+          - name: WorkerThreadInit
+            uid: '@gramstax/worker-thread!WorkerThreadInit:class'
+          - name: WorkerThreadLaunch
+            uid: '@gramstax/worker-thread!WorkerThreadLaunch:class'
+          - name: WorkerThreadPool
+            uid: '@gramstax/worker-thread!WorkerThreadPool:class'
+          - name: WorkerThreadRpc
+            uid: '@gramstax/worker-thread!WorkerThreadRpc:class'

@@ -1,0 +1,103 @@
+### YamlMime:TSType
+name: WorkerThreadGatewayServer
+uid: '@gramstax/worker-thread!WorkerThreadGatewayServer:class'
+package: '@gramstax/worker-thread!'
+fullName: WorkerThreadGatewayServer
+summary: \[LOW-LEVEL\] Provides IPC server functionality for inter-worker communication using Unix domain sockets.
+remarks: >-
+  Low-level infrastructure. In most cases use
+  [WorkerThreadInit.createGatewayServer()](xref:@gramstax/worker-thread!WorkerThreadInit%23createGatewayServer:member(1))
+  instead of constructing this directly.
+
+
+  Uses `net-ipc` library for Unix domain socket communication. Supports connections from multiple gateway clients.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)()
+    uid: '@gramstax/worker-thread!WorkerThreadGatewayServer:constructor(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: (constructor)()
+    summary: Creates a new gateway server instance.
+    remarks: >-
+      Typically not called directly; use
+      [WorkerThreadInit.createGatewayServer()](xref:@gramstax/worker-thread!WorkerThreadInit%23createGatewayServer:member(1))
+      instead.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: constructor();
+properties:
+  - name: register
+    uid: '@gramstax/worker-thread!WorkerThreadGatewayServer#register:member'
+    package: '@gramstax/worker-thread!'
+    fullName: register
+    summary: Object exposed to clients.
+    remarks: Properties become RPC-callable methods.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'register: any;'
+      return:
+        type: any
+  - name: rpc
+    uid: '@gramstax/worker-thread!WorkerThreadGatewayServer#rpc:member'
+    package: '@gramstax/worker-thread!'
+    fullName: rpc
+    summary: Map of RPC handlers per connection. Key is the connection ID.
+    remarks: Values are [WorkerThreadRpc](xref:@gramstax/worker-thread!WorkerThreadRpc:class) instances scoped per connection.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rpc: Map<string, WorkerThreadRpc>;'
+      return:
+        type: Map&lt;string, <xref uid="@gramstax/worker-thread!WorkerThreadRpc:class" />&gt;
+  - name: server
+    uid: '@gramstax/worker-thread!WorkerThreadGatewayServer#server:member'
+    package: '@gramstax/worker-thread!'
+    fullName: server
+    summary: The underlying `net-ipc` Server instance.
+    remarks: Uses `Server` from net-ipc for IPC transport.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'server: Server;'
+      return:
+        type: Server
+methods:
+  - name: start(path, register)
+    uid: '@gramstax/worker-thread!WorkerThreadGatewayServer#start:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: start(path, register)
+    summary: Start the gateway server.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        await server.start("/tmp/data-worker.sock", {
+          ping: () => "pong",
+          getData: (key) => database.get(key),
+          setData: (key, value) => database.set(key, value),
+        });
+        console.log("Gateway server started");
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'start(path: string, register?: any): Promise<unknown>;'
+      parameters:
+        - id: path
+          description: Unix socket path to bind. Gateway path identifier.
+          type: string
+        - id: register
+          description: Object to expose to clients. Called by connected clients. Defaults to `{}`<!-- -->.
+          type: any
+      return:
+        type: Promise&lt;unknown&gt;
+        description: Promise that resolves to this server instance when ready.

@@ -1,0 +1,354 @@
+### YamlMime:TSType
+name: WorkerThreadInit
+uid: '@gramstax/worker-thread!WorkerThreadInit:class'
+package: '@gramstax/worker-thread!'
+fullName: WorkerThreadInit
+summary: >-
+  Base class for worker thread implementations. Handles communication with the main thread and provides RPC
+  functionality.
+remarks: >-
+  Extend this class when defining worker thread behavior. Uses `parentPort` for messaging with main thread. Constructor
+  automatically signals readiness to main thread.
+example:
+  - |-
+    ```typescript
+    import { WorkerThreadInit, WorkerThreadExport, log } from "gramstax";
+
+    class Worker extends WorkerThreadInit {
+      constructor() {
+        super(); // Required - signals ready to main thread
+        log.info(`Worker ${this.id} started`);
+      }
+
+      mtdProcess(data: any) {
+        return { processed: data };
+      }
+    }
+
+    export const MyWorker = WorkerThreadExport.init({
+      path: __filename,
+      WTInit: Worker,
+    });
+    ```
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)()
+    uid: '@gramstax/worker-thread!WorkerThreadInit:constructor(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: (constructor)()
+    summary: Creates a new WorkerThreadInit instance. Sets up message handling and signals readiness to the main thread.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: constructor();
+properties:
+  - name: argv
+    uid: '@gramstax/worker-thread!WorkerThreadInit#argv:member'
+    package: '@gramstax/worker-thread!'
+    fullName: argv
+    summary: Command line arguments passed to the worker. Same as `process.argv`<!-- -->. Custom args start at index 3.
+    remarks: Use this for worker-specific flags and configuration.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'argv: string[];'
+      return:
+        type: string[]
+  - name: gatewayClient
+    uid: '@gramstax/worker-thread!WorkerThreadInit#gatewayClient:member'
+    package: '@gramstax/worker-thread!'
+    fullName: gatewayClient
+    summary: Get the most recently created gateway client.
+    remarks: >-
+      Alias for
+      [WorkerThreadInit.gatewayClientLatest](xref:@gramstax/worker-thread!WorkerThreadInit%23gatewayClientLatest:member)<!--
+      -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'get gatewayClient(): WorkerThreadGatewayClient | undefined;'
+      return:
+        type: <xref uid="@gramstax/worker-thread!WorkerThreadGatewayClient:class" /> | undefined
+  - name: gatewayClientLatest
+    uid: '@gramstax/worker-thread!WorkerThreadInit#gatewayClientLatest:member'
+    package: '@gramstax/worker-thread!'
+    fullName: gatewayClientLatest
+    summary: The most recently created gateway client.
+    remarks: Uses [WorkerThreadGatewayClient](xref:@gramstax/worker-thread!WorkerThreadGatewayClient:class) for IPC requests.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'gatewayClientLatest?: WorkerThreadGatewayClient;'
+      return:
+        type: <xref uid="@gramstax/worker-thread!WorkerThreadGatewayClient:class" />
+  - name: gatewayClients
+    uid: '@gramstax/worker-thread!WorkerThreadInit#gatewayClients:member'
+    package: '@gramstax/worker-thread!'
+    fullName: gatewayClients
+    summary: Map of gateway clients for inter-worker communication.
+    remarks: >-
+      Values are [WorkerThreadGatewayClient](xref:@gramstax/worker-thread!WorkerThreadGatewayClient:class) instances
+      keyed by server path.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'gatewayClients: Map<string, WorkerThreadGatewayClient>;'
+      return:
+        type: Map&lt;string, <xref uid="@gramstax/worker-thread!WorkerThreadGatewayClient:class" />&gt;
+  - name: gatewayServer
+    uid: '@gramstax/worker-thread!WorkerThreadInit#gatewayServer:member'
+    package: '@gramstax/worker-thread!'
+    fullName: gatewayServer
+    summary: Gateway server instance if created.
+    remarks: >-
+      Uses [WorkerThreadGatewayServer](xref:@gramstax/worker-thread!WorkerThreadGatewayServer:class) for IPC server
+      routing.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'gatewayServer?: WorkerThreadGatewayServer;'
+      return:
+        type: <xref uid="@gramstax/worker-thread!WorkerThreadGatewayServer:class" />
+  - name: gatewayServerPath
+    uid: '@gramstax/worker-thread!WorkerThreadInit#gatewayServerPath:member'
+    package: '@gramstax/worker-thread!'
+    fullName: gatewayServerPath
+    summary: Instance accessor for gateway server path from static property.
+    remarks: Reads from `this.constructor.gatewayServerPath`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'gatewayServerPath: any;'
+      return:
+        type: any
+  - name: gatewayServerPath
+    uid: '@gramstax/worker-thread!WorkerThreadInit.gatewayServerPath:member'
+    package: '@gramstax/worker-thread!'
+    fullName: gatewayServerPath
+    summary: Path for gateway server. Override in subclass if needed.
+    remarks: Used by [WorkerThreadGatewayServer](xref:@gramstax/worker-thread!WorkerThreadGatewayServer:class) when binding.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        static gatewayServerPath?: string;
+      return:
+        type: string
+  - name: id
+    uid: '@gramstax/worker-thread!WorkerThreadInit#id:member'
+    package: '@gramstax/worker-thread!'
+    fullName: id
+    summary: The worker thread ID from `node:worker_threads` `threadId`<!-- -->.
+    remarks: Useful for logging or indexing worker state.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'id: number;'
+      return:
+        type: number
+  - name: isMainThread
+    uid: '@gramstax/worker-thread!WorkerThreadInit.isMainThread:member'
+    package: '@gramstax/worker-thread!'
+    fullName: isMainThread
+    summary: Check if currently running in the main thread. Re-exported from `node:worker_threads`<!-- -->.
+    remarks: Use `node:worker_threads:isMainThread` to branch between main and worker logic.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static isMainThread: boolean;'
+      return:
+        type: boolean
+  - name: parentPort
+    uid: '@gramstax/worker-thread!WorkerThreadInit#parentPort:member'
+    package: '@gramstax/worker-thread!'
+    fullName: parentPort
+    summary: Reference to the parent port for messaging from `node:worker_threads`<!-- -->.
+    remarks: Uses `parentPort` to send and receive messages.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'parentPort: node_worker_threads.MessagePort | null;'
+      return:
+        type: node_worker_threads.MessagePort | null
+  - name: pid
+    uid: '@gramstax/worker-thread!WorkerThreadInit#pid:member'
+    package: '@gramstax/worker-thread!'
+    fullName: pid
+    summary: The process ID. Same as `process.pid`<!-- -->.
+    remarks: Shared across worker threads in the same process.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'pid: number;'
+      return:
+        type: number
+  - name: rpc
+    uid: '@gramstax/worker-thread!WorkerThreadInit#rpc:member'
+    package: '@gramstax/worker-thread!'
+    fullName: rpc
+    summary: RPC handler for method invocations.
+    remarks: Uses [WorkerThreadRpc](xref:@gramstax/worker-thread!WorkerThreadRpc:class) for dispatching requests.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'rpc: WorkerThreadRpc;'
+      return:
+        type: <xref uid="@gramstax/worker-thread!WorkerThreadRpc:class" />
+methods:
+  - name: createGatewayClient(serverPath)
+    uid: '@gramstax/worker-thread!WorkerThreadInit#createGatewayClient:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: createGatewayClient(serverPath)
+    summary: \[LOW-LEVEL\] Create a gateway client to connect to another worker.
+    remarks: Low-level API. Use `launchGatewayClient` from `WorkerThreadExport` instead.
+    example:
+      - |-
+        ```typescript
+        const client = await this.createGatewayClient("/tmp/other-worker.sock");
+        const result = await client.request("ping", []);
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'createGatewayClient(serverPath: string): Promise<WorkerThreadGatewayClient>;'
+      parameters:
+        - id: serverPath
+          description: Unix socket path to connect. Matches server gateway.
+          type: string
+      return:
+        type: Promise&lt;<xref uid="@gramstax/worker-thread!WorkerThreadGatewayClient:class" />&gt;
+        description: Promise resolving with connected client.
+  - name: createGatewayServer(register, path)
+    uid: '@gramstax/worker-thread!WorkerThreadInit#createGatewayServer:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: createGatewayServer(register, path)
+    summary: Create a gateway server for inter-worker communication.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        // Recommended - uses default `this` and static gatewayServerPath
+        await this.createGatewayServer();
+
+        // Custom object and path
+        await this.createGatewayServer(
+          { ping: () => "pong" },
+          "/tmp/my-worker.sock"
+        );
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'createGatewayServer(register?: any, path?: string): Promise<boolean>;'
+      parameters:
+        - id: register
+          description: Object with value function to expose. Called by gateway clients. Defaults to `this`<!-- -->.
+          type: any
+        - id: path
+          description: Unix socket path. Gateway identifier. Defaults to `this.constructor.gatewayServerPath`<!-- -->.
+          type: string
+      return:
+        type: Promise&lt;boolean&gt;
+        description: Promise that resolves to `true` when gateway is ready.
+  - name: handleOnMessage(data)
+    uid: '@gramstax/worker-thread!WorkerThreadInit#handleOnMessage:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: handleOnMessage(data)
+    summary: \[LOW-LEVEL\] Handle incoming messages from the main thread.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'handleOnMessage(data: any): void;'
+      parameters:
+        - id: data
+          description: Message data from main thread.
+          type: any
+      return:
+        type: void
+        description: ''
+  - name: init()
+    uid: '@gramstax/worker-thread!WorkerThreadInit#init:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: init()
+    summary: \[LOW-LEVEL\] Initialize message handling from parent port and register event message from parent.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'init(): void;'
+      return:
+        type: void
+        description: ''
+  - name: request(method, params, _wait, _others)
+    uid: '@gramstax/worker-thread!WorkerThreadInit#request:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: request(method, params, _wait, _others)
+    summary: Make an RPC request to the main thread.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const result = await this.request("getConfig", ["key"]);
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'request(method: string, params: any, _wait?: boolean, _others?: any): Promise<any>;'
+      parameters:
+        - id: method
+          description: Method name to call. Targets main-thread RPC method.
+          type: string
+        - id: params
+          description: Method parameters. Sent as positional array.
+          type: any
+        - id: _wait
+          description: Wait for response. If false, fire-and-forget. Defaults to `true`<!-- -->.
+          type: boolean
+        - id: _others
+          description: Additional RPC data. Merged into RPC payload.
+          type: any
+      return:
+        type: Promise&lt;any&gt;
+        description: Promise resolving with main-thread response.
+  - name: send(payload)
+    uid: '@gramstax/worker-thread!WorkerThreadInit#send:member(1)'
+    package: '@gramstax/worker-thread!'
+    fullName: send(payload)
+    summary: Send a message to the main thread.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        this.send({ status: "processing", progress: 50 });
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'send(payload: any): void;'
+      parameters:
+        - id: payload
+          description: Data to send. Payload to main thread.
+          type: any
+      return:
+        type: void
+        description: ''
