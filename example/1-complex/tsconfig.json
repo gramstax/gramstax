@@ -7,6 +7,9 @@
       ],
       "gramstax": [
         "../../packages/gramstax/src/index.ts"
+      ],
+      "@gramstax/worker-thread": [
+        "../../packages/worker-thread/src/index.ts"
       ]
     },
     "composite": true,
