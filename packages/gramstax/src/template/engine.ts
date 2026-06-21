@@ -520,7 +520,7 @@ export class TemplateEngine {
   static _processGBaseBlocks(template: string) {
     const baseRegex = /<g-base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/g-base>/g
     const result: {
-      [baseId: string]: string
+      [AGBaseId: string]: string
     } = {}
 
     for (const match of template.matchAll(baseRegex)) {
@@ -1261,16 +1261,16 @@ export class TemplateEngine {
   static compileBlockGMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
-      [baseId: string]: {
-        [lang: string]: (data?: Record<string, any>) => ITMediaBlock
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: Record<string, any>) => ITMediaBlock
       }
     } = {}
 
-    for (const [baseId, baseContent] of Object.entries(bases)) {
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const mediaBlocks = {...this._processGMediaBlocks(baseContent), ...this._processGMediaGroupBlocks(baseContent)}
-      result[baseId] = {}
+      result[AGBaseId] = {}
 
-      for (const [lang, mediaBlock] of Object.entries(mediaBlocks)) {
+      for (const [ALang, mediaBlock] of Object.entries(mediaBlocks)) {
         const compiledProps: Record<string, (data?: Record<string, any>) => string> = {}
         const compiledMediaGroup = mediaBlock.mediaGroup?.map((item) => ({
           type: item.type,
@@ -1285,7 +1285,7 @@ export class TemplateEngine {
           compiledProps[key] = this._compileToFunction(processed, false)
         }
 
-        result[baseId][lang] = (data?: Record<string, any>) => {
+        result[AGBaseId][ALang] = (data?: Record<string, any>) => {
           const resolvedBlock = {...mediaBlock} as any
           for (const [key, fn] of Object.entries(compiledProps)) {
             resolvedBlock[key] = fn(data)
@@ -1328,8 +1328,8 @@ export class TemplateEngine {
    * 6. `_compileToFunction(processed, false)` - produces the final render function
    *
    * Output shape:
-   * - First level key: `baseId` (from `<g-base id="...">`, or `"default"` if omitted)
-   * - Second level key: `lang` (from `<g-message lang="...">`, or `"default"` if omitted)
+   * - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted)
+   * - Second level key: `ALang` (from `<g-message lang="...">`, or `"default"` if omitted)
    * - Value: `(data?: Record<string, any>) => string`
    *
    * @param template - Raw template string containing `<g-base>` and `<g-message>` blocks
@@ -1354,18 +1354,18 @@ export class TemplateEngine {
   static compileBlockGMessage(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
-      [baseId: string]: {
-        [lang: string]: (data?: Record<string, any>) => string
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: Record<string, any>) => string
       }
     } = {}
 
-    for (const [baseId, baseContent] of Object.entries(bases)) {
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const messages = this._processGMessageBlocks(baseContent)
-      result[baseId] = {}
+      result[AGBaseId] = {}
 
-      for (const [lang, content] of Object.entries(messages)) {
+      for (const [ALang, content] of Object.entries(messages)) {
         const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
-        result[baseId][lang] = this._compileToFunction(processed, false)
+        result[AGBaseId][ALang] = this._compileToFunction(processed, false)
       }
     }
 
@@ -1389,13 +1389,13 @@ export class TemplateEngine {
    * 6. `_compileToFunction(processed, false)` – produces the final render function
    *
    * Output shape:
-   * - First level key: `baseId` (from `<g-base id="...">`, or `"default"` if omitted)
-   * - Second level key: `scope` (from `<g-description scope="...">`, or `"default"` if omitted)
-   * - Third level key: `lang` (from `<g-description lang="...">`, or `"default"` if omitted)
+   * - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted)
+   * - Second level key: `AScope` (from `<g-description scope="...">`, or `"default"` if omitted)
+   * - Third level key: `ALang` (from `<g-description lang="...">`, or `"default"` if omitted)
    * - Value: `(data?: Record<string, any>) => string`
    *
    * @param template - Raw template string containing `<g-base>` and `<g-description>` blocks
-   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @param gBaseBlocks - Optional pre-parsed base blocks for reuse
    * @returns Compiled description functions organized by base ID, scope, and language
    *
    * @example
@@ -1413,27 +1413,27 @@ export class TemplateEngine {
    *
    * @public
    */
-  static compileBlockGDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
-    const bases = baseBlocks || this._processGBaseBlocks(template)
+  static compileBlockGDescription(template: string, gBaseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = gBaseBlocks || this._processGBaseBlocks(template)
     const result: {
-      [baseId: string]: {
-        [scope: string]: {
-          [lang: string]: (data?: Record<string, any>) => string
+      [AGBaseId: string]: {
+        [AScope: string]: {
+          [ALang: string]: (data?: Record<string, any>) => string
         }
       }
     } = {}
 
-    for (const [baseId, baseContent] of Object.entries(bases)) {
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
       const descriptions = this._processGDescriptionBlocks(baseContent)
-      result[baseId] = {}
+      result[AGBaseId] = {}
 
-      for (const [lang, scopes] of Object.entries(descriptions)) {
-        for (const [scope, content] of Object.entries(scopes)) {
-          if (!result[baseId][scope]) {
-            result[baseId][scope] = {}
+      for (const [ALang, scopes] of Object.entries(descriptions)) {
+        for (const [AScope, scopeContent] of Object.entries(scopes)) {
+          if (!result[AGBaseId][AScope]) {
+            result[AGBaseId][AScope] = {}
           }
-          const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(content)))))
-          result[baseId][scope][lang] = this._compileToFunction(processed, false)
+          const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(scopeContent)))))
+          result[AGBaseId][AScope][ALang] = this._compileToFunction(processed, false)
         }
       }
     }
@@ -1464,15 +1464,15 @@ export class TemplateEngine {
    * - Each label is processed independently through the pipeline.
    *
    * Output shape:
-   * - First level key: `baseId` (from `<g-base id="...">`, or `"default"` if omitted)
-   * - Second level key: `lang` (from `<g-keyboard lang="...">`, or `"default"` if omitted)
+   * - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted)
+   * - Second level key: `ALang` (from `<g-keyboard lang="...">`, or `"default"` if omitted)
    * - Third level key: `mode`:
    *   - `inline` (default)
    *   - `bottom`
    * - Value: `(data?: Record<string, any>) => string[]`
    *
    * @param template - Raw template string containing `<g-base>` and `<g-keyboard>` blocks
-   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @param gBaseBlocks - Optional pre-parsed base blocks for reuse
    * @returns Compiled keyboard functions organized by base ID, language, and mode
    *
    * @example
@@ -1490,23 +1490,23 @@ export class TemplateEngine {
    *
    * @public
    */
-  static compileBlockGKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
-    const bases = baseBlocks || this._processGBaseBlocks(template)
+  static compileBlockGKeyboards(template: string, gBaseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = gBaseBlocks || this._processGBaseBlocks(template)
     const result: {
-      [baseId: string]: {
-        [lang: string]: {
+      [AGBaseId: string]: {
+        [ALang: string]: {
           inline?: (data?: Record<string, any>) => string[]
           bottom?: (data?: Record<string, any>) => string[]
         }
       }
     } = {}
 
-    for (const [baseId, baseContent] of Object.entries(bases)) {
-      const keyboards = this._processGKeyboardBlocks(baseContent)
-      result[baseId] = {}
+    for (const [AGBaseId, content] of Object.entries(bases)) {
+      const keyboards = this._processGKeyboardBlocks(content)
+      result[AGBaseId] = {}
 
       for (const [lang, modes] of Object.entries(keyboards)) {
-        result[baseId][lang] = {}
+        result[AGBaseId][lang] = {}
 
         for (const [mode, content] of Object.entries(modes)) {
           // Seperates label, handle escaped comma
@@ -1514,7 +1514,7 @@ export class TemplateEngine {
 
           const processedLabels = labels.map((label) => this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(label))))))
 
-          result[baseId][lang][mode as `inline` | `bottom`] = this._compileToFunction(processedLabels, true)
+          result[AGBaseId][lang][mode as `inline` | `bottom`] = this._compileToFunction(processedLabels, true)
         }
       }
     }
@@ -1532,7 +1532,7 @@ export class TemplateEngine {
    *
    * @param content - The template content to extract from
    * @param blocks - Block type(s) to extract, or `"all"` for all blocks
-   * @param baseId - The base ID to extract from (defaults to `"default"`)
+   * @param AGBaseId - The base ID to extract from (defaults to `"default"`)
    * @param section - Whether to return the full block (`"all"`) or just inner content (`"value"`)
    * @param lang - Optional language filter for blocks
    * @returns The extracted content as a string
@@ -1551,7 +1551,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static _extractBlock(content: string, blocks?: string | string[], baseId: string = `default`, section: `all` | `value` = `all`, lang?: string) {
+  static _extractBlock(content: string, blocks?: string | string[], AGBaseId: string = `default`, section: `all` | `value` = `all`, lang?: string) {
     // 1. Extract Base Block
     const baseRegex = /<g-base\b[^>]*?(?:\sid=(["']?)([^"'\s>]+)\1)?[^>]*?>([\s\S]*?)<\/g-base>/g
     let baseContent = content
@@ -1560,7 +1560,7 @@ export class TemplateEngine {
     // Try to find specific base
     for (const match of content.matchAll(baseRegex)) {
       const id = match[2] ?? `default`
-      if (id === baseId) {
+      if (id === AGBaseId) {
         baseContent = match[3] ?? ``
         foundBase = true
         break
@@ -1570,7 +1570,7 @@ export class TemplateEngine {
     // If base not found
     if (!foundBase) {
       const hasAnyBase = /<g-base\b/.test(content)
-      if (baseId === `default` && !hasAnyBase) {
+      if (AGBaseId === `default` && !hasAnyBase) {
         // use whole content as base
       } else {
         return `` // Specific base not found

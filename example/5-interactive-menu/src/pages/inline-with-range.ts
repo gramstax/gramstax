@@ -35,7 +35,7 @@ class Helper {
         }
         return k.row().text(l[3]!, StartPage.data.callbackData())
       },
-      {baseId: bi}
+      {AGBaseId: bi}
     )
     return kb
   }

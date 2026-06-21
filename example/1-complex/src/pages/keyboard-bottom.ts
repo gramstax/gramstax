@@ -8,7 +8,7 @@ class Base {
 }
 
 class Helper {
-  static async built(ctx: KeyboardBottomPage, count?: number, baseId?: string) {
+  static async built(ctx: KeyboardBottomPage, count?: number, AGBaseId?: string) {
     const da = {}
     const kb = ctx.bottomKeyboard(
       (k, l) => {
@@ -19,13 +19,13 @@ class Helper {
           .oneTime()
       },
       {
-        baseId: Base.step1,
+        AGBaseId: Base.step1,
         data: {
           first: ctx.data.intentText
         }
       }
     )
-    await ctx.reply(kb, da, baseId)
+    await ctx.reply(kb, da, AGBaseId)
   }
 }
 

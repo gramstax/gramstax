@@ -16,7 +16,7 @@ class Helper {
           .row()
           .text(l[2]!, StartPage.data.callbackData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the `handleArgsCallbackData` route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
       },
-      {baseId: bi}
+      {AGBaseId: bi}
     )
     return kb
   }

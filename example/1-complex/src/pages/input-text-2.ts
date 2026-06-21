@@ -7,8 +7,8 @@ class Base {
 }
 
 class Helper {
-  static kb(ctx: InputText2Page, baseId?: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  static kb(ctx: InputText2Page, AGBaseId?: string) {
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
     return kb
   }
 }

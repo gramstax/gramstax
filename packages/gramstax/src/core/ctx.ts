@@ -1008,7 +1008,7 @@ export class Ctx {
    * @param languageCode - Array of language codes corresponding to each user.
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block message.
+   * @param AGBaseId - Optional template g-base ID position for block message.
    * @param options - Optional grammY send options.
    * @param throwError - If true, throws errors instead of swallowing them.
    *
@@ -1023,13 +1023,13 @@ export class Ctx {
    *
    * @public
    */
-  async broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply, throwError = false) {
+  async broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReply, throwError = false) {
     const res = {successCount: 0, failedCount: 0, totalCount: 0}
     res.totalCount = ids.length
     try {
       this.temp.isAnswer = true
       const limitFree = 30
-      const msgs = languageCode.map((it) => this.templateManager.getMessage(this.data.name, baseId, it, data))
+      const msgs = languageCode.map((it) => this.templateManager.getMessage(this.data.name, AGBaseId, it, data))
       for (let index = 0; index < ids.length; index++) {
         const id = ids[index]
         const msg = msgs[index]
@@ -1068,7 +1068,7 @@ export class Ctx {
    * @param languageCode - Array of language codes corresponding to each user.
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media.
+   * @param AGBaseId - Optional template g-base ID position for block media.
    * @param options - Optional grammY send options for the inferred media type.
    * @param throwError - If true, throws errors instead of swallowing them.
    *
@@ -1088,7 +1088,7 @@ export class Ctx {
     languageCode: string[],
     keyboard?: ITInBoKb,
     data?: ITData,
-    baseId?: string,
+    AGBaseId?: string,
     options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact,
     throwError = false
   ) {
@@ -1097,7 +1097,7 @@ export class Ctx {
     try {
       this.temp.isAnswer = true
       const limitFree = 30
-      const medias = languageCode.map((it) => this.templateManager.getMedia(this.data.name, baseId, it, data))
+      const medias = languageCode.map((it) => this.templateManager.getMedia(this.data.name, AGBaseId, it, data))
 
       for (let index = 0; index < ids.length; index++) {
         const id = ids[index]
@@ -1155,7 +1155,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup from {@link Ctx.inlineKeyboard} or {@link Ctx.bottomKeyboard}.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block message.
+   * @param AGBaseId - Optional template base ID position for block message.
    * @param options - Optional grammY reply options.
    * @returns The sent message object.
    *
@@ -1169,7 +1169,7 @@ export class Ctx {
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
    *   await this.reply(kb, {name: "John"})
    *
-   *   // With keyboard short and custom baseId between reply and keyboard
+   *   // With keyboard short and custom AGBaseId between reply and keyboard
    *   const kb = this.inlineKeyboardT([StartPage], `1`, "my-custom-id")
    *   await this.reply(kb, {name: "John"}, "id-hello-world")
    * }
@@ -1177,9 +1177,9 @@ export class Ctx {
    *
    * @public
    */
-  async reply(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply) {
+  async reply(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReply) {
     this.temp.isAnswer = true
-    const msg = this.templateManager.getMessage(this.data.name, baseId, this.userLanguage, data)
+    const msg = this.templateManager.getMessage(this.data.name, AGBaseId, this.userLanguage, data)
     return await this.ct.reply(msg, {
       parse_mode: `HTML`,
       reply_markup: keyboard,
@@ -1190,9 +1190,9 @@ export class Ctx {
   /**
    * still construction!
    */
-  async replyRich(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1]) {
+  async replyRich(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1]) {
     this.temp.isAnswer = true
-    const msg = this.templateManager.getMessage(this.data.name, baseId, this.userLanguage, data)
+    const msg = this.templateManager.getMessage(this.data.name, AGBaseId, this.userLanguage, data)
     return await this.ct.replyWithRichMessage(
       {html: msg, ...options1},
       {
@@ -1213,7 +1213,7 @@ export class Ctx {
    * @param type - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media.
+   * @param AGBaseId - Optional template g-base ID position for block media.
    * @param options - Type-specific options for the media.
    * @returns The sent message object.
    *
@@ -1230,7 +1230,7 @@ export class Ctx {
     type: T,
     keyboard?: ITInBoKb,
     data?: ITData,
-    baseId?: string,
+    AGBaseId?: string,
     options?: T extends `photo`
       ? ITOptReplyPhoto
       : T extends `video`
@@ -1254,7 +1254,7 @@ export class Ctx {
                         : undefined
   ) {
     this.temp.isAnswer = true
-    const med = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
+    const med = this.templateManager.getMedia(this.data.name, AGBaseId, this.userLanguage, data)
     const opt = {parse_mode: `HTML`, reply_markup: keyboard, ...options} as Record<any, any>
 
     if (type == `photo`) return await this.ct.replyWithPhoto(med.src!, {caption: med.caption!, ...opt})
@@ -1281,7 +1281,7 @@ export class Ctx {
    * @param type - Supported media group type. When the template uses `<g-media-group>`,
    *   only items matching this type are included. When omitted, all items are sent.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media.
+   * @param AGBaseId - Optional template g-base ID position for block media.
    * @param options - Optional media-group send options.
    * @returns The sent media group messages.
    *
@@ -1294,9 +1294,9 @@ export class Ctx {
    *
    * @public
    */
-  async replyMediaGroup(type?: ITMediaGroupType, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument) {
+  async replyMediaGroup(type?: ITMediaGroupType, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument) {
     this.temp.isAnswer = true
-    const med = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
+    const med = this.templateManager.getMedia(this.data.name, AGBaseId, this.userLanguage, data)
     const opt = {parse_mode: `HTML`, ...options} as Record<any, any>
     if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
       const items = type ? med.mediaGroup.filter((item) => item.type === type) : med.mediaGroup
@@ -1317,7 +1317,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type photo.
+   * @param AGBaseId - Optional template g-base ID position for block media type photo.
    * @param options - Optional photo-specific options.
    * @returns The sent message object.
    *
@@ -1330,13 +1330,13 @@ export class Ctx {
    *
    * @public
    */
-  async replyPhoto(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto) {
-    return this.replyMedia(`photo`, keyboard, data, baseId, options)
+  async replyPhoto(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto) {
+    return this.replyMedia(`photo`, keyboard, data, AGBaseId, options)
   }
 
   /** Sends a photo media group using pipe-delimited `src` values from the page template. */
-  async replyPhotoGroup(data?: ITData, baseId?: string, options?: ITOptReplyPhoto) {
-    return this.replyMediaGroup(`photo`, data, baseId, options)
+  async replyPhotoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto) {
+    return this.replyMediaGroup(`photo`, data, AGBaseId, options)
   }
 
   /**
@@ -1344,7 +1344,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type video.
+   * @param AGBaseId - Optional template g-base ID position for block media type video.
    * @param options - Optional video-specific options.
    * @returns The sent message object.
    *
@@ -1357,13 +1357,13 @@ export class Ctx {
    *
    * @public
    */
-  async replyVideo(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVideo) {
-    return this.replyMedia(`video`, keyboard, data, baseId, options)
+  async replyVideo(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyVideo) {
+    return this.replyMedia(`video`, keyboard, data, AGBaseId, options)
   }
 
   /** Sends a video media group using pipe-delimited `src` values from the page template. */
-  async replyVideoGroup(data?: ITData, baseId?: string, options?: ITOptReplyVideo) {
-    return this.replyMediaGroup(`video`, data, baseId, options)
+  async replyVideoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyVideo) {
+    return this.replyMediaGroup(`video`, data, AGBaseId, options)
   }
 
   /**
@@ -1371,7 +1371,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type audio.
+   * @param AGBaseId - Optional template g-base ID position for block media type audio.
    * @param options - Optional audio-specific options.
    * @returns The sent message object.
    *
@@ -1384,13 +1384,13 @@ export class Ctx {
    *
    * @public
    */
-  async replyAudio(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyAudio) {
-    return this.replyMedia(`audio`, keyboard, data, baseId, options)
+  async replyAudio(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyAudio) {
+    return this.replyMedia(`audio`, keyboard, data, AGBaseId, options)
   }
 
   /** Sends an audio media group using pipe-delimited `src` values from the page template. */
-  async replyAudioGroup(data?: ITData, baseId?: string, options?: ITOptReplyAudio) {
-    return this.replyMediaGroup(`audio`, data, baseId, options)
+  async replyAudioGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyAudio) {
+    return this.replyMediaGroup(`audio`, data, AGBaseId, options)
   }
 
   /**
@@ -1398,7 +1398,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type document.
+   * @param AGBaseId - Optional template g-base ID position for block media type document.
    * @param options - Optional document-specific options.
    * @returns The sent message object.
    *
@@ -1411,13 +1411,13 @@ export class Ctx {
    *
    * @public
    */
-  async replyDocument(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyDocument) {
-    return this.replyMedia(`document`, keyboard, data, baseId, options)
+  async replyDocument(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyDocument) {
+    return this.replyMedia(`document`, keyboard, data, AGBaseId, options)
   }
 
   /** Sends a document media group using pipe-delimited `src` values from the page template. */
-  async replyDocumentGroup(data?: ITData, baseId?: string, options?: ITOptReplyDocument) {
-    return this.replyMediaGroup(`document`, data, baseId, options)
+  async replyDocumentGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyDocument) {
+    return this.replyMediaGroup(`document`, data, AGBaseId, options)
   }
 
   /**
@@ -1425,7 +1425,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type animation.
+   * @param AGBaseId - Optional template g-base ID position for block media type animation.
    * @param options - Optional animation-specific options.
    * @returns The sent message object.
    *
@@ -1438,8 +1438,8 @@ export class Ctx {
    *
    * @public
    */
-  async replyAnimation(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyAnimation) {
-    return this.replyMedia(`animation`, keyboard, data, baseId, options)
+  async replyAnimation(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyAnimation) {
+    return this.replyMedia(`animation`, keyboard, data, AGBaseId, options)
   }
 
   /**
@@ -1447,7 +1447,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type voice.
+   * @param AGBaseId - Optional template g-base ID position for block media type voice.
    * @param options - Optional voice-specific options.
    * @returns The sent message object.
    *
@@ -1460,8 +1460,8 @@ export class Ctx {
    *
    * @public
    */
-  async replyVoice(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVoice) {
-    return this.replyMedia(`voice`, keyboard, data, baseId, options)
+  async replyVoice(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyVoice) {
+    return this.replyMedia(`voice`, keyboard, data, AGBaseId, options)
   }
 
   /**
@@ -1469,7 +1469,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type video_note.
+   * @param AGBaseId - Optional template g-base ID position for block media type video_note.
    * @param options - Optional video note-specific options.
    * @returns The sent message object.
    *
@@ -1482,8 +1482,8 @@ export class Ctx {
    *
    * @public
    */
-  async replyVideoNote(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyVideoNote) {
-    return this.replyMedia(`video_note`, keyboard, data, baseId, options)
+  async replyVideoNote(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyVideoNote) {
+    return this.replyMedia(`video_note`, keyboard, data, AGBaseId, options)
   }
 
   /**
@@ -1491,7 +1491,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type sticker.
+   * @param AGBaseId - Optional template g-base ID position for block media type sticker.
    * @param options - Optional sticker-specific options.
    * @returns The sent message object.
    *
@@ -1504,8 +1504,8 @@ export class Ctx {
    *
    * @public
    */
-  async replySticker(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplySticker) {
-    return this.replyMedia(`sticker`, keyboard, data, baseId, options)
+  async replySticker(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplySticker) {
+    return this.replyMedia(`sticker`, keyboard, data, AGBaseId, options)
   }
 
   /**
@@ -1513,7 +1513,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type location.
+   * @param AGBaseId - Optional template g-base ID position for block media type location.
    * @param options - Optional location-specific options.
    * @returns The sent message object.
    *
@@ -1526,8 +1526,8 @@ export class Ctx {
    *
    * @public
    */
-  async replyLocation(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyLocation) {
-    return this.replyMedia(`location`, keyboard, data, baseId, options)
+  async replyLocation(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyLocation) {
+    return this.replyMedia(`location`, keyboard, data, AGBaseId, options)
   }
 
   /**
@@ -1535,7 +1535,7 @@ export class Ctx {
    *
    * @param keyboard - Optional keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type contact.
+   * @param AGBaseId - Optional template g-base ID position for block media type contact.
    * @param options - Optional contact-specific options.
    * @returns The sent message object.
    *
@@ -1548,8 +1548,8 @@ export class Ctx {
    *
    * @public
    */
-  async replyContact(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyContact) {
-    return this.replyMedia(`contact`, keyboard, data, baseId, options)
+  async replyContact(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyContact) {
+    return this.replyMedia(`contact`, keyboard, data, AGBaseId, options)
   }
 
   /**
@@ -1582,7 +1582,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block message.
+   * @param AGBaseId - Optional template g-base ID position for block message.
    * @param options - Optional grammY edit options.
    * @param fallbackReply - If true, sends a reply if edit fails. Default: true.
    * @returns The edited message object.
@@ -1597,10 +1597,10 @@ export class Ctx {
    *
    * @public
    */
-  async edit(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEdit, fallbackReply = true) {
+  async edit(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEdit, fallbackReply = true) {
     try {
       this.temp.isAnswer = true
-      const msg = this.templateManager.getMessage(this.data.name, baseId, this.userLanguage, data)
+      const msg = this.templateManager.getMessage(this.data.name, AGBaseId, this.userLanguage, data)
       return await this.ct.editMessageText(msg, {
         parse_mode: `HTML`,
         reply_markup: keyboardInline,
@@ -1608,7 +1608,7 @@ export class Ctx {
       })
     } catch (error) {
       if (fallbackReply) {
-        await this.reply(keyboardInline, data, baseId, options)
+        await this.reply(keyboardInline, data, AGBaseId, options)
       } else {
         throw error
       }
@@ -1628,7 +1628,7 @@ export class Ctx {
    * @param type - The media type.
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media.
+   * @param AGBaseId - Optional template g-base ID position for block media.
    * @param options1 - Type-specific media options.
    * @param options2 - Additional edit options.
    * @param fallbackReply - If true, sends a reply if edit fails. Default: true.
@@ -1647,7 +1647,7 @@ export class Ctx {
     type: T,
     keyboardInline?: ITInlineKb,
     data?: ITData,
-    baseId?: string,
+    AGBaseId?: string,
     options1?: T extends `voice`
       ? ITOptReplyVoice
       : T extends `video_note`
@@ -1665,31 +1665,31 @@ export class Ctx {
   ) {
     try {
       this.temp.isAnswer = true
-      const med = this.templateManager.getMedia(this.data.name, baseId, this.userLanguage, data)
+      const med = this.templateManager.getMedia(this.data.name, AGBaseId, this.userLanguage, data)
       const {src, caption} = med
       if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
         await this.delete()
-        return await this.replyMediaGroup(type, data, baseId)
+        return await this.replyMediaGroup(type, data, AGBaseId)
       }
       if (type == `voice`) {
         await this.delete()
-        return await this.replyVoice(keyboardInline, data, baseId, options1)
+        return await this.replyVoice(keyboardInline, data, AGBaseId, options1)
       }
       if (type == `video_note`) {
         await this.delete()
-        return await this.replyVoice(keyboardInline, data, baseId, options1)
+        return await this.replyVoice(keyboardInline, data, AGBaseId, options1)
       }
       if (type == `sticker`) {
         await this.delete()
-        return await this.replySticker(keyboardInline, data, baseId, options1 as Record<any, any>)
+        return await this.replySticker(keyboardInline, data, AGBaseId, options1 as Record<any, any>)
       }
       if (type == `location`) {
         await this.delete()
-        return await this.replyLocation(keyboardInline, data, baseId, options1 as Record<any, any>)
+        return await this.replyLocation(keyboardInline, data, AGBaseId, options1 as Record<any, any>)
       }
       if (type == `contact`) {
         await this.delete()
-        return await this.replyContact(keyboardInline, data, baseId, options1 as Record<any, any>)
+        return await this.replyContact(keyboardInline, data, AGBaseId, options1 as Record<any, any>)
       }
 
       return await this.ct.editMessageMedia(
@@ -1704,7 +1704,7 @@ export class Ctx {
       )
     } catch (error) {
       if (fallbackReply === true) {
-        await this.reply(keyboardInline, data, baseId, options2)
+        await this.reply(keyboardInline, data, AGBaseId, options2)
       } else {
         throw error
       }
@@ -1716,7 +1716,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type photo.
+   * @param AGBaseId - Optional template g-base ID position for block media type photo.
    * @param options1 - Optional media options.
    * @param options2 - Optional edit options.
    * @returns The edited message object.
@@ -1730,8 +1730,8 @@ export class Ctx {
    *
    * @public
    */
-  async editPhoto(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
-    return await this.editMedia(`photo`, keyboardInline, data, baseId, options1, options2)
+  async editPhoto(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
+    return await this.editMedia(`photo`, keyboardInline, data, AGBaseId, options1, options2)
   }
 
   /**
@@ -1739,7 +1739,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type video.
+   * @param AGBaseId - Optional template g-base ID position for block media type video.
    * @param options1 - Optional media options.
    * @param options2 - Optional edit options.
    * @returns The edited message object.
@@ -1753,8 +1753,8 @@ export class Ctx {
    *
    * @public
    */
-  async editVideo(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
-    return await this.editMedia(`video`, keyboardInline, data, baseId, options1, options2)
+  async editVideo(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
+    return await this.editMedia(`video`, keyboardInline, data, AGBaseId, options1, options2)
   }
 
   /**
@@ -1762,7 +1762,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type audio.
+   * @param AGBaseId - Optional template g-base ID position for block media type audio.
    * @param options1 - Optional media options.
    * @param options2 - Optional edit options.
    * @returns The edited message object.
@@ -1776,8 +1776,8 @@ export class Ctx {
    *
    * @public
    */
-  async editAudio(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
-    return await this.editMedia(`audio`, keyboardInline, data, baseId, options1, options2)
+  async editAudio(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
+    return await this.editMedia(`audio`, keyboardInline, data, AGBaseId, options1, options2)
   }
 
   /**
@@ -1785,7 +1785,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type document.
+   * @param AGBaseId - Optional template g-base ID position for block media type document.
    * @param options1 - Optional media options.
    * @param options2 - Optional edit options.
    * @returns The edited message object.
@@ -1799,8 +1799,8 @@ export class Ctx {
    *
    * @public
    */
-  async editDocument(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
-    return await this.editMedia(`document`, keyboardInline, data, baseId, options1, options2)
+  async editDocument(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
+    return await this.editMedia(`document`, keyboardInline, data, AGBaseId, options1, options2)
   }
 
   /**
@@ -1813,7 +1813,7 @@ export class Ctx {
    *
    * @param type - Optional media type filter. All items sent when omitted.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media.
+   * @param AGBaseId - Optional template g-base ID position for block media.
    * @param options - Optional media-agnostic options.
    * @returns The sent media group messages.
    *
@@ -1832,9 +1832,9 @@ export class Ctx {
    *
    * @public
    */
-  async editMediaGroup(type?: ITMediaGroupType, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument) {
+  async editMediaGroup(type?: ITMediaGroupType, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument) {
     await this.delete()
-    return await this.replyMediaGroup(type, data, baseId, options)
+    return await this.replyMediaGroup(type, data, AGBaseId, options)
   }
 
   /**
@@ -1845,7 +1845,7 @@ export class Ctx {
    * Useful when the template uses pipe-delimited `src` values.
    *
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type photo.
+   * @param AGBaseId - Optional template g-base ID position for block media type photo.
    * @param options - Optional photo-specific options.
    * @returns The sent media group message object.
    *
@@ -1858,8 +1858,8 @@ export class Ctx {
    *
    * @public
    */
-  async editPhotoGroup(data?: ITData, baseId?: string, options?: ITOptReplyPhoto) {
-    return this.editMediaGroup(`photo`, data, baseId, options)
+  async editPhotoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto) {
+    return this.editMediaGroup(`photo`, data, AGBaseId, options)
   }
 
   /**
@@ -1870,7 +1870,7 @@ export class Ctx {
    * Useful when the template uses pipe-delimited `src` values.
    *
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type video.
+   * @param AGBaseId - Optional template g-base ID position for block media type video.
    * @param options - Optional video-specific options.
    * @returns The sent media group message object.
    *
@@ -1883,8 +1883,8 @@ export class Ctx {
    *
    * @public
    */
-  async editVideoGroup(data?: ITData, baseId?: string, options?: ITOptReplyVideo) {
-    return this.editMediaGroup(`video`, data, baseId, options)
+  async editVideoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyVideo) {
+    return this.editMediaGroup(`video`, data, AGBaseId, options)
   }
 
   /**
@@ -1895,7 +1895,7 @@ export class Ctx {
    * Useful when the template uses pipe-delimited `src` values.
    *
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type audio.
+   * @param AGBaseId - Optional template g-base ID position for block media type audio.
    * @param options - Optional audio-specific options.
    * @returns The sent media group message object.
    *
@@ -1908,8 +1908,8 @@ export class Ctx {
    *
    * @public
    */
-  async editAudioGroup(data?: ITData, baseId?: string, options?: ITOptReplyAudio) {
-    return this.editMediaGroup(`audio`, data, baseId, options)
+  async editAudioGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyAudio) {
+    return this.editMediaGroup(`audio`, data, AGBaseId, options)
   }
 
   /**
@@ -1920,7 +1920,7 @@ export class Ctx {
    * Useful when the template uses pipe-delimited `src` values.
    *
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type document.
+   * @param AGBaseId - Optional template g-base ID position for block media type document.
    * @param options - Optional document-specific options.
    * @returns The sent media group message object.
    *
@@ -1933,8 +1933,8 @@ export class Ctx {
    *
    * @public
    */
-  async editDocumentGroup(data?: ITData, baseId?: string, options?: ITOptReplyDocument) {
-    return this.editMediaGroup(`document`, data, baseId, options)
+  async editDocumentGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyDocument) {
+    return this.editMediaGroup(`document`, data, AGBaseId, options)
   }
 
   /**
@@ -1942,7 +1942,7 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type animation.
+   * @param AGBaseId - Optional template g-base ID position for block media type animation.
    * @param options1 - Optional media options.
    * @param options2 - Optional edit options.
    * @returns The edited message object.
@@ -1956,8 +1956,8 @@ export class Ctx {
    *
    * @public
    */
-  async editAnimation(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
-    return await this.editMedia(`animation`, keyboardInline, data, baseId, options1, options2)
+  async editAnimation(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
+    return await this.editMedia(`animation`, keyboardInline, data, AGBaseId, options1, options2)
   }
 
   /**
@@ -1968,14 +1968,14 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type voice.
+   * @param AGBaseId - Optional template g-base ID position for block media type voice.
    * @param options - Optional edit options.
    * @returns The sent message object.
    *
    * @public
    */
-  async editVoice(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2) {
-    return await this.editMedia(`voice`, keyboardInline, data, baseId, options)
+  async editVoice(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2) {
+    return await this.editMedia(`voice`, keyboardInline, data, AGBaseId, options)
   }
 
   /**
@@ -1986,14 +1986,14 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type video_note.
+   * @param AGBaseId - Optional template g-base ID position for block media type video_note.
    * @param options - Optional edit options.
    * @returns The sent message object.
    *
    * @public
    */
-  async editVideoNote(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2) {
-    return await this.editMedia(`video_note`, keyboardInline, data, baseId, options)
+  async editVideoNote(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2) {
+    return await this.editMedia(`video_note`, keyboardInline, data, AGBaseId, options)
   }
 
   /**
@@ -2004,14 +2004,14 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type sticker.
+   * @param AGBaseId - Optional template g-base ID position for block media type sticker.
    * @param options - Optional edit options.
    * @returns The sent message object.
    *
    * @public
    */
-  async editSticker(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2) {
-    return await this.editMedia(`sticker`, keyboardInline, data, baseId, options)
+  async editSticker(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2) {
+    return await this.editMedia(`sticker`, keyboardInline, data, AGBaseId, options)
   }
 
   /**
@@ -2022,14 +2022,14 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type location.
+   * @param AGBaseId - Optional template g-base ID position for block media type location.
    * @param options - Optional edit options.
    * @returns The sent message object.
    *
    * @public
    */
-  async editLocation(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2) {
-    return await this.editMedia(`location`, keyboardInline, data, baseId, options)
+  async editLocation(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2) {
+    return await this.editMedia(`location`, keyboardInline, data, AGBaseId, options)
   }
 
   /**
@@ -2040,14 +2040,14 @@ export class Ctx {
    *
    * @param keyboardInline - Optional inline keyboard markup.
    * @param data - Optional template interpolation data.
-   * @param baseId - Optional template base ID position for block media type contact.
+   * @param AGBaseId - Optional template g-base ID position for block media type contact.
    * @param options - Optional edit options.
    * @returns The sent message object.
    *
    * @public
    */
-  async editContact(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEditMedia2) {
-    return await this.editMedia(`contact`, keyboardInline, data, baseId, options)
+  async editContact(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2) {
+    return await this.editMedia(`contact`, keyboardInline, data, AGBaseId, options)
   }
 
   /**
@@ -2346,7 +2346,7 @@ export class Ctx {
    * Shorthand for {@link Ctx.bottomKeyboard} with automatic text button creation.
    *
    * @param layout - Layout format: "cols" or "cols-lastRow". Default: "1".
-   * @param baseId - Optional template base ID position for block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
+   * @param AGBaseId - Optional template base ID position for block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId to the same value. Leaving AGBaseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a g-base ID in the template but not reusing it in the keyboard configuration.
    * @param data - Optional template interpolation data.
    * @returns The bottom keyboard instance.
    *
@@ -2360,12 +2360,12 @@ export class Ctx {
    *
    * @public
    */
-  bottomKeyboardT(layout: ITKbCols = `1`, baseId?: string | null, data?: Record<any, any>) {
+  bottomKeyboardT(layout: ITKbCols = `1`, AGBaseId?: string | null, data?: Record<any, any>) {
     return this.bottomKeyboard(
       (k, a) => {
         return this.keyboardCols(k, a, layout, (e) => k.text(e))
       },
-      {baseId: baseId ?? undefined, data}
+      {AGBaseId: AGBaseId ?? undefined, data}
     )
   }
 
@@ -2377,7 +2377,7 @@ export class Ctx {
    *
    * @param PageDest - Array of page classes or callback data strings.
    * @param layout - Layout format: "cols" or "cols-lastRow". Default: "1".
-   * @param baseId - Optional template base ID position block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
+   * @param AGBaseId - Optional template g-base ID position block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId to the same value. Leaving AGBaseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
    * @param data - Optional template interpolation data.
    * @returns The inline keyboard instance.
    *
@@ -2398,7 +2398,7 @@ export class Ctx {
    *
    * @public
    */
-  inlineKeyboardT(PageDest: ITKbDest[], layout: ITKbCols = `1`, baseId?: string | null, data?: ITData) {
+  inlineKeyboardT(PageDest: ITKbDest[], layout: ITKbCols = `1`, AGBaseId?: string | null, data?: ITData) {
     return this.inlineKeyboard(
       (k, a) => {
         return this.keyboardCols(k, a, layout, (e, i) => {
@@ -2407,7 +2407,7 @@ export class Ctx {
           k.text(e, data)
         })
       },
-      {baseId: baseId ?? undefined, data}
+      {AGBaseId: AGBaseId ?? undefined, data}
     )
   }
 
@@ -2442,7 +2442,7 @@ export class Ctx {
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const ikb = new InlineKeyboard()
-        const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.userLanguage, `inline`, params?.data)
+        const arr = this.templateManager.getKeyboard(tkey, params?.AGBaseId, this.userLanguage, `inline`, params?.data)
         const rkb = callback(ikb, arr)
         this.cacheKeyboard.set(key, rkb)
         return rkb
@@ -2450,7 +2450,7 @@ export class Ctx {
       return ckb
     }
     const ikb = new InlineKeyboard()
-    const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.userLanguage, `inline`, params?.data)
+    const arr = this.templateManager.getKeyboard(tkey, params?.AGBaseId, this.userLanguage, `inline`, params?.data)
     const rkb = callback(ikb, arr)
     return rkb
   }
@@ -2486,7 +2486,7 @@ export class Ctx {
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const kb = new Keyboard()
-        const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.userLanguage, `bottom`, params?.data)
+        const arr = this.templateManager.getKeyboard(tkey, params?.AGBaseId, this.userLanguage, `bottom`, params?.data)
         const rkb = callback(kb, arr)
         rkb.resized(true)
         this.cacheKeyboard.set(key, rkb)
@@ -2495,7 +2495,7 @@ export class Ctx {
       return ckb
     }
     const kb = new Keyboard()
-    const arr = this.templateManager.getKeyboard(tkey, params?.baseId, this.userLanguage, `bottom`, params?.data)
+    const arr = this.templateManager.getKeyboard(tkey, params?.AGBaseId, this.userLanguage, `bottom`, params?.data)
     const rkb = callback(kb, arr)
     rkb.resized()
     return rkb

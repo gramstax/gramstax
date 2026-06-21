@@ -25,13 +25,13 @@ class Helper {
         })
         return k.row().text(l[0]!, StartPage.data.callbackData())
       },
-      {baseId: bi}
+      {AGBaseId: bi}
     )
     return kb
   }
 
-  static buildHomeKeyboard(ctx: DeletePage, baseId: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  static buildHomeKeyboard(ctx: DeletePage, AGBaseId: string) {
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
     return kb
   }
 }

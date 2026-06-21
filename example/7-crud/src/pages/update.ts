@@ -13,8 +13,8 @@ class Base {
 class Helper {
   static PAGE_SIZE = 5
 
-  static buildHomeKeyboard(ctx: UpdatePage, baseId: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  static buildHomeKeyboard(ctx: UpdatePage, AGBaseId: string) {
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
     return kb
   }
 
@@ -41,7 +41,7 @@ class Helper {
         }
         return k.row().text(l[2]!, StartPage.data.callbackData())
       },
-      {baseId: bi}
+      {AGBaseId: bi}
     )
     return kb
   }

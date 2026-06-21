@@ -8,8 +8,8 @@ class Base {
 }
 
 class Helper {
-  static buildHomeKeyboard(ctx: CreatePage, baseId?: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  static buildHomeKeyboard(ctx: CreatePage, AGBaseId?: string) {
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
     return kb
   }
 

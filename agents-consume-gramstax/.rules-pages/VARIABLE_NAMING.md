@@ -20,5 +20,5 @@ To maintain a high level of code consistency and readability across the Gramstax
   await ctx.edit(kb, da, bi);
   ```
 - **INCORRECT**:
-  Do not use expanded names like baseId, keyboardMarkup, or templateData.
+  Do not use expanded names like AGBaseId, keyboardMarkup, or templateData.
 - **CONSISTENCY**: These shorthands MUST be used consistently in every page handler.

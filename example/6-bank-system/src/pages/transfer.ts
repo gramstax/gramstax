@@ -11,8 +11,8 @@ class Base {
 }
 
 class Helper {
-  static kb(ctx: TransferPage, baseId?: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  static kb(ctx: TransferPage, AGBaseId?: string) {
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
     return kb
   }
 

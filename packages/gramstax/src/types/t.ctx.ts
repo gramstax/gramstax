@@ -1,4 +1,4 @@
-import type {Keyboard, Context, InlineKeyboard} from "grammy"
+import type {Keyboard, Context, InlineKeyboard, Middleware} from "grammy"
 import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {Ctx} from "~/core/ctx"
 import type {TemplateManager} from "~/template/manager"
@@ -42,6 +42,17 @@ export type ITInBoKb = ITBottomKb | ITInlineKb
  * @public
  */
 export type ITCt = Context
+
+/**
+ * Type alias for grammY Middleware.
+ *
+ * @remarks
+ * Middleware from grammy.
+ *
+ * @public
+ */
+// export type ITCtMiddleware = Middleware<ITCt>
+export type ITCtMiddleware<C extends ITCt = ITCt> = Middleware<C>
 
 /**
  * Options for sending text rich messages.
@@ -225,12 +236,12 @@ export type ITBottomKbParams = {
    * Template base ID.
    *
    * @remarks
-   * IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set baseId
-   * to the same value. Leaving baseId as undefined in this case will cause errors
+   * IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId
+   * to the same value. Leaving AGBaseId as undefined in this case will cause errors
    * (for example, keyboard bindings will not work). A common mistake is defining
    * a base ID in the template but not reusing it in the keyboard configuration.
    */
-  baseId?: string
+  AGBaseId?: string
 
   /** Template interpolation data. */
   data?: ITData
@@ -249,12 +260,12 @@ export type ITInlineKbParams = {
    * Template base ID.
    *
    * @remarks
-   * IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set baseId
-   * to the same value. Leaving baseId as undefined in this case will cause errors
+   * IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId
+   * to the same value. Leaving AGBaseId as undefined in this case will cause errors
    * (for example, keyboard bindings will not work). A common mistake is defining
    * a base ID in the template but not reusing it in the keyboard configuration.
    */
-  baseId?: string
+  AGBaseId?: string
 
   /** Template interpolation data. */
   data?: ITData

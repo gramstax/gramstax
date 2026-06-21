@@ -69,7 +69,7 @@ class Helper {
           .row()
           .text(l[22]!, ctx.data.callbackData())
       },
-      {cache: true, baseId: bi}
+      {cache: true, AGBaseId: bi}
     )
     return kb
   }

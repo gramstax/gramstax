@@ -151,7 +151,7 @@ Use the Gramstax shorthand variables consistently in page handlers:
 - `kb` for keyboard markup.
 - `da` for template data.
 
-Do not replace these with expanded names such as `baseId`, `keyboardMarkup`, or `templateData` inside page methods.
+Do not replace these with expanded names such as `AGBaseId`, `keyboardMarkup`, or `templateData` inside page methods.
 
 Code style MUST follow:
 

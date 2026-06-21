@@ -119,12 +119,12 @@ Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up t
 
 ### Class Overview
 
-| Class        | Purpose                                                             | Required                                            |
-| ------------ | ------------------------------------------------------------------- | --------------------------------------------------- |
+| Class        | Purpose                                                             | Required                                              |
+| ------------ | ------------------------------------------------------------------- | ----------------------------------------------------- |
 | **Base**     | Base ID strings for template states                                 | When template has multiple `<g-base id="...">` states |
-| **Helper**   | Reusable utility functions (keyboard builders, formatters)          | When reusable logic appears 2+ times                |
-| **Constant** | Reusable common constant string/number                              | When reusable constants used 2+ times               |
-| **Main**     | Primary business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)    |
+| **Helper**   | Reusable utility functions (keyboard builders, formatters)          | When reusable logic appears 2+ times                  |
+| **Constant** | Reusable common constant string/number                              | When reusable constants used 2+ times                 |
+| **Main**     | Primary business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)      |
 
 ---
 
@@ -162,8 +162,8 @@ Contains reusable utility functions. No constructor — all members are static.
 
 ```typescript
 class Helper {
-  static kb(ctx: DepositPage, baseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, baseId);
+  static kb(ctx: DepositPage, AGBaseId?: string) {
+    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId);
   }
 
   static getSessionParams(ctx: CreatePage) {
@@ -297,8 +297,8 @@ class Base {
 }
 
 class Helper {
-  static kb(ctx: DepositPage, baseId?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, baseId);
+  static kb(ctx: DepositPage, AGBaseId?: string) {
+    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId);
   }
 }
 
@@ -408,7 +408,7 @@ await ctx.edit(kb, da);
 
 ### Base ID Naming for Steps
 
-When using `showStep{N}Form`, baseId follows this pattern:
+When using `showStep{N}Form`, AGBaseId follows this pattern:
 
 | Step Method     | Base ID Examples                       | Description                  |
 | --------------- | -------------------------------------- | ---------------------------- |

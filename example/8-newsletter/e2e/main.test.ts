@@ -166,12 +166,15 @@ describe(`E2E: Newsletter bot via MockTelegramServer (webhook)`, () => {
       await mockServer.sendText(`/start`, {user: REGULAR_USER, chat: REGULAR_CHAT})
       mockServer.clearRequests()
 
+      console.log(11111, mockServer.lastRequest())
+
       const responses = await mockServer.sendCallbackQuery(`broadcast`, {
         responseTimeoutMs: 3000,
         user: REGULAR_USER,
         chat: REGULAR_CHAT
       })
 
+      console.log(22222, {responses, len: responses.length})
       expect(responses.length).toBe(0)
     })
 

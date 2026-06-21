@@ -523,15 +523,15 @@ export class TemplateManager {
    *
    * @param template - Processed template string
    * @param line - 1-based line number to check
-   * @returns Object with `baseId` and `hasId`, or `null` if not inside any `<g-base>` block
+   * @returns Object with `AGBaseId` and `hasId`, or `null` if not inside any `<g-base>` block
    *
    * @example
    * ```typescript
    * const tpl = '<g-base id="kb">\n<kop/></g-base>';
-   * this._getBaseAtLine(tpl, 2) // => { baseId: "kb", hasId: true }
+   * this._getBaseAtLine(tpl, 2) // => { AGBaseId: "kb", hasId: true }
    *
    * const tpl2 = '<g-base>\n<kop/></g-base>';
-   * this._getBaseAtLine(tpl2, 2) // => { baseId: null, hasId: false }
+   * this._getBaseAtLine(tpl2, 2) // => { AGBaseId: null, hasId: false }
    *
    * const tpl3 = '</g-base>\n{-lah-}\n<g-base>';
    * this._getBaseAtLine(tpl3, 2) // => null
@@ -539,7 +539,7 @@ export class TemplateManager {
    *
    * @public
    */
-  _getBaseAtLine(template: string, line: number): {baseId: string | null; hasId: boolean} | null {
+  _getGBaseAtLine(template: string, line: number): {AGBaseId: string | null; hasId: boolean} | null {
     const openRegex = /<base\b([^>]*?)>/gi
     const closeRegex = /<\/g-base>/gi
     const lines = line
@@ -552,7 +552,7 @@ export class TemplateManager {
 
       const attrs = openMatch[1]!
       const idMatch = attrs.match(/\sid\s*=\s*(["']?)([^"'\s>]+)\1/i)
-      const baseId = idMatch?.[2] ?? null
+      const AGBaseId = idMatch?.[2] ?? null
       const hasId = !!idMatch
 
       // Find the matching </g-base> after this <g-base>
@@ -561,7 +561,7 @@ export class TemplateManager {
         const closeLine = (template.slice(0, closeMatch.index).match(/\n/g) || []).length + 1
         if (closeLine > lines) {
           // Error line is inside this base block (openLine <= lines <= closeLine)
-          return {baseId, hasId}
+          return {AGBaseId, hasId}
         }
         // Move past this </g-base>, find the next <g-base>
         openRegex.lastIndex = closeRegex.lastIndex
@@ -577,7 +577,7 @@ export class TemplateManager {
    * The error message includes the enclosing `<g-base id="...">` based on the error line.
    * If the `<g-base>` has no `id` or no `<g-base>` tag is found, the `on base` prefix is omitted.
    *
-   * @param baseId - Cache key (filename without extension), used as default filename
+   * @param AGBaseId - Cache key (filename without extension), used as default filename
    * @param template - Template content to validate
    * @param filename - Source filename with extension, shown in error location
    *
@@ -596,12 +596,12 @@ export class TemplateManager {
    *
    * @public
    */
-  _validateTemplate(baseId: string, template: string, filename: string = baseId): void {
+  _validateTemplate(AGBaseId: string, template: string, filename: string = AGBaseId): void {
     const result = TemplateEngine.validateTemplate(template)
     if (!result.valid && result.errors.length > 0) {
       const err = result.errors[0]!
-      const baseInfo = this._getBaseAtLine(template, err.line)
-      const basePrefix = baseInfo?.hasId ? ` on base "${baseInfo.baseId}"` : ``
+      const baseInfo = this._getGBaseAtLine(template, err.line)
+      const basePrefix = baseInfo?.hasId ? ` on base "${baseInfo.AGBaseId}"` : ``
       const fileRef = `${filename}, line ${err.line}`
       throw new Error(`Template${basePrefix} (${fileRef}): ${err.message}`)
     }
@@ -704,8 +704,8 @@ export class TemplateManager {
    * Gets compiled media template data.
    *
    * @param key - Template identifier (filename without extension)
-   * @param baseId - Base block ID matching `<g-base id="...">`
-   * @param language - Target language code (falls back to `default`)
+   * @param AGBaseId - Base block ID matching `<g-base id="...">`
+   * @param ALang - Target language code (falls back to `default`)
    * @param data - Template variables for interpolation
    * @returns Media object containing type, src, and caption
    *
@@ -721,10 +721,10 @@ export class TemplateManager {
    *
    * @public
    */
-  getMedia(key: string, baseId = `default`, language = `default`, data?: Record<string, any>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]> {
+  getMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, any>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]> {
     const map = this._map.get(key)
-    const one = map?.media?.[baseId]
-    const func = one?.[language] || one?.[`default`]
+    const one = map?.media?.[AGBaseId]
+    const func = one?.[ALang] || one?.[`default`]
 
     try {
       if (!func) {
@@ -741,8 +741,8 @@ export class TemplateManager {
    * Gets a compiled message template string.
    *
    * @param key - Template identifier (filename without extension)
-   * @param baseId - Base block ID matching `<g-base id="...">`
-   * @param language - Target language code (falls back to `default`)
+   * @param AGBaseId - Base block ID matching `<g-base id="...">`
+   * @param ALang - Target language code (falls back to `default`)
    * @param data - Template variables for interpolation
    * @returns Rendered message string, or empty string if not found
    *
@@ -758,11 +758,11 @@ export class TemplateManager {
    *
    * @public
    */
-  getMessage(key: string, baseId = `default`, language = `default`, data?: Record<string, any>): string {
+  getMessage(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, any>): string {
     try {
       const map = this._map.get(key)
-      const one = map?.message?.[baseId]
-      const func = one?.[language] || one?.[`default`]
+      const one = map?.message?.[AGBaseId]
+      const func = one?.[ALang] || one?.[`default`]
       if (!func) {
         throw ``
       }
@@ -777,9 +777,9 @@ export class TemplateManager {
    * Gets a command description for Telegram menu.
    *
    * @param key - Template identifier (filename without extension)
-   * @param baseId - Base block ID matching `<g-base id="...">`
-   * @param language - Target language code (falls back to `default`)
-   * @param scope - Telegram bot command scope (e.g., `default`, `admin`)
+   * @param AGBaseId - Base block ID matching `<g-base id="...">`
+   * @param ALang - Target language code (falls back to `default`)
+   * @param AScope - Telegram bot command scope (e.g., `default`, `admin`)
    * @param data - Template variables for interpolation
    * @returns Rendered description string, or empty string if not found
    *
@@ -795,11 +795,11 @@ export class TemplateManager {
    *
    * @public
    */
-  getDescription(key: string, baseId = `default`, language = `default`, scope = `default`, data?: Record<string, any>): string {
+  getDescription(key: string, AGBaseId = `default`, ALang = `default`, AScope = `default`, data?: Record<string, any>): string {
     try {
       const map = this._map.get(key)
-      const one = map?.description?.[baseId]?.[scope]
-      const func = one?.[language] || one?.[`default`]
+      const one = map?.description?.[AGBaseId]?.[AScope]
+      const func = one?.[ALang] || one?.[`default`]
       if (!func) {
         throw ``
       }
@@ -814,8 +814,8 @@ export class TemplateManager {
    * Gets available languages for a description.
    *
    * @param key - Template identifier (filename without extension)
-   * @param baseId - Base block ID matching `<g-base id="...">`
-   * @param scope - Telegram bot command scope
+   * @param AGBaseId - Base block ID matching `<g-base id="...">`
+   * @param AScope - Telegram bot command scope
    * @returns Array of language codes present for the scope
    *
    * @remarks
@@ -829,10 +829,10 @@ export class TemplateManager {
    *
    * @public
    */
-  getDescriptionLanguage(key: string, baseId = `default`, scope = `default`): string[] {
+  getDescriptionLanguage(key: string, AGBaseId = `default`, AScope = `default`): string[] {
     try {
       const map = this._map.get(key)
-      const obj = map?.description?.[baseId]?.[scope]
+      const obj = map?.description?.[AGBaseId]?.[AScope]
       if (obj) {
         return Object.keys(obj)
       }
@@ -847,7 +847,7 @@ export class TemplateManager {
    * Gets available scopes for a description.
    *
    * @param key - Template identifier (filename without extension)
-   * @param baseId - Base block ID matching `<g-base id="...">`
+   * @param AGBaseId - Base block ID matching `<g-base id="...">`
    * @returns Array of scope keys for the description
    *
    * @remarks
@@ -861,10 +861,10 @@ export class TemplateManager {
    *
    * @public
    */
-  getDescriptionScopes(key: string, baseId = `default`): string[] {
+  getDescriptionScopes(key: string, AGBaseId = `default`): string[] {
     try {
       const map = this._map.get(key)
-      const obj = map?.description?.[baseId]
+      const obj = map?.description?.[AGBaseId]
       if (obj) {
         return Object.keys(obj)
       }
@@ -879,9 +879,9 @@ export class TemplateManager {
    * Gets compiled keyboard template labels.
    *
    * @param key - Template identifier (filename without extension)
-   * @param baseId - Base block ID matching `<g-base id="...">`
-   * @param language - Target language code (falls back to `default`)
-   * @param type - Keyboard type: `inline` or `bottom`
+   * @param AGBaseId - Base block ID matching `<g-base id="...">`
+   * @param ALang - Target language code (falls back to `default`)
+   * @param AType - Keyboard type: `inline` or `bottom`
    * @param data - Template variables for interpolation
    * @returns Array of rendered button labels, or empty array if not found
    *
@@ -897,11 +897,11 @@ export class TemplateManager {
    *
    * @public
    */
-  getKeyboard(key: string, baseId = `default`, language = `default`, type: `inline` | `bottom` = `inline`, data?: Record<string, any>): string[] {
+  getKeyboard(key: string, AGBaseId = `default`, ALang = `default`, AType: `inline` | `bottom` = `inline`, data?: Record<string, any>): string[] {
     try {
       const map = this._map.get(key)
-      const one = map?.keyboard?.[baseId]
-      const func = one?.[language]?.[type] || one?.[`default`]?.[type]
+      const one = map?.keyboard?.[AGBaseId]
+      const func = one?.[ALang]?.[AType] || one?.[`default`]?.[AType]
       if (!func) {
         throw []
       }

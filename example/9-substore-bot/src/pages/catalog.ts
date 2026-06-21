@@ -29,7 +29,7 @@ class Helper {
 
         return k.row().text(l[2]!, CartPage.data.callbackData()).text(l[3]!, HelpPage.data.callbackData()).row().text(l[4]!, StartPage.data.callbackData())
       },
-      {baseId: bi}
+      {AGBaseId: bi}
     )
   }
 }

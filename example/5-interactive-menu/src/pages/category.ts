@@ -21,7 +21,7 @@ class Main {
         })
         return k.row().text(l[0]!, StartPage.data.callbackData())
       },
-      {baseId: bi}
+      {AGBaseId: bi}
     )
     if (edit) {
       await ctx.edit(kb, da, bi)

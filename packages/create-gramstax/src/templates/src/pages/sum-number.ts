@@ -12,8 +12,8 @@ class Helper {
     return (ctx.temp.session?.params as {step?: (typeof Base)[keyof typeof Base]; left?: number} | undefined) ?? {}
   }
 
-  static kb(ctx: SumNumberPage, baseId: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  static kb(ctx: SumNumberPage, AGBaseId: string) {
+    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
   }
 }
 

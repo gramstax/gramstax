@@ -39,7 +39,7 @@ class Helper {
         }
         return k.row().text(l[2]!, CategoryPage.data.callbackData())
       },
-      {baseId: bi}
+      {AGBaseId: bi}
     )
     return kb
   }

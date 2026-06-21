@@ -8,8 +8,8 @@ class Base {
 }
 
 class Helper {
-  static kb(ctx: DepositPage, baseId?: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, baseId)
+  static kb(ctx: DepositPage, AGBaseId?: string) {
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
     return kb
   }
 }
