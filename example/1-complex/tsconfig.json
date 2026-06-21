@@ -20,6 +20,7 @@
     "src",
     "./test",
     "./e2e",
-    "../../packages/gramstax/src/index.ts"
+    "../../packages/gramstax/src/index.ts",
+    "../../packages/worker-thread/src/index.ts",
   ]
 }
