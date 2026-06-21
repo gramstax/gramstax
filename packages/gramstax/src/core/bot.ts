@@ -6,10 +6,11 @@ import {fileURLToPath} from "node:url"
 import {dirname, join, parse} from "node:path"
 import {TemplateManager} from "~/template/manager"
 import {CacheExternal, ITCacheRpc} from "~/cache/external"
-import {Bot, webhookCallback, type BotConfig, type BotError, type Context, type Middleware} from "grammy"
+import {Bot, webhookCallback, type BotConfig, type BotError} from "grammy"
 import type {UserFromGetMe} from "grammy/types"
 import type {ITGramstaxParams, ITWebhookQueueConfig} from "~/types/t.bot"
 import {WebhookQueue} from "~/webhook/queue"
+import {ITCt, ITCtMiddleware} from "~/types/t.ctx"
 
 const __dirname = dirname(
   (() => {
@@ -21,6 +22,21 @@ const __dirname = dirname(
   })()
 )
 const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.json`), `utf-8`)).version as string
+
+/**
+ * Outcome of `_pageRoutes`.
+ *
+ * `state` is an explicit enum string; `result` is always an array of
+ * handler return values collected across id=2 (static), id=4 (free), and
+ * id=5 (dynamic) — empty `[]` when no handler ran or when the matched
+ * handler didn't actually send a response.
+ *
+ * @public
+ */
+type PageRouteResult = {
+  state: `matched` | `no-match` | `no-handler` | `blocked`
+  result: any[]
+}
 
 /**
  * Main bot framework class for building Telegram bots.
@@ -115,7 +131,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Configuration object for grammY `BotConfig` and `Context`.
    */
-  botConfig?: BotConfig<Context>
+  botConfig?: BotConfig<ITCt>
 
   /**
    * Webhook queue configuration.
@@ -264,6 +280,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     this.bot = this.createBot(params.token)
     this.bot.catch(this._onCatch)
+    this.registerLowPlugin?.()?.forEach((func) => this.bot.use(func)) // Handle middleware ct
     this.registerLowOnCallbackData() // Handle callback queries from inline keyboards
     this.registerLowOnMessageText() // Handle global text messages
     this.registerLowOnMessagePhoto() // Handle global photo messages
@@ -328,7 +345,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  _onCatch(error: BotError<Context>) {
+  _onCatch(error: BotError<ITCt>) {
     if ((this.log as any)?.errorMake) {
       ;(this.log as any)?.errorMake(error, `Bot`, `catch`)
     } else {
@@ -433,10 +450,17 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param listenerName - The name of the listener handling this update.
    * @returns True to continue routing, false to abort.
    *
-   * @example
+   * @example Simple
    * ```typescript
-   * async hookBeforeRoute(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookBeforeRoute`]>>[1]) {
-   *   console.log(`[${data.listenerName}] handled by page: ${ctx.data.name} execute: `)
+   * async hookBeforeRoute(ctx: Ctx) {
+   *   ...
+   * }
+   * ```
+   *
+   * @example Advanced
+   * ```typescript
+   * async hookBeforeRoute(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookBeforeRoute`]>>[1]>) {
+   *   console.log(`from listener ${data.listenerName}`)
    *   if (ctx.userId === blockedUserId) {
    *     return false // Will not response
    *   }
@@ -447,7 +471,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  async hookBeforeRoute?(ctx: ICtx, data: {listenerName: string}): Promise<boolean>
+  async hookBeforeRoute?(ctx: ICtx, data?: {listenerName: string; isEdit: boolean}): Promise<boolean>
 
   /**
    * Hook called after routing an update.
@@ -458,19 +482,29 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @param ctx - The context instance.
    * @param listenerName - The name of the listener that handled this update.
-   * @param status - Status this update
+   * @param state - Outcome of the routing: `matched` (handler ran successfully),
+   * `no-match` (nothing handled the input — triggers `hookErrorInputNotFoundPage`),
+   * `no-handler` (page matched but has no handler for the route),
+   * `blocked` (route matched but `hookBeforeRoute` returned false), or `error`.
    *
-   * @example
+   * @example Simple
    * ```typescript
-   * async hookAfterRoute(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookAfterRoute`]>>[1]) {
-   *   console.log(`[${data.listenerName}] handled by page: ${ctx.data.name} execute: status: ${data.status}`)
+   * async hookAfterRoute(ctx: Ctx) {
+   *   ...
+   * }
+   * ```
+   *
+   * @example Advanced
+   * ```typescript
+   * async hookAfterRoute(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookAfterRoute`]>>[1]>) {
+   *   console.log(`[${data.listenerName}] state: ${data.state}`)
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async hookAfterRoute?(ctx: ICtx, data: {listenerName: string; status: `success` | `error` | `notfound`}): Promise<void>
+  async hookAfterRoute?(ctx: ICtx, data?: {listenerName: string; state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `notfound`; isEdit: boolean}): Promise<void>
 
   /**
    * Hook called when a page handler throws an error.
@@ -484,9 +518,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param error - The caught error.
    * @param isEdit - Whether the handler was editing a message.
    *
-   * @example
+   * @example Simple
    * ```typescript
-   * async hookErrorPage(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]) {
+   * async hookErrorPage(ctx: Ctx) {
+   *   ...
+   * }
+   * ```
+   *
+   * @example Advanced
+   * ```typescript
+   * async hookErrorPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {
    *   await new GeneralStatusPage(ctx).showError(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
    * }
    * ```
@@ -494,7 +535,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  async hookErrorPage?(ctx: ICtx, data: {listenerName: string; error: any; isEdit: boolean}): Promise<void>
+  async hookErrorPage?(ctx: ICtx, data?: {listenerName: string; error: any; isEdit: boolean}): Promise<void>
 
   /**
    * Hook called when no page handler matches the input.
@@ -505,9 +546,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @param ctx - The context instance.
    *
-   * @example
+   * @example Simple
    * ```typescript
    * async hookErrorInputNotFoundPage(ctx: Ctx) {
+   *   await new GeneralStatusPage(ctx).showErrorInputNotFound()
+   * }
+   * ```
+   *
+   * @example Advanced
+   * ```typescript
+   * async hookErrorInputNotFoundPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorInputNotFoundPage`]>>[1]>) {
    *   await new GeneralStatusPage(ctx).showErrorInputNotFound()
    * }
    * ```
@@ -515,7 +563,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  async hookErrorInputNotFoundPage?(ctx: ICtx): Promise<void>
+  async hookErrorInputNotFoundPage?(ctx: ICtx, data?: {listenerName: string; isEdit: boolean}): Promise<void>
 
   /**
    * Creates the grammY Bot instance.
@@ -537,7 +585,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  createCtx(ct: Context): ICtx {
+  createCtx(ct: ITCt): ICtx {
     return new Ctx({
       ct,
       cacheSession: this.cacheSession,
@@ -1200,11 +1248,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @param ctx - The context instance.
    * @param fromListener - The listener type that triggered the route.
-   * @returns `result`: The route handler result, or null if no handler answered.
+   * @returns A `PageRouteResult` with `state` indicating what happened and
+   * `result` carrying the handler's return value (only meaningful for
+   * `state: "matched"`; `null` for all other states).
    *
    * @public
    */
-  async _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{result: any}> {
+  async _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<PageRouteResult> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: {name: string; routeName: string} | undefined
@@ -1310,23 +1360,28 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
     }
 
+    const handlerResults: any[] = []
+
     // run
     if (Page !== undefined && res !== undefined) {
-      // check first is have route function or not for best performance. if not have return undefined
       if (!Page.prototype[res.routeName as keyof typeof Page.prototype]) {
-        return {
-          result: undefined
-        }
+        return {state: `no-handler`, result: []}
       }
 
       const initPage = new Page(ctx) as any
       if ((await initPage.hookBeforeRoute?.()) !== false) {
         const initRoute = await initPage[res.routeName]?.()
         await initPage.hookAfterRoute?.()
-        return {
-          result: ctx.temp.isAnswer === true ? initRoute : null
+        if (ctx.temp.isAnswer === true) {
+          if (initRoute !== undefined) {
+            handlerResults.push(initRoute)
+          }
+          return {state: `matched`, result: handlerResults}
         }
+        return {state: `no-match`, result: []}
       }
+
+      return {state: `blocked`, result: []}
     }
 
     /**
@@ -1351,12 +1406,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         continue
       }
 
-      // check first is have route function or not for best performance. if not continue
       if (typeof Page.prototype[value.routeName as keyof typeof Page.prototype] == `function`) {
         const initPage = new Page(ctx) as any
         if ((await initPage.hookBeforeRoute?.()) !== false) {
-          await initPage[value.routeName]()
+          const initRoute = await initPage[value.routeName]()
           await initPage.hookAfterRoute?.()
+          if (initRoute !== undefined) {
+            handlerResults.push(initRoute)
+          }
         }
       }
     }
@@ -1379,44 +1436,45 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         continue
       }
 
-      // check first is have route function or not for best performance. if not continue
       if (typeof Page.prototype.handleFree == `function`) {
         const initPage = new Page(ctx)
         if ((await initPage.hookBeforeRoute?.()) !== false) {
-          await initPage.handleFree!()
+          const initRoute = await initPage.handleFree!()
           await initPage.hookAfterRoute?.()
+          if (initRoute !== undefined) {
+            handlerResults.push(initRoute)
+          }
         }
       }
     }
 
-    // returning result null if "isAnswer" false. will trigger hookErrorInputNotFoundPage
-    return {
-      result: ctx.temp.isAnswer === false ? null : undefined
-    }
+    return {state: handlerResults.length > 0 ? `matched` : `no-match`, result: handlerResults}
   }
 
-  async _onHandle(ct: Context, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
-    let status: any
+  async _onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
+    let state: any
     const ctx = this.createCtx(ct)
-    const before = await this.hookBeforeRoute?.(ctx, {listenerName})
+    const isEdit = listenerName === `callbackdata`
+    const before = await this.hookBeforeRoute?.(ctx, {listenerName, isEdit})
     if (before === false) {
       return
     }
+
     try {
-      const {result} = await this._pageRoutes(ctx, listenerName)
-      if (result === null) {
-        status = `notfound`
+      const routeResult = await this._pageRoutes(ctx, listenerName)
+      if (routeResult.state === `no-match`) {
+        state = `notfound`
         if (shouldCheckNotFound) {
-          await this.hookErrorInputNotFoundPage?.(ctx)
+          await this.hookErrorInputNotFoundPage?.(ctx, {listenerName, isEdit})
         }
       } else {
-        status = `success`
+        state = routeResult.state
       }
     } catch (error) {
-      status = `error`
-      await this.hookErrorPage?.(ctx, {listenerName, error, isEdit: false})
+      state = `error`
+      await this.hookErrorPage?.(ctx, {listenerName, error, isEdit})
     }
-    await this.hookAfterRoute?.(ctx, {listenerName, status})
+    await this.hookAfterRoute?.(ctx, {listenerName, state, isEdit})
   }
 
   /**
@@ -1427,7 +1485,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * (sessions, i18n, rate limiting, logging, authentication, etc.) into the
    * underlying grammY bot instance.
    *
-   * Each element of the returned array is a {@link Middleware} value (either a
+   * Each element of the returned array is a {@link ITCtMiddleware} value (either a
    * `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that
    * grammY will install via `this.bot.use(...)`. The array is meant to be
    * spread into `bot.use`, so the order of elements determines the order in
@@ -1447,13 +1505,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * contribute their own plugins. Returning an empty array (or not
    * overriding) installs no plugins, which is the default behavior.
    *
-   * @returns A promise resolving to an array of grammY {@link Middleware}
+   * @returns Array of grammY {@link ITCtMiddleware}
    * values, ready to be spread into `this.bot.use(...result)`.
    *
    * @example
    * ```typescript
    * class MyBot extends Gramstax {
-   *   async registerLowPlugin() {
+   *   registerLowPlugin() {
    *     return [
    *       // 1. Logging middleware (outermost — runs first, exits last)
    *       async (ctx, next) => {
@@ -1473,7 +1531,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  async registerLowPlugin?(): Promise<Array<Middleware<Context>>>
+  registerLowPlugin?(): Array<ITCtMiddleware<ITCt>>
 
   /**
    * Registers an event handler for a bot event.

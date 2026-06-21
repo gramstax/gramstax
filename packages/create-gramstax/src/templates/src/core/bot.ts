@@ -4,10 +4,6 @@ import {GeneralStatusPage} from "~/pages/general-status"
 import type {CtxCore} from "./ctx"
 
 export class BotCore extends Gramstax {
-  async hookBeforeStart() {
-    this.bot.use(() => {})
-  }
-
   async hookBeforeRoute(ctx: CtxCore) {
     const result = await new UserGuard(ctx).ensureUsername(false)
     if (result === null) {
@@ -16,7 +12,7 @@ export class BotCore extends Gramstax {
     return true
   }
 
-  async hookErrorPage(ctx: CtxCore, data: Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]) {
+  async hookErrorPage(ctx: CtxCore, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {
     await new GeneralStatusPage(ctx).showError(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
   }
 
