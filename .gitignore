@@ -46,3 +46,8 @@ PUBLISHING.md
 .nx/workspace-data
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
+
+# opencode session metadata + scratch files
+.omo/
+z.ts
+z-data/

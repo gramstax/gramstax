@@ -10,6 +10,9 @@
       ],
       "@gramstax/worker-thread": [
         "./packages/worker-thread/src/index.ts"
+      ],
+      "@gramstax/lmdb": [
+        "./packages/lmdb/src/index.ts"
       ]
     },
     "composite": true, // Must be enable when use "references"
@@ -51,6 +54,9 @@
     },
     {
       "path": "./packages/worker-thread"
+    },
+    {
+      "path": "./packages/lmdb"
     },
     {
       "path": "./example/1-complex"

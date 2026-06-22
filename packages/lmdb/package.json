@@ -1,0 +1,65 @@
+{
+  "name": "@gramstax/lmdb",
+  "version": "0.9.0",
+  "private": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": false
+  },
+  "description": "LMDB-backed key-value database with OOP Repository pattern per sub-database. Multi-runtime (Bun, Node.js).",
+  "keywords": [
+    "lmdb",
+    "key-value",
+    "kv",
+    "database",
+    "repository",
+    "sub-database",
+    "transaction",
+    "bun",
+    "nodejs",
+    "gramstax"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "nx-release-publish": "npm publish --access public"
+  },
+  "engines": {
+    "node": ">=18",
+    "bun": ">=1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gramstax/gramstax.git",
+    "directory": "packages/lmdb"
+  },
+  "bugs": {
+    "url": "https://github.com/gramstax/gramstax/issues"
+  },
+  "homepage": "https://github.com/gramstax/gramstax",
+  "author": "gramstax",
+  "license": "PROPRIETARY",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.mjs",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/bun": "latest",
+    "tsup": "^8.5.1"
+  },
+  "peerDependencies": {
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "lmdb": "^3.5.6"
+  }
+}
