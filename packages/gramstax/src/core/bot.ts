@@ -1358,7 +1358,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       return {state: `blocked`}
     }
 
-    let isMatched45 = false
     /**
      * id = 4
      * type = dynamicSpesific (non-session only)
@@ -1386,7 +1385,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         if ((await initPage.hookBeforeRoute?.()) !== false) {
           await initPage[value.routeName]()
           await initPage.hookAfterRoute?.()
-          isMatched45 = true
         }
       }
     }
@@ -1414,12 +1412,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         if ((await initPage.hookBeforeRoute?.()) !== false) {
           await initPage.handleFree!()
           await initPage.hookAfterRoute?.()
-          isMatched45 = true
         }
       }
     }
 
-    return {state: isMatched45 ? `matched` : `no-match`}
+    return {state: ctx.temp.isAnswer ? `matched` : `no-match`}
   }
 
   async _onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
@@ -1433,13 +1430,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     try {
       const routeResult = await this._pageRoutes(ctx, listenerName)
+      state = routeResult.state
       if (routeResult.state === `no-match`) {
-        state = `notfound`
         if (shouldCheckNotFound) {
           await this.hookErrorInputNotFoundPage?.(ctx, {listenerName, isEdit})
         }
-      } else {
-        state = routeResult.state
       }
     } catch (error) {
       state = `error`
