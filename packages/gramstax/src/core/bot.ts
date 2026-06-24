@@ -24,21 +24,6 @@ const __dirname = dirname(
 const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.json`), `utf-8`)).version as string
 
 /**
- * Outcome of `_pageRoutes`.
- *
- * `state` is an explicit enum string; `result` is always an array of
- * handler return values collected across id=2 (static), id=4 (free), and
- * id=5 (dynamic) — empty `[]` when no handler ran or when the matched
- * handler didn't actually send a response.
- *
- * @public
- */
-type PageRouteResult = {
-  state: `matched` | `no-match` | `no-handler` | `blocked`
-  result: any[]
-}
-
-/**
  * Main bot framework class for building Telegram bots.
  *
  * @remarks
@@ -1248,13 +1233,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @param ctx - The context instance.
    * @param fromListener - The listener type that triggered the route.
-   * @returns A `PageRouteResult` with `state` indicating what happened and
-   * `result` carrying the handler's return value (only meaningful for
-   * `state: "matched"`; `null` for all other states).
+   * @returns A `PageRouteResult` with `state` indicating what happened
    *
    * @public
    */
-  async _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<PageRouteResult> {
+  async _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{state: `matched` | `no-match` | `no-handler` | `blocked`}> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: {name: string; routeName: string} | undefined
@@ -1360,30 +1343,22 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
     }
 
-    const handlerResults: any[] = []
-
     // run
     if (Page !== undefined && res !== undefined) {
       if (!Page.prototype[res.routeName as keyof typeof Page.prototype]) {
-        return {state: `no-handler`, result: []}
+        return {state: `no-handler`}
       }
 
       const initPage = new Page(ctx) as any
       if ((await initPage.hookBeforeRoute?.()) !== false) {
-        const initRoute = await initPage[res.routeName]?.()
+        await initPage[res.routeName]?.()
         await initPage.hookAfterRoute?.()
-        if (ctx.temp.isAnswer === true) {
-          if (initRoute !== undefined) {
-            handlerResults.push(initRoute)
-          }
-          return {state: `matched`, result: handlerResults}
-        }
-        return {state: `no-match`, result: []}
+        return {state: ctx.temp.isAnswer ? `matched` : `no-match`}
       }
-
-      return {state: `blocked`, result: []}
+      return {state: `blocked`}
     }
 
+    let isMatched45 = false
     /**
      * id = 4
      * type = dynamicSpesific (non-session only)
@@ -1409,11 +1384,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       if (typeof Page.prototype[value.routeName as keyof typeof Page.prototype] == `function`) {
         const initPage = new Page(ctx) as any
         if ((await initPage.hookBeforeRoute?.()) !== false) {
-          const initRoute = await initPage[value.routeName]()
+          await initPage[value.routeName]()
           await initPage.hookAfterRoute?.()
-          if (initRoute !== undefined) {
-            handlerResults.push(initRoute)
-          }
+          isMatched45 = true
         }
       }
     }
@@ -1439,16 +1412,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       if (typeof Page.prototype.handleFree == `function`) {
         const initPage = new Page(ctx)
         if ((await initPage.hookBeforeRoute?.()) !== false) {
-          const initRoute = await initPage.handleFree!()
+          await initPage.handleFree!()
           await initPage.hookAfterRoute?.()
-          if (initRoute !== undefined) {
-            handlerResults.push(initRoute)
-          }
+          isMatched45 = true
         }
       }
     }
 
-    return {state: handlerResults.length > 0 ? `matched` : `no-match`, result: handlerResults}
+    return {state: isMatched45 ? `matched` : `no-match`}
   }
 
   async _onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
