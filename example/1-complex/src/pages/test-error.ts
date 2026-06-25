@@ -13,6 +13,11 @@ export class TestErrorPage extends PageBase {
 
         This page intentionally throws an error to demonstrate global error handling.
       </g-message>
+      <g-message lang="id">
+        🧪 Coba kesalahan 
+
+        Halaman ini akan melempar kesalahan untuk demo global kesalahan penanganan.
+      </g-message>
     </g-base>
   `
 }

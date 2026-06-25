@@ -173,7 +173,8 @@ export class StartPage extends PageBase {
         <tg-spoiler>🎁 Try <code>/start</code> multiple times to see different behaviors</tg-spoiler>
 
         <b>📋 All Commands:</b>
-        <details><summary>Click to expand</summary>
+        <details>
+          <summary>Click to expand</summary>
           <code>/start</code> — Show welcome message<br/>
           <code>/help</code> — View help and commands<br/>
           <code>/counter</code> — Test counter feature<br/>
@@ -197,7 +198,8 @@ export class StartPage extends PageBase {
         <tg-spoiler>🎁 Coba <code>/start</code> beberapa kali untuk perilaku berbeda</tg-spoiler>
 
         <b>📋 Semua Perintah:</b>
-        <details><summary>Klik untuk memperluas</summary>
+        <details>
+          <summary>Klik untuk memperluas</summary>
           <code>/start</code> — Tampilkan pesan sambutan<br/>
           <code>/help</code> — Lihat bantuan dan perintah<br/>
           <code>/counter</code> — Test fitur counter<br/>
