@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "~/*": [
+        "./src/*"
+      ],
+      "gramstax": [
+        "../../packages/gramstax/src/index.ts"
+      ]
+    },
+    "composite": true,
+    "noEmit": false,
+    "allowImportingTsExtensions": false
+  },
+  "include": [
+    "./src",
+    "./test",
+    "./e2e",
+    "../../packages/gramstax/src/index.ts"
+  ]
+}
