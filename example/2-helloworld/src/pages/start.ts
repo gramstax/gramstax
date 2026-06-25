@@ -33,9 +33,14 @@ export class StartPage extends PageBase {
   static template = `
     <g-base id="${Base.step1}">
       <g-keyboard>Refresh</g-keyboard>
+      <g-keyboard lang="id">Segarkan</g-keyboard>
       <g-message>
         Hello World! 
         Time now: {{time}}
+      </g-message>
+      <g-message lang="id">
+        Halo Dunia! 
+        Waktu: {{time}}
       </g-message>
     </g-base>
   `
