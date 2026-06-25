@@ -28,5 +28,5 @@ A Gramstax project follows a strict directory structure to ensure modularity and
 For more complex applications, follow these patterns:
 
 - **src/db**: Centralized database connection and configuration.
-- **src/repositories**: Data access logic (CRUD operations).
+- **src/db/repositories**: Data access logic (CRUD operations).
 - **src/services**: Orchestration of external APIs or complex business workflows.
