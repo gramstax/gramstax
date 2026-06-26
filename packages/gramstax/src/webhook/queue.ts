@@ -1,4 +1,16 @@
 /**
+ * Webhook update queue — in-memory bounded FIFO for sequential processing.
+ *
+ * @remarks
+ * Provides a bounded FIFO queue for Telegram webhook updates, ensuring
+ * they are processed sequentially. Useful for long-polling fallback or
+ * rate-limited webhook processing.
+ *
+ * @packageDocumentation
+ * @public
+ */
+
+/**
  * In-memory bounded queue for webhook updates.
  *
  * @typeParam T - Queue item type.

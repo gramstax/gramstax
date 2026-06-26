@@ -1,3 +1,15 @@
+/**
+ * Page manager — discovers and loads template pages from the filesystem.
+ *
+ * @remarks
+ * Scans the `pages/` directory for `.gts`, `.grm`, `.html` and other
+ * template files, parses them into AST, and registers route handlers
+ * for each page discovered.
+ *
+ * @packageDocumentation
+ * @public
+ */
+
 import {join} from "node:path"
 import {existsSync, readdirSync} from "node:fs"
 import type {Ctx} from "~/core/ctx"

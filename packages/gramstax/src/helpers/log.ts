@@ -1,3 +1,15 @@
+/**
+ * Logging helper — wrapped `LoggingPretty` for the Gramstax bot.
+ *
+ * @remarks
+ * Provides structured logging with prefix support (R/W/E for Read/Write/Error)
+ * and automatic caller detection. Used throughout the framework for
+ * consistent log output.
+ *
+ * @packageDocumentation
+ * @public
+ */
+
 import {LoggingPretty} from "logging-pretty"
 
 /**

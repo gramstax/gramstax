@@ -1,3 +1,15 @@
+/**
+ * External cache adapter — wraps `keyv` for Redis/Keyv-backed caching.
+ *
+ * @remarks
+ * Provides a unified cache interface using the `keyv` library with optional
+ * Redis backend via `@keyv/redis`. Used internally by the bot for session
+ * and state storage.
+ *
+ * @packageDocumentation
+ * @public
+ */
+
 import {Keyv} from "keyv"
 import KeyvRedis from "@keyv/redis"
 

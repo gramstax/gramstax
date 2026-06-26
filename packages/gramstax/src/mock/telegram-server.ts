@@ -1,3 +1,15 @@
+/**
+ * Mock Telegram server — simulates the Telegram Bot API for testing.
+ *
+ * @remarks
+ * Provides a lightweight HTTP server that mimics Telegram's Bot API
+ * endpoints, enabling offline integration testing without a real
+ * Telegram connection.
+ *
+ * @packageDocumentation
+ * @public
+ */
+
 import {log, type LoggingHelper} from "~/helpers/log"
 
 /**

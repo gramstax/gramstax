@@ -1,3 +1,15 @@
+/**
+ * Template manager — load, cache, and watch template files.
+ *
+ * @remarks
+ * Manages template loading from the filesystem, including caching,
+ * file watching via `chokidar`, and hot-reload of modified templates.
+ * Delegates parsing and rendering to {@link TemplateEngine}.
+ *
+ * @packageDocumentation
+ * @public
+ */
+
 import {basename, join, extname} from "node:path"
 import {readdirSync, readFileSync, existsSync, statSync, writeFileSync} from "node:fs"
 import {watch, FSWatcher} from "chokidar"

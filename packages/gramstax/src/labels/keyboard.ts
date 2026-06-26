@@ -1,4 +1,16 @@
 /**
+ * Keyboard label definitions — base classes for keyboard data.
+ *
+ * @remarks
+ * Provides {@link LabelKeyboard} which serves as the base class for
+ * user-defined keyboard data. The `label()` static method extracts
+ * button labels for use by the block keyboard builder.
+ *
+ * @packageDocumentation
+ * @public
+ */
+
+/**
  * Provides static utilities for keyboard data manipulation, specifically for reversing keyboard button order.
  *
  * @remarks

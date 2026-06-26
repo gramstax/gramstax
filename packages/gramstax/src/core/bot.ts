@@ -1,3 +1,15 @@
+/**
+ * Core Telegram bot — main application class.
+ *
+ * @remarks
+ * Extends `Bot` from the Telegram Bot API framework with automatic template
+ * page discovery, session management, webhook support, and the Gramstax
+ * plugin system. This is the primary entry point for building a Gramstax bot.
+ *
+ * @packageDocumentation
+ * @public
+ */
+
 import {Ctx} from "./ctx"
 import {log, type LoggingHelper} from "~/helpers/log"
 import {PageManager} from "~/page/manager"

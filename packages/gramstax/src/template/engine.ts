@@ -1,4 +1,16 @@
 /**
+ * Template engine — parse and render Gramstax template files.
+ *
+ * @remarks
+ * The core template parsing and rendering engine. Converts `.gts`/`.grm`
+ * template files into an AST, validates structure, and renders Telegram
+ * message objects (text, keyboard, media, etc.) with dynamic data binding.
+ *
+ * @packageDocumentation
+ * @public
+ */
+
+/**
  * Represents a media block configuration for Telegram messages.
  *
  * @remarks

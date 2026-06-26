@@ -1,3 +1,15 @@
+/**
+ * @gramstax/gramstax — declarative Telegram bot framework.
+ *
+ * @remarks
+ * Provides template-driven page routing, session management, inline
+ * keyboard helpers, caching, and mock Telegram server for testing.
+ * Built on top of the Telegram Bot API framework with page-based routing.
+ *
+ * @packageDocumentation
+ * @public
+ */
+
 export * from "./helpers/log"
 export * from "./cache/external"
 export * from "./core/bot"

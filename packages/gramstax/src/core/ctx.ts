@@ -1,3 +1,15 @@
+/**
+ * Extended context — adds Gramstax features to the base bot context.
+ *
+ * @remarks
+ * Wraps the framework's context with template rendering, page navigation,
+ * media group editing, and CLI input support. Each incoming update is
+ * routed through this context before reaching handler pages.
+ *
+ * @packageDocumentation
+ * @public
+ */
+
 import {setTimeout} from "node:timers/promises"
 import {TemplateManager} from "~/template/manager"
 import {InlineKeyboard, InputMediaBuilder, Keyboard} from "grammy"
