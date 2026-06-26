@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `random-number`
@@ -27,7 +27,7 @@ describe(`E2E: RandomNumberPage`, () => {
     const editId = responsesId[0]!
     expect(edit.body?.text).toContain(`Random Number`)
     expect(editId.body?.text).toContain(`Angka Acak`)
-    expect(buttonLabels(edit)).toEqual(kb(intent, `s1`, `inline`, {}))
-    expect(buttonLabels(editId)).toEqual(kb(intent, `s1`, `inline`, {}, `id`))
+    expect(buttonLabels(edit)).toEqual(gkb(intent, `s1`, `inline`, {}))
+    expect(buttonLabels(editId)).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
   })
 })

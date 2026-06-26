@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `username-notfound`
@@ -22,8 +22,8 @@ describe(`E2E: UserNameNotFoundPage`, () => {
     expect(responses.length).toBeGreaterThan(0)
     const reply = responses[0]!
     expect(reply).toBeDefined()
-    expect(reply.body?.text).toBe(msg(intent, `s1`, {}))
+    expect(reply.body?.text).toBe(gmsg(intent, `s1`, {}))
     expect(reply.body?.text).toContain(`Username Required`)
-    expect(buttonLabels(reply)).toEqual(kb(intent, `s1`, `inline`, {}))
+    expect(buttonLabels(reply)).toEqual(gkb(intent, `s1`, `inline`, {}))
   })
 })

@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg} from "./setup"
+import {getEnv, type TestEnvironment, gmsg} from "./setup"
 
 let env: TestEnvironment
 const intent = `general-status`
@@ -27,7 +27,7 @@ describe(`E2E: GeneralStatusPage`, () => {
     const replyId = responsesId[0]!
     expect(reply).toBeDefined()
     expect(replyId).toBeDefined()
-    expect(reply.body?.text).toBe(msg(intent, `d`, {isNotFound: true}))
-    expect(replyId.body?.text).toBe(msg(intent, `d`, {isNotFound: true}, `id`))
+    expect(reply.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}))
+    expect(replyId.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}, `id`))
   })
 })

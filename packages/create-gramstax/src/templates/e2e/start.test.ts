@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `start`
@@ -24,8 +24,8 @@ describe(`E2E: StartPage`, () => {
     const replyId = responsesId[0]!
     expect(reply.body?.text).toContain(`Welcome`)
     expect(replyId.body?.text).toContain(`Selamat datang`)
-    expect(buttonLabels(reply)).toEqual(kb(intent, `s1`, `inline`, {}))
-    expect(buttonLabels(replyId)).toEqual(kb(intent, `s1`, `inline`, {}, `id`))
+    expect(buttonLabels(reply)).toEqual(gkb(intent, `s1`, `inline`, {}))
+    expect(buttonLabels(replyId)).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
   })
 
   it(`capture outbound requests in mockServer.requests`, async () => {
