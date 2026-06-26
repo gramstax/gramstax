@@ -23,6 +23,12 @@ Use this `AGENTS.md` as the module index for page-related rules. It currently co
 
 Use this `AGENTS.md` as the module index for helper-related rules. This rule set is currently a stub and should be expanded as helper conventions are documented.
 
+### `.rules-e2e/`
+
+Use this `AGENTS.md` as the module index for E2E test rules. It currently covers:
+
+- [`E2E_STRUCTURE.md`](./.rules-e2e/E2E_STRUCTURE.md) — file layout, `setup.ts` template, test file templates, assertion rules, session isolation, and ID language variants.
+
 ### `.rules-core/`
 
 This section documents core architecture patterns and exceptions that apply to any Gramstax project.
