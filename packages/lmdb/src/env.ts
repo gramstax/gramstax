@@ -126,7 +126,7 @@ export class LmdbEnv {
       throw new LmdbEnvClosedError()
     }
     this._state = `opening`
-    this._root = open(this._opts)
+    this._root = open({...this._opts, sharedStructuresKey: Symbol.for(`global-structure`)})
     this._state = `open`
   }
 
