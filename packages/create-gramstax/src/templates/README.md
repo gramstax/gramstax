@@ -4,8 +4,6 @@ A Telegram bot built with Gramstax framework.
 
 ## Getting Started
 
-### Development
-
 1. Install dependencies:
 
 ```bash
@@ -21,12 +19,6 @@ TELEGRAM_BOT_TOKEN="<...your_bot_token_here...>"
 ```
 
 3. Run the development server:
-
-```bash
-{{runDevCmd}}
-```
-
-#### Using Bun directly
 
 ```bash
 {{runStartCmd}}
@@ -54,5 +46,3 @@ TELEGRAM_BOT_TOKEN="<...your_bot_token_here...>"
 ## Learn More
 
 - [Gramstax Documentation](https://github.com/gramstax/gramstax)
-- [Grammy Documentation](https://grammy.dev/)
-- [Telegram Bot API](https://core.telegram.org/bots/api)

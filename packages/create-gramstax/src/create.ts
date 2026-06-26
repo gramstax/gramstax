@@ -1,9 +1,9 @@
-import * as fs from "fs"
-import * as path from "path"
-import {fileURLToPath} from "url"
+import * as fs from "node:fs"
+import * as path from "node:path"
+import {fileURLToPath} from "node:url"
 import {log} from "./utils/log"
 import {FsUt} from "./utils/fs"
-import {spawn} from "child_process"
+import {spawn} from "node:child_process"
 import enquirer from "enquirer"
 
 const __filename = fileURLToPath(import.meta.url)
@@ -261,13 +261,13 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       // Check if current directory is empty
       if (!FsUt.isDirectoryEffectivelyEmpty(projectPath)) {
         log.error(`Current directory is not empty!`)
-        process.exit(1)
+        throw new Error(`Current directory is not empty`)
       }
     } else {
       // Check if directory already exists
       if (fs.existsSync(projectPath)) {
         log.error(`Directory "${projectName}" already exists!`)
-        process.exit(1)
+        throw new Error(`Directory "${projectName}" already exists`)
       }
     }
 
@@ -331,8 +331,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     // Task 6: Install dependencies
     log.info(`Installing dependencies..`)
     if (!(await this.installDependencies(projectPath, packageManager))) {
-      log.fail(`Project created failed!`)
-      return process.exit()
+      throw new Error(`Project dependencies installation failed`)
     }
 
     // Task 7: Setup ESLint if requested
