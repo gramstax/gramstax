@@ -34,7 +34,7 @@ jobs:
 
       - name: Verify Code
         run: |
-          bun run ci:test
+          bun run ci:test:release
           bun run build:all
 
       - name: Initialize Git User
