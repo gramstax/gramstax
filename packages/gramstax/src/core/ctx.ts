@@ -1041,7 +1041,7 @@ export class Ctx {
     try {
       this.temp.isAnswer = true
       const limitFree = 30
-      const msgs = languageCode.map((it) => this.templateManager.getMessage(this.data.name, AGBaseId, it, data))
+      const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId, it, data))
       for (let index = 0; index < ids.length; index++) {
         const id = ids[index]
         const msg = msgs[index]
@@ -1109,7 +1109,7 @@ export class Ctx {
     try {
       this.temp.isAnswer = true
       const limitFree = 30
-      const medias = languageCode.map((it) => this.templateManager.getMedia(this.data.name, AGBaseId, it, data))
+      const medias = languageCode.map((it) => this.templateManager.getGMedia(this.data.name, AGBaseId, it, data))
 
       for (let index = 0; index < ids.length; index++) {
         const id = ids[index]
@@ -1191,7 +1191,7 @@ export class Ctx {
    */
   async reply(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReply) {
     this.temp.isAnswer = true
-    const msg = this.templateManager.getMessage(this.data.name, AGBaseId, this.userLanguage, data)
+    const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.userLanguage, data)
     return await this.ct.reply(msg, {
       parse_mode: `HTML`,
       reply_markup: keyboard,
@@ -1204,7 +1204,7 @@ export class Ctx {
    */
   async replyRich(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1]) {
     this.temp.isAnswer = true
-    const msg = this.templateManager.getMessage(this.data.name, AGBaseId, this.userLanguage, data)
+    const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.userLanguage, data)
     return await this.ct.replyWithRichMessage(
       {html: msg, ...options1},
       {
@@ -1266,7 +1266,7 @@ export class Ctx {
                         : undefined
   ) {
     this.temp.isAnswer = true
-    const med = this.templateManager.getMedia(this.data.name, AGBaseId, this.userLanguage, data)
+    const med = this.templateManager.getGMedia(this.data.name, AGBaseId, this.userLanguage, data)
     const opt = {parse_mode: `HTML`, reply_markup: keyboard, ...options} as Record<any, any>
 
     if (type == `photo`) return await this.ct.replyWithPhoto(med.src!, {caption: med.caption!, ...opt})
@@ -1308,7 +1308,7 @@ export class Ctx {
    */
   async replyMediaGroup(type?: ITMediaGroupType, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument) {
     this.temp.isAnswer = true
-    const med = this.templateManager.getMedia(this.data.name, AGBaseId, this.userLanguage, data)
+    const med = this.templateManager.getGMedia(this.data.name, AGBaseId, this.userLanguage, data)
     const opt = {parse_mode: `HTML`, ...options} as Record<any, any>
     if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
       const items = type ? med.mediaGroup.filter((item) => item.type === type) : med.mediaGroup
@@ -1612,7 +1612,7 @@ export class Ctx {
   async edit(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEdit, fallbackReply = true) {
     try {
       this.temp.isAnswer = true
-      const msg = this.templateManager.getMessage(this.data.name, AGBaseId, this.userLanguage, data)
+      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.userLanguage, data)
       return await this.ct.editMessageText(msg, {
         parse_mode: `HTML`,
         reply_markup: keyboardInline,
@@ -1677,7 +1677,7 @@ export class Ctx {
   ) {
     try {
       this.temp.isAnswer = true
-      const med = this.templateManager.getMedia(this.data.name, AGBaseId, this.userLanguage, data)
+      const med = this.templateManager.getGMedia(this.data.name, AGBaseId, this.userLanguage, data)
       const {src, caption} = med
       if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
         await this.delete()
@@ -2454,7 +2454,7 @@ export class Ctx {
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const ikb = new InlineKeyboard()
-        const arr = this.templateManager.getKeyboard(tkey, params?.AGBaseId, this.userLanguage, `inline`, params?.data)
+        const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId, this.userLanguage, `inline`, params?.data)
         const rkb = callback(ikb, arr)
         this.cacheKeyboard.set(key, rkb)
         return rkb
@@ -2462,7 +2462,7 @@ export class Ctx {
       return ckb
     }
     const ikb = new InlineKeyboard()
-    const arr = this.templateManager.getKeyboard(tkey, params?.AGBaseId, this.userLanguage, `inline`, params?.data)
+    const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId, this.userLanguage, `inline`, params?.data)
     const rkb = callback(ikb, arr)
     return rkb
   }
@@ -2498,7 +2498,7 @@ export class Ctx {
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const kb = new Keyboard()
-        const arr = this.templateManager.getKeyboard(tkey, params?.AGBaseId, this.userLanguage, `bottom`, params?.data)
+        const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId, this.userLanguage, `bottom`, params?.data)
         const rkb = callback(kb, arr)
         rkb.resized(true)
         this.cacheKeyboard.set(key, rkb)
@@ -2507,7 +2507,7 @@ export class Ctx {
       return ckb
     }
     const kb = new Keyboard()
-    const arr = this.templateManager.getKeyboard(tkey, params?.AGBaseId, this.userLanguage, `bottom`, params?.data)
+    const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId, this.userLanguage, `bottom`, params?.data)
     const rkb = callback(kb, arr)
     rkb.resized()
     return rkb

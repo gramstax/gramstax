@@ -1014,14 +1014,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     for (const [, page] of Object.entries(allCommands)) {
       const name = page.name
-      const scopes = this.templateManager.getDescriptionScopes(name)
+      const scopes = this.templateManager.getAGDescriptionScopes(name)
 
       for (const scope of scopes) {
         if (!targets.has(scope)) {
           targets.set(scope, new Set())
         }
 
-        const langs = this.templateManager.getDescriptionLanguage(name, `default`, scope)
+        const langs = this.templateManager.getAGDescriptionLang(name, `default`, scope)
         for (const lang of langs) {
           targets.get(scope)!.add(lang)
         }
@@ -1035,7 +1035,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         for (const [, page] of Object.entries(allCommands)) {
           const name = page.name
           // Use getDescription which handles fallback logic
-          const desc = this.templateManager.getDescription(name, `default`, lang, scope)
+          const desc = this.templateManager.getGDescription(name, `default`, lang, scope)
           if (desc) {
             commands.push({command: name, description: desc})
           }

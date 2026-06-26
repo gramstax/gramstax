@@ -76,31 +76,31 @@ describe(`TemplateManager`, () => {
     })
 
     it(`should get <g-message> with fallback`, () => {
-      expect(manager.getMessage(`fallback`, `default`, `id`)).toBe(`Pesan ID`)
-      expect(manager.getMessage(`fallback`, `default`, `fr`)).toBe(`Default Msg`)
+      expect(manager.getGMessage(`fallback`, `default`, `id`)).toBe(`Pesan ID`)
+      expect(manager.getGMessage(`fallback`, `default`, `fr`)).toBe(`Default Msg`)
     })
 
     it(`should get <g-media> with fallback`, () => {
-      const idMedia = manager.getMedia(`fallback`, `default`, `id`)
+      const idMedia = manager.getGMedia(`fallback`, `default`, `id`)
       expect(idMedia.caption).toBe(`ID Cap`)
 
-      const frMedia = manager.getMedia(`fallback`, `default`, `fr`)
+      const frMedia = manager.getGMedia(`fallback`, `default`, `fr`)
       expect(frMedia.caption).toBe(`Def Cap`)
     })
 
     it(`should get <g-keyboard> with fallback`, () => {
-      const idKb = manager.getKeyboard(`fallback`, `default`, `id`)
+      const idKb = manager.getGKeyboard(`fallback`, `default`, `id`)
       expect(idKb).toEqual([`ID Btn`])
 
-      const frKb = manager.getKeyboard(`fallback`, `default`, `fr`)
+      const frKb = manager.getGKeyboard(`fallback`, `default`, `fr`)
       expect(frKb).toEqual([`Def Btn`])
     })
 
     it(`should get <g-description> with fallback`, () => {
-      const idDesc = manager.getDescription(`fallback`, `default`, `id`, `private`)
+      const idDesc = manager.getGDescription(`fallback`, `default`, `id`, `private`)
       expect(idDesc).toBe(`ID Desc`)
 
-      const defDesc = manager.getDescription(`fallback`, `default`, `fr`, `default`)
+      const defDesc = manager.getGDescription(`fallback`, `default`, `fr`, `default`)
       expect(defDesc).toBe(`Def Desc`)
     })
   })
@@ -115,7 +115,7 @@ describe(`TemplateManager`, () => {
       const success = await manager.write(`write_test.html`, `<g-base><g-message>Updated</g-message></g-base>`)
       expect(success).toBe(true)
 
-      const msg = manager.getMessage(`write_test`)
+      const msg = manager.getGMessage(`write_test`)
       expect(msg).toBe(`Updated`)
     })
   })
@@ -135,11 +135,11 @@ describe(`TemplateManager`, () => {
       // Wait for watcher to initialize
       await wait(100)
 
-      expect(manager.getMessage(`watch_test`)).toBe(`Initial`)
+      expect(manager.getGMessage(`watch_test`)).toBe(`Initial`)
 
       await writeFile(join(TEST_DIR, `watch_test.html`), `<g-base><g-message>Updated</g-message></g-base>`)
       await wait(800)
-      expect(manager.getMessage(`watch_test`)).toBe(`Updated`)
+      expect(manager.getGMessage(`watch_test`)).toBe(`Updated`)
       await manager.destroy()
     })
 
@@ -155,7 +155,7 @@ describe(`TemplateManager`, () => {
       await wait(800)
 
       expect(manager.has(`new_file`)).toBe(true)
-      expect(manager.getMessage(`new_file`)).toBe(`New`)
+      expect(manager.getGMessage(`new_file`)).toBe(`New`)
       await manager.destroy()
     })
 

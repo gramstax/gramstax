@@ -713,7 +713,7 @@ export class TemplateManager {
   }
 
   /**
-   * Gets compiled media template data.
+   * Gets compiled from block <g-media>.
    *
    * @param key - Template identifier (filename without extension)
    * @param AGBaseId - Base block ID matching `<g-base id="...">`
@@ -727,13 +727,13 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * const media = tm.getMedia("photo-page", "default", "en", {photoUrl: "..."})}
+   * const media = tm.getGMedia("photo-page", "default", "en", {photoUrl: "..."})}
    * // => {type: "photo", src: "...", caption: "..."}
    * ```
    *
    * @public
    */
-  getMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, any>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]> {
+  getGMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, any>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]> {
     const map = this._map.get(key)
     const one = map?.media?.[AGBaseId]
     const func = one?.[ALang] || one?.[`default`]
@@ -750,7 +750,7 @@ export class TemplateManager {
   }
 
   /**
-   * Gets a compiled message template string.
+   * Gets compiled from block <g-message>.
    *
    * @param key - Template identifier (filename without extension)
    * @param AGBaseId - Base block ID matching `<g-base id="...">`
@@ -764,13 +764,13 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * const message = tm.getMessage("start", "default", "en", {name: "John"})
+   * const message = tm.getGMessage("start", "default", "en", {name: "John"})
    * // => "Hello, John! Welcome to the bot."
    * ```
    *
    * @public
    */
-  getMessage(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, any>): string {
+  getGMessage(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, any>): string {
     try {
       const map = this._map.get(key)
       const one = map?.message?.[AGBaseId]
@@ -801,13 +801,13 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * const desc = tm.getDescription("start", "default", "en")
+   * const desc = tm.getGDescription("start", "default", "en")
    * // => "Start the bot"
    * ```
    *
    * @public
    */
-  getDescription(key: string, AGBaseId = `default`, ALang = `default`, AScope = `default`, data?: Record<string, any>): string {
+  getGDescription(key: string, AGBaseId = `default`, ALang = `default`, AScope = `default`, data?: Record<string, any>): string {
     try {
       const map = this._map.get(key)
       const one = map?.description?.[AGBaseId]?.[AScope]
@@ -823,7 +823,7 @@ export class TemplateManager {
   }
 
   /**
-   * Gets available languages for a description.
+   * Gets available attribute lang from block <g-description>.
    *
    * @param key - Template identifier (filename without extension)
    * @param AGBaseId - Base block ID matching `<g-base id="...">`
@@ -835,13 +835,13 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * const languages = tm.getDescriptionLanguage("start", "default", "default")
+   * const languages = tm.getAGDescriptionLang("start", "default", "default")
    * // => ["default", "en", "id"]
    * ```
    *
    * @public
    */
-  getDescriptionLanguage(key: string, AGBaseId = `default`, AScope = `default`): string[] {
+  getAGDescriptionLang(key: string, AGBaseId = `default`, AScope = `default`): string[] {
     try {
       const map = this._map.get(key)
       const obj = map?.description?.[AGBaseId]?.[AScope]
@@ -856,7 +856,7 @@ export class TemplateManager {
   }
 
   /**
-   * Gets available scopes for a description.
+   * Gets available attribute scopes from block <g-description>.
    *
    * @param key - Template identifier (filename without extension)
    * @param AGBaseId - Base block ID matching `<g-base id="...">`
@@ -867,13 +867,13 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * const scopes = tm.getDescriptionScopes("start", "default")
+   * const scopes = tm.getAGDescriptionScopes("start", "default")
    * // => ["default", "admin"]
    * ```
    *
    * @public
    */
-  getDescriptionScopes(key: string, AGBaseId = `default`): string[] {
+  getAGDescriptionScopes(key: string, AGBaseId = `default`): string[] {
     try {
       const map = this._map.get(key)
       const obj = map?.description?.[AGBaseId]
@@ -888,7 +888,7 @@ export class TemplateManager {
   }
 
   /**
-   * Gets compiled keyboard template labels.
+   * Gets compiled from block <g-keyboard>.
    *
    * @param key - Template identifier (filename without extension)
    * @param AGBaseId - Base block ID matching `<g-base id="...">`
@@ -903,13 +903,13 @@ export class TemplateManager {
    *
    * @example
    * ```typescript
-   * const buttons = tm.getKeyboard("start", "default", "en", "inline")
+   * const buttons = tm.getGKeyboard("start", "default", "en", "inline")
    * // => ["Counter", "Help", "Settings"]
    * ```
    *
    * @public
    */
-  getKeyboard(key: string, AGBaseId = `default`, ALang = `default`, AType: `inline` | `bottom` = `inline`, data?: Record<string, any>): string[] {
+  getGKeyboard(key: string, AGBaseId = `default`, ALang = `default`, AType: `inline` | `bottom` = `inline`, data?: Record<string, any>): string[] {
     try {
       const map = this._map.get(key)
       const one = map?.keyboard?.[AGBaseId]
