@@ -2,25 +2,25 @@ import {BlockKeyboard, LabelKeyboard} from "gramstax"
 
 export class KeyboardBlock extends BlockKeyboard {
   static label = class extends LabelKeyboard {
-    static home = {default: `🏠 Home`}
-    static browse = {default: `🔎 Browse`}
-    static cart = {default: `🛒 Cart`}
-    static history = {default: `🧾 History`}
-    static help = {default: `❓ Help`}
-    static back = {default: `⬅️ Back`}
-    static prev = {default: `⬅️ Prev`}
-    static next = {default: `➡️ Next`}
-    static buy = {default: `✅ Buy Now`}
-    static addCart = {default: `➕ Add Cart`}
-    static checkout = {default: `💳 Checkout`}
-    static clear = {default: `🧹 Clear`}
-    static confirm = {default: `✅ Confirm`}
-    static cancel = {default: `❌ Cancel`}
-    static remove = {default: `🗑️ Remove`}
-    static plus = {default: `➕`}
-    static minus = {default: `➖`}
-    static continueShopping = {default: `${this.browse.default}`}
-    static cancelHome = {default: `${this.cancel.default} | ${this.home.default}`}
+    static home = {default: `🏠 Home`, id: `🏠 Beranda`}
+    static browse = {default: `🔎 Browse`, id: `🔎 Jelajahi`}
+    static cart = {default: `🛒 Cart`, id: `🛒 Keranjang`}
+    static history = {default: `🧾 History`, id: `🧾 Riwayat`}
+    static help = {default: `❓ Help`, id: `❓ Bantuan`}
+    static back = {default: `⬅️ Back`, id: `⬅️ Kembali`}
+    static prev = {default: `⬅️ Prev`, id: `⬅️ Sebelumnya`}
+    static next = {default: `➡️ Next`, id: `➡️ Selanjutnya`}
+    static buy = {default: `✅ Buy Now`, id: `✅ Beli`}
+    static addCart = {default: `➕ Add Cart`, id: `➕ Tambah`}
+    static checkout = {default: `💳 Checkout`, id: `💳 Bayar`}
+    static clear = {default: `🧹 Clear`, id: `🧹 Kosongkan`}
+    static confirm = {default: `✅ Confirm`, id: `✅ Konfirmasi`}
+    static cancel = {default: `❌ Cancel`, id: `❌ Batal`}
+    static remove = {default: `🗑️ Remove`, id: `🗑️ Hapus`}
+    static plus = {default: `➕`, id: `➕`}
+    static minus = {default: `➖`, id: `➖`}
+    static continueShopping = {default: `${this.browse.default}`, id: `${this.browse.id}`}
+    static cancelHome = {default: `${this.cancel.default} | ${this.home.default}`, id: `${this.cancel.id} | ${this.home.id}`}
   }
 
   static home = (lang?: string, type?: string) => this._build(`home`, lang, type)

@@ -44,6 +44,12 @@ export class StartPage extends PageBase {
 
         Manage your account with the actions below. Check your balance, move funds, or review recent activity at any time.
       </g-message>
+      <g-keyboard lang="id">💳 Saldo, ➕ Setor, ➖ Tarik, 🔁 Transfer, 📜 Riwayat</g-keyboard>
+      <g-message lang="id">
+        💼 Menu Perbankan
+
+        Kelola akun Anda dengan tindakan di bawah. Periksa saldo, pindahkan dana, atau tinjau aktivitas terbaru kapan saja.
+      </g-message>
     </g-base>
   `
 }

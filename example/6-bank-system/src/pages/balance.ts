@@ -36,6 +36,14 @@ export class BalancePage extends PageBase {
 
         Use the menu to deposit, withdraw, or transfer funds.
       </g-message>
+      ${this.kbk.back(`id`)}
+      <g-message lang="id">
+        💳 Saldo Akun
+
+        Saldo tersedia: {{balance}}
+
+        Gunakan menu untuk menyetor, menarik, atau mentransfer dana.
+      </g-message>
     </g-base>
   `
 }

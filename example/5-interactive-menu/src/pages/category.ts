@@ -69,6 +69,10 @@ export class CategoryPage extends PageBase {
       <g-message>
         Choose a category to continue browsing.
       </g-message>
+      ${this.kbk.back(`id`)}
+      <g-message lang="id">
+        Pilih kategori untuk melanjutkan browsing.
+      </g-message>
     </g-base>
   `
 }

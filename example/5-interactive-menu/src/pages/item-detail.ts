@@ -46,6 +46,12 @@ export class ItemDetailPage extends PageBase {
 
         {~description || "No description found."~}
       </g-message>
+      <g-keyboard lang="id">⬅️ Kembali ke Daftar</g-keyboard>
+      <g-message lang="id">
+        📌 {~name || "Tidak dikenal"~}
+
+        {~description || "Tidak ada deskripsi."~}
+      </g-message>
     </g-base>
   `
 }

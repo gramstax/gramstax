@@ -51,6 +51,14 @@ export class StartPage extends PageBase {
 
         Choose an action below to browse, checkout, or review recent orders.
       </g-message>
+      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang, 🧾 Riwayat, ❓ Bantuan</g-keyboard>
+      <g-message lang="id">
+        🛒 Bot SubStore
+
+        Beli langganan digital langsung dari Telegram. Jelajahi Netflix, Spotify, YouTube Premium, Canva Pro, VPN, dan lainnya dengan alur checkout inline cepat.
+
+        Pilih tindakan di bawah untuk menjelajah, checkout, atau melihat pesanan terbaru.
+      </g-message>
     </g-base>
   `
 }

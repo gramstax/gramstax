@@ -131,6 +131,22 @@ export class ProductPage extends PageBase {
         Benefits:
         {{benefits}}
       </g-message>
+      <g-keyboard lang="id">✅ Beli, ➕ Tambah, 🛒 Keranjang, ⬅️ Kembali</g-keyboard>
+      <g-message lang="id">
+        📦 {{name}}
+
+        Layanan: {{service}}
+        Durasi: {{duration}}
+        Tipe akun: {{accountType}}
+        Stok: {{stock}}
+        Harga: {{price}}
+        Pengiriman: {{delivery}}
+
+        {{description}}
+
+        Manfaat:
+        {{benefits}}
+      </g-message>
     </g-base>
 
     <g-base id="${Base.infoAdded}">
@@ -139,6 +155,12 @@ export class ProductPage extends PageBase {
         ✅ Added to cart
 
         {{name}} is now in your cart. You can continue shopping or review the cart whenever you're ready.
+      </g-message>
+      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
+      <g-message lang="id">
+        ✅ Ditambahkan ke keranjang
+
+        {{name}} sekarang di keranjang Anda. Anda dapat melanjutkan belanja atau lihat keranjang kapan saja.
       </g-message>
     </g-base>
 
@@ -149,6 +171,12 @@ export class ProductPage extends PageBase {
 
         {{name}} is currently unavailable. Please choose another product or check again later.
       </g-message>
+      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
+      <g-message lang="id">
+        ⛔ Stok habis
+
+        {{name}} sedang tidak tersedia. Silakan pilih produk lain atau cek lagi nanti.
+      </g-message>
     </g-base>
 
     <g-base id="${Base.warnMissing}">
@@ -157,6 +185,12 @@ export class ProductPage extends PageBase {
         ⚠️ Product not found
 
         We could not find that subscription product. Please return to the catalog.
+      </g-message>
+      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
+      <g-message lang="id">
+        ⚠️ Produk tidak ditemukan
+
+        Kami tidak dapat menemukan produk langganan tersebut. Silakan kembali ke katalog.
       </g-message>
     </g-base>
   `

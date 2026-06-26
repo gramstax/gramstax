@@ -43,6 +43,13 @@ export class HelpPage extends PageBase {
         Use inline buttons to explore menus, and the bottom keyboard for quick actions.
         Pagination buttons appear when lists are long.
       </g-message>
+      ${this.kbk.back(`id`)}
+      <g-message lang="id">
+        ❓ Bantuan & Navigasi
+
+        Gunakan tombol inline untuk menjelajahi menu, dan keyboard bawah untuk aksi cepat.
+        Tombol paginasi muncul ketika daftar panjang.
+      </g-message>
     </g-base>
   `
 }

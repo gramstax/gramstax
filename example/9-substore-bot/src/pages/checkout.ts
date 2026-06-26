@@ -258,6 +258,20 @@ export class CheckoutPage extends PageBase {
         @yourusername
         Please deliver after payment confirmation.
       </g-message>
+      <g-keyboard lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
+      <g-message lang="id">
+        💳 Detail Checkout
+
+        Pesanan Anda:
+        {{items}}
+
+        Subtotal: {{subtotal}}
+
+        Kirim kontak di baris pertama, lalu catatan opsional di baris berikutnya.
+        Contoh:
+        @namauser
+        Tolong kirim setelah konfirmasi pembayaran.
+      </g-message>
     </g-base>
 
     <g-base id="${Base.confirm}">
@@ -273,6 +287,19 @@ export class CheckoutPage extends PageBase {
         Notes: {{notes}}
 
         Confirm when the details are correct.
+      </g-message>
+      <g-keyboard lang="id">✅ Konfirmasi, ❌ Batal, 🛒 Keranjang</g-keyboard>
+      <g-message lang="id">
+        ✅ Konfirmasi Pesanan
+
+        Item:
+        {{items}}
+
+        Subtotal: {{subtotal}}
+        Kontak: {{contact}}
+        Catatan: {{notes}}
+
+        Konfirmasi jika detail sudah benar.
       </g-message>
     </g-base>
 
@@ -297,6 +324,26 @@ export class CheckoutPage extends PageBase {
         💳 Payment Method: QRIS
         QRIS only: scan the store QRIS code using DANA, ShopeePay, or any QRIS-supported banking app. After payment, send proof to {{support}} with your Order ID.
       </g-media>
+      <g-keyboard lang="id">🔄 refresh, 🧾 Riwayat, 🏠 Beranda, 🔎 Jelajahi</g-keyboard>
+      <g-media lang="id" type="photo" src="{{qrisImageUrl}}">
+        🎉 Pesanan Dibuat
+
+        ID Pesanan: {{orderId}}
+        Status: {{statusLabel}}
+        Batas pembayaran: {{deadlineMinutes}} menit
+        Tenggat: {{deadlineAt}}
+        Waktu: {{timeNow}}
+
+        Item:
+        {{items}}
+
+        Total: {{subtotal}}
+        Kontak: {{contact}}
+        Catatan: {{notes}}
+
+        💳 Metode Pembayaran: QRIS
+        QRIS saja: scan kode QRIS toko menggunakan DANA, ShopeePay, atau aplikasi perbankan yang mendukung QRIS. Setelah pembayaran, kirim bukti ke {{support}} dengan ID Pesanan Anda.
+      </g-media>
     </g-base>
 
     <g-base id="${Base.warnEmpty}">
@@ -305,6 +352,12 @@ export class CheckoutPage extends PageBase {
         🛒 Empty cart
 
         Add at least one available subscription before checkout.
+      </g-message>
+      <g-keyboard lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
+      <g-message lang="id">
+        🛒 Keranjang kosong
+
+        Tambah setidaknya satu langganan tersedia sebelum checkout.
       </g-message>
     </g-base>
 
@@ -315,6 +368,12 @@ export class CheckoutPage extends PageBase {
 
         We could not use "{{contact}}" as contact information. Send a Telegram username, email, or WhatsApp number with at least 5 characters.
       </g-message>
+      <g-keyboard lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
+      <g-message lang="id">
+        ⚠️ Kontak diperlukan
+
+        Tidak dapat menggunakan "{{contact}}" sebagai kontak. Kirim username Telegram, email, atau nomor WhatsApp minimal 5 karakter.
+      </g-message>
     </g-base>
 
     <g-base id="${Base.infoCancel}">
@@ -324,6 +383,12 @@ export class CheckoutPage extends PageBase {
 
         Your cart is preserved. You can continue shopping or checkout again later.
       </g-message>
+      <g-keyboard lang="id">🏠 Beranda, 🔎 Jelajahi</g-keyboard>
+      <g-message lang="id">
+        ❌ Checkout dibatalkan
+
+        Keranjang Anda tetap disimpan. Anda dapat melanjutkan belanja atau checkout lagi nanti.
+      </g-message>
     </g-base>
 
     <g-base id="${Base.infoMissing}">
@@ -332,6 +397,12 @@ export class CheckoutPage extends PageBase {
         ⚠️ Order not found
 
         Open history to review your latest orders, then try refresh again from an active order card.
+      </g-message>
+      <g-keyboard lang="id">🧾 Riwayat, 🏠 Beranda, 🔎 Jelajahi</g-keyboard>
+      <g-message lang="id">
+        ⚠️ Pesanan tidak ditemukan
+
+        Buka riwayat untuk lihat pesanan terbaru, lalu coba refresh lagi dari kartu pesanan aktif.
       </g-message>
     </g-base>
   `

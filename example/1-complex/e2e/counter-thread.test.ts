@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, msg, type TestEnvironment} from "./setup"
+import {getEnv, type TestEnvironment} from "./setup"
 
 let env: TestEnvironment
 const intent = `counter-thread`
@@ -20,13 +20,13 @@ describe(`E2E: CounterThreadPage`, () => {
     const responses = await env.mockServer.sendCallbackQuery(intent)
 
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toContain(`Worker counter`)
+    expect(responses[0]!.body?.text).toContain(`🧵 Worker counter`)
     expect(responses[0]!.body?.text).toContain(`Count:`)
     expect(responses[0]!.body?.text).toContain(`Timestamp:`)
 
     const responsesId = await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responsesId[0]!.body?.text).toContain(`Kounter worker`)
+    expect(responsesId[0]!.body?.text).toContain(`🧵 Kounter worker`)
     expect(responsesId[0]!.body?.text).toContain(`Kounter:`)
     expect(responsesId[0]!.body?.text).toContain(`Waktu:`)
   })

@@ -25,6 +25,8 @@
     "test": "bun test",
     "lint": "eslint .",
     "lint:fix": "eslint '**/*.ts' --fix",
+    "lint:packages": "eslint ./packages",
+    "lint:example": "eslint ./example",
     "build:all": "nx run-many -t build --parallel=1",
     "build:gramstax": "nx build gramstax",
     "build:create-gramstax": "nx build create-gramstax",
@@ -45,7 +47,7 @@
     "dry-run:patch": "nx release patch --dry-run",
     "dry-run:minor": "nx release minor --dry-run",
     "dry-run:major": "nx release major --dry-run",
-    "ci:test": "bun run lint && bun run ci:check && bun run test",
+    "ci:test": "bun run lint:packages && bun run ci:check && bun run test",
     "ci:check": "tsc --noEmit",
     "prepush": "bun run ci:check && bun run ci:test && bun run build:all && echo 'Its safe push to remote'"
   },

@@ -3,13 +3,13 @@ import {BlockKeyboard, LabelKeyboard} from "gramstax"
 // Block template keyboard block.
 export class KeyboardBlock extends BlockKeyboard {
   static label = class extends LabelKeyboard {
-    static home = {default: `🏠 Home`}
-    static back = {default: `⬅️ Back`}
-    static browse = {default: `🔎 Browse`}
-    static help = {default: `❓ Help`}
-    static reset = {default: `♻️ Reset`}
-    static prev = {default: `⬅️ Prev`}
-    static next = {default: `➡️ Next`}
+    static home = {default: `🏠 Home`, id: `🏠 Beranda`}
+    static back = {default: `⬅️ Back`, id: `⬅️ Kembali`}
+    static browse = {default: `🔎 Browse`, id: `🔎 Jelajahi`}
+    static help = {default: `❓ Help`, id: `❓ Bantuan`}
+    static reset = {default: `♻️ Reset`, id: `♻️ Atur Ulang`}
+    static prev = {default: `⬅️ Prev`, id: `⬅️ Sebelumnya`}
+    static next = {default: `➡️ Next`, id: `➡️ Selanjutnya`}
   }
   static home = (lang?: string, type?: string) => this._build(`home`, lang, type)
   static back = (lang?: string, type?: string) => this._build(`back`, lang, type)

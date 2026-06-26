@@ -56,6 +56,12 @@ export class GeneralStatusPage extends PageBase {
 
         {~isNotFound ? "Use Home to return to the main menu and try a different action." : "Please try again in a moment, or return Home if the issue persists."~}
       </g-message>
+      ${this.kbk.home(`id`)}
+      <g-message lang="id">
+        {~isNotFound ? "🔎 Rute tidak ditemukan" : "❌ Terjadi kesalahan"~}
+
+        {~isNotFound ? "Gunakan Beranda untuk kembali ke menu utama dan coba tindakan lain." : "Silakan coba lagi sebentar, atau kembali ke Beranda jika masalah berlanjut."~}
+      </g-message>
     </g-base>
   `
 }

@@ -97,6 +97,14 @@ export class InlineWithoutRangePage extends PageBase {
 
         Use Prev/Next to navigate, or tap Home to exit.
       </g-message>
+      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, 📄 Halaman, ${this.kbl.home.id}</g-keyboard>
+      <g-message lang="id">
+        🧾 Menu Inline (Tanpa Rentang (hanya hitungan))
+
+        Halaman {{page}}
+
+        Gunakan Sebelumnya/Selanjutnya, atau ketuk Beranda untuk keluar.
+      </g-message>
     </g-base>
   `
 }

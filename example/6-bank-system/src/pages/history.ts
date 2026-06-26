@@ -66,6 +66,12 @@ export class HistoryPage extends PageBase {
 
         {{history}}
       </g-message>
+      ${this.kbk.back(`id`)}
+      <g-message lang="id">
+        📜 Transaksi Terbaru
+
+        {{history}}
+      </g-message>
     </g-base>
   `
 }

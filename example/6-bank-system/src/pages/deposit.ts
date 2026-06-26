@@ -82,6 +82,13 @@ export class DepositPage extends PageBase {
         Enter the amount as a whole number. Dots are allowed for thousand separators.
         Example: 125.000
       </g-message>
+      ${this.kbk.cancel(`id`)}
+      <g-message lang="id">
+        ➕ Setor dana
+
+        Masukkan jumlah sebagai angka bulat. Titik diperbolehkan sebagai pemisah ribuan.
+        Contoh: 125.000
+      </g-message>
     </g-base>
 
     <g-base id="${Base.success}">
@@ -92,6 +99,13 @@ export class DepositPage extends PageBase {
         Amount received: {{amount}}
         Updated balance: {{balance}}
       </g-message>
+      ${this.kbk.home(`id`)}
+      <g-message lang="id">
+        ✅ Setoran selesai
+
+        Jumlah diterima: {{amount}}
+        Saldo diperbarui: {{balance}}
+      </g-message>
     </g-base>
 
     <g-base id="${Base.warnInvalid}">
@@ -101,6 +115,13 @@ export class DepositPage extends PageBase {
 
         We couldn't read: "{{amount}}".
         Please enter a whole number only.
+      </g-message>
+      ${this.kbk.cancel(`id`)}
+      <g-message lang="id">
+        ⚠️ Jumlah tidak valid
+
+        Tidak dapat membaca: "{{amount}}".
+        Harap masukkan angka bulat saja.
       </g-message>
     </g-base>
   `

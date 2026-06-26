@@ -31,6 +31,12 @@
         "gramstax": "workspace:*",
       },
     },
+    "example/10-http-request": {
+      "name": "example-10-http-request",
+      "dependencies": {
+        "gramstax": "workspace:*",
+      },
+    },
     "example/2-helloworld": {
       "name": "example-2-helloworld",
       "dependencies": {
@@ -845,6 +851,8 @@
     "event-target-shim": ["event-target-shim@5.0.1", "", {}, "sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ=="],
 
     "example-1-complex": ["example-1-complex@workspace:example/1-complex"],
+
+    "example-10-http-request": ["example-10-http-request@workspace:example/10-http-request"],
 
     "example-2-helloworld": ["example-2-helloworld@workspace:example/2-helloworld"],
 

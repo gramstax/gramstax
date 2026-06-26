@@ -5,7 +5,7 @@
  * for exact matching instead of fragile partial assertions.
  */
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, msg} from "./setup"
 
 let env: TestEnvironment
 const intent = `help`

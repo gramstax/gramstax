@@ -147,6 +147,15 @@ export class TransferPage extends PageBase {
 
         Example: 125.000 12345
       </g-message>
+      ${this.kbk.cancel(`id`)}
+      <g-message lang="id">
+        🔁 Transfer dana
+
+        Masukkan: [jumlah] [penerima]
+        Jumlah harus angka bulat. Titik diperbolehkan sebagai pemisah ribuan.
+
+        Contoh: 125.000 12345
+      </g-message>
     </g-base>
 
     <g-base id="${Base.success}">
@@ -156,6 +165,13 @@ export class TransferPage extends PageBase {
 
         Sent {{amount}} to {{target}}
         Updated balance: {{balance}}
+      </g-message>
+      ${this.kbk.home(`id`)}
+      <g-message lang="id">
+        ✅ Transfer selesai
+
+        Terkirim {{amount}} ke {{target}}
+        Saldo diperbarui: {{balance}}
       </g-message>
     </g-base>
 
@@ -167,6 +183,13 @@ export class TransferPage extends PageBase {
         Available balance: {{balance}}
         Please enter a smaller amount.
       </g-message>
+      ${this.kbk.cancel(`id`)}
+      <g-message lang="id">
+        ⚠️ Dana tidak mencukupi
+
+        Saldo tersedia: {{balance}}
+        Harap masukkan jumlah yang lebih kecil.
+      </g-message>
     </g-base>
 
     <g-base id="${Base.warnUnknownUser}">
@@ -176,6 +199,13 @@ export class TransferPage extends PageBase {
 
         We couldn't resolve: "{{target}}".
         Provide a numeric ID or a registered username.
+      </g-message>
+      ${this.kbk.cancel(`id`)}
+      <g-message lang="id">
+        ⚠️ Penerima tidak ditemukan
+
+        Tidak dapat menemukan: "{{target}}".
+        Berikan ID numerik atau nama pengguna terdaftar.
       </g-message>
     </g-base>
 
@@ -187,6 +217,13 @@ export class TransferPage extends PageBase {
         Transfers to your own account are not permitted.
         Please choose a different recipient.
       </g-message>
+      ${this.kbk.cancel(`id`)}
+      <g-message lang="id">
+        ⚠️ Transfer diblokir
+
+        Transfer ke akun Anda sendiri tidak diizinkan.
+        Harap pilih penerima yang berbeda.
+      </g-message>
     </g-base>
 
     <g-base id="${Base.warnInvalid}">
@@ -196,6 +233,13 @@ export class TransferPage extends PageBase {
 
         Use the format: [amount] [recipient]
         Example: 125.000 12345
+      </g-message>
+      ${this.kbk.cancel(`id`)}
+      <g-message lang="id">
+        ⚠️ Format transfer tidak valid
+
+        Gunakan format: [jumlah] [penerima]
+        Contoh: 125.000 12345
       </g-message>
     </g-base>
   `

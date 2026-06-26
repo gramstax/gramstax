@@ -221,6 +221,12 @@ export class EchoPage extends PageBase {
 
         Send any message or media and the bot will echo it back. Use this to test formatting, media handling, or message flow.
       </g-message>
+      ${this.kbk.home(`id`)}
+      <g-message lang="id">
+        🔁 Tips Echo
+
+        Kirim pesan atau media dan bot akan menggema. Gunakan ini untuk menguji format, penanganan media, atau alur pesan.
+      </g-message>
     </g-base>
 
     <g-base id="${Base.forText}">

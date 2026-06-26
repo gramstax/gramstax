@@ -90,6 +90,16 @@ export class CatalogPage extends PageBase {
 
         Open a product to view details, buy now, or add it to your cart.
       </g-message>
+      <g-keyboard lang="id">⬅️ Sebelumnya, ➡️ Selanjutnya, 🛒 Keranjang, ❓ Bantuan, 🏠 Beranda</g-keyboard>
+      <g-message lang="id">
+        🔎 Katalog Langganan
+
+        Halaman {{page}} dari {{totalPages}} — {{totalItems}} produk tersedia.
+
+        {{products}}
+
+        Buka produk untuk melihat detail, beli, atau tambahkan ke keranjang.
+      </g-message>
     </g-base>
   `
 }

@@ -59,6 +59,14 @@ export class HistoryPage extends PageBase {
 
         We keep the latest 10 orders in this session-based example.
       </g-message>
+      <g-keyboard lang="id">🔎 Jelajahi, 🏠 Beranda</g-keyboard>
+      <g-message lang="id">
+        🧾 Riwayat Pesanan
+
+        {{history}}
+
+        Kami menyimpan 10 pesanan terakhir dalam contoh berbasis sesi ini.
+      </g-message>
     </g-base>
   `
 }

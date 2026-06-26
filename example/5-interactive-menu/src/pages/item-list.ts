@@ -96,6 +96,12 @@ export class ItemListPage extends PageBase {
 
         Use Prev/Next to navigate the list.
       </g-message>
+      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.back.id}</g-keyboard>
+      <g-message lang="id">
+        📦 Item di {{category}}
+
+        Gunakan Sebelumnya/Selanjutnya untuk menavigasi daftar.
+      </g-message>
     </g-base>
   `
 }

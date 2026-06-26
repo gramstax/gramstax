@@ -50,6 +50,12 @@ export class ResetPage extends PageBase {
 
         Tap Back to return to the main menu.
       </g-message>
+      ${this.kbk.back(`id`)}
+      <g-message lang="id">
+        ✅ Atur ulang selesai
+
+        Ketuk Kembali untuk kembali ke menu utama.
+      </g-message>
     </g-base>
   `
 }

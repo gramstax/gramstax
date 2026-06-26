@@ -123,6 +123,16 @@ export class CartPage extends PageBase {
 
         Adjust quantities or continue to checkout.
       </g-message>
+      <g-keyboard lang="id">➕, ➖, 🗑️ Hapus, 💳 Bayar, 🧹 Kosongkan, 🔎 Jelajahi, 🏠 Beranda</g-keyboard>
+      <g-message lang="id">
+        🛒 Keranjang Anda
+
+        {{items}}
+
+        Subtotal: {{subtotal}}
+
+        Sesuaikan jumlah atau lanjutkan ke pembayaran.
+      </g-message>
     </g-base>
 
     <g-base id="${Base.empty}">
@@ -132,6 +142,12 @@ export class CartPage extends PageBase {
 
         Browse subscription products and add your favorites before checkout.
       </g-message>
+      <g-keyboard lang="id">🔎 Jelajahi, 🏠 Beranda</g-keyboard>
+      <g-message lang="id">
+        🛒 Keranjang Kosong
+
+        Jelajahi produk langganan dan tambahkan favorit Anda sebelum checkout.
+      </g-message>
     </g-base>
 
     <g-base id="${Base.infoCleared}">
@@ -140,6 +156,12 @@ export class CartPage extends PageBase {
         🧹 Cart cleared
 
         Your cart is empty now. You can continue browsing anytime.
+      </g-message>
+      <g-keyboard lang="id">🔎 Jelajahi, 🏠 Beranda</g-keyboard>
+      <g-message lang="id">
+        🧹 Keranjang dikosongkan
+
+        Keranjang Anda kosong sekarang. Anda dapat melanjutkan belanja kapan saja.
       </g-message>
     </g-base>
   `

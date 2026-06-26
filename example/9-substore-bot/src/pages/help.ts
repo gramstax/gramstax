@@ -52,6 +52,17 @@ export class HelpPage extends PageBase {
 
         Support: {{support}}
       </g-message>
+      <g-keyboard lang="id">🔎 Jelajahi, 🏠 Beranda</g-keyboard>
+      <g-message lang="id">
+        ❓ Bantuan Toko
+
+        1. Jelajahi produk dengan Sebelumnya dan Selanjutnya.
+        2. Buka produk untuk lihat durasi, tipe akun, stok, dan estimasi pengiriman.
+        3. Gunakan ✅ Beli untuk checkout satu item atau ➕ Tambah untuk membandingkan produk.
+        4. Konfirmasi checkout setelah mengirim kontak dan catatan.
+
+        Dukungan: {{support}}
+      </g-message>
     </g-base>
   `
 }

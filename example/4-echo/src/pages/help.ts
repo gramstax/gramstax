@@ -44,6 +44,16 @@ export class HelpPage extends PageBase {
 
         You can also send any message to echo it back.
       </g-message>
+      ${this.kbk.back(`id`)}
+      <g-message lang="id">
+        ❓ Bantuan
+        
+        Perintah yang tersedia:
+        - /start: Pesan selamat datang
+        - /help: Tampilkan bantuan ini
+
+        Anda juga dapat mengirim pesan apa pun untuk melihat gema.
+      </g-message>
     </g-base>
   `
 }

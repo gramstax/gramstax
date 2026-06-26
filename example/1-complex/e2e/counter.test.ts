@@ -25,7 +25,7 @@ describe(`E2E: CounterPage`, () => {
     expect(initialResponsesId[0]!.body?.text).toBe(msg(intent, `s1`, {count: `0`}, `id`))
     expect(buttonLabels(initialResponsesId[0])).toEqual(kb(intent, `s1`, `inline`, {count: `0`}, `id`))
 
-    const initialText = initialResponses[0]!.body?.text!
+    const initialText = initialResponses[0]!.body?.text
     expect(initialText).toContain(`Current count:`)
     const initialMatch = initialText.match(/Current count: (\d+)/)
     expect(initialMatch).not.toBeNull()
