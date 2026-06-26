@@ -1,3 +1,14 @@
+/**
+ * IPC gateway server — listens on a Unix socket for remote RPC requests.
+ *
+ * @remarks
+ * [LOW-LEVEL] Provides IPC server functionality for inter-worker
+ * communication using Unix domain sockets. Created internally by
+ * {@link WorkerThreadInit.createGatewayServer}.
+ *
+ * @internal
+ */
+
 import {Server, type Connection} from "net-ipc"
 import {WorkerThreadRpc} from "./rpc"
 

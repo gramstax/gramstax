@@ -1,3 +1,17 @@
+/**
+ * Worker thread initializer — runs inside the worker thread.
+ *
+ * @remarks
+ * Extend this class to define worker methods. The base class sets up the
+ * RPC listener and provides helpers for inter-worker IPC
+ * ({@link createGatewayServer}, {@link createGatewayClient}).
+ *
+ * All `mtd*` methods are automatically proxied for RPC calls from the
+ * main thread.
+ *
+ * @public
+ */
+
 import {parentPort, threadId, isMainThread} from "node:worker_threads"
 import {WorkerThreadRpc} from "./rpc"
 import {WorkerThreadGatewayServer} from "./gateway-server"

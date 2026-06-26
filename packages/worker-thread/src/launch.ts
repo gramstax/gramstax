@@ -1,3 +1,14 @@
+/**
+ * Worker thread launcher — manages lifecycle from the main thread.
+ *
+ * @remarks
+ * Spawns a {@link Worker} thread, sets up the RPC channel, and provides
+ * `request()` / `sendRequest()` for calling worker methods and waiting
+ * for responses. Also exposes `kill()` / `send()` for lifecycle control.
+ *
+ * @public
+ */
+
 import {isMainThread, Worker} from "node:worker_threads"
 import {WorkerThreadRpc} from "./rpc"
 

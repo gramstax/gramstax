@@ -1,4 +1,16 @@
 /**
+ * RPC types and handler for worker-thread request/response.
+ *
+ * @remarks
+ * Defines the shared RPC map type and the low-level
+ * {@link WorkerThreadRpc} handler that decodes incoming messages,
+ * dispatches to the matching `mtd*` method, and returns the result
+ * or error to the caller thread.
+ *
+ * @public
+ */
+
+/**
  * Map type for storing pending RPC request handlers.
  * @public
  */

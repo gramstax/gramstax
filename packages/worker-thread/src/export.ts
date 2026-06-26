@@ -1,3 +1,17 @@
+/**
+ * Worker thread export — top-level init, types, and aggregator.
+ *
+ * @remarks
+ * Provides the {@link WorkerThreadExport} class that auto-detects
+ * main-thread vs worker-thread context, launches workers, sets up RPC
+ * proxies, and exposes type-safe method invocation across threads.
+ *
+ * Also exports the shared types used throughout the package.
+ *
+ * @packageDocumentation
+ * @public
+ */
+
 import {WorkerThreadLaunch} from "./launch"
 import {WorkerThreadInit} from "./init"
 

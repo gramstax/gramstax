@@ -1,3 +1,14 @@
+/**
+ * Worker thread pool — manages multiple worker instances.
+ *
+ * @remarks
+ * Provides pooled access to multiple {@link WorkerThreadLaunch} instances
+ * with round-robin dispatch and broadcast functionality for fan-out
+ * operations across all workers.
+ *
+ * @public
+ */
+
 import type {WorkerThreadLaunch} from "./launch"
 
 /**

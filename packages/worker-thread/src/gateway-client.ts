@@ -1,3 +1,14 @@
+/**
+ * IPC gateway client — connects to a remote worker's Unix socket server.
+ *
+ * @remarks
+ * [LOW-LEVEL] Provides IPC client functionality for inter-worker
+ * communication using Unix domain sockets. Created internally by
+ * {@link WorkerThreadInit.createGatewayClient}.
+ *
+ * @internal
+ */
+
 import {Client} from "net-ipc"
 import {WorkerThreadRpc} from "./rpc"
 
