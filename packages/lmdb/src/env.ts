@@ -41,8 +41,8 @@ export class LmdbEnv {
   /** @internal */
   private readonly _dbByTx = new WeakMap<LmdbTransaction, Map<string, any>>()
 
-  /** Whether the env is read-only (mirrors {@link ILmdbEnvOptions.readOnly}). */
-  readonly readOnly: boolean
+  /** @internal Full LMDB options — passed verbatim to `root.openDB()` */
+  private readonly _opts: ILmdbEnvOptions
 
   /** Path where LMDB stores its data files. */
   readonly path: string
@@ -50,14 +50,11 @@ export class LmdbEnv {
   /** Maximum number of sub-databases (mirrors {@link ILmdbEnvOptions.maxDbs}). */
   readonly maxDbs: number
 
-  /** Compression enabled (mirrors {@link ILmdbEnvOptions.compression}). */
-  readonly compression: boolean
+  /** Whether the env is read-only (mirrors {@link ILmdbEnvOptions.readOnly}). */
+  readonly readOnly: boolean
 
-  /** Maximum readers (mirrors {@link ILmdbEnvOptions.maxReaders}). */
-  readonly maxReaders: number
-
-  /** Map size in bytes (mirrors {@link ILmdbEnvOptions.mapSize}). */
-  readonly mapSize: number
+  /** Default LMDB value encoding for all sub-DBs (mirrors {@link ILmdbEnvOptions.encoding}). */
+  readonly encoding: LmdbEncoding | undefined
 
   /**
    * Construct a new LmdbEnv (does NOT open it yet).
@@ -66,23 +63,39 @@ export class LmdbEnv {
    * Call {@link open} (or use `await env.open()`) before performing operations.
    * The constructor only stores options.
    *
-   * @param options - Env configuration.
+   * @param options - Env configuration. Supports the full set of LMDB
+   * `open()` parameters via {@link ILmdbEnvOptions}.
    *
    * @example
    * ```typescript
-   * const env = new LmdbEnv({ path: "./data", maxDbs: 10 });
-   * await env.open();
+   * // Default — LMDB native msgpack
+   * const env = new LmdbEnv({ path: "./data" });
+   *
+   * // Human-readable JSON storage
+   * const env = new LmdbEnv({ path: "./data", encoding: "json" });
+   *
+   * // With compression + custom page size
+   * const env = new LmdbEnv({
+   *   path: "./data",
+   *   compression: true,
+   *   pageSize: 8192
+   * });
+   *
+   * // At-rest encryption (32-byte key)
+   * const env = new LmdbEnv({
+   *   path: "./data",
+   *   encryptionKey: process.env.LMDB_KEY
+   * });
    * ```
    *
    * @public
    */
   constructor(options: ILmdbEnvOptions) {
+    this._opts = options
     this.path = options.path
     this.maxDbs = options.maxDbs ?? 10
-    this.compression = options.compression ?? false
     this.readOnly = options.readOnly ?? false
-    this.maxReaders = options.maxReaders ?? 126
-    this.mapSize = options.mapSize ?? 268435456
+    this.encoding = options.encoding
   }
 
   // ──────────────────────────────────────────────────────────────────
@@ -113,14 +126,7 @@ export class LmdbEnv {
       throw new LmdbEnvClosedError()
     }
     this._state = `opening`
-    this._root = open({
-      path: this.path,
-      maxDbs: this.maxDbs,
-      compression: this.compression,
-      readOnly: this.readOnly,
-      maxReaders: this.maxReaders,
-      mapSize: this.mapSize
-    })
+    this._root = open(this._opts)
     this._state = `open`
   }
 
@@ -164,9 +170,10 @@ export class LmdbEnv {
    *
    * @internal
    */
-  getDb(name: string, encoding?: LmdbEncoding, tx?: LmdbTransaction): any {
+  getDb(name: string, overrideEncoding?: LmdbEncoding, tx?: LmdbTransaction): any {
     if (this._state !== `open`) throw new LmdbEnvNotOpenError()
 
+    const encoding = overrideEncoding ?? this.encoding
     const openOpts: {encoding?: LmdbEncoding} = {}
     if (encoding) openOpts.encoding = encoding
 

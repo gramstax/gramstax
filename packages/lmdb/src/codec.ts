@@ -11,7 +11,7 @@
  * 1. `serialize(value)` runs first (your custom transform)
  * 2. LMDB then encodes the result using the sub-database's encoding
  *
- * To get human-readable JSON, use `static encoding = "json"` on the
+ * To get human-readable JSON, set `encoding: "json"` on the
  * Repository — LMDB does `JSON.stringify`/`JSON.parse` natively without
  * any codec, avoiding double encoding.
  *

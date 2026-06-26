@@ -7,7 +7,7 @@ LMDB-backed key-value database with OOP Repository pattern per sub-database. Mul
 - **OOP Repository pattern** — each repository owns a sub-database (named `dbName`) and exposes typed CRUD over it
 - **Cross-repository transactions** — atomic writes across multiple repositories via `env.transaction()`
 - **Snapshot reads** — consistent point-in-time reads via `env.readTransaction()`
-- **LMDB-native encoding** — default msgpack (fastest, supports `Date`/`Map`/`Set`/BigInt), opt into `static encoding = "json"` for human-readable storage. Use `LmdbCodec.create()` only for custom value transforms (e.g. `Date → number`).
+- **LMDB-native encoding** — default msgpack (fastest, supports `Date`/`Map`/`Set`/BigInt), opt into `encoding: "json"` on `LmdbEnv` for human-readable storage. Use `LmdbCodec.create()` only for custom value transforms (e.g. `Date → number`).
 - **Range queries & streaming** — `keys`/`values`/`entries`/`iterate` with start/end/limit/offset/reverse options
 - **Read-only mode** — open envs as read-only for safe sharing
 - **Async (Promise-based)** API
@@ -153,7 +153,7 @@ flowchart LR
 | `LmdbEnv`                | top-level     | Opens one LMDB env, manages sub-DBs, transactions, lifecycle                                       |
 | `LmdbRepository<T, K>`       | abstract base | Typed CRUD over one sub-DB; subclass with `static dbName`                                          |
 | `LmdbTransaction`            | wrapper       | Lifecycle API (`commit`/`abort`/`lifecycle`/`raw`)                                                 |
-| `ICodec<T>`              | codec.ts      | `LmdbCodec.create()` factory for custom value transforms; for default msgpack/json/binary use `static encoding` |
+| `ICodec<T>`              | codec.ts      | `LmdbCodec.create()` factory for custom value transforms; LMDB handles msgpack/json/binary natively; use `encoding` on `LmdbEnv` |
 | `LmdbError` + subclasses | errors.ts     | Typed errors: `instanceof`-discriminable                                                           |
 
 ## Lifecycle: Open → Register → Use → Close
@@ -300,10 +300,19 @@ tx.raw; // underlying LMDB read transaction (read-tx only)
 
 ## Encoding Choice
 
-LMDB handles value encoding natively per sub-database. Set `static encoding`
-on your Repository; no `codec` needed for the default cases.
+LMDB handles value encoding natively per sub-database. Set `encoding` when
+constructing your `LmdbEnv`:
 
-| `static encoding`        | LMDB encoder                  | Use when                                            |
+```typescript
+// Default — LMDB native msgpack (fastest, supports Date/Map/Set/BigInt)
+const env = new LmdbEnv({ path: "./data" })
+
+// Human-readable JSON storage
+const env = new LmdbEnv({ path: "./data", encoding: "json" })
+```
+
+| `encoding` option      | LMDB encoder                  | Use when                                            |
+| ---------------------- | ----------------------------- | --------------------------------------------------- |
 | ------------------------ | ----------------------------- | --------------------------------------------------- |
 | `msgpack` (default)      | msgpackr (binary)              | Default — fastest, supports `Date`/`Map`/`Set`/BigInt |
 | `json`                   | `JSON.stringify` / `JSON.parse`| Human-readable storage, debug-friendly               |

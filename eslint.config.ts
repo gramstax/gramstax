@@ -22,11 +22,10 @@ export default defineConfig([
     rules: {
       quotes: [`warn`, `backtick`], // ⬅️ Force use backtick
       "@typescript-eslint/no-explicit-any": `off`, // ⬅️ Accept any
-      // "@typescript-eslint/no-unused-vars": [
-      //   `error`,
-      //   {argsIgnorePattern: `^_`, varsIgnorePattern: `^_`}
-      // ],
-      "@typescript-eslint/no-unused-vars": `error`,
+      "@typescript-eslint/no-unused-vars": [
+        `error`,
+        {argsIgnorePattern: `^_`, varsIgnorePattern: `^_`}
+      ],
       "no-unused-vars": `off`, // ⬅️ Accept declaration variable without not used (javascript)
       "object-curly-spacing": [`error`, `never`] // ⬅️ Force delete space in object curly
     }

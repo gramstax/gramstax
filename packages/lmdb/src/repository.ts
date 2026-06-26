@@ -28,18 +28,18 @@
 import {LmdbTransaction} from "./transaction"
 import {resolveCodec} from "./codec"
 import {LmdbMissingDbNameError, LmdbReadOnlyError} from "./errors"
-import type {ICodec, IRangeOptions, LMDBKey, LmdbEncoding} from "./types"
+import type {ICodec, IRangeOptions, LMDBKey} from "./types"
 
 /**
  * Forward-declared `LmdbEnv` shape. The real class lives in `./env` and is
  * injected via the constructor — this avoids a circular import between
- * `LmdbRepository` and `LmdbEnv`.
+ * `Repository` and `LmdbEnv`.
  *
  * @internal
  */
 interface IEnvForRepo {
   /** @internal */
-  getDb(name: string, encoding?: LmdbEncoding, tx?: LmdbTransaction): any
+  getDb(name: string): any
   /** @internal */
   readonly readOnly: boolean
 }
@@ -70,7 +70,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    *
    * @remarks
    * If set, runs BEFORE LMDB encoding. Use for custom transforms
-   * (e.g. `Date → number`). For human-readable JSON, set `static encoding`
+   * (e.g. `Date → number`). For human-readable JSON, set `encoding` on `LmdbEnv`
    * instead — LMDB does `JSON.stringify` natively without double encoding.
    *
    * @virtual
@@ -89,7 +89,6 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @virtual
    * @public
    */
-  static encoding?: LmdbEncoding
 
   /**
    * Optional custom serializer. Use with {@link deserialize}.
@@ -134,9 +133,8 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
     if (!resolved) {
       throw new LmdbMissingDbNameError(this.constructor.name)
     }
-    const encoding = (this.constructor as any).encoding as LmdbEncoding | undefined
     this._env = env
-    this._db = env.getDb(resolved, encoding)
+    this._db = env.getDb(resolved)
     this._codec = resolveCodec(this.constructor)
   }
 

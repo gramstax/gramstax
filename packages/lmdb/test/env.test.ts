@@ -62,13 +62,11 @@ afterEach(async () => {
 })
 
 describe(`LmdbEnv constructor`, () => {
-  it(`stores options as readonly fields`, () => {
+  it(`stores path, maxDbs, readOnly, encoding`, () => {
     expect(env.path).toBe(tmpDir)
     expect(env.maxDbs).toBe(5)
-    expect(env.compression).toBe(false)
     expect(env.readOnly).toBe(false)
-    expect(env.maxReaders).toBe(126)
-    expect(env.mapSize).toBe(268435456)
+    expect(env.encoding).toBeUndefined()
   })
 
   it(`applies default values when options are omitted`, async () => {
@@ -77,10 +75,8 @@ describe(`LmdbEnv constructor`, () => {
     await e.open()
     try {
       expect(e.maxDbs).toBe(10)
-      expect(e.compression).toBe(false)
       expect(e.readOnly).toBe(false)
-      expect(e.maxReaders).toBe(126)
-      expect(e.mapSize).toBe(268435456)
+      expect(e.encoding).toBeUndefined()
     } finally {
       await e.close()
       await rmWithRetry(dir)
