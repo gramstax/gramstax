@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `start`
@@ -25,8 +25,8 @@ describe(`E2E: StartPage`, () => {
     expect(reply.body?.text).toContain(`Time now:`)
     expect(replyId.body?.text).toContain(`Halo Dunia!`)
     expect(replyId.body?.text).toContain(`Waktu:`)
-    expect(buttonLabels(reply)).toEqual(kb(intent, `s1`, `inline`, {}))
-    expect(buttonLabels(replyId)).toEqual(kb(intent, `s1`, `inline`, {}, `id`))
+    expect(buttonLabels(reply)).toEqual(gkb(intent, `s1`, `inline`, {}))
+    expect(buttonLabels(replyId)).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
   })
 
   it(`respond to callback query with edited message`, async () => {
@@ -63,7 +63,7 @@ describe(`E2E: StartPage`, () => {
     env.clearRequests()
 
     const res3 = await env.mockServer.sendText(`gibberish`)
-    expect(res3[0]?.body?.text).toBe(msg(`general-status`, `d`, {isNotFound: true}))
+    expect(res3[0]?.body?.text).toBe(gmsg(`general-status`, `d`, {isNotFound: true}))
   })
 
   it(`support custom user and chat options`, async () => {

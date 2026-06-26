@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg} from "./setup"
+import {getEnv, type TestEnvironment, gmsg} from "./setup"
 
 let env: TestEnvironment
 const intent = `detail`
@@ -54,6 +54,6 @@ describe(`E2E: DetailPage`, () => {
 
     const responses = await env.mockServer.sendText(`99999`, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `i-notfound`, {id: `99999`}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `i-notfound`, {id: `99999`}))
   })
 })

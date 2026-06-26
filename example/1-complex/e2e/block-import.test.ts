@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, msg, type TestEnvironment} from "./setup"
+import {getEnv, gmsg, type TestEnvironment} from "./setup"
 
 let env: TestEnvironment
 const intent = `block-import`
@@ -23,7 +23,7 @@ describe(`E2E: BlockImportPage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s1`, {number: Math.random()}))
-    expect(responsesId[0]!.body?.text).toBe(msg(intent, `s1`, {number: Math.random()}, `id`))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {number: Math.random()}))
+    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {number: Math.random()}, `id`))
   })
 })

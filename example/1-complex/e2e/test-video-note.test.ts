@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, media, type TestEnvironment} from "./setup"
+import {getEnv, gmedia, type TestEnvironment} from "./setup"
 
 let env: TestEnvironment
 const intent = `test-video-note`
@@ -21,12 +21,12 @@ describe(`E2E: TestVideoNotePage`, () => {
 
     const sendVoiceReq = env.mockServer.lastRequest(`sendVoice`)
     expect(sendVoiceReq).toBeDefined()
-    expect(sendVoiceReq!.body?.voice).toBe(media(intent, `s1`, {}).src)
+    expect(sendVoiceReq!.body?.voice).toBe(gmedia(intent, `s1`, {}).src)
 
     env.clearRequests()
     await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
     const sendVoiceIdReq = env.mockServer.lastRequest(`sendVoice`)
     expect(sendVoiceIdReq).toBeDefined()
-    expect(sendVoiceIdReq!.body?.voice).toBe(media(intent, `s1`, {}, `id`).src)
+    expect(sendVoiceIdReq!.body?.voice).toBe(gmedia(intent, `s1`, {}, `id`).src)
   })
 })

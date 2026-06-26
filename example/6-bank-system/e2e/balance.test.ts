@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `balance`
@@ -21,8 +21,8 @@ describe(`E2E: BalancePage`, () => {
 
     const responses = await env.mockServer.sendCallbackQuery(intent, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s1`, {balance: `0`}))
-    expect(buttonLabels(responses[0])).toEqual(kb(intent, `s1`, `inline`, {balance: `0`}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {balance: `0`}))
+    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s1`, `inline`, {balance: `0`}))
   })
 
   it(`shows ID variant`, async () => {
@@ -31,7 +31,7 @@ describe(`E2E: BalancePage`, () => {
 
     const responsesId = await env.mockServer.sendCallbackQuery(intent, asUserId)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responsesId[0]!.body?.text).toBe(msg(intent, `s1`, {balance: `0`}, `id`))
-    expect(buttonLabels(responsesId[0])).toEqual(kb(intent, `s1`, `inline`, {balance: `0`}, `id`))
+    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {balance: `0`}, `id`))
+    expect(buttonLabels(responsesId[0])).toEqual(gkb(intent, `s1`, `inline`, {balance: `0`}, `id`))
   })
 })

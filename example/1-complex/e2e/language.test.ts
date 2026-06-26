@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg} from "./setup"
+import {getEnv, type TestEnvironment, gmsg} from "./setup"
 
 let env: TestEnvironment
 const intent = `language`
@@ -22,7 +22,7 @@ describe(`E2E: LanguagePage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s1`, {}))
-    expect(responsesId[0]!.body?.text).toBe(msg(intent, `s1`, {}, `id`))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
+    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
   })
 })

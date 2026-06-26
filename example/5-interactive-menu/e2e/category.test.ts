@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `category`
@@ -21,7 +21,7 @@ describe(`E2E: CategoryPage`, () => {
 
     const responses = await env.mockServer.sendCallbackQuery(intent, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s1`, {}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
     // Keyboard is built dynamically with category names + back button
     const labels = buttonLabels(responses[0])
     expect(labels).toContain(`Tools`)
@@ -36,7 +36,7 @@ describe(`E2E: CategoryPage`, () => {
 
     const responsesId = await env.mockServer.sendCallbackQuery(intent, asUserId)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responsesId[0]!.body?.text).toBe(msg(intent, `s1`, {}, `id`))
+    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
     const idLabels = buttonLabels(responsesId[0])
     expect(idLabels).toContain(`Tools`)
     expect(idLabels).toContain(`Guides`)

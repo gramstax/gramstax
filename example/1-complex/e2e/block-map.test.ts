@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, msg, type TestEnvironment} from "./setup"
+import {getEnv, gmsg, type TestEnvironment} from "./setup"
 
 let env: TestEnvironment
 const intent = `block-map`
@@ -26,6 +26,6 @@ describe(`E2E: BlockMapPage`, () => {
 
     const responsesId = await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responsesId[0]!.body?.text).toBe(msg(`block-map`, `s1`, {}, `id`).slice(0, 20))
+    expect(responsesId[0]!.body?.text).toBe(gmsg(`block-map`, `s1`, {}, `id`).slice(0, 20))
   })
 })

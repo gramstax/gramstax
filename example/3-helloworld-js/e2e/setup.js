@@ -39,18 +39,18 @@ export async function getEnv() {
   return sharedEnv
 }
 
-export function msg(page, AGBaseId, data, ALang = `default`) {
-  return sharedEnv.botCore.templateManager.getMessage(page, AGBaseId, ALang, data)
+export function gmsg(page, AGBaseId, data, ALang = `default`) {
+  return sharedEnv.botCore.templateManager.getGMessage(page, AGBaseId, ALang, data)
 }
 
-export function kb(page, AGBaseId, AType = `inline`, data, ALang = `default`) {
-  return sharedEnv.botCore.templateManager.getKeyboard(page, AGBaseId, ALang, AType, data)
+export function gkb(page, AGBaseId, AType = `inline`, data, ALang = `default`) {
+  return sharedEnv.botCore.templateManager.getGKeyboard(page, AGBaseId, ALang, AType, data)
 }
 
 export function buttonLabels(resp) {
   return resp?.body?.reply_markup?.inline_keyboard?.flat().map((b) => b.text) ?? []
 }
 
-export function media(page, AGBaseId, data, ALang = `default`) {
-  return sharedEnv.botCore.templateManager.getMedia(page, AGBaseId, ALang, data)
+export function gmedia(page, AGBaseId, data, ALang = `default`) {
+  return sharedEnv.botCore.templateManager.getGMedia(page, AGBaseId, ALang, data)
 }

@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `help`
@@ -24,9 +24,9 @@ describe(`E2E: HelpPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     const edit = responses[0]!
     const editId = responsesId[0]!
-    expect(edit.body?.text).toBe(msg(intent, `s1`, {}))
-    expect(editId.body?.text).toBe(msg(intent, `s1`, {}, `id`))
-    expect(buttonLabels(edit)).toEqual(kb(intent, `s1`, `inline`, {}))
-    expect(buttonLabels(editId)).toEqual(kb(intent, `s1`, `inline`, {}, `id`))
+    expect(edit.body?.text).toBe(gmsg(intent, `s1`, {}))
+    expect(editId.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
+    expect(buttonLabels(edit)).toEqual(gkb(intent, `s1`, `inline`, {}))
+    expect(buttonLabels(editId)).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
   })
 })

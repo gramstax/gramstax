@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 import {CatalogData} from "../src/data/catalog"
 
 let env: TestEnvironment
@@ -22,7 +22,7 @@ describe(`E2E: InlineWithRangePage`, () => {
 
     const responses = await env.mockServer.sendCallbackQuery(intent, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s1`, {page: 1, totalPages: 4}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {page: 1, totalPages: 4}))
     // Keyboard is built dynamically with menu item names + page label + navigation
     const labels = buttonLabels(responses[0])
     expect(labels).toContain(`📄 Page 1/4`)
@@ -36,7 +36,7 @@ describe(`E2E: InlineWithRangePage`, () => {
 
     const responsesId = await env.mockServer.sendCallbackQuery(intent, asUserId)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responsesId[0]!.body?.text).toBe(msg(intent, `s1`, {page: 1, totalPages: 4}, `id`))
+    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {page: 1, totalPages: 4}, `id`))
     const idLabels = buttonLabels(responsesId[0])
     expect(idLabels).toContain(`📄 Halaman 1/4`)
     expect(idLabels).toContain(`➡️ Selanjutnya`)
@@ -56,7 +56,7 @@ describe(`E2E: InlineWithRangePage`, () => {
 
     const page2 = await env.mockServer.sendCallbackQuery(nextCb, asUser)
     expect(page2.length).toBeGreaterThan(0)
-    expect(page2[0]!.body?.text).toBe(msg(intent, `s1`, {page: 2, totalPages: 4}))
+    expect(page2[0]!.body?.text).toBe(gmsg(intent, `s1`, {page: 2, totalPages: 4}))
   })
 })
 
@@ -66,7 +66,7 @@ async function findNextCallback(pageIntent: string, page: number): Promise<strin
   const response = await env.mockServer.sendCallbackQuery(pageIntent, asUser)
   env.clearRequests()
   const keyboard = response[0]?.body?.reply_markup?.inline_keyboard?.flat() ?? []
-  const nextLabel = kb(intent, `s1`, `inline`, {page: page + 1, totalPages})[1]
+  const nextLabel = gkb(intent, `s1`, `inline`, {page: page + 1, totalPages})[1]
   const nextButton = keyboard.find((b: any) => b.text === nextLabel || b.text === `➡️ Next`)
   return nextButton?.callback_data ?? null
 }

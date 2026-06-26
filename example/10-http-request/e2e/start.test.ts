@@ -5,7 +5,7 @@
  * for exact matching instead of fragile partial assertions.
  */
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `start`
@@ -27,24 +27,24 @@ describe(`E2E: StartPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     const reply = responses[0]!
     const replyId = responsesId[0]!
-    expect(reply.body?.text).toBe(msg(intent, `s1`, {}))
-    expect(replyId.body?.text).toBe(msg(intent, `s1`, {}, `id`))
-    expect(buttonLabels(reply)).toEqual(kb(intent, `s1`, `inline`, {}))
-    expect(buttonLabels(replyId)).toEqual(kb(intent, `s1`, `inline`, {}, `id`))
+    expect(reply.body?.text).toBe(gmsg(intent, `s1`, {}))
+    expect(replyId.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
+    expect(buttonLabels(reply)).toEqual(gkb(intent, `s1`, `inline`, {}))
+    expect(buttonLabels(replyId)).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
   })
 
   it(`handle multiple sequential interactions: /start -> help -> http-request`, async () => {
     const res1 = await env.mockServer.sendText(`/start`)
-    expect(res1[0]?.body?.text).toBe(msg(intent, `s1`, {}))
+    expect(res1[0]?.body?.text).toBe(gmsg(intent, `s1`, {}))
 
     env.clearRequests()
 
     const res2 = await env.mockServer.sendCallbackQuery(`help`)
-    expect(res2[0]?.body?.text).toBe(msg(`help`, `s1`, {}))
+    expect(res2[0]?.body?.text).toBe(gmsg(`help`, `s1`, {}))
 
     env.clearRequests()
 
     const res3 = await env.mockServer.sendCallbackQuery(`http-request`)
-    expect(res3[0]?.body?.text).toBe(msg(`http-request`, `s-method`, {}))
+    expect(res3[0]?.body?.text).toBe(gmsg(`http-request`, `s-method`, {}))
   })
 })

@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, media, type TestEnvironment} from "./setup"
+import {getEnv, gmedia, type TestEnvironment} from "./setup"
 
 let env: TestEnvironment
 const intent = `test-location`
@@ -28,7 +28,7 @@ describe(`E2E: TestLocationPage`, () => {
     await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
     const idReq = env.mockServer.lastRequest(`sendLocation`)
     expect(idReq).toBeDefined()
-    expect(idReq!.body?.latitude).toBe(parseInt(media(intent, `s1`, {}, `id`).latitude))
-    expect(idReq!.body?.longitude).toBe(parseInt(media(intent, `s1`, {}, `id`).longitude))
+    expect(idReq!.body?.latitude).toBe(parseInt(gmedia(intent, `s1`, {}, `id`).latitude))
+    expect(idReq!.body?.longitude).toBe(parseInt(gmedia(intent, `s1`, {}, `id`).longitude))
   })
 })

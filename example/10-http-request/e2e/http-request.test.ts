@@ -5,7 +5,7 @@
  * URL input, token input, body input, result display, and toggling views.
  */
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `http-request`
@@ -30,10 +30,10 @@ describe(`E2E: HttpRequestPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     const edit = responses[0]!
     const editId = responsesId[0]!
-    expect(edit.body?.text).toBe(msg(intent, `s-method`, {}))
-    expect(editId.body?.text).toBe(msg(intent, `s-method`, {}, `id`))
-    expect(buttonLabels(edit)).toEqual(kb(intent, `s-method`, `inline`, {}))
-    expect(buttonLabels(editId)).toEqual(kb(intent, `s-method`, `inline`, {}, `id`))
+    expect(edit.body?.text).toBe(gmsg(intent, `s-method`, {}))
+    expect(editId.body?.text).toBe(gmsg(intent, `s-method`, {}, `id`))
+    expect(buttonLabels(edit)).toEqual(gkb(intent, `s-method`, `inline`, {}))
+    expect(buttonLabels(editId)).toEqual(gkb(intent, `s-method`, `inline`, {}, `id`))
   })
 
   it(`show URL input form when a method is selected`, async () => {
@@ -56,10 +56,10 @@ describe(`E2E: HttpRequestPage`, () => {
     expect(responsesId.length).toBe(1)
     const edit = responses[0]!
     const editId = responsesId[0]!
-    expect(edit.body?.text).toBe(msg(intent, `s-url`, {method: `GET`}))
-    expect(editId.body?.text).toBe(msg(intent, `s-url`, {method: `GET`}, `id`))
-    expect(buttonLabels(edit)).toEqual(kb(intent, `s-url`, `inline`, {}))
-    expect(buttonLabels(editId)).toEqual(kb(intent, `s-url`, `inline`, {}, `id`))
+    expect(edit.body?.text).toBe(gmsg(intent, `s-url`, {method: `GET`}))
+    expect(editId.body?.text).toBe(gmsg(intent, `s-url`, {method: `GET`}, `id`))
+    expect(buttonLabels(edit)).toEqual(gkb(intent, `s-url`, `inline`, {}))
+    expect(buttonLabels(editId)).toEqual(gkb(intent, `s-url`, `inline`, {}, `id`))
   })
 
   it(`select method again after Back and re-entering method selection`, async () => {
@@ -76,14 +76,14 @@ describe(`E2E: HttpRequestPage`, () => {
     // Click Back → method selection
     const backResponses = await env.mockServer.sendCallbackQuery(`${intent}:_back`)
     expect(backResponses.length).toBe(1)
-    expect(backResponses[0]!.body?.text).toBe(msg(intent, `s-method`, {}))
+    expect(backResponses[0]!.body?.text).toBe(gmsg(intent, `s-method`, {}))
     env.clearRequests()
 
     // Click POST → URL input (different method)
     const postResponses = await env.mockServer.sendCallbackQuery(`${intent}:POST`)
     expect(postResponses.length).toBe(1)
     const edit = postResponses[0]!
-    expect(edit.body?.text).toBe(msg(intent, `s-url`, {method: `POST`}))
+    expect(edit.body?.text).toBe(gmsg(intent, `s-url`, {method: `POST`}))
   })
 
   it(`select method after completing a full request cycle (start → method → URL → token → result → home → new request → method)`, async () => {
@@ -111,7 +111,7 @@ describe(`E2E: HttpRequestPage`, () => {
     const postResponses = await env.mockServer.sendCallbackQuery(`${intent}:POST`)
     expect(postResponses.length).toBe(1)
     const edit = postResponses[0]!
-    expect(edit.body?.text).toBe(msg(intent, `s-url`, {method: `POST`}))
+    expect(edit.body?.text).toBe(gmsg(intent, `s-url`, {method: `POST`}))
   })
 
   it(`show token input form when a URL is sent after selecting method`, async () => {
@@ -128,8 +128,8 @@ describe(`E2E: HttpRequestPage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     const reply = responses[0]!
-    expect(reply.body?.text).toBe(msg(intent, `s-token`, {method: `GET`, url: testUrl}))
-    expect(buttonLabels(reply)).toEqual(kb(intent, `s-token`, `inline`, {}))
+    expect(reply.body?.text).toBe(gmsg(intent, `s-token`, {method: `GET`, url: testUrl}))
+    expect(buttonLabels(reply)).toEqual(gkb(intent, `s-token`, `inline`, {}))
   })
 
   it(`make HTTP request and show response when user sends a valid URL after method selection`, async () => {
@@ -154,7 +154,7 @@ describe(`E2E: HttpRequestPage`, () => {
     expect(reply.body?.text).toContain(`200`)
     expect(reply.body?.text).toContain(`OK`)
     expect(reply.body?.text).toContain(`Hello from test server`)
-    expect(buttonLabels(reply)).toEqual(kb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
+    expect(buttonLabels(reply)).toEqual(gkb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
   })
 
   it(`escape HTML in response body`, async () => {
@@ -197,10 +197,10 @@ describe(`E2E: HttpRequestPage`, () => {
     const replyId = responsesId[0]!
     expect(reply).toBeDefined()
     expect(replyId).toBeDefined()
-    expect(reply.body?.text).toBe(msg(intent, `w-invalid`, {url: `not-a-valid-url`}))
-    expect(replyId.body?.text).toBe(msg(intent, `w-invalid`, {url: `not-a-valid-url`}, `id`))
-    expect(buttonLabels(reply)).toEqual(kb(intent, `w-invalid`, `inline`, {}))
-    expect(buttonLabels(replyId)).toEqual(kb(intent, `w-invalid`, `inline`, {}, `id`))
+    expect(reply.body?.text).toBe(gmsg(intent, `w-invalid`, {url: `not-a-valid-url`}))
+    expect(replyId.body?.text).toBe(gmsg(intent, `w-invalid`, {url: `not-a-valid-url`}, `id`))
+    expect(buttonLabels(reply)).toEqual(gkb(intent, `w-invalid`, `inline`, {}))
+    expect(buttonLabels(replyId)).toEqual(gkb(intent, `w-invalid`, `inline`, {}, `id`))
   })
 
   it(`show 404 response for not-found endpoint`, async () => {
@@ -223,7 +223,7 @@ describe(`E2E: HttpRequestPage`, () => {
     expect(reply).toBeDefined()
     expect(reply.body?.text).toContain(`404`)
     expect(reply.body?.text).toContain(`Not Found`)
-    expect(buttonLabels(reply)).toEqual(kb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
+    expect(buttonLabels(reply)).toEqual(gkb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
   })
 
   it(`go back to method selection when clicking Back from URL input`, async () => {
@@ -239,8 +239,8 @@ describe(`E2E: HttpRequestPage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     const edit = responses[0]!
-    expect(edit.body?.text).toBe(msg(intent, `s-method`, {}))
-    expect(buttonLabels(edit)).toEqual(kb(intent, `s-method`, `inline`, {}))
+    expect(edit.body?.text).toBe(gmsg(intent, `s-method`, {}))
+    expect(buttonLabels(edit)).toEqual(gkb(intent, `s-method`, `inline`, {}))
   })
 
   it(`complete POST request with body and echo the body`, async () => {
@@ -271,7 +271,7 @@ describe(`E2E: HttpRequestPage`, () => {
     expect(reply.body?.text).toContain(`[POST]`)
     expect(reply.body?.text).toContain(`200`)
     expect(reply.body?.text).toContain(`echoed`)
-    expect(buttonLabels(reply)).toEqual(kb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
+    expect(buttonLabels(reply)).toEqual(gkb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
   })
 
   it(`pretty-print JSON response bodies with indentation`, async () => {
@@ -295,7 +295,7 @@ describe(`E2E: HttpRequestPage`, () => {
     expect(reply.body?.text).toContain(`\n`)
     expect(reply.body?.text).toContain(`Hello from test server`)
     expect(reply.body?.text).toContain(`ok`)
-    expect(buttonLabels(reply)).toEqual(kb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
+    expect(buttonLabels(reply)).toEqual(gkb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
   })
 
   it(`toggle between formatted and raw JSON body views`, async () => {
@@ -316,7 +316,7 @@ describe(`E2E: HttpRequestPage`, () => {
     expect(successResponses.length).toBeGreaterThan(0)
     const successReply = successResponses[0]
     expect(successReply?.body?.text).toContain(`\n  "message"`)
-    expect(buttonLabels(successReply)).toEqual(kb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
+    expect(buttonLabels(successReply)).toEqual(gkb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
 
     // Click toggle_view — edit to show raw body
     const editResponses = await env.mockServer.sendCallbackQuery(`${intent}:toggle_view`)
@@ -324,14 +324,14 @@ describe(`E2E: HttpRequestPage`, () => {
     const editReply = editResponses[0]
     expect(editReply?.body?.text).toContain(`{"message"`)
     expect(editReply?.body?.text).not.toContain(`\n  "message"`)
-    expect(buttonLabels(editReply)).toEqual(kb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Formatted`}))
+    expect(buttonLabels(editReply)).toEqual(gkb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Formatted`}))
 
     // Click toggle_view again — back to formatted
     const edit2Responses = await env.mockServer.sendCallbackQuery(`${intent}:toggle_view`)
     expect(edit2Responses.length).toBeGreaterThan(0)
     const edit2Reply = edit2Responses[0]
     expect(edit2Reply?.body?.text).toContain(`\n  "message"`)
-    expect(buttonLabels(edit2Reply)).toEqual(kb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
+    expect(buttonLabels(edit2Reply)).toEqual(gkb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
   })
 
   it(`send Bearer token in Authorization header when provided`, async () => {
@@ -355,7 +355,7 @@ describe(`E2E: HttpRequestPage`, () => {
     expect(reply.body?.text).toContain(`[GET]`)
     expect(reply.body?.text).toContain(`200`)
     expect(reply.body?.text).toContain(`Bearer my-secret-token`)
-    expect(buttonLabels(reply)).toEqual(kb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
+    expect(buttonLabels(reply)).toEqual(gkb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
   })
 
   it(`skip token input when Skip is clicked and make request without Authorization`, async () => {
@@ -379,6 +379,6 @@ describe(`E2E: HttpRequestPage`, () => {
     expect(reply.body?.text).toContain(`[GET]`)
     expect(reply.body?.text).toContain(`200`)
     expect(reply.body?.text).toContain(`Hello from test server`)
-    expect(buttonLabels(reply)).toEqual(kb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
+    expect(buttonLabels(reply)).toEqual(gkb(intent, `s-success`, `inline`, {toggleLabel: `🔁 Raw`}))
   })
 })

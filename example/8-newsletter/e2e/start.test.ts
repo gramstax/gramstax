@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, resetEnv, type TestEnvironment, kb, buttonLabels} from "./setup"
+import {getEnv, resetEnv, type TestEnvironment, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `start`
@@ -30,8 +30,8 @@ describe(`E2E: StartPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     expect(responses[0]!.body?.text).toContain(`Newsletter Hub`)
     expect(responsesId[0]!.body?.text).toContain(`Pusat Newsletter`)
-    expect(buttonLabels(responses[0])).toEqual(kb(intent, `s1`, `inline`, {subscribed: false}))
-    expect(buttonLabels(responsesId[0])).toEqual(kb(intent, `s1`, `inline`, {subscribed: false}, `id`))
+    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s1`, `inline`, {subscribed: false}))
+    expect(buttonLabels(responsesId[0])).toEqual(gkb(intent, `s1`, `inline`, {subscribed: false}, `id`))
   })
 
   it(`toggles subscription status via callback`, async () => {

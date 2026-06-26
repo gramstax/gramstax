@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, media, type TestEnvironment} from "./setup"
+import {getEnv, gmedia, type TestEnvironment} from "./setup"
 
 let env: TestEnvironment
 const intent = `test-video`
@@ -22,13 +22,13 @@ describe(`E2E: TestVideoPage`, () => {
     const editMediaReq = env.mockServer.lastRequest(`editMessageMedia`)
     expect(editMediaReq).toBeDefined()
     expect(editMediaReq!.body?.media?.type).toBe(`video`)
-    expect(editMediaReq!.body?.media?.media).toBe(media(intent, `s1`, {}).src)
-    expect(editMediaReq!.body?.media?.caption).toBe(media(intent, `s1`, {}).caption)
+    expect(editMediaReq!.body?.media?.media).toBe(gmedia(intent, `s1`, {}).src)
+    expect(editMediaReq!.body?.media?.caption).toBe(gmedia(intent, `s1`, {}).caption)
 
     env.clearRequests()
     await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
     const editMediaIdReq = env.mockServer.lastRequest(`editMessageMedia`)
     expect(editMediaIdReq).toBeDefined()
-    expect(editMediaIdReq!.body?.media?.caption).toBe(media(intent, `s1`, {}, `id`).caption)
+    expect(editMediaIdReq!.body?.media?.caption).toBe(gmedia(intent, `s1`, {}, `id`).caption)
   })
 })

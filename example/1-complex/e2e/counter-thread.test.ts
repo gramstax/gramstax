@@ -20,13 +20,13 @@ describe(`E2E: CounterThreadPage`, () => {
     const responses = await env.mockServer.sendCallbackQuery(intent)
 
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toContain(`🧵 Worker counter`)
+    expect(responses[0]!.body?.text).toStartWith(`🧵 Worker counter`)
     expect(responses[0]!.body?.text).toContain(`Count:`)
     expect(responses[0]!.body?.text).toContain(`Timestamp:`)
 
     const responsesId = await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responsesId[0]!.body?.text).toContain(`🧵 Kounter worker`)
+    expect(responsesId[0]!.body?.text).toStartWith(`🧵 Kounter worker`)
     expect(responsesId[0]!.body?.text).toContain(`Kounter:`)
     expect(responsesId[0]!.body?.text).toContain(`Waktu:`)
   })

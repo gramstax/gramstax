@@ -6,7 +6,7 @@
  * HttpRequestPage.handleFreeText catches ALL text input.
  */
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg} from "./setup"
+import {getEnv, type TestEnvironment, gmsg} from "./setup"
 
 let env: TestEnvironment
 const intent = `general-status`
@@ -31,8 +31,8 @@ describe(`E2E: GeneralStatusPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     const reply = responses[0]!
     const replyId = responsesId[0]!
-    expect(reply.body?.text).toBe(msg(intent, `d`, {isNotFound: true}))
-    expect(replyId.body?.text).toBe(msg(intent, `d`, {isNotFound: true}, `id`))
+    expect(reply.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}))
+    expect(replyId.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}, `id`))
   })
 
   it(`show 'Route not found' for another unrecognized callback`, async () => {
@@ -46,7 +46,7 @@ describe(`E2E: GeneralStatusPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     const reply = responses[0]!
     const replyId = responsesId[0]!
-    expect(reply.body?.text).toBe(msg(intent, `d`, {isNotFound: true}))
-    expect(replyId.body?.text).toBe(msg(intent, `d`, {isNotFound: true}, `id`))
+    expect(reply.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}))
+    expect(replyId.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}, `id`))
   })
 })

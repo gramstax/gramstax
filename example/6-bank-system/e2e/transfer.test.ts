@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `transfer`
@@ -21,8 +21,8 @@ describe(`E2E: TransferPage`, () => {
 
     const responses = await env.mockServer.sendCallbackQuery(intent, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s1`, {}))
-    expect(buttonLabels(responses[0])).toEqual(kb(intent, `s1`, `inline`, {}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
+    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s1`, `inline`, {}))
   })
 
   it(`completes transfer flow successfully`, async () => {
@@ -41,7 +41,7 @@ describe(`E2E: TransferPage`, () => {
     // Send transfer
     const responses = await env.mockServer.sendText(`1000 99999`, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s`, {amount: `1.000`, balance: `1.000`, target: `#99999`}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s`, {amount: `1.000`, balance: `1.000`, target: `#99999`}))
   })
 
   it(`blocks transfer to own account`, async () => {
@@ -52,7 +52,7 @@ describe(`E2E: TransferPage`, () => {
 
     const responses = await env.mockServer.sendText(`1000 641`, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `w-self`, {}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `w-self`, {}))
   })
 
   it(`shows invalid format for malformed input`, async () => {
@@ -63,7 +63,7 @@ describe(`E2E: TransferPage`, () => {
 
     const responses = await env.mockServer.sendText(`abc`, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `w-invalid`, {amount: `abc`}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `w-invalid`, {amount: `abc`}))
   })
 
   it(`shows ID variant for form and success`, async () => {
@@ -77,15 +77,15 @@ describe(`E2E: TransferPage`, () => {
 
     // ID variant form
     const formResponses = await env.mockServer.sendCallbackQuery(intent, asUserId)
-    expect(formResponses[0]!.body?.text).toBe(msg(intent, `s1`, {}, `id`))
-    expect(buttonLabels(formResponses[0])).toEqual(kb(intent, `s1`, `inline`, {}, `id`))
+    expect(formResponses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
+    expect(buttonLabels(formResponses[0])).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
 
     env.clearRequests()
 
     // ID variant success
     const responses = await env.mockServer.sendText(`2000 88888`, asUserId)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s`, {amount: `2.000`, balance: `3.000`, target: `#88888`}, `id`))
-    expect(buttonLabels(responses[0])).toEqual(kb(intent, `s`, `inline`, {amount: `2.000`, balance: `3.000`, target: `#88888`}, `id`))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s`, {amount: `2.000`, balance: `3.000`, target: `#88888`}, `id`))
+    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s`, `inline`, {amount: `2.000`, balance: `3.000`, target: `#88888`}, `id`))
   })
 })

@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 import {CatalogData} from "../src/data/catalog"
 import {ItemDetailPage} from "../src/pages/item-detail"
 
@@ -29,10 +29,7 @@ describe(`E2E: ItemDetailPage`, () => {
     await env.mockServer.sendText(`/start`, asUser)
     env.clearRequests()
     const catResponses = await env.mockServer.sendCallbackQuery(`category`, asUser)
-    const catButton = getButtonByText(
-      catResponses[0]?.body?.reply_markup?.inline_keyboard?.flat() ?? [],
-      category.name,
-    )
+    const catButton = getButtonByText(catResponses[0]?.body?.reply_markup?.inline_keyboard?.flat() ?? [], category.name)
     expect(catButton?.callback_data).toBeDefined()
 
     env.clearRequests()
@@ -41,10 +38,7 @@ describe(`E2E: ItemDetailPage`, () => {
     const itemListResponses = await env.mockServer.sendCallbackQuery(catButton!.callback_data!, asUser)
     const detailCallback = ItemDetailPage.data.callbackData(`detail`, category.id, item.id)
 
-    const detailButton = getButtonByText(
-      itemListResponses[0]?.body?.reply_markup?.inline_keyboard?.flat() ?? [],
-      item.name,
-    )
+    const detailButton = getButtonByText(itemListResponses[0]?.body?.reply_markup?.inline_keyboard?.flat() ?? [], item.name)
     expect(detailButton?.callback_data).toBe(detailCallback)
 
     env.clearRequests()
@@ -52,8 +46,8 @@ describe(`E2E: ItemDetailPage`, () => {
     // Navigate to item detail
     const detailResponses = await env.mockServer.sendCallbackQuery(detailCallback, asUser)
     expect(detailResponses.length).toBeGreaterThan(0)
-    expect(detailResponses[0]!.body?.text).toBe(msg(intent, `s1`, {name: item.name, description: item.description}))
-    expect(buttonLabels(detailResponses[0])).toEqual(kb(intent, `s1`, `inline`, {name: item.name, description: item.description}))
+    expect(detailResponses[0]!.body?.text).toBe(gmsg(intent, `s1`, {name: item.name, description: item.description}))
+    expect(buttonLabels(detailResponses[0])).toEqual(gkb(intent, `s1`, `inline`, {name: item.name, description: item.description}))
   })
 
   it(`shows ID variant for item detail`, async () => {
@@ -63,10 +57,7 @@ describe(`E2E: ItemDetailPage`, () => {
     await env.mockServer.sendText(`/start`, asUserId)
     env.clearRequests()
     const catResponses = await env.mockServer.sendCallbackQuery(`category`, asUserId)
-    const catButton = getButtonByText(
-      catResponses[0]?.body?.reply_markup?.inline_keyboard?.flat() ?? [],
-      category.name,
-    )
+    const catButton = getButtonByText(catResponses[0]?.body?.reply_markup?.inline_keyboard?.flat() ?? [], category.name)
     env.clearRequests()
 
     await env.mockServer.sendCallbackQuery(catButton!.callback_data!, asUserId)
@@ -75,11 +66,7 @@ describe(`E2E: ItemDetailPage`, () => {
     const detailCallback = ItemDetailPage.data.callbackData(`detail`, category.id, item.id)
     const detailResponses = await env.mockServer.sendCallbackQuery(detailCallback, asUserId)
     expect(detailResponses.length).toBeGreaterThan(0)
-    expect(detailResponses[0]!.body?.text).toBe(
-      msg(intent, `s1`, {name: item.name, description: item.description}, `id`),
-    )
-    expect(buttonLabels(detailResponses[0])).toEqual(
-      kb(intent, `s1`, `inline`, {name: item.name, description: item.description}, `id`),
-    )
+    expect(detailResponses[0]!.body?.text).toBe(gmsg(intent, `s1`, {name: item.name, description: item.description}, `id`))
+    expect(buttonLabels(detailResponses[0])).toEqual(gkb(intent, `s1`, `inline`, {name: item.name, description: item.description}, `id`))
   })
 })

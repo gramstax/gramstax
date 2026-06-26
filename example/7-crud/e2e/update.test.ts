@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, resetDb, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, resetDb, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `update`
@@ -21,8 +21,8 @@ describe(`E2E: UpdatePage`, () => {
 
     const responses = await env.mockServer.sendCallbackQuery(intent, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `i-empty`, {}))
-    expect(buttonLabels(responses[0])).toEqual(kb(intent, `i-empty`, `inline`, {}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `i-empty`, {}))
+    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `i-empty`, `inline`, {}))
   })
 
   it(`selects item and updates status to done`, async () => {

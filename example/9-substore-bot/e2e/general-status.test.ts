@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, resetEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, resetEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `general-status`
@@ -21,9 +21,9 @@ describe(`E2E: GeneralStatusPage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `nf`, {}))
-    expect(responsesId[0]!.body?.text).toBe(msg(intent, `nf`, {}, `id`))
-    expect(buttonLabels(responses[0])).toEqual(kb(intent, `nf`, `inline`, {}))
-    expect(buttonLabels(responsesId[0])).toEqual(kb(intent, `nf`, `inline`, {}, `id`))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `nf`, {}))
+    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `nf`, {}, `id`))
+    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `nf`, `inline`, {}))
+    expect(buttonLabels(responsesId[0])).toEqual(gkb(intent, `nf`, `inline`, {}, `id`))
   })
 })

@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `inline-without-range`
@@ -21,7 +21,7 @@ describe(`E2E: InlineWithoutRangePage`, () => {
 
     const responses = await env.mockServer.sendCallbackQuery(intent, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s1`, {page: 1}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {page: 1}))
     // Keyboard is built dynamically with menu item names + page label + navigation
     const labels = buttonLabels(responses[0])
     expect(labels).toContain(`📄 Page 1`)
@@ -35,7 +35,7 @@ describe(`E2E: InlineWithoutRangePage`, () => {
 
     const responsesId = await env.mockServer.sendCallbackQuery(intent, asUserId)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responsesId[0]!.body?.text).toBe(msg(intent, `s1`, {page: 1}, `id`))
+    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {page: 1}, `id`))
     const idLabels = buttonLabels(responsesId[0])
     expect(idLabels).toContain(`📄 Halaman 1`)
     expect(idLabels).toContain(`➡️ Selanjutnya`)

@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, buttonLabels} from "./setup"
 import {CatalogData} from "../src/data/catalog"
 
 let env: TestEnvironment
@@ -37,7 +37,7 @@ describe(`E2E: ItemListPage`, () => {
     // Click the category → should navigate to ItemListPage
     const itemResponses = await env.mockServer.sendCallbackQuery(catButton!.callback_data!, asUser)
     expect(itemResponses.length).toBeGreaterThan(0)
-    expect(itemResponses[0]!.body?.text).toBe(msg(intent, `s1`, {category: category.name}))
+    expect(itemResponses[0]!.body?.text).toBe(gmsg(intent, `s1`, {category: category.name}))
     // Keyboard should have category items + Prev/Next/Back
     const itemLabels = buttonLabels(itemResponses[0])
     expect(itemLabels).toContain(category.items[0]!.name)
@@ -58,6 +58,6 @@ describe(`E2E: ItemListPage`, () => {
 
     const itemResponses = await env.mockServer.sendCallbackQuery(catButton!.callback_data!, asUserId)
     expect(itemResponses.length).toBeGreaterThan(0)
-    expect(itemResponses[0]!.body?.text).toBe(msg(intent, `s1`, {category: category.name}, `id`))
+    expect(itemResponses[0]!.body?.text).toBe(gmsg(intent, `s1`, {category: category.name}, `id`))
   })
 })

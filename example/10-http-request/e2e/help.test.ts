@@ -5,7 +5,7 @@
  * for exact matching instead of fragile partial assertions.
  */
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg} from "./setup"
+import {getEnv, type TestEnvironment, gmsg} from "./setup"
 
 let env: TestEnvironment
 const intent = `help`
@@ -31,8 +31,8 @@ describe(`E2E: HelpPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     const edit = responses[0]!
     const editId = responsesId[0]!
-    expect(edit.body?.text).toBe(msg(intent, `s1`, {}))
-    expect(editId.body?.text).toBe(msg(intent, `s1`, {}, `id`))
+    expect(edit.body?.text).toBe(gmsg(intent, `s1`, {}))
+    expect(editId.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
   })
 
   it(`show help text via /help command`, async () => {
@@ -40,6 +40,6 @@ describe(`E2E: HelpPage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     const reply = responses[0]!
-    expect(reply.body?.text).toBe(msg(intent, `s1`, {}))
+    expect(reply.body?.text).toBe(gmsg(intent, `s1`, {}))
   })
 })

@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `delete`
@@ -21,8 +21,8 @@ describe(`E2E: DeletePage`, () => {
 
     const responses = await env.mockServer.sendCallbackQuery(intent, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `i-empty`, {}))
-    expect(buttonLabels(responses[0])).toEqual(kb(intent, `i-empty`, `inline`, {}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `i-empty`, {}))
+    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `i-empty`, `inline`, {}))
   })
 
   it(`shows ID variant for empty state`, async () => {
@@ -30,8 +30,8 @@ describe(`E2E: DeletePage`, () => {
     env.clearRequests()
 
     const responsesId = await env.mockServer.sendCallbackQuery(intent, asUserId)
-    expect(responsesId[0]!.body?.text).toBe(msg(intent, `i-empty`, {}, `id`))
-    expect(buttonLabels(responsesId[0])).toEqual(kb(intent, `i-empty`, `inline`, {}, `id`))
+    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `i-empty`, {}, `id`))
+    expect(buttonLabels(responsesId[0])).toEqual(gkb(intent, `i-empty`, `inline`, {}, `id`))
   })
 
   it(`deletes item via callback button`, async () => {

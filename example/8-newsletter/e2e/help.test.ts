@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, resetEnv, type TestEnvironment, msg} from "./setup"
+import {getEnv, resetEnv, type TestEnvironment, gmsg} from "./setup"
 
 let env: TestEnvironment
 const intent = `help`
@@ -21,7 +21,7 @@ describe(`E2E: HelpPage`, () => {
 
     const responses = await env.mockServer.sendCallbackQuery(intent, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s1`, {}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
   })
 
   it(`shows ID variant`, async () => {
@@ -30,6 +30,6 @@ describe(`E2E: HelpPage`, () => {
 
     const responsesId = await env.mockServer.sendCallbackQuery(intent, asUserId)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responsesId[0]!.body?.text).toBe(msg(intent, `s1`, {}, `id`))
+    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
   })
 })

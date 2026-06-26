@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, media, type TestEnvironment} from "./setup"
+import {getEnv, gmedia, type TestEnvironment} from "./setup"
 
 let env: TestEnvironment
 const intent = `test-sticker`
@@ -21,12 +21,12 @@ describe(`E2E: TestStickerPage`, () => {
 
     const sendStickerReq = env.mockServer.lastRequest(`sendSticker`)
     expect(sendStickerReq).toBeDefined()
-    expect(sendStickerReq!.body?.sticker).toBe(media(intent, `s1`, {}).src)
+    expect(sendStickerReq!.body?.sticker).toBe(gmedia(intent, `s1`, {}).src)
 
     env.clearRequests()
     await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
     const sendStickerIdReq = env.mockServer.lastRequest(`sendSticker`)
     expect(sendStickerIdReq).toBeDefined()
-    expect(sendStickerIdReq!.body?.sticker).toBe(media(intent, `s1`, {}, `id`).src)
+    expect(sendStickerIdReq!.body?.sticker).toBe(gmedia(intent, `s1`, {}, `id`).src)
   })
 })

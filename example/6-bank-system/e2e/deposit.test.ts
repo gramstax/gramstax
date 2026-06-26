@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `deposit`
@@ -21,8 +21,8 @@ describe(`E2E: DepositPage`, () => {
 
     const responses = await env.mockServer.sendCallbackQuery(intent, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s1`, {}))
-    expect(buttonLabels(responses[0])).toEqual(kb(intent, `s1`, `inline`, {}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
+    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s1`, `inline`, {}))
   })
 
   it(`completes deposit flow successfully`, async () => {
@@ -33,8 +33,8 @@ describe(`E2E: DepositPage`, () => {
 
     const responses = await env.mockServer.sendText(`100000`, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s`, {amount: `100.000`, balance: `100.000`}))
-    expect(buttonLabels(responses[0])).toEqual(kb(intent, `s`, `inline`, {amount: `100.000`, balance: `100.000`}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s`, {amount: `100.000`, balance: `100.000`}))
+    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s`, `inline`, {amount: `100.000`, balance: `100.000`}))
   })
 
   it(`shows ID variant for form and success`, async () => {
@@ -42,16 +42,16 @@ describe(`E2E: DepositPage`, () => {
     await env.mockServer.sendText(`/start`, asUserId)
     env.clearRequests()
     const formResponses = await env.mockServer.sendCallbackQuery(intent, asUserId)
-    expect(formResponses[0]!.body?.text).toBe(msg(intent, `s1`, {}, `id`))
-    expect(buttonLabels(formResponses[0])).toEqual(kb(intent, `s1`, `inline`, {}, `id`))
+    expect(formResponses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
+    expect(buttonLabels(formResponses[0])).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
 
     env.clearRequests()
 
     // ID variant success
     const responses = await env.mockServer.sendText(`50000`, asUserId)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s`, {amount: `50.000`, balance: `50.000`}, `id`))
-    expect(buttonLabels(responses[0])).toEqual(kb(intent, `s`, `inline`, {amount: `50.000`, balance: `50.000`}, `id`))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s`, {amount: `50.000`, balance: `50.000`}, `id`))
+    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s`, `inline`, {amount: `50.000`, balance: `50.000`}, `id`))
   })
 
   it(`shows invalid amount for non-numeric input`, async () => {
@@ -62,6 +62,6 @@ describe(`E2E: DepositPage`, () => {
 
     const responses = await env.mockServer.sendText(`abc`, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `w-invalid`, {amount: `abc`}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `w-invalid`, {amount: `abc`}))
   })
 })

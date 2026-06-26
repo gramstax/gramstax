@@ -45,14 +45,14 @@ export async function getEnv(): Promise<TestEnvironment> {
   return sharedEnv
 }
 
-/** Render expected message text for a page template via templateManager.getMessage. */
-export function msg(page: string, AGBaseId: string, data?: Record<string, any>, ALang = `default`): string {
-  return sharedEnv!.botCore.templateManager.getMessage(page, AGBaseId, ALang, data)
+/** Render expected message text for a page template via templateManager.getGMessage. */
+export function gmsg(page: string, AGBaseId: string, data?: Record<string, any>, ALang = `default`): string {
+  return sharedEnv!.botCore.templateManager.getGMessage(page, AGBaseId, ALang, data)
 }
 
-/** Render expected keyboard button labels for a page template via templateManager.getKeyboard. */
-export function kb(page: string, AGBaseId: string, type: `inline` | `bottom` = `inline`, data?: Record<string, any>, ALang = `default`): string[] {
-  return sharedEnv!.botCore.templateManager.getKeyboard(page, AGBaseId, ALang, type, data)
+/** Render expected keyboard button labels for a page template via templateManager.getGKeyboard. */
+export function gkb(page: string, AGBaseId: string, AType: `inline` | `bottom` = `inline`, data?: Record<string, any>, ALang = `default`): string[] {
+  return sharedEnv!.botCore.templateManager.getGKeyboard(page, AGBaseId, ALang, AType, data)
 }
 
 /** Extract flattened button label strings from a Telegram API response body. */
@@ -60,6 +60,6 @@ export function buttonLabels(resp: any): string[] {
   return resp?.body?.reply_markup?.inline_keyboard?.flat().map((b: any) => b.text) ?? []
 }
 
-export function media(page: string, AGBaseId: string, data?: Record<string, any>, ALang = `default`): Record<string, any> {
-  return sharedEnv!.botCore.templateManager.getMedia(page, AGBaseId, ALang, data)
+export function gmedia(page: string, AGBaseId: string, data?: Record<string, any>, ALang = `default`): Record<string, any> {
+  return sharedEnv!.botCore.templateManager.getGMedia(page, AGBaseId, ALang, data)
 }

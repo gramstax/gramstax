@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, media, type TestEnvironment} from "./setup"
+import {getEnv, gmedia, type TestEnvironment} from "./setup"
 
 let env: TestEnvironment
 const intent = `test-media-group`
@@ -33,6 +33,6 @@ describe(`E2E: TestMediaGroupPage`, () => {
     await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
     const sendMediaGroupIdReq = env.mockServer.lastRequest(`sendMediaGroup`)
     expect(sendMediaGroupIdReq).toBeDefined()
-    expect(sendMediaGroupIdReq!.body?.media![0]?.caption).toBe(media(intent, `s1`, {}, `id`).mediaGroup![0]?.caption)
+    expect(sendMediaGroupIdReq!.body?.media![0]?.caption).toBe(gmedia(intent, `s1`, {}, `id`).mediaGroup![0]?.caption)
   })
 })

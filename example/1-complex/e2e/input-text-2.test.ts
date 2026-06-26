@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `input-text-2`
@@ -18,7 +18,7 @@ describe(`E2E: InputText2Page`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     const reply = responses[0]!
-    expect(reply.body?.text).toBe(msg(intent, `s`, {res: `/unknown`}))
+    expect(reply.body?.text).toBe(gmsg(intent, `s`, {res: `/unknown`}))
   })
 
   it(`show form and echo back text in session flow`, async () => {
@@ -29,15 +29,15 @@ describe(`E2E: InputText2Page`, () => {
     const pageResponsesId = await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
     expect(pageResponses.length).toBeGreaterThan(0)
     expect(pageResponsesId.length).toBeGreaterThan(0)
-    expect(pageResponses[0]!.body?.text).toBe(msg(intent, `s1`, {}))
-    expect(pageResponsesId[0]!.body?.text).toBe(msg(intent, `s1`, {}, `id`))
-    expect(buttonLabels(pageResponses[0])).toEqual(kb(intent, `s1`, `inline`, {}))
-    expect(buttonLabels(pageResponsesId[0])).toEqual(kb(intent, `s1`, `inline`, {}, `id`))
+    expect(pageResponses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
+    expect(pageResponsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
+    expect(buttonLabels(pageResponses[0])).toEqual(gkb(intent, `s1`, `inline`, {}))
+    expect(buttonLabels(pageResponsesId[0])).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
 
     env.clearRequests()
 
     const resultResponses = await env.mockServer.sendText(`Echo this`)
     expect(resultResponses.length).toBeGreaterThan(0)
-    expect(resultResponses[0]!.body?.text).toBe(msg(intent, `s`, {res: `Echo this`}))
+    expect(resultResponses[0]!.body?.text).toBe(gmsg(intent, `s`, {res: `Echo this`}))
   })
 })

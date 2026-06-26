@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels, bottomButtonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels, bottomButtonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `start`
@@ -22,10 +22,10 @@ describe(`E2E: StartPage`, () => {
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
     // First response is the main menu (inline)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s1`, {}))
-    expect(responsesId[0]!.body?.text).toBe(msg(intent, `s1`, {}, `id`))
-    expect(buttonLabels(responses[0])).toEqual(kb(intent, `s1`, `inline`, {}))
-    expect(buttonLabels(responsesId[0])).toEqual(kb(intent, `s1`, `inline`, {}, `id`))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
+    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
+    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s1`, `inline`, {}))
+    expect(buttonLabels(responsesId[0])).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
   })
 
   it(`shows quick actions bottom keyboard as second response`, async () => {
@@ -35,9 +35,9 @@ describe(`E2E: StartPage`, () => {
     // Second response is the quick actions bottom keyboard
     expect(responses.length).toBeGreaterThan(1)
     expect(responsesId.length).toBeGreaterThan(1)
-    expect(responses[1]!.body?.text).toBe(msg(intent, `i-quick`, {}))
-    expect(responsesId[1]!.body?.text).toBe(msg(intent, `i-quick`, {}, `id`))
-    expect(bottomButtonLabels(responses[1])).toEqual(kb(intent, `i-quick`, `bottom`, {}))
-    expect(bottomButtonLabels(responsesId[1])).toEqual(kb(intent, `i-quick`, `bottom`, {}, `id`))
+    expect(responses[1]!.body?.text).toBe(gmsg(intent, `i-quick`, {}))
+    expect(responsesId[1]!.body?.text).toBe(gmsg(intent, `i-quick`, {}, `id`))
+    expect(bottomButtonLabels(responses[1])).toEqual(gkb(intent, `i-quick`, `bottom`, {}))
+    expect(bottomButtonLabels(responsesId[1])).toEqual(gkb(intent, `i-quick`, `bottom`, {}, `id`))
   })
 })

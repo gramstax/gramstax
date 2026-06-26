@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, media, type TestEnvironment} from "./setup"
+import {getEnv, gmedia, type TestEnvironment} from "./setup"
 
 let env: TestEnvironment
 
@@ -21,14 +21,14 @@ describe(`E2E: Media pages`, () => {
     const editMediaReq = env.mockServer.lastRequest(`editMessageMedia`)
     expect(editMediaReq).toBeDefined()
     expect(editMediaReq!.body?.media?.type).toBe(`photo`)
-    expect(editMediaReq!.body?.media?.media).toBe(media(`test-photo`, `s1`, {}).src)
-    expect(editMediaReq!.body?.media?.caption).toBe(media(`test-photo`, `s1`, {}).caption)
+    expect(editMediaReq!.body?.media?.media).toBe(gmedia(`test-photo`, `s1`, {}).src)
+    expect(editMediaReq!.body?.media?.caption).toBe(gmedia(`test-photo`, `s1`, {}).caption)
 
     env.clearRequests()
     await env.mockServer.sendCallbackQuery(`test-photo`, {user: {language_code: `id`}})
     const idReq = env.mockServer.lastRequest(`editMessageMedia`)
     expect(idReq).toBeDefined()
-    expect(idReq!.body?.media?.caption).toBe(media(`test-photo`, `s1`, {}, `id`).caption)
+    expect(idReq!.body?.media?.caption).toBe(gmedia(`test-photo`, `s1`, {}, `id`).caption)
   })
 
   it(`TestVideoPage return a video media response`, async () => {
@@ -40,14 +40,14 @@ describe(`E2E: Media pages`, () => {
     const editMediaReq = env.mockServer.lastRequest(`editMessageMedia`)
     expect(editMediaReq).toBeDefined()
     expect(editMediaReq!.body?.media?.type).toBe(`video`)
-    expect(editMediaReq!.body?.media?.media).toBe(media(`test-video`, `s1`, {}).src)
-    expect(editMediaReq!.body?.media?.caption).toBe(media(`test-video`, `s1`, {}).caption)
+    expect(editMediaReq!.body?.media?.media).toBe(gmedia(`test-video`, `s1`, {}).src)
+    expect(editMediaReq!.body?.media?.caption).toBe(gmedia(`test-video`, `s1`, {}).caption)
 
     env.clearRequests()
     await env.mockServer.sendCallbackQuery(`test-video`, {user: {language_code: `id`}})
     const idReq = env.mockServer.lastRequest(`editMessageMedia`)
     expect(idReq).toBeDefined()
-    expect(idReq!.body?.media?.caption).toBe(media(`test-video`, `s1`, {}, `id`).caption)
+    expect(idReq!.body?.media?.caption).toBe(gmedia(`test-video`, `s1`, {}, `id`).caption)
   })
 
   it(`TestAudioPage return an audio media response`, async () => {
@@ -59,14 +59,14 @@ describe(`E2E: Media pages`, () => {
     const editMediaReq = env.mockServer.lastRequest(`editMessageMedia`)
     expect(editMediaReq).toBeDefined()
     expect(editMediaReq!.body?.media?.type).toBe(`audio`)
-    expect(editMediaReq!.body?.media?.media).toBe(media(`test-audio`, `s1`, {}).src)
-    expect(editMediaReq!.body?.media?.caption).toBe(media(`test-audio`, `s1`, {}).caption)
+    expect(editMediaReq!.body?.media?.media).toBe(gmedia(`test-audio`, `s1`, {}).src)
+    expect(editMediaReq!.body?.media?.caption).toBe(gmedia(`test-audio`, `s1`, {}).caption)
 
     env.clearRequests()
     await env.mockServer.sendCallbackQuery(`test-audio`, {user: {language_code: `id`}})
     const idReq = env.mockServer.lastRequest(`editMessageMedia`)
     expect(idReq).toBeDefined()
-    expect(idReq!.body?.media?.caption).toBe(media(`test-audio`, `s1`, {}, `id`).caption)
+    expect(idReq!.body?.media?.caption).toBe(gmedia(`test-audio`, `s1`, {}, `id`).caption)
   })
 
   it(`TestDocumentPage return a document media response`, async () => {
@@ -78,14 +78,14 @@ describe(`E2E: Media pages`, () => {
     const editMediaReq = env.mockServer.lastRequest(`editMessageMedia`)
     expect(editMediaReq).toBeDefined()
     expect(editMediaReq!.body?.media?.type).toBe(`document`)
-    expect(editMediaReq!.body?.media?.media).toBe(media(`test-document`, `s1`, {}).src)
-    expect(editMediaReq!.body?.media?.caption).toBe(media(`test-document`, `s1`, {}).caption)
+    expect(editMediaReq!.body?.media?.media).toBe(gmedia(`test-document`, `s1`, {}).src)
+    expect(editMediaReq!.body?.media?.caption).toBe(gmedia(`test-document`, `s1`, {}).caption)
 
     env.clearRequests()
     await env.mockServer.sendCallbackQuery(`test-document`, {user: {language_code: `id`}})
     const idReq = env.mockServer.lastRequest(`editMessageMedia`)
     expect(idReq).toBeDefined()
-    expect(idReq!.body?.media?.caption).toBe(media(`test-document`, `s1`, {}, `id`).caption)
+    expect(idReq!.body?.media?.caption).toBe(gmedia(`test-document`, `s1`, {}, `id`).caption)
   })
 
   it(`TestStickerPage return a sticker response with expected source`, async () => {
@@ -96,13 +96,13 @@ describe(`E2E: Media pages`, () => {
 
     const sendStickerReq = env.mockServer.lastRequest(`sendSticker`)
     expect(sendStickerReq).toBeDefined()
-    expect(sendStickerReq!.body?.sticker).toBe(media(`test-sticker`, `s1`, {}).src)
+    expect(sendStickerReq!.body?.sticker).toBe(gmedia(`test-sticker`, `s1`, {}).src)
 
     env.clearRequests()
     await env.mockServer.sendCallbackQuery(`test-sticker`, {user: {language_code: `id`}})
     const idReq = env.mockServer.lastRequest(`sendSticker`)
     expect(idReq).toBeDefined()
-    expect(idReq!.body?.sticker).toBe(media(`test-sticker`, `s1`, {}, `id`).src)
+    expect(idReq!.body?.sticker).toBe(gmedia(`test-sticker`, `s1`, {}, `id`).src)
   })
 
   it(`TestLocationPage return a location response with coordinates`, async () => {

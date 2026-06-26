@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, msg, type TestEnvironment} from "./setup"
+import {getEnv, gmsg, type TestEnvironment} from "./setup"
 
 let env: TestEnvironment
 const intent = `MIN-input-text`
@@ -21,8 +21,8 @@ describe(`E2E: MINInputTextPage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `default`, {}))
-    expect(responsesId[0]!.body?.text).toBe(msg(intent, `default`, {}, `id`))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `default`, {}))
+    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `default`, {}, `id`))
   })
 
   it(`echo back user text after /MIN-input-text command`, async () => {
@@ -32,6 +32,6 @@ describe(`E2E: MINInputTextPage`, () => {
     const resultResponses = await env.mockServer.sendText(`Hello MIN`, asUser2)
 
     expect(resultResponses.length).toBeGreaterThan(0)
-    expect(resultResponses[0]!.body?.text).toBe(msg(intent, `success`, {res: `Hello MIN`}))
+    expect(resultResponses[0]!.body?.text).toBe(gmsg(intent, `success`, {res: `Hello MIN`}))
   })
 })

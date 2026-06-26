@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, media, type TestEnvironment} from "./setup"
+import {getEnv, gmedia, type TestEnvironment} from "./setup"
 
 let env: TestEnvironment
 const intent = `test-contact`
@@ -28,7 +28,7 @@ describe(`E2E: TestContactPage`, () => {
     await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
     const idReq = env.mockServer.lastRequest(`sendContact`)
     expect(idReq).toBeDefined()
-    expect(idReq!.body?.phone_number).toBe(media(intent, `s1`, {}, `id`).phone)
-    expect(idReq!.body?.first_name).toBe(media(intent, `s1`, {}, `id`).first_name)
+    expect(idReq!.body?.phone_number).toBe(gmedia(intent, `s1`, {}, `id`).phone)
+    expect(idReq!.body?.first_name).toBe(gmedia(intent, `s1`, {}, `id`).first_name)
   })
 })

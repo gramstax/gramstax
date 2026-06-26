@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, msg, kb, buttonLabels} from "./setup"
+import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
 
 let env: TestEnvironment
 const intent = `create`
@@ -26,8 +26,8 @@ describe(`E2E: CreatePage`, () => {
 
     const responses = await env.mockServer.sendCallbackQuery(intent, asUser)
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(msg(intent, `s1`, {}))
-    expect(buttonLabels(responses[0])).toEqual(kb(intent, `s1`, `inline`, {}))
+    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
+    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s1`, `inline`, {}))
   })
 
   it(`creates item via full flow: title → description → success`, async () => {
@@ -39,7 +39,7 @@ describe(`E2E: CreatePage`, () => {
     // Step 1: send title
     const titleResponses = await env.mockServer.sendText(`Coffee Beans`, asUser)
     expect(titleResponses.length).toBeGreaterThan(0)
-    expect(titleResponses[0]!.body?.text).toBe(msg(intent, `s2`, {title: `Coffee Beans`}))
+    expect(titleResponses[0]!.body?.text).toBe(gmsg(intent, `s2`, {title: `Coffee Beans`}))
 
     env.clearRequests()
 
@@ -57,12 +57,12 @@ describe(`E2E: CreatePage`, () => {
     await env.mockServer.sendText(`/start`, asUserId)
     env.clearRequests()
     const formResponses = await env.mockServer.sendCallbackQuery(intent, asUserId)
-    expect(formResponses[0]!.body?.text).toBe(msg(intent, `s1`, {}, `id`))
-    expect(buttonLabels(formResponses[0])).toEqual(kb(intent, `s1`, `inline`, {}, `id`))
+    expect(formResponses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
+    expect(buttonLabels(formResponses[0])).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
 
     env.clearRequests()
 
     const titleResponses = await env.mockServer.sendText(`Barang Tes`, asUserId)
-    expect(titleResponses[0]!.body?.text).toBe(msg(intent, `s2`, {title: `Barang Tes`}, `id`))
+    expect(titleResponses[0]!.body?.text).toBe(gmsg(intent, `s2`, {title: `Barang Tes`}, `id`))
   })
 })
