@@ -1,7 +1,7 @@
 /**
  * E2E Tests: StartPage
  *
- * Validates rendered template output via templateManager.getMessage/getKeyboard
+ * Validates rendered template output via templateManager.getGMessage/getGKeyboard
  * for exact matching instead of fragile partial assertions.
  */
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"

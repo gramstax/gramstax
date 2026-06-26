@@ -52,7 +52,7 @@ export async function resetEnv() {
 }
 
 export function gmsg(page: string, AGBaseId: string, data?: Record<string, any>, ALang = `default`): string {
-  return sharedEnv!.botCore.templateManager.getMessage(page, AGBaseId, ALang, data)
+  return sharedEnv!.botCore.templateManager.getGMessage(page, AGBaseId, ALang, data)
 }
 
 export function gkb(page: string, AGBaseId: string, AType: `inline` | `bottom` = `inline`, data?: Record<string, any>, ALang = `default`): string[] {

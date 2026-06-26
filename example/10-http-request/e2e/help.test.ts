@@ -1,7 +1,7 @@
 /**
  * E2E Tests: HelpPage
  *
- * Validates rendered template output via templateManager.getMessage
+ * Validates rendered template output via templateManager.getGMessage
  * for exact matching instead of fragile partial assertions.
  */
 import {describe, it, expect, beforeAll, beforeEach} from "bun:test"

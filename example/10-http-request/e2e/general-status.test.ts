@@ -1,7 +1,7 @@
 /**
  * E2E Tests: GeneralStatusPage
  *
- * Validates the "Route not found" error display via templateManager.getMessage
+ * Validates the "Route not found" error display via templateManager.getGMessage
  * for exact matching. Uses unrecognized callback queries since
  * HttpRequestPage.handleFreeText catches ALL text input.
  */
