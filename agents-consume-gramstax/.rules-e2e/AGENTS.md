@@ -10,7 +10,7 @@ This directory contains E2E test rules for Gramstax projects. AI agents should r
 
 ## Rule Pages
 
-- **[E2E_STRUCTURE.md](./E2E_STRUCTURE.md)**: File layout, `setup.ts` template, test file templates, assertion rules, session isolation, and ID language variants.
+- **[E2E_STRUCTURE.md](./E2E_STRUCTURE.md)**: File layout, `setup.ts` template with `gmsg`/`gkb`/`gmedia` helpers, test file templates, assertion rules, session isolation, and Language variants.
 
 ---
 

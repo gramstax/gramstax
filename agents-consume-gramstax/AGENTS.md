@@ -27,7 +27,7 @@ Use this `AGENTS.md` as the module index for helper-related rules. This rule set
 
 Use this `AGENTS.md` as the module index for E2E test rules. It currently covers:
 
-- [`E2E_STRUCTURE.md`](./.rules-e2e/E2E_STRUCTURE.md) — file layout, `setup.ts` template, test file templates, assertion rules, session isolation, and ID language variants.
+- [`E2E_STRUCTURE.md`](./.rules-e2e/E2E_STRUCTURE.md) — file layout, `setup.ts` template with `gmsg`/`gkb`/`gmedia` helpers, test file templates, assertion rules, session isolation, and Language variants.
 
 ### `.rules-core/`
 
