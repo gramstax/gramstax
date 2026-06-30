@@ -11,6 +11,6 @@ describe(`E2E: StartPage`, () => {
   it(`respond to /start`, async () => {
     const res = await e2e.sendText(`/start`)
     expect(res.length).toBeGreaterThan(0)
-    expect(res[0]!.body?.text).toBeDefined()
+    expect(res[0]!.body?.text).toStartWith(e2e.gmsg(intent, `s1`, {}))
   })
 })

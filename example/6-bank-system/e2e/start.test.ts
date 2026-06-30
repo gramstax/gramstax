@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "./setup"
 
-const intent = `start`
+const _intent = `start`
 const asUser = {user: {id: 601}, chat: {id: 601}}
 
 beforeEach(() => {

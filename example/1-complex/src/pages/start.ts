@@ -89,6 +89,7 @@ class Main {
     await ctx.clearSession()
     if (condition == 1) {
       await ctx.reply(kb, da, bi)
+      // await ctx.replyRich(kb, da, bi)
     } else if (condition == 2) {
       await ctx.edit(kb, da, bi)
     } else if (condition == 3) {
