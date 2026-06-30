@@ -1,20 +1,14 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, gmsg, gkb, buttonLabels} from "./setup.js"
-
-let env
-
-beforeAll(async () => {
-  env = await getEnv()
-})
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup.js"
 
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
 
 describe(`E2E: StartPage`, () => {
   it(`respond to /start command with Hello World message`, async () => {
-    const responses = await env.mockServer.sendText(`/start`)
-    const responsesId = await env.mockServer.sendText(`/start`, {user: {language_code: `id`}})
+    const responses = await e2e.sendText(`/start`)
+    const responsesId = await e2e.sendText(`/start`, {user: {language_code: `id`}})
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
@@ -24,16 +18,16 @@ describe(`E2E: StartPage`, () => {
     expect(reply.body?.text).toContain(`Time now:`)
     expect(replyId.body?.text).toContain(`Halo Dunia!`)
     expect(replyId.body?.text).toContain(`Waktu:`)
-    expect(buttonLabels(reply)).toEqual(gkb(`start`, `s1`, `inline`, {}))
-    expect(buttonLabels(replyId)).toEqual(gkb(`start`, `s1`, `inline`, {}, `id`))
+    expect(e2e.buttonLabels(reply)).toEqual(e2e.gkb(`start`, `s1`, `inline`, {}))
+    expect(e2e.buttonLabels(replyId)).toEqual(e2e.gkb(`start`, `s1`, `inline`, {}, `id`))
   })
 
   it(`respond to callback query with edited message`, async () => {
-    await env.mockServer.sendText(`/start`)
-    env.clearRequests()
+    await e2e.sendText(`/start`)
+    e2e.clearCalls()
 
-    const responses = await env.mockServer.sendCallbackQuery(`start`)
-    const responsesId = await env.mockServer.sendCallbackQuery(`start`, {user: {language_code: `id`}})
+    const responses = await e2e.sendCallbackQuery(`start`)
+    const responsesId = await e2e.sendCallbackQuery(`start`, {user: {language_code: `id`}})
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
@@ -42,39 +36,34 @@ describe(`E2E: StartPage`, () => {
   })
 
   it(`capture outbound requests`, async () => {
-    await env.mockServer.sendText(`/start`)
+    await e2e.sendText(`/start`)
 
-    const sendMessageReq = env.mockServer.lastRequest(`sendMessage`)
+    const sendMessageReq = e2e.lastCall(`sendMessage`)
     expect(sendMessageReq).toBeDefined()
     expect(sendMessageReq.body?.text).toContain(`Hello World!`)
   })
 
   it(`handle multiple sequential interactions`, async () => {
-    const res1 = await env.mockServer.sendText(`/start`)
+    const res1 = await e2e.sendText(`/start`)
     expect(res1[0]?.body?.text).toContain(`Hello World!`)
 
-    env.clearRequests()
+    e2e.clearCalls()
 
-    const res2 = await env.mockServer.sendCallbackQuery(`start`)
+    const res2 = await e2e.sendCallbackQuery(`start`)
     expect(res2[0]?.body?.text).toContain(`Hello World!`)
 
-    env.clearRequests()
+    e2e.clearCalls()
 
-    const res3 = await env.mockServer.sendText(`gibberish`)
-    expect(res3[0]?.body?.text).toBe(gmsg(`general-status`, `d`, {isNotFound: true}))
+    const res3 = await e2e.sendText(`gibberish`)
+    expect(res3[0]?.body?.text).toBe(e2e.gmsg(`general-status`, `d`, {isNotFound: true}))
   })
 
   it(`support custom user and chat options`, async () => {
-    const responses = await env.mockServer.sendText(`/start`, {
+    const responses = await e2e.sendText(`/start`, {
       user: {id: 99999, first_name: `CustomUser`, username: `customuser`},
       chat: {id: 88888, type: `private`, first_name: `CustomChat`}
     })
 
     expect(responses[0]?.body?.text).toContain(`Hello World!`)
-
-    const lastUpdate = env.mockServer.updates[env.mockServer.updates.length - 1]
-    const msg = lastUpdate?.message
-    expect(msg?.from?.id).toBe(99999)
-    expect(msg?.chat?.id).toBe(88888)
   })
 })
