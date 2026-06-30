@@ -4,6 +4,7 @@ import {e2e} from "./setup"
 beforeEach(() => {
   e2e.clearCalls()
 })
+
 describe(`E2E: Full exploration flow`, () => {
   it(`go from counter to input text to photo and back home`, async () => {
     await e2e.sendText(`/start`)

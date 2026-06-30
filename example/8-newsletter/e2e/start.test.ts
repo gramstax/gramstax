@@ -1,9 +1,12 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "./setup"
 
+const intent = `start`
+
 beforeEach(() => {
   e2e.clearCalls()
 })
+
 describe(`E2E: StartPage`, () => {
   it(`respond to /start`, async () => {
     const res = await e2e.sendText(`/start`)

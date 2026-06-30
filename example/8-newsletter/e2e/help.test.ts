@@ -2,9 +2,11 @@ import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "./setup"
 
 const intent = `help`
+
 beforeEach(() => {
   e2e.clearCalls()
 })
+
 describe(`E2E: HelpPage`, () => {
   it(`show help`, async () => {
     const res = await e2e.sendCallbackQuery(intent)
