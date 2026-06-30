@@ -7,10 +7,10 @@
  * Update object for constructing mock messages, callback queries, and other
  * update types in tests.
  *
- * @packageDocumentation
  * @public
  */
 
+/** @public */
 export type ITE2eUser = {
   id?: number
   username?: string
@@ -20,6 +20,7 @@ export type ITE2eUser = {
   is_bot?: boolean
 }
 
+/** @public */
 export type ITE2eChat = {
   id?: number
   type?: `private` | `group` | `supergroup` | `channel`
@@ -29,6 +30,7 @@ export type ITE2eChat = {
   title?: string
 }
 
+/** @public */
 export type ITE2eUpdateOptions = {
   user?: ITE2eUser
   chat?: ITE2eChat
@@ -36,15 +38,18 @@ export type ITE2eUpdateOptions = {
   message_id?: number
 }
 
+/** @public */
 export type ITE2eMediaOptions = ITE2eUpdateOptions & {
   caption?: string
 }
 
+/** @public */
 export type ITE2eLocationOptions = ITE2eUpdateOptions & {
   latitude?: number
   longitude?: number
 }
 
+/** @public */
 export type ITE2eContactOptions = ITE2eUpdateOptions & {
   phone_number?: string
   first_name?: string
@@ -52,11 +57,13 @@ export type ITE2eContactOptions = ITE2eUpdateOptions & {
   user_id?: number
 }
 
+/** @public */
 export type ITE2eCallbackQueryOptions = ITE2eUpdateOptions & {
   id?: string
   messageText?: string
 }
 
+/** @public */
 export type ITE2eDiceOptions = ITE2eUpdateOptions & {
   emoji?: `🎲` | `🎯` | `🏀` | `⚽` | `🎰` | `🎳`
 }

@@ -13,13 +13,12 @@
  * import {BotCore} from "../src/core/bot"
  *
  * const bot = new BotCore({deploy: "test", token: "test", log: false})
- * const e2e = bot.e2e!
+ * const e2e = bot.e2e
  *
  * const responses = await e2e.sendText("/start", {user: {id: 2001}})
  * expect(responses[0]?.body?.text).toContain("Welcome")
  * ```
  *
- * @packageDocumentation
  * @public
  */
 
