@@ -1,30 +1,23 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
-let env: TestEnvironment
 const intent = `block-map`
-
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: BlockMapPage`, () => {
   it(`show template map demo with random list`, async () => {
-    await env.mockServer.sendText(`/start`)
-    env.clearRequests()
+    await e2e.sendText(`/start`)
+    e2e.clearCalls()
 
-    const responses = await env.mockServer.sendCallbackQuery(intent)
+    const responses = await e2e.sendCallbackQuery(intent)
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responses[0]!.body?.text).toStartWith(`<b>🧭 Template map demo</b>`)
     expect(responses[0]!.body?.text).toContain(`Position:`)
     expect(responses[0]!.body?.text).toContain(`Status: 1`)
 
-    const responsesId = await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
+    const responsesId = await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
     expect(responsesId.length).toBeGreaterThan(0)
     expect(responsesId[0]!.body?.text).toStartWith(`<b>🧭 Demo map template</b>`)
   })

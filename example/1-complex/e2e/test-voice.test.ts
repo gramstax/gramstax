@@ -1,32 +1,25 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, gmedia, type TestEnvironment} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
-let env: TestEnvironment
 const intent = `test-voice`
-
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: TestVoicePage`, () => {
   it(`return a voice media response`, async () => {
-    await env.mockServer.sendText(`/start`)
-    env.clearRequests()
+    await e2e.sendText(`/start`)
+    e2e.clearCalls()
 
-    await env.mockServer.sendCallbackQuery(intent)
+    await e2e.sendCallbackQuery(intent)
 
-    const sendVoiceReq = env.mockServer.lastRequest(`sendVoice`)
+    const sendVoiceReq = e2e.lastCall(`sendVoice`)
     expect(sendVoiceReq).toBeDefined()
-    expect(sendVoiceReq!.body?.voice).toBe(gmedia(intent, `s1`, {}).src)
+    expect(sendVoiceReq!.body?.voice).toBe(e2e.gmedia(intent, `s1`, {}).src)
 
-    env.clearRequests()
-    await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
-    const sendVoiceIdReq = env.mockServer.lastRequest(`sendVoice`)
+    e2e.clearCalls()
+    await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
+    const sendVoiceIdReq = e2e.lastCall(`sendVoice`)
     expect(sendVoiceIdReq).toBeDefined()
-    expect(sendVoiceIdReq!.body?.voice).toBe(gmedia(intent, `s1`, {}, `id`).src)
+    expect(sendVoiceIdReq!.body?.voice).toBe(e2e.gmedia(intent, `s1`, {}, `id`).src)
   })
 })

@@ -1,29 +1,22 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, gmsg, type TestEnvironment} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
-let env: TestEnvironment
 const intent = `block-import`
-
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: BlockImportPage`, () => {
   it(`show block import demo with random value`, async () => {
-    await env.mockServer.sendText(`/start`)
-    env.clearRequests()
+    await e2e.sendText(`/start`)
+    e2e.clearCalls()
 
     Math.random = () => 1 // overrides math.random()
-    const responses = await env.mockServer.sendCallbackQuery(intent)
-    const responsesId = await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
+    const responses = await e2e.sendCallbackQuery(intent)
+    const responsesId = await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {number: Math.random()}))
-    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {number: Math.random()}, `id`))
+    expect(responses[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {number: Math.random()}))
+    expect(responsesId[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {number: Math.random()}, `id`))
   })
 })

@@ -1,43 +1,36 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
-let env: TestEnvironment
 const intent = `input-text-2`
-
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: InputText2Page`, () => {
   it(`echo back unrecognized text via handleFreeText`, async () => {
-    const responses = await env.mockServer.sendText(`/unknown`)
+    const responses = await e2e.sendText(`/unknown`)
 
     expect(responses.length).toBeGreaterThan(0)
     const reply = responses[0]!
-    expect(reply.body?.text).toBe(gmsg(intent, `s`, {res: `/unknown`}))
+    expect(reply.body?.text).toBe(e2e.gmsg(intent, `s`, {res: `/unknown`}))
   })
 
   it(`show form and echo back text in session flow`, async () => {
-    await env.mockServer.sendText(`/start`)
-    env.clearRequests()
+    await e2e.sendText(`/start`)
+    e2e.clearCalls()
 
-    const pageResponses = await env.mockServer.sendCallbackQuery(intent)
-    const pageResponsesId = await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
+    const pageResponses = await e2e.sendCallbackQuery(intent)
+    const pageResponsesId = await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
     expect(pageResponses.length).toBeGreaterThan(0)
     expect(pageResponsesId.length).toBeGreaterThan(0)
-    expect(pageResponses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
-    expect(pageResponsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
-    expect(buttonLabels(pageResponses[0])).toEqual(gkb(intent, `s1`, `inline`, {}))
-    expect(buttonLabels(pageResponsesId[0])).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
+    expect(pageResponses[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
+    expect(pageResponsesId[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}, `id`))
+    expect(e2e.buttonLabels(pageResponses[0])).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
+    expect(e2e.buttonLabels(pageResponsesId[0])).toEqual(e2e.gkb(intent, `s1`, `inline`, {}, `id`))
 
-    env.clearRequests()
+    e2e.clearCalls()
 
-    const resultResponses = await env.mockServer.sendText(`Echo this`)
+    const resultResponses = await e2e.sendText(`Echo this`)
     expect(resultResponses.length).toBeGreaterThan(0)
-    expect(resultResponses[0]!.body?.text).toBe(gmsg(intent, `s`, {res: `Echo this`}))
+    expect(resultResponses[0]!.body?.text).toBe(e2e.gmsg(intent, `s`, {res: `Echo this`}))
   })
 })

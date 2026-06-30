@@ -1,32 +1,25 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, gmedia, type TestEnvironment} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
-let env: TestEnvironment
 const intent = `test-sticker`
-
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: TestStickerPage`, () => {
-  it(`return a sticker response`, async () => {
-    await env.mockServer.sendText(`/start`)
-    env.clearRequests()
+  it(`return a sticker response with expected source`, async () => {
+    await e2e.sendText(`/start`)
+    e2e.clearCalls()
 
-    await env.mockServer.sendCallbackQuery(intent)
+    await e2e.sendCallbackQuery(intent)
 
-    const sendStickerReq = env.mockServer.lastRequest(`sendSticker`)
+    const sendStickerReq = e2e.lastCall(`sendSticker`)
     expect(sendStickerReq).toBeDefined()
-    expect(sendStickerReq!.body?.sticker).toBe(gmedia(intent, `s1`, {}).src)
+    expect(sendStickerReq!.body?.sticker).toBe(e2e.gmedia(intent, `s1`, {}).src)
 
-    env.clearRequests()
-    await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
-    const sendStickerIdReq = env.mockServer.lastRequest(`sendSticker`)
-    expect(sendStickerIdReq).toBeDefined()
-    expect(sendStickerIdReq!.body?.sticker).toBe(gmedia(intent, `s1`, {}, `id`).src)
+    e2e.clearCalls()
+    await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
+    const idReq = e2e.lastCall(`sendSticker`)
+    expect(idReq).toBeDefined()
+    expect(idReq!.body?.sticker).toBe(e2e.gmedia(intent, `s1`, {}, `id`).src)
   })
 })

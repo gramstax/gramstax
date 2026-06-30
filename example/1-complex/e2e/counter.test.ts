@@ -1,51 +1,44 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, gmsg, type TestEnvironment, gkb, buttonLabels} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
-let env: TestEnvironment
 const intent = `counter`
-
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: CounterPage`, () => {
   it(`increase counter then decrease back to initial value`, async () => {
-    await env.mockServer.sendText(`/start`)
-    env.clearRequests()
+    await e2e.sendText(`/start`)
+    e2e.clearCalls()
 
     // Navigate to counter and record starting count
-    const initialResponses = await env.mockServer.sendCallbackQuery(intent)
-    const initialResponsesId = await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
+    const initialResponses = await e2e.sendCallbackQuery(intent)
+    const initialResponsesId = await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
     expect(initialResponses.length).toBeGreaterThan(0)
     expect(initialResponsesId.length).toBeGreaterThan(0)
-    expect(initialResponsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {count: `0`}, `id`))
-    expect(buttonLabels(initialResponsesId[0])).toEqual(gkb(intent, `s1`, `inline`, {count: `0`}, `id`))
+    expect(initialResponsesId[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {count: `0`}, `id`))
+    expect(e2e.buttonLabels(initialResponsesId[0])).toEqual(e2e.gkb(intent, `s1`, `inline`, {count: `0`}, `id`))
 
     const initialText = initialResponses[0]!.body?.text
     expect(initialText).toContain(`Current count:`)
     const initialMatch = initialText.match(/Current count: (\d+)/)
     expect(initialMatch).not.toBeNull()
     const initialCount = parseInt(initialMatch![1]!, 10)
-    expect(buttonLabels(initialResponses[0])).toEqual(gkb(intent, `s1`, `inline`, {}))
+    expect(e2e.buttonLabels(initialResponses[0])).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
 
-    env.clearRequests()
+    e2e.clearCalls()
 
     // Increase by 1
-    const incResponses = await env.mockServer.sendCallbackQuery(`${intent}:I`)
+    const incResponses = await e2e.sendCallbackQuery(`${intent}:I`)
     expect(incResponses.length).toBeGreaterThan(0)
     expect(incResponses[0]!.body?.text).toContain(`Current count: ${initialCount + 1}`)
-    expect(buttonLabels(incResponses[0])).toEqual(gkb(intent, `s1`, `inline`, {}))
+    expect(e2e.buttonLabels(incResponses[0])).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
 
-    env.clearRequests()
+    e2e.clearCalls()
 
     // Decrease back to initial
-    const decResponses = await env.mockServer.sendCallbackQuery(`${intent}:D`)
+    const decResponses = await e2e.sendCallbackQuery(`${intent}:D`)
     expect(decResponses.length).toBeGreaterThan(0)
     expect(decResponses[0]!.body?.text).toContain(`Current count: ${initialCount}`)
-    expect(buttonLabels(decResponses[0])).toEqual(gkb(intent, `s1`, `inline`, {}))
+    expect(e2e.buttonLabels(decResponses[0])).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
   })
 })

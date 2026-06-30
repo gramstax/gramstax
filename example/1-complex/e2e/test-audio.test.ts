@@ -1,34 +1,27 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, gmedia, type TestEnvironment} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
-let env: TestEnvironment
 const intent = `test-audio`
-
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: TestAudioPage`, () => {
   it(`return an audio media response`, async () => {
-    await env.mockServer.sendText(`/start`)
-    env.clearRequests()
+    await e2e.sendText(`/start`)
+    e2e.clearCalls()
 
-    await env.mockServer.sendCallbackQuery(intent)
+    await e2e.sendCallbackQuery(intent)
 
-    const editMediaReq = env.mockServer.lastRequest(`editMessageMedia`)
+    const editMediaReq = e2e.lastCall(`editMessageMedia`)
     expect(editMediaReq).toBeDefined()
     expect(editMediaReq!.body?.media?.type).toBe(`audio`)
-    expect(editMediaReq!.body?.media?.media).toBe(gmedia(intent, `s1`, {}).src)
-    expect(editMediaReq!.body?.media?.caption).toBe(gmedia(intent, `s1`, {}).caption)
+    expect(editMediaReq!.body?.media?.media).toBe(e2e.gmedia(intent, `s1`, {}).src)
+    expect(editMediaReq!.body?.media?.caption).toBe(e2e.gmedia(intent, `s1`, {}).caption)
 
-    env.clearRequests()
-    await env.mockServer.sendCallbackQuery(intent, {user: {language_code: `id`}})
-    const editMediaIdReq = env.mockServer.lastRequest(`editMessageMedia`)
+    e2e.clearCalls()
+    await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
+    const editMediaIdReq = e2e.lastCall(`editMessageMedia`)
     expect(editMediaIdReq).toBeDefined()
-    expect(editMediaIdReq!.body?.media?.caption).toBe(gmedia(intent, `s1`, {}, `id`).caption)
+    expect(editMediaIdReq!.body?.media?.caption).toBe(e2e.gmedia(intent, `s1`, {}, `id`).caption)
   })
 })
