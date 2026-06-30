@@ -1209,7 +1209,7 @@ export class Ctx {
    * The page template's `<g-message>` HTML content is passed as the `html` field
    * of `InputRichMessage`. Use the Bot API 10.1 Rich HTML tags in your template
    * (e.g. `<h1>`, `<table>`, `<blockquote>`) — they are validated by
-   * {@link TemplateEngine.validateRichMessageBlock}.
+   * {@link TemplateEngine.validateBlockGMessageRich}.
    *
    * Rich message limits:
    * - Up to 32,768 UTF-8 characters
