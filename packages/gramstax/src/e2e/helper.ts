@@ -46,7 +46,7 @@ export type ITE2eApiCall = {
   /** Telegram Bot API method name, e.g. `sendMessage`. */
   method: string
   /** Parameters sent to the API method (chat_id, text, reply_markup, etc.). */
-  body: Record<string, unknown>
+  body: any
   /** Unix timestamp when the call was captured. */
   timestamp: number
 }

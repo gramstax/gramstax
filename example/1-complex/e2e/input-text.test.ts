@@ -17,8 +17,8 @@ describe(`E2E: InputTextPage`, () => {
     expect(pageResponsesId.length).toBeGreaterThan(0)
     expect(pageResponses[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
     expect(pageResponsesId[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}, `id`))
-    expect(e2e.buttonLabels(pageResponses[0])).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
-    expect(e2e.buttonLabels(pageResponsesId[0])).toEqual(e2e.gkb(intent, `s1`, `inline`, {}, `id`))
+    expect(e2e.buttonLabels(pageResponses[0]!)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
+    expect(e2e.buttonLabels(pageResponsesId[0]!)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}, `id`))
 
     e2e.clearCalls()
 
@@ -26,6 +26,6 @@ describe(`E2E: InputTextPage`, () => {
     const resultResponses = await e2e.sendText(`Hello World`)
     expect(resultResponses.length).toBeGreaterThan(0)
     expect(resultResponses[0]!.body?.text).toBe(e2e.gmsg(intent, `s`, {res: `Hello World`}))
-    expect(e2e.buttonLabels(resultResponses[0])).toEqual(e2e.gkb(intent, `s`, `inline`, {}))
+    expect(e2e.buttonLabels(resultResponses[0]!)).toEqual(e2e.gkb(intent, `s`, `inline`, {}))
   })
 })
