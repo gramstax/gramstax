@@ -82,7 +82,6 @@ class Main {
     const da = {
       firstName: ctx.userFirstName,
       time: new Date().toString(),
-      unixTime: Math.floor(Date.now() / 1000),
       thumbsEmojiId: `5368324170671202286`
     }
 
@@ -159,7 +158,7 @@ export class StartPage extends PageBase {
       <g-keyboard>🔢 Counter, 🧵 Counter Thread, ❓ Help, 🌐 Language, 🖼️ Test Photo, 🖼️ Test Media Group, 🎥 Test Video, 🎧 Test Audio, 📄 Test Document, 🎞️ Test Animation, 🎙️ Test Voice, 🎬 Test VideoN, 😀 Test Sticker, 📍 Test Location, 👤 Test Contact, 🧪 Test Error, 📝 Input Text2, ✍️ Input Text, 🧭 Block Map, 📦 Block Import, 🔀 Block Switch, ⌨️ KB Bottom, 🔄 Refresh</g-keyboard>
       <g-keyboard lang="id">🔢 Kounter, 🧵 Kounter Thread, ❓ Bantuan, 🌐 Bahasa, 🖼️ Test Foto, 🖼️ Test Media Grup, 🎥 Test Video, 🎧 Test Suara, 📄 Test Dokumen, 🎞️ Test Animasi, 🎙️ Test Suara, 🎬 Test VideoN, 😀 Test Stiker, 📍 Test Lokasi, 👤 Test Kontak, 🧪 Test Salah, 📝 Masukkan Teks2, ✍️ Masukkan Teks, 🧭 Blok Map, 📦 Blok Import, 🔀 Blok Switch, ⌨️ KB Bottom, 🔄 Segarkan</g-keyboard>
       <g-message>
-        <tg-time unix="{{unixTime}}" format="wD">{{time}}</tg-time>
+        {{time}}
 
         👋 Welcome, <b>{{firstName}}</b>! <tg-emoji emoji-id="{{thumbsEmojiId}}">👍</tg-emoji>
 
@@ -184,7 +183,7 @@ export class StartPage extends PageBase {
         <i>💡 Tip: long-press the message to copy any code snippet</i>
       </g-message>
       <g-message lang="id">
-        <tg-time unix="{{unixTime}}" format="wD">{{time}}</tg-time>
+        {{time}}
 
         👋 Selamat datang, <b>{{firstName}}</b>! <tg-emoji emoji-id="{{thumbsEmojiId}}">👍</tg-emoji>
 
