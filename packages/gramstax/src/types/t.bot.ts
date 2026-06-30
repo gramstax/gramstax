@@ -108,7 +108,7 @@ export type ITWebhookQueueConfig = {
  *
  * @public
  */
-export type ITGramstaxParams = {
+export type ITGramstaxParams<D extends string = string> = {
   /**
    * Telegram Bot API token.
    *
@@ -130,15 +130,17 @@ export type ITGramstaxParams = {
    * - `"polling"` - Long polling mode for development
    * - `"webhook:<url>"` - Webhook mode with specified URL
    * - `"serverless:<adapter>"` - Serverless mode with specified adapter
+   * - `"test"` - Test mode with E2eHelper
    *
    * @example
    * ```typescript
    * deploy: "polling"
    * deploy: "webhook:https://example.com/bot"
    * deploy: "serverless:std/http"
+   * deploy: "test"
    * ```
    */
-  deploy: string
+  deploy: D
 
   /**
    * Logger configuration.

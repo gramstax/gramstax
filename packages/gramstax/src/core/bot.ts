@@ -59,7 +59,7 @@ const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.j
  *
  * @public
  */
-export class Gramstax<ICtx extends Ctx = Ctx> {
+export class Gramstax<ICtx extends Ctx = Ctx, D extends string = string> {
   /**
    * Manages template loading and rendering for pages.
    *
@@ -163,7 +163,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Deploy type from constructor params
    */
-  deployType: `polling` | `webhook` | `serverless` | `test`
+  deployType: D
 
   /**
    * In-process E2E testing helper.
@@ -173,13 +173,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Telegram updates without any HTTP server. See {@link E2eHelper} for
    * full API documentation.
    *
+   * When `deploy` is a `"test"` variant, this is typed as `E2eHelper`;
+   * otherwise it is `undefined`.
+   *
    * @example
    * ```typescript
    * const bot = new Gramstax({deploy: "test", token: "test"})
-   * const responses = await bot.e2e!.sendText("/start", {user: {id: 2001}})
+   * const responses = await bot.e2e.sendText("/start", {user: {id: 2001}})
    * ```
    */
-  e2e?: E2eHelper
+  declare e2e: D extends `test${string}` ? E2eHelper : undefined
 
   /**
    * Creates a new Gramstax bot instance.
@@ -270,7 +273,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  constructor(params: ITGramstaxParams) {
+  constructor(params: ITGramstaxParams<D>) {
     if (!params?.token || params?.token?.length == 0) {
       throw new Error(`Token is not valid or empty`)
     }
@@ -319,21 +322,21 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     process.once(`SIGTERM`, () => this.stop())
 
     if (params.deploy.startsWith(`polling`)) {
-      this.deployType = `polling`
+      this.deployType = `polling` as any
       this.hookBeforeStart?.()
       this._runPolling()
     } else if (params.deploy.startsWith(`webhook:`)) {
-      this.deployType = `webhook`
+      this.deployType = `webhook` as any
       this.hookBeforeStart?.()
       this._runWebhook(params.deploy.split(`webhook:`)[1] as string)
     } else if (params.deploy.startsWith(`serverless:`)) {
-      this.deployType = `serverless`
+      this.deployType = `serverless` as any
       this.hookBeforeStart?.()
       this._runServerless(params.deploy.split(`serverless:`)[1] as string)
     } else if (params.deploy.startsWith(`test`)) {
-      this.deployType = `test`
+      this.deployType = `test` as any
       this.hookBeforeStart?.()
-      this.e2e = new E2eHelper(this)
+      this.e2e = new E2eHelper(this) as any
       this.hookAfterStart?.()
       // nothing, for test unit internal area
     } else {
