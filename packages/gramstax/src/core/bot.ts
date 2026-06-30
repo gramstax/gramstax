@@ -23,6 +23,7 @@ import type {UserFromGetMe} from "grammy/types"
 import type {ITGramstaxParams, ITWebhookQueueConfig} from "~/types/t.bot"
 import {WebhookQueue} from "~/webhook/queue"
 import {ITCt, ITCtMiddleware} from "~/types/t.ctx"
+import {E2eHelper} from "~/e2e/helper"
 
 const __dirname = dirname(
   (() => {
@@ -165,6 +166,22 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   deployType: `polling` | `webhook` | `serverless` | `test`
 
   /**
+   * In-process E2E testing helper.
+   *
+   * @remarks
+   * Available only when `deploy: "test"`. Provides methods to simulate
+   * Telegram updates without any HTTP server. See {@link E2eHelper} for
+   * full API documentation.
+   *
+   * @example
+   * ```typescript
+   * const bot = new Gramstax({deploy: "test", token: "test"})
+   * const responses = await bot.e2e!.sendText("/start", {user: {id: 2001}})
+   * ```
+   */
+  e2e?: E2eHelper
+
+  /**
    * Creates a new Gramstax bot instance.
    *
    * @param params - Configuration options. See {@link ITGramstaxParams} for all available options.
@@ -295,7 +312,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.handlerBotUpdate = this.bot.handleUpdate
 
     // Load pages AFTER templateManager is initialized
-    this.pages = this._pageLoads()
+    this.pages = this._pageLoads(this.templateManager._path?.[0])
 
     // Graceful shutdown
     process.once(`SIGINT`, () => this.stop())
@@ -316,6 +333,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     } else if (params.deploy.startsWith(`test`)) {
       this.deployType = `test`
       this.hookBeforeStart?.()
+      this.e2e = new E2eHelper(this)
+      this.hookAfterStart?.()
       // nothing, for test unit internal area
     } else {
       throw new Error(`Params deploy is not valid, expected: polling, webhook:<public-url>, serverless:<your-adapter>`)
@@ -1071,11 +1090,17 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Scans the pages directory, processes each page class, and builds
    * optimized routing tables for O(1) lookups.
    *
+   * @param pagesPath - Optional path to the pages directory. When omitted,
+   * falls back to `PageManager.getFilePath()` which defaults to
+   * `process.cwd() + "/src/pages"`. The Gramstax constructor passes
+   * `this.templateManager._path[0]` so that custom template paths
+   * are respected without requiring `process.chdir()`.
+   *
    * @returns The pages routing structure.
    *
    * @public
    */
-  _pageLoads() {
+  _pageLoads(pagesPath?: string) {
     this.log?.info?.(`Load pages..`)
 
     // Helper to keep map result as literal types (prevents widening to string[])
@@ -1193,7 +1218,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       lenListRouteDynamicSpesific: listRouteDynamicSpesific.length
     }
 
-    PageManager.getFileManySync(undefined).forEach(({path, page}, index) => {
+    PageManager.getFileManySync(pagesPath).forEach(({path, page}, index) => {
       this._pageBuildData(page, path) // create if not exist and set name (without ext) according filePath
       this._pageSorts(page, pages, index) // sort route method
       page.template = undefined // delete template for efficient memory

@@ -21,8 +21,10 @@ export * from "./blocks/keyboard"
 export * from "./labels/keyboard"
 export * from "./mock/telegram-server"
 export * from "./webhook/queue"
+export * from "./e2e/helper"
 
 // type
 export * from "./types/t.bot"
 export * from "./types/t.ctx"
 export * from "./types/t.template"
+export * from "./types/t.e2e"
