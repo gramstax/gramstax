@@ -1,8 +1,6 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "./setup"
 
-/** Extract text from a captured API call (handles both sendMessage and sendRichMessage). */
-
 const intent = `start`
 const asUser = {user: {id: 2003}, chat: {id: 2003}}
 beforeEach(() => {
@@ -28,6 +26,6 @@ describe(`E2E: StartPage`, () => {
 
     const sendReq = e2e.lastCall()
     expect(sendReq).toBeDefined()
-    expect(e2e.extractText(sendReq)).toContain(`Gramstax`)
+    expect(e2e.extractText(sendReq!)).toContain(`Gramstax`)
   })
 })
