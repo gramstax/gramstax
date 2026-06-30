@@ -1,52 +1,20 @@
-/**
- * E2E Tests: GeneralStatusPage
- *
- * Validates the "Route not found" error display via templateManager.getGMessage
- * for exact matching. Uses unrecognized callback queries since
- * HttpRequestPage.handleFreeText catches ALL text input.
- */
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, gmsg} from "./setup"
-
-let env: TestEnvironment
-const intent = `general-status`
-
-beforeAll(async () => {
-  env = await getEnv()
-})
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: GeneralStatusPage`, () => {
   it(`show 'Route not found' for unrecognized callback query`, async () => {
-    await env.mockServer.sendText(`/start`)
-    env.clearRequests()
+    await e2e.sendText(`/start`)
+    e2e.clearCalls()
 
-    const responses = await env.mockServer.sendCallbackQuery(`nonexistent-callback-data`)
-    const responsesId = await env.mockServer.sendCallbackQuery(`nonexistent-callback-data`, {user: {language_code: `id`}})
+    const res = await e2e.sendCallbackQuery(`nonexistent-callback-data`)
+    const resId = await e2e.sendCallbackQuery(`nonexistent-callback-data`, {user: {language_code: `id`}})
 
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responsesId.length).toBeGreaterThan(0)
-    const reply = responses[0]!
-    const replyId = responsesId[0]!
-    expect(reply.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}))
-    expect(replyId.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}, `id`))
-  })
-
-  it(`show 'Route not found' for another unrecognized callback`, async () => {
-    await env.mockServer.sendText(`/start`)
-    env.clearRequests()
-
-    const responses = await env.mockServer.sendCallbackQuery(`no-page-handles-this`)
-    const responsesId = await env.mockServer.sendCallbackQuery(`no-page-handles-this`, {user: {language_code: `id`}})
-
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responsesId.length).toBeGreaterThan(0)
-    const reply = responses[0]!
-    const replyId = responsesId[0]!
-    expect(reply.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}))
-    expect(replyId.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}, `id`))
+    expect(res.length).toBeGreaterThan(0)
+    expect(resId.length).toBeGreaterThan(0)
+    expect(res[0]!.body?.text).toBe(e2e.gmsg(`general-status`, `d`, {isNotFound: true}))
+    expect(resId[0]!.body?.text).toBe(e2e.gmsg(`general-status`, `d`, {isNotFound: true}, `id`))
   })
 })

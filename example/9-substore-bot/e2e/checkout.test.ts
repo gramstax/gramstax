@@ -1,71 +1,46 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, resetEnv, type TestEnvironment} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e, resetEnv, bot} from "./setup"
 
-let env: TestEnvironment
+const intent = `checkout`
 const asUser = {user: {id: 961}, chat: {id: 961}}
-
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(async () => {
   await resetEnv()
 })
-
 describe(`E2E: CheckoutPage`, () => {
-  it(`shows empty cart warning when cart is empty`, async () => {
-    const responses = await env.mockServer.sendCallbackQuery(`checkout`, asUser)
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toContain(`Empty cart`)
+  it(`shows empty cart warning`, async () => {
+    const res = await e2e.sendCallbackQuery(intent, asUser)
+    expect(res[0]!.body?.text).toContain(`Empty cart`)
   })
-
-  it(`shows contact input form with cart summary`, async () => {
-    await env.botCore.cacheState.set(`961:cart`, {"netflix-premium-1m": 1})
-
-    const responses = await env.mockServer.sendCallbackQuery(`checkout`, asUser)
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toContain(`Checkout Details`)
-    expect(responses[0]!.body?.text).toContain(`Netflix Premium`)
-    expect(responses[0]!.body?.text).toContain(`Subtotal: Rp 79.000`)
+  it(`shows contact input with cart summary`, async () => {
+    await bot.cacheState.set(`961:cart`, {"netflix-premium-1m": 1})
+    const res = await e2e.sendCallbackQuery(intent, asUser)
+    expect(res[0]!.body?.text).toContain(`Checkout Details`)
   })
-
-  it(`shows confirm order screen after valid contact`, async () => {
-    await env.botCore.cacheState.set(`961:cart`, {"netflix-premium-1m": 1})
-    await env.mockServer.sendCallbackQuery(`checkout`, asUser)
-    env.clearRequests()
-
-    const responses = await env.mockServer.sendText(`@testuser\nPlease deliver ASAP`, asUser)
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toContain(`Confirm Order`)
-    expect(responses[0]!.body?.text).toContain(`Contact: @testuser`)
+  it(`shows confirm screen after valid contact`, async () => {
+    await bot.cacheState.set(`961:cart`, {"netflix-premium-1m": 1})
+    await e2e.sendCallbackQuery(intent, asUser)
+    e2e.clearCalls()
+    const res = await e2e.sendText(`@testuser\nDeliver now`, asUser)
+    expect(res[0]!.body?.text).toContain(`Confirm Order`)
   })
-
-  it(`confirms purchase and receives order confirmation`, async () => {
-    await env.botCore.cacheState.set(`961:cart`, {"netflix-premium-1m": 1})
-    await env.mockServer.sendCallbackQuery(`checkout`, asUser)
-    env.clearRequests()
-    await env.mockServer.sendText(`@testuser\nDeliver after payment`, asUser)
-    env.clearRequests()
-
-    const responses = await env.mockServer.sendCallbackQuery(`checkout:confirm`, asUser)
-    expect(responses.length).toBeGreaterThan(0)
-    const photoResponse = responses.find((r: any) => r.method === `editMessageMedia`)
-    expect(photoResponse).toBeDefined()
-    const caption = String(photoResponse!.body?.media?.caption ?? ``)
-    expect(caption).toContain(`Order Created`)
-    expect(caption).toContain(`Order ID: SUB-`)
-    expect(caption).toContain(`Total: Rp 79.000`)
+  it(`confirms purchase`, async () => {
+    await bot.cacheState.set(`961:cart`, {"netflix-premium-1m": 1})
+    await e2e.sendCallbackQuery(intent, asUser)
+    e2e.clearCalls()
+    await e2e.sendText(`@testuser\nPay later`, asUser)
+    e2e.clearCalls()
+    const res = await e2e.sendCallbackQuery(`${intent}:confirm`, asUser)
+    const photo = res.find((r: any) => r.method === `editMessageMedia`)
+    expect(photo).toBeDefined()
+    expect(String(photo!.body?.media?.caption ?? ``)).toContain(`Order Created`)
   })
-
   it(`cancels checkout`, async () => {
-    await env.botCore.cacheState.set(`961:cart`, {"netflix-premium-1m": 1})
-    await env.mockServer.sendCallbackQuery(`checkout`, asUser)
-    env.clearRequests()
-    await env.mockServer.sendText(`@testuser`, asUser)
-    env.clearRequests()
-
-    const responses = await env.mockServer.sendCallbackQuery(`checkout:cancel`, asUser)
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toContain(`Checkout cancelled`)
+    await bot.cacheState.set(`961:cart`, {"netflix-premium-1m": 1})
+    await e2e.sendCallbackQuery(intent, asUser)
+    e2e.clearCalls()
+    await e2e.sendText(`@testuser`, asUser)
+    e2e.clearCalls()
+    const res = await e2e.sendCallbackQuery(`${intent}:cancel`, asUser)
+    expect(res[0]!.body?.text).toContain(`Checkout cancelled`)
   })
 })

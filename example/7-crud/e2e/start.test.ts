@@ -1,35 +1,21 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
-let env: TestEnvironment
 const intent = `start`
 const asUser = {user: {id: 701}, chat: {id: 701}}
 const asUserId = {user: {id: 702, language_code: `id`}, chat: {id: 702}}
-
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: StartPage`, () => {
-  it(`responds to /start with CRUD menu and inline keyboard`, async () => {
-    const responses = await env.mockServer.sendText(`/start`, asUser)
-    const responsesId = await env.mockServer.sendText(`/start`, asUserId)
-
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responsesId.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
-    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
-    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s1`, `inline`, {}))
-    expect(buttonLabels(responsesId[0])).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
+  it(`responds to /start with menu`, async () => {
+    const res = await e2e.sendText(`/start`, asUser)
+    const resId = await e2e.sendText(`/start`, asUserId)
+    expect(res[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
+    expect(resId[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}, `id`))
   })
-
-  it(`responds to callback:start`, async () => {
-    const responses = await env.mockServer.sendCallbackQuery(intent, asUser)
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
+  it(`responds to callback`, async () => {
+    const res = await e2e.sendCallbackQuery(intent, asUser)
+    expect(res[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
   })
 })

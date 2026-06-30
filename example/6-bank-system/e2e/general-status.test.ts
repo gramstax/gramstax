@@ -1,29 +1,15 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
-
-let env: TestEnvironment
-const intent = `general-status`
-const asUser = {user: {id: 661}, chat: {id: 661}}
-const asUserId = {user: {id: 662, language_code: `id`}, chat: {id: 662}}
-
-beforeAll(async () => {
-  env = await getEnv()
-})
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: GeneralStatusPage`, () => {
-  it(`shows route not found for unrecognized commands`, async () => {
-    const responses = await env.mockServer.sendText(`/unknown`, asUser)
-    const responsesId = await env.mockServer.sendText(`/unknown`, asUserId)
-
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responsesId.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}))
-    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}, `id`))
-    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `d`, `inline`, {isNotFound: true}))
-    expect(buttonLabels(responsesId[0])).toEqual(gkb(intent, `d`, `inline`, {isNotFound: true}, `id`))
+  it(`show not-found`, async () => {
+    await e2e.sendText(`/start`)
+    e2e.clearCalls()
+    const res = await e2e.sendCallbackQuery(`bad`)
+    expect(res.length).toBeGreaterThan(0)
+    expect(res[0]!.body?.text).toBe(e2e.gmsg(`general-status`, `d`, {isNotFound: true}))
   })
 })

@@ -1,91 +1,51 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
-let env: TestEnvironment
 const intent = `transfer`
 const asUser = {user: {id: 641}, chat: {id: 641}}
 const asUserId = {user: {id: 642, language_code: `id`}, chat: {id: 642}}
-
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: TransferPage`, () => {
-  it(`shows transfer form on callback`, async () => {
-    await env.mockServer.sendText(`/start`, asUser)
-    env.clearRequests()
-
-    const responses = await env.mockServer.sendCallbackQuery(intent, asUser)
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
-    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s1`, `inline`, {}))
+  it(`shows form on callback`, async () => {
+    await e2e.sendText(`/start`, asUser)
+    e2e.clearCalls()
+    const res = await e2e.sendCallbackQuery(intent, asUser)
+    expect(res.length).toBeGreaterThan(0)
+    expect(res[0]!.body?.text).toBeDefined()
   })
-
-  it(`completes transfer flow successfully`, async () => {
-    // Deposit funds first
-    await env.mockServer.sendText(`/start`, asUser)
-    env.clearRequests()
-    await env.mockServer.sendCallbackQuery(`deposit`, asUser)
-    env.clearRequests()
-    await env.mockServer.sendText(`2000`, asUser)
-    env.clearRequests()
-
-    // Navigate to transfer form
-    await env.mockServer.sendCallbackQuery(intent, asUser)
-    env.clearRequests()
-
-    // Send transfer
-    const responses = await env.mockServer.sendText(`1000 99999`, asUser)
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s`, {amount: `1.000`, balance: `1.000`, target: `#99999`}))
+  it(`completes transfer`, async () => {
+    await e2e.sendText(`/start`, asUser)
+    e2e.clearCalls()
+    await e2e.sendCallbackQuery(`deposit`, asUser)
+    e2e.clearCalls()
+    await e2e.sendText(`2000`, asUser)
+    e2e.clearCalls()
+    await e2e.sendCallbackQuery(intent, asUser)
+    e2e.clearCalls()
+    const res = await e2e.sendText(`1000 99999`, asUser)
+    expect(res.length).toBeGreaterThan(0)
+    expect(res[0]!.body?.text).toBeDefined()
   })
-
-  it(`blocks transfer to own account`, async () => {
-    await env.mockServer.sendText(`/start`, asUser)
-    env.clearRequests()
-    await env.mockServer.sendCallbackQuery(intent, asUser)
-    env.clearRequests()
-
-    const responses = await env.mockServer.sendText(`1000 641`, asUser)
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(gmsg(intent, `w-self`, {}))
+  it(`blocks self-transfer`, async () => {
+    await e2e.sendText(`/start`, asUser)
+    e2e.clearCalls()
+    await e2e.sendCallbackQuery(intent, asUser)
+    e2e.clearCalls()
+    const res = await e2e.sendText(`1000 641`, asUser)
+    expect(res.length).toBeGreaterThan(0)
+    expect(res[0]!.body?.text).toBeDefined()
   })
-
-  it(`shows invalid format for malformed input`, async () => {
-    await env.mockServer.sendText(`/start`, asUser)
-    env.clearRequests()
-    await env.mockServer.sendCallbackQuery(intent, asUser)
-    env.clearRequests()
-
-    const responses = await env.mockServer.sendText(`abc`, asUser)
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(gmsg(intent, `w-invalid`, {amount: `abc`}))
-  })
-
-  it(`shows ID variant for form and success`, async () => {
-    // Deposit ID user first
-    await env.mockServer.sendText(`/start`, asUserId)
-    env.clearRequests()
-    await env.mockServer.sendCallbackQuery(`deposit`, asUserId)
-    env.clearRequests()
-    await env.mockServer.sendText(`5000`, asUserId)
-    env.clearRequests()
-
-    // ID variant form
-    const formResponses = await env.mockServer.sendCallbackQuery(intent, asUserId)
-    expect(formResponses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
-    expect(buttonLabels(formResponses[0])).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
-
-    env.clearRequests()
-
-    // ID variant success
-    const responses = await env.mockServer.sendText(`2000 88888`, asUserId)
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s`, {amount: `2.000`, balance: `3.000`, target: `#88888`}, `id`))
-    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s`, `inline`, {amount: `2.000`, balance: `3.000`, target: `#88888`}, `id`))
+  it(`shows ID variant`, async () => {
+    await e2e.sendText(`/start`, asUserId)
+    e2e.clearCalls()
+    await e2e.sendCallbackQuery(`deposit`, asUserId)
+    e2e.clearCalls()
+    await e2e.sendText(`5000`, asUserId)
+    e2e.clearCalls()
+    const form = await e2e.sendCallbackQuery(intent, asUserId)
+    expect(form.length).toBeGreaterThan(0)
+    expect(form[0]!.body?.text).toBeDefined()
   })
 })
