@@ -6,7 +6,6 @@
  * template files into an AST, validates structure, and renders Telegram
  * message objects (text, keyboard, media, etc.) with dynamic data binding.
  *
- * @packageDocumentation
  * @public
  */
 

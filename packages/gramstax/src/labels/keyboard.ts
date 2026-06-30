@@ -6,7 +6,6 @@
  * user-defined keyboard data. The `label()` static method extracts
  * button labels for use by the block keyboard builder.
  *
- * @packageDocumentation
  * @public
  */
 

@@ -6,7 +6,6 @@
  * and automatic caller detection. Used throughout the framework for
  * consistent log output.
  *
- * @packageDocumentation
  * @public
  */
 

@@ -6,7 +6,6 @@
  * file watching via `chokidar`, and hot-reload of modified templates.
  * Delegates parsing and rendering to {@link TemplateEngine}.
  *
- * @packageDocumentation
  * @public
  */
 

@@ -6,7 +6,6 @@
  * page discovery, session management, webhook support, and the Gramstax
  * plugin system. This is the primary entry point for building a Gramstax bot.
  *
- * @packageDocumentation
  * @public
  */
 

@@ -6,7 +6,6 @@
  * endpoints, enabling offline integration testing without a real
  * Telegram connection.
  *
- * @packageDocumentation
  * @public
  */
 

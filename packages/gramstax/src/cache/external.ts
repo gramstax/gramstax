@@ -6,7 +6,6 @@
  * Redis backend via `@keyv/redis`. Used internally by the bot for session
  * and state storage.
  *
- * @packageDocumentation
  * @public
  */
 

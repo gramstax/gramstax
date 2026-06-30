@@ -6,7 +6,6 @@
  * they are processed sequentially. Useful for long-polling fallback or
  * rate-limited webhook processing.
  *
- * @packageDocumentation
  * @public
  */
 

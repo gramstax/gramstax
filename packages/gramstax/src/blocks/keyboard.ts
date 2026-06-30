@@ -6,7 +6,6 @@
  * for the template engine. Requires `BlockKeyboard.label` to be set before
  * calling build methods.
  *
- * @packageDocumentation
  * @public
  */
 

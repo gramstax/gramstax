@@ -6,7 +6,6 @@
  * template files, parses them into AST, and registers route handlers
  * for each page discovered.
  *
- * @packageDocumentation
  * @public
  */
 

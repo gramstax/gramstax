@@ -6,7 +6,6 @@
  * media group editing, and CLI input support. Each incoming update is
  * routed through this context before reaching handler pages.
  *
- * @packageDocumentation
  * @public
  */
 
