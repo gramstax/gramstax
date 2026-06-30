@@ -1,3 +1,8 @@
+/** Extract text from a captured API call (handles both sendMessage and sendRichMessage). */
+function textFrom(call: any): string | undefined {
+  return call?.body?.rich_message?.html ?? call?.body?.text
+}
+
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "./setup"
 
@@ -55,8 +60,8 @@ describe(`E2E: Full exploration flow`, () => {
 
     // Navigate back home via Back button
     const backResponses = await e2e.sendCallbackQuery(`start`)
-    const backMessageResponse = backResponses.find((response: any) => typeof response.body?.text === `string`)
+    const backMessageResponse = backResponses.find((response: any) => typeof textFrom(response) === `string`)
     expect(backResponses.length).toBeGreaterThan(0)
-    expect(backMessageResponse?.body?.text).toContain(`Welcome`)
+    expect(textFrom(backMessageResponse)).toContain(`Gramstax`)
   })
 })

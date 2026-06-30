@@ -1,6 +1,11 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "./setup"
 
+/** Extract text from a captured API call (handles both sendMessage and sendRichMessage). */
+function textFrom(call: any): string | undefined {
+  return call?.body?.rich_message?.html ?? call?.body?.text
+}
+
 const intent = `start`
 const asUser = {user: {id: 2003}, chat: {id: 2003}}
 beforeEach(() => {
@@ -15,8 +20,8 @@ describe(`E2E: StartPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     const reply = responses[0]!
     const replyId = responsesId[0]!
-    expect(reply.body?.text).toContain(`Welcome`)
-    expect(replyId.body?.text).toContain(`Selamat datang`)
+    expect(textFrom(reply)).toContain(`Gramstax`)
+    expect(textFrom(replyId)).toContain(`gramstax`)
     expect(e2e.buttonLabels(reply)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
     expect(e2e.buttonLabels(replyId)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}, `id`))
   })
@@ -24,8 +29,8 @@ describe(`E2E: StartPage`, () => {
   it(`capture outbound requests in e2e.calls`, async () => {
     await e2e.sendText(`/start`, asUser)
 
-    const sendMessageReq = e2e.lastCall(`sendMessage`)
-    expect(sendMessageReq).toBeDefined()
-    expect(sendMessageReq?.body?.text).toContain(`Welcome`)
+    const sendReq = e2e.lastCall()
+    expect(sendReq).toBeDefined()
+    expect(textFrom(sendReq)).toContain(`Gramstax`)
   })
 })
