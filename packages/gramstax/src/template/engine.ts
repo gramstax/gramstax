@@ -102,7 +102,17 @@ export type ITMediaBlock = {
  * @public
  */
 export class TemplateEngine {
+  /** Maximum items in a media group (pipe-delimited `src` or `<g-media-group>`). */
   static MAX_MEDIA_GROUP_ITEMS = 10
+
+  /**
+   * Telegram Bot API version supported by this release.
+   *
+   * @remarks
+   * Updated with each gramstax release to reflect the latest supported
+   * Telegram Bot API version.
+   */
+  static BOT_API_VERSION = `10.1`
   static ALLOWED_BLOCKS_TELEGRAM_LEGACY = [
     // Original Telegram HTML mode tags (parse_mode="HTML", pre-Rich spec)
     `<b>`,
@@ -2996,6 +3006,110 @@ export class TemplateEngine {
    *
    * @remarks
    * This is a convenience method that runs all validators in order:
+   *
+   * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known
+   * 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known
+   * 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax
+   * 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules
+   * 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags
+   * 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes
+   * 7. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes
+   * 8. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes
+   * 9. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes
+   * 10. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes
+   * 11. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
+   * 12. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
+   * 13. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
+   * 14. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
+   * 15. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
+   * 16. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
+   * 17. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
+   * 18. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
+   * 19. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
+   * 20. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
+   * 21. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+   * 22. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+   *
+   * Errors from all validators are combined into a single result.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and a combined `errors` array containing
+   *          line numbers and descriptive messages for every violation found
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateTemplate(`
+   *   <g-base>
+   *     <g-message>Hello {{name}}!</g-message>
+   *   </g-base>
+   * `);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateRichMessageBlock(html: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors: Array<{line: number; message: string}> = []
+
+    // 1. UTF-8 length check (32768 chars)
+    if (html.length > 32768) {
+      errors.push({line: 0, message: `Rich message exceeds 32768 character limit (got ${html.length})`})
+    }
+
+    // 2. Block count check (≤ 500)
+    const blockMatches = html.match(/<[a-zA-Z][^>]*>/g)
+    const blockCount = blockMatches ? blockMatches.length : 0
+    if (blockCount > 500) {
+      errors.push({line: 0, message: `Rich message exceeds 500 block limit (got ${blockCount})`})
+    }
+
+    // 3. Nesting depth check (≤ 16)
+    let maxDepth = 0
+    let currentDepth = 0
+    const voidElements = new Set([`area`, `base`, `br`, `col`, `embed`, `hr`, `img`, `input`, `link`, `meta`, `param`, `source`, `track`, `wbr`, `tg-map`, `tg-emoji`])
+    const tagRegex = /<(\/?)([a-zA-Z][a-zA-Z0-9]*)\b[^>]*(\/?)>/g
+    let tagMatch: RegExpExecArray | null
+    while ((tagMatch = tagRegex.exec(html)) !== null) {
+      const isClosing = tagMatch[1] === `/`
+      const tagName = tagMatch[2]!.toLowerCase()
+      const isSelfClosing = tagMatch[3] === `/` || voidElements.has(tagName)
+
+      if (isClosing && !isSelfClosing) {
+        currentDepth = Math.max(0, currentDepth - 1)
+      } else if (!isSelfClosing) {
+        currentDepth++
+        maxDepth = Math.max(maxDepth, currentDepth)
+      }
+    }
+    if (maxDepth > 16) {
+      errors.push({line: 0, message: `Rich message exceeds 16 nesting level limit (got ${maxDepth})`})
+    }
+
+    // 4. Table column check (≤ 20 per table)
+    const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi
+    let tableMatch: RegExpExecArray | null
+    while ((tableMatch = tableRegex.exec(html)) !== null) {
+      const tableContent = tableMatch[1]!
+      const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi
+      let rowMatch: RegExpExecArray | null
+      while ((rowMatch = rowRegex.exec(tableContent)) !== null) {
+        const cellCount = (rowMatch[1]!.match(/<t[dh][^>]*>/gi) || []).length
+        if (cellCount > 20) {
+          errors.push({line: 0, message: `Rich message table exceeds 20 column limit (got ${cellCount} columns in a row)`})
+          break
+        }
+      }
+    }
+
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Full template validation — runs all validation passes.
+   *
+   * @remarks
+   * Executes every registered validator in sequence and collects all errors.
+   * Validation steps:
    *
    * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known
    * 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known

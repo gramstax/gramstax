@@ -1199,7 +1199,44 @@ export class Ctx {
   }
 
   /**
-   * still construction!
+   * Sends a rich message reply using the page template.
+   *
+   * @remarks
+   * Uses `replyWithRichMessage` (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION})
+   * to send structured rich text with headings, lists, tables, media, block
+   * quotations, collapsible blocks, footnotes, and formulas.
+   *
+   * The page template's `<g-message>` HTML content is passed as the `html` field
+   * of `InputRichMessage`. Use the Bot API 10.1 Rich HTML tags in your template
+   * (e.g. `<h1>`, `<table>`, `<blockquote>`) — they are validated by
+   * {@link TemplateEngine.validateRichMessageBlock}.
+   *
+   * Rich message limits:
+   * - Up to 32,768 UTF-8 characters
+   * - Up to 500 blocks
+   * - Up to 16 nesting levels
+   * - Up to 20 table columns
+   *
+   * @param keyboard - Optional keyboard markup from {@link Ctx.inlineKeyboard} or {@link Ctx.bottomKeyboard}.
+   * @param data - Optional template interpolation data.
+   * @param AGBaseId - Optional template base ID position for block message.
+   * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`).
+   * @param options2 - Optional grammY send options.
+   * @returns The sent message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackData() {
+   *   // Rich message with template content
+   *   await this.replyRich()
+   *
+   *   // With keyboard and data
+   *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
+   *   await this.replyRich(kb, {name: "John"})
+   * }
+   * ```
+   *
+   * @public
    */
   async replyRich(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1]) {
     this.temp.isAnswer = true
@@ -1211,6 +1248,62 @@ export class Ctx {
         ...options2
       }
     )
+  }
+
+  /**
+   * Edits an existing message with rich content using the page template.
+   *
+   * @remarks
+   * Uses `editMessageText` with an `InputRichMessage` payload (Telegram Bot API
+   * {@link TemplateEngine.BOT_API_VERSION}). This method can edit both text and
+   * rich messages — pass a rich HTML template and it will be sent as structured
+   * rich content.
+   *
+   * If editing fails (e.g. message too old) and `fallbackReply` is true (default),
+   * a new rich message reply is sent instead.
+   *
+   * Rich message limits:
+   * - Up to 32,768 UTF-8 characters
+   * - Up to 500 blocks
+   * - Up to 16 nesting levels
+   * - Up to 20 table columns
+   *
+   * @param keyboardInline - Optional inline keyboard markup.
+   * @param data - Optional template interpolation data.
+   * @param AGBaseId - Optional template base ID position for block message.
+   * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`).
+   * @param options2 - Optional grammY edit options.
+   * @param fallbackReply - If true, sends a rich reply if edit fails. Default: true.
+   * @returns The edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackData() {
+   *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
+   *   await this.editRich(kb, {status: "updated"})
+   * }
+   * ```
+   *
+   * @public
+   */
+  async editRich(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit, fallbackReply = true) {
+    try {
+      this.temp.isAnswer = true
+      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.userLanguage, data)
+      return await this.ct.editMessageText(
+        {html: msg, ...options1},
+        {
+          reply_markup: keyboardInline,
+          ...options2
+        }
+      )
+    } catch (error) {
+      if (fallbackReply) {
+        await this.replyRich(keyboardInline, data, AGBaseId, options1, options2)
+      } else {
+        throw error
+      }
+    }
   }
 
   /**
