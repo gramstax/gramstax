@@ -9,7 +9,7 @@ Global error handler for bot errors.
 **Signature:**
 
 ```typescript
-_onCatch(error: BotError<Context>): void;
+_onCatch(error: BotError<ITCt>): void;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ error
 
 </td><td>
 
-BotError&lt;Context&gt;
+BotError&lt;[ITCt](./gramstax.itct.md)<!-- -->&gt;
 
 
 </td><td>

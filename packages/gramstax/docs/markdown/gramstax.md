@@ -52,6 +52,17 @@ The context/page base class that provides access to user data, session managemen
 </td></tr>
 <tr><td>
 
+[E2eHelper](./gramstax.e2ehelper.md)
+
+
+</td><td>
+
+In-process E2E testing helper for Gramstax bots.
+
+
+</td></tr>
+<tr><td>
+
 [Gramstax](./gramstax.gramstax.md)
 
 
@@ -247,6 +258,17 @@ Type alias for grammY Context.
 </td></tr>
 <tr><td>
 
+[ITCtMiddleware](./gramstax.itctmiddleware.md)
+
+
+</td><td>
+
+Type alias for grammY Middleware.
+
+
+</td></tr>
+<tr><td>
+
 [ITCtxParams](./gramstax.itctxparams.md)
 
 
@@ -264,6 +286,97 @@ Parameters for Ctx instance initialization.
 </td><td>
 
 Generic data object for template interpolation.
+
+
+</td></tr>
+<tr><td>
+
+[ITE2eApiCall](./gramstax.ite2eapicall.md)
+
+
+</td><td>
+
+Captured outbound Bot API call record.
+
+
+</td></tr>
+<tr><td>
+
+[ITE2eCallbackQueryOptions](./gramstax.ite2ecallbackqueryoptions.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ITE2eChat](./gramstax.ite2echat.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ITE2eContactOptions](./gramstax.ite2econtactoptions.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ITE2eDiceOptions](./gramstax.ite2ediceoptions.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ITE2eLocationOptions](./gramstax.ite2elocationoptions.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ITE2eMediaOptions](./gramstax.ite2emediaoptions.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ITE2eUpdateOptions](./gramstax.ite2eupdateoptions.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ITE2eUser](./gramstax.ite2euser.md)
+
+
+</td><td>
+
 
 
 </td></tr>

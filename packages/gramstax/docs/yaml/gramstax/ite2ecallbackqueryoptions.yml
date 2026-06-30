@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: ITE2eCallbackQueryOptions
+uid: gramstax!ITE2eCallbackQueryOptions:type
+package: gramstax!
+fullName: ITE2eCallbackQueryOptions
+summary: ''
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITE2eCallbackQueryOptions = ITE2eUpdateOptions & {
+      id?: string;
+      messageText?: string;
+  };

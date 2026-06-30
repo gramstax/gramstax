@@ -9,7 +9,7 @@ Optional grammY bot configuration.
 **Signature:**
 
 ```typescript
-botConfig?: BotConfig<Context>;
+botConfig?: BotConfig<ITCt>;
 ```
 
 ## Remarks

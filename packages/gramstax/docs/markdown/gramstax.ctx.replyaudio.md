@@ -9,7 +9,7 @@ Sends an audio message using the page template.
 **Signature:**
 
 ```typescript
-replyAudio(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyAudio): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+replyAudio(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyAudio): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
 ```
 
 ## Parameters
@@ -64,7 +64,7 @@ _(Optional)_ Optional template interpolation data.
 </td></tr>
 <tr><td>
 
-baseId
+AGBaseId
 
 
 </td><td>
@@ -74,7 +74,7 @@ string
 
 </td><td>
 
-_(Optional)_ Optional template base ID position for block media type audio.
+_(Optional)_ Optional template g-base ID position for block media type audio.
 
 
 </td></tr>

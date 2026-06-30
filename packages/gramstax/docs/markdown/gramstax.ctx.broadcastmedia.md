@@ -9,7 +9,7 @@ Sends a media message to multiple users in bulk.
 **Signature:**
 
 ```typescript
-broadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact, throwError?: boolean): Promise<{
+broadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact, throwError?: boolean): Promise<{
         successCount: number;
         failedCount: number;
         totalCount: number;
@@ -100,7 +100,7 @@ _(Optional)_ Optional template interpolation data.
 </td></tr>
 <tr><td>
 
-baseId
+AGBaseId
 
 
 </td><td>
@@ -110,7 +110,7 @@ string
 
 </td><td>
 
-_(Optional)_ Optional template base ID position for block media.
+_(Optional)_ Optional template g-base ID position for block media.
 
 
 </td></tr>

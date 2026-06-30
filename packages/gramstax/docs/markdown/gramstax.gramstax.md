@@ -115,7 +115,7 @@ The underlying grammY Bot instance.
 
 </td><td>
 
-BotConfig&lt;Context&gt;
+BotConfig&lt;[ITCt](./gramstax.itct.md)<!-- -->&gt;
 
 
 </td><td>
@@ -178,6 +178,25 @@ External cache for user session data.
 </td><td>
 
 Deploy type
+
+
+</td></tr>
+<tr><td>
+
+[e2e?](./gramstax.gramstax.e2e.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[E2eHelper](./gramstax.e2ehelper.md)
+
+
+</td><td>
+
+_(Optional)_ In-process E2E testing helper.
 
 
 </td></tr>
@@ -319,20 +338,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[\_onCallbackQueryData(ct)](./gramstax.gramstax._oncallbackquerydata.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming callback queries from inline keyboards and process route.
-
-
-</td></tr>
-<tr><td>
-
 [\_onCatch(error)](./gramstax.gramstax._oncatch.md)
 
 
@@ -347,181 +352,13 @@ Global error handler for bot errors.
 </td></tr>
 <tr><td>
 
-[\_onHandle(ct, listenerName, fromListener, shouldCheckNotFound)](./gramstax.gramstax._onhandle.md)
+[\_onHandle(ct, listenerName, shouldCheckNotFound)](./gramstax.gramstax._onhandle.md)
 
 
 </td><td>
 
 
 </td><td>
-
-
-</td></tr>
-<tr><td>
-
-[\_onMessage(ct, listenerName)](./gramstax.gramstax._onmessage.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming messages of a specific type and process route.
-
-
-</td></tr>
-<tr><td>
-
-[\_onMessageAnimation(ct)](./gramstax.gramstax._onmessageanimation.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming messages\*
-
-
-</td></tr>
-<tr><td>
-
-[\_onMessageAudio(ct)](./gramstax.gramstax._onmessageaudio.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming messages\*
-
-
-</td></tr>
-<tr><td>
-
-[\_onMessageContact(ct)](./gramstax.gramstax._onmessagecontact.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming messages\*
-
-
-</td></tr>
-<tr><td>
-
-[\_onMessageDocument(ct)](./gramstax.gramstax._onmessagedocument.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming messages\*
-
-
-</td></tr>
-<tr><td>
-
-[\_onMessageLocation(ct)](./gramstax.gramstax._onmessagelocation.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming messages\*
-
-
-</td></tr>
-<tr><td>
-
-[\_onMessagePhoto(ct)](./gramstax.gramstax._onmessagephoto.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming messages\*
-
-
-</td></tr>
-<tr><td>
-
-[\_onMessageSticker(ct)](./gramstax.gramstax._onmessagesticker.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming messages\*
-
-
-</td></tr>
-<tr><td>
-
-[\_onMessageText(ct)](./gramstax.gramstax._onmessagetext.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming messages\*
-
-
-</td></tr>
-<tr><td>
-
-[\_onMessageVideo(ct)](./gramstax.gramstax._onmessagevideo.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming messages\*
-
-
-</td></tr>
-<tr><td>
-
-[\_onMessageVideoNote(ct)](./gramstax.gramstax._onmessagevideonote.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming messages\*
-
-
-</td></tr>
-<tr><td>
-
-[\_onMessageVoice(ct)](./gramstax.gramstax._onmessagevoice.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Handles incoming messages\*
 
 
 </td></tr>
@@ -555,7 +392,7 @@ Builds page data configuration for a page class.
 </td></tr>
 <tr><td>
 
-[\_pageLoads()](./gramstax.gramstax._pageloads.md)
+[\_pageLoads(pagesPath)](./gramstax.gramstax._pageloads.md)
 
 
 </td><td>
@@ -592,174 +429,6 @@ Routes an incoming update to the appropriate page handler.
 </td><td>
 
 Sorts and categorizes page routes into routing tables.
-
-
-</td></tr>
-<tr><td>
-
-[\_registerOnCallbackQueryData()](./gramstax.gramstax._registeroncallbackquerydata.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[\_registerOnMessageAnimation()](./gramstax.gramstax._registeronmessageanimation.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[\_registerOnMessageAudio()](./gramstax.gramstax._registeronmessageaudio.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[\_registerOnMessageContact()](./gramstax.gramstax._registeronmessagecontact.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[\_registerOnMessageDocument()](./gramstax.gramstax._registeronmessagedocument.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[\_registerOnMessageLocation()](./gramstax.gramstax._registeronmessagelocation.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[\_registerOnMessagePhoto()](./gramstax.gramstax._registeronmessagephoto.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[\_registerOnMessageSticker()](./gramstax.gramstax._registeronmessagesticker.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[\_registerOnMessageText()](./gramstax.gramstax._registeronmessagetext.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[\_registerOnMessageVideo()](./gramstax.gramstax._registeronmessagevideo.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[\_registerOnMessageVideoNote()](./gramstax.gramstax._registeronmessagevideonote.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[\_registerOnMessageVoice()](./gramstax.gramstax._registeronmessagevoice.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
 
 
 </td></tr>
@@ -917,7 +586,7 @@ _(Optional)_ Hook called before the bot starts.
 </td></tr>
 <tr><td>
 
-[hookErrorInputNotFoundPage(ctx)?](./gramstax.gramstax.hookerrorinputnotfoundpage.md)
+[hookErrorInputNotFoundPage(ctx, data)?](./gramstax.gramstax.hookerrorinputnotfoundpage.md)
 
 
 </td><td>
@@ -940,6 +609,188 @@ _(Optional)_ Hook called when no page handler matches the input.
 </td><td>
 
 _(Optional)_ Hook called when a page handler throws an error.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowOnCallbackData()](./gramstax.gramstax.registerlowoncallbackdata.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowOnMessageAnimation()](./gramstax.gramstax.registerlowonmessageanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowOnMessageAudio()](./gramstax.gramstax.registerlowonmessageaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowOnMessageContact()](./gramstax.gramstax.registerlowonmessagecontact.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowOnMessageDocument()](./gramstax.gramstax.registerlowonmessagedocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowOnMessageLocation()](./gramstax.gramstax.registerlowonmessagelocation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowOnMessagePhoto()](./gramstax.gramstax.registerlowonmessagephoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowOnMessageSticker()](./gramstax.gramstax.registerlowonmessagesticker.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowOnMessageText()](./gramstax.gramstax.registerlowonmessagetext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowOnMessageVideo()](./gramstax.gramstax.registerlowonmessagevideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowOnMessageVideoNote()](./gramstax.gramstax.registerlowonmessagevideonote.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowOnMessageVoice()](./gramstax.gramstax.registerlowonmessagevoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
+[registerLowPlugin()?](./gramstax.gramstax.registerlowplugin.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Returns grammY middleware to register as low-level plugins on the bot.
 
 
 </td></tr>

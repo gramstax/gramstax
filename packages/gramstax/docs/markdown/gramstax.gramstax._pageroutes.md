@@ -10,7 +10,7 @@ Routes an incoming update to the appropriate page handler.
 
 ```typescript
 _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
-        result: any;
+        state: `matched` | `no-match` | `no-handler` | `blocked`;
     }>;
 ```
 
@@ -68,9 +68,9 @@ The listener type that triggered the route.
 
 **Returns:**
 
-Promise&lt;{ result: any; }&gt;
+Promise&lt;{ state: \`matched\` \| \`no-match\` \| \`no-handler\` \| \`blocked\`; }&gt;
 
-`result`<!-- -->: The route handler result, or null if no handler answered.
+A `PageRouteResult` with `state` indicating what happened
 
 ## Remarks
 

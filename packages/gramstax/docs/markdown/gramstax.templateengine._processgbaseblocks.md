@@ -10,7 +10,7 @@ Block: g-base Extracts and parses `<g-base>` blocks from a template string.
 
 ```typescript
 static _processGBaseBlocks(template: string): {
-        [baseId: string]: string;
+        [AGBaseId: string]: string;
     };
 ```
 
@@ -52,7 +52,7 @@ The raw template string containing `<g-base>` blocks
 
 **Returns:**
 
-{ \[baseId: string\]: string; }
+{ \[AGBaseId: string\]: string; }
 
 An object mapping base IDs to their cleaned inner content
 

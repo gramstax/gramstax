@@ -9,7 +9,7 @@ Creates a context instance for handling an update.
 **Signature:**
 
 ```typescript
-createCtx(ct: Context): ICtx;
+createCtx(ct: ITCt): ICtx;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ ct
 
 </td><td>
 
-Context
+[ITCt](./gramstax.itct.md)
 
 
 </td><td>

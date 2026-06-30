@@ -345,10 +345,10 @@ methods:
       return:
         type: string
         description: The escaped string with backslashes and backticks properly escaped
-  - name: _extractBlock(content, blocks, baseId, section, lang)
+  - name: _extractBlock(content, blocks, AGBaseId, section, lang)
     uid: gramstax!TemplateEngine._extractBlock:member(1)
     package: gramstax!
-    fullName: _extractBlock(content, blocks, baseId, section, lang)
+    fullName: _extractBlock(content, blocks, AGBaseId, section, lang)
     summary: Extracts specific blocks from template content with optional filtering.
     remarks: >-
       This internal method extracts content from templates based on base ID, block type, language, and section mode. It
@@ -369,7 +369,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        static _extractBlock(content: string, blocks?: string | string[], baseId?: string, section?: `all` | `value`,
+        static _extractBlock(content: string, blocks?: string | string[], AGBaseId?: string, section?: `all` | `value`,
         lang?: string): string;
       parameters:
         - id: content
@@ -378,7 +378,7 @@ methods:
         - id: blocks
           description: Block type(s) to extract, or `"all"` for all blocks
           type: string | string[]
-        - id: baseId
+        - id: AGBaseId
           description: The base ID to extract from (defaults to `"default"`<!-- -->)
           type: string
         - id: section
@@ -459,7 +459,7 @@ methods:
     syntax:
       content: |-
         static _processGBaseBlocks(template: string): {
-                [baseId: string]: string;
+                [AGBaseId: string]: string;
             };
       parameters:
         - id: template
@@ -468,7 +468,7 @@ methods:
       return:
         type: |-
           {
-                  [baseId: string]: string;
+                  [AGBaseId: string]: string;
               }
         description: An object mapping base IDs to their cleaned inner content
   - name: _processGDescriptionBlocks(template)
@@ -1166,10 +1166,10 @@ methods:
                   message: string;
               }&gt;
         description: Array of `{line, message}` errors (empty if all values are valid)
-  - name: compileBlockGDescription(template, baseBlocks)
+  - name: compileBlockGDescription(template, gBaseBlocks)
     uid: gramstax!TemplateEngine.compileBlockGDescription:member(1)
     package: gramstax!
-    fullName: compileBlockGDescription(template, baseBlocks)
+    fullName: compileBlockGDescription(template, gBaseBlocks)
     summary: Compiles description blocks from a template into executable functions.
     remarks: >-
       This method parses `<g-description>` blocks from the template and compiles them into functions that generate
@@ -1184,9 +1184,9 @@ methods:
       (implementation-defined) 6. `_compileToFunction(processed, false)` – produces the final render function
 
 
-      Output shape: - First level key: `baseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
-      level key: `scope` (from `<g-description scope="...">`<!-- -->, or `"default"` if omitted) - Third level key:
-      `lang` (from `<g-description lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?: Record<string,
+      Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
+      level key: `AScope` (from `<g-description scope="...">`<!-- -->, or `"default"` if omitted) - Third level key:
+      `ALang` (from `<g-description lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?: Record<string,
       any>) => string`
     example:
       - |-
@@ -1205,11 +1205,11 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        static compileBlockGDescription(template: string, baseBlocks?: ReturnType<typeof
+        static compileBlockGDescription(template: string, gBaseBlocks?: ReturnType<typeof
         TemplateEngine._processGBaseBlocks>): {
-                [baseId: string]: {
-                    [scope: string]: {
-                        [lang: string]: (data?: Record<string, any>) => string;
+                [AGBaseId: string]: {
+                    [AScope: string]: {
+                        [ALang: string]: (data?: Record<string, any>) => string;
                     };
                 };
             };
@@ -1217,23 +1217,23 @@ methods:
         - id: template
           description: Raw template string containing `<g-base>` and `<g-description>` blocks
           type: string
-        - id: baseBlocks
+        - id: gBaseBlocks
           description: Optional pre-parsed base blocks for reuse
           type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
       return:
         type: |-
           {
-                  [baseId: string]: {
-                      [scope: string]: {
-                          [lang: string]: (data?: Record&lt;string, any&gt;) =&gt; string;
+                  [AGBaseId: string]: {
+                      [AScope: string]: {
+                          [ALang: string]: (data?: Record&lt;string, any&gt;) =&gt; string;
                       };
                   };
               }
         description: Compiled description functions organized by base ID, scope, and language
-  - name: compileBlockGKeyboards(template, baseBlocks)
+  - name: compileBlockGKeyboards(template, gBaseBlocks)
     uid: gramstax!TemplateEngine.compileBlockGKeyboards:member(1)
     package: gramstax!
-    fullName: compileBlockGKeyboards(template, baseBlocks)
+    fullName: compileBlockGKeyboards(template, gBaseBlocks)
     summary: Compiles keyboard blocks from a template into executable functions.
     remarks: >-
       This method parses `<g-keyboard>` blocks from the template and compiles them into functions that generate button
@@ -1252,8 +1252,8 @@ methods:
       (`\\,`<!-- -->) are preserved as literal commas. - Each label is processed independently through the pipeline.
 
 
-      Output shape: - First level key: `baseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
-      level key: `lang` (from `<g-keyboard lang="...">`<!-- -->, or `"default"` if omitted) - Third level key:
+      Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
+      level key: `ALang` (from `<g-keyboard lang="...">`<!-- -->, or `"default"` if omitted) - Third level key:
       `mode`<!-- -->: - `inline` (default) - `bottom` - Value: `(data?: Record<string, any>) => string[]`
     example:
       - |-
@@ -1272,10 +1272,10 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        static compileBlockGKeyboards(template: string, baseBlocks?: ReturnType<typeof
+        static compileBlockGKeyboards(template: string, gBaseBlocks?: ReturnType<typeof
         TemplateEngine._processGBaseBlocks>): {
-                [baseId: string]: {
-                    [lang: string]: {
+                [AGBaseId: string]: {
+                    [ALang: string]: {
                         inline?: (data?: Record<string, any>) => string[];
                         bottom?: (data?: Record<string, any>) => string[];
                     };
@@ -1285,14 +1285,14 @@ methods:
         - id: template
           description: Raw template string containing `<g-base>` and `<g-keyboard>` blocks
           type: string
-        - id: baseBlocks
+        - id: gBaseBlocks
           description: Optional pre-parsed base blocks for reuse
           type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
       return:
         type: |-
           {
-                  [baseId: string]: {
-                      [lang: string]: {
+                  [AGBaseId: string]: {
+                      [ALang: string]: {
                           inline?: (data?: Record&lt;string, any&gt;) =&gt; string[];
                           bottom?: (data?: Record&lt;string, any&gt;) =&gt; string[];
                       };
@@ -1326,8 +1326,8 @@ methods:
       content: >-
         static compileBlockGMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>):
         {
-                [baseId: string]: {
-                    [lang: string]: (data?: Record<string, any>) => ITMediaBlock;
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: Record<string, any>) => ITMediaBlock;
                 };
             };
       parameters:
@@ -1340,8 +1340,8 @@ methods:
       return:
         type: |-
           {
-                  [baseId: string]: {
-                      [lang: string]: (data?: Record&lt;string, any&gt;) =&gt; <xref uid="gramstax!ITMediaBlock:type" />;
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: Record&lt;string, any&gt;) =&gt; <xref uid="gramstax!ITMediaBlock:type" />;
                   };
               }
         description: Compiled media functions organized by base ID and language
@@ -1363,8 +1363,8 @@ methods:
       (implementation-defined) 6. `_compileToFunction(processed, false)` - produces the final render function
 
 
-      Output shape: - First level key: `baseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
-      level key: `lang` (from `<g-message lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?:
+      Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
+      level key: `ALang` (from `<g-message lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?:
       Record<string, any>) => string`
     example:
       - |-
@@ -1385,8 +1385,8 @@ methods:
       content: >-
         static compileBlockGMessage(template: string, baseBlocks?: ReturnType<typeof
         TemplateEngine._processGBaseBlocks>): {
-                [baseId: string]: {
-                    [lang: string]: (data?: Record<string, any>) => string;
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: Record<string, any>) => string;
                 };
             };
       parameters:
@@ -1399,8 +1399,8 @@ methods:
       return:
         type: |-
           {
-                  [baseId: string]: {
-                      [lang: string]: (data?: Record&lt;string, any&gt;) =&gt; string;
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: Record&lt;string, any&gt;) =&gt; string;
                   };
               }
         description: Compiled message functions organized by base ID and language

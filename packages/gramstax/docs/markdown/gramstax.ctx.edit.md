@@ -9,7 +9,7 @@ Edits an existing message text using the page template.
 **Signature:**
 
 ```typescript
-edit(keyboardInline?: ITInlineKb, data?: ITData, baseId?: string, options?: ITOptEdit, fallbackReply?: boolean): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+edit(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEdit, fallbackReply?: boolean): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         text: string;
     } & Partial<{
         entities: grammy_types.MessageEntity[];
@@ -70,7 +70,7 @@ _(Optional)_ Optional template interpolation data.
 </td></tr>
 <tr><td>
 
-baseId
+AGBaseId
 
 
 </td><td>
@@ -80,7 +80,7 @@ string
 
 </td><td>
 
-_(Optional)_ Optional template base ID position for block message.
+_(Optional)_ Optional template g-base ID position for block message.
 
 
 </td></tr>

@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-_onHandle(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific | `onCallbackQueryData`, fromListener: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound?: boolean): Promise<void>;
+_onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound?: boolean): Promise<void>;
 ```
 
 ## Parameters
@@ -35,7 +35,7 @@ ct
 
 </td><td>
 
-Context
+[ITCt](./gramstax.itct.md)
 
 
 </td><td>
@@ -45,20 +45,6 @@ Context
 <tr><td>
 
 listenerName
-
-
-</td><td>
-
-keyof typeof Gramstax.prototype.pages.routeDynamicSpesific \| \`onCallbackQueryData\`
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-fromListener
 
 
 </td><td>

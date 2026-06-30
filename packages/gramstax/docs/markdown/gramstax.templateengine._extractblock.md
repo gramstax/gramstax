@@ -9,7 +9,7 @@ Extracts specific blocks from template content with optional filtering.
 **Signature:**
 
 ```typescript
-static _extractBlock(content: string, blocks?: string | string[], baseId?: string, section?: `all` | `value`, lang?: string): string;
+static _extractBlock(content: string, blocks?: string | string[], AGBaseId?: string, section?: `all` | `value`, lang?: string): string;
 ```
 
 ## Parameters
@@ -64,7 +64,7 @@ _(Optional)_ Block type(s) to extract, or `"all"` for all blocks
 </td></tr>
 <tr><td>
 
-baseId
+AGBaseId
 
 
 </td><td>

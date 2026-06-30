@@ -9,7 +9,7 @@ Creates an inline keyboard with template-based buttons linked to page destinatio
 **Signature:**
 
 ```typescript
-inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, baseId?: string | null, data?: ITData): InlineKeyboard;
+inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData): InlineKeyboard;
 ```
 
 ## Parameters
@@ -64,7 +64,7 @@ _(Optional)_ Layout format: "cols" or "cols-lastRow". Default: "1".
 </td></tr>
 <tr><td>
 
-baseId
+AGBaseId
 
 
 </td><td>
@@ -74,7 +74,7 @@ string \| null
 
 </td><td>
 
-_(Optional)_ Optional template base ID position block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set baseId to the same value. Leaving baseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
+_(Optional)_ Optional template g-base ID position block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId to the same value. Leaving AGBaseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
 
 
 </td></tr>

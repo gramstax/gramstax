@@ -141,9 +141,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'botConfig?: BotConfig<Context>;'
+      content: 'botConfig?: BotConfig<ITCt>;'
       return:
-        type: <xref uid="grammy!BotConfig:interface" />&lt;<xref uid="grammy!Context:class" />&gt;
+        type: <xref uid="grammy!BotConfig:interface" />&lt;<xref uid="gramstax!ITCt:type" />&gt;
   - name: cacheKeyboard
     uid: gramstax!Gramstax#cacheKeyboard:member
     package: gramstax!
@@ -185,6 +185,29 @@ properties:
       content: 'deployType: `polling` | `webhook` | `serverless` | `test`;'
       return:
         type: '`polling` | `webhook` | `serverless` | `test`'
+  - name: e2e
+    uid: gramstax!Gramstax#e2e:member
+    package: gramstax!
+    fullName: e2e
+    summary: In-process E2E testing helper.
+    remarks: >-
+      Available only when `deploy: "test"`<!-- -->. Provides methods to simulate Telegram updates without any HTTP
+      server. See [E2eHelper](xref:gramstax!E2eHelper:class) for full API documentation.
+
+
+      When `deploy` is a `"test"` variant, this is typed as `E2eHelper`<!-- -->; otherwise it is `undefined`<!-- -->.
+    example:
+      - |-
+        ```typescript
+        const bot = new Gramstax({deploy: "test", token: "test"})
+        const responses = await bot.e2e.sendText("/start", {user: {id: 2001}})
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'e2e?: E2eHelper;'
+      return:
+        type: <xref uid="gramstax!E2eHelper:class" />
   - name: handlerBotUpdate
     uid: gramstax!Gramstax#handlerBotUpdate:member
     package: gramstax!
@@ -270,24 +293,6 @@ properties:
       return:
         type: <xref uid="gramstax!ITWebhookQueueConfig:type" />
 methods:
-  - name: _onCallbackQueryData(ct)
-    uid: gramstax!Gramstax#_onCallbackQueryData:member(1)
-    package: gramstax!
-    fullName: _onCallbackQueryData(ct)
-    summary: Handles incoming callback queries from inline keyboards and process route.
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_onCallbackQueryData(ct: Context): Promise<void>;'
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
   - name: _onCatch(error)
     uid: gramstax!Gramstax#_onCatch:member(1)
     package: gramstax!
@@ -298,18 +303,18 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: '_onCatch(error: BotError<Context>): void;'
+      content: '_onCatch(error: BotError<ITCt>): void;'
       parameters:
         - id: error
           description: The bot error object.
-          type: <xref uid="grammy!BotError:class" />&lt;<xref uid="grammy!Context:class" />&gt;
+          type: <xref uid="grammy!BotError:class" />&lt;<xref uid="gramstax!ITCt:type" />&gt;
       return:
         type: void
         description: ''
-  - name: _onHandle(ct, listenerName, fromListener, shouldCheckNotFound)
+  - name: _onHandle(ct, listenerName, shouldCheckNotFound)
     uid: gramstax!Gramstax#_onHandle:member(1)
     package: gramstax!
-    fullName: _onHandle(ct, listenerName, fromListener, shouldCheckNotFound)
+    fullName: _onHandle(ct, listenerName, shouldCheckNotFound)
     summary: ''
     remarks: ''
     example: []
@@ -317,243 +322,18 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        _onHandle(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific |
-        `onCallbackQueryData`, fromListener: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound?: boolean):
+        _onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound?: boolean):
         Promise<void>;
       parameters:
         - id: ct
           description: ''
-          type: <xref uid="grammy!Context:class" />
+          type: <xref uid="gramstax!ITCt:type" />
         - id: listenerName
-          description: ''
-          type: keyof typeof gramstax!~__type#<xref uid="routeDynamicSpesific:member" /> | `onCallbackQueryData`
-        - id: fromListener
           description: ''
           type: Parameters&lt;<xref uid="gramstax!Gramstax:class" />[`_pageRoutes`]&gt;[1]
         - id: shouldCheckNotFound
           description: ''
           type: boolean
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
-  - name: _onMessage(ct, listenerName)
-    uid: gramstax!Gramstax#_onMessage:member(1)
-    package: gramstax!
-    fullName: _onMessage(ct, listenerName)
-    summary: Handles incoming messages of a specific type and process route.
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: >-
-        _onMessage(ct: Context, listenerName: keyof typeof Gramstax.prototype.pages.routeDynamicSpesific):
-        Promise<void>;
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
-        - id: listenerName
-          description: The message type being handled.
-          type: keyof typeof gramstax!~__type#<xref uid="routeDynamicSpesific:member" />
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
-  - name: _onMessageAnimation(ct)
-    uid: gramstax!Gramstax#_onMessageAnimation:member(1)
-    package: gramstax!
-    fullName: _onMessageAnimation(ct)
-    summary: Handles incoming messages\*
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_onMessageAnimation(ct: Context): Promise<void>;'
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
-  - name: _onMessageAudio(ct)
-    uid: gramstax!Gramstax#_onMessageAudio:member(1)
-    package: gramstax!
-    fullName: _onMessageAudio(ct)
-    summary: Handles incoming messages\*
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_onMessageAudio(ct: Context): Promise<void>;'
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
-  - name: _onMessageContact(ct)
-    uid: gramstax!Gramstax#_onMessageContact:member(1)
-    package: gramstax!
-    fullName: _onMessageContact(ct)
-    summary: Handles incoming messages\*
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_onMessageContact(ct: Context): Promise<void>;'
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
-  - name: _onMessageDocument(ct)
-    uid: gramstax!Gramstax#_onMessageDocument:member(1)
-    package: gramstax!
-    fullName: _onMessageDocument(ct)
-    summary: Handles incoming messages\*
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_onMessageDocument(ct: Context): Promise<void>;'
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
-  - name: _onMessageLocation(ct)
-    uid: gramstax!Gramstax#_onMessageLocation:member(1)
-    package: gramstax!
-    fullName: _onMessageLocation(ct)
-    summary: Handles incoming messages\*
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_onMessageLocation(ct: Context): Promise<void>;'
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
-  - name: _onMessagePhoto(ct)
-    uid: gramstax!Gramstax#_onMessagePhoto:member(1)
-    package: gramstax!
-    fullName: _onMessagePhoto(ct)
-    summary: Handles incoming messages\*
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_onMessagePhoto(ct: Context): Promise<void>;'
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
-  - name: _onMessageSticker(ct)
-    uid: gramstax!Gramstax#_onMessageSticker:member(1)
-    package: gramstax!
-    fullName: _onMessageSticker(ct)
-    summary: Handles incoming messages\*
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_onMessageSticker(ct: Context): Promise<void>;'
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
-  - name: _onMessageText(ct)
-    uid: gramstax!Gramstax#_onMessageText:member(1)
-    package: gramstax!
-    fullName: _onMessageText(ct)
-    summary: Handles incoming messages\*
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_onMessageText(ct: Context): Promise<void>;'
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
-  - name: _onMessageVideo(ct)
-    uid: gramstax!Gramstax#_onMessageVideo:member(1)
-    package: gramstax!
-    fullName: _onMessageVideo(ct)
-    summary: Handles incoming messages\*
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_onMessageVideo(ct: Context): Promise<void>;'
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
-  - name: _onMessageVideoNote(ct)
-    uid: gramstax!Gramstax#_onMessageVideoNote:member(1)
-    package: gramstax!
-    fullName: _onMessageVideoNote(ct)
-    summary: Handles incoming messages\*
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_onMessageVideoNote(ct: Context): Promise<void>;'
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
-      return:
-        type: Promise&lt;void&gt;
-        description: ''
-  - name: _onMessageVoice(ct)
-    uid: gramstax!Gramstax#_onMessageVoice:member(1)
-    package: gramstax!
-    fullName: _onMessageVoice(ct)
-    summary: Handles incoming messages\*
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_onMessageVoice(ct: Context): Promise<void>;'
-      parameters:
-        - id: ct
-          description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
       return:
         type: Promise&lt;void&gt;
         description: ''
@@ -604,10 +384,10 @@ methods:
       return:
         type: void
         description: ''
-  - name: _pageLoads()
+  - name: _pageLoads(pagesPath)
     uid: gramstax!Gramstax#_pageLoads:member(1)
     package: gramstax!
-    fullName: _pageLoads()
+    fullName: _pageLoads(pagesPath)
     summary: Loads all page classes and builds routing tables.
     remarks: Scans the pages directory, processes each page class, and builds optimized routing tables for O(1) lookups.
     example: []
@@ -615,7 +395,7 @@ methods:
     isDeprecated: false
     syntax:
       content: |-
-        _pageLoads(): {
+        _pageLoads(pagesPath?: string): {
                 all: Record<string, typeof Ctx>;
                 routeDynamic: string[];
                 routeDynamicSpesific: {
@@ -957,10 +737,19 @@ methods:
                 listRouteStatic: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
                 listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
                 listRouteStaticSession: readonly [...("handleSessionCallbackData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
+                listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
                 lenListRouteStatic: 15;
                 lenListRouteStaticIntent: 15;
                 lenListRouteStaticSession: number;
+                lenListRouteDynamicSpesific: 11;
             };
+      parameters:
+        - id: pagesPath
+          description: >-
+            Optional path to the pages directory. When omitted, falls back to `PageManager.getFilePath()` which defaults
+            to `process.cwd() + "/src/pages"`<!-- -->. The Gramstax constructor passes `this.templateManager._path[0]`
+            so that custom template paths are respected without requiring `process.chdir()`<!-- -->.
+          type: string
       return:
         type: |-
           {
@@ -1305,9 +1094,11 @@ methods:
                   listRouteStatic: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
                   listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
                   listRouteStaticSession: readonly [...("handleSessionCallbackData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
+                  listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
                   lenListRouteStatic: 15;
                   lenListRouteStaticIntent: 15;
                   lenListRouteStaticSession: number;
+                  lenListRouteDynamicSpesific: 11;
               }
         description: The pages routing structure.
   - name: _pageRoutes(ctx, fromListener)
@@ -1355,7 +1146,7 @@ methods:
       content: >-
         _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof
         Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
-                result: any;
+                state: `matched` | `no-match` | `no-handler` | `blocked`;
             }>;
       parameters:
         - id: ctx
@@ -1367,9 +1158,9 @@ methods:
       return:
         type: |-
           Promise&lt;{
-                  result: any;
+                  state: `matched` | `no-match` | `no-handler` | `blocked`;
               }&gt;
-        description: '`result`<!-- -->: The route handler result, or null if no handler answered.'
+        description: A `PageRouteResult` with `state` indicating what happened
   - name: _pageSorts(Page, pages, indexPage)
     uid: gramstax!Gramstax#_pageSorts:member(1)
     package: gramstax!
@@ -1415,232 +1206,6 @@ methods:
         - id: indexPage
           description: The page index (used for shortCallbackData).
           type: number
-      return:
-        type: void
-        description: ''
-  - name: _registerOnCallbackQueryData()
-    uid: gramstax!Gramstax#_registerOnCallbackQueryData:member(1)
-    package: gramstax!
-    fullName: _registerOnCallbackQueryData()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
-      specific event or message type is routed to its handler.
-    example:
-      - |-
-        ```typescript
-        class MyBot extends Gramstax {
-          // Override if need to route via a custom event bus instead of the default bot
-          _registerOnCallbackQueryData() {
-            // default is `callback_query:data`
-            this.bot.on('cb_data', this._onCallbackQueryData.bind(this))
-          }
-        }
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_registerOnCallbackQueryData(): void;'
-      return:
-        type: void
-        description: ''
-  - name: _registerOnMessageAnimation()
-    uid: gramstax!Gramstax#_registerOnMessageAnimation:member(1)
-    package: gramstax!
-    fullName: _registerOnMessageAnimation()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
-      specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_registerOnMessageAnimation(): void;'
-      return:
-        type: void
-        description: ''
-  - name: _registerOnMessageAudio()
-    uid: gramstax!Gramstax#_registerOnMessageAudio:member(1)
-    package: gramstax!
-    fullName: _registerOnMessageAudio()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
-      specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_registerOnMessageAudio(): void;'
-      return:
-        type: void
-        description: ''
-  - name: _registerOnMessageContact()
-    uid: gramstax!Gramstax#_registerOnMessageContact:member(1)
-    package: gramstax!
-    fullName: _registerOnMessageContact()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
-      specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_registerOnMessageContact(): void;'
-      return:
-        type: void
-        description: ''
-  - name: _registerOnMessageDocument()
-    uid: gramstax!Gramstax#_registerOnMessageDocument:member(1)
-    package: gramstax!
-    fullName: _registerOnMessageDocument()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
-      specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_registerOnMessageDocument(): void;'
-      return:
-        type: void
-        description: ''
-  - name: _registerOnMessageLocation()
-    uid: gramstax!Gramstax#_registerOnMessageLocation:member(1)
-    package: gramstax!
-    fullName: _registerOnMessageLocation()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
-      specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_registerOnMessageLocation(): void;'
-      return:
-        type: void
-        description: ''
-  - name: _registerOnMessagePhoto()
-    uid: gramstax!Gramstax#_registerOnMessagePhoto:member(1)
-    package: gramstax!
-    fullName: _registerOnMessagePhoto()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
-      specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_registerOnMessagePhoto(): void;'
-      return:
-        type: void
-        description: ''
-  - name: _registerOnMessageSticker()
-    uid: gramstax!Gramstax#_registerOnMessageSticker:member(1)
-    package: gramstax!
-    fullName: _registerOnMessageSticker()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
-      specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_registerOnMessageSticker(): void;'
-      return:
-        type: void
-        description: ''
-  - name: _registerOnMessageText()
-    uid: gramstax!Gramstax#_registerOnMessageText:member(1)
-    package: gramstax!
-    fullName: _registerOnMessageText()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
-      specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_registerOnMessageText(): void;'
-      return:
-        type: void
-        description: ''
-  - name: _registerOnMessageVideo()
-    uid: gramstax!Gramstax#_registerOnMessageVideo:member(1)
-    package: gramstax!
-    fullName: _registerOnMessageVideo()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
-      specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_registerOnMessageVideo(): void;'
-      return:
-        type: void
-        description: ''
-  - name: _registerOnMessageVideoNote()
-    uid: gramstax!Gramstax#_registerOnMessageVideoNote:member(1)
-    package: gramstax!
-    fullName: _registerOnMessageVideoNote()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
-      specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_registerOnMessageVideoNote(): void;'
-      return:
-        type: void
-        description: ''
-  - name: _registerOnMessageVoice()
-    uid: gramstax!Gramstax#_registerOnMessageVoice:member(1)
-    package: gramstax!
-    fullName: _registerOnMessageVoice()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`_registerOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `_registerOn*` method to customize how a
-      specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: '_registerOnMessageVoice(): void;'
       return:
         type: void
         description: ''
@@ -1704,7 +1269,7 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'createBot(token: string): Bot<Context, grammy.Api<grammy.RawApi>>;'
+      content: 'createBot(token: string): Bot<grammy.Context, grammy.Api<grammy.RawApi>>;'
       parameters:
         - id: token
           description: The Telegram Bot API token.
@@ -1724,11 +1289,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'createCtx(ct: Context): ICtx;'
+      content: 'createCtx(ct: ITCt): ICtx;'
       parameters:
         - id: ct
           description: The grammY Context object.
-          type: <xref uid="grammy!Context:class" />
+          type: <xref uid="gramstax!ITCt:type" />
       return:
         type: ICtx
         description: A new Ctx instance.
@@ -1796,9 +1361,19 @@ methods:
       `hookBeforeRoute` set to return true or not define overrides
     example:
       - |-
+        Simple
+
         ```typescript
-        async hookAfterRoute(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookAfterRoute`]>>[1]) {
-          console.log(`[${data.listenerName}] handled by page: ${ctx.data.name} execute: status: ${data.status}`)
+        async hookAfterRoute(ctx: Ctx) {
+          ...
+        }
+        ```
+      - |-
+        Advanced
+
+        ```typescript
+        async hookAfterRoute(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookAfterRoute`]>>[1]>) {
+          console.log(`[${data.listenerName}] state: ${data.state}`)
         }
         ```
     isPreview: false
@@ -1806,9 +1381,10 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookAfterRoute?(ctx: ICtx, data: {
+        hookAfterRoute?(ctx: ICtx, data?: {
                 listenerName: string;
-                status: `success` | `error` | `notfound`;
+                state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `notfound`;
+                isEdit: boolean;
             }): Promise<void>;
       parameters:
         - id: ctx
@@ -1819,7 +1395,8 @@ methods:
           type: |-
             {
                     listenerName: string;
-                    status: `success` | `error` | `notfound`;
+                    state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `notfound`;
+                    isEdit: boolean;
                 }
       return:
         type: Promise&lt;void&gt;
@@ -1862,9 +1439,19 @@ methods:
     remarks: Override this method to add pre-routing logic like authentication, rate limiting, or logging.
     example:
       - |-
+        Simple
+
         ```typescript
-        async hookBeforeRoute(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookBeforeRoute`]>>[1]) {
-          console.log(`[${data.listenerName}] handled by page: ${ctx.data.name} execute: `)
+        async hookBeforeRoute(ctx: Ctx) {
+          ...
+        }
+        ```
+      - |-
+        Advanced
+
+        ```typescript
+        async hookBeforeRoute(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookBeforeRoute`]>>[1]>) {
+          console.log(`from listener ${data.listenerName}`)
           if (ctx.userId === blockedUserId) {
             return false // Will not response
           }
@@ -1876,8 +1463,9 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookBeforeRoute?(ctx: ICtx, data: {
+        hookBeforeRoute?(ctx: ICtx, data?: {
                 listenerName: string;
+                isEdit: boolean;
             }): Promise<boolean>;
       parameters:
         - id: ctx
@@ -1888,6 +1476,7 @@ methods:
           type: |-
             {
                     listenerName: string;
+                    isEdit: boolean;
                 }
       return:
         type: Promise&lt;boolean&gt;
@@ -1898,21 +1487,35 @@ methods:
     fullName: hookBeforeStart()
     summary: Hook called before the bot starts.
     remarks: >-
-      Override this method to run initialization logic. The common use case is to register low-level grammy.js
-      middleware via `this.bot.use(...)` — note that `this.bot` is a raw grammy.js `Bot` instance (not a this wrapper),
-      so you can call any grammy.js API here (plugins, filters, event handlers, etc.), not just middleware. Middleware
-      registered here runs for every incoming update before the router dispatches it, making it suitable for
-      cross-cutting concerns like logging, rate limiting, sessions, or authentication.
+      Override this method to run \*\*one-off initialization logic\*\* that must complete before the bot begins
+      dispatching updates — for example, connecting to a database, warming a cache, validating external service
+      credentials, or setting up shared singletons that pages will read from.
+
+
+      This hook fires exactly once, after `cacheSession`<!-- -->, `templateManager`<!-- -->, `bot`<!-- -->, and `pages`
+      are initialized, and before polling/webhook/serverless actually begins receiving updates.
+
+
+      \*\*Do NOT register grammY middleware here.\*\* Middleware belongs in
+      [Gramstax.registerLowPlugin()](xref:gramstax!Gramstax%23registerLowPlugin:member(1))<!-- -->, which is the
+      dedicated channel for code that should run on every incoming update. `hookBeforeStart` runs once and is the wrong
+      place for per-update logic.
+
+
+      For background tasks that need the bot to be alive (cron jobs, periodic cleanup, queue processors), use
+      [Gramstax.hookAfterStart()](xref:gramstax!Gramstax%23hookAfterStart:member(1)) instead.
     example:
       - |-
         ```typescript
         class MyBot extends Gramstax {
           async hookBeforeStart() {
-            // Register grammy.js middleware (low-level)
-            this.bot.use(async (ctx, next) => {
-              this.log?.info?.(`Update ${ctx.update.update_id} from ${ctx.from?.id}`)
-              await next()
-            })
+            // Validate external service credentials before the bot goes live
+            if (!process.env.REDIS_URL) {
+              throw new Error(`REDIS_URL is required`)
+            }
+            this.log?.info?.(`Verifying external service connection...`)
+            await pingRedis(process.env.REDIS_URL)
+            this.log?.success?.(`External services ready`)
           }
         }
         ```
@@ -1925,29 +1528,53 @@ methods:
       return:
         type: Promise&lt;any&gt;
         description: ''
-  - name: hookErrorInputNotFoundPage(ctx)
+  - name: hookErrorInputNotFoundPage(ctx, data)
     uid: gramstax!Gramstax#hookErrorInputNotFoundPage:member(1)
     package: gramstax!
-    fullName: hookErrorInputNotFoundPage(ctx)
+    fullName: hookErrorInputNotFoundPage(ctx, data)
     summary: Hook called when no page handler matches the input.
     remarks: Override this method to send a "command not found" message or redirect to a help page.
     example:
       - |-
+        Simple
+
         ```typescript
         async hookErrorInputNotFoundPage(ctx: Ctx) {
           await new GeneralStatusPage(ctx).showErrorInputNotFound()
         }
+        ```
+      - >-
+        Advanced
+
+
+        ```typescript
+
+        async hookErrorInputNotFoundPage(ctx: Ctx, data:
+        NonNullable<Parameters<NonNullable<Gramstax[`hookErrorInputNotFoundPage`]>>[1]>) {
+          await new GeneralStatusPage(ctx).showErrorInputNotFound()
+        }
+
         ```
     isPreview: false
     isDeprecated: false
     syntax:
       content: |-
         /** @virtual */
-        hookErrorInputNotFoundPage?(ctx: ICtx): Promise<void>;
+        hookErrorInputNotFoundPage?(ctx: ICtx, data?: {
+                listenerName: string;
+                isEdit: boolean;
+            }): Promise<void>;
       parameters:
         - id: ctx
           description: The context instance.
           type: ICtx
+        - id: data
+          description: ''
+          type: |-
+            {
+                    listenerName: string;
+                    isEdit: boolean;
+                }
       return:
         type: Promise&lt;void&gt;
         description: ''
@@ -1961,8 +1588,18 @@ methods:
       external service.
     example:
       - |-
+        Simple
+
         ```typescript
-        async hookErrorPage(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]) {
+        async hookErrorPage(ctx: Ctx) {
+          ...
+        }
+        ```
+      - |-
+        Advanced
+
+        ```typescript
+        async hookErrorPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {
           await new GeneralStatusPage(ctx).showError(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
         }
         ```
@@ -1971,7 +1608,7 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookErrorPage?(ctx: ICtx, data: {
+        hookErrorPage?(ctx: ICtx, data?: {
                 listenerName: string;
                 error: any;
                 isEdit: boolean;
@@ -1991,6 +1628,291 @@ methods:
       return:
         type: Promise&lt;void&gt;
         description: ''
+  - name: registerLowOnCallbackData()
+    uid: gramstax!Gramstax#registerLowOnCallbackData:member(1)
+    package: gramstax!
+    fullName: registerLowOnCallbackData()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example:
+      - |-
+        ```typescript
+        class MyBot extends Gramstax {
+          // Override if need to route via a custom event bus instead of the default bot
+          registerLowOnCallbackData() {
+            // default is `callback_query:data`
+            this.bot.on(`cb_data`, (ctx) => this._onHandle(ctx, `callbackdata`))
+          }
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnCallbackData(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowOnMessageAnimation()
+    uid: gramstax!Gramstax#registerLowOnMessageAnimation:member(1)
+    package: gramstax!
+    fullName: registerLowOnMessageAnimation()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnMessageAnimation(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowOnMessageAudio()
+    uid: gramstax!Gramstax#registerLowOnMessageAudio:member(1)
+    package: gramstax!
+    fullName: registerLowOnMessageAudio()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnMessageAudio(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowOnMessageContact()
+    uid: gramstax!Gramstax#registerLowOnMessageContact:member(1)
+    package: gramstax!
+    fullName: registerLowOnMessageContact()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnMessageContact(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowOnMessageDocument()
+    uid: gramstax!Gramstax#registerLowOnMessageDocument:member(1)
+    package: gramstax!
+    fullName: registerLowOnMessageDocument()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnMessageDocument(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowOnMessageLocation()
+    uid: gramstax!Gramstax#registerLowOnMessageLocation:member(1)
+    package: gramstax!
+    fullName: registerLowOnMessageLocation()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnMessageLocation(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowOnMessagePhoto()
+    uid: gramstax!Gramstax#registerLowOnMessagePhoto:member(1)
+    package: gramstax!
+    fullName: registerLowOnMessagePhoto()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnMessagePhoto(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowOnMessageSticker()
+    uid: gramstax!Gramstax#registerLowOnMessageSticker:member(1)
+    package: gramstax!
+    fullName: registerLowOnMessageSticker()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnMessageSticker(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowOnMessageText()
+    uid: gramstax!Gramstax#registerLowOnMessageText:member(1)
+    package: gramstax!
+    fullName: registerLowOnMessageText()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnMessageText(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowOnMessageVideo()
+    uid: gramstax!Gramstax#registerLowOnMessageVideo:member(1)
+    package: gramstax!
+    fullName: registerLowOnMessageVideo()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnMessageVideo(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowOnMessageVideoNote()
+    uid: gramstax!Gramstax#registerLowOnMessageVideoNote:member(1)
+    package: gramstax!
+    fullName: registerLowOnMessageVideoNote()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnMessageVideoNote(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowOnMessageVoice()
+    uid: gramstax!Gramstax#registerLowOnMessageVoice:member(1)
+    package: gramstax!
+    fullName: registerLowOnMessageVoice()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnMessageVoice(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowPlugin()
+    uid: gramstax!Gramstax#registerLowPlugin:member(1)
+    package: gramstax!
+    fullName: registerLowPlugin()
+    summary: Returns grammY middleware to register as low-level plugins on the bot.
+    remarks: >-
+      Override this method in a subclass to inject custom plugin middleware (sessions, i18n, rate limiting, logging,
+      authentication, etc.) into the underlying grammY bot instance.
+
+
+      Each element of the returned array is a [ITCtMiddleware](xref:gramstax!ITCtMiddleware:type) value (either a
+      `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that grammY will install via
+      `this.bot.use(...)`<!-- -->. The array is meant to be spread into `bot.use`<!-- -->, so the order of elements
+      determines the order in which middleware runs — earlier entries wrap later ones (outermost first).
+
+
+      Difference vs. the other lifecycle hooks:
+
+
+      - `hookBeforeStart` — for one-off side effects before the bot starts. Anything you want to happen exactly once at
+      boot goes there. - `registerLowPlugin` — for middleware that must run on \*\*every update\*\*. Use this when you
+      need grammY middleware semantics (filter queries, `next()` chaining, scope-aware registration). -
+      `hookBeforeRoute` / `hookAfterRoute` — for per-update hooks that run inside the router, after gramstax has already
+      routed to a page.
+
+
+      The base implementation is not provided — subclasses override this to contribute their own plugins. Returning an
+      empty array (or not overriding) installs no plugins, which is the default behavior.
+    example:
+      - |-
+        ```typescript
+        class MyBot extends Gramstax {
+          registerLowPlugin() {
+            return [
+              // 1. Logging middleware (outermost — runs first, exits last)
+              async (ctx, next) => {
+                this.log?.info?.(`update ${ctx.update.update_id} from ${ctx.from?.id}`)
+                await next()
+              },
+              // 2. Per-chat rate limit (inner)
+              async (ctx, next) => {
+                // ... check + throttle ...
+                await next()
+              }
+            ]
+          }
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        registerLowPlugin?(): Array<ITCtMiddleware<ITCt>>;
+      return:
+        type: Array&lt;<xref uid="gramstax!ITCtMiddleware:type" />&lt;<xref uid="gramstax!ITCt:type" />&gt;&gt;
+        description: >-
+          Array of grammY [ITCtMiddleware](xref:gramstax!ITCtMiddleware:type) values, ready to be spread into
+          `this.bot.use(...result)`<!-- -->.
   - name: stop()
     uid: gramstax!Gramstax#stop:member(1)
     package: gramstax!

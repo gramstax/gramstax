@@ -10,9 +10,10 @@ Hook called after routing an update.
 
 ```typescript
 /** @virtual */
-hookAfterRoute?(ctx: ICtx, data: {
+hookAfterRoute?(ctx: ICtx, data?: {
         listenerName: string;
-        status: `success` | `error` | `notfound`;
+        state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `notfound`;
+        isEdit: boolean;
     }): Promise<void>;
 ```
 
@@ -57,10 +58,12 @@ data
 
 </td><td>
 
-{ listenerName: string; status: \`success\` \| \`error\` \| \`notfound\`; }
+{ listenerName: string; state: \`matched\` \| \`no-match\` \| \`no-handler\` \| \`blocked\` \| \`error\` \| \`notfound\`; isEdit: boolean; }
 
 
 </td><td>
+
+_(Optional)_
 
 
 </td></tr>
@@ -74,12 +77,23 @@ Promise&lt;void&gt;
 
 Override this method to add after routing logic like analytics or logging. NOTE: only executed when `hookBeforeRoute` set to return true or not define overrides
 
-## Example
+## Example 1
 
+Simple
 
 ```typescript
-async hookAfterRoute(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookAfterRoute`]>>[1]) {
-  console.log(`[${data.listenerName}] handled by page: ${ctx.data.name} execute: status: ${data.status}`)
+async hookAfterRoute(ctx: Ctx) {
+  ...
+}
+```
+
+## Example 2
+
+Advanced
+
+```typescript
+async hookAfterRoute(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookAfterRoute`]>>[1]>) {
+  console.log(`[${data.listenerName}] state: ${data.state}`)
 }
 ```
 

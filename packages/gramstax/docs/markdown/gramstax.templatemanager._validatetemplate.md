@@ -11,7 +11,7 @@ The error message includes the enclosing `<g-base id="...">` based on the error 
 **Signature:**
 
 ```typescript
-_validateTemplate(baseId: string, template: string, filename?: string): void;
+_validateTemplate(AGBaseId: string, template: string, filename?: string): void;
 ```
 
 ## Parameters
@@ -34,7 +34,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-baseId
+AGBaseId
 
 
 </td><td>

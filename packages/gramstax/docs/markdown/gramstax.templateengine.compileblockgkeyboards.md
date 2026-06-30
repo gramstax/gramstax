@@ -9,9 +9,9 @@ Compiles keyboard blocks from a template into executable functions.
 **Signature:**
 
 ```typescript
-static compileBlockGKeyboards(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
-        [baseId: string]: {
-            [lang: string]: {
+static compileBlockGKeyboards(template: string, gBaseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: {
                 inline?: (data?: Record<string, any>) => string[];
                 bottom?: (data?: Record<string, any>) => string[];
             };
@@ -55,7 +55,7 @@ Raw template string containing `<g-base>` and `<g-keyboard>` blocks
 </td></tr>
 <tr><td>
 
-baseBlocks
+gBaseBlocks
 
 
 </td><td>
@@ -73,7 +73,7 @@ _(Optional)_ Optional pre-parsed base blocks for reuse
 
 **Returns:**
 
-{ \[baseId: string\]: { \[lang: string\]: { inline?: (data?: Record&lt;string, any&gt;) =&gt; string\[\]; bottom?: (data?: Record&lt;string, any&gt;) =&gt; string\[\]; }; }; }
+{ \[AGBaseId: string\]: { \[ALang: string\]: { inline?: (data?: Record&lt;string, any&gt;) =&gt; string\[\]; bottom?: (data?: Record&lt;string, any&gt;) =&gt; string\[\]; }; }; }
 
 Compiled keyboard functions organized by base ID, language, and mode
 
@@ -85,7 +85,7 @@ Processing pipeline (in order, per keyboard label): 1. `_processGScriptBlocks` â
 
 Notes: - Keyboard content is split by commas into individual labels. - Escaped commas with double backslash (`\\,`<!-- -->) are preserved as literal commas. - Each label is processed independently through the pipeline.
 
-Output shape: - First level key: `baseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second level key: `lang` (from `<g-keyboard lang="...">`<!-- -->, or `"default"` if omitted) - Third level key: `mode`<!-- -->: - `inline` (default) - `bottom` - Value: `(data?: Record<string, any>) => string[]`
+Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second level key: `ALang` (from `<g-keyboard lang="...">`<!-- -->, or `"default"` if omitted) - Third level key: `mode`<!-- -->: - `inline` (default) - `bottom` - Value: `(data?: Record<string, any>) => string[]`
 
 ## Example
 

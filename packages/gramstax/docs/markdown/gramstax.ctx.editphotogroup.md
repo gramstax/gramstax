@@ -9,7 +9,7 @@ Replaces the current message with a photo media group.
 **Signature:**
 
 ```typescript
-editPhotoGroup(data?: ITData, baseId?: string, options?: ITOptReplyPhoto): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+editPhotoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
 ```
 
 ## Parameters
@@ -48,7 +48,7 @@ _(Optional)_ Optional template interpolation data.
 </td></tr>
 <tr><td>
 
-baseId
+AGBaseId
 
 
 </td><td>
@@ -58,7 +58,7 @@ string
 
 </td><td>
 
-_(Optional)_ Optional template base ID position for block media type photo.
+_(Optional)_ Optional template g-base ID position for block media type photo.
 
 
 </td></tr>

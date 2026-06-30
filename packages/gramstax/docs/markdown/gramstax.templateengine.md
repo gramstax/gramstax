@@ -336,7 +336,7 @@ Escapes special characters in a string for safe use in template literals.
 </td></tr>
 <tr><td>
 
-[\_extractBlock(content, blocks, baseId, section, lang)](./gramstax.templateengine._extractblock.md)
+[\_extractBlock(content, blocks, AGBaseId, section, lang)](./gramstax.templateengine._extractblock.md)
 
 
 </td><td>
@@ -670,7 +670,7 @@ Scans a template for Telegram Rich HTML tags whose attribute values fail format 
 </td></tr>
 <tr><td>
 
-[compileBlockGDescription(template, baseBlocks)](./gramstax.templateengine.compileblockgdescription.md)
+[compileBlockGDescription(template, gBaseBlocks)](./gramstax.templateengine.compileblockgdescription.md)
 
 
 </td><td>
@@ -686,7 +686,7 @@ Compiles description blocks from a template into executable functions.
 </td></tr>
 <tr><td>
 
-[compileBlockGKeyboards(template, baseBlocks)](./gramstax.templateengine.compileblockgkeyboards.md)
+[compileBlockGKeyboards(template, gBaseBlocks)](./gramstax.templateengine.compileblockgkeyboards.md)
 
 
 </td><td>

@@ -9,7 +9,7 @@ Sends a text message reply using the page template.
 **Signature:**
 
 ```typescript
-reply(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options?: ITOptReply): Promise<grammy_types.Message.TextMessage>;
+reply(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReply): Promise<grammy_types.Message.TextMessage>;
 ```
 
 ## Parameters
@@ -64,7 +64,7 @@ _(Optional)_ Optional template interpolation data.
 </td></tr>
 <tr><td>
 
-baseId
+AGBaseId
 
 
 </td><td>
@@ -114,7 +114,7 @@ async handleCallbackData() {
   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
   await this.reply(kb, {name: "John"})
 
-  // With keyboard short and custom baseId between reply and keyboard
+  // With keyboard short and custom AGBaseId between reply and keyboard
   const kb = this.inlineKeyboardT([StartPage], `1`, "my-custom-id")
   await this.reply(kb, {name: "John"}, "id-hello-world")
 }

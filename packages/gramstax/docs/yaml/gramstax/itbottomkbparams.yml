@@ -10,7 +10,7 @@ isPreview: false
 isDeprecated: false
 syntax: |-
   type ITBottomKbParams = {
-      baseId?: string;
+      AGBaseId?: string;
       data?: ITData;
       cache?: boolean;
   };

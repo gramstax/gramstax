@@ -7,6 +7,7 @@ classes:
   - gramstax!BlockKeyboard:class
   - gramstax!CacheExternal:class
   - gramstax!Ctx:class
+  - gramstax!E2eHelper:class
   - gramstax!Gramstax:class
   - gramstax!LabelKeyboard:class
   - gramstax!LoggingHelper:class
@@ -22,8 +23,18 @@ typeAliases:
   - gramstax!ITCacheRpc:type
   - gramstax!ITCompiledTemplate:type
   - gramstax!ITCt:type
+  - gramstax!ITCtMiddleware:type
   - gramstax!ITCtxParams:type
   - gramstax!ITData:type
+  - gramstax!ITE2eApiCall:type
+  - gramstax!ITE2eCallbackQueryOptions:type
+  - gramstax!ITE2eChat:type
+  - gramstax!ITE2eContactOptions:type
+  - gramstax!ITE2eDiceOptions:type
+  - gramstax!ITE2eLocationOptions:type
+  - gramstax!ITE2eMediaOptions:type
+  - gramstax!ITE2eUpdateOptions:type
+  - gramstax!ITE2eUser:type
   - gramstax!ITGramstaxParams:type
   - gramstax!ITInBoKb:type
   - gramstax!ITInlineKb:type

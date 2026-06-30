@@ -14,7 +14,7 @@ declare class TemplateManager
 
 ## Remarks
 
-The `TemplateManager` class provides a centralized system for handling templates used in Gramstax bots. It supports: - Loading templates from static `template` properties in page classes - Loading templates from external `.html` files - Hot-reloading templates during development via file watching - Multi-language support with fallback to `g-default`
+The `TemplateManager` class provides a centralized system for handling templates used in Gramstax bots. It supports: - Loading templates from static `template` properties in page classes - Loading templates from external `.html` files - Hot-reloading templates during development via file watching - Multi-language support with fallback to `default`
 
 Templates are compiled once and cached for efficient retrieval.
 
@@ -264,20 +264,6 @@ Compiles a raw template string and stores the result in the cache.
 </td></tr>
 <tr><td>
 
-[\_getBaseAtLine(template, line)](./gramstax.templatemanager._getbaseatline.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Finds the `<g-base>` block (open + close) that encloses the given line number.
-
-
-</td></tr>
-<tr><td>
-
 [\_getExtension(filename)](./gramstax.templatemanager._getextension.md)
 
 
@@ -287,6 +273,20 @@ Finds the `<g-base>` block (open + close) that encloses the given line number.
 </td><td>
 
 Extracts the file extension from a filename.
+
+
+</td></tr>
+<tr><td>
+
+[\_getGBaseAtLine(template, line)](./gramstax.templatemanager._getgbaseatline.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Finds the `<g-base>` block (open + close) that encloses the given line number.
 
 
 </td></tr>
@@ -446,7 +446,7 @@ Validates and ensures all template directories exist.
 </td></tr>
 <tr><td>
 
-[\_validateTemplate(baseId, template, filename)](./gramstax.templatemanager._validatetemplate.md)
+[\_validateTemplate(AGBaseId, template, filename)](./gramstax.templatemanager._validatetemplate.md)
 
 
 </td><td>
@@ -476,7 +476,35 @@ Cleans up resources and closes file watchers.
 </td></tr>
 <tr><td>
 
-[getDescription(key, baseId, language, scope, data)](./gramstax.templatemanager.getdescription.md)
+[getAGDescriptionLang(key, AGBaseId, AScope)](./gramstax.templatemanager.getagdescriptionlang.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets available attribute lang from block <g-description>.
+
+
+</td></tr>
+<tr><td>
+
+[getAGDescriptionScopes(key, AGBaseId)](./gramstax.templatemanager.getagdescriptionscopes.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets available attribute scopes from block <g-description>.
+
+
+</td></tr>
+<tr><td>
+
+[getGDescription(key, AGBaseId, ALang, AScope, data)](./gramstax.templatemanager.getgdescription.md)
 
 
 </td><td>
@@ -490,7 +518,7 @@ Gets a command description for Telegram menu.
 </td></tr>
 <tr><td>
 
-[getDescriptionLanguage(key, baseId, scope)](./gramstax.templatemanager.getdescriptionlanguage.md)
+[getGKeyboard(key, AGBaseId, ALang, AType, data)](./gramstax.templatemanager.getgkeyboard.md)
 
 
 </td><td>
@@ -498,13 +526,13 @@ Gets a command description for Telegram menu.
 
 </td><td>
 
-Gets available languages for a description.
+Gets compiled from block <g-keyboard>.
 
 
 </td></tr>
 <tr><td>
 
-[getDescriptionScopes(key, baseId)](./gramstax.templatemanager.getdescriptionscopes.md)
+[getGMedia(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgmedia.md)
 
 
 </td><td>
@@ -512,13 +540,13 @@ Gets available languages for a description.
 
 </td><td>
 
-Gets available scopes for a description.
+Gets compiled from block <g-media>.
 
 
 </td></tr>
 <tr><td>
 
-[getKeyboard(key, baseId, language, type, data)](./gramstax.templatemanager.getkeyboard.md)
+[getGMessage(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgmessage.md)
 
 
 </td><td>
@@ -526,35 +554,7 @@ Gets available scopes for a description.
 
 </td><td>
 
-Gets compiled keyboard template labels.
-
-
-</td></tr>
-<tr><td>
-
-[getMedia(key, baseId, language, data)](./gramstax.templatemanager.getmedia.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Gets compiled media template data.
-
-
-</td></tr>
-<tr><td>
-
-[getMessage(key, baseId, language, data)](./gramstax.templatemanager.getmessage.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Gets a compiled message template string.
+Gets compiled from block <g-message>.
 
 
 </td></tr>

@@ -10,8 +10,9 @@ Hook called before routing an update.
 
 ```typescript
 /** @virtual */
-hookBeforeRoute?(ctx: ICtx, data: {
+hookBeforeRoute?(ctx: ICtx, data?: {
         listenerName: string;
+        isEdit: boolean;
     }): Promise<boolean>;
 ```
 
@@ -56,10 +57,12 @@ data
 
 </td><td>
 
-{ listenerName: string; }
+{ listenerName: string; isEdit: boolean; }
 
 
 </td><td>
+
+_(Optional)_
 
 
 </td></tr>
@@ -75,12 +78,23 @@ True to continue routing, false to abort.
 
 Override this method to add pre-routing logic like authentication, rate limiting, or logging.
 
-## Example
+## Example 1
 
+Simple
 
 ```typescript
-async hookBeforeRoute(ctx: Ctx, data: Parameters<NonNullable<Gramstax[`hookBeforeRoute`]>>[1]) {
-  console.log(`[${data.listenerName}] handled by page: ${ctx.data.name} execute: `)
+async hookBeforeRoute(ctx: Ctx) {
+  ...
+}
+```
+
+## Example 2
+
+Advanced
+
+```typescript
+async hookBeforeRoute(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookBeforeRoute`]>>[1]>) {
+  console.log(`from listener ${data.listenerName}`)
   if (ctx.userId === blockedUserId) {
     return false // Will not response
   }

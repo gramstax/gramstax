@@ -1024,7 +1024,7 @@ Creates a bottom (reply) keyboard using a builder callback.
 </td></tr>
 <tr><td>
 
-[bottomKeyboardT(layout, baseId, data)](./gramstax.ctx.bottomkeyboardt.md)
+[bottomKeyboardT(layout, AGBaseId, data)](./gramstax.ctx.bottomkeyboardt.md)
 
 
 </td><td>
@@ -1038,7 +1038,7 @@ Creates a bottom keyboard with template-based text buttons.
 </td></tr>
 <tr><td>
 
-[broadcast(ids, languageCode, keyboard, data, baseId, options, throwError)](./gramstax.ctx.broadcast.md)
+[broadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError)](./gramstax.ctx.broadcast.md)
 
 
 </td><td>
@@ -1052,7 +1052,7 @@ Sends a message to multiple users in bulk.
 </td></tr>
 <tr><td>
 
-[broadcastMedia(ids, languageCode, keyboard, data, baseId, options, throwError)](./gramstax.ctx.broadcastmedia.md)
+[broadcastMedia(ids, languageCode, keyboard, data, AGBaseId, options, throwError)](./gramstax.ctx.broadcastmedia.md)
 
 
 </td><td>
@@ -1172,7 +1172,7 @@ Deletes the current message.
 </td></tr>
 <tr><td>
 
-[edit(keyboardInline, data, baseId, options, fallbackReply)](./gramstax.ctx.edit.md)
+[edit(keyboardInline, data, AGBaseId, options, fallbackReply)](./gramstax.ctx.edit.md)
 
 
 </td><td>
@@ -1186,7 +1186,7 @@ Edits an existing message text using the page template.
 </td></tr>
 <tr><td>
 
-[editAnimation(keyboardInline, data, baseId, options1, options2)](./gramstax.ctx.editanimation.md)
+[editAnimation(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.editanimation.md)
 
 
 </td><td>
@@ -1200,7 +1200,7 @@ Edits an existing message to show an animation.
 </td></tr>
 <tr><td>
 
-[editAudio(keyboardInline, data, baseId, options1, options2)](./gramstax.ctx.editaudio.md)
+[editAudio(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.editaudio.md)
 
 
 </td><td>
@@ -1214,7 +1214,7 @@ Edits an existing message to show an audio.
 </td></tr>
 <tr><td>
 
-[editAudioGroup(data, baseId, options)](./gramstax.ctx.editaudiogroup.md)
+[editAudioGroup(data, AGBaseId, options)](./gramstax.ctx.editaudiogroup.md)
 
 
 </td><td>
@@ -1228,7 +1228,7 @@ Replaces the current message with an audio media group.
 </td></tr>
 <tr><td>
 
-[editContact(keyboardInline, data, baseId, options)](./gramstax.ctx.editcontact.md)
+[editContact(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.editcontact.md)
 
 
 </td><td>
@@ -1242,7 +1242,7 @@ Replaces the current message with a contact.
 </td></tr>
 <tr><td>
 
-[editDocument(keyboardInline, data, baseId, options1, options2)](./gramstax.ctx.editdocument.md)
+[editDocument(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.editdocument.md)
 
 
 </td><td>
@@ -1256,7 +1256,7 @@ Edits an existing message to show a document.
 </td></tr>
 <tr><td>
 
-[editDocumentGroup(data, baseId, options)](./gramstax.ctx.editdocumentgroup.md)
+[editDocumentGroup(data, AGBaseId, options)](./gramstax.ctx.editdocumentgroup.md)
 
 
 </td><td>
@@ -1270,7 +1270,7 @@ Replaces the current message with a document media group.
 </td></tr>
 <tr><td>
 
-[editLocation(keyboardInline, data, baseId, options)](./gramstax.ctx.editlocation.md)
+[editLocation(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.editlocation.md)
 
 
 </td><td>
@@ -1284,7 +1284,7 @@ Replaces the current message with a location.
 </td></tr>
 <tr><td>
 
-[editMedia(type, keyboardInline, data, baseId, options1, options2, fallbackReply)](./gramstax.ctx.editmedia.md)
+[editMedia(type, keyboardInline, data, AGBaseId, options1, options2, fallbackReply)](./gramstax.ctx.editmedia.md)
 
 
 </td><td>
@@ -1298,7 +1298,7 @@ Edits an existing media message with dynamic type selection.
 </td></tr>
 <tr><td>
 
-[editMediaGroup(type, data, baseId, options)](./gramstax.ctx.editmediagroup.md)
+[editMediaGroup(type, data, AGBaseId, options)](./gramstax.ctx.editmediagroup.md)
 
 
 </td><td>
@@ -1312,7 +1312,7 @@ Replaces the current message with a media group filtered by the given type.
 </td></tr>
 <tr><td>
 
-[editPhoto(keyboardInline, data, baseId, options1, options2)](./gramstax.ctx.editphoto.md)
+[editPhoto(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.editphoto.md)
 
 
 </td><td>
@@ -1326,7 +1326,7 @@ Edits an existing message to show a photo.
 </td></tr>
 <tr><td>
 
-[editPhotoGroup(data, baseId, options)](./gramstax.ctx.editphotogroup.md)
+[editPhotoGroup(data, AGBaseId, options)](./gramstax.ctx.editphotogroup.md)
 
 
 </td><td>
@@ -1340,7 +1340,7 @@ Replaces the current message with a photo media group.
 </td></tr>
 <tr><td>
 
-[editSticker(keyboardInline, data, baseId, options)](./gramstax.ctx.editsticker.md)
+[editSticker(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.editsticker.md)
 
 
 </td><td>
@@ -1354,7 +1354,7 @@ Replaces the current message with a sticker.
 </td></tr>
 <tr><td>
 
-[editVideo(keyboardInline, data, baseId, options1, options2)](./gramstax.ctx.editvideo.md)
+[editVideo(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.editvideo.md)
 
 
 </td><td>
@@ -1368,7 +1368,7 @@ Edits an existing message to show a video.
 </td></tr>
 <tr><td>
 
-[editVideoGroup(data, baseId, options)](./gramstax.ctx.editvideogroup.md)
+[editVideoGroup(data, AGBaseId, options)](./gramstax.ctx.editvideogroup.md)
 
 
 </td><td>
@@ -1382,7 +1382,7 @@ Replaces the current message with a video media group.
 </td></tr>
 <tr><td>
 
-[editVideoNote(keyboardInline, data, baseId, options)](./gramstax.ctx.editvideonote.md)
+[editVideoNote(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.editvideonote.md)
 
 
 </td><td>
@@ -1396,7 +1396,7 @@ Replaces the current message with a video note.
 </td></tr>
 <tr><td>
 
-[editVoice(keyboardInline, data, baseId, options)](./gramstax.ctx.editvoice.md)
+[editVoice(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.editvoice.md)
 
 
 </td><td>
@@ -2698,7 +2698,7 @@ Creates an inline keyboard using a builder callback.
 </td></tr>
 <tr><td>
 
-[inlineKeyboardT(PageDest, layout, baseId, data)](./gramstax.ctx.inlinekeyboardt.md)
+[inlineKeyboardT(PageDest, layout, AGBaseId, data)](./gramstax.ctx.inlinekeyboardt.md)
 
 
 </td><td>
@@ -3314,7 +3314,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 </td></tr>
 <tr><td>
 
-[reply(keyboard, data, baseId, options)](./gramstax.ctx.reply.md)
+[reply(keyboard, data, AGBaseId, options)](./gramstax.ctx.reply.md)
 
 
 </td><td>
@@ -3342,7 +3342,7 @@ Sends a chat action indicator (typing, uploading, etc.).
 </td></tr>
 <tr><td>
 
-[replyAnimation(keyboard, data, baseId, options)](./gramstax.ctx.replyanimation.md)
+[replyAnimation(keyboard, data, AGBaseId, options)](./gramstax.ctx.replyanimation.md)
 
 
 </td><td>
@@ -3356,7 +3356,7 @@ Sends an animation/GIF message using the page template.
 </td></tr>
 <tr><td>
 
-[replyAudio(keyboard, data, baseId, options)](./gramstax.ctx.replyaudio.md)
+[replyAudio(keyboard, data, AGBaseId, options)](./gramstax.ctx.replyaudio.md)
 
 
 </td><td>
@@ -3370,7 +3370,7 @@ Sends an audio message using the page template.
 </td></tr>
 <tr><td>
 
-[replyAudioGroup(data, baseId, options)](./gramstax.ctx.replyaudiogroup.md)
+[replyAudioGroup(data, AGBaseId, options)](./gramstax.ctx.replyaudiogroup.md)
 
 
 </td><td>
@@ -3384,7 +3384,7 @@ Sends an audio media group using pipe-delimited `src` values from the page templ
 </td></tr>
 <tr><td>
 
-[replyContact(keyboard, data, baseId, options)](./gramstax.ctx.replycontact.md)
+[replyContact(keyboard, data, AGBaseId, options)](./gramstax.ctx.replycontact.md)
 
 
 </td><td>
@@ -3398,7 +3398,7 @@ Sends a contact using the page template.
 </td></tr>
 <tr><td>
 
-[replyDocument(keyboard, data, baseId, options)](./gramstax.ctx.replydocument.md)
+[replyDocument(keyboard, data, AGBaseId, options)](./gramstax.ctx.replydocument.md)
 
 
 </td><td>
@@ -3412,7 +3412,7 @@ Sends a document message using the page template.
 </td></tr>
 <tr><td>
 
-[replyDocumentGroup(data, baseId, options)](./gramstax.ctx.replydocumentgroup.md)
+[replyDocumentGroup(data, AGBaseId, options)](./gramstax.ctx.replydocumentgroup.md)
 
 
 </td><td>
@@ -3426,7 +3426,7 @@ Sends a document media group using pipe-delimited `src` values from the page tem
 </td></tr>
 <tr><td>
 
-[replyLocation(keyboard, data, baseId, options)](./gramstax.ctx.replylocation.md)
+[replyLocation(keyboard, data, AGBaseId, options)](./gramstax.ctx.replylocation.md)
 
 
 </td><td>
@@ -3440,7 +3440,7 @@ Sends a location using the page template.
 </td></tr>
 <tr><td>
 
-[replyMedia(type, keyboard, data, baseId, options)](./gramstax.ctx.replymedia.md)
+[replyMedia(type, keyboard, data, AGBaseId, options)](./gramstax.ctx.replymedia.md)
 
 
 </td><td>
@@ -3454,7 +3454,7 @@ Sends a media message reply with dynamic type selection.
 </td></tr>
 <tr><td>
 
-[replyMediaGroup(type, data, baseId, options)](./gramstax.ctx.replymediagroup.md)
+[replyMediaGroup(type, data, AGBaseId, options)](./gramstax.ctx.replymediagroup.md)
 
 
 </td><td>
@@ -3468,7 +3468,7 @@ Sends a Telegram media group using pipe-delimited `src` values or a `<g-media-gr
 </td></tr>
 <tr><td>
 
-[replyPhoto(keyboard, data, baseId, options)](./gramstax.ctx.replyphoto.md)
+[replyPhoto(keyboard, data, AGBaseId, options)](./gramstax.ctx.replyphoto.md)
 
 
 </td><td>
@@ -3482,7 +3482,7 @@ Sends a photo message using the page template.
 </td></tr>
 <tr><td>
 
-[replyPhotoGroup(data, baseId, options)](./gramstax.ctx.replyphotogroup.md)
+[replyPhotoGroup(data, AGBaseId, options)](./gramstax.ctx.replyphotogroup.md)
 
 
 </td><td>
@@ -3496,7 +3496,7 @@ Sends a photo media group using pipe-delimited `src` values from the page templa
 </td></tr>
 <tr><td>
 
-[replyRich(keyboard, data, baseId, options1, options2)](./gramstax.ctx.replyrich.md)
+[replyRich(keyboard, data, AGBaseId, options1, options2)](./gramstax.ctx.replyrich.md)
 
 
 </td><td>
@@ -3510,7 +3510,7 @@ still construction!
 </td></tr>
 <tr><td>
 
-[replySticker(keyboard, data, baseId, options)](./gramstax.ctx.replysticker.md)
+[replySticker(keyboard, data, AGBaseId, options)](./gramstax.ctx.replysticker.md)
 
 
 </td><td>
@@ -3524,7 +3524,7 @@ Sends a sticker using the page template.
 </td></tr>
 <tr><td>
 
-[replyVideo(keyboard, data, baseId, options)](./gramstax.ctx.replyvideo.md)
+[replyVideo(keyboard, data, AGBaseId, options)](./gramstax.ctx.replyvideo.md)
 
 
 </td><td>
@@ -3538,7 +3538,7 @@ Sends a video message using the page template.
 </td></tr>
 <tr><td>
 
-[replyVideoGroup(data, baseId, options)](./gramstax.ctx.replyvideogroup.md)
+[replyVideoGroup(data, AGBaseId, options)](./gramstax.ctx.replyvideogroup.md)
 
 
 </td><td>
@@ -3552,7 +3552,7 @@ Sends a video media group using pipe-delimited `src` values from the page templa
 </td></tr>
 <tr><td>
 
-[replyVideoNote(keyboard, data, baseId, options)](./gramstax.ctx.replyvideonote.md)
+[replyVideoNote(keyboard, data, AGBaseId, options)](./gramstax.ctx.replyvideonote.md)
 
 
 </td><td>
@@ -3566,7 +3566,7 @@ Sends a video note (circular video) using the page template.
 </td></tr>
 <tr><td>
 
-[replyVoice(keyboard, data, baseId, options)](./gramstax.ctx.replyvoice.md)
+[replyVoice(keyboard, data, AGBaseId, options)](./gramstax.ctx.replyvoice.md)
 
 
 </td><td>

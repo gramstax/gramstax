@@ -18,7 +18,13 @@ Promise&lt;any&gt;
 
 ## Remarks
 
-Override this method to run initialization logic. The common use case is to register low-level grammy.js middleware via `this.bot.use(...)` — note that `this.bot` is a raw grammy.js `Bot` instance (not a this wrapper), so you can call any grammy.js API here (plugins, filters, event handlers, etc.), not just middleware. Middleware registered here runs for every incoming update before the router dispatches it, making it suitable for cross-cutting concerns like logging, rate limiting, sessions, or authentication.
+Override this method to run \*\*one-off initialization logic\*\* that must complete before the bot begins dispatching updates — for example, connecting to a database, warming a cache, validating external service credentials, or setting up shared singletons that pages will read from.
+
+This hook fires exactly once, after `cacheSession`<!-- -->, `templateManager`<!-- -->, `bot`<!-- -->, and `pages` are initialized, and before polling/webhook/serverless actually begins receiving updates.
+
+\*\*Do NOT register grammY middleware here.\*\* Middleware belongs in [Gramstax.registerLowPlugin()](./gramstax.gramstax.registerlowplugin.md)<!-- -->, which is the dedicated channel for code that should run on every incoming update. `hookBeforeStart` runs once and is the wrong place for per-update logic.
+
+For background tasks that need the bot to be alive (cron jobs, periodic cleanup, queue processors), use [Gramstax.hookAfterStart()](./gramstax.gramstax.hookafterstart.md) instead.
 
 ## Example
 
@@ -26,11 +32,13 @@ Override this method to run initialization logic. The common use case is to regi
 ```typescript
 class MyBot extends Gramstax {
   async hookBeforeStart() {
-    // Register grammy.js middleware (low-level)
-    this.bot.use(async (ctx, next) => {
-      this.log?.info?.(`Update ${ctx.update.update_id} from ${ctx.from?.id}`)
-      await next()
-    })
+    // Validate external service credentials before the bot goes live
+    if (!process.env.REDIS_URL) {
+      throw new Error(`REDIS_URL is required`)
+    }
+    this.log?.info?.(`Verifying external service connection...`)
+    await pingRedis(process.env.REDIS_URL)
+    this.log?.success?.(`External services ready`)
   }
 }
 ```

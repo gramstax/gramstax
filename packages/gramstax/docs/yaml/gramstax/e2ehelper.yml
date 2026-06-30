@@ -1,0 +1,572 @@
+### YamlMime:TSType
+name: E2eHelper
+uid: gramstax!E2eHelper:class
+package: gramstax!
+fullName: E2eHelper
+summary: In-process E2E testing helper for Gramstax bots.
+remarks: >-
+  Attached to `Gramstax.e2e` when the bot is created with `deploy: "test"`<!-- -->. All methods simulate Telegram
+  updates without any HTTP server or port binding.
+example: []
+isPreview: false
+isDeprecated: false
+type: class
+constructors:
+  - name: (constructor)(bot)
+    uid: gramstax!E2eHelper:constructor(1)
+    package: gramstax!
+    fullName: (constructor)(bot)
+    summary: Constructs a new instance of the `E2eHelper` class
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'constructor(bot: Gramstax);'
+      parameters:
+        - id: bot
+          description: The parent Gramstax instance.
+          type: <xref uid="gramstax!Gramstax:class" />
+properties:
+  - name: calls
+    uid: gramstax!E2eHelper#calls:member
+    package: gramstax!
+    fullName: calls
+    summary: All captured outbound Bot API calls (sendMessage, answerCallbackQuery, etc.).
+    remarks: Cleared automatically between tests. Each entry includes the API method, the parameters object, and a timestamp.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'calls: ITE2eApiCall[];'
+      return:
+        type: <xref uid="gramstax!ITE2eApiCall:type" />[]
+methods:
+  - name: buttonLabels(call)
+    uid: gramstax!E2eHelper#buttonLabels:member(1)
+    package: gramstax!
+    fullName: buttonLabels(call)
+    summary: Extract inline keyboard button labels from a captured API call.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'buttonLabels(call: ITE2eApiCall): string[];'
+      parameters:
+        - id: call
+          description: Captured API call (e.g. from `sendText` response array).
+          type: <xref uid="gramstax!ITE2eApiCall:type" />
+      return:
+        type: string[]
+        description: Flat array of button text labels.
+  - name: clearCalls()
+    uid: gramstax!E2eHelper#clearCalls:member(1)
+    package: gramstax!
+    fullName: clearCalls()
+    summary: Clear all captured API calls.
+    remarks: Call in `beforeEach()` to isolate test assertions.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'clearCalls(): void;'
+      return:
+        type: void
+        description: ''
+  - name: gkb(page, aGBaseId, aType, data, aLang)
+    uid: gramstax!E2eHelper#gkb:member(1)
+    package: gramstax!
+    fullName: gkb(page, aGBaseId, aType, data, aLang)
+    summary: Build keyboard button labels from a page template.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        gkb(page: string, aGBaseId: string, aType?: `inline` | `bottom`, data?: Record<string, any>, aLang?: string):
+        string[];
+      parameters:
+        - id: page
+          description: Page name.
+          type: string
+        - id: aGBaseId
+          description: Base block ID.
+          type: string
+        - id: aType
+          description: Keyboard type (`"inline"` or `"bottom"`<!-- -->).
+          type: '`inline` | `bottom`'
+        - id: data
+          description: Template data variables.
+          type: Record&lt;string, any&gt;
+        - id: aLang
+          description: Language code (default `"default"`<!-- -->).
+          type: string
+      return:
+        type: string[]
+        description: Array of button text labels (nested keyboard flattened).
+  - name: gmedia(page, aGBaseId, data, aLang)
+    uid: gramstax!E2eHelper#gmedia:member(1)
+    package: gramstax!
+    fullName: gmedia(page, aGBaseId, data, aLang)
+    summary: Get media configuration from a page template.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'gmedia(page: string, aGBaseId: string, data?: Record<string, any>, aLang?: string): Record<string, any>;'
+      parameters:
+        - id: page
+          description: Page name.
+          type: string
+        - id: aGBaseId
+          description: Base block ID.
+          type: string
+        - id: data
+          description: Template data variables.
+          type: Record&lt;string, any&gt;
+        - id: aLang
+          description: Language code (default `"default"`<!-- -->).
+          type: string
+      return:
+        type: Record&lt;string, any&gt;
+        description: Media configuration object.
+  - name: gmsg(page, aGBaseId, data, aLang)
+    uid: gramstax!E2eHelper#gmsg:member(1)
+    package: gramstax!
+    fullName: gmsg(page, aGBaseId, data, aLang)
+    summary: Render a page message template.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'gmsg(page: string, aGBaseId: string, data?: Record<string, any>, aLang?: string): string;'
+      parameters:
+        - id: page
+          description: Page name.
+          type: string
+        - id: aGBaseId
+          description: Base block ID.
+          type: string
+        - id: data
+          description: Template data variables.
+          type: Record&lt;string, any&gt;
+        - id: aLang
+          description: Language code (default `"default"`<!-- -->).
+          type: string
+      return:
+        type: string
+        description: Rendered message string.
+  - name: handleUpdate(update)
+    uid: gramstax!E2eHelper#handleUpdate:member(1)
+    package: gramstax!
+    fullName: handleUpdate(update)
+    summary: Inject an Update object directly into the bot and capture responses.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'handleUpdate(update: Record<string, unknown>): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: update
+          description: A raw Telegram Update object.
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: All API calls made while processing this update.
+  - name: lastCall(method)
+    uid: gramstax!E2eHelper#lastCall:member(1)
+    package: gramstax!
+    fullName: lastCall(method)
+    summary: Find the most recent captured API call.
+    remarks: ''
+    example:
+      - |-
+        ```typescript
+        const last = e2e.lastCall()
+        const msg  = e2e.lastCall("sendMessage")
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'lastCall(method?: string): ITE2eApiCall | undefined;'
+      parameters:
+        - id: method
+          description: Optional method name to filter by (e.g. `"sendMessage"`<!-- -->).
+          type: string
+      return:
+        type: <xref uid="gramstax!ITE2eApiCall:type" /> | undefined
+        description: The last matching call, or `undefined` if none found.
+  - name: sendAnimation(options)
+    uid: gramstax!E2eHelper#sendAnimation:member(1)
+    package: gramstax!
+    fullName: sendAnimation(options)
+    summary: Simulate a user sending an animation (GIF) message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendAnimation(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: options
+          description: Caption, user, chat, and response options.
+          type: <xref uid="gramstax!ITE2eMediaOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendAudio(options)
+    uid: gramstax!E2eHelper#sendAudio:member(1)
+    package: gramstax!
+    fullName: sendAudio(options)
+    summary: Simulate a user sending an audio message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendAudio(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: options
+          description: Caption, user, chat, and response options.
+          type: <xref uid="gramstax!ITE2eMediaOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendCallbackQuery(data, options)
+    uid: gramstax!E2eHelper#sendCallbackQuery:member(1)
+    package: gramstax!
+    fullName: sendCallbackQuery(data, options)
+    summary: Simulate a user pressing an inline keyboard button (callback query).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendCallbackQuery(data: string, options?: ITE2eCallbackQueryOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: data
+          description: The `callback_data` string from the pressed button.
+          type: string
+        - id: options
+          description: Callback ID, message text, user, chat, and response options.
+          type: <xref uid="gramstax!ITE2eCallbackQueryOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendChannelPost(text, options)
+    uid: gramstax!E2eHelper#sendChannelPost:member(1)
+    package: gramstax!
+    fullName: sendChannelPost(text, options)
+    summary: Simulate the bot receiving a channel post.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendChannelPost(text: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: text
+          description: The post text.
+          type: string
+        - id: options
+          description: User, chat, and response options.
+          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendChosenInlineResult(resultId, query, options)
+    uid: gramstax!E2eHelper#sendChosenInlineResult:member(1)
+    package: gramstax!
+    fullName: sendChosenInlineResult(resultId, query, options)
+    summary: Simulate a user choosing a result from an inline query.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendChosenInlineResult(resultId: string, query: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: resultId
+          description: The chosen result ID.
+          type: string
+        - id: query
+          description: The inline query text.
+          type: string
+        - id: options
+          description: User, chat, and response options.
+          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendContact(options)
+    uid: gramstax!E2eHelper#sendContact:member(1)
+    package: gramstax!
+    fullName: sendContact(options)
+    summary: Simulate a user sending a contact message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendContact(options?: ITE2eContactOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: options
+          description: Phone number, name, user, chat, and response options.
+          type: <xref uid="gramstax!ITE2eContactOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendDice(options)
+    uid: gramstax!E2eHelper#sendDice:member(1)
+    package: gramstax!
+    fullName: sendDice(options)
+    summary: Simulate a user sending a dice message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendDice(options?: ITE2eDiceOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: options
+          description: Dice emoji, user, chat, and response options.
+          type: <xref uid="gramstax!ITE2eDiceOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendDocument(options)
+    uid: gramstax!E2eHelper#sendDocument:member(1)
+    package: gramstax!
+    fullName: sendDocument(options)
+    summary: Simulate a user sending a document (file) message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendDocument(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: options
+          description: Caption, user, chat, and response options.
+          type: <xref uid="gramstax!ITE2eMediaOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendEditedText(text, options)
+    uid: gramstax!E2eHelper#sendEditedText:member(1)
+    package: gramstax!
+    fullName: sendEditedText(text, options)
+    summary: Simulate an edited text message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendEditedText(text: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: text
+          description: The new message text.
+          type: string
+        - id: options
+          description: User, chat, and response options.
+          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendInlineQuery(query, options)
+    uid: gramstax!E2eHelper#sendInlineQuery:member(1)
+    package: gramstax!
+    fullName: sendInlineQuery(query, options)
+    summary: Simulate an inline query sent by a user.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendInlineQuery(query: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: query
+          description: The inline query text.
+          type: string
+        - id: options
+          description: User, chat, and response options.
+          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendLocation(options)
+    uid: gramstax!E2eHelper#sendLocation:member(1)
+    package: gramstax!
+    fullName: sendLocation(options)
+    summary: Simulate a user sending a location message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendLocation(options?: ITE2eLocationOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: options
+          description: Latitude, longitude, user, chat, and response options.
+          type: <xref uid="gramstax!ITE2eLocationOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendNewChatMembers(options)
+    uid: gramstax!E2eHelper#sendNewChatMembers:member(1)
+    package: gramstax!
+    fullName: sendNewChatMembers(options)
+    summary: Simulate a user joining a chat (service message).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendNewChatMembers(options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: options
+          description: User, chat, and response options.
+          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendPhoto(options)
+    uid: gramstax!E2eHelper#sendPhoto:member(1)
+    package: gramstax!
+    fullName: sendPhoto(options)
+    summary: Simulate a user sending a photo message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendPhoto(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: options
+          description: Caption, user, chat, and response options.
+          type: <xref uid="gramstax!ITE2eMediaOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendPollAnswer(pollId, optionIds, options)
+    uid: gramstax!E2eHelper#sendPollAnswer:member(1)
+    package: gramstax!
+    fullName: sendPollAnswer(pollId, optionIds, options)
+    summary: Simulate a poll update sent by the bot (used for poll answer testing).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendPollAnswer(pollId: string, optionIds: number[], options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: pollId
+          description: The poll identifier.
+          type: string
+        - id: optionIds
+          description: Array of selected option IDs.
+          type: number[]
+        - id: options
+          description: User, chat, and response options.
+          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendSticker(options)
+    uid: gramstax!E2eHelper#sendSticker:member(1)
+    package: gramstax!
+    fullName: sendSticker(options)
+    summary: Simulate a user sending a sticker message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendSticker(options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: options
+          description: User, chat, and response options.
+          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendText(text, options)
+    uid: gramstax!E2eHelper#sendText:member(1)
+    package: gramstax!
+    fullName: sendText(text, options)
+    summary: Simulate a user sending a text message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendText(text: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: text
+          description: The message text. If it starts with `/` a `bot_command` entity is added.
+          type: string
+        - id: options
+          description: User, chat, and response options.
+          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendVideo(options)
+    uid: gramstax!E2eHelper#sendVideo:member(1)
+    package: gramstax!
+    fullName: sendVideo(options)
+    summary: Simulate a user sending a video message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendVideo(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: options
+          description: Caption, user, chat, and response options.
+          type: <xref uid="gramstax!ITE2eMediaOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendVideoNote(options)
+    uid: gramstax!E2eHelper#sendVideoNote:member(1)
+    package: gramstax!
+    fullName: sendVideoNote(options)
+    summary: Simulate a user sending a video note (round video) message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendVideoNote(options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: options
+          description: User, chat, and response options.
+          type: <xref uid="gramstax!ITE2eUpdateOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.
+  - name: sendVoice(options)
+    uid: gramstax!E2eHelper#sendVoice:member(1)
+    package: gramstax!
+    fullName: sendVoice(options)
+    summary: Simulate a user sending a voice message.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'sendVoice(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;'
+      parameters:
+        - id: options
+          description: Caption, user, chat, and response options.
+          type: <xref uid="gramstax!ITE2eMediaOptions:type" />
+      return:
+        type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
+        description: API calls made while processing this update.

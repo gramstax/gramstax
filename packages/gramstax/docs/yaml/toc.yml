@@ -11,6 +11,8 @@ items:
             uid: gramstax!CacheExternal:class
           - name: Ctx
             uid: gramstax!Ctx:class
+          - name: E2eHelper
+            uid: gramstax!E2eHelper:class
           - name: Gramstax
             uid: gramstax!Gramstax:class
           - name: ITBottomKb
@@ -25,10 +27,30 @@ items:
             uid: gramstax!ITCompiledTemplate:type
           - name: ITCt
             uid: gramstax!ITCt:type
+          - name: ITCtMiddleware
+            uid: gramstax!ITCtMiddleware:type
           - name: ITCtxParams
             uid: gramstax!ITCtxParams:type
           - name: ITData
             uid: gramstax!ITData:type
+          - name: ITE2eApiCall
+            uid: gramstax!ITE2eApiCall:type
+          - name: ITE2eCallbackQueryOptions
+            uid: gramstax!ITE2eCallbackQueryOptions:type
+          - name: ITE2eChat
+            uid: gramstax!ITE2eChat:type
+          - name: ITE2eContactOptions
+            uid: gramstax!ITE2eContactOptions:type
+          - name: ITE2eDiceOptions
+            uid: gramstax!ITE2eDiceOptions:type
+          - name: ITE2eLocationOptions
+            uid: gramstax!ITE2eLocationOptions:type
+          - name: ITE2eMediaOptions
+            uid: gramstax!ITE2eMediaOptions:type
+          - name: ITE2eUpdateOptions
+            uid: gramstax!ITE2eUpdateOptions:type
+          - name: ITE2eUser
+            uid: gramstax!ITE2eUser:type
           - name: ITGramstaxParams
             uid: gramstax!ITGramstaxParams:type
           - name: ITInBoKb

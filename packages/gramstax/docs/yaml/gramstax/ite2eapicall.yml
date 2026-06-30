@@ -1,0 +1,23 @@
+### YamlMime:TSTypeAlias
+name: ITE2eApiCall
+uid: gramstax!ITE2eApiCall:type
+package: gramstax!
+fullName: ITE2eApiCall
+summary: Captured outbound Bot API call record.
+remarks: >-
+  Each entry represents one call made by the bot handler (e.g. `sendMessage`<!-- -->, `answerCallbackQuery`<!-- -->,
+  `editMessageText`<!-- -->). Access fields by iterating `e2e.calls` or using `e2e.lastCall(method)`<!-- -->.
+example:
+  - |-
+    ```typescript
+    const sendMsg = e2e.lastCall("sendMessage")
+    expect(sendMsg?.body?.text).toBe("Hello")
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITE2eApiCall = {
+      method: string;
+      body: any;
+      timestamp: number;
+  };

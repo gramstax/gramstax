@@ -1,0 +1,19 @@
+### YamlMime:TSTypeAlias
+name: ITE2eUser
+uid: gramstax!ITE2eUser:type
+package: gramstax!
+fullName: ITE2eUser
+summary: ''
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITE2eUser = {
+      id?: number;
+      username?: string;
+      first_name?: string;
+      last_name?: string;
+      language_code?: string;
+      is_bot?: boolean;
+  };

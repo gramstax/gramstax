@@ -1,0 +1,14 @@
+### YamlMime:TSTypeAlias
+name: ITE2eMediaOptions
+uid: gramstax!ITE2eMediaOptions:type
+package: gramstax!
+fullName: ITE2eMediaOptions
+summary: ''
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITE2eMediaOptions = ITE2eUpdateOptions & {
+      caption?: string;
+  };

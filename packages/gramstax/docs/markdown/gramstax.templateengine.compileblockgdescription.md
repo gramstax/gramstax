@@ -9,10 +9,10 @@ Compiles description blocks from a template into executable functions.
 **Signature:**
 
 ```typescript
-static compileBlockGDescription(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
-        [baseId: string]: {
-            [scope: string]: {
-                [lang: string]: (data?: Record<string, any>) => string;
+static compileBlockGDescription(template: string, gBaseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [AScope: string]: {
+                [ALang: string]: (data?: Record<string, any>) => string;
             };
         };
     };
@@ -54,7 +54,7 @@ Raw template string containing `<g-base>` and `<g-description>` blocks
 </td></tr>
 <tr><td>
 
-baseBlocks
+gBaseBlocks
 
 
 </td><td>
@@ -72,7 +72,7 @@ _(Optional)_ Optional pre-parsed base blocks for reuse
 
 **Returns:**
 
-{ \[baseId: string\]: { \[scope: string\]: { \[lang: string\]: (data?: Record&lt;string, any&gt;) =&gt; string; }; }; }
+{ \[AGBaseId: string\]: { \[AScope: string\]: { \[ALang: string\]: (data?: Record&lt;string, any&gt;) =&gt; string; }; }; }
 
 Compiled description functions organized by base ID, scope, and language
 
@@ -82,7 +82,7 @@ This method parses `<g-description>` blocks from the template and compiles them 
 
 Processing pipeline (in order, per description): 1. `_processGScriptBlocks` – converts `<g-script>` blocks into executable expressions 2. `_processGMapBlocks` – converts `<g-map>` blocks into array map expressions 3. `_processGSwitchBlocks` – converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` – evaluates scope execution blocks (implementation-defined) 5. `_processScopeVariables` – resolves scope variables (implementation-defined) 6. `_compileToFunction(processed, false)` – produces the final render function
 
-Output shape: - First level key: `baseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second level key: `scope` (from `<g-description scope="...">`<!-- -->, or `"default"` if omitted) - Third level key: `lang` (from `<g-description lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?: Record<string, any>) => string`
+Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second level key: `AScope` (from `<g-description scope="...">`<!-- -->, or `"default"` if omitted) - Third level key: `ALang` (from `<g-description lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?: Record<string, any>) => string`
 
 ## Example
 

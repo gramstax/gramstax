@@ -10,7 +10,10 @@ Hook called when no page handler matches the input.
 
 ```typescript
 /** @virtual */
-hookErrorInputNotFoundPage?(ctx: ICtx): Promise<void>;
+hookErrorInputNotFoundPage?(ctx: ICtx, data?: {
+        listenerName: string;
+        isEdit: boolean;
+    }): Promise<void>;
 ```
 
 ## Parameters
@@ -47,6 +50,22 @@ The context instance.
 
 
 </td></tr>
+<tr><td>
+
+data
+
+
+</td><td>
+
+{ listenerName: string; isEdit: boolean; }
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
 </tbody></table>
 
 **Returns:**
@@ -57,11 +76,22 @@ Promise&lt;void&gt;
 
 Override this method to send a "command not found" message or redirect to a help page.
 
-## Example
+## Example 1
 
+Simple
 
 ```typescript
 async hookErrorInputNotFoundPage(ctx: Ctx) {
+  await new GeneralStatusPage(ctx).showErrorInputNotFound()
+}
+```
+
+## Example 2
+
+Advanced
+
+```typescript
+async hookErrorInputNotFoundPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorInputNotFoundPage`]>>[1]>) {
   await new GeneralStatusPage(ctx).showErrorInputNotFound()
 }
 ```

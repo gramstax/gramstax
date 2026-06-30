@@ -10,7 +10,7 @@ Parameters for inline keyboard configuration.
 
 ```typescript
 type ITInlineKbParams = {
-    baseId?: string;
+    AGBaseId?: string;
     data?: ITData;
     cache?: boolean;
 };

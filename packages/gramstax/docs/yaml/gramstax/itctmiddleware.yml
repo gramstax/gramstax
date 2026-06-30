@@ -1,0 +1,11 @@
+### YamlMime:TSTypeAlias
+name: ITCtMiddleware
+uid: gramstax!ITCtMiddleware:type
+package: gramstax!
+fullName: ITCtMiddleware
+summary: Type alias for grammY Middleware.
+remarks: Middleware from grammy.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: type ITCtMiddleware<C extends ITCt = ITCt> = Middleware<C>;

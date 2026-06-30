@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: ITE2eUpdateOptions
+uid: gramstax!ITE2eUpdateOptions:type
+package: gramstax!
+fullName: ITE2eUpdateOptions
+summary: ''
+remarks: ''
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITE2eUpdateOptions = {
+      user?: ITE2eUser;
+      chat?: ITE2eChat;
+      date?: number;
+      message_id?: number;
+  };

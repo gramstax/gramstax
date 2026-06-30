@@ -9,7 +9,7 @@ still construction!
 **Signature:**
 
 ```typescript
-replyRich(keyboard?: ITInBoKb, data?: ITData, baseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1]): Promise<grammy_types.Message.RichMessageMessage>;
+replyRich(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1]): Promise<grammy_types.Message.RichMessageMessage>;
 ```
 
 ## Parameters
@@ -64,7 +64,7 @@ _(Optional)_
 </td></tr>
 <tr><td>
 
-baseId
+AGBaseId
 
 
 </td><td>
