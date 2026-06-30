@@ -111,10 +111,13 @@ export class WorkerThreadRpc {
     }
   }
 
+  /** @internal Counter for unique ID generation (avoids Math.random determinism). */
+  private _nextId = 1
+
   /**
    * Generate a unique request ID.
    *
-   * @returns A random number ID.
+   * @returns A monotonically increasing number unique within this instance.
    *
    * @example
    * ```typescript
@@ -123,7 +126,7 @@ export class WorkerThreadRpc {
    * @public
    */
   makeId() {
-    return Math.random()
+    return this._nextId++
   }
 
   /**

@@ -26,7 +26,7 @@ describe(`WorkerThreadRpc`, () => {
     const send = (data: any) => {
       sentMessages.push(data)
     }
-    rpc = new WorkerThreadRpc(send, register)
+    rpc = new WorkerThreadRpc(send as any, register)
   })
 
   describe(`makeRequest (outgoing)`, () => {
@@ -72,11 +72,24 @@ describe(`WorkerThreadRpc`, () => {
     })
 
     it(`generates unique ids across calls`, () => {
-      rpc.makeRequest(`add`, [1, 1])
-      rpc.makeRequest(`add`, [2, 2])
-      rpc.makeRequest(`add`, [3, 3])
-      const ids = sentMessages.map((m) => m.id)
-      expect(new Set(ids).size).toBe(3)
+      const ids = new Set<number>()
+      for (let i = 0; i < 100; i++) {
+        ids.add(rpc.makeId())
+      }
+      if (ids.size < 100) {
+        console.log(`DUPLICATE IDS: size=${ids.size}`)
+      }
+      expect(ids.size).toBe(100) // Math.random should not duplicate in 100 calls
+    })
+
+    it(`sends all three makeRequest calls to the send function`, () => {
+      rpc.makeRequest(`add`, [1, 1], false)
+      rpc.makeRequest(`add`, [2, 2], false)
+      rpc.makeRequest(`add`, [3, 3], false)
+      expect(sentMessages.length).toBe(3)
+      expect(sentMessages[0].method).toBe(`add`)
+      expect(sentMessages[1].method).toBe(`add`)
+      expect(sentMessages[2].method).toBe(`add`)
     })
   })
 
