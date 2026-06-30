@@ -17,8 +17,8 @@ describe(`E2E: BlockSwitchPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     expect(responses[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {status: `0`}))
     expect(responsesId[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {status: `0`}, `id`))
-    expect(e2e.buttonLabels(responses[0]!)).toEqual(e2e.gkb(intent, `s1`, `inline`, {status: `0`}))
-    expect(e2e.buttonLabels(responsesId[0]!)).toEqual(e2e.gkb(intent, `s1`, `inline`, {status: `0`}, `id`))
+    expect(e2e.extractButtonLabels(responses[0]!)).toEqual(e2e.gkb(intent, `s1`, `inline`, {status: `0`}))
+    expect(e2e.extractButtonLabels(responsesId[0]!)).toEqual(e2e.gkb(intent, `s1`, `inline`, {status: `0`}, `id`))
   })
 
   it(`toggle switch to Active (status 1)`, async () => {
@@ -31,7 +31,7 @@ describe(`E2E: BlockSwitchPage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responses[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {status: `1`}))
-    expect(e2e.buttonLabels(responses[0]!)).toEqual(e2e.gkb(intent, `s1`, `inline`, {status: `1`}))
+    expect(e2e.extractButtonLabels(responses[0]!)).toEqual(e2e.gkb(intent, `s1`, `inline`, {status: `1`}))
   })
 
   it(`toggle back to Inactive (status 0)`, async () => {
@@ -46,6 +46,6 @@ describe(`E2E: BlockSwitchPage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responses[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {status: `0`}))
-    expect(e2e.buttonLabels(responses[0]!)).toEqual(e2e.gkb(intent, `s1`, `inline`, {status: `0`}))
+    expect(e2e.extractButtonLabels(responses[0]!)).toEqual(e2e.gkb(intent, `s1`, `inline`, {status: `0`}))
   })
 })

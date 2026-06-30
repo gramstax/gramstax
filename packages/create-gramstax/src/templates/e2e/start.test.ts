@@ -19,8 +19,8 @@ describe(`E2E: StartPage`, () => {
     const replyId = responsesId[0]!
     expect(reply.body?.text).toContain(`Welcome`)
     expect(replyId.body?.text).toContain(`Selamat datang`)
-    expect(e2e.buttonLabels(reply)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
-    expect(e2e.buttonLabels(replyId)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}, `id`))
+    expect(e2e.extractButtonLabels(reply)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
+    expect(e2e.extractButtonLabels(replyId)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}, `id`))
   })
 
   it(`capture outbound requests in e2e.calls`, async () => {

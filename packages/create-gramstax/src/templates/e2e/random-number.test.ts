@@ -22,7 +22,7 @@ describe(`E2E: RandomNumberPage`, () => {
     const editId = responsesId[0]!
     expect(edit.body?.text).toContain(`Random Number`)
     expect(editId.body?.text).toContain(`Angka Acak`)
-    expect(e2e.buttonLabels(edit)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
-    expect(e2e.buttonLabels(editId)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}, `id`))
+    expect(e2e.extractButtonLabels(edit)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
+    expect(e2e.extractButtonLabels(editId)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}, `id`))
   })
 })

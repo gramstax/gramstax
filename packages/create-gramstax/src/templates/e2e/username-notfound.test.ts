@@ -19,6 +19,6 @@ describe(`E2E: UserNameNotFoundPage`, () => {
     expect(reply).toBeDefined()
     expect(reply.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
     expect(reply.body?.text).toContain(`Username Required`)
-    expect(e2e.buttonLabels(reply)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
+    expect(e2e.extractButtonLabels(reply)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
   })
 })

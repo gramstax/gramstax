@@ -3048,7 +3048,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static validateRichMessageBlock(html: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+  static validateBlockGMessageRich(html: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
 
     // 1. UTF-8 length check (32768 chars)
@@ -3056,8 +3056,8 @@ export class TemplateEngine {
       errors.push({line: 0, message: `Rich message exceeds 32768 character limit (got ${html.length})`})
     }
 
-    // 2. Block count check (≤ 500)
-    const blockMatches = html.match(/<[a-zA-Z][^>]*>/g)
+    // 2. Block count check (≤ 500) — excludes <g-*> gramstax tags
+    const blockMatches = html.match(/<(?!g-)[a-zA-Z][^>]*>/g)
     const blockCount = blockMatches ? blockMatches.length : 0
     if (blockCount > 500) {
       errors.push({line: 0, message: `Rich message exceeds 500 block limit (got ${blockCount})`})
@@ -3111,14 +3111,14 @@ export class TemplateEngine {
    * @remarks
    * Called by {@link TemplateEngine.validateTemplate}. Strips gramstax-specific
    * template syntax (`{{}}`, `<g-*>`) to approximate the rendered HTML, then
-   * delegates to {@link TemplateEngine.validateRichMessageBlock}.
+   * delegates to {@link TemplateEngine.validateBlockGMessageRich}.
    *
    * @param template - Raw gramstax template string.
    * @returns Combined validation errors from all `<g-message>` blocks.
    *
    * @internal
    */
-  static _validateRichInTemplate(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+  static _validateBlockGMessageRichInTemplate(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
 
     const msgRegex = /<g-message(?:\s+[^>]*)?>([\s\S]*?)<\/g-message>/gi
@@ -3135,65 +3135,8 @@ export class TemplateEngine {
 
       if (!content) continue
 
-      const result = this.validateRichMessageBlock(content)
+      const result = this.validateBlockGMessageRich(content)
       errors.push(...result.errors)
-    }
-
-    return {valid: errors.length === 0, errors}
-  }
-
-  /**
-   * Full template validation — runs all validation passes.
-    const errors: Array<{line: number; message: string}> = []
-
-    // 1. UTF-8 length check (32768 chars)
-    if (html.length > 32768) {
-      errors.push({line: 0, message: `Rich message exceeds 32768 character limit (got ${html.length})`})
-    }
-
-    // 2. Block count check (≤ 500)
-    const blockMatches = html.match(/<[a-zA-Z][^>]*>/g)
-    const blockCount = blockMatches ? blockMatches.length : 0
-    if (blockCount > 500) {
-      errors.push({line: 0, message: `Rich message exceeds 500 block limit (got ${blockCount})`})
-    }
-
-    // 3. Nesting depth check (≤ 16)
-    let maxDepth = 0
-    let currentDepth = 0
-    const voidElements = new Set([`area`, `base`, `br`, `col`, `embed`, `hr`, `img`, `input`, `link`, `meta`, `param`, `source`, `track`, `wbr`, `tg-map`, `tg-emoji`])
-    const tagRegex = /<(\/?)([a-zA-Z][a-zA-Z0-9]*)\b[^>]*(\/?)>/g
-    let tagMatch: RegExpExecArray | null
-    while ((tagMatch = tagRegex.exec(html)) !== null) {
-      const isClosing = tagMatch[1] === `/`
-      const tagName = tagMatch[2]!.toLowerCase()
-      const isSelfClosing = tagMatch[3] === `/` || voidElements.has(tagName)
-
-      if (isClosing && !isSelfClosing) {
-        currentDepth = Math.max(0, currentDepth - 1)
-      } else if (!isSelfClosing) {
-        currentDepth++
-        maxDepth = Math.max(maxDepth, currentDepth)
-      }
-    }
-    if (maxDepth > 16) {
-      errors.push({line: 0, message: `Rich message exceeds 16 nesting level limit (got ${maxDepth})`})
-    }
-
-    // 4. Table column check (≤ 20 per table)
-    const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi
-    let tableMatch: RegExpExecArray | null
-    while ((tableMatch = tableRegex.exec(html)) !== null) {
-      const tableContent = tableMatch[1]!
-      const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi
-      let rowMatch: RegExpExecArray | null
-      while ((rowMatch = rowRegex.exec(tableContent)) !== null) {
-        const cellCount = (rowMatch[1]!.match(/<t[dh][^>]*>/gi) || []).length
-        if (cellCount > 20) {
-          errors.push({line: 0, message: `Rich message table exceeds 20 column limit (got ${cellCount} columns in a row)`})
-          break
-        }
-      }
     }
 
     return {valid: errors.length === 0, errors}
@@ -3272,7 +3215,7 @@ export class TemplateEngine {
     const pageValueResult = this.validatePageAttributeValuesBlock(template)
 
     // Extract <g-message> inner HTML and validate against Rich Message limits
-    const richMsgResult = this._validateRichInTemplate(template)
+    const richMsgResult = this._validateBlockGMessageRichInTemplate(template)
 
     const errors = [
       ...blockNamesResult.errors,

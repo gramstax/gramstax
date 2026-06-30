@@ -18,8 +18,8 @@ describe(`E2E: StartPage`, () => {
     expect(reply.body?.text).toContain(`Time now:`)
     expect(replyId.body?.text).toContain(`Halo Dunia!`)
     expect(replyId.body?.text).toContain(`Waktu:`)
-    expect(e2e.buttonLabels(reply)).toEqual(e2e.gkb(`start`, `s1`, `inline`, {}))
-    expect(e2e.buttonLabels(replyId)).toEqual(e2e.gkb(`start`, `s1`, `inline`, {}, `id`))
+    expect(e2e.extractButtonLabels(reply)).toEqual(e2e.gkb(`start`, `s1`, `inline`, {}))
+    expect(e2e.extractButtonLabels(replyId)).toEqual(e2e.gkb(`start`, `s1`, `inline`, {}, `id`))
   })
 
   it(`respond to callback query with edited message`, async () => {

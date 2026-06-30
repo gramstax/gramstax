@@ -190,12 +190,23 @@ export class E2eHelper {
   }
 
   /**
+   * Extract text content from a captured API call, handling both
+   * `sendMessage` (body.text) and `sendRichMessage` (body.rich_message.html).
+   *
+   * @param call - Captured API call.
+   * @returns The message text, or `undefined` if neither field is present.
+   */
+  extractText(call: ITE2eApiCall): string | undefined {
+    return (call?.body as any)?.rich_message?.html ?? (call?.body as any)?.text
+  }
+
+  /**
    * Extract inline keyboard button labels from a captured API call.
    *
    * @param call - Captured API call (e.g. from `sendText` response array).
    * @returns Flat array of button text labels.
    */
-  buttonLabels(call: ITE2eApiCall): string[] {
+  extractButtonLabels(call: ITE2eApiCall): string[] {
     return (call?.body?.reply_markup as any)?.inline_keyboard?.flat().map((b: any) => b.text) ?? []
   }
 

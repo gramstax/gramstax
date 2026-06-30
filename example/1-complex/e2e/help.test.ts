@@ -19,7 +19,7 @@ describe(`E2E: HelpPage`, () => {
     const editId = responsesId[0]!
     expect(edit.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
     expect(editId.body?.text).toBe(e2e.gmsg(intent, `s1`, {}, `id`))
-    expect(e2e.buttonLabels(edit)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
-    expect(e2e.buttonLabels(editId)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}, `id`))
+    expect(e2e.extractButtonLabels(edit)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
+    expect(e2e.extractButtonLabels(editId)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}, `id`))
   })
 })

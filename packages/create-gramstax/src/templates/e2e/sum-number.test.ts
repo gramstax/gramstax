@@ -27,7 +27,7 @@ describe(`E2E: SumNumberPage`, () => {
     expect(result.length).toBeGreaterThan(0)
     expect(result[0]!.body?.text).toContain(`Result Sum`)
     expect(result[0]!.body?.text).toContain(`33`)
-    expect(e2e.buttonLabels(result[0])).toEqual(e2e.gkb(intent, `s`, `inline`, {}))
+    expect(e2e.extractButtonLabels(result[0])).toEqual(e2e.gkb(intent, `s`, `inline`, {}))
   })
 
   it(`re-prompt step 1 on invalid (non-numeric) input`, async () => {
