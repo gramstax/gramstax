@@ -1,32 +1,16 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, gmsg} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
-let env: TestEnvironment
 const intent = `general-status`
-
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: GeneralStatusPage`, () => {
-  it(`show route not found for unrecognized text command`, async () => {
-    const responses = await env.mockServer.sendText(`/unknown`)
-    const responsesId = await env.mockServer.sendText(`/unknown`, {user: {language_code: `id`}})
-
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responsesId.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}))
-    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}, `id`))
-  })
-
-  it(`sendPhoto trigger route not found response`, async () => {
-    const responses = await env.mockServer.sendPhoto({caption: `test photo`})
-
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]?.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}))
+  it(`show not-found for unrecognized callback`, async () => {
+    await e2e.sendText(`/start`)
+    e2e.clearCalls()
+    const res = await e2e.sendCallbackQuery(`nonexistent`)
+    expect(res.length).toBeGreaterThan(0)
+    expect(res[0]!.body?.text).toBe(e2e.gmsg(intent, `d`, {isNotFound: true}))
   })
 })

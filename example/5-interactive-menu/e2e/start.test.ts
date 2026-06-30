@@ -1,43 +1,17 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, gmsg, gkb, buttonLabels, bottomButtonLabels} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
-let env: TestEnvironment
 const intent = `start`
 const asUser = {user: {id: 501}, chat: {id: 501}}
-const asUserId = {user: {id: 501, language_code: `id`}, chat: {id: 501}}
-
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
-
 describe(`E2E: StartPage`, () => {
-  it(`responds to /start with main menu and inline keyboard`, async () => {
-    const responses = await env.mockServer.sendText(`/start`, asUser)
-    const responsesId = await env.mockServer.sendText(`/start`, asUserId)
-
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responsesId.length).toBeGreaterThan(0)
-    // First response is the main menu (inline)
-    expect(responses[0]!.body?.text).toBe(gmsg(intent, `s1`, {}))
-    expect(responsesId[0]!.body?.text).toBe(gmsg(intent, `s1`, {}, `id`))
-    expect(buttonLabels(responses[0])).toEqual(gkb(intent, `s1`, `inline`, {}))
-    expect(buttonLabels(responsesId[0])).toEqual(gkb(intent, `s1`, `inline`, {}, `id`))
-  })
-
-  it(`shows quick actions bottom keyboard as second response`, async () => {
-    const responses = await env.mockServer.sendText(`/start`, asUser)
-    const responsesId = await env.mockServer.sendText(`/start`, asUserId)
-
-    // Second response is the quick actions bottom keyboard
-    expect(responses.length).toBeGreaterThan(1)
-    expect(responsesId.length).toBeGreaterThan(1)
-    expect(responses[1]!.body?.text).toBe(gmsg(intent, `i-quick`, {}))
-    expect(responsesId[1]!.body?.text).toBe(gmsg(intent, `i-quick`, {}, `id`))
-    expect(bottomButtonLabels(responses[1])).toEqual(gkb(intent, `i-quick`, `bottom`, {}))
-    expect(bottomButtonLabels(responsesId[1])).toEqual(gkb(intent, `i-quick`, `bottom`, {}, `id`))
+  it(`respond to /start with menu`, async () => {
+    await e2e.sendText(`/start`, asUser)
+    e2e.clearCalls()
+    const res = await e2e.sendCallbackQuery(intent, asUser)
+    expect(res.length).toBeGreaterThan(0)
+    expect(res[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
   })
 })

@@ -1,16 +1,8 @@
-import {describe, it, expect, beforeAll} from "bun:test"
-import {getEnv, type TestEnvironment} from "./setup"
-
-let env: TestEnvironment
-const intent = `blank`
-
-beforeAll(async () => {
-  env = await getEnv()
-})
+import {describe, it, expect} from "bun:test"
+import {bot} from "./setup"
 
 describe(`E2E: BlankPage`, () => {
   it(`load as a registered page in the bot`, () => {
-    const allPages = env.botCore.pages.all
-    expect(allPages[intent]).toBeDefined()
+    expect(bot.pages.all[`blank`]).toBeDefined()
   })
 })
