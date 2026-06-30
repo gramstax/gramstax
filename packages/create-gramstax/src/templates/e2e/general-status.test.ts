@@ -1,25 +1,20 @@
-import {describe, it, expect, beforeAll, beforeEach} from "bun:test"
-import {getEnv, type TestEnvironment, gmsg} from "./setup"
+import {describe, it, expect, beforeEach} from "bun:test"
+import {e2e} from "./setup"
 
-let env: TestEnvironment
 const intent = `general-status`
 const asUser = {user: {id: 8001, username: `testuser`}, chat: {id: 8001}}
 
-beforeAll(async () => {
-  env = await getEnv()
-})
-
 beforeEach(() => {
-  env.clearRequests()
+  e2e.clearCalls()
 })
 
 describe(`E2E: GeneralStatusPage`, () => {
   it(`show 'Route not found' for unrecognized callback query`, async () => {
-    await env.mockServer.sendText(`/start`, asUser)
-    env.clearRequests()
+    await e2e.sendText(`/start`, asUser)
+    e2e.clearCalls()
 
-    const responses = await env.mockServer.sendCallbackQuery(`nonexistent-callback-data`, asUser)
-    const responsesId = await env.mockServer.sendCallbackQuery(`nonexistent-callback-data`, {user: {id: 8002, username: `pengguna`, language_code: `id`}, chat: {id: 8002}})
+    const responses = await e2e.sendCallbackQuery(`nonexistent-callback-data`, asUser)
+    const responsesId = await e2e.sendCallbackQuery(`nonexistent-callback-data`, {user: {id: 8002, username: `pengguna`, language_code: `id`}, chat: {id: 8002}})
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
@@ -27,7 +22,7 @@ describe(`E2E: GeneralStatusPage`, () => {
     const replyId = responsesId[0]!
     expect(reply).toBeDefined()
     expect(replyId).toBeDefined()
-    expect(reply.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}))
-    expect(replyId.body?.text).toBe(gmsg(intent, `d`, {isNotFound: true}, `id`))
+    expect(reply.body?.text).toBe(e2e.gmsg(intent, `d`, {isNotFound: true}))
+    expect(replyId.body?.text).toBe(e2e.gmsg(intent, `d`, {isNotFound: true}, `id`))
   })
 })
