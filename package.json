@@ -24,6 +24,7 @@
   "scripts": {
     "test": "bun test",
     "test:packages": "bun test ./packages",
+    "test:example": "bun test ./example",
     "lint": "eslint .",
     "lint:fix": "eslint '**/*.ts' --fix",
     "lint:packages": "eslint ./packages",
@@ -48,10 +49,13 @@
     "dry-run:patch": "nx release patch --dry-run",
     "dry-run:minor": "nx release minor --dry-run",
     "dry-run:major": "nx release major --dry-run",
-    "ci:test": "bun run lint && bun run ci:check && bun run test",
-    "ci:test:release": "bun run lint:packages && bun run ci:check && bun run test:packages",
-    "ci:check": "tsc --noEmit",
-    "prepush": "bun run ci:check && bun run ci:test && bun run build:all && echo 'Its safe push to remote'"
+    "ci:check": "tsc --noEmit && eslint .",
+    "ci:check:packages": "tsc --noEmit && eslint ./packages",
+    "ci:check:example": "eslint ./example",
+    "ci:test": "bun run ci:check && bun run test",
+    "ci:test:packages": "bun run ci:check:packages && bun run test:packages",
+    "ci:test:example": "bun run ci:check:example && bun test ./example",
+    "prepush": "bun run ci:check && bun run test && bun run build:all && echo 'Its safe push to remote'"
   },
   "type": "module",
   "workspaces": [

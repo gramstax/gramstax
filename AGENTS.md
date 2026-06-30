@@ -47,15 +47,20 @@
 
 - `bun run lint`
 - `bun run lint:fix`
+- `bun run lint:packages` (lint only `./packages`)
+- `bun run lint:example` (lint only `./example`)
 
-## Typecheck Commands
+## Typecheck + Lint Commands (ci:check)
 
-- `bun run ci:check`
-- `tsc --noEmit`
+- `bun run ci:check` (tsc + eslint for all projects)
+- `bun run ci:check:packages` (tsc + eslint focused on `./packages`)
+- `bun run ci:check:example` (eslint for `./example`)
 
 ## Test Commands
 
 - `bun run test`
+- `bun run test:packages` (test only `./packages`)
+- `bun run test:example` (test only `./example`)
 - `bun test packages/gramstax/test/<file>.ts` (single test file)
 - `bun test --filter "TemplateEngine"` (single test by name)
 - `bun test packages/gramstax/test/core.bot.test.ts`
@@ -65,7 +70,9 @@
 
 ## CI / Pre-push
 
-- `bun run ci:test` (lint + typecheck + tests)
+- `bun run ci:test` (typecheck + lint + all tests)
+- `bun run ci:test:packages` (typecheck + lint + tests for `./packages`)
+- `bun run ci:test:example` (lint + tests for `./example`)
 - `bun run prepush` (ci + build + safety echo)
 
 ## Release Commands (when asked)
