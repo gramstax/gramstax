@@ -108,7 +108,7 @@ export type ITWebhookQueueConfig = {
  *
  * @public
  */
-export type ITGramstaxParams<D extends string = string> = {
+export type ITGramstaxParams = {
   /**
    * Telegram Bot API token.
    *
@@ -140,7 +140,7 @@ export type ITGramstaxParams<D extends string = string> = {
    * deploy: "test"
    * ```
    */
-  deploy: D
+  deploy: string
 
   /**
    * Logger configuration.
