@@ -1,13 +1,10 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "./setup"
-
-const intent = `product`
-beforeEach(() => {
-  e2e.clearCalls()
-})
-describe(`E2E:`, () => {
-  it(`load page`, async () => {
-    const res = await e2e.sendCallbackQuery(intent)
+beforeEach(() => e2e.clearCalls())
+describe(`E2E: ProductPage`, () => {
+  it(`requires intent args to show product`, async () => {
+    const res = await e2e.sendCallbackQuery(`product`)
     expect(res.length).toBeGreaterThan(0)
+    expect(res[0]!.body?.text).toContain(`Action not found`)
   })
 })
