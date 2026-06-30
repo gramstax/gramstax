@@ -189,7 +189,7 @@ describe(`Ctx.broadcastMedia`, () => {
       replyWithMediaGroup: mock(() => true)
     } as unknown as ITCtxParams[`ct`]
     const templateManager = {
-      getMedia: mock((key: string) => ({
+      getGMedia: mock((key: string) => ({
         type: key.replace(`Group`, ``),
         src: `one|two`,
         srcList: [`one`, `two`],
@@ -367,7 +367,7 @@ describe(`Ctx.broadcastMedia`, () => {
       replyWithMediaGroup
     } as unknown as ITCtxParams[`ct`]
     const templateManager = {
-      getMedia: mock((key: string) => ({
+      getGMedia: mock((key: string) => ({
         type: key.replace(/Media/, ``),
         src: `one|two`,
         srcList: [`one`, `two`],
