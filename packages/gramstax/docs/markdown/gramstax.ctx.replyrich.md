@@ -4,7 +4,7 @@
 
 ## Ctx.replyRich() method
 
-still construction!
+Sends a rich message reply using the page template.
 
 **Signature:**
 
@@ -42,7 +42,7 @@ keyboard
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional keyboard markup from [Ctx.inlineKeyboard()](./gramstax.ctx.inlinekeyboard.md) or [Ctx.bottomKeyboard()](./gramstax.ctx.bottomkeyboard.md)<!-- -->.
 
 
 </td></tr>
@@ -58,7 +58,7 @@ data
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional template interpolation data.
 
 
 </td></tr>
@@ -74,7 +74,7 @@ string
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional template base ID position for block message.
 
 
 </td></tr>
@@ -90,7 +90,7 @@ options1
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional `InputRichMessage` fields (`is_rtl`<!-- -->, `skip_entity_detection`<!-- -->).
 
 
 </td></tr>
@@ -106,7 +106,7 @@ options2
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional grammY send options.
 
 
 </td></tr>
@@ -115,4 +115,28 @@ _(Optional)_
 **Returns:**
 
 Promise&lt;grammy\_types.Message.RichMessageMessage&gt;
+
+The sent message object.
+
+## Remarks
+
+Uses `replyWithRichMessage` (Telegram Bot API [TemplateEngine.BOT\_API\_VERSION](./gramstax.templateengine.bot_api_version.md)<!-- -->) to send structured rich text with headings, lists, tables, media, block quotations, collapsible blocks, footnotes, and formulas.
+
+The page template's `<g-message>` HTML content is passed as the `html` field of `InputRichMessage`<!-- -->. Use the Bot API 10.1 Rich HTML tags in your template (e.g. `<h1>`<!-- -->, `<table>`<!-- -->, `<blockquote>`<!-- -->) — they are validated by [TemplateEngine.validateBlockGMessageRich()](./gramstax.templateengine.validateblockgmessagerich.md)<!-- -->.
+
+Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns
+
+## Example
+
+
+```typescript
+async handleCallbackData() {
+  // Rich message with template content
+  await this.replyRich()
+
+  // With keyboard and data
+  const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
+  await this.replyRich(kb, {name: "John"})
+}
+```
 

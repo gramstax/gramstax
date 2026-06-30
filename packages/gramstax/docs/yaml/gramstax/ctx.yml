@@ -1895,6 +1895,74 @@ methods:
           | <xref uid="@grammyjs/types!Message.DocumentMessage:type" /> | <xref
           uid="@grammyjs/types!Message.LivePhotoMessage:type" />)[]&gt;
         description: The sent media group message object.
+  - name: editRich(keyboardInline, data, AGBaseId, options1, options2, fallbackReply)
+    uid: gramstax!Ctx#editRich:member(1)
+    package: gramstax!
+    fullName: editRich(keyboardInline, data, AGBaseId, options1, options2, fallbackReply)
+    summary: Edits an existing message with rich content using the page template.
+    remarks: >-
+      Uses `editMessageText` with an `InputRichMessage` payload (Telegram Bot API
+      [TemplateEngine.BOT\_API\_VERSION](xref:gramstax!TemplateEngine.BOT_API_VERSION:member)<!-- -->). This method can
+      edit both text and rich messages — pass a rich HTML template and it will be sent as structured rich content.
+
+
+      If editing fails (e.g. message too old) and `fallbackReply` is true (default), a new rich message reply is sent
+      instead.
+
+
+      Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table
+      columns
+    example:
+      - |-
+        ```typescript
+        async handleCallbackData() {
+          const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
+          await this.editRich(kb, {status: "updated"})
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        editRich(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptReplyRich[0] | null,
+        options2?: ITOptEdit, fallbackReply?: boolean): Promise<true | (grammy_types.Update.Edited &
+        grammy_types.Message.CommonMessage & {
+                text: string;
+            } & Partial<{
+                entities: grammy_types.MessageEntity[];
+            }>) | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+                rich_message: grammy_types.RichMessage;
+            }) | undefined>;
+      parameters:
+        - id: keyboardInline
+          description: Optional inline keyboard markup.
+          type: <xref uid="gramstax!ITInlineKb:type" />
+        - id: data
+          description: Optional template interpolation data.
+          type: <xref uid="gramstax!ITData:type" />
+        - id: AGBaseId
+          description: Optional template base ID position for block message.
+          type: string
+        - id: options1
+          description: Optional `InputRichMessage` fields (`is_rtl`<!-- -->, `skip_entity_detection`<!-- -->).
+          type: <xref uid="gramstax!ITOptReplyRich:type" />[0] | null
+        - id: options2
+          description: Optional grammY edit options.
+          type: <xref uid="gramstax!ITOptEdit:type" />
+        - id: fallbackReply
+          description: 'If true, sends a rich reply if edit fails. Default: true.'
+          type: boolean
+      return:
+        type: >-
+          Promise&lt;true | (<xref uid="@grammyjs/types!Update.Edited:interface" /> & <xref
+          uid="@grammyjs/types!Message.CommonMessage:interface" /> & {
+                  text: string;
+              } & Partial&lt;{
+                  entities: <xref uid="@grammyjs/types!MessageEntity:type" />[];
+              }&gt;) | (<xref uid="@grammyjs/types!Update.Edited:interface" /> & <xref uid="@grammyjs/types!Message.CommonMessage:interface" /> & {
+                  rich_message: <xref uid="@grammyjs/types!RichMessage:interface" />;
+              }) | undefined&gt;
+        description: The edited message object.
   - name: editSticker(keyboardInline, data, AGBaseId, options)
     uid: gramstax!Ctx#editSticker:member(1)
     package: gramstax!
@@ -6445,9 +6513,35 @@ methods:
     uid: gramstax!Ctx#replyRich:member(1)
     package: gramstax!
     fullName: replyRich(keyboard, data, AGBaseId, options1, options2)
-    summary: still construction!
-    remarks: ''
-    example: []
+    summary: Sends a rich message reply using the page template.
+    remarks: >-
+      Uses `replyWithRichMessage` (Telegram Bot API
+      [TemplateEngine.BOT\_API\_VERSION](xref:gramstax!TemplateEngine.BOT_API_VERSION:member)<!-- -->) to send
+      structured rich text with headings, lists, tables, media, block quotations, collapsible blocks, footnotes, and
+      formulas.
+
+
+      The page template's `<g-message>` HTML content is passed as the `html` field of `InputRichMessage`<!-- -->. Use
+      the Bot API 10.1 Rich HTML tags in your template (e.g. `<h1>`<!-- -->, `<table>`<!-- -->, `<blockquote>`<!-- -->)
+      — they are validated by
+      [TemplateEngine.validateBlockGMessageRich()](xref:gramstax!TemplateEngine.validateBlockGMessageRich:member(1))<!--
+      -->.
+
+
+      Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table
+      columns
+    example:
+      - |-
+        ```typescript
+        async handleCallbackData() {
+          // Rich message with template content
+          await this.replyRich()
+
+          // With keyboard and data
+          const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
+          await this.replyRich(kb, {name: "John"})
+        }
+        ```
     isPreview: false
     isDeprecated: false
     syntax:
@@ -6456,23 +6550,25 @@ methods:
         ITOptReplyRich[1]): Promise<grammy_types.Message.RichMessageMessage>;
       parameters:
         - id: keyboard
-          description: ''
+          description: >-
+            Optional keyboard markup from [Ctx.inlineKeyboard()](xref:gramstax!Ctx%23inlineKeyboard:member(1)) or
+            [Ctx.bottomKeyboard()](xref:gramstax!Ctx%23bottomKeyboard:member(1))<!-- -->.
           type: <xref uid="gramstax!ITInBoKb:type" />
         - id: data
-          description: ''
+          description: Optional template interpolation data.
           type: <xref uid="gramstax!ITData:type" />
         - id: AGBaseId
-          description: ''
+          description: Optional template base ID position for block message.
           type: string
         - id: options1
-          description: ''
+          description: Optional `InputRichMessage` fields (`is_rtl`<!-- -->, `skip_entity_detection`<!-- -->).
           type: <xref uid="gramstax!ITOptReplyRich:type" />[0] | null
         - id: options2
-          description: ''
+          description: Optional grammY send options.
           type: <xref uid="gramstax!ITOptReplyRich:type" />[1]
       return:
         type: Promise&lt;<xref uid="@grammyjs/types!Message.RichMessageMessage:type" />&gt;
-        description: ''
+        description: The sent message object.
   - name: replySticker(keyboard, data, AGBaseId, options)
     uid: gramstax!Ctx#replySticker:member(1)
     package: gramstax!

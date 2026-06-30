@@ -1340,6 +1340,20 @@ Replaces the current message with a photo media group.
 </td></tr>
 <tr><td>
 
+[editRich(keyboardInline, data, AGBaseId, options1, options2, fallbackReply)](./gramstax.ctx.editrich.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits an existing message with rich content using the page template.
+
+
+</td></tr>
+<tr><td>
+
 [editSticker(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.editsticker.md)
 
 
@@ -3504,7 +3518,7 @@ Sends a photo media group using pipe-delimited `src` values from the page templa
 
 </td><td>
 
-still construction!
+Sends a rich message reply using the page template.
 
 
 </td></tr>

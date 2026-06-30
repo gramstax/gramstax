@@ -114,7 +114,21 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[buttonLabels(call)](./gramstax.e2ehelper.buttonlabels.md)
+[clearCalls()](./gramstax.e2ehelper.clearcalls.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Clear all captured API calls.
+
+
+</td></tr>
+<tr><td>
+
+[extractButtonLabels(call)](./gramstax.e2ehelper.extractbuttonlabels.md)
 
 
 </td><td>
@@ -128,7 +142,7 @@ Extract inline keyboard button labels from a captured API call.
 </td></tr>
 <tr><td>
 
-[clearCalls()](./gramstax.e2ehelper.clearcalls.md)
+[extractText(call)](./gramstax.e2ehelper.extracttext.md)
 
 
 </td><td>
@@ -136,7 +150,7 @@ Extract inline keyboard button labels from a captured API call.
 
 </td><td>
 
-Clear all captured API calls.
+Extract text content from a captured API call, handling both `sendMessage` (body.text) and `sendRichMessage` (body.rich\_message.html).
 
 
 </td></tr>

@@ -4609,6 +4609,210 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#editRich:member(1)",
+              "docComment": "/**\n * Edits an existing message with rich content using the page template.\n *\n * @remarks\n *\n * Uses `editMessageText` with an `InputRichMessage` payload (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}). This method can edit both text and rich messages — pass a rich HTML template and it will be sent as structured rich content.\n *\n * If editing fails (e.g. message too old) and `fallbackReply` is true (default), a new rich message reply is sent instead.\n *\n * Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param AGBaseId - Optional template base ID position for block message.\n *\n * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`).\n *\n * @param options2 - Optional grammY edit options.\n *\n * @param fallbackReply - If true, sends a rich reply if edit fails. Default: true.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.editRich(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "editRich(keyboardInline?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITInlineKb",
+                  "canonicalReference": "gramstax!ITInlineKb:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITData",
+                  "canonicalReference": "gramstax!ITData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", AGBaseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options1?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptReplyRich",
+                  "canonicalReference": "gramstax!ITOptReplyRich:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[0] | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options2?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITOptEdit",
+                  "canonicalReference": "gramstax!ITOptEdit:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", fallbackReply?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<true | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Update.Edited",
+                  "canonicalReference": "@grammyjs/types!Update.Edited:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.CommonMessage",
+                  "canonicalReference": "@grammyjs/types!Message.CommonMessage:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        text: string;\n    } & "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Partial",
+                  "canonicalReference": "!Partial:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n        entities: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.MessageEntity",
+                  "canonicalReference": "@grammyjs/types!MessageEntity:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[];\n    }>) | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Update.Edited",
+                  "canonicalReference": "@grammyjs/types!Update.Edited:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Message.CommonMessage",
+                  "canonicalReference": "@grammyjs/types!Message.CommonMessage:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        rich_message: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.RichMessage",
+                  "canonicalReference": "@grammyjs/types!RichMessage:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n    }) | undefined>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 14,
+                "endIndex": 30
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "keyboardInline",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "AGBaseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options1",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 9
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "options2",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 10,
+                    "endIndex": 11
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "fallbackReply",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 12,
+                    "endIndex": 13
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "editRich"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#editSticker:member(1)",
               "docComment": "/**\n * Replaces the current message with a sticker.\n *\n * @remarks\n *\n * Stickers cannot be edited in-place, so this deletes the original and sends a new one.\n *\n * @param keyboardInline - Optional inline keyboard markup.\n *\n * @param data - Optional template interpolation data.\n *\n * @param AGBaseId - Optional template g-base ID position for block media type sticker.\n *\n * @param options - Optional edit options.\n *\n * @returns The sent message object.\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -14434,7 +14638,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyRich:member(1)",
-              "docComment": "/**\n * still construction!\n */\n",
+              "docComment": "/**\n * Sends a rich message reply using the page template.\n *\n * @remarks\n *\n * Uses `replyWithRichMessage` (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}) to send structured rich text with headings, lists, tables, media, block quotations, collapsible blocks, footnotes, and formulas.\n *\n * The page template's `<g-message>` HTML content is passed as the `html` field of `InputRichMessage`. Use the Bot API 10.1 Rich HTML tags in your template (e.g. `<h1>`, `<table>`, `<blockquote>`) — they are validated by {@link TemplateEngine.validateBlockGMessageRich}.\n *\n * Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns\n *\n * @param keyboard - Optional keyboard markup from {@link Ctx.inlineKeyboard} or {@link Ctx.bottomKeyboard}.\n *\n * @param data - Optional template interpolation data.\n *\n * @param AGBaseId - Optional template base ID position for block message.\n *\n * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`).\n *\n * @param options2 - Optional grammY send options.\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async handleCallbackData() {\n *   // Rich message with template content\n *   await this.replyRich()\n *\n *   // With keyboard and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.replyRich(kb, {name: \"John\"})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18089,55 +18293,6 @@
               ]
             },
             {
-              "kind": "Method",
-              "canonicalReference": "gramstax!E2eHelper#buttonLabels:member(1)",
-              "docComment": "/**\n * Extract inline keyboard button labels from a captured API call.\n *\n * @param call - Captured API call (e.g. from `sendText` response array).\n *\n * @returns Flat array of button text labels.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "buttonLabels(call: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ITE2eApiCall",
-                  "canonicalReference": "gramstax!ITE2eApiCall:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string[]"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "call",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "buttonLabels"
-            },
-            {
               "kind": "Property",
               "canonicalReference": "gramstax!E2eHelper#calls:member",
               "docComment": "/**\n * All captured outbound Bot API calls (sendMessage, answerCallbackQuery, etc.).\n *\n * @remarks\n *\n * Cleared automatically between tests. Each entry includes the API method, the parameters object, and a timestamp.\n */\n",
@@ -18202,6 +18357,104 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "clearCalls"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!E2eHelper#extractButtonLabels:member(1)",
+              "docComment": "/**\n * Extract inline keyboard button labels from a captured API call.\n *\n * @param call - Captured API call (e.g. from `sendText` response array).\n *\n * @returns Flat array of button text labels.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "extractButtonLabels(call: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eApiCall",
+                  "canonicalReference": "gramstax!ITE2eApiCall:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "call",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "extractButtonLabels"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!E2eHelper#extractText:member(1)",
+              "docComment": "/**\n * Extract text content from a captured API call, handling both `sendMessage` (body.text) and `sendRichMessage` (body.rich_message.html).\n *\n * @param call - Captured API call.\n *\n * @returns The message text, or `undefined` if neither field is present.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "extractText(call: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eApiCall",
+                  "canonicalReference": "gramstax!ITE2eApiCall:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "call",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "extractText"
             },
             {
               "kind": "Method",
@@ -29090,6 +29343,36 @@
               "isAbstract": false
             },
             {
+              "kind": "Property",
+              "canonicalReference": "gramstax!TemplateEngine.BOT_API_VERSION:member",
+              "docComment": "/**\n * Telegram Bot API version supported by this release.\n *\n * @remarks\n *\n * Updated with each gramstax release to reflect the latest supported Telegram Bot API version.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static BOT_API_VERSION: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "BOT_API_VERSION",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.compileBlockGDescription:member(1)",
               "docComment": "/**\n * Compiles description blocks from a template into executable functions.\n *\n * @remarks\n *\n * This method parses `<g-description>` blocks from the template and compiles them into functions that generate rendered description strings. The result is organized by base ID, scope, and language. Used for Telegram bot command descriptions.\n *\n * Processing pipeline (in order, per description): 1. `_processGScriptBlocks` – converts `<g-script>` blocks into executable expressions 2. `_processGMapBlocks` – converts `<g-map>` blocks into array map expressions 3. `_processGSwitchBlocks` – converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` – evaluates scope execution blocks (implementation-defined) 5. `_processScopeVariables` – resolves scope variables (implementation-defined) 6. `_compileToFunction(processed, false)` – produces the final render function\n *\n * Output shape: - First level key: `AGBaseId` (from `<g-base id=\"...\">`, or `\"default\"` if omitted) - Second level key: `AScope` (from `<g-description scope=\"...\">`, or `\"default\"` if omitted) - Third level key: `ALang` (from `<g-description lang=\"...\">`, or `\"default\"` if omitted) - Value: `(data?: Record<string, any>) => string`\n *\n * @param template - Raw template string containing `<g-base>` and `<g-description>` blocks\n *\n * @param gBaseBlocks - Optional pre-parsed base blocks for reuse\n *\n * @returns Compiled description functions organized by base ID, scope, and language\n *\n * @example\n * ```typescript\n * const template = `\n *   <g-base>\n *     <g-description>Start the bot</g-description>\n *     <g-description scope=\"chat_administrators\">Admin command</g-description>\n *   </g-base>\n * `;\n * const descriptions = TemplateEngine.compileBlockGDescription(template);\n * const result = descriptions.default?.default?.default?.({});\n * // Result: 'Start the bot'\n * ```\n *\n * @public\n */\n",
@@ -29458,7 +29741,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateEngine.MAX_MEDIA_GROUP_ITEMS:member",
-              "docComment": "",
+              "docComment": "/**\n * Maximum items in a media group (pipe-delimited `src` or `<g-media-group>`).\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -30215,6 +30498,63 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockGMessageRich:member(1)",
+              "docComment": "/**\n * Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.\n *\n * @remarks\n *\n * This is a convenience method that runs all validators in order:\n *\n * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes 7. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes 8. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes 9. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes 10. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes 11. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes 12. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes 13. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes 14. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes 15. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes 16. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes 17. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes 18. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes 19. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes 20. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes 21. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized) 22. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)\n *\n * Errors from all validators are combined into a single result.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateTemplate(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockGMessageRich(html: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "html",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockGMessageRich"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.validateBlockGScriptAttributes:member(1)",
               "docComment": "/**\n * Validates attributes on `<g-script>` blocks.\n *\n * @remarks\n *\n * No attributes are allowed on `<g-script>` blocks.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockGScriptAttributes(`<g-script>return x;</g-script>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -30843,7 +31183,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.validateTemplate:member(1)",
-              "docComment": "/**\n * Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.\n *\n * @remarks\n *\n * This is a convenience method that runs all validators in order:\n *\n * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes 7. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes 8. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes 9. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes 10. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes 11. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes 12. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes 13. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes 14. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes 15. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes 16. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes 17. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes 18. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes 19. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes 20. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes 21. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized) 22. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)\n *\n * Errors from all validators are combined into a single result.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateTemplate(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Full template validation — runs all validation passes.\n *\n * @remarks\n *\n * Executes every registered validator in sequence and collects all errors. Validation steps:\n *\n * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes 7. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes 8. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes 9. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes 10. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes 11. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes 12. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes 13. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes 14. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes 15. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes 16. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes 17. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes 18. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes 19. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes 20. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes 21. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized) 22. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)\n *\n * Errors from all validators are combined into a single result.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateTemplate(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

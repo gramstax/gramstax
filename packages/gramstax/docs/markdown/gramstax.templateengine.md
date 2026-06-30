@@ -265,6 +265,27 @@ Registry of supported scope interpolation syntaxes.
 </td></tr>
 <tr><td>
 
+[BOT\_API\_VERSION](./gramstax.templateengine.bot_api_version.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Telegram Bot API version supported by this release.
+
+
+</td></tr>
+<tr><td>
+
 [MAX\_MEDIA\_GROUP\_ITEMS](./gramstax.templateengine.max_media_group_items.md)
 
 
@@ -279,6 +300,8 @@ number
 
 
 </td><td>
+
+Maximum items in a media group (pipe-delimited `src` or `<g-media-group>`<!-- -->).
 
 
 </td></tr>
@@ -926,6 +949,22 @@ Validates attributes on `<g-message>` blocks.
 </td></tr>
 <tr><td>
 
+[validateBlockGMessageRich(html)](./gramstax.templateengine.validateblockgmessagerich.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.
+
+
+</td></tr>
+<tr><td>
+
 [validateBlockGScriptAttributes(template)](./gramstax.templateengine.validateblockgscriptattributes.md)
 
 
@@ -1112,7 +1151,7 @@ Validates that Telegram Rich HTML tag attribute values match their expected form
 
 </td><td>
 
-Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.
+Full template validation — runs all validation passes.
 
 
 </td></tr>

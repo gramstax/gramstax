@@ -271,11 +271,24 @@ properties:
       content: 'static ALLOWED_SCOPE: string[];'
       return:
         type: string[]
+  - name: BOT_API_VERSION
+    uid: gramstax!TemplateEngine.BOT_API_VERSION:member
+    package: gramstax!
+    fullName: BOT_API_VERSION
+    summary: Telegram Bot API version supported by this release.
+    remarks: Updated with each gramstax release to reflect the latest supported Telegram Bot API version.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static BOT_API_VERSION: string;'
+      return:
+        type: string
   - name: MAX_MEDIA_GROUP_ITEMS
     uid: gramstax!TemplateEngine.MAX_MEDIA_GROUP_ITEMS:member
     package: gramstax!
     fullName: MAX_MEDIA_GROUP_ITEMS
-    summary: ''
+    summary: Maximum items in a media group (pipe-delimited `src` or `<g-media-group>`<!-- -->).
     remarks: ''
     example: []
     isPreview: false
@@ -1876,6 +1889,98 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockGMessageRich(html)
+    uid: gramstax!TemplateEngine.validateBlockGMessageRich:member(1)
+    package: gramstax!
+    fullName: validateBlockGMessageRich(html)
+    summary: 'Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.'
+    remarks: >-
+      This is a convenience method that runs all validators in order:
+
+
+      1. [TemplateEngine.validateNamesBlock()](xref:gramstax!TemplateEngine.validateNamesBlock:member(1)) — checks that
+      all tags are known 2. [TemplateEngine.validateScopes()](xref:gramstax!TemplateEngine.validateScopes:member(1)) —
+      checks that all interpolation scopes are known 3.
+      [TemplateEngine.validateFormatBlock()](xref:gramstax!TemplateEngine.validateFormatBlock:member(1)) — checks
+      self-closing vs regular tag syntax 4.
+      [TemplateEngine.validatePositionsBlock()](xref:gramstax!TemplateEngine.validatePositionsBlock:member(1)) — checks
+      structural nesting rules 5.
+      [TemplateEngine.validateTelegramAttributesBlock()](xref:gramstax!TemplateEngine.validateTelegramAttributesBlock:member(1))
+      — checks required attributes on Telegram Rich HTML tags 6.
+      [TemplateEngine.validateTelegramAttributeValuesBlock()](xref:gramstax!TemplateEngine.validateTelegramAttributeValuesBlock:member(1))
+      — checks value formats on Telegram Rich HTML tag attributes 7.
+      [TemplateEngine.validateBlockGBaseAttributes()](xref:gramstax!TemplateEngine.validateBlockGBaseAttributes:member(1))
+      — checks `<g-base>` block attributes 8.
+      [TemplateEngine.validateBlockGMessageAttributes()](xref:gramstax!TemplateEngine.validateBlockGMessageAttributes:member(1))
+      — checks `<g-message>` block attributes 9.
+      [TemplateEngine.validateBlockGKeyboardAttributes()](xref:gramstax!TemplateEngine.validateBlockGKeyboardAttributes:member(1))
+      — checks `<g-keyboard>` block attributes 10.
+      [TemplateEngine.validateBlockGMediaAttributes()](xref:gramstax!TemplateEngine.validateBlockGMediaAttributes:member(1))
+      — checks `<g-media>` block attributes 11.
+      [TemplateEngine.validateBlockGMediaGroupAttributes()](xref:gramstax!TemplateEngine.validateBlockGMediaGroupAttributes:member(1))
+      — checks `<g-media-group>` block attributes 12.
+      [TemplateEngine.validateBlockGDescriptionAttributes()](xref:gramstax!TemplateEngine.validateBlockGDescriptionAttributes:member(1))
+      — checks `<g-description>` block attributes 13.
+      [TemplateEngine.validateBlockGScriptAttributes()](xref:gramstax!TemplateEngine.validateBlockGScriptAttributes:member(1))
+      — checks `<g-script>` block attributes 14.
+      [TemplateEngine.validateBlockGSwitchAttributes()](xref:gramstax!TemplateEngine.validateBlockGSwitchAttributes:member(1))
+      — checks `<g-switch>` block attributes 15.
+      [TemplateEngine.validateBlockGCaseAttributes()](xref:gramstax!TemplateEngine.validateBlockGCaseAttributes:member(1))
+      — checks `<g-case>` block attributes 16.
+      [TemplateEngine.validateBlockGDefaultAttributes()](xref:gramstax!TemplateEngine.validateBlockGDefaultAttributes:member(1))
+      — checks `<g-default>` block attributes 17.
+      [TemplateEngine.validateBlockGMapAttributes()](xref:gramstax!TemplateEngine.validateBlockGMapAttributes:member(1))
+      — checks `<g-map>` block attributes 18.
+      [TemplateEngine.validateBlockGDivAttributes()](xref:gramstax!TemplateEngine.validateBlockGDivAttributes:member(1))
+      — checks `<g-div>` block attributes 19.
+      [TemplateEngine.validateBlockGImportAttributes()](xref:gramstax!TemplateEngine.validateBlockGImportAttributes:member(1))
+      — checks `<g-import>` block attributes 20.
+      [TemplateEngine.validateBlockGSpaceAttributes()](xref:gramstax!TemplateEngine.validateBlockGSpaceAttributes:member(1))
+      — checks `<g-space>` block attributes 21.
+      [TemplateEngine.validatePageAttributesBlock()](xref:gramstax!TemplateEngine.validatePageAttributesBlock:member(1))
+      — checks required attributes on `<g-*>` PAGE blocks (centralized) 22.
+      [TemplateEngine.validatePageAttributeValuesBlock()](xref:gramstax!TemplateEngine.validatePageAttributeValuesBlock:member(1))
+      — checks value formats on `<g-*>` PAGE block attributes (centralized)
+
+
+      Errors from all validators are combined into a single result.
+    example:
+      - |-
+        ```typescript
+        const result = TemplateEngine.validateTemplate(`
+          <g-base>
+            <g-message>Hello {{name}}!</g-message>
+          </g-base>
+        `);
+        // Result: { valid: true, errors: [] }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGMessageRich(html: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: html
+          description: ''
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: >-
+          An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive
+          messages for every violation found
   - name: validateBlockGScriptAttributes(template)
     uid: gramstax!TemplateEngine.validateBlockGScriptAttributes:member(1)
     package: gramstax!
@@ -2478,9 +2583,9 @@ methods:
     uid: gramstax!TemplateEngine.validateTemplate:member(1)
     package: gramstax!
     fullName: validateTemplate(template)
-    summary: 'Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.'
+    summary: Full template validation — runs all validation passes.
     remarks: >-
-      This is a convenience method that runs all validators in order:
+      Executes every registered validator in sequence and collects all errors. Validation steps:
 
 
       1. [TemplateEngine.validateNamesBlock()](xref:gramstax!TemplateEngine.validateNamesBlock:member(1)) — checks that

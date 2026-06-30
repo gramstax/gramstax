@@ -4,6 +4,8 @@
 
 ## TemplateEngine.MAX\_MEDIA\_GROUP\_ITEMS property
 
+Maximum items in a media group (pipe-delimited `src` or `<g-media-group>`<!-- -->).
+
 **Signature:**
 
 ```typescript

@@ -42,24 +42,6 @@ properties:
       return:
         type: <xref uid="gramstax!ITE2eApiCall:type" />[]
 methods:
-  - name: buttonLabels(call)
-    uid: gramstax!E2eHelper#buttonLabels:member(1)
-    package: gramstax!
-    fullName: buttonLabels(call)
-    summary: Extract inline keyboard button labels from a captured API call.
-    remarks: ''
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'buttonLabels(call: ITE2eApiCall): string[];'
-      parameters:
-        - id: call
-          description: Captured API call (e.g. from `sendText` response array).
-          type: <xref uid="gramstax!ITE2eApiCall:type" />
-      return:
-        type: string[]
-        description: Flat array of button text labels.
   - name: clearCalls()
     uid: gramstax!E2eHelper#clearCalls:member(1)
     package: gramstax!
@@ -74,6 +56,44 @@ methods:
       return:
         type: void
         description: ''
+  - name: extractButtonLabels(call)
+    uid: gramstax!E2eHelper#extractButtonLabels:member(1)
+    package: gramstax!
+    fullName: extractButtonLabels(call)
+    summary: Extract inline keyboard button labels from a captured API call.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'extractButtonLabels(call: ITE2eApiCall): string[];'
+      parameters:
+        - id: call
+          description: Captured API call (e.g. from `sendText` response array).
+          type: <xref uid="gramstax!ITE2eApiCall:type" />
+      return:
+        type: string[]
+        description: Flat array of button text labels.
+  - name: extractText(call)
+    uid: gramstax!E2eHelper#extractText:member(1)
+    package: gramstax!
+    fullName: extractText(call)
+    summary: >-
+      Extract text content from a captured API call, handling both `sendMessage` (body.text) and `sendRichMessage`
+      (body.rich\_message.html).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'extractText(call: ITE2eApiCall): string | undefined;'
+      parameters:
+        - id: call
+          description: Captured API call.
+          type: <xref uid="gramstax!ITE2eApiCall:type" />
+      return:
+        type: string | undefined
+        description: The message text, or `undefined` if neither field is present.
   - name: gkb(page, aGBaseId, aType, data, aLang)
     uid: gramstax!E2eHelper#gkb:member(1)
     package: gramstax!
