@@ -15,7 +15,7 @@ describe(`E2E: StartPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     const reply = responses[0]!
     const replyId = responsesId[0]!
-    expect(e2e.extractText(reply)).toContain(`Gramstax`)
+    expect(e2e.extractText(reply)).toContain(`gramstax`)
     expect(e2e.extractText(replyId)).toContain(`gramstax`)
     expect(e2e.extractButtonLabels(reply)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
     expect(e2e.extractButtonLabels(replyId)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}, `id`))
@@ -26,6 +26,6 @@ describe(`E2E: StartPage`, () => {
 
     const sendReq = e2e.lastCall()
     expect(sendReq).toBeDefined()
-    expect(e2e.extractText(sendReq!)).toContain(`Gramstax`)
+    expect(e2e.extractText(sendReq!)).toContain(`gramstax`)
   })
 })

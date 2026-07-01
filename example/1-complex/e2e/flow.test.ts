@@ -59,6 +59,6 @@ describe(`E2E: Full exploration flow`, () => {
     const backResponses = await e2e.sendCallbackQuery(`start`)
     const backMessageResponse = backResponses.find((response: any) => typeof e2e.extractText(response) === `string`)
     expect(backResponses.length).toBeGreaterThan(0)
-    expect(e2e.extractText(backMessageResponse)).toContain(`Gramstax`)
+    expect(e2e.extractText(backMessageResponse!)).toContain(`gramstax`)
   })
 })
