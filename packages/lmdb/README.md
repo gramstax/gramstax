@@ -50,10 +50,22 @@ class UserRepo extends LmdbRepository<IVUser, IKUser> {
   static dbName = `user`
 }
 
-// 2. Subclass LmdbEnv with typed getters
+// 2. Subclass LmdbEnv with typed getters — registration inside
 class Db extends LmdbEnv {
+  private _ready: Promise<void>
+
   constructor(storePath: string) {
     super({path: storePath, maxDbs: 10, compression: true, encoding: `json`})
+    this._ready = this._init()
+  }
+
+  private async _init() {
+    await this.open()
+    this.register(UserRepo)
+  }
+
+  async ready() {
+    await this._ready
   }
 
   get users() {
@@ -61,10 +73,9 @@ class Db extends LmdbEnv {
   }
 }
 
-// 3. Use it — access repos directly via db.<name>
+// 3. Use it — await ready() then access repos via db.<name>
 const db = new Db(`./data`)
-await db.open()
-db.register(UserRepo)          // register once, access via getter
+await db.ready()
 
 await db.users.set(1, {id: 1, name: `Alice`, age: 30})
 const alice = await db.users.get(1)
@@ -165,20 +176,17 @@ flowchart LR
 ## Lifecycle
 
 ```typescript
-// 1. Construct — options are stored, env is NOT open yet
+// 1. Construct — init starts automatically
 const db = new Db(`./data`)
 
-// 2. Open — creates the memory map
-await db.open()
+// 2. Ready — wait for open + register to complete
+await db.ready()
 
-// 3. Register — opens sub-databases (lazy on first access)
-db.register(UserRepo)
-
-// 4. Use — typed CRUD via getter
+// 3. Use — repos are already registered
 await db.users.set(1, {id: 1, name: `Alice`})
 const user = await db.users.get(1)
 
-// 5. Close — flushes and releases resources
+// 4. Close — flushes and releases resources
 await db.close()
 ```
 
@@ -301,17 +309,29 @@ sequenceDiagram
 ### `LmdbEnv` (or your `Db extends LmdbEnv`)
 
 ```typescript
+// Standalone usage (without subclass)
 const env = new LmdbEnv({path: `./data`})
-// Or with a subclass:
+await env.open()
+env.register(UserRepo)
+// Use via intermediate variable:
+const users = env.get(UserRepo)
+
+// Recommended: subclass with init() and getters
 class Db extends LmdbEnv {
-  constructor(path: string) { super({path, maxDbs: 10, compression: true}) }
+  private _ready: Promise<void>
+  constructor(path: string) {
+    super({path, maxDbs: 10, compression: true})
+    this._ready = this._init()
+  }
+  private async _init() {
+    await this.open()
+    this.register(UserRepo)
+  }
+  async ready() { await this._ready }
+  get users() { return this.get(UserRepo) }
 }
 const db = new Db(`./data`)
-
-await env.open()
-env.register(RepoClass)                 // register once
-env.get(RepoClass)                      // retrieve registered instance (use inside getters)
-env.has(RepoClass)                      // boolean check
+await db.ready()
 await env.transaction(fn)               // cross-repo write transaction
 await env.readTransaction(fn)           // snapshot read
 await env.close()
