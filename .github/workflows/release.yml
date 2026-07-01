@@ -10,22 +10,38 @@ permissions:
   id-token: write
 
 jobs:
-  release:
+  detect:
     runs-on: ubuntu-latest
+    outputs:
+      bump-type: ${{ steps.detect.outputs.type }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node (for NPM OIDC)
-        uses: actions/setup-node@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: "lts/*"
-          registry-url: "https://registry.npmjs.org"
+          bun-version: latest
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Detect bump type from conventional commits
+        id: detect
+        run: |
+          SPEC=$(bun run nx release --dry-run 2>&1 | grep -oP '(?<=specifier as ")[^"]+')
+          echo "type=$SPEC" >> "$GITHUB_OUTPUT"
+          echo "Detected bump: $SPEC"
+
+  version:
+    needs: detect
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
@@ -42,46 +58,78 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Dry Run Release (with NPM OIDC)
-        run: bun run dry-run
+      - name: Bump Version, Changelog & Tag
+        run: bun run version --yes
+
+      - name: Push commit and tag
+        run: git push origin main --tags
+
+  publish:
+    needs: [detect, version]
+    if: needs.detect.outputs.bump-type != 'patch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node (for NPM OIDC)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          registry-url: "https://registry.npmjs.org"
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Build Packages
+        run: bun run build:all
+
+      - name: Publish to NPM
+        run: bun run publish:all
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        run: |
+          TAG=$(git describe --tags --abbrev=0)
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --generate-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Release (with NPM OIDC)
-        run: bun run release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  revert-on-failure:
+    needs: [detect, version, publish]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Revert Release on Failure
-        if: failure()
         run: |
           echo "Workflow failed. Checking state..."
-
-          # Get the tag that was just created
           TAG=$(git describe --tags --abbrev=0)
           VERSION=${TAG#v}
           PACKAGE_NAME="gramstax"
 
           echo "Checking if $PACKAGE_NAME@$VERSION exists on NPM..."
-
           if npm view "$PACKAGE_NAME@$VERSION" version > /dev/null 2>&1; then
             echo "⚠️ Package $PACKAGE_NAME@$VERSION ALREADY EXISTS on NPM."
             echo "Publishing succeeded but workflow failed elsewhere (e.g. GitHub Release)."
             echo "SKIPPING REVERT to prevent inconsistent state (orphaned NPM package)."
-            echo "Please manually check the failure."
             exit 1
           else
             echo "Package not found on NPM. Proceeding with full rollback..."
-            
             echo "Reverting tag: $TAG"
-            
-            # Delete release from GitHub
-            gh release delete $TAG --yes || echo "Release not found on GitHub"
-            
-            # Delete tag remotely
-            git push origin :refs/tags/$TAG || echo "Remote tag not found"
-            
-            # Reset to previous commit and force push to revert the version bump
+            gh release delete "$TAG" --yes || echo "Release not found on GitHub"
+            git push origin ":refs/tags/$TAG" || echo "Remote tag not found"
             git reset --hard HEAD~1
             git push origin main --force
           fi
