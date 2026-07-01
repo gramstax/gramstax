@@ -3,7 +3,7 @@ import {SubscriberRepository} from "./repositories/subscriber"
 
 export type {IVSubscriber as ISubscriber} from "./repositories/subscriber"
 
-export class MainDb {
+export class Db {
   env: LmdbEnv
   subs!: SubscriberRepository
 

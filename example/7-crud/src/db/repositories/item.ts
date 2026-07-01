@@ -1,6 +1,7 @@
 import {LmdbRepository} from "@gramstax/lmdb"
 import {SequenceRepository} from "./sequence"
 
+export type IKItem = string
 export type IVItem = {
   id: string
   title: string
@@ -10,11 +11,11 @@ export type IVItem = {
   updatedAt: number
 }
 
-export class ItemRepository extends LmdbRepository<IVItem, string> {
+export class ItemRepository extends LmdbRepository<IVItem, IKItem> {
   static dbName = `items`
 
   private get seq() {
-    return this._env.getRepository(SequenceRepository)
+    return this.env.getRepository(SequenceRepository)
   }
 
   private key(userId: number, id: string) {
@@ -26,7 +27,7 @@ export class ItemRepository extends LmdbRepository<IVItem, string> {
   }
 
   async create(userId: number, title: string, description: string): Promise<IVItem> {
-    return this._env.transaction(async () => {
+    return this.env.transaction(async () => {
       await this.seq.ensure(userId)
       const id = await this.seq.nextId(userId)
       const now = Date.now()
@@ -38,7 +39,7 @@ export class ItemRepository extends LmdbRepository<IVItem, string> {
   }
 
   async remove(userId: number, id: string): Promise<boolean> {
-    return this._env.transaction(async () => {
+    return this.env.transaction(async () => {
       const existed = await this.delete(this.key(userId, id))
       if (existed) await this.seq.decrCount(userId)
       return existed
@@ -46,7 +47,7 @@ export class ItemRepository extends LmdbRepository<IVItem, string> {
   }
 
   async purge(userId: number) {
-    return this._env.transaction(async () => {
+    return this.env.transaction(async () => {
       const prefix = this.keyPrefix(userId)
       const end = `${prefix}\uffff`
       const keys = await this.keys({start: prefix, end})

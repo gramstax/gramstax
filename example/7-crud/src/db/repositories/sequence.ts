@@ -1,11 +1,12 @@
 import {LmdbRepository} from "@gramstax/lmdb"
 
+export type IKSequence = number
 export type IVSequence = {
   seq: number
   count: number
 }
 
-export class SequenceRepository extends LmdbRepository<IVSequence, number> {
+export class SequenceRepository extends LmdbRepository<IVSequence, IKSequence> {
   static dbName = `sequences`
 
   async ensure(userId: number) {
@@ -15,7 +16,7 @@ export class SequenceRepository extends LmdbRepository<IVSequence, number> {
   }
 
   async nextId(userId: number): Promise<string> {
-    return this._env.transaction(async () => {
+    return this.env.transaction(async () => {
       const data = (await this.get(userId)) ?? {seq: 0, count: 0}
       const next = data.seq + 1
       await this.set(userId, {...data, seq: next})
@@ -28,14 +29,14 @@ export class SequenceRepository extends LmdbRepository<IVSequence, number> {
   }
 
   async incrCount(userId: number) {
-    return this._env.transaction(async () => {
+    return this.env.transaction(async () => {
       const data = await this.get(userId)
       if (data) await this.set(userId, {...data, count: data.count + 1})
     })
   }
 
   async decrCount(userId: number) {
-    return this._env.transaction(async () => {
+    return this.env.transaction(async () => {
       const data = await this.get(userId)
       if (data) await this.set(userId, {...data, count: Math.max(0, data.count - 1)})
     })

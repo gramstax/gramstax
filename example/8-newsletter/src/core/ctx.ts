@@ -1,10 +1,10 @@
 import {Ctx} from "gramstax"
-import type {MainDb} from "~/db/db"
+import type {Db} from "~/db/db"
 
 export class CtxCore extends Ctx {
-  db: MainDb
+  db: Db
 
-  constructor(params: ConstructorParameters<typeof Ctx>[0] & {db: MainDb}) {
+  constructor(params: ConstructorParameters<typeof Ctx>[0] & {db: Db}) {
     super({...params})
     this.db = params.db
   }

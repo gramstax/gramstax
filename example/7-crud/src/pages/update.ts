@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
-import type {MainItem} from "~/db/db"
+import type {IVItem} from "~/db/db"
 
 class Base {
   static step1 = `s1`
@@ -18,7 +18,7 @@ class Helper {
     return kb
   }
 
-  static async buildStep1Keyboard(ctx: UpdatePage, page: number, items: MainItem[]) {
+  static async buildStep1Keyboard(ctx: UpdatePage, page: number, items: IVItem[]) {
     const allItems = await ctx.db.items.list(ctx.userId)
     const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
@@ -100,7 +100,7 @@ class Main {
     await ctx.edit(kb, da, bi)
   }
 
-  static async processStep2Answer(ctx: UpdatePage, status: MainItem[`status`], id: string, edit = true) {
+  static async processStep2Answer(ctx: UpdatePage, status: IVItem[`status`], id: string, edit = true) {
     const item = await ctx.db.items.fetch(ctx.userId, id)
     if (!item) {
       return await Main.showStep1Form(ctx, 0, edit)
@@ -114,7 +114,7 @@ class Main {
     }
   }
 
-  static async showSuccess(ctx: UpdatePage, id: string, status: MainItem[`status`]) {
+  static async showSuccess(ctx: UpdatePage, id: string, status: IVItem[`status`]) {
     const bi = Base.success
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {id, status}
@@ -153,7 +153,7 @@ export class UpdatePage extends PageBase {
     if (step === Base.step1) {
       await Main.processStep1Answer(this, arg1!, arg2!)
     } else if (step === Base.step2) {
-      await Main.processStep2Answer(this, arg1 as MainItem[`status`], arg2!, true)
+      await Main.processStep2Answer(this, arg1 as IVItem[`status`], arg2!, true)
     }
   }
 

@@ -1,5 +1,6 @@
 import {LmdbRepository} from "@gramstax/lmdb"
 
+export type IKSubscriber = number
 export type IVSubscriber = {
   id: number
   userName?: string
@@ -8,11 +9,11 @@ export type IVSubscriber = {
   joinedAt: number
 }
 
-export class SubscriberRepository extends LmdbRepository<IVSubscriber, number> {
+export class SubscriberRepository extends LmdbRepository<IVSubscriber, IKSubscriber> {
   static dbName = `subscribers`
 
   async subscribe(id: number, data: Omit<IVSubscriber, `id` | `joinedAt`>): Promise<{subscriber: IVSubscriber; created: boolean}> {
-    return this._env.transaction(async () => {
+    return this.env.transaction(async () => {
       const existing = await this.get(id)
       if (existing) {
         const updated: IVSubscriber = {...existing, ...data, id}

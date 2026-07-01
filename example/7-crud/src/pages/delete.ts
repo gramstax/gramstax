@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
-import type {MainItem} from "~/db/db"
+import type {IVItem} from "~/db/db"
 
 class Base {
   static step1 = `s1`
@@ -13,7 +13,7 @@ class Base {
 class Helper {
   static MAX_ITEMS = 5
 
-  static buildListKeyboard(ctx: DeletePage, items: MainItem[]) {
+  static buildListKeyboard(ctx: DeletePage, items: IVItem[]) {
     const bi = Base.step1
     const kb = ctx.inlineKeyboard(
       (k, l) => {
