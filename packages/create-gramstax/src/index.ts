@@ -2,9 +2,24 @@
 import {log} from "./utils/log"
 import {Create, type CliOptions} from "./create"
 import {Command} from "commander"
+import {readFileSync, existsSync} from "node:fs"
+import {join, dirname} from "node:path"
+import {fileURLToPath} from "node:url"
 
-declare const __PKG_VERSION__: string
-const packageVersion = __PKG_VERSION__
+function findPackageJson(startDir: string): string {
+  let dir = startDir
+  for (let i = 0; i < 10; i++) {
+    const candidate = join(dir, `package.json`)
+    if (existsSync(candidate)) return candidate
+    const parent = dirname(dir)
+    if (parent === dir) break
+    dir = parent
+  }
+  throw new Error(`package.json not found`)
+}
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const packageVersion = JSON.parse(readFileSync(findPackageJson(__dirname), `utf-8`)).version as string
 const program = new Command()
 
 program
