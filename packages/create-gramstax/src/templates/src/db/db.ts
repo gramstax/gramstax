@@ -2,6 +2,7 @@ import {LmdbEnv} from "@gramstax/lmdb"
 import {UserRepo} from "./repositories/user"
 
 export class Db extends LmdbEnv {
+  user!: UserRepo
   private _ready: Promise<void>
 
   constructor(storePath: string) {
@@ -11,14 +12,10 @@ export class Db extends LmdbEnv {
 
   private async _init() {
     await this.open()
-    this.register(UserRepo)
+    this.user = this.register(UserRepo)
   }
 
   async ready() {
     await this._ready
-  }
-
-  get userRepo(): UserRepo {
-    return this.get(UserRepo)
   }
 }
