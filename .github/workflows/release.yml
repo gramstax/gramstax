@@ -58,9 +58,8 @@ jobs:
         if: steps.detect.outputs.type == 'patch'
         run: |
           TAG=$(git describe --tags --abbrev=0)
-          echo "Patch bump detected — deleting GitHub Release for $TAG"
+          echo "Patch bump detected — deleting GitHub Release for $TAG (keeping tag)"
           gh release delete "$TAG" --yes || echo "Release not found, skipping"
-          git push origin ":refs/tags/$TAG" || echo "Remote tag not found"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
