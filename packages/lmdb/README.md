@@ -7,7 +7,7 @@ LMDB-backed key-value database with OOP Repository pattern per sub-database. Mul
 - **OOP Repository pattern** — each repository extends `LmdbRepository<T, K>` with a `static dbName` and owns an isolated sub-database
 - **Cross-repository transactions** — atomic writes across multiple repositories via `env.transaction()`
 - **Snapshot reads** — consistent point-in-time reads via `env.readTransaction()`
-- **Root `Db` class** — wraps `LmdbEnv`, exposes repos as direct properties (`db.users.set()`, `db.users.get()`)
+- **Root `Db` class** — `class Db extends LmdbEnv` with direct repo properties (`users!: UserRepo`)
 - **Cross-repo access** — `this.env.getRepository(OtherRepo)` to access other repositories inside transactions
 - **LMDB-native encoding** — default msgpack (fastest, supports `Date`/`Map`/`Set`/BigInt), opt into `encoding: "json"` for human-readable storage
 - **Range queries & streaming** — `keys`/`values`/`entries`/`iterate` with start/end/limit/offset/reverse options
@@ -48,21 +48,19 @@ class UserRepo extends LmdbRepository<IVUser, IKUser> {
   static dbName = `user`
 }
 
-// 2. Root class with init() and direct repo properties
-class Db {
-  env: LmdbEnv
+// 2. Root class extends LmdbEnv with direct repo properties
+class Db extends LmdbEnv {
   users!: UserRepo
   private _ready: Promise<void>
 
   constructor(storePath: string) {
-    this.env = new LmdbEnv({path: storePath, maxDbs: 10, compression: true, encoding: `json`})
+    super({path: storePath, maxDbs: 10, compression: true, encoding: `json`})
     this._ready = this._init()
   }
 
   private async _init() {
-    if (this.users) return
-    await this.env.open()
-    this.users = this.env.register(UserRepo)
+    await this.open()
+    this.users = this.register(UserRepo)
   }
 
   async ready() {
@@ -86,18 +84,19 @@ await db.close()
 ## Why a Root Db Class?
 
 ```typescript
-// ✅ CORRECT — root Db wraps LmdbEnv, repos as direct properties
-class Db {
-  env: LmdbEnv
+// ✅ CORRECT — extends LmdbEnv, repos as direct properties
+class Db extends LmdbEnv {
   users!: UserRepo
+  sessions!: SessionRepo
 
   constructor(path: string) {
-    this.env = new LmdbEnv({path, maxDbs: 10, compression: true})
+    super({path, maxDbs: 10, compression: true})
   }
 
   async init() {
-    await this.env.open()
-    this.users = this.env.register(UserRepo)
+    await this.open()
+    this.users = this.register(UserRepo)
+    this.sessions = this.register(SessionRepo)
   }
 }
 ```
@@ -141,7 +140,7 @@ flowchart TB
 flowchart LR
     subgraph User["User code"]
         Define["class UserRepo extends LmdbRepository&lt;IVUser&gt;<br/>static dbName = 'user'"]
-        register["class Db {<br/>  env: LmdbEnv<br/>  users!: UserRepo<br/>  async init() {<br/>    await this.env.open()<br/>    this.users = this.env.register(UserRepo)<br/>  }<br/>}"]
+        register["class Db extends LmdbEnv {<br/>  users!: UserRepo<br/>  async init() {<br/>    await this.open()<br/>    this.users = this.register(UserRepo)<br/>  }<br/>}"]
         Use["db.users.set(1, 'Alice')<br/>db.users.get(1)"]
     end
 
@@ -192,22 +191,20 @@ await db.close()
 For production, use a reusable init pattern:
 
 ```typescript
-class Db {
-  env: LmdbEnv
+class Db extends LmdbEnv {
   users!: UserRepo
   sessions!: SessionRepo
   private _ready: Promise<void>
 
   constructor(storePath: string) {
-    this.env = new LmdbEnv({path: storePath, maxDbs: 10, compression: true, encoding: `json`})
+    super({path: storePath, maxDbs: 10, compression: true, encoding: `json`})
     this._ready = this._init()
   }
 
   private async _init() {
-    if (this.users) return
-    await this.env.open()
-    this.users = this.env.register(UserRepo)
-    this.sessions = this.env.register(SessionRepo)
+    await this.open()
+    this.users = this.register(UserRepo)
+    this.sessions = this.register(SessionRepo)
   }
 
   async ready() {
@@ -314,18 +311,17 @@ const env = new LmdbEnv({path: `./data`})
 await env.open()
 env.register(UserRepo)
 
-// Recommended: root Db class with init() and direct repo properties
-class Db {
-  env: LmdbEnv
+// Recommended: extends LmdbEnv with init() and direct repo properties
+class Db extends LmdbEnv {
   users!: UserRepo
 
   constructor(path: string) {
-    this.env = new LmdbEnv({path, maxDbs: 10, compression: true})
+    super({path, maxDbs: 10, compression: true})
   }
 
   async init() {
-    await this.env.open()
-    this.users = this.env.register(UserRepo)
+    await this.open()
+    this.users = this.register(UserRepo)
   }
 }
 const db = new Db(`./data`)
