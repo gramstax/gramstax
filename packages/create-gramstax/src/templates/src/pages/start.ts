@@ -14,9 +14,9 @@ class Main {
     const kb = ctx.inlineKeyboardT([RandomNumberPage, SumNumberPage, HelpPage], `2`, bi)
     const da = {userName: ctx.userName}
     if (edit) {
-      await ctx.edit(kb, da, bi)
+      await ctx.editRich(kb, da, bi)
     } else {
-      await ctx.reply(kb, da, bi)
+      await ctx.replyRich(kb, da, bi)
     }
   }
 

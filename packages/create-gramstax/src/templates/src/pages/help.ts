@@ -11,9 +11,9 @@ class Main {
     const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
     const da = {}
     if (edit) {
-      await ctx.edit(kb, da, bi)
+      await ctx.editRich(kb, da, bi)
     } else {
-      await ctx.reply(kb, da, bi)
+      await ctx.replyRich(kb, da, bi)
     }
   }
 
