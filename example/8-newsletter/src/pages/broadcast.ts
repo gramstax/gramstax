@@ -75,7 +75,7 @@ class Main {
         return await Main.showStep1Form(ctx, `-`, true, true)
       }
 
-      const subscribers = await ctx.db.listSubscribers()
+      const subscribers = await ctx.db.subs.list()
       if (subscribers.length === 0) {
         return await Main.showInfoEmptySubs(ctx)
       }

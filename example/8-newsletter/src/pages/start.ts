@@ -9,7 +9,7 @@ class Base {
 class Main {
   static async showStep1Form(ctx: StartPage, edit = true) {
     await ctx.clearSession()
-    const subscribed = await ctx.db.isSubscribed(ctx.userId)
+    const subscribed = await ctx.db.subs.isSubscribed(ctx.userId)
     const bi = Base.step1
     const da = {subscribed}
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi), StatsPage, HelpPage], `2`, bi, da)
@@ -21,11 +21,11 @@ class Main {
   }
 
   static async processStep1Answer(ctx: StartPage) {
-    const subscribed = await ctx.db.isSubscribed(ctx.userId)
+    const subscribed = await ctx.db.subs.isSubscribed(ctx.userId)
     if (subscribed) {
-      await ctx.db.unsubscribe(ctx.userId)
+      await ctx.db.subs.unsubscribe(ctx.userId)
     } else {
-      await ctx.db.subscribe(ctx.userId, {
+      await ctx.db.subs.subscribe(ctx.userId, {
         userName: ctx.userName,
         fullName: ctx.userFullName,
         language: ctx.userLanguage

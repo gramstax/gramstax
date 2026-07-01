@@ -9,7 +9,7 @@
     "test:all": "bun run test && bun run test:e2e"
   },
   "dependencies": {
-    "gramstax": "workspace:*",
-    "lmdb": "^3.4.4"
+    "@gramstax/lmdb": "workspace:*",
+    "gramstax": "workspace:*"
   }
 }

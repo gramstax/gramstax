@@ -7,8 +7,8 @@ class Base {
 
 class Main {
   static async showStep1Form(ctx: StatsPage) {
-    const count = await ctx.db.countSubscribers()
-    const subscribed = await ctx.db.isSubscribed(ctx.userId)
+    const count = await ctx.db.subs.total()
+    const subscribed = await ctx.db.subs.isSubscribed(ctx.userId)
     const bi = Base.step1
     const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
     const da = {count, subscribed}
