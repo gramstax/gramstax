@@ -34,6 +34,7 @@ jobs:
 
       - name: Verify Code
         run: |
+          bun instal --lockfile-only
           bun run ci:test:packages
           bun run build:all
 
