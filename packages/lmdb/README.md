@@ -94,6 +94,7 @@ class Db extends LmdbEnv {
   }
 
   async init() {
+    if (this.users) return
     await this.open()
     this.users = this.register(UserRepo)
     this.sessions = this.register(SessionRepo)
@@ -320,6 +321,7 @@ class Db extends LmdbEnv {
   }
 
   async init() {
+    if (this.users) return
     await this.open()
     this.users = this.register(UserRepo)
   }

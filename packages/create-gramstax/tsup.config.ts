@@ -41,11 +41,17 @@ export default defineConfig({
     const distPackageJson = readJson(pathDistPackageJson)
     let distTsconfigJson = read(pathDistTsconfigJson)
 
-    // read from ./package.json and set gramstax to latest number version
-    distPackageJson.dependencies.gramstax = `^${thisPackageJson.version}`
+    const version = `^${thisPackageJson.version}`
 
-    // delete gramstax from tsconfig.json dist templates, because that is for dev only
-    distTsconfigJson = distTsconfigJson.replace(/,?\s*\n\s*"gramstax":\s*\[\s*"\.\.\/\.\.\/\.\.\/gramstax\/src\/index\.ts"\s*\]/g, ``)
+    if (distPackageJson.dependencies) {
+      for (const [name, val] of Object.entries(distPackageJson.dependencies)) {
+        if (val === `workspace:*`) {
+          distPackageJson.dependencies[name] = version
+        }
+      }
+    }
+
+    distTsconfigJson = distTsconfigJson.replace(/,?\s*\n\s*"(gramstax|@gramstax\/lmdb)":\s*\[[\s\S]*?\]/g, ``)
 
     // update package.json dist/templates
     writeFileSync(pathDistPackageJson, JSON.stringify(distPackageJson, null, 2), `utf8`)
