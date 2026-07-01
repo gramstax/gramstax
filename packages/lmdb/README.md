@@ -7,7 +7,7 @@ LMDB-backed key-value database with OOP Repository pattern per sub-database. Mul
 - **OOP Repository pattern** — each repository extends `LmdbRepository<T, K>` with a `static dbName` and owns an isolated sub-database
 - **Cross-repository transactions** — atomic writes across multiple repositories via `env.transaction()`
 - **Snapshot reads** — consistent point-in-time reads via `env.readTransaction()`
-- **Sub-classed `LmdbEnv`** — `class Db extends LmdbEnv` for a clean root class that inherits all env capabilities
+- **Root `Db` class** — wraps `LmdbEnv`, exposes repos as direct properties (`db.users.set()`, `db.users.get()`)
 - **Cross-repo access** — `this.env.getRepository(OtherRepo)` to access other repositories inside transactions
 - **LMDB-native encoding** — default msgpack (fastest, supports `Date`/`Map`/`Set`/BigInt), opt into `encoding: "json"` for human-readable storage
 - **Range queries & streaming** — `keys`/`values`/`entries`/`iterate` with start/end/limit/offset/reverse options
@@ -33,8 +33,6 @@ npm install @gramstax/lmdb
 
 ## Quick Start
 
-Always subclass `LmdbEnv` for your root `Db` class — never wrap it. Expose repositories as typed getters so consumers can call `db.users.<action>` directly.
-
 ```typescript
 import {LmdbEnv, LmdbRepository} from "@gramstax/lmdb"
 
@@ -50,30 +48,29 @@ class UserRepo extends LmdbRepository<IVUser, IKUser> {
   static dbName = `user`
 }
 
-// 2. Subclass LmdbEnv with typed getters — registration inside
-class Db extends LmdbEnv {
+// 2. Root class with init() and direct repo properties
+class Db {
+  env: LmdbEnv
+  users!: UserRepo
   private _ready: Promise<void>
 
   constructor(storePath: string) {
-    super({path: storePath, maxDbs: 10, compression: true, encoding: `json`})
+    this.env = new LmdbEnv({path: storePath, maxDbs: 10, compression: true, encoding: `json`})
     this._ready = this._init()
   }
 
   private async _init() {
-    await this.open()
-    this.register(UserRepo)
+    if (this.users) return
+    await this.env.open()
+    this.users = this.env.register(UserRepo)
   }
 
   async ready() {
     await this._ready
   }
-
-  get users() {
-    return this.get(UserRepo)
-  }
 }
 
-// 3. Use it — await ready() then access repos via db.<name>
+// 3. Use it
 const db = new Db(`./data`)
 await db.ready()
 
@@ -86,20 +83,22 @@ console.log(await db.users.count()) // 1
 await db.close()
 ```
 
-## Why Subclass LmdbEnv?
+## Why a Root Db Class?
 
 ```typescript
-// ✅ CORRECT — extends
-class Db extends LmdbEnv {
-  constructor(path: string) {
-    super({path, maxDbs: 10, compression: true})
-  }
-}
+// ✅ CORRECT — root Db wraps LmdbEnv, repos as direct properties
+class Db {
+  env: LmdbEnv
+  users!: UserRepo
 
-// ❌ WRONG — wrapping adds unnecessary indirection
-class DbWrapper {
-  private env: LmdbEnv
-  constructor(path: string) { this.env = new LmdbEnv({path}) }
+  constructor(path: string) {
+    this.env = new LmdbEnv({path, maxDbs: 10, compression: true})
+  }
+
+  async init() {
+    await this.env.open()
+    this.users = this.env.register(UserRepo)
+  }
 }
 ```
 
@@ -142,7 +141,7 @@ flowchart TB
 flowchart LR
     subgraph User["User code"]
         Define["class UserRepo extends LmdbRepository&lt;IVUser&gt;<br/>static dbName = 'user'"]
-        register["class Db extends LmdbEnv<br/>constructor(path) { super({path}) }<br/>get users() { return this.get(UserRepo) }"]
+        register["class Db {<br/>  env: LmdbEnv<br/>  users!: UserRepo<br/>  async init() {<br/>    await this.env.open()<br/>    this.users = this.env.register(UserRepo)<br/>  }<br/>}"]
         Use["db.users.set(1, 'Alice')<br/>db.users.get(1)"]
     end
 
@@ -190,29 +189,30 @@ const user = await db.users.get(1)
 await db.close()
 ```
 
-For production, encapsulate init in a reusable pattern:
+For production, use a reusable init pattern:
 
 ```typescript
-class Db extends LmdbEnv {
+class Db {
+  env: LmdbEnv
+  users!: UserRepo
+  sessions!: SessionRepo
   private _ready: Promise<void>
 
   constructor(storePath: string) {
-    super({path: storePath, maxDbs: 10, compression: true, encoding: `json`})
+    this.env = new LmdbEnv({path: storePath, maxDbs: 10, compression: true, encoding: `json`})
     this._ready = this._init()
   }
 
   private async _init() {
-    await this.open()
-    this.register(UserRepo)
-    this.register(SessionRepo)
+    if (this.users) return
+    await this.env.open()
+    this.users = this.env.register(UserRepo)
+    this.sessions = this.env.register(SessionRepo)
   }
 
   async ready() {
     await this._ready
   }
-
-  get users() { return this.get(UserRepo) }
-  get sessions() { return this.get(SessionRepo) }
 }
 
 // Usage
@@ -306,32 +306,30 @@ sequenceDiagram
 
 ## API
 
-### `LmdbEnv` (or your `Db extends LmdbEnv`)
+### `LmdbEnv` (or your root `Db` class)
 
 ```typescript
-// Standalone usage (without subclass)
+// Standalone usage
 const env = new LmdbEnv({path: `./data`})
 await env.open()
 env.register(UserRepo)
-// Use via intermediate variable:
-const users = env.get(UserRepo)
 
-// Recommended: subclass with init() and getters
-class Db extends LmdbEnv {
-  private _ready: Promise<void>
+// Recommended: root Db class with init() and direct repo properties
+class Db {
+  env: LmdbEnv
+  users!: UserRepo
+
   constructor(path: string) {
-    super({path, maxDbs: 10, compression: true})
-    this._ready = this._init()
+    this.env = new LmdbEnv({path, maxDbs: 10, compression: true})
   }
-  private async _init() {
-    await this.open()
-    this.register(UserRepo)
+
+  async init() {
+    await this.env.open()
+    this.users = this.env.register(UserRepo)
   }
-  async ready() { await this._ready }
-  get users() { return this.get(UserRepo) }
 }
 const db = new Db(`./data`)
-await db.ready()
+await db.init()
 await env.transaction(fn)               // cross-repo write transaction
 await env.readTransaction(fn)           // snapshot read
 await env.close()
