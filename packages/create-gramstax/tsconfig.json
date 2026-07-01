@@ -8,6 +8,9 @@
     "paths": {
       "~/*": [
         "./src/*"
+      ],
+      "@gramstax/lmdb": [
+        "../lmdb/src/index.ts"
       ]
     },
     "outDir": "dist",

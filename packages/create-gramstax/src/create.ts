@@ -11,24 +11,36 @@ const __dirname = path.dirname(__filename)
 
 type Runtime = `bun` | `node`
 type PackageManager = `bun` | `npm` | `pnpm` | `yarn`
+
+export type CliOptions = {
+  packageManager?: PackageManager
+  runtime?: Runtime
+  lmdb?: boolean
+  workerThread?: boolean
+  eslint?: boolean
+}
+
 type ProjectConfig = {
   projectName: string
   projectPath: string
   packageManager: PackageManager
   runtime: Runtime
   setupEslint: boolean
+  useLmdb: boolean
+  useWorkerThread: boolean
 }
 
 export class Create {
   private config: ProjectConfig | undefined
   private version: string | undefined
+  private cliOptions: CliOptions | undefined
 
   constructor(
     private projectDirectory?: string,
-    options?: {version?: string}
+    options?: {version?: string; cliOptions?: CliOptions}
   ) {
-    // Constructor hanya menerima parameter, tidak melakukan execution
     this.version = options?.version
+    this.cliOptions = options?.cliOptions
   }
 
   printBanner() {
@@ -41,7 +53,7 @@ $$ |\\_$$ |$$ |  \\__|$$$$$$$ |$$ / $$ / $$ |\\$$$$$$\\    $$ |     $$$$$$$ | \\
 $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$  $$<  
  \\$$$$$$  |$$ |     \\$$$$$$$ |$$ | $$ | $$ |$$$$$$$  |  \\$$$$  |\\$$$$$$$ |$$  /\\$$\\ 
  \\______/ \\__|      \\_______|\\__| \\__| \\__|\\_______/    \\____/  \\_______|\\__/  \\__|
-                                                                                                                                             
+                                                                                                                                              
 `
     const versionLine = this.version ? `v${this.version}` : `v0.0.0`
     console.log(`${banner}${versionLine}\n`)
@@ -49,64 +61,32 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
   private getPackageManagerCommands(packageManager: PackageManager) {
     const commands = {
-      bun: {
-        install: `bun install`,
-        dev: `bun dev`,
-        start: `bun start`
-      },
-      npm: {
-        install: `npm install`,
-        dev: `npm run dev`,
-        start: `npm start`
-      },
-      pnpm: {
-        install: `pnpm install`,
-        dev: `pnpm dev`,
-        start: `pnpm start`
-      },
-      yarn: {
-        install: `yarn install`,
-        dev: `yarn dev`,
-        start: `yarn start`
-      }
+      bun: {install: `bun install`, dev: `bun dev`, start: `bun start`},
+      npm: {install: `npm install`, dev: `npm run dev`, start: `npm start`},
+      pnpm: {install: `pnpm install`, dev: `pnpm dev`, start: `pnpm start`},
+      yarn: {install: `yarn install`, dev: `yarn dev`, start: `yarn start`}
     }
     return commands[packageManager]
   }
 
-  /**
-   * Recursively copy directory structure
-   */
   private copyDirectorySync(source: string, destination: string, variables: Record<string, string> = {}) {
-    // Create destination directory if it doesn't exist
     if (!fs.existsSync(destination)) {
       fs.mkdirSync(destination, {recursive: true})
     }
-
-    // Read all items in source directory
     const items = fs.readdirSync(source, {withFileTypes: true})
-
     for (const item of items) {
       const sourcePath = path.join(source, item.name)
       const destPath = path.join(destination, item.name)
-
       if (item.isDirectory()) {
-        // Recursively copy subdirectories
         this.copyDirectorySync(sourcePath, destPath, variables)
       } else if (item.isFile()) {
-        // Copy file and replace variables if needed
         let content = fs.readFileSync(sourcePath, `utf-8`)
-
-        // Replace template variables in content
         content = this.replaceTemplateVariables(content, variables)
-
         fs.writeFileSync(destPath, content)
       }
     }
   }
 
-  /**
-   * Replace template variables in content
-   */
   private replaceTemplateVariables(content: string, variables: Record<string, string>): string {
     let result = content
     for (const [key, value] of Object.entries(variables)) {
@@ -115,6 +95,8 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     return result
   }
 
+  // ── Prompts (only used in interactive mode) ──────────────────────
+
   private async promptForProjectName(): Promise<string> {
     const response = await enquirer.prompt<{projectName: string}>({
       type: `input`,
@@ -122,196 +104,166 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       message: `What is your project named?`,
       initial: ``,
       validate: (value: string) => {
-        if (value === ``) {
-          return true
-        }
-
-        if (!/^[a-z0-9-_]+$/i.test(value)) {
-          return `Project name can only contain letters, numbers, hyphens, and underscores`
-        }
+        if (value === ``) return true
+        if (!/^[a-z0-9-_]+$/i.test(value)) return `Project name can only contain letters, numbers, hyphens, and underscores`
         return true
       }
     })
-
     return response.projectName
   }
 
-  private async promptForConfiguration(): Promise<{packageManager: PackageManager; runtime: Runtime; eslint: boolean}> {
-    const questions: any[] = []
-
-    // Package manager selection
-    questions.push({
-      type: `select`,
-      name: `packageManager`,
-      message: `Which package manager would you like to use?`,
-      choices: [
-        {name: `bun`, message: `Bun (recommended)`, value: `bun`},
-        {name: `npm`, message: `npm`, value: `npm`},
-        {name: `pnpm`, message: `pnpm`, value: `pnpm`},
-        {name: `yarn`, message: `Yarn`, value: `yarn`}
-      ],
-      initial: 0
-    })
-
-    // Runtime selection
-    questions.push({
-      type: `select`,
-      name: `runtime`,
-      message: `Which runtime would you like to use?`,
-      choices: [
-        {name: `bun`, message: `Bun (recommended)`, value: `bun`},
-        {name: `node`, message: `Node.js`, value: `node`}
-      ],
-      initial: 0
-    })
-
-    // ESLint
-    questions.push({
-      type: `confirm`,
-      name: `eslint`,
-      message: `Would you like to use ESLint?`,
-      initial: true
-    })
-
+  private async promptForConfiguration(): Promise<{packageManager: PackageManager; runtime: Runtime; eslint: boolean; lmdb: boolean; workerThread: boolean}> {
     const answers = await enquirer.prompt<{
       packageManager?: PackageManager
       runtime: Runtime
+      lmdb?: boolean
+      workerThread?: boolean
       eslint?: boolean
-    }>(questions)
-
+    }>([
+      {
+        type: `select`,
+        name: `packageManager`,
+        message: `Which package manager would you like to use?`,
+        choices: [
+          {name: `bun`, message: `Bun (recommended)`, value: `bun`},
+          {name: `npm`, message: `npm`, value: `npm`},
+          {name: `pnpm`, message: `pnpm`, value: `pnpm`},
+          {name: `yarn`, message: `Yarn`, value: `yarn`}
+        ],
+        initial: 0
+      },
+      {
+        type: `select`,
+        name: `runtime`,
+        message: `Which runtime would you like to use?`,
+        choices: [
+          {name: `bun`, message: `Bun (recommended)`, value: `bun`},
+          {name: `node`, message: `Node.js`, value: `node`}
+        ],
+        initial: 0
+      },
+      {
+        type: `confirm`,
+        name: `lmdb`,
+        message: `Would you like to include @gramstax/lmdb for persistent storage? (recommended)`,
+        initial: true
+      },
+      {
+        type: `confirm`,
+        name: `workerThread`,
+        message: `Would you like to include @gramstax/worker-thread for background jobs? (recommended)`,
+        initial: true
+      },
+      {
+        type: `confirm`,
+        name: `eslint`,
+        message: `Would you like to use ESLint?`,
+        initial: true
+      }
+    ])
     return {
       packageManager: answers.packageManager as any,
       runtime: answers.runtime,
+      lmdb: answers.lmdb as boolean,
+      workerThread: answers.workerThread as boolean,
       eslint: answers.eslint as boolean
     }
   }
 
   private async installDependencies(projectPath: string, packageManager: PackageManager): Promise<boolean> {
     return await new Promise((resolve) => {
-      const installCommand = FsUt.resolvePackageManagerCommand(packageManager)
-      const installArgs = [`install`]
-      const installProcess = spawn(installCommand, installArgs, {
+      const installProcess = spawn(FsUt.resolvePackageManagerCommand(packageManager), [`install`], {
         cwd: projectPath,
         stdio: `inherit`,
         shell: false
       })
-
-      installProcess.on(`close`, (code) => {
-        if (code === 0) {
-          resolve(true)
-        } else {
-          log.fail(`Dependencies installation failed`)
-          resolve(false)
-        }
-      })
-
-      installProcess.on(`error`, (error) => {
-        log.fail(`Dependencies installation failed: ${error.message}`)
-        resolve(false)
-      })
+      installProcess.on(`close`, (code) => code === 0 ? resolve(true) : (log.fail(`Dependencies installation failed`), resolve(false)))
+      installProcess.on(`error`, (error) => (log.fail(`Dependencies installation failed: ${error.message}`), resolve(false)))
     })
   }
 
-  /**
-   * Step 1: Gather all project configuration through prompts
-   * NO EXECUTION - hanya mengumpulkan data dan validasi ringan
-   */
-  private async gatherProjectConfig(): Promise<ProjectConfig> {
-    // Display ASCII art banner
-    this.printBanner()
+  // ── Configuration gathering ─────────────────────────────────────
 
-    // ========== PHASE 1: GET PROJECT NAME ==========
-    let projectName = this.projectDirectory
-    let projectPath: string
-    let useCurrentDir = false
+  private async gatherProjectConfig(): Promise<ProjectConfig> {
+    this.printBanner()
+    const cli = this.cliOptions
     const baseWorkingDir = FsUt.resolveInitialWorkingDirectory()
 
+    // Determine project name and path
+    let projectName = this.projectDirectory ?? ``
+    let projectPath: string
+    let useCurrentDir = false
+
     if (!projectName) {
-      // PROMPT untuk project name
+      if (cli && this._hasAnyCliFlag()) {
+        log.error(`Project name is required when using CLI flags`)
+        throw new Error(`Missing project name`)
+      }
       projectName = await this.promptForProjectName()
       if (projectName === ``) {
-        // Empty name means use current directory
         projectName = path.basename(baseWorkingDir)
         projectPath = baseWorkingDir
         useCurrentDir = true
       } else {
         projectPath = path.resolve(baseWorkingDir, projectName)
-        useCurrentDir = false
       }
     } else {
       projectPath = path.resolve(baseWorkingDir, projectName)
-      useCurrentDir = false
     }
 
-    // PROMPT untuk configuration
-    const config = await this.promptForConfiguration()
-    const packageManager = config.packageManager
-    const runtime = config.runtime
-    const setupEslint = config.eslint
+    // Gather config — skip prompts if CLI options provided
+    const hasCli = cli && this._hasAnyCliFlag()
+    const config = hasCli
+      ? {packageManager: cli!.packageManager ?? `bun` as PackageManager, runtime: cli!.runtime ?? `bun` as Runtime, lmdb: cli!.lmdb ?? true, workerThread: cli!.workerThread ?? true, eslint: cli!.eslint ?? true}
+      : await this.promptForConfiguration()
 
-    // ========== SEMUA PROMPT SELESAI, SEKARANG VALIDASI ==========
+    const {packageManager, runtime, lmdb, workerThread, eslint} = config
+
+    // Summary
     log.info(`Project: ${projectName}`)
     log.info(`Location: ${projectPath}`)
     log.info(`Package Manager: ${packageManager}`)
     log.info(`Runtime: ${runtime}`)
-    log.info(`ESLint: ${setupEslint ? `Yes` : `No`}`)
+    log.info(`LMDB Storage: ${lmdb ? `Yes` : `No`}`)
+    log.info(`Worker Thread: ${workerThread ? `Yes` : `No`}`)
+    log.info(`ESLint: ${eslint ? `Yes` : `No`}`)
 
-    // Validasi setelah semua prompt selesai
+    // Validation
     if (useCurrentDir) {
-      // Check if current directory is empty
-      if (!FsUt.isDirectoryEffectivelyEmpty(projectPath)) {
-        log.error(`Current directory is not empty!`)
-        throw new Error(`Current directory is not empty`)
-      }
+      if (!FsUt.isDirectoryEffectivelyEmpty(projectPath)) throw new Error(`Current directory is not empty`)
     } else {
-      // Check if directory already exists
-      if (fs.existsSync(projectPath)) {
-        log.error(`Directory "${projectName}" already exists!`)
-        throw new Error(`Directory "${projectName}" already exists`)
-      }
+      if (fs.existsSync(projectPath)) throw new Error(`Directory "${projectName}" already exists`)
     }
 
-    return {
-      projectName,
-      projectPath,
-      packageManager,
-      runtime,
-      setupEslint
-    }
+    return {projectName, projectPath, packageManager, runtime, setupEslint: eslint, useLmdb: lmdb, useWorkerThread: workerThread}
   }
 
-  /**
-   * Step 2: Execute project generation based on gathered config
-   */
+  private _hasAnyCliFlag(): boolean {
+    const c = this.cliOptions
+    return !!(c && (c.packageManager !== undefined || c.runtime !== undefined || c.lmdb !== undefined || c.workerThread !== undefined || c.eslint !== undefined))
+  }
+
+  // ── Project generation ──────────────────────────────────────────
+
   private async executeProjectGeneration(config: ProjectConfig): Promise<void> {
-    const {projectName, projectPath, packageManager, runtime, setupEslint} = config
-
-    // Task 1: Create project directory
-    log.info(`Creating project directory..`)
-    if (!fs.existsSync(projectPath)) {
-      fs.mkdirSync(projectPath, {recursive: true})
-    }
-
-    // Task 2: Copy template files
-    log.info(`Copying template files..`)
-    const templatesPath = path.join(__dirname, `templates`)
+    const {projectName, projectPath, packageManager, runtime, setupEslint, useLmdb, useWorkerThread} = config
     const commands = this.getPackageManagerCommands(packageManager)
+    const variables = {projectName, installCmd: commands.install, runDevCmd: commands.dev, runStartCmd: commands.start}
 
-    const variables = {
-      projectName,
-      installCmd: commands.install,
-      runDevCmd: commands.dev,
-      runStartCmd: commands.start
-    }
+    // Task 1: Directory
+    log.info(`Creating project directory..`)
+    if (!fs.existsSync(projectPath)) fs.mkdirSync(projectPath, {recursive: true})
 
-    this.copyDirectorySync(templatesPath, projectPath, variables)
+    // Task 2: Copy templates
+    log.info(`Copying template files..`)
+    this.copyDirectorySync(path.join(__dirname, `templates`), projectPath, variables)
 
-    // Task 3: Create logs directory
+    // Task 3: Logs
     log.info(`Creating logs directory..`)
     fs.mkdirSync(path.join(projectPath, `logs`), {recursive: true})
     fs.writeFileSync(path.join(projectPath, `logs/.gitkeep`), ``)
 
-    // Task 4: Create .env.example
+    // Task 4: .env
     const envPath = path.join(projectPath, `.env`)
     const envExamplePath = path.join(projectPath, `.env.example`)
     if (fs.existsSync(envExamplePath)) {
@@ -319,79 +271,69 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       fs.renameSync(envExamplePath, envPath)
     }
 
-    // Task 5: Remove bunfig.toml if runtime is NOT bun
+    // Task 5: Remove bunfig if Node
     if (runtime !== `bun`) {
-      log.info(`Removing bunfig.toml for Node.js runtime..`)
       const bunfigPath = path.join(projectPath, `bunfig.toml`)
-      if (fs.existsSync(bunfigPath)) {
-        fs.unlinkSync(bunfigPath)
-      }
+      if (fs.existsSync(bunfigPath)) fs.unlinkSync(bunfigPath)
     }
 
-    // Task 6: Install dependencies
+    // Task 6: LMDB
+    const dbPath = path.join(projectPath, `src`, `db`)
+    if (useLmdb) {
+      log.info(`Keeping @gramstax/lmdb files..`)
+      const envContent = fs.readFileSync(envPath, `utf-8`)
+      fs.writeFileSync(envPath, envContent + `DB_PATH="./data"\n`)
+      fs.mkdirSync(path.join(projectPath, `data`), {recursive: true})
+      fs.writeFileSync(path.join(projectPath, `data/.gitkeep`), ``)
+    } else {
+      log.info(`Removing @gramstax/lmdb files..`)
+      if (fs.existsSync(dbPath)) fs.rmSync(dbPath, {recursive: true, force: true})
+    }
+
+    // Task 7: Worker Thread
+    const workerPath = path.join(projectPath, `src`, `workers`)
+    if (useWorkerThread) {
+      log.info(`Keeping @gramstax/worker-thread files..`)
+    } else {
+      log.info(`Removing @gramstax/worker-thread files..`)
+      if (fs.existsSync(workerPath)) fs.rmSync(workerPath, {recursive: true, force: true})
+    }
+
+    // Task 8: Install
     log.info(`Installing dependencies..`)
-    if (!(await this.installDependencies(projectPath, packageManager))) {
-      throw new Error(`Project dependencies installation failed`)
-    }
+    if (!(await this.installDependencies(projectPath, packageManager))) throw new Error(`Dependencies installation failed`)
 
-    // Task 7: Setup ESLint if requested
+    // Task 9: ESLint
     const befEslint = path.join(projectPath, `eslint.config.ts.template`)
     const aftEslint = path.join(projectPath, `eslint.config.ts`)
     if (setupEslint) {
       log.info(`Installing ESLint dependencies..`)
-
       const installCmd = FsUt.resolvePackageManagerCommand(packageManager)
       const installArgs = packageManager === `yarn` ? [`add`, `-D`] : [`install`, `-D`]
       installArgs.push(`eslint`, `@eslint/js`, `globals`, `typescript-eslint`)
-
       await new Promise<void>((resolve) => {
-        const installProcess = spawn(installCmd, installArgs, {
-          cwd: projectPath,
-          stdio: `inherit`,
-          shell: false
-        })
-
-        installProcess.on(`close`, () => resolve())
-        installProcess.on(`error`, (err) => {
-          log.fail(`Failed to install ESLint dependencies: ${err.message}`)
-          resolve()
-        })
+        const p = spawn(installCmd, installArgs, {cwd: projectPath, stdio: `inherit`, shell: false})
+        p.on(`close`, () => resolve())
+        p.on(`error`, (err) => {log.fail(`Failed to install ESLint: ${err.message}`); resolve()})
       })
-
-      // Rename eslint file from template to original
-      if (fs.existsSync(befEslint)) {
-        fs.renameSync(befEslint, aftEslint)
-      }
+      if (fs.existsSync(befEslint)) fs.renameSync(befEslint, aftEslint)
     } else {
-      // Remove eslint config if not requested
-      if (fs.existsSync(befEslint)) {
-        fs.unlinkSync(befEslint)
-      }
+      if (fs.existsSync(befEslint)) fs.unlinkSync(befEslint)
     }
 
-    // Final success message
     log.info(`Project created successfully!`)
-    log.info(`Next steps: ${config.projectPath !== process.cwd() ? `cd ${projectName} && ` : ` `}${commands.install} && ${commands.dev}`)
+    log.info(`Next steps: ${config.projectPath !== process.cwd() ? `cd ${projectName} && ` : ``}${commands.install} && ${commands.dev}`)
     log.info(`Done..`)
   }
 
-  /**
-   * Main method: Prompt first, then execute
-   */
+  // ── Entry point ─────────────────────────────────────────────────
 
   async createProject() {
     try {
-      // Step 1: Gather all configuration through prompts
       this.config = await this.gatherProjectConfig()
-
-      // Step 2: Execute project generation with the gathered config
       await this.executeProjectGeneration(this.config)
     } catch (error) {
-      if (error instanceof Error) {
-        log.error(`Failed to create project: ${error.message}`)
-      } else {
-        log.error(`Failed to create project: ${String(error)}`)
-      }
+      log.error(`Failed to create project: ${error instanceof Error ? error.message : String(error)}`)
       process.exit(1)
     }
   }

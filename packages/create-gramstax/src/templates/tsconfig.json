@@ -6,6 +6,9 @@
       ],
       "gramstax": [
         "../../../gramstax/src/index.ts"
+      ],
+      "@gramstax/lmdb": [
+        "../../../lmdb/src/index.ts"
       ]
     },
     // Environment setup & latest features

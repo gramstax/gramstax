@@ -38,7 +38,8 @@
     "test:all": "bun test test/ e2e/"
   },
   "dependencies": {
-    "gramstax": "gramstax",
+    "@gramstax/lmdb": "workspace:*",
+    "gramstax": "workspace:*",
     "dayjs": "^1.11.13"
   },
   "peerDependencies": {
