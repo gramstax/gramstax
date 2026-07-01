@@ -4,10 +4,12 @@ LMDB-backed key-value database with OOP Repository pattern per sub-database. Mul
 
 ## Features
 
-- **OOP Repository pattern** — each repository owns a sub-database (named `dbName`) and exposes typed CRUD over it
+- **OOP Repository pattern** — each repository extends `LmdbRepository<T, K>` with a `static dbName` and owns an isolated sub-database
 - **Cross-repository transactions** — atomic writes across multiple repositories via `env.transaction()`
 - **Snapshot reads** — consistent point-in-time reads via `env.readTransaction()`
-- **LMDB-native encoding** — default msgpack (fastest, supports `Date`/`Map`/`Set`/BigInt), opt into `encoding: "json"` on `LmdbEnv` for human-readable storage. Use `LmdbCodec.create()` only for custom value transforms (e.g. `Date → number`).
+- **Sub-classed `LmdbEnv`** — `class Db extends LmdbEnv` for a clean root class that inherits all env capabilities
+- **Cross-repo access** — `this.env.getRepository(OtherRepo)` to access other repositories inside transactions
+- **LMDB-native encoding** — default msgpack (fastest, supports `Date`/`Map`/`Set`/BigInt), opt into `encoding: "json"` for human-readable storage
 - **Range queries & streaming** — `keys`/`values`/`entries`/`iterate` with start/end/limit/offset/reverse options
 - **Read-only mode** — open envs as read-only for safe sharing
 - **Async (Promise-based)** API
@@ -31,92 +33,102 @@ npm install @gramstax/lmdb
 
 ## Quick Start
 
+Always subclass `LmdbEnv` for your root `Db` class — never wrap it.
+
 ```typescript
-import { LmdbEnv, LmdbRepository } from "@gramstax/lmdb";
+import {LmdbEnv, LmdbRepository} from "@gramstax/lmdb"
 
-type SchemaUser = {
-  id: string;
-  name: string;
-  age: number;
-};
-
-class UserRepository extends LmdbRepository<SchemaUser, string> {
-  static dbName = `user`;
+// 1. Define a repository
+type IKUser = number
+type IVUser = {
+  id: number
+  name: string
+  age: number
 }
 
-const env = new LmdbEnv({ path: `./data`, maxDbs: 10 });
-await env.open();
+class UserRepo extends LmdbRepository<IVUser, IKUser> {
+  static dbName = `user`
+}
 
-const users = env.register(UserRepository);
+// 2. Subclass LmdbEnv (not wrap it)
+class Db extends LmdbEnv {
+  constructor(storePath: string) {
+    super({path: storePath, maxDbs: 10, compression: true, encoding: `json`})
+  }
+}
 
-await users.set(`u1`, { id: `u1`, name: `Alice`, age: 30 });
-const u1 = await users.get(`u1`);
-//    ^? { id: string; name: string; age: number } | undefined
+// 3. Use it
+const db = new Db(`./data`)
+await db.open()
+const users = db.register(UserRepo)
 
-console.log(await users.count()); // 1
+await users.set(1, {id: 1, name: `Alice`, age: 30})
+const alice = await users.get(1)
+//    ^? IVUser | undefined
 
-await env.close();
+console.log(await users.count()) // 1
+
+await db.close()
 ```
 
-## The Problem: SQL Tables Are Too Rigid For Key-Value
-
-In SQL, tables have rigid schemas. Adding a new "table" means a migration. Changing one means a careful ALTER TABLE dance. Indexes are global, locks propagate across the whole DB, and the type system is the schema — not your application.
-
-For a Telegram bot, you don't need this. You need:
+## Why Subclass LmdbEnv?
 
 ```typescript
-users.get(id); // typed, O(1)
-sessions.set(id, s); // typed, fast
-config.get(key); // typed, fast
-cache.del(key); // typed, fast
+// ✅ CORRECT — extends
+class Db extends LmdbEnv {
+  constructor(path: string) {
+    super({path, maxDbs: 10, compression: true})
+  }
+}
+
+// ❌ WRONG — wrapping adds unnecessary indirection
+class DbWrapper {
+  private env: LmdbEnv
+  constructor(path: string) { this.env = new LmdbEnv({path}) }
+}
 ```
 
-No migrations. No schema. No global locks. Just typed CRUD over many small namespaces.
+Extending gives you:
+- Inherited `open()`, `close()`, `register()`, `transaction()`, `getRepository()`, `get()`
+- No delegation layer — `db.transaction(...)` works directly
+- Cleaner lifecycle management
 
-## The Solution: Repository-Per-Sub-DB With Typed Codecs
+## The Pattern: Repository-Per-Sub-DB
 
-`@gramstax/lmdb` wraps the LMDB native binding with an OOP `Repository<T, K>` class. Each repository subclass declares a `static dbName` and gets one isolated sub-database inside a single LMDB env.
+Each repository class declares a `static dbName`. At runtime, the env opens one LMDB sub-database per `dbName`, giving you isolated key-value namespaces with zero key collisions.
 
 ```mermaid
 flowchart TB
     subgraph Env["LmdbEnv (one LMDB env, one mmap file)"]
         direction TB
         Root["Root Database<br/>(metadata only)"]
-        Users["users (sub-DB)"]
-        Sessions["sessions (sub-DB)"]
+        Users["user (sub-DB)"]
+        Sessions["session (sub-DB)"]
         Config["config (sub-DB)"]
-        Cache["cache (sub-DB)"]
     end
 
-    UserRepo["UserRepository<br/>extends LmdbRepository&lt;SchemaUser, string&gt;<br/>static dbName = 'users'"]
-    SessionRepo["SessionRepository<br/>extends LmdbRepository&lt;SchemaSession, string&gt;<br/>static dbName = 'sessions'"]
-    ConfigRepo["ConfigRepository<br/>extends LmdbRepository&lt;SchemaConfig, string&gt;<br/>static dbName = 'config'"]
+    UserRepo["UserRepo<br/>extends LmdbRepository&lt;IVUser, IKUser&gt;<br/>static dbName = 'user'"]
+    SessionRepo["SessionRepo<br/>extends LmdbRepository&lt;IVSession, string&gt;<br/>static dbName = 'session'"]
+    ConfigRepo["ConfigRepo<br/>extends LmdbRepository&lt;string, string&gt;<br/>static dbName = 'config'"]
 
     UserRepo -->|register/get| Users
     SessionRepo -->|register/get| Sessions
     ConfigRepo -->|register/get| Config
-
-    Users -.uses.-> LmdbEncoding
-    Sessions -.uses.-> LmdbEncoding
-    Config -.uses.-> LmdbEncoding
 ```
 
-**Why sub-DBs, not one shared DB with prefix-encoded keys?**
-
-| Approach                         | Pros                                                          | Cons                                                                           |
-| -------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| **One sub-DB per repo** (chosen) | Clean cursor isolation, simple `count()`, `clear()`, `drop()` | Limited to `maxDbs` (set high in `LmdbEnvOptions`)                             |
-| One shared DB with prefixes      | Unlimited logical "tables"                                    | Range queries must encode prefix bounds manually; cursor leaks across prefixes |
-
-For most bots, you'd never hit `maxDbs: 128` (LMDB's recommended upper bound). If you do, bump it.
+**Why sub-DBs over prefix-encoded keys?**
+- **Clean cursor isolation** — range queries never leak across namespaces
+- **Simple `count()`** — `repo.count()` is O(1) per sub-db
+- **No manual prefix bounds** — no `item:user:123:` prefix logic
 
 ## Architecture Overview
 
 ```mermaid
 flowchart LR
     subgraph User["User code"]
-        Define["class UserRepo extends LmdbRepository&lt;SchemaUser&gt;<br/>static dbName = 'user'"]
-        Use["env.register(UserRepo)<br/>userRepo.set/get/delete/iterate"]
+        Define["class UserRepo extends LmdbRepository&lt;IVUser&gt;<br/>static dbName = 'user'"]
+        Register["class Db extends LmdbEnv<br/>constructor(path) { super({path}) }"]
+        Use["db.register(UserRepo)<br/>repo.set/get/delete/iterate"]
     end
 
     subgraph Framework["@gramstax/lmdb"]
@@ -127,211 +139,265 @@ flowchart LR
         Errors["Typed errors"]
     end
 
-    subgraph LMDB["lmdb package"]
-        Open["open()"]
-        SubDB["openDB(name)"]
-        Put["put/get/delete/getKeys/getValues/getRange"]
-        ChildTxn["transaction() callback"]
-        ReadTxn["useReadTransaction()"]
-    end
-
     Define --> Repo
+    Register --> Env
     Use --> Env
     Env --> Repo
     Repo --> Codec
-    Env --> SubDB
-    SubDB --> Put
-    Env --> ChildTxn
-    Env --> ReadTxn
+    Env --> Tx
     Repo -.throws.-> Errors
 ```
 
 **Key components:**
 
-| Component                | Lives in      | Role                                                                                               |
-| ------------------------ | ------------- | -------------------------------------------------------------------------------------------------- |
-| `LmdbEnv`                | top-level     | Opens one LMDB env, manages sub-DBs, transactions, lifecycle                                       |
-| `LmdbRepository<T, K>`       | abstract base | Typed CRUD over one sub-DB; subclass with `static dbName`                                          |
-| `LmdbTransaction`            | wrapper       | Lifecycle API (`commit`/`abort`/`lifecycle`/`raw`)                                                 |
-| `ICodec<T>`              | codec.ts      | `LmdbCodec.create()` factory for custom value transforms; LMDB handles msgpack/json/binary natively; use `encoding` on `LmdbEnv` |
-| `LmdbError` + subclasses | errors.ts     | Typed errors: `instanceof`-discriminable                                                           |
+| Component            | Role                                                              |
+| -------------------- | ----------------------------------------------------------------- |
+| `LmdbEnv`            | Opens one LMDB env, manages sub-DBs, transactions, lifecycle      |
+| `LmdbRepository<T, K>` | Typed CRUD over one sub-DB; subclass with `static dbName`       |
+| `LmdbTransaction`    | Lifecycle API (`commit`/`abort`/`lifecycle`/`raw`)                |
+| `ICodec<T>`          | Custom value transforms (optional; encoding set on `LmdbEnv` by default) |
+| `LmdbError` + friends | Typed errors: `instanceof`-discriminable                         |
 
-## Lifecycle: Open → Register → Use → Close
+## Lifecycle
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant U as User
-    participant E as LmdbEnv
-    participant R as UserRepository
-    participant L as lmdb
+```typescript
+// 1. Construct — options are stored, env is NOT open yet
+const db = new Db(`./data`)
 
-    U->>E: new LmdbEnv({path, maxDbs})
-    U->>E: await env.open()
-    E->>L: open({path, maxDbs})
-    L-->>E: RootDatabase
-    E->>E: state = 'open'
+// 2. Open — creates the memory map
+await db.open()
 
-    U->>E: env.register(UserRepository)
-    E->>R: new UserRepository(env, 'user')
-    R->>E: env.getDb('user')
-    E->>L: rootDb.openDB('user')
-    L-->>R: Database (sub-DB)
+// 3. Register — opens sub-databases (lazy on first access)
+const users = db.register(UserRepo)
 
-    U->>R: users.set('u1', userObj)
-    R->>R: codec.serialize(userObj)
-    R->>L: db.put('u1', encoded)
-    L-->>R: ok
+// 4. Use — typed CRUD
+await users.set(1, {id: 1, name: `Alice`})
+const user = await users.get(1)
 
-    U->>R: users.get('u1')
-    R->>L: db.get('u1')
-    L-->>R: encoded
-    R->>R: codec.deserialize(encoded)
-    R-->>U: User
-
-    U->>E: await env.close()
-    E->>L: rootDb.close()
-    E->>E: state = 'closed'
+// 5. Close — flushes and releases resources
+await db.close()
 ```
 
-## Cross-LmdbRepository Transactions
+For production, encapsulate init in a reusable pattern:
 
-For atomic writes spanning multiple repositories, use `env.transaction(fn)`. The wrapper detects user-initiated aborts and re-throws user errors wrapped in `LmdbTransactionError`.
+```typescript
+class Db extends LmdbEnv {
+  private _ready: Promise<void>
+
+  constructor(storePath: string) {
+    super({path: storePath, maxDbs: 10, compression: true, encoding: `json`})
+    this._ready = this._init()
+  }
+
+  private async _init() {
+    await this.open()
+    this.register(UserRepo)
+    this.register(SessionRepo)
+  }
+
+  async ready() {
+    await this._ready
+  }
+}
+
+// Usage
+const db = new Db(`./data`)
+await db.ready()
+const users = db.get(UserRepo)
+```
+
+## Transactions
+
+### When to Use
+
+**Every read-then-write pattern MUST use `env.transaction()`:**
+
+```typescript
+// ✅ Atomic: read + write inside transaction
+class UserRepo extends LmdbRepository<IVUser, IKUser> {
+  static dbName = `user`
+
+  async findOrCreate(id: number, name: string) {
+    return this.env.transaction(async () => {
+      const existing = await this.get(id)
+      if (existing) {
+        const updated = {...existing, name, updatedAt: Date.now()}
+        await this.set(id, updated)
+        return {user: updated, created: false}
+      }
+      const user: IVUser = {id, name, createdAt: Date.now(), updatedAt: Date.now()}
+      await this.set(id, user)
+      return {user, created: true}
+    })
+  }
+}
+```
+
+```typescript
+// ❌ Race condition: concurrent calls interleave between get and set
+async findOrCreate(id: number, name: string) {
+  const existing = await this.get(id)
+  if (existing) {
+    await this.set(id, {...existing, name})  // may overwrite concurrent change
+  }
+}
+```
+
+**When transactions are NOT needed:**
+- Single writes (`set`, `delete`) — already atomic at LMDB level
+- Read-only operations (`get`, `has`, `count`) — no write involved
+
+### Cross-Repository Transactions
+
+Use `this.env.getRepository(OtherRepo)` inside a transaction:
+
+```typescript
+class ItemRepo extends LmdbRepository<IVItem, string> {
+  static dbName = `items`
+
+  async create(userId: number, title: string) {
+    const counter = this.env.getRepository(CounterRepo)
+    return this.env.transaction(async () => {
+      const id = await counter.nextId(userId)
+      const item: IVItem = {id, title, createdAt: Date.now()}
+      await this.set(`${userId}:${id}`, item)
+      await counter.incr(userId)
+      return item
+    })
+  }
+}
+```
+
+### Cross-LmdbRepository Sequence Diagram
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    participant U as User code
+    participant U as User
     participant E as env.transaction
-    participant R1 as UserRepository
-    participant R2 as SessionRepository
+    participant R1 as UserRepo
+    participant R2 as SessionRepo
     participant L as lmdb
 
     U->>E: await env.transaction(async (tx) => {
-    Note over E: wrapper creates LmdbTransaction
     E->>L: rootDb.transaction(callback)
-
-    L->>R1: users.set('u1', user, tx)
-    R1->>L: db.put('u1', encoded)
-    L-->>R1: queued (in current tx)
-
-    L->>R2: sessions.set('s1', sess, tx)
-    R2->>L: db.put('s1', encoded)
-    L-->>R2: queued (in current tx)
-
-    alt User commits
-        U->>E: tx.commit()
-        Note over E: wrapper marks lifecycle='committed'
-        E-->>L: callback returns normally
-        L->>L: commit all queued writes atomically
-        L-->>E: ok
-        E-->>U: returns user's result
-    else User aborts
-        U->>E: tx.abort()
-        Note over E: wrapper throws internal abort error
-        E-->>L: callback throws
-        L->>L: roll back all queued writes
-        E-->>U: returns user's original result
+    L->>R1: users.set(key, value)
+    L->>R2: sessions.set(key, value)
+    alt commits
+        E-->>U: resolved
+    else aborts
+        E-->>U: rolled back
     end
 ```
 
-**Important caveat** — LMDB's async batching model auto-commits awaited puts in the next event turn. Awaiting `users.set(...)` inside the callback may put the write in a separate transaction context. For true rollback semantics across awaits, ensure the callback is short and sync where possible.
-
 ## API
 
-### `LmdbEnv`
+### `LmdbEnv` (or your `Db extends LmdbEnv`)
 
 ```typescript
-new LmdbEnv({
-  path: string,           // filesystem path for the data files
-  maxDbs?: number,        // max named sub-databases (default 10)
-  compression?: boolean,  // enable LMDB compression (default false)
-  readOnly?: boolean,     // open in read-only mode (default false)
-  maxReaders?: number,    // max concurrent readers (default 126)
-  mapSize?: number,        // virtual memory mapping in bytes (default 256 MB)
-})
+const env = new LmdbEnv({path: `./data`})
+// Or with a subclass:
+class Db extends LmdbEnv {
+  constructor(path: string) { super({path, maxDbs: 10, compression: true}) }
+}
+const db = new Db(`./data`)
 
 await env.open()
-env.register(RepoClass)        // returns typed Repo instance
-env.get(RepoClass)             // get previously-registered instance
-env.has(RepoClass)             // boolean check
-await env.transaction(fn)      // cross-repo write transaction
-await env.readTransaction(fn)  // snapshot read
+env.register(RepoClass)                 // returns typed Repo instance
+env.get(RepoClass)                      // retrieve registered instance
+env.has(RepoClass)                      // boolean check
+await env.transaction(fn)               // cross-repo write transaction
+await env.readTransaction(fn)           // snapshot read
 await env.close()
 ```
+
+**Constructor options:**
+
+| Option         | Type    | Default       | Description                        |
+| -------------- | ------- | ------------- | ---------------------------------- |
+| `path`         | string  | **required**  | Filesystem path for data files     |
+| `maxDbs`       | number  | `10`          | Max sub-databases                  |
+| `compression`  | boolean | `false`       | LZ4 compression (off-thread)       |
+| `encoding`     | string  | `msgpack`     | `msgpack`, `json`, `binary`, etc.  |
+| `readOnly`     | boolean | `false`       | Open in read-only mode             |
+| `mapSize`      | number  | `256 MB`      | Virtual memory mapping in bytes    |
 
 ### `LmdbRepository<T, K>`
 
 ```typescript
-class UserRepository extends LmdbRepository<SchemaUser, string> {
+class UserRepo extends LmdbRepository<IVUser, number> {
   static dbName = `user`
+
   // Optional: static serialize / static deserialize / static codec
 }
 
-await users.set(key, value, tx?)    // write
-const v = await users.get(key, tx?)  // read (T | undefined)
-const exists = await users.has(key)   // boolean
-const deleted = await users.delete(key) // boolean (true if existed)
-await users.clear()                   // remove all
-const n = await users.count()         // O(1)
+await repo.set(key, value, tx?)         // write (upsert)
+const v = await repo.get(key, tx?)       // read (T | undefined)
+const exists = await repo.has(key)       // boolean
+const deleted = await repo.delete(key)   // boolean (true if existed)
+await repo.clear()                       // remove all
+const n = await repo.count()             // O(1), LMDB-maintained
 
-// Iteration
-const keys = await users.keys(options?)      // K[]
-const values = await users.values(options?)    // T[]
-const entries = await users.entries(options?)  // [K, T][]
-for await (const [k, v] of users.iterate(options?)) { ... }
+// Range & iteration
+const keys = await repo.keys(options?)         // K[]
+const values = await repo.values(options?)      // T[]
+const entries = await repo.entries(options?)    // [K, T][]
+for await (const [k, v] of repo.iterate(options?)) { /* streaming */ }
+const [firstKey, firstValue] = (await repo.first()) ?? []
+const [lastKey, lastValue] = (await repo.last()) ?? []
+
+// Batch & helpers
+await repo.prefetch(keys)              // warm page cache
+const many = await repo.getMany(keys)  // parallel reads
+const matches = await repo.like(`prefix:*`)    // LIKE-style glob
+const byPrefix = await repo.findByPrefix(`admin:`)  // prefix scan
+const n = await repo.countByPrefix(`admin:`)   // O(log N + M)
+```
+
+The `env` property is public, so subclasses can call:
+
+```typescript
+this.env.transaction(fn)
+this.env.getRepository(OtherRepo)
+this.env.readOnly
 ```
 
 ### `LmdbTransaction`
 
 ```typescript
 await env.transaction(async (tx) => {
-  await userRepo.set("u1", user, tx);
-  await sessionRepo.set("s1", session, tx);
-  tx.commit(); // explicit commit (otherwise callback return auto-commits)
-});
+  await userRepo.set(1, user)
+  await sessionRepo.set(`s1`, session)
+  tx.commit() // explicit commit (callback return auto-commits otherwise)
+})
 
-tx.lifecycle; // 'active' | 'committed' | 'aborted'
-tx.done; // true when lifecycle !== 'active'
-tx.isCommitted; // true after tx.commit()
-tx.isAborted; // true after tx.abort()
-tx.raw; // underlying LMDB read transaction (read-tx only)
+tx.lifecycle      // 'active' | 'committed' | 'aborted'
+tx.done           // true when lifecycle !== 'active'
+tx.isCommitted    // true after tx.commit()
+tx.isAborted      // true after tx.abort()
+tx.raw            // underlying LMDB read transaction (read-tx only)
 ```
 
 ## Encoding Choice
 
-LMDB handles value encoding natively per sub-database. Set `encoding` when
-constructing your `LmdbEnv`:
+Set `encoding` when constructing your `LmdbEnv`:
 
 ```typescript
-// Default — LMDB native msgpack (fastest, supports Date/Map/Set/BigInt)
-const env = new LmdbEnv({ path: "./data" })
+// Default — msgpack (fastest, supports Date/Map/Set/BigInt)
+const env = new LmdbEnv({path: `./data`})
 
 // Human-readable JSON storage
-const env = new LmdbEnv({ path: "./data", encoding: "json" })
+const env = new LmdbEnv({path: `./data`, encoding: `json`})
 ```
 
-| `encoding` option      | LMDB encoder                  | Use when                                            |
-| ---------------------- | ----------------------------- | --------------------------------------------------- |
-| ------------------------ | ----------------------------- | --------------------------------------------------- |
-| `msgpack` (default)      | msgpackr (binary)              | Default — fastest, supports `Date`/`Map`/`Set`/BigInt |
-| `json`                   | `JSON.stringify` / `JSON.parse`| Human-readable storage, debug-friendly               |
-| `binary`                 | Raw `Buffer`                   | Already-encoded binary payloads                      |
-| `string`                 | UTF-8 string                   | String values                                       |
-| `ordered-binary`         | Same encoding as keys          | `dupSort` indexes                                    |
+| Option            | Encoder                    | Use when                                        |
+| ----------------- | -------------------------- | ----------------------------------------------- |
+| `msgpack` (default) | msgpackr (binary)         | Default — fastest, supports Date/Map/Set/BigInt |
+| `json`            | `JSON.stringify` / `parse` | Human-readable, debug-friendly, V8-native fast  |
+| `binary`          | Raw `Buffer`               | Already-encoded binary payloads                  |
+| `string`          | UTF-8 string               | String values                                   |
+| `ordered-binary`  | Same encoding as keys       | `dupSort` indexes                               |
 
-For custom value transforms (e.g. `Date → number`, compression), define a
-codec via `static codec = LmdbCodec.create(serialize, deserialize)`. The
-codec runs BEFORE LMDB's native encoder.
-
-**Architecture flow:**
-```
-Repository.set(key, value):
-  if (static codec)   value = codec.serialize(value)    // your transform
-  db.put(key, value)                                    // LMDB native encoding
-```
-
-**Benchmark snapshot** (2,000 ops per encoding, fresh env per encoding, `process.hrtime.bigint`):
+**Benchmark** (2,000 ops per encoding, fresh env, `process.hrtime.bigint`):
 
 ```
                           SMALL (4 fields)  MEDIUM (12 fields)  LARGE (40 fields)  HUGE (22KB)
@@ -341,9 +407,7 @@ msgpack         size/value: 397B              790B                4.6KB         
 json            size/value: 397B              922B                4.6KB              22.1KB
 ```
 
-- **SMALL/MEDIUM**: `json` has faster reads (V8 native JSON.parse); sizes similar.
-- **LARGE**: `json` wins reads by 1.5x.
-- **HUGE**: `msgpack` wins reads by 1.1x and storage by 40%.
+For typical bot data (small objects under 1KB), `json` is faster for reads because V8's `JSON.parse` is highly optimized.
 
 ## Custom Codecs
 
@@ -351,10 +415,10 @@ Custom codecs run BEFORE LMDB encoding. Use for typed transforms that
 LMDB's native encoders can't handle (e.g. `Date → number`):
 
 ```typescript
-import { LmdbRepository, LmdbCodec } from "@gramstax/lmdb"
+import {LmdbRepository, LmdbCodec} from "@gramstax/lmdb"
 
 class DateRepo extends LmdbRepository<Date, string> {
-  static dbName = `cache-date`
+  static dbName = `dates`
   static codec = LmdbCodec.create<Date, number>(
     (d) => d.getTime(),
     (n) => new Date(n)
@@ -362,16 +426,21 @@ class DateRepo extends LmdbRepository<Date, string> {
 }
 ```
 
-## Range Queries
+## Range Queries & Prefix Scans
 
 ```typescript
-await users.keys({ start: `u1`, end: `u5`, limit: 10 });
-await users.values({ start: `u1`, end: `u5` });
-await users.entries({ start: `u1`, end: `u5`, reverse: true });
+// Bounded range
+await repo.entries({start: `user:`, end: `user:\uffff`, limit: 50})
 
-// LMDB reverse convention: start > end
-await users.entries({ start: `u5`, end: `u1`, reverse: true });
+// Efficient prefix scan (uses LMDB range scan internally)
+const admins = await repo.findByPrefix(`admin:`)
+
+// LIKE-style glob (prefix patterns use range scan, others use full scan + filter)
+const matches = await repo.like(`admin:*`)   // range scan
+const fuzzy = await repo.like(`*partial*`)   // full scan + regex filter
 ```
+
+The `\uffff` sentinel character creates an exclusive upper bound — `${prefix}\uffff` is the first key that does NOT start with `${prefix}`.
 
 ## License
 
