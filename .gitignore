@@ -1,4 +1,5 @@
 database
+data
 *.mdb
 
 # dependencies (bun install)
