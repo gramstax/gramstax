@@ -30,11 +30,10 @@ jobs:
           bun-version: latest
 
       - name: Install Dependencies
-        run: bun install --frozen-lockfile
+        run: bun instal --lockfile-only && bun install --frozen-lockfile
 
       - name: Verify Code
         run: |
-          bun instal --lockfile-only
           bun run ci:test:packages
           bun run build:all
 
