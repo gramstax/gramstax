@@ -266,6 +266,13 @@ export class LmdbEnv {
   }
 
   /**
+   * @internal
+   */
+  getRepository<T extends LmdbRepository<any, any>>(repoClass: new (...args: any[]) => T): T {
+    return this.get(repoClass)
+  }
+
+  /**
    * Check whether a LmdbRepository class has been registered.
    *
    * @param repoClass - The LmdbRepository subclass constructor.

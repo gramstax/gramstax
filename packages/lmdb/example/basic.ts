@@ -15,22 +15,21 @@ import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
 import {LmdbRepository} from "../src/repository"
 
-type SchemaUser = {
+type IVUser = {
   id: string
   name: string
   age: number
 }
-
-type SchemaSession = {
+type IVSession = {
   sid: string
   data: string
 }
 
-class UserRepository extends LmdbRepository<SchemaUser, string> {
+class UserRepository extends LmdbRepository<IVUser, string> {
   static dbName = `user`
 }
 
-class SessionRepository extends LmdbRepository<SchemaSession, string> {
+class SessionRepository extends LmdbRepository<IVSession, string> {
   static dbName = `session`
 }
 

@@ -15,17 +15,16 @@ import {LmdbEnv} from "../src/env"
 import {LmdbRepository} from "../src/repository"
 import {LmdbCodec} from "../src/codec"
 
-type SchemaSession = {
+type IVSession = {
   sid: string
   createdAt: Date
   expiresAt: Date
   data: Buffer
 }
-
-type SchemaDate = Date
+type IVDate = Date
 
 // Static serialize/deserialize for Date <-> number (ms timestamp)
-class DateRepo extends LmdbRepository<SchemaDate, string> {
+class DateRepo extends LmdbRepository<IVDate, string> {
   static dbName = `cached-date`
   static codec = LmdbCodec.create<Date, number>(
     (d: Date) => d.getTime(),
@@ -34,9 +33,9 @@ class DateRepo extends LmdbRepository<SchemaDate, string> {
 }
 
 // Inline static serialize/deserialize for SessionMeta <-> Buffer (msgpack-like)
-class SessionRepo extends LmdbRepository<SchemaSession, string> {
+class SessionRepo extends LmdbRepository<IVSession, string> {
   static dbName = `session`
-  static serialize(value: SchemaSession): string {
+  static serialize(value: IVSession): string {
     return JSON.stringify({
       sid: value.sid,
       createdAt: value.createdAt.getTime(),
@@ -44,7 +43,7 @@ class SessionRepo extends LmdbRepository<SchemaSession, string> {
       dataB64: value.data.toString(`base64`)
     })
   }
-  static deserialize(raw: any): SchemaSession {
+  static deserialize(raw: any): IVSession {
     const obj = typeof raw === `string` ? JSON.parse(raw) : raw
     return {
       sid: obj.sid,
@@ -82,7 +81,7 @@ async function main() {
 
     console.log(`\n--- Session repository (inline codec) ---\n`)
 
-    const session: SchemaSession = {
+    const session: IVSession = {
       sid: `s-abc-123`,
       createdAt: now,
       expiresAt: later,

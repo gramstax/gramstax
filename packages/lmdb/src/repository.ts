@@ -9,7 +9,7 @@
  * Subclassing is the preferred way to declare a repository:
  *
  * ```typescript
- * class UserRepository extends LmdbRepository<User, string> {
+ * class UserRepository extends LmdbRepository<IVUser, string> {
  *   static dbName = "user";
  * }
  *
@@ -29,6 +29,7 @@ import {LmdbTransaction} from "./transaction"
 import {resolveCodec} from "./codec"
 import {LmdbMissingDbNameError, LmdbReadOnlyError} from "./errors"
 import type {ICodec, IRangeOptions, LMDBKey} from "./types"
+import type {Database} from "lmdb"
 
 /**
  * Forward-declared `LmdbEnv` shape. The real class lives in `./env` and is
@@ -42,6 +43,35 @@ interface IEnvForRepo {
   getDb(name: string): any
   /** @internal */
   readonly readOnly: boolean
+  /**
+   * Run a callback inside a write transaction.
+   *
+   * @remarks
+   * All writes performed inside the callback (via any repository registered
+   * with this env) are batched into a single atomic commit.
+   *
+   * @param fn - Callback receiving the {@link LmdbTransaction} wrapper.
+   * @returns The callback's resolved value.
+   */
+  transaction<T>(fn: (tx: LmdbTransaction) => Promise<T>): Promise<T>
+  /**
+   * Run a callback inside a read-only transaction (consistent snapshot).
+   *
+   * @param fn - Callback receiving the read-only {@link LmdbTransaction}.
+   * @returns The callback's resolved value.
+   */
+  readTransaction<T>(fn: (tx: LmdbTransaction) => Promise<T>): Promise<T>
+  /**
+   * Retrieve a previously registered repository by class.
+   *
+   * @remarks
+   * Enables cross-repository access within transaction callbacks.
+   * All repositories must be registered before calling this method.
+   *
+   * @param repoClass - The LmdbRepository subclass constructor.
+   * @returns The registered repository instance.
+   */
+  getRepository<T extends LmdbRepository<any, any>>(repoClass: new (...args: any[]) => T): T
 }
 
 /**
@@ -109,8 +139,9 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
   /** @internal */
   protected readonly _env: IEnvForRepo
 
-  /** @internal */
-  protected readonly _db: any
+  /** @internal Raw LMDB sub-database handle (`Database<any, any>` retains
+   *  method autocomplete while key/value safety is handled by `LmdbRepository`). */
+  protected readonly _db: Database<any, any>
 
   /** @internal */
   protected readonly _codec: ICodec<T> | undefined

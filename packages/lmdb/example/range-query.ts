@@ -14,12 +14,12 @@ import {join} from "node:path"
 import {LmdbEnv} from "../src/env"
 import {LmdbRepository} from "../src/repository"
 
-type SchemaLog = {
+type IVLog = {
   level: string
   message: string
 }
 
-class LogRepository extends LmdbRepository<SchemaLog, string> {
+class LogRepository extends LmdbRepository<IVLog, string> {
   static dbName = `log`
 }
 
