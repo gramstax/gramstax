@@ -45,7 +45,7 @@ class Main {
   }
 
   static async processStep2Answer(ctx: CreatePage, title: string, description: string) {
-    const item = await ctx.db.createItem(ctx.userId, title, description)
+    const item = await ctx.db.items.create(ctx.userId, title, description)
     await Main.showSuccess(ctx, {
       id: item.id,
       title: item.title,

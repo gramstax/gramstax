@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
-import type {MainItem} from "~/db/main"
+import type {MainItem} from "~/db/db"
 
 class Base {
   static step1 = `s1`
@@ -38,7 +38,7 @@ class Helper {
 
 class Main {
   static async showStep1Form(ctx: DeletePage) {
-    const getItems = await ctx.db.listItems(ctx.userId)
+    const getItems = await ctx.db.items.list(ctx.userId)
     const items = getItems.slice(0, Helper.MAX_ITEMS)
     if (items.length === 0) {
       await Main.showInfoEmpty(ctx)
@@ -56,7 +56,7 @@ class Main {
       return await Main.showWarnInvalid(ctx, edit)
     }
 
-    const deleted = await ctx.db.deleteItem(ctx.userId, id)
+    const deleted = await ctx.db.items.remove(ctx.userId, id)
     if (!deleted) {
       await Main.showErrorNotFound(ctx, id, edit)
     } else {

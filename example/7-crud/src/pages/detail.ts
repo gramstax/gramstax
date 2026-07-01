@@ -31,7 +31,7 @@ class Main {
       return await Main.showWarnInvalid(ctx)
     }
 
-    const item = await ctx.db.getItem(ctx.userId, id)
+    const item = await ctx.db.items.fetch(ctx.userId, id)
     if (!item) {
       await Main.showInfoNotFound(ctx, id)
     } else {

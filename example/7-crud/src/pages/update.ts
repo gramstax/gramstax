@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
-import type {MainItem} from "~/db/main"
+import type {MainItem} from "~/db/db"
 
 class Base {
   static step1 = `s1`
@@ -19,7 +19,7 @@ class Helper {
   }
 
   static async buildStep1Keyboard(ctx: UpdatePage, page: number, items: MainItem[]) {
-    const allItems = await ctx.db.listItems(ctx.userId)
+    const allItems = await ctx.db.items.list(ctx.userId)
     const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const bi = Base.step1
@@ -59,7 +59,7 @@ class Helper {
 
 class Main {
   static async showStep1Form(ctx: UpdatePage, page = 0, edit = true) {
-    const allItems = await ctx.db.listItems(ctx.userId)
+    const allItems = await ctx.db.items.list(ctx.userId)
     const totalPages = Math.max(Math.ceil(allItems.length / Helper.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const start = safePage * Helper.PAGE_SIZE
@@ -84,7 +84,7 @@ class Main {
     if (type === `page`) {
       return await Main.showStep1Form(ctx, parseInt(idOrPage))
     } else if (type === `select`) {
-      const item = await ctx.db.getItem(ctx.userId, idOrPage)
+      const item = await ctx.db.items.fetch(ctx.userId, idOrPage)
       if (item) {
         await Main.showStep2Form(ctx, item)
       } else {
@@ -101,12 +101,12 @@ class Main {
   }
 
   static async processStep2Answer(ctx: UpdatePage, status: MainItem[`status`], id: string, edit = true) {
-    const item = await ctx.db.getItem(ctx.userId, id)
+    const item = await ctx.db.items.fetch(ctx.userId, id)
     if (!item) {
       return await Main.showStep1Form(ctx, 0, edit)
     }
 
-    const updated = await ctx.db.updateItem(ctx.userId, id, item.title, item.description, status)
+    const updated = await ctx.db.items.edit(ctx.userId, id, item.title, item.description, status)
     if (updated) {
       await Main.showSuccess(ctx, id, status)
     } else {

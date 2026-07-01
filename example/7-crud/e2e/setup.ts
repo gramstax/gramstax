@@ -14,5 +14,6 @@ export const bot = new BotCore({
 
 export const e2e = bot.e2e!
 export async function resetDb(userId: number) {
-  await bot.db.clearAll(userId)
+  await bot.db.init()
+  await bot.db.items.purge(userId)
 }

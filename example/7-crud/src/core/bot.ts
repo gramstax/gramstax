@@ -1,5 +1,5 @@
 import {Env} from "~/env"
-import {MainDb} from "~/db/main"
+import {MainDb} from "~/db/db"
 import {CtxCore} from "./ctx"
 import {Gramstax} from "gramstax"
 import {CrudGuard} from "~/guards/crud"

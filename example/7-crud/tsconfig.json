@@ -5,6 +5,9 @@
       "~/*": [
         "./src/*"
       ],
+      "@gramstax/lmdb": [
+        "../../packages/lmdb/src/index.ts"
+      ],
       "gramstax": [
         "../../packages/gramstax/src/index.ts"
       ]
@@ -17,6 +20,7 @@
     "./src",
     "./test",
     "./e2e",
-    "../../packages/gramstax/src/index.ts"
+    "../../packages/gramstax/src/index.ts",
+    "../../packages/lmdb/src/index.ts"
   ]
 }

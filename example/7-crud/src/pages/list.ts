@@ -36,7 +36,7 @@ class Helper {
 
 class Main {
   static async showStep1Form(ctx: ListPage, page = 0) {
-    const totalItems = await ctx.db.countItems(ctx.userId)
+    const totalItems = await ctx.db.items.total(ctx.userId)
     if (totalItems === 0) {
       return await Main.showInfoEmpty(ctx)
     }
@@ -44,7 +44,7 @@ class Main {
     const totalPages = Math.max(Math.ceil(totalItems / Helper.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
     const offset = safePage * Helper.PAGE_SIZE
-    const items = await ctx.db.listItems(ctx.userId, {limit: Helper.PAGE_SIZE, offset})
+    const items = await ctx.db.items.list(ctx.userId, {limit: Helper.PAGE_SIZE, offset})
     const list = items
       .map((item) => {
         const ts = TimeUt.formatTimestamp(item.updatedAt)
