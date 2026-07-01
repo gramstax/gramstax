@@ -177,7 +177,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         stdio: `inherit`,
         shell: false
       })
-      installProcess.on(`close`, (code) => code === 0 ? resolve(true) : (log.fail(`Dependencies installation failed`), resolve(false)))
+      installProcess.on(`close`, (code) => (code === 0 ? resolve(true) : (log.fail(`Dependencies installation failed`), resolve(false))))
       installProcess.on(`error`, (error) => (log.fail(`Dependencies installation failed: ${error.message}`), resolve(false)))
     })
   }
@@ -213,9 +213,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
     // Gather config — skip prompts if CLI options provided
     const hasCli = cli && this._hasAnyCliFlag()
-    const config = hasCli
-      ? {packageManager: cli!.packageManager ?? `bun` as PackageManager, runtime: cli!.runtime ?? `bun` as Runtime, lmdb: cli!.lmdb ?? true, workerThread: cli!.workerThread ?? true, eslint: cli!.eslint ?? true}
-      : await this.promptForConfiguration()
+    const config = hasCli ? {packageManager: cli!.packageManager ?? (`bun` as PackageManager), runtime: cli!.runtime ?? (`bun` as Runtime), lmdb: cli!.lmdb ?? true, workerThread: cli!.workerThread ?? true, eslint: cli!.eslint ?? true} : await this.promptForConfiguration()
 
     const {packageManager, runtime, lmdb, workerThread, eslint} = config
 
@@ -282,9 +280,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     if (useLmdb) {
       log.info(`Keeping @gramstax/lmdb files..`)
       const envContent = fs.readFileSync(envPath, `utf-8`)
-      fs.writeFileSync(envPath, envContent + `DB_PATH="./data"\n`)
-      fs.mkdirSync(path.join(projectPath, `data`), {recursive: true})
-      fs.writeFileSync(path.join(projectPath, `data/.gitkeep`), ``)
+      fs.writeFileSync(envPath, envContent + `\n\nDB_PATH="./data"\n`)
     } else {
       log.info(`Removing @gramstax/lmdb files..`)
       if (fs.existsSync(dbPath)) fs.rmSync(dbPath, {recursive: true, force: true})
@@ -314,7 +310,10 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       await new Promise<void>((resolve) => {
         const p = spawn(installCmd, installArgs, {cwd: projectPath, stdio: `inherit`, shell: false})
         p.on(`close`, () => resolve())
-        p.on(`error`, (err) => {log.fail(`Failed to install ESLint: ${err.message}`); resolve()})
+        p.on(`error`, (err) => {
+          log.fail(`Failed to install ESLint: ${err.message}`)
+          resolve()
+        })
       })
       if (fs.existsSync(befEslint)) fs.renameSync(befEslint, aftEslint)
     } else {

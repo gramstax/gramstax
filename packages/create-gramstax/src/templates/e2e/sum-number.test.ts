@@ -18,16 +18,18 @@ describe(`E2E: SumNumberPage`, () => {
     expect(step1[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
     e2e.clearCalls()
 
+    // input 1
     const step2 = await e2e.sendText(`23`, asUser)
     expect(step2.length).toBeGreaterThan(0)
     expect(step2[0]!.body?.text).toBe(e2e.gmsg(intent, `s2`, {}))
     e2e.clearCalls()
 
+    // input 2
     const result = await e2e.sendText(`10`, asUser)
     expect(result.length).toBeGreaterThan(0)
     expect(result[0]!.body?.text).toContain(`Result Sum`)
     expect(result[0]!.body?.text).toContain(`33`)
-    expect(e2e.extractButtonLabels(result[0])).toEqual(e2e.gkb(intent, `s`, `inline`, {}))
+    expect(e2e.extractButtonLabels(result[0]!)).toEqual(e2e.gkb(intent, `s`, `inline`, {}))
   })
 
   it(`re-prompt step 1 on invalid (non-numeric) input`, async () => {

@@ -1,7 +1,6 @@
 import {LmdbRepository} from "@gramstax/lmdb"
 
 export type IKUser = number
-
 export type IVUser = {
   tgId: number
   username: string
