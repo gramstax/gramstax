@@ -19,6 +19,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -29,7 +33,7 @@ jobs:
       - name: Detect bump type from conventional commits
         id: detect
         run: |
-          SPEC=$(bun run nx release --dry-run 2>&1 | grep -oP '(?<=specifier as ")[^"]+')
+          SPEC=$(bunx nx release --dry-run 2>&1 | grep -oP '(?<=specifier as ")[^"]+')
           echo "type=$SPEC" >> "$GITHUB_OUTPUT"
           echo "Detected bump: $SPEC"
 
@@ -40,6 +44,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -59,14 +67,13 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Bump Version, Changelog & Tag
-        run: bun run version --yes
+        run: bunx nx release version --yes
 
       - name: Push commit and tag
         run: git push origin main --tags
 
   publish:
     needs: [detect, version]
-    if: needs.detect.outputs.bump-type != 'patch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -95,6 +102,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
+        if: needs.detect.outputs.bump-type != 'patch'
         run: |
           TAG=$(git describe --tags --abbrev=0)
           gh release create "$TAG" \
