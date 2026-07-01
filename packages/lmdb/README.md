@@ -33,7 +33,7 @@ npm install @gramstax/lmdb
 
 ## Quick Start
 
-Always subclass `LmdbEnv` for your root `Db` class — never wrap it.
+Always subclass `LmdbEnv` for your root `Db` class — never wrap it. Expose repositories as typed getters so consumers can call `db.users.<action>` directly.
 
 ```typescript
 import {LmdbEnv, LmdbRepository} from "@gramstax/lmdb"
@@ -50,23 +50,27 @@ class UserRepo extends LmdbRepository<IVUser, IKUser> {
   static dbName = `user`
 }
 
-// 2. Subclass LmdbEnv (not wrap it)
+// 2. Subclass LmdbEnv with typed getters
 class Db extends LmdbEnv {
   constructor(storePath: string) {
     super({path: storePath, maxDbs: 10, compression: true, encoding: `json`})
   }
+
+  get users() {
+    return this.get(UserRepo)
+  }
 }
 
-// 3. Use it
+// 3. Use it — access repos directly via db.<name>
 const db = new Db(`./data`)
 await db.open()
-const users = db.register(UserRepo)
+db.register(UserRepo)          // register once, access via getter
 
-await users.set(1, {id: 1, name: `Alice`, age: 30})
-const alice = await users.get(1)
+await db.users.set(1, {id: 1, name: `Alice`, age: 30})
+const alice = await db.users.get(1)
 //    ^? IVUser | undefined
 
-console.log(await users.count()) // 1
+console.log(await db.users.count()) // 1
 
 await db.close()
 ```
@@ -127,8 +131,8 @@ flowchart TB
 flowchart LR
     subgraph User["User code"]
         Define["class UserRepo extends LmdbRepository&lt;IVUser&gt;<br/>static dbName = 'user'"]
-        Register["class Db extends LmdbEnv<br/>constructor(path) { super({path}) }"]
-        Use["db.register(UserRepo)<br/>repo.set/get/delete/iterate"]
+        register["class Db extends LmdbEnv<br/>constructor(path) { super({path}) }<br/>get users() { return this.get(UserRepo) }"]
+        Use["db.users.set(1, 'Alice')<br/>db.users.get(1)"]
     end
 
     subgraph Framework["@gramstax/lmdb"]
@@ -140,7 +144,7 @@ flowchart LR
     end
 
     Define --> Repo
-    Register --> Env
+    register --> Env
     Use --> Env
     Env --> Repo
     Repo --> Codec
@@ -168,11 +172,11 @@ const db = new Db(`./data`)
 await db.open()
 
 // 3. Register — opens sub-databases (lazy on first access)
-const users = db.register(UserRepo)
+db.register(UserRepo)
 
-// 4. Use — typed CRUD
-await users.set(1, {id: 1, name: `Alice`})
-const user = await users.get(1)
+// 4. Use — typed CRUD via getter
+await db.users.set(1, {id: 1, name: `Alice`})
+const user = await db.users.get(1)
 
 // 5. Close — flushes and releases resources
 await db.close()
@@ -198,12 +202,15 @@ class Db extends LmdbEnv {
   async ready() {
     await this._ready
   }
+
+  get users() { return this.get(UserRepo) }
+  get sessions() { return this.get(SessionRepo) }
 }
 
 // Usage
 const db = new Db(`./data`)
 await db.ready()
-const users = db.get(UserRepo)
+await db.users.set(1, {id: 1, name: `Alice`})
 ```
 
 ## Transactions
@@ -302,8 +309,8 @@ class Db extends LmdbEnv {
 const db = new Db(`./data`)
 
 await env.open()
-env.register(RepoClass)                 // returns typed Repo instance
-env.get(RepoClass)                      // retrieve registered instance
+env.register(RepoClass)                 // register once
+env.get(RepoClass)                      // retrieve registered instance (use inside getters)
 env.has(RepoClass)                      // boolean check
 await env.transaction(fn)               // cross-repo write transaction
 await env.readTransaction(fn)           // snapshot read
