@@ -136,18 +136,26 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    */
   static deserialize?(raw: unknown): any
 
-  /** @internal */
-  protected readonly _env: IEnvForRepo
+  /**
+   * The owning {@link LmdbEnv} instance.
+   *
+   * @remarks
+   * Exposed as public to allow subclasses to call `env.transaction()`,
+   * `env.getRepository()`, and other env-level methods directly.
+   *
+   * @public
+   */
+  protected readonly env: IEnvForRepo
 
   /** @internal Raw LMDB sub-database handle (`Database<any, any>` retains
    *  method autocomplete while key/value safety is handled by `LmdbRepository`). */
-  protected readonly _db: Database<any, any>
+  protected readonly raw: Database<any, any>
 
   /** @internal */
   protected readonly _codec: ICodec<T> | undefined
 
   /** @internal Cache of compiled LIKE regexes — avoids O(N) recompile per call. */
-  private readonly _patternCache = new Map<string, RegExp>()
+  protected readonly _patternCache = new Map<string, RegExp>()
 
   /**
    * Construct a LmdbRepository bound to an env.
@@ -164,8 +172,8 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
     if (!resolved) {
       throw new LmdbMissingDbNameError(this.constructor.name)
     }
-    this._env = env
-    this._db = env.getDb(resolved)
+    this.env = env
+    this.raw = env.getDb(resolved)
     this._codec = resolveCodec(this.constructor)
   }
 
@@ -210,9 +218,9 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async set(key: K, value: T, _tx?: LmdbTransaction): Promise<void> {
-    if (this._env.readOnly) throw new LmdbReadOnlyError(`set`)
+    if (this.env.readOnly) throw new LmdbReadOnlyError(`set`)
     const encoded = this._codec ? this._codec.serialize(value) : value
-    await this._db.put(key, encoded)
+    await this.raw.put(key, encoded)
   }
 
   /**
@@ -240,7 +248,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    */
   async get(key: K, _tx?: LmdbTransaction): Promise<T | undefined> {
     const opts = this._readOpts(_tx)
-    const raw = opts ? await this._db.get(key, opts) : await this._db.get(key)
+    const raw = opts ? await this.raw.get(key, opts) : await this.raw.get(key)
     if (raw === undefined) return undefined
     return this._codec ? this._decodeValue(raw) : (raw as T)
   }
@@ -259,7 +267,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    */
   async has(key: K, _tx?: LmdbTransaction): Promise<boolean> {
     const opts = this._readOpts(_tx)
-    return Boolean(opts ? await this._db.doesExist(key, opts) : await this._db.doesExist(key))
+    return Boolean(opts ? await this.raw.doesExist(key, opts) : await this.raw.doesExist(key))
   }
 
   /**
@@ -281,9 +289,9 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async delete(key: K, _tx?: LmdbTransaction): Promise<boolean> {
-    if (this._env.readOnly) throw new LmdbReadOnlyError(`delete`)
-    if (await this._db.doesExist(key)) {
-      await this._db.remove(key)
+    if (this.env.readOnly) throw new LmdbReadOnlyError(`delete`)
+    if (await this.raw.doesExist(key)) {
+      await this.raw.remove(key)
       return true
     }
     return false
@@ -303,8 +311,8 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async clear(_tx?: LmdbTransaction): Promise<void> {
-    if (this._env.readOnly) throw new LmdbReadOnlyError(`clear`)
-    await this._db.clearAsync()
+    if (this.env.readOnly) throw new LmdbReadOnlyError(`clear`)
+    await this.raw.clearAsync()
   }
 
   /**
@@ -325,8 +333,8 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async drop(): Promise<void> {
-    if (this._env.readOnly) throw new LmdbReadOnlyError(`drop`)
-    await this._db.drop()
+    if (this.env.readOnly) throw new LmdbReadOnlyError(`drop`)
+    await this.raw.drop()
   }
 
   /**
@@ -349,7 +357,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async prefetch(keys: K[]): Promise<void> {
-    await this._db.prefetch(keys)
+    await this.raw.prefetch(keys)
   }
 
   /**
@@ -376,7 +384,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async getMany(keys: K[]): Promise<Array<T | undefined>> {
-    const raws = (await this._db.getMany(keys)) as Array<unknown>
+    const raws = (await this.raw.getMany(keys)) as Array<unknown>
     return raws.map((raw) => (raw === undefined ? undefined : this._decodeValue(raw)))
   }
 
@@ -394,7 +402,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    */
   async count(_tx?: LmdbTransaction): Promise<number> {
     const opts = this._readOpts(_tx)
-    return (opts ? await this._db.getCount(opts) : await this._db.getCount()) as number
+    return (opts ? await this.raw.getCount(opts) : await this.raw.getCount()) as number
   }
 
   // ──────────────────────────────────────────────────────────────────
@@ -422,7 +430,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async keys(options?: IRangeOptions, _tx?: LmdbTransaction): Promise<K[]> {
-    return (await this._db.getKeys(options).asArray) as K[]
+    return (await this.raw.getKeys(options).asArray) as K[]
   }
 
   /**
@@ -440,7 +448,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async values(options?: IRangeOptions, _tx?: LmdbTransaction): Promise<T[]> {
-    const arr = (await this._db.getRange(options).asArray) as Array<{key: K; value: unknown}>
+    const arr = (await this.raw.getRange(options).asArray) as Array<{key: K; value: unknown}>
     return arr.map((e) => this._decodeValue(e.value))
   }
 
@@ -459,7 +467,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async entries(options?: IRangeOptions, _tx?: LmdbTransaction): Promise<Array<[K, T]>> {
-    const arr = (await this._db.getRange(options).asArray) as Array<{key: K; value: unknown}>
+    const arr = (await this.raw.getRange(options).asArray) as Array<{key: K; value: unknown}>
     return arr.map((e) => [e.key as K, this._decodeValue(e.value)])
   }
 
@@ -485,7 +493,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async *iterate(options?: IRangeOptions, _tx?: LmdbTransaction): AsyncIterableIterator<[K, T]> {
-    const iter = this._db.getRange(options) as Iterable<{key: K; value: unknown}>
+    const iter = this.raw.getRange(options) as Iterable<{key: K; value: unknown}>
     for (const entry of iter) {
       yield [entry.key as K, this._decodeValue(entry.value)]
     }
@@ -621,7 +629,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
     if (prefix !== null) {
       const endKey = this._prefixEnd(prefix as K)
       if (endKey !== undefined) {
-        const arr = await this._db.getRange({
+        const arr = await this.raw.getRange({
           start: prefix as K,
           end: endKey,
           limit: options?.limit,
@@ -634,7 +642,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
       }
     }
     const regex = this._patternToRegex(pattern)
-    const arr = await this._db.getRange(options).filter(({key}: {key: K}) => regex.test(String(key))).asArray
+    const arr = await this.raw.getRange(options).filter(({key}: {key: K}) => regex.test(String(key))).asArray
     return arr.map((e: {key: K; value: unknown}) => [e.key as K, this._decodeValue(e.value)])
   }
 
@@ -664,10 +672,10 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
   async findByPrefix(prefix: K, options?: IRangeOptions): Promise<Array<[K, T]>> {
     const endKey = this._prefixEnd(prefix)
     if (endKey !== undefined) {
-      const arr = (await this._db.getRange({start: prefix, end: endKey, ...options}).asArray) as Array<{key: K; value: unknown}>
+      const arr = (await this.raw.getRange({start: prefix, end: endKey, ...options}).asArray) as Array<{key: K; value: unknown}>
       return arr.map((e) => [e.key as K, this._decodeValue(e.value)])
     }
-    const arr = (await this._db.getRange(options).filter(({key}: {key: K}) => String(key).startsWith(String(prefix))).asArray) as Array<{key: K; value: unknown}>
+    const arr = (await this.raw.getRange(options).filter(({key}: {key: K}) => String(key).startsWith(String(prefix))).asArray) as Array<{key: K; value: unknown}>
     return arr.map((e) => [e.key as K, this._decodeValue(e.value)])
   }
 
@@ -695,9 +703,9 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
   async countByPrefix(prefix: K): Promise<number> {
     const endKey = this._prefixEnd(prefix)
     if (endKey !== undefined) {
-      return this._db.getKeysCount({start: prefix, end: endKey})
+      return this.raw.getKeysCount({start: prefix, end: endKey})
     }
-    const keys = (await this._db.getKeys().asArray) as K[]
+    const keys = (await this.raw.getKeys().asArray) as K[]
     return keys.filter((k) => String(k).startsWith(String(prefix))).length
   }
 
@@ -726,10 +734,10 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async deleteByPrefix(prefix: K): Promise<number> {
-    if (this._env.readOnly) throw new LmdbReadOnlyError(`deleteByPrefix`)
+    if (this.env.readOnly) throw new LmdbReadOnlyError(`deleteByPrefix`)
     const endKey = this._prefixEnd(prefix)
-    const keys = endKey !== undefined ? ((await this._db.getKeys({start: prefix, end: endKey}).asArray) as K[]) : ((await this._db.getKeys().asArray) as K[]).filter((k) => String(k).startsWith(String(prefix)))
-    const results = await Promise.all(keys.map((k) => this._db.remove(k)))
+    const keys = endKey !== undefined ? ((await this.raw.getKeys({start: prefix, end: endKey}).asArray) as K[]) : ((await this.raw.getKeys().asArray) as K[]).filter((k) => String(k).startsWith(String(prefix)))
+    const results = await Promise.all(keys.map((k) => this.raw.remove(k)))
     let removed = 0
     for (const r of results) if (r) removed++
     return removed
@@ -753,7 +761,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async first(): Promise<[K, T] | undefined> {
-    const arr = (await this._db.getRange({limit: 1}).asArray) as Array<{key: K; value: unknown}>
+    const arr = (await this.raw.getRange({limit: 1}).asArray) as Array<{key: K; value: unknown}>
     const entry = arr[0]
     return entry ? [entry.key as K, this._decodeValue(entry.value)] : undefined
   }
@@ -777,7 +785,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async last(): Promise<[K, T] | undefined> {
-    const arr = (await this._db.getRange({reverse: true, limit: 1}).asArray) as Array<{key: K; value: unknown}>
+    const arr = (await this.raw.getRange({reverse: true, limit: 1}).asArray) as Array<{key: K; value: unknown}>
     const entry = arr[0]
     return entry ? [entry.key as K, this._decodeValue(entry.value)] : undefined
   }
@@ -812,7 +820,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async update(key: K, updater: (current: T | undefined) => T): Promise<T> {
-    if (this._env.readOnly) throw new LmdbReadOnlyError(`update`)
+    if (this.env.readOnly) throw new LmdbReadOnlyError(`update`)
     const current = await this.get(key)
     const next = updater(current)
     await this.set(key, next)
