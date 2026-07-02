@@ -235,8 +235,7 @@ export class WorkerThreadInit {
    */
   async createGatewayServer(register?: any, path?: string) {
     if (!register) {
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      register = this
+      ;(register as any) = this
     }
     if (!path) {
       path = (this.constructor as any).gatewayServerPath

@@ -136,8 +136,7 @@ export class WorkerThreadLaunch {
   ) {
     this.init()
     if (!register) {
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      register = this
+      ;(register as any) = this
     }
     this.rpc = new WorkerThreadRpc(this.send.bind(this), register)
   }
