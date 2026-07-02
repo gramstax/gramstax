@@ -12,14 +12,19 @@
 
 - `packages/gramstax`: core library package (tsup build).
 - `packages/create-gramstax`: CLI scaffolding tool (tsup build).
+- `packages/lmdb`: LMDB-backed database with OOP Repository pattern (separate npm package `@gramstax/lmdb`).
+- `packages/worker-thread`: worker thread lifecycle + RPC + Unix-socket gateway (separate npm package `@gramstax/worker-thread`).
 - `packages/*/src`: TypeScript sources.
-- `packages/*/test`: Bun unit tests (currently only in `gramstax`).
+- `packages/*/test`: Bun unit tests (currently only in `gramstax`, `lmdb`, `worker-thread`).
 - `packages/create-gramstax/src/templates`: template project files for the CLI.
-- `example/`: sample projects used for references.
+- `example/`: sample projects (1-complex through 10-http-request, ordinally named).
+- `rules/`: rule sets for generated Gramstax projects (`main`, `ctx-pages`, `ctx-db`, `ctx-e2e`).
 - `docs/`: documentation and API reference.
 - `docs/AGENTS.md`: API reference; not repo-wide agent guidance.
 - `eslint.config.ts`, `.prettierrc`, `tsconfig.json`, `nx.json`: global tooling config.
 - `bunfig.toml`: Bun runtime config.
+- `security-poc/`: standalone numbered security PoC scripts.
+- `skill/`: custom tooling scripts (some deprecated).
 
 ## Toolchain
 
@@ -42,6 +47,7 @@
 - `bun run build:create-gramstax`
 - `nx build gramstax`
 - `nx build create-gramstax`
+- `nx build worker-thread`
 
 ## Lint Commands
 
@@ -210,6 +216,20 @@ To add a new PAGE value validator: extend `_PAGE_ATTR_VALUE_VALIDATORS[tagName]`
 - Output artifacts live in `packages/gramstax/dist/src`.
 - Run a single test with `bun test packages/gramstax/test/<file>.ts` or filter via `bun test --filter "Name"`.
 
+## Package: lmdb
+
+- Published as `@gramstax/lmdb`.
+- Source root is `packages/lmdb/src`; flat module structure (env, repository, transaction, codec, errors, types).
+- Core pattern: extend `LmdbEnv` for the root DB class; extend `LmdbRepository<T,K>` with `static dbName` for each sub-DB.
+- Build with `nx build` (tsup).
+
+## Package: worker-thread
+
+- Published as `@gramstax/worker-thread`.
+- Source root is `packages/worker-thread/src`; flat module structure (launch, init, pool, rpc, gateway-\*, export).
+- Core pattern: `WorkerThreadInit` subclass in the worker, `WorkerThreadLaunch` on the main thread, optional Unix-socket gateway for inter-worker comms.
+- Build with `nx build` (tsup).
+
 ## Template Project (create-gramstax)
 
 - `packages/create-gramstax/src/templates` holds files copied into generated projects.
@@ -222,6 +242,40 @@ To add a new PAGE value validator: extend `_PAGE_ATTR_VALUE_VALIDATORS[tagName]`
 - Build output lives in `packages/*/dist`.
 - Do not edit files in `dist`; update source and rebuild instead.
 - Avoid committing generated build output unless explicitly required.
+- Note: `tsconfig.tsbuildinfo` and API-extractor temp outputs in `docs/extractor/temp/` are committed despite being build artifacts.
+
+## Non-Standard Layout
+
+The repo has a broader scope than a typical 2-package Bun/Nx monorepo:
+
+- **Extra top-level dirs**: `rules/` (agent rules), `security-poc/` (numbered PoCs), `skill/` (tooling, some deprecated), `.omo/` (tool metadata), `real/` (empty).
+- **Extra packages**: `lmdb/` and `worker-thread/` are independently published npm packages.
+- **Example workspaces**: `example/1-complex` through `example/10-http-request` are ordinally named and included in the root workspace.
+- **Checked-in artifacts**: `tsconfig.tsbuildinfo`, API-extractor temp output, and generated docs/yaml/markdown trees are versioned.
+
+## Complexity Hotspots
+
+- `packages/gramstax/src/core/ctx.ts` — 4006 lines (multipurpose context/reply/edit/broadcast/session/route).
+- `packages/gramstax/src/template/engine.ts` — 3251 lines (parser/compiler/validator).
+- `packages/gramstax/src/core/bot.ts` — 1612 lines (orchestration/routing/lifecycle).
+- `packages/gramstax/src/template/manager.ts` — 1012 lines (watcher/loader/compiler).
+- These files are prime refactor candidates; make surgical changes only.
+
+## CI Notes
+
+- Single workflow: `.github/workflows/release.yml`, triggered on push to `main`.
+- Release job runs `ci:test:packages` + `build:all`, then `nx release`.
+- Failure handler is unusual: checks npm for existing version, may delete tag/release and force-push.
+- Root `prepush` script does `ci:test` + `build:all` + a manual safety echo.
+
+## Anti-Patterns (THIS PROJECT)
+
+- **No `@ts-ignore` / `@ts-expect-error`** in source code you must be fix it!.
+- **No `.editorconfig`** — formatting is Prettier-only.
+- **No `vitest`/`jest`** — use `bun:test` exclusively.
+- **No `Makefile`** or `Dockerfile`.
+- **Type suppression in tests** is common (`as any`, `as unknown as`); acceptable in test files.
+- **`templateManager: {} as any`** is an intentional exception for worker bots (documented in `rules/_INDEX.md` § Worker Bot — templateManager Exception).
 
 ## Cursor/Copilot Rules
 

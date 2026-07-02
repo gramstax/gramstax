@@ -12,10 +12,10 @@ bun add @gramstax/lmdb
 
 ## Guide Index
 
-- [`DB_ARCHITECTURE.md`](./DB_ARCHITECTURE.md) — Root `LmdbEnv`, extending it vs wrapping it, initialization lifecycle
-- [`REPOSITORY_PATTERNS.md`](./REPOSITORY_PATTERNS.md) — Defining repositories, typed CRUD, atomic transactions, cross-repo access
-- [`PERFORMANCE.md`](./PERFORMANCE.md) — Complexity table, O(1) operations, range query efficiency, batch reads
-- [`MIGRATION_GUIDE.md`](./MIGRATION_GUIDE.md) — Step-by-step migration from raw `lmdb` to `@gramstax/lmdb`
+- `./DB_ARCHITECTURE.md`: Root `LmdbEnv`, extending it vs wrapping it, initialization lifecycle
+- `./REPOSITORY_PATTERNS.md`: Defining repositories, typed CRUD, atomic transactions, cross-repo access
+- `./PERFORMANCE.md`: Complexity table, O(1) operations, range query efficiency, batch reads
+- `./MIGRATION_GUIDE.md`: Step-by-step migration from raw `lmdb` to `@gramstax/lmdb`
 
 ## Quick Reference
 

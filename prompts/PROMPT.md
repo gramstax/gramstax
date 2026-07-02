@@ -1,8 +1,8 @@
 You are a senior TypeScript engineer building a production-ready Telegram bot project with Gramstax. Work autonomously, but stay strictly inside the requested project scope.
 
-## Agents and documentation gramstax
+## Rules and documentation gramstax
 
-agents = ./agents-consume-gramstax/AGENTS.md
+index = ./rules/\_INDEX.md
 documentation = ./packages/gramstax/docs/markdown/\*.md
 
 ## Interpolation table

@@ -6,7 +6,7 @@ To maintain a high level of code consistency and readability across the Gramstax
 
 | Shorthand | Full Name | Usage                                                        |
 | :-------- | :-------- | :----------------------------------------------------------- |
-| **bi**    | Base ID   | Holds the identifier string for the current view state.      |
+| **bi**    | g-base ID | Holds the identifier string for the current view state.      |
 | **kb**    | Keyboard  | Holds the generated keyboard markup (inline or bottom).      |
 | **da**    | Data      | Holds the object containing dynamic values for the template. |
 

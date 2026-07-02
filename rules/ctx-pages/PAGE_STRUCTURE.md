@@ -4,12 +4,12 @@
 
 Each page file must follow a strict modular structure. **Only define internal classes if they contain logic or data.** Empty class blocks are prohibited.
 
-| Class        | Purpose           | Mandatory Naming                      |
-| :----------- | :---------------- | :------------------------------------ |
-| **Base**     | Base ID constants | static <idName> = `id`                |
-| **Constant** | Reusable literals | static <CONST_NAME> = value           |
-| **Helper**   | Local utilities   | static kb(ctx, bi) { ... }            |
-| **Main**     | Business Logic    | showStep{N}Form, processStep{N}Answer |
+| Class        | Purpose             | Mandatory Naming                      |
+| :----------- | :------------------ | :------------------------------------ |
+| **Base**     | g-base id constants | static <idName> = `id`                |
+| **Constant** | Reusable literals   | static <CONST_NAME> = value           |
+| **Helper**   | Local utilities     | static kb(ctx, bi) { ... }            |
+| **Main**     | Business Logic      | showStep{N}Form, processStep{N}Answer |
 
 ## Execution Path (Main Class)
 
