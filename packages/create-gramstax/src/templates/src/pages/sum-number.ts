@@ -2,8 +2,8 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static step1 = `s1`
-  static step2 = `s2`
+  static left = `l`
+  static right = `r`
   static success = `s`
 }
 
@@ -18,8 +18,8 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: SumNumberPage, edit: boolean) {
-    const bi = Base.step1
+  static async showLeftForm(ctx: SumNumberPage, edit: boolean) {
+    const bi = Base.left
     const kb = Helper.kb(ctx, bi)
     const da = {}
     await ctx.setSessionFreeText({step: bi})
@@ -30,27 +30,27 @@ class Main {
     }
   }
 
-  static async processStep1Answer(ctx: SumNumberPage, left: number) {
+  static async processLeftForm(ctx: SumNumberPage, left: number) {
     if (!Number.isFinite(left)) {
-      await Main.showStep1Form(ctx, false)
+      await Main.showLeftForm(ctx, false)
     } else {
-      await this.showStep2Form(ctx, left)
+      await this.showRightForm(ctx, left)
     }
   }
 
-  static async showStep2Form(ctx: SumNumberPage, left: number) {
-    const bi = Base.step2
+  static async showRightForm(ctx: SumNumberPage, left: number) {
+    const bi = Base.right
     const kb = Helper.kb(ctx, bi)
     const da = {}
     await ctx.setSessionFreeText({step: bi, left})
     await ctx.reply(kb, da, bi)
   }
 
-  static async processStep2Answer(ctx: SumNumberPage, left: number, right: number) {
+  static async processRightForm(ctx: SumNumberPage, left: number, right: number) {
     if (!Number.isFinite(right)) {
-      await Main.showStep2Form(ctx, right)
+      await Main.showRightForm(ctx, right)
     } else if (!Number.isFinite(right ?? NaN)) {
-      await Main.showStep1Form(ctx, false)
+      await Main.showLeftForm(ctx, false)
     } else {
       await Main.showSuccess(ctx, left, right)
     }
@@ -67,26 +67,26 @@ class Main {
 
 export class SumNumberPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this, true)
+    await Main.showLeftForm(this, true)
   }
 
   async handleCommandText() {
-    await Main.showStep1Form(this, false)
+    await Main.showLeftForm(this, false)
   }
 
   async handleSessionFreeText() {
     const {step, left} = Helper.getSessionParams(this)
     const input = this.msgText?.trim()
     const value = input ? Number(input) : NaN
-    if (step === Base.step1) {
-      await Main.processStep1Answer(this, value)
-    } else if (step === Base.step2) {
-      await Main.processStep2Answer(this, left!, value)
+    if (step === Base.left) {
+      await Main.processLeftForm(this, value)
+    } else if (step === Base.right) {
+      await Main.processRightForm(this, left!, value)
     }
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.left}">
       ${this.kbk.cancel()}
       <g-message>
         <b>📚 Input Left Number</b>
@@ -100,7 +100,7 @@ export class SumNumberPage extends PageBase {
       </g-message>
     </g-base>
 
-    <g-base id="${Base.step2}">
+    <g-base id="${Base.right}">
       ${this.kbk.cancel()}
       <g-message>
         <b>📚 Input Right Number</b>

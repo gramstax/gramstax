@@ -11,7 +11,7 @@ export class UserGuard extends GuardBase {
   async ensureUsername(edit: boolean) {
     try {
       if (!this.userName || this.userName.length == 0) {
-        await new UserNameNotFoundPage(this).showStep1Form(edit)
+        await new UserNameNotFoundPage(this).showIndex(edit)
         return null
       }
       return {status: true}

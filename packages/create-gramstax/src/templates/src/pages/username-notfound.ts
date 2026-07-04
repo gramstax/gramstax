@@ -1,34 +1,25 @@
 import {HelpPage} from "./help"
 import {PageBase} from "~/base/page"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Main {
-  static async showStep1Form(ctx: UserNameNotFoundPage, edit = true) {
-    const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([HelpPage], `1`, bi)
+  static async showIndex(ctx: UserNameNotFoundPage, edit = true) {
+    const kb = ctx.inlineKeyboardT([HelpPage])
     const da = {}
     if (edit) {
-      await ctx.edit(kb, da, bi)
+      await ctx.edit(kb, da)
     } else {
-      await ctx.reply(kb, da, bi)
+      await ctx.reply(kb, da)
     }
-  }
-
-  static async processStep1Answer(ctx: UserNameNotFoundPage) {
-    throw ctx
   }
 }
 
 export class UserNameNotFoundPage extends PageBase {
-  async showStep1Form(edit = true) {
-    await Main.showStep1Form(this, edit)
+  async showIndex(edit = true) {
+    await Main.showIndex(this, edit)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       ${this.kbk.home()}
       <g-message>
         <b>⚠️ Username Required</b>

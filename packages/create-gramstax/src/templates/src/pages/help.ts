@@ -1,38 +1,29 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Main {
-  static async showStep1Form(ctx: HelpPage, edit = true) {
-    const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
+  static async showIndex(ctx: HelpPage, edit = true) {
+    const kb = ctx.inlineKeyboardT([StartPage])
     const da = {}
     if (edit) {
-      await ctx.editRich(kb, da, bi)
+      await ctx.editRich(kb, da)
     } else {
-      await ctx.replyRich(kb, da, bi)
+      await ctx.replyRich(kb, da)
     }
-  }
-
-  static async processStep1Answer(ctx: HelpPage) {
-    throw ctx
   }
 }
 
 export class HelpPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleCommandText() {
-    await Main.showStep1Form(this, false)
+    await Main.showIndex(this, false)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       ${this.kbk.back()}
       <g-message>
         <b>🆘 Help Message</b>
