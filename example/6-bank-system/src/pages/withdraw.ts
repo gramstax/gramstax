@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static success = `s`
   static warnInsufficient = `w-insufficient`
   static warnInvalid = `w-invalid`
@@ -16,15 +16,15 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: WithdrawPage) {
+  static async showIndexForm(ctx: WithdrawPage) {
     await ctx.setSessionFreeText()
-    const bi = Base.step1
+    const bi = Base.index
     const kb = Helper.kb(ctx, bi)
     const da = {}
     await ctx.edit(kb, da, bi)
   }
 
-  static async processStep1Answer(ctx: WithdrawPage) {
+  static async processIndexForm(ctx: WithdrawPage) {
     const amountInput = ctx.msgText.trim()
     if (!amountInput) {
       return await Main.showWarnInvalid(ctx)
@@ -78,15 +78,15 @@ class Main {
 // Withdraw funds from the user's balance.
 export class WithdrawPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndexForm(this)
   }
 
   async handleSessionFreeText() {
-    await Main.processStep1Answer(this)
+    await Main.processIndexForm(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       ${this.kbk.cancel()}
       <g-message>
         ➖ Withdraw funds
@@ -94,7 +94,6 @@ export class WithdrawPage extends PageBase {
         Enter the amount as a whole number. Dots are allowed for thousand separators.
         Example: 50.000
       </g-message>
-      ${this.kbk.cancel(`id`)}
       <g-message lang="id">
         ➖ Tarik dana
 
@@ -111,7 +110,6 @@ export class WithdrawPage extends PageBase {
         Amount withdrawn: {{amount}}
         Updated balance: {{balance}}
       </g-message>
-      ${this.kbk.home(`id`)}
       <g-message lang="id">
         ✅ Penarikan selesai
 
@@ -128,7 +126,6 @@ export class WithdrawPage extends PageBase {
         Available balance: {{balance}}
         Please enter a smaller amount.
       </g-message>
-      ${this.kbk.cancel(`id`)}
       <g-message lang="id">
         ⚠️ Dana tidak mencukupi
 
@@ -145,7 +142,6 @@ export class WithdrawPage extends PageBase {
         We couldn't read: "{{amount}}".
         Please enter a whole number only.
       </g-message>
-      ${this.kbk.cancel(`id`)}
       <g-message lang="id">
         ⚠️ Jumlah tidak valid
 

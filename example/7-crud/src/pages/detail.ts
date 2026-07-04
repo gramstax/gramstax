@@ -1,9 +1,10 @@
 import {TimeUt} from "~/utils/time"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
+import type {IVItem} from "~/db/db"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static success = `s`
   static infoNotFound = `i-notfound`
   static warnInvalid = `w-invalid`
@@ -17,15 +18,15 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: DetailPage) {
+  static async showIndexForm(ctx: DetailPage) {
     await ctx.setSessionFreeText()
-    const bi = Base.step1
+    const bi = Base.index
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {}
     await ctx.edit(kb, da, bi)
   }
 
-  static async processStep1Answer(ctx: DetailPage) {
+  static async processIndexForm(ctx: DetailPage) {
     const id = ctx.msgText.trim()
     if (!id) {
       return await Main.showWarnInvalid(ctx)
@@ -39,7 +40,7 @@ class Main {
     }
   }
 
-  static async showSuccess(ctx: DetailPage, item: Awaited<ReturnType<DetailPage[`db`][`getItem`]>>) {
+  static async showSuccess(ctx: DetailPage, item: IVItem) {
     if (!item) {
       return
     }
@@ -79,15 +80,15 @@ class Main {
 // Shows a single item by ID.
 export class DetailPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndexForm(this)
   }
 
   async handleSessionFreeText() {
-    await Main.processStep1Answer(this)
+    await Main.processIndexForm(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       ${this.kbk.cancel()}
       <g-message>
         🔎 View item details

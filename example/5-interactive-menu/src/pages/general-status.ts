@@ -2,19 +2,14 @@ import {LogHe} from "~/helpers/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Base {
-  static dynamic = `d`
-}
-
 class Helper {
   static async built(ctx: GeneralStatusPage, isNotFound: boolean, edit = true) {
-    const bi = Base.dynamic
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
+    const kb = ctx.inlineKeyboardT([StartPage])
     const da = {isNotFound}
     if (edit) {
-      await ctx.edit(kb, da, bi)
+      await ctx.edit(kb, da)
     } else {
-      await ctx.reply(kb, da, bi)
+      await ctx.reply(kb, da)
     }
   }
 }
@@ -22,7 +17,6 @@ class Helper {
 class Main {
   static async showError(ctx: GeneralStatusPage, funcName: string, error: any, edit = true) {
     LogHe.errorMake(error, ctx.constructorName, funcName)
-
     await ctx.clearSession()
     await Helper.built(ctx, false, edit)
   }
@@ -49,14 +43,13 @@ export class GeneralStatusPage extends PageBase {
   }
 
   static template = `
-    <g-base id="${Base.dynamic}">
+    <g-base>
       ${this.kbk.home()}
       <g-message>
         {~isNotFound ? "🔎 Route not found" : "❌ Something went wrong"~}
 
         {~isNotFound ? "Use Home to return to the main menu and try a different action." : "Please try again in a moment, or return Home if the issue persists."~}
       </g-message>
-      ${this.kbk.home(`id`)}
       <g-message lang="id">
         {~isNotFound ? "🔎 Rute tidak ditemukan" : "❌ Terjadi kesalahan"~}
 

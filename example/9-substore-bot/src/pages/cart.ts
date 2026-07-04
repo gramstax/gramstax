@@ -5,7 +5,7 @@ import {CatalogPage} from "./catalog"
 import {CheckoutPage} from "./checkout"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static empty = `e`
   static infoCleared = `i-cleared`
 }
@@ -36,22 +36,22 @@ class Helper {
           k.row()
         }
 
-        return k.text(l[5]!, CatalogPage.data.callbackData(Base.step1, `page`, `0`)).text(l[6]!, StartPage.data.callbackData())
+        return k.text(l[5]!, CatalogPage.data.callbackData()).text(l[6]!, StartPage.data.callbackData())
       },
       {AGBaseId: bi}
     )
   }
 
   static kbEmpty(ctx: CartPage, bi?: string) {
-    return ctx.inlineKeyboardT([CatalogPage.data.callbackData(Base.step1, `page`, `0`), StartPage], `1`, bi)
+    return ctx.inlineKeyboardT([CatalogPage, StartPage], `1`, bi)
   }
 }
 
 class Main {
-  static async showStep1Form(ctx: CartPage, edit = true) {
+  static async showIndexForm(ctx: CartPage, edit = true) {
     const cart = await Helper.getCart(ctx)
     const summary = CartStore.getSummary(cart)
-    const bi = summary.isEmpty ? Base.empty : Base.step1
+    const bi = summary.isEmpty ? Base.empty : Base.index
     const kb = summary.isEmpty ? Helper.kbEmpty(ctx, bi) : Helper.kb(ctx, cart, bi)
     const da = {
       items: OrderStore.formatCart(summary),
@@ -65,7 +65,7 @@ class Main {
     }
   }
 
-  static async processStep1Answer(ctx: CartPage, action?: string, productId?: string) {
+  static async processIndexForm(ctx: CartPage, action?: string, productId?: string) {
     const cart = await Helper.getCart(ctx)
     let next = cart
 
@@ -82,7 +82,7 @@ class Main {
     }
 
     await Helper.setCart(ctx, next)
-    await Main.showStep1Form(ctx, true)
+    await Main.showIndexForm(ctx, true)
   }
 
   static async showInfoCleared(ctx: CartPage) {
@@ -97,22 +97,22 @@ export class CartPage extends PageBase {
   static data = this.buildData((step?: string, action?: string, productId?: string) => [step, action, productId])
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, true)
+    await Main.showIndexForm(this, true)
   }
 
   async handleArgsCallbackData() {
     const [step, action, productId] = this.callbackDataArgs
-    if (step === Base.step1) {
-      await Main.processStep1Answer(this, action, productId)
+    if (step === Base.index) {
+      await Main.processIndexForm(this, action, productId)
     }
   }
 
   async showStep1Form(edit = true) {
-    await Main.showStep1Form(this, edit)
+    await Main.showIndexForm(this, edit)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       <g-keyboard>➕, ➖, 🗑️ Remove, 💳 Checkout, 🧹 Clear, 🔎 Browse Products, 🏠 Home</g-keyboard>
       <g-message>
         🛒 Your Cart

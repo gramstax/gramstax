@@ -23,14 +23,14 @@ import {KeyboardBottomPage} from "./keyboard-bottom"
 import {TestMediaGroupPage} from "./test-media-group"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static kbForImport = `kb-for-block-import`
   static forImport = `for-block-import`
 }
 
 class Helper {
   static kb(ctx: StartPage) {
-    const bi = Base.step1
+    const bi = Base.index
     const kb = ctx.inlineKeyboard(
       (k, l) => {
         return k
@@ -76,8 +76,8 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: StartPage, condition = 1) {
-    const bi = Base.step1
+  static async showIndex(ctx: StartPage, condition = 1) {
+    const bi = Base.index
     const kb = Helper.kb(ctx)
     const da = {
       firstName: ctx.userFirstName,
@@ -95,37 +95,33 @@ class Main {
       await ctx.reply(kb, da, bi)
     }
   }
-
-  static async processStep1Answer(ctx: StartPage) {
-    throw ctx
-  }
 }
 
 export class StartPage extends PageBase {
   static data = this.buildData((rdm?: string) => [rdm])
 
   async handleText() {
-    await Main.showStep1Form(this, 1)
+    await Main.showIndex(this, 1)
   }
 
   async handleArgsText() {
-    await Main.showStep1Form(this, 1)
+    await Main.showIndex(this, 1)
   }
 
   async handleCommandText() {
-    await Main.showStep1Form(this, 1)
+    await Main.showIndex(this, 1)
   }
 
   async handleCommandArgsText() {
-    await Main.showStep1Form(this, 1)
+    await Main.showIndex(this, 1)
   }
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, 2)
+    await Main.showIndex(this, 2)
   }
 
   async handleArgsCallbackData() {
-    await Main.showStep1Form(this, 3)
+    await Main.showIndex(this, 3)
   }
 
   static template = `
@@ -151,7 +147,7 @@ export class StartPage extends PageBase {
       </g-message>
     </g-base>
 
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       <g-description>Default description command /start</g-description>
       <g-description lang="en">[EN] Description command /start</g-description>
       <g-description lang="id">[ID] Deskripsi perintah /start</g-description>

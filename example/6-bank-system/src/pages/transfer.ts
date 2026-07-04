@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static success = `s`
   static warnInvalid = `w-invalid`
   static warnInsufficient = `w-insufficient`
@@ -32,14 +32,14 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: TransferPage) {
-    const bi = Base.step1
+  static async showIndexForm(ctx: TransferPage) {
+    const bi = Base.index
     const kb = Helper.kb(ctx, bi)
     const da = {}
     await ctx.edit(kb, da, bi)
   }
 
-  static async processStep1Answer(ctx: TransferPage) {
+  static async processIndexForm(ctx: TransferPage) {
     const [amountInput, targetInput] = ctx.msgText.trim().split(/\s+/)
     if (!amountInput || !targetInput) {
       return await Main.showWarnInvalid(ctx)
@@ -129,15 +129,15 @@ class Main {
 // Transfer funds to another user.
 export class TransferPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndexForm(this)
   }
 
   async handleSessionFreeText() {
-    await Main.processStep1Answer(this)
+    await Main.processIndexForm(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       ${this.kbk.cancel()}
       <g-message>
         🔁 Transfer funds
@@ -147,7 +147,6 @@ export class TransferPage extends PageBase {
 
         Example: 125.000 12345
       </g-message>
-      ${this.kbk.cancel(`id`)}
       <g-message lang="id">
         🔁 Transfer dana
 
@@ -166,7 +165,6 @@ export class TransferPage extends PageBase {
         Sent {{amount}} to {{target}}
         Updated balance: {{balance}}
       </g-message>
-      ${this.kbk.home(`id`)}
       <g-message lang="id">
         ✅ Transfer selesai
 
@@ -183,7 +181,6 @@ export class TransferPage extends PageBase {
         Available balance: {{balance}}
         Please enter a smaller amount.
       </g-message>
-      ${this.kbk.cancel(`id`)}
       <g-message lang="id">
         ⚠️ Dana tidak mencukupi
 
@@ -200,7 +197,6 @@ export class TransferPage extends PageBase {
         We couldn't resolve: "{{target}}".
         Provide a numeric ID or a registered username.
       </g-message>
-      ${this.kbk.cancel(`id`)}
       <g-message lang="id">
         ⚠️ Penerima tidak ditemukan
 
@@ -217,7 +213,6 @@ export class TransferPage extends PageBase {
         Transfers to your own account are not permitted.
         Please choose a different recipient.
       </g-message>
-      ${this.kbk.cancel(`id`)}
       <g-message lang="id">
         ⚠️ Transfer diblokir
 
@@ -234,7 +229,6 @@ export class TransferPage extends PageBase {
         Use the format: [amount] [recipient]
         Example: 125.000 12345
       </g-message>
-      ${this.kbk.cancel(`id`)}
       <g-message lang="id">
         ⚠️ Format transfer tidak valid
 

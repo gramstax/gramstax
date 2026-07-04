@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static success = `s`
   static warnInvalid = `w-invalid`
 }
@@ -15,15 +15,15 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: DepositPage) {
+  static async showIndexForm(ctx: DepositPage) {
     await ctx.setSessionFreeText()
-    const bi = Base.step1
+    const bi = Base.index
     const kb = Helper.kb(ctx, bi)
     const da = {}
     await ctx.edit(kb, da, bi)
   }
 
-  static async processStep1Answer(ctx: DepositPage) {
+  static async processIndexForm(ctx: DepositPage) {
     const amountInput = ctx.msgText.trim()
     if (!amountInput) {
       return await Main.showWarnInvalid(ctx)
@@ -66,15 +66,15 @@ class Main {
 // Deposits funds into the user's balance.
 export class DepositPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndexForm(this)
   }
 
   async handleSessionFreeText() {
-    await Main.processStep1Answer(this)
+    await Main.processIndexForm(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       ${this.kbk.cancel()}
       <g-message>
         ➕ Deposit funds
@@ -82,7 +82,6 @@ export class DepositPage extends PageBase {
         Enter the amount as a whole number. Dots are allowed for thousand separators.
         Example: 125.000
       </g-message>
-      ${this.kbk.cancel(`id`)}
       <g-message lang="id">
         ➕ Setor dana
 
@@ -99,7 +98,6 @@ export class DepositPage extends PageBase {
         Amount received: {{amount}}
         Updated balance: {{balance}}
       </g-message>
-      ${this.kbk.home(`id`)}
       <g-message lang="id">
         ✅ Setoran selesai
 
@@ -116,7 +114,6 @@ export class DepositPage extends PageBase {
         We couldn't read: "{{amount}}".
         Please enter a whole number only.
       </g-message>
-      ${this.kbk.cancel(`id`)}
       <g-message lang="id">
         ⚠️ Jumlah tidak valid
 

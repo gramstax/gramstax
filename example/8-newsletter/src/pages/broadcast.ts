@@ -12,7 +12,7 @@ type BroadcastSession = {
 }
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static infoHybridMedia = `i-hybrid-media`
   static infoHybridMediaNotAvailable = `i-hybrid-media-not-available`
   static infoConfirmText = `i-confirm-text`
@@ -33,7 +33,7 @@ class Base {
 class Helper {
   static kbConfirm(ctx: BroadcastPage) {
     const bi = Base.kbConfirm
-    const s1 = Base.step1
+    const s1 = Base.index
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(s1, `send`), ctx.data.callbackData(s1, `edit`), ctx.data.callbackData(s1, `cancel`), StartPage], `2-2`, bi)
     return kb
   }
@@ -52,7 +52,7 @@ class Helper {
 class Main {
   static async showStep1Form(ctx: BroadcastPage, draftText: string, isEmpty = false, edit = true) {
     await ctx.setSession([ctx.methodSessionFreeText(), ctx.methodSessionFreePhoto(), ctx.methodSessionFreeVideo(), ctx.methodSessionFreeAnimation()], {position: `form`})
-    const bi = Base.step1
+    const bi = Base.index
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `hybrid`), ctx.data.callbackData(bi, `cancel`), StartPage], `1-2`, bi)
     const da = {draftText, isEmpty}
     if (edit) {
@@ -62,7 +62,7 @@ class Main {
     }
   }
 
-  static async processStep1Answer(ctx: BroadcastPage, action: string) {
+  static async processStep1Form(ctx: BroadcastPage, action: string) {
     const {position, draftText, mediaType, fileId, caption} = Helper.getSessionParams(ctx)
     if (position !== `confirm`) {
       return
@@ -214,8 +214,8 @@ export class BroadcastPage extends PageBase {
 
   async handleSessionArgsCallbackData() {
     const [step, action] = this.callbackDataArgs
-    if (step === Base.step1) {
-      await Main.processStep1Answer(this, action!)
+    if (step === Base.index) {
+      await Main.processStep1Form(this, action!)
     }
   }
 
@@ -245,7 +245,7 @@ export class BroadcastPage extends PageBase {
       <g-keyboard lang="id">✅ Kirim, ✏️ Edit, ${this.kbl.cancelHome.id}</g-keyboard>
     </g-base>
 
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       <g-keyboard>📰 Hybrid Media, ${this.kbl.cancelHome.default}</g-keyboard>
       <g-keyboard lang="id">📰 Media Hibrid, ${this.kbl.cancelHome.id}</g-keyboard>
       <g-message>

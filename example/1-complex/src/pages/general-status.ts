@@ -2,14 +2,9 @@ import {LogHe} from "~/helpers/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Base {
-  static dynamic = `d`
-}
-
 class Helper {
   static kb(ctx: GeneralStatusPage) {
-    const bi = Base.dynamic
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
+    const kb = ctx.inlineKeyboardT([StartPage], `1`)
     return kb
   }
 }
@@ -19,21 +14,19 @@ class Main {
     LogHe.errorMake(error, ctx.constructorName, funcName)
 
     await ctx.clearSession()
-    const bi = Base.dynamic
     const kb = Helper.kb(ctx)
     const da = {isNotFound: false}
     if (edit) {
-      await ctx.edit(kb, da, bi)
+      await ctx.edit(kb, da)
     } else {
-      await ctx.reply(kb, da, bi)
+      await ctx.reply(kb, da)
     }
   }
 
   static async showErrorInputNotFound(ctx: GeneralStatusPage) {
-    const bi = Base.dynamic
     const kb = Helper.kb(ctx)
     const da = {isNotFound: true}
-    await ctx.reply(kb, da, bi)
+    await ctx.reply(kb, da)
   }
 }
 
@@ -54,7 +47,7 @@ export class GeneralStatusPage extends PageBase {
   }
 
   static template = `
-    <g-base id="${Base.dynamic}">
+    <g-base>
       ${this.kbk.home()}
       <g-message>
         {~isNotFound ? "🔎 Route not found" : "❌ Something went wrong"~}

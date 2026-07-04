@@ -1,28 +1,19 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Main {
-  static async showStep1Form(ctx: ResetPage, edit = false) {
+  static async showIndex(ctx: ResetPage, edit = false) {
     await ctx.clearSession()
     await ctx.cacheState.delete(`${ctx.userId}:category`)
     await ctx.cacheState.delete(`${ctx.userId}:page`)
 
-    const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
+    const kb = ctx.inlineKeyboardT([StartPage], `1`)
     const da = {}
     if (edit) {
-      await ctx.edit(kb, da, bi)
+      await ctx.edit(kb, da)
     } else {
-      await ctx.reply(kb, da, bi)
+      await ctx.reply(kb, da)
     }
-  }
-
-  static async processStep1Answer(ctx: ResetPage) {
-    throw ctx
   }
 }
 
@@ -31,26 +22,25 @@ export class ResetPage extends PageBase {
   static data = this.buildData({intentText: `Reset`})
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleText() {
-    await Main.showStep1Form(this, false)
+    await Main.showIndex(this, false)
   }
 
   async showStep1Form(edit = false) {
-    await Main.showStep1Form(this, edit)
+    await Main.showIndex(this, edit)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       ${this.kbk.back()}
       <g-message>
         ✅ Reset complete
 
         Tap Back to return to the main menu.
       </g-message>
-      ${this.kbk.back(`id`)}
       <g-message lang="id">
         ✅ Atur ulang selesai
 

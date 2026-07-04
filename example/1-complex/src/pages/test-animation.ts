@@ -2,13 +2,13 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static dynamicAttr = `dynamic-attribute`
 }
 
 class Helper {
   static kbStep1(ctx: TestAnimationPage, isDynamic = false) {
-    const bi = Base.step1
+    const bi = Base.index
     const kb = ctx.inlineKeyboard(
       (k, l) => {
         return k //
@@ -23,14 +23,14 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: TestAnimationPage) {
-    const bi = Base.step1
+  static async showIndexForm(ctx: TestAnimationPage) {
+    const bi = Base.index
     const kb = Helper.kbStep1(ctx)
     const da = {}
     await ctx.editAnimation(kb, da, bi)
   }
 
-  static async processStep1Answer(ctx: TestAnimationPage) {
+  static async processIndexAnswer(ctx: TestAnimationPage) {
     const swc = ctx.callbackDataArg
     if (swc == `static`) {
       await ctx.handleCallbackData()
@@ -49,15 +49,15 @@ export class TestAnimationPage extends PageBase {
   static data = this.buildData((swc?: string) => [swc])
 
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndexForm(this)
   }
 
   async handleArgsCallbackData() {
-    await Main.processStep1Answer(this)
+    await Main.processIndexAnswer(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       <g-keyboard>🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.default}</g-keyboard>
       <g-keyboard lang="id">🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.id}</g-keyboard>
       <g-media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">

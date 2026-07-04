@@ -1,6 +1,6 @@
-export type HttpMethod = `GET` | `POST` | `PUT` | `DELETE` | `PATCH`
+export type IHttpMethod = `GET` | `POST` | `PUT` | `DELETE` | `PATCH`
 
-export type HttpResponse = {
+export type IHttpResponse = {
   status: number
   statusText: string
   headers: Record<string, string>
@@ -16,7 +16,7 @@ export class HttpService {
   // Maximum response body length to display in Telegram.
   static MAX_BODY_LENGTH = 1500
 
-  static METHODS: HttpMethod[] = [`GET`, `POST`, `PUT`, `DELETE`, `PATCH`]
+  static METHODS: IHttpMethod[] = [`GET`, `POST`, `PUT`, `DELETE`, `PATCH`]
 
   // Whether the given HTTP method typically carries a request body.
   static needsBody(method: string): boolean {
@@ -44,7 +44,7 @@ export class HttpService {
   }
 
   // Performs an HTTP request with the given method, URL, optional body, and optional extra headers.
-  static async request(method: string, url: string, body?: string, extraHeaders?: Record<string, string>): Promise<HttpResponse> {
+  static async request(method: string, url: string, body?: string, extraHeaders?: Record<string, string>): Promise<IHttpResponse> {
     const start = performance.now()
 
     const reqHeaders: Record<string, string> = {...extraHeaders}

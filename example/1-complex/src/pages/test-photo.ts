@@ -1,30 +1,21 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Main {
-  static async showStep1Form(ctx: TestPhotoPage) {
-    const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)], `1`, bi)
+  static async showIndex(ctx: TestPhotoPage) {
+    const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)])
     const da = {}
-    await ctx.editPhoto(kb, da, bi)
-  }
-
-  static async processStep1Answer(ctx: TestPhotoPage) {
-    throw ctx
+    await ctx.editPhoto(kb, da)
   }
 }
 
 export class TestPhotoPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndex(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       ${this.kbk.back()}
       <g-media type="photo" src="https://www.w3schools.com/html/img_girl.jpg">
         🖼️ Photo demo

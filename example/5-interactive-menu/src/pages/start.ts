@@ -6,13 +6,13 @@ import {InlineWithRangePage} from "./inline-with-range"
 import {InlineWithoutRangePage} from "./inline-without-range"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static infoQuick = `i-quick`
 }
 
 class Main {
-  static async showStep1Form(ctx: StartPage, edit = false) {
-    const bi = Base.step1
+  static async showIndex(ctx: StartPage, edit = false) {
+    const bi = Base.index
     const ikb = ctx.inlineKeyboardT([CategoryPage, InlineWithRangePage, InlineWithoutRangePage, HelpPage, ResetPage], `2`, bi)
     const da = {}
     if (edit) {
@@ -21,10 +21,6 @@ class Main {
       await ctx.reply(ikb, da, bi)
       await Main.showInfoQuick(ctx)
     }
-  }
-
-  static async processStep1Answer(ctx: StartPage) {
-    throw ctx
   }
 
   static async showInfoQuick(ctx: StartPage) {
@@ -40,20 +36,21 @@ export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Home`})
 
   async handleCommandText() {
-    await Main.showStep1Form(this, false)
+    await Main.showIndex(this, false)
   }
 
   async handleText() {
-    await Main.showStep1Form(this, false)
+    await Main.showIndex(this, false)
   }
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, true)
+    await Main.showIndex(this, true)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       <g-keyboard type="inline">🔎 Browse, 📊 Inline Range, 🧾 Inline WRange, ❓ Help, ♻️ Reset</g-keyboard>
+      <g-keyboard type="inline" lang="id">🔎 Jelajahi, 📊 Rentang Inline, 🧾 Inline Sederhana, ❓ Bantuan, ♻️ Atur Ulang</g-keyboard>
       <g-message>
         🧭 Main Menu
 
@@ -64,7 +61,6 @@ export class StartPage extends PageBase {
         - ❓ Help for navigation tips
         - ♻️ Reset to clear stored state
       </g-message>
-      <g-keyboard type="inline" lang="id">🔎 Jelajahi, 📊 Rentang Inline, 🧾 Inline Sederhana, ❓ Bantuan, ♻️ Atur Ulang</g-keyboard>
       <g-message lang="id">
         🧭 Menu Utama
 
@@ -78,12 +74,12 @@ export class StartPage extends PageBase {
     </g-base>
     <g-base id="${Base.infoQuick}">
       <g-keyboard type="bottom">${this.kbl.home.default}, ${this.kbl.browse.default}, ${this.kbl.help.default}, ${this.kbl.reset.default}</g-keyboard>
+      <g-keyboard type="bottom" lang="id">${this.kbl.home.id}, ${this.kbl.browse.id}, ${this.kbl.help.id}, ${this.kbl.reset.id}</g-keyboard>
       <g-message>
         ✅ Quick actions enabled
 
         Use the bottom keyboard anytime to jump back to core actions.
       </g-message>
-      <g-keyboard type="bottom" lang="id">${this.kbl.home.id}, ${this.kbl.browse.id}, ${this.kbl.help.id}, ${this.kbl.reset.id}</g-keyboard>
       <g-message lang="id">
         ✅ Aksi cepat diaktifkan
 

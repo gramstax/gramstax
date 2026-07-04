@@ -1,33 +1,24 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Main {
-  static async showStep1Form(ctx: BalancePage) {
+  static async showIndex(ctx: BalancePage) {
     const balance = ctx.bankStore.getBalance(ctx.userId)
     const formatted = ctx.bankStore.formatAmount(balance)
-    const bi = Base.step1
     const da = {balance: formatted}
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processStep1Answer(ctx: BalancePage) {
-    throw ctx
+    const kb = ctx.inlineKeyboardT([StartPage])
+    await ctx.edit(kb, da)
   }
 }
 
 // Shows the current user balance.
 export class BalancePage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndex(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       ${this.kbk.back()}
       <g-message>
         💳 Account balance
@@ -36,7 +27,6 @@ export class BalancePage extends PageBase {
 
         Use the menu to deposit, withdraw, or transfer funds.
       </g-message>
-      ${this.kbk.back(`id`)}
       <g-message lang="id">
         💳 Saldo Akun
 

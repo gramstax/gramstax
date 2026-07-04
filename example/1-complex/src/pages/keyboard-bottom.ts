@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static reset = `reset`
   static delete = `delete`
 }
@@ -19,7 +19,7 @@ class Helper {
           .oneTime()
       },
       {
-        AGBaseId: Base.step1,
+        AGBaseId: Base.index,
         data: {
           first: ctx.data.intentText
         }
@@ -30,22 +30,22 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: KeyboardBottomPage, count?: number) {
-    await Helper.built(ctx, count, Base.step1)
+  static async showIndexForm(ctx: KeyboardBottomPage, count?: number) {
+    await Helper.built(ctx, count, Base.index)
   }
 
-  static async processStep1Answer(ctx: KeyboardBottomPage, action?: string) {
+  static async processIndexAnswer(ctx: KeyboardBottomPage, action?: string) {
     if (action === Base.reset) {
       await Main.showActionReset(ctx, action)
     } else if (action === Base.delete) {
       await Main.showActionDelete(ctx, action)
     } else {
-      await Main.showStep1Form(ctx, parseInt(ctx.msgTextArg))
+      await Main.showIndexForm(ctx, parseInt(ctx.msgTextArg))
     }
   }
 
   static async showActionDelete(ctx: KeyboardBottomPage, bi: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, Base.step1)
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, Base.index)
     const da = {}
     await ctx.reply(kb, da, bi, {
       reply_markup: {
@@ -66,32 +66,31 @@ export class KeyboardBottomPage extends PageBase {
   })
 
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndexForm(this)
   }
 
   async handleText() {
-    await Main.showStep1Form(this)
+    await Main.showIndexForm(this)
   }
 
   async handleArgsText() {
-    await Main.processStep1Answer(this)
+    await Main.processIndexAnswer(this)
   }
 
   async handleCommandText() {
-    await Main.showStep1Form(this)
+    await Main.showIndexForm(this)
   }
 
   async handleCommandArgsText() {
-    await Main.processStep1Answer(this, this.msgTextCommandArg)
+    await Main.processIndexAnswer(this, this.msgTextCommandArg)
   }
 
   static template = `    
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       <g-keyboard type="inline">${this.kbl.home.default}</g-keyboard>
       <g-keyboard lang="id" type="inline">${this.kbl.home.id}</g-keyboard>
       <g-keyboard type="bottom">{{first}}, ${this.kbl.home.default}</g-keyboard>
       <g-keyboard lang="id" type="bottom">{{first}}, ${this.kbl.home.id}</g-keyboard>
-
       <g-message>
         ⌨️ Bottom keyboard
 

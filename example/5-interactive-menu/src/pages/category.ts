@@ -4,12 +4,12 @@ import {CatalogData} from "~/data/catalog"
 import {ItemListPage} from "./item-list"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
 }
 
 class Main {
-  static async showStep1Form(ctx: CategoryPage, edit = true) {
-    const bi = Base.step1
+  static async showIndex(ctx: CategoryPage, edit = true) {
+    const bi = Base.index
     const da = {}
     const kb = ctx.inlineKeyboard(
       (k, l) => {
@@ -30,7 +30,7 @@ class Main {
     }
   }
 
-  static async processStep1Answer(ctx: CategoryPage, categoryId: string) {
+  static async processIndexAnswer(ctx: CategoryPage, categoryId: string) {
     await ctx.cacheState.set(`${ctx.userId}:category`, categoryId)
     await ctx.cacheState.set(`${ctx.userId}:page`, 0)
     await new ItemListPage(ctx).showStep1Form(categoryId, 0, true)
@@ -45,31 +45,30 @@ export class CategoryPage extends PageBase {
   })
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleText() {
-    await Main.showStep1Form(this, false)
+    await Main.showIndex(this, false)
   }
 
   async handleArgsCallbackData() {
     const [step, categoryId] = this.callbackDataArgs
-    if (step === Base.step1) {
-      await Main.processStep1Answer(this, categoryId!)
+    if (step === Base.index) {
+      await Main.processIndexAnswer(this, categoryId!)
     }
   }
 
   async showStep1Form(edit = true) {
-    await Main.showStep1Form(this, edit)
+    await Main.showIndex(this, edit)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       ${this.kbk.back()}
       <g-message>
         Choose a category to continue browsing.
       </g-message>
-      ${this.kbk.back(`id`)}
       <g-message lang="id">
         Pilih kategori untuk melanjutkan browsing.
       </g-message>

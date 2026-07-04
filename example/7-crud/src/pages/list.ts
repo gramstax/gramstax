@@ -3,7 +3,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static infoEmpty = `i-empty`
 }
 
@@ -17,7 +17,7 @@ class Helper {
 
   static buildKeyboard(ctx: ListPage, page: number, totalPages: number) {
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-    const bi = Base.step1
+    const bi = Base.index
     const kb = ctx.inlineKeyboard(
       (k, l) => {
         if (safePage > 0) {
@@ -35,7 +35,7 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: ListPage, page = 0) {
+  static async showIndexForm(ctx: ListPage, page = 0) {
     const totalItems = await ctx.db.items.total(ctx.userId)
     if (totalItems === 0) {
       return await Main.showInfoEmpty(ctx)
@@ -52,18 +52,18 @@ class Main {
       })
       .join(`\n`)
 
-    const bi = Base.step1
+    const bi = Base.index
     const da = {items: list, page: safePage + 1, totalPages}
     const kb = Helper.buildKeyboard(ctx, safePage, totalPages)
     await ctx.edit(kb, da, bi)
   }
 
-  static async processStep1Answer(ctx: ListPage) {
+  static async processIndexForm(ctx: ListPage) {
     const [page] = ctx.callbackDataArgs
 
     const nextPage = Number(page)
     const pageNum = Number.isNaN(nextPage) ? 0 : nextPage
-    await Main.showStep1Form(ctx, pageNum)
+    await Main.showIndexForm(ctx, pageNum)
   }
 
   static async showInfoEmpty(ctx: ListPage) {
@@ -79,15 +79,15 @@ export class ListPage extends PageBase {
   static data = this.buildData((page?: string) => [page])
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, 0)
+    await Main.showIndexForm(this, 0)
   }
 
   async handleArgsCallbackData() {
-    await Main.processStep1Answer(this)
+    await Main.processIndexForm(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       <g-keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</g-keyboard>
       <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</g-keyboard>
       <g-message>

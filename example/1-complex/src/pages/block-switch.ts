@@ -1,39 +1,32 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Main {
-  static async showStep1Form(ctx: BlockSwitchPage, status: string) {
-    const bi = Base.step1
+  static async showIndexForm(ctx: BlockSwitchPage, status: string) {
     const da = {status}
-    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, status == `1` ? `0` : `1`), StartPage], `1`, bi, da)
-    await ctx.edit(kb, da, bi)
+    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(status == `1` ? `0` : `1`), StartPage], `1`, null, da)
+    await ctx.edit(kb, da)
   }
 
-  static async processStep1Answer(ctx: BlockSwitchPage, status: string) {
-    await Main.showStep1Form(ctx, status)
+  static async processIndexForm(ctx: BlockSwitchPage, status: string) {
+    await Main.showIndexForm(ctx, status)
   }
 }
 
 export class BlockSwitchPage extends PageBase {
-  static data = this.buildData((step?: string, status?: string) => [step, status])
+  static data = this.buildData((status?: string) => [status])
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, `0`)
+    await Main.showIndexForm(this, `0`)
   }
 
   async handleArgsCallbackData() {
-    const [step, status] = this.callbackDataArgs
-    if (step === Base.step1) {
-      await Main.processStep1Answer(this, status!)
-    }
+    const [status] = this.callbackDataArgs
+    await Main.processIndexForm(this, status!)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       <g-keyboard>
         <g-switch value="status">
           <g-case is="1">🔴 Off</g-case>

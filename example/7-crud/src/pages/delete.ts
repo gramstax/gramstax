@@ -3,7 +3,7 @@ import {StartPage} from "./start"
 import type {IVItem} from "~/db/db"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static success = `s`
   static errorNotFound = `e-notfound`
   static warnInvalid = `w-invalid`
@@ -14,7 +14,7 @@ class Helper {
   static MAX_ITEMS = 5
 
   static buildListKeyboard(ctx: DeletePage, items: IVItem[]) {
-    const bi = Base.step1
+    const bi = Base.index
     const kb = ctx.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
@@ -37,13 +37,13 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: DeletePage) {
+  static async showIndexForm(ctx: DeletePage) {
     const getItems = await ctx.db.items.list(ctx.userId)
     const items = getItems.slice(0, Helper.MAX_ITEMS)
     if (items.length === 0) {
       await Main.showInfoEmpty(ctx)
     } else {
-      const bi = Base.step1
+      const bi = Base.index
       const kb = Helper.buildListKeyboard(ctx, items)
       const da = {count: items.length}
       await ctx.setSessionFreeText({step: bi})
@@ -51,7 +51,7 @@ class Main {
     }
   }
 
-  static async processStep1Answer(ctx: DeletePage, id: string, edit = false) {
+  static async processIndexForm(ctx: DeletePage, id: string, edit = false) {
     if (!id) {
       return await Main.showWarnInvalid(ctx, edit)
     }
@@ -111,27 +111,26 @@ export class DeletePage extends PageBase {
   static data = this.buildData((step?: string, id?: string) => [step, id])
 
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndexForm(this)
   }
 
   async handleArgsCallbackData() {
     const [step, id] = this.callbackDataArgs
-
-    if (step === Base.step1) {
-      await Main.processStep1Answer(this, id!, true)
+    if (step === Base.index) {
+      await Main.processIndexForm(this, id!, true)
     }
   }
 
   async handleSessionFreeText() {
     const {step} = this.temp.session.params
     const input = this.msgText.trim()
-    if (step === Base.step1) {
-      await Main.processStep1Answer(this, input, false)
+    if (step === Base.index) {
+      await Main.processIndexForm(this, input, false)
     }
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       ${this.kbk.home()}
       <g-message>
         🗑️ Select an item to delete, or type an ID.

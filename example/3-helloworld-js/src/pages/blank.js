@@ -5,5 +5,5 @@ export class BlankPage extends PageBase {
     await this.callbackQueryAnswer()
   }
 
-  static template = `<g-base></g-base>`
+  static template = ``
 }

@@ -1,32 +1,23 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Main {
-  static async showStep1Form(ctx: StatsPage) {
+  static async showIndex(ctx: StatsPage) {
     const count = await ctx.db.subs.total()
     const subscribed = await ctx.db.subs.isSubscribed(ctx.userId)
-    const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
+    const kb = ctx.inlineKeyboardT([StartPage])
     const da = {count, subscribed}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processStep1Answer(ctx: StatsPage) {
-    throw ctx
+    await ctx.edit(kb, da)
   }
 }
 
 export class StatsPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndex(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       ${this.kbk.home()}
       <g-message>
         📊 Newsletter Stats

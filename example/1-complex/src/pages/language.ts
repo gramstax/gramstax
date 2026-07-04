@@ -1,56 +1,47 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Helper {
   static kb(ctx: LanguagePage) {
-    const bi = Base.step1
-    const kb = ctx.inlineKeyboard(
-      (k, l) => {
-        const languages = l.slice(0, -1)
-        const backButton = l[l.length - 1]! // Get the back button text
+    const kb = ctx.inlineKeyboard((k, l) => {
+      const languages = l.slice(0, -1)
+      const backButton = l[l.length - 1]! // Get the back button text
 
-        // Get current user language for comparison
-        const currentLang = ctx.userLanguage?.toLowerCase()
+      // Get current user language for comparison
+      const currentLang = ctx.userLanguage?.toLowerCase()
 
-        // Add language buttons in rows of 3
-        for (let i = 0; i < languages.length; i += 3) {
-          const row = languages.slice(i, i + 3)
-          row.forEach((lang) => {
-            const langCode = lang.toLowerCase()
-            const isSelected = langCode.endsWith(currentLang)
-            const displayText = isSelected ? `+ ${lang}` : lang
-            k.text(displayText, ctx.data.callbackData(langCode))
-          })
-          k.row()
-        }
+      // Add language buttons in rows of 3
+      for (let i = 0; i < languages.length; i += 3) {
+        const row = languages.slice(i, i + 3)
+        row.forEach((lang) => {
+          const langCode = lang.toLowerCase()
+          const isSelected = langCode.endsWith(currentLang)
+          const displayText = isSelected ? `+ ${lang}` : lang
+          k.text(displayText, ctx.data.callbackData(langCode))
+        })
+        k.row()
+      }
 
-        // Add back button
-        return k.text(backButton, StartPage.data.callbackData())
-      },
-      {AGBaseId: bi}
-    )
+      // Add back button
+      return k.text(backButton, StartPage.data.callbackData())
+    })
     return kb
   }
 }
 
 class Main {
-  static async showStep1Form(ctx: LanguagePage) {
-    const bi = Base.step1
+  static async showIndexForm(ctx: LanguagePage) {
     const kb = Helper.kb(ctx)
     const da = {}
-    await ctx.edit(kb, da, bi)
+    await ctx.edit(kb, da)
   }
 
-  static async processStep1Answer(ctx: LanguagePage) {
+  static async processIndexForm(ctx: LanguagePage) {
     const language = ctx.callbackDataArg.toLowerCase().split(` `)[1] as string
 
     await ctx.cacheData.set(`${ctx.userId}:lang`, language)
     ctx.userLanguage = language
-    await Main.showStep1Form(ctx)
+    await Main.showIndexForm(ctx)
   }
 }
 
@@ -58,15 +49,15 @@ export class LanguagePage extends PageBase {
   static data = this.buildData((lang?: string) => [lang])
 
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndexForm(this)
   }
 
   async handleArgsCallbackData() {
-    await Main.processStep1Answer(this)
+    await Main.processIndexForm(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       <g-keyboard>🇺🇸 EN, 🇮🇩 ID, ${this.kbl.back.default}</g-keyboard>
       <g-keyboard lang="id">🇺🇸 EN, 🇮🇩 ID, ${this.kbl.back.id}</g-keyboard>
 

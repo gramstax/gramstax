@@ -4,7 +4,7 @@ import {BlankPage} from "./blank"
 import {CatalogData} from "~/data/catalog"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
 }
 
 class Constant {
@@ -19,7 +19,7 @@ class Helper {
     const items = CatalogData.menuItems.slice(start, end)
     const hasPrevious = safePage > 0
     const hasMore = end < CatalogData.menuItems.length
-    const bi = Base.step1
+    const bi = Base.index
     const kb = ctx.inlineKeyboard(
       (k, l) => {
         items.forEach((item) => {
@@ -48,11 +48,11 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: InlineWithoutRangePage, page: number, edit = true) {
+  static async showIndexForm(ctx: InlineWithoutRangePage, page: number, edit = true) {
     const {page: currentPage, safePage} = Helper.pageData(page)
     const da = {page: currentPage}
     const kb = Helper.kb(ctx, safePage)
-    const bi = Base.step1
+    const bi = Base.index
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -60,11 +60,11 @@ class Main {
     }
   }
 
-  static async processStep1Answer(ctx: InlineWithoutRangePage, action: string, value?: string) {
+  static async processIndexAnswer(ctx: InlineWithoutRangePage, action: string, value?: string) {
     if (action === `page`) {
       const nextPage = Number(value)
       if (!isNaN(nextPage)) {
-        await Main.showStep1Form(ctx, nextPage, true)
+        await Main.showIndexForm(ctx, nextPage, true)
       }
     } else if (action === `item` && value) {
       // ???
@@ -77,19 +77,20 @@ export class InlineWithoutRangePage extends PageBase {
   static data = this.buildData((step?: string, action?: string, page?: string) => [step, action, page])
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, 0, true)
+    await Main.showIndexForm(this, 0, true)
   }
 
   async handleArgsCallbackData() {
     const [step, action, value] = this.callbackDataArgs
-    if (step === Base.step1) {
-      await Main.processStep1Answer(this, action!, value)
+    if (step === Base.index) {
+      await Main.processIndexAnswer(this, action!, value)
     }
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       <g-keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, 📄 Page, ${this.kbl.home.default}</g-keyboard>
+      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, 📄 Halaman, ${this.kbl.home.id}</g-keyboard>
       <g-message>
         🧾 Inline Menu (Without Range (only count))
 
@@ -97,7 +98,6 @@ export class InlineWithoutRangePage extends PageBase {
 
         Use Prev/Next to navigate, or tap Home to exit.
       </g-message>
-      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, 📄 Halaman, ${this.kbl.home.id}</g-keyboard>
       <g-message lang="id">
         🧾 Menu Inline (Tanpa Rentang (hanya hitungan))
 

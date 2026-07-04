@@ -6,40 +6,31 @@ import {DetailPage} from "./detail"
 import {UpdatePage} from "./update"
 import {DeletePage} from "./delete"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Main {
-  static async showStep1Form(ctx: StartPage, edit: boolean) {
+  static async showIndex(ctx: StartPage, edit: boolean) {
     await ctx.clearSession()
-    const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`, bi)
+    const kb = ctx.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`)
     const da = {}
     if (edit) {
-      await ctx.edit(kb, da, bi)
+      await ctx.edit(kb, da)
     } else {
-      await ctx.reply(kb, da, bi)
+      await ctx.reply(kb, da)
     }
-  }
-
-  static async processStep1Answer(ctx: StartPage) {
-    throw ctx
   }
 }
 
 // Main menu page for CRUD example.
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showStep1Form(this, false)
+    await Main.showIndex(this, false)
   }
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, true)
+    await Main.showIndex(this, true)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       <g-keyboard>➕ Create, 📋 List, 🔎 Detail, ✅ Update, 🗑️ Delete, ❓ Help</g-keyboard>
       <g-keyboard lang="id">➕ Buat, 📋 Daftar, 🔎 Detail, ✅ Perbarui, 🗑️ Hapus, ❓ Bantuan</g-keyboard>
       <g-message>

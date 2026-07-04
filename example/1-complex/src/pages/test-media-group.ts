@@ -1,30 +1,21 @@
 import {PageBase} from "~/base/page"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Main {
-  static async showStep1Form(ctx: TestMediaGroupPage) {
-    const bi = Base.step1
+  static async showIndex(ctx: TestMediaGroupPage) {
     // ATTENTION: <g-media-group> is not support inline/bottom keyboard
     // const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)], `1`, bi)
     const da = {}
-    await ctx.editPhotoGroup(da, bi)
-  }
-
-  static async processStep1Answer(ctx: TestMediaGroupPage) {
-    throw ctx
+    await ctx.editPhotoGroup(da)
   }
 }
 
 export class TestMediaGroupPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndex(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       ${this.kbk.back()}
       <g-media-group>
         <g-media lang="en" type="photo" src="https://www.w3schools.com/html/img_girl.jpg">

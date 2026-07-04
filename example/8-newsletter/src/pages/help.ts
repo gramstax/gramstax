@@ -1,30 +1,21 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Main {
-  static async showStep1Form(ctx: HelpPage) {
-    const bi = Base.step1
+  static async showIndex(ctx: HelpPage) {
     const kb = ctx.inlineKeyboardT([StartPage])
     const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processStep1Answer(ctx: HelpPage) {
-    throw ctx
+    await ctx.edit(kb, da)
   }
 }
 
 export class HelpPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndex(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       ${this.kbk.home()}
       <g-message>
         ❓ Help

@@ -13,7 +13,7 @@ type CheckoutSession = {
 }
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static confirm = `c`
   static success = `s`
   static refresh = `refresh`
@@ -57,7 +57,7 @@ class Helper {
   }
 
   static kbCart(ctx: CheckoutPage, bi?: string) {
-    return ctx.inlineKeyboardT([CartPage, CatalogPage.data.callbackData(Base.step1, `page`, `0`)], `2`, bi)
+    return ctx.inlineKeyboardT([CartPage, CatalogPage], `2`, bi)
   }
 
   static kbConfirm(ctx: CheckoutPage, bi?: string) {
@@ -65,16 +65,16 @@ class Helper {
   }
 
   static kbHome(ctx: CheckoutPage, bi?: string) {
-    return ctx.inlineKeyboardT([HistoryPage, StartPage, CatalogPage.data.callbackData(Base.step1, `page`, `0`)], `2`, bi)
+    return ctx.inlineKeyboardT([HistoryPage, StartPage, CatalogPage], `2`, bi)
   }
 
   static kbSuccess(ctx: CheckoutPage, orderId: string, bi?: string) {
-    return ctx.inlineKeyboardT([ctx.data.callbackData(Base.refresh, orderId), HistoryPage, StartPage, CatalogPage.data.callbackData(Base.step1, `page`, `0`)], `2`, bi)
+    return ctx.inlineKeyboardT([ctx.data.callbackData(Base.refresh, orderId), HistoryPage, StartPage, CatalogPage], `2`, bi)
   }
 }
 
 class Main {
-  static async showStep1Form(ctx: CheckoutPage, edit = true) {
+  static async showIndexForm(ctx: CheckoutPage, edit = true) {
     const cart = await Helper.getCart(ctx)
     const summary = CartStore.getSummary(cart)
     if (summary.isEmpty) {
@@ -82,7 +82,7 @@ class Main {
     }
 
     await ctx.setSessionFreeText({position: `contact`})
-    const bi = Base.step1
+    const bi = Base.index
     const kb = Helper.kbCart(ctx, bi)
     const da = {
       items: OrderStore.formatCart(summary),
@@ -92,6 +92,16 @@ class Main {
       await ctx.edit(kb, da, bi)
     } else {
       await ctx.reply(kb, da, bi)
+    }
+  }
+
+  static async processIndexForm(ctx: CheckoutPage, action?: string) {
+    if (action === `confirm`) {
+      await Main.showSuccess(ctx)
+    } else if (action === Base.refresh) {
+      await Main.showRefreshedStatus(ctx, ctx.callbackDataArgs[1])
+    } else if (action === `cancel`) {
+      await Main.showInfoCancel(ctx)
     }
   }
 
@@ -117,16 +127,6 @@ class Main {
       notes
     }
     await ctx.reply(kb, da, bi)
-  }
-
-  static async processStep1Answer(ctx: CheckoutPage, action?: string) {
-    if (action === `confirm`) {
-      return await Main.showSuccess(ctx)
-    } else if (action === Base.refresh) {
-      return await Main.showRefreshedStatus(ctx, ctx.callbackDataArgs[1])
-    } else if (action === `cancel`) {
-      return await Main.showInfoCancel(ctx)
-    }
   }
 
   static async showWarnEmpty(ctx: CheckoutPage) {
@@ -223,12 +223,12 @@ export class CheckoutPage extends PageBase {
   static data = this.buildData((action?: string, orderId?: string) => [action, orderId])
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, true)
+    await Main.showIndexForm(this, true)
   }
 
   async handleArgsCallbackData() {
     const [action] = this.callbackDataArgs
-    await Main.processStep1Answer(this, action)
+    await Main.processIndexForm(this, action)
   }
 
   async handleSessionFreeText() {
@@ -239,12 +239,13 @@ export class CheckoutPage extends PageBase {
   }
 
   async showStep1Form(edit = true) {
-    await Main.showStep1Form(this, edit)
+    await Main.showIndexForm(this, edit)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       <g-keyboard>🛒 Cart, 🔎 Browse Products</g-keyboard>
+      <g-keyboard lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
       <g-message>
         💳 Checkout Details
 
@@ -258,7 +259,6 @@ export class CheckoutPage extends PageBase {
         @yourusername
         Please deliver after payment confirmation.
       </g-message>
-      <g-keyboard lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
       <g-message lang="id">
         💳 Detail Checkout
 
@@ -276,6 +276,7 @@ export class CheckoutPage extends PageBase {
 
     <g-base id="${Base.confirm}">
       <g-keyboard>✅ Confirm, ❌ Cancel, 🛒 Cart</g-keyboard>
+      <g-keyboard lang="id">✅ Konfirmasi, ❌ Batal, 🛒 Keranjang</g-keyboard>
       <g-message>
         ✅ Confirm Order
 
@@ -288,7 +289,6 @@ export class CheckoutPage extends PageBase {
 
         Confirm when the details are correct.
       </g-message>
-      <g-keyboard lang="id">✅ Konfirmasi, ❌ Batal, 🛒 Keranjang</g-keyboard>
       <g-message lang="id">
         ✅ Konfirmasi Pesanan
 
@@ -305,6 +305,7 @@ export class CheckoutPage extends PageBase {
 
     <g-base id="${Base.success}">
       <g-keyboard>🔄 refresh, 🧾 History, 🏠 Home, 🔎 Browse Products</g-keyboard>
+      <g-keyboard lang="id">🔄 refresh, 🧾 Riwayat, 🏠 Beranda, 🔎 Jelajahi</g-keyboard>
       <g-media type="photo" src="{{qrisImageUrl}}">
         🎉 Order Created
 
@@ -324,7 +325,6 @@ export class CheckoutPage extends PageBase {
         💳 Payment Method: QRIS
         QRIS only: scan the store QRIS code using DANA, ShopeePay, or any QRIS-supported banking app. After payment, send proof to {{support}} with your Order ID.
       </g-media>
-      <g-keyboard lang="id">🔄 refresh, 🧾 Riwayat, 🏠 Beranda, 🔎 Jelajahi</g-keyboard>
       <g-media lang="id" type="photo" src="{{qrisImageUrl}}">
         🎉 Pesanan Dibuat
 
@@ -348,12 +348,12 @@ export class CheckoutPage extends PageBase {
 
     <g-base id="${Base.warnEmpty}">
       <g-keyboard>🛒 Cart, 🔎 Browse Products</g-keyboard>
+      <g-keyboard lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
       <g-message>
         🛒 Empty cart
 
         Add at least one available subscription before checkout.
       </g-message>
-      <g-keyboard lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
       <g-message lang="id">
         🛒 Keranjang kosong
 
@@ -363,12 +363,12 @@ export class CheckoutPage extends PageBase {
 
     <g-base id="${Base.warnInvalid}">
       <g-keyboard>🛒 Cart, 🔎 Browse Products</g-keyboard>
+      <g-keyboard lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
       <g-message>
         ⚠️ Contact needed
 
         We could not use "{{contact}}" as contact information. Send a Telegram username, email, or WhatsApp number with at least 5 characters.
       </g-message>
-      <g-keyboard lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
       <g-message lang="id">
         ⚠️ Kontak diperlukan
 
@@ -377,13 +377,13 @@ export class CheckoutPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.infoCancel}">
-      <g-keyboard>🏠 Home, 🔎 Browse Products</g-keyboard>
+      <g-keyboard>🏠 Home, 🔎 Browse</g-keyboard>
+      <g-keyboard lang="id">🏠 Beranda, 🔎 Jelajahi</g-keyboard>
       <g-message>
         ❌ Checkout cancelled
 
         Your cart is preserved. You can continue shopping or checkout again later.
       </g-message>
-      <g-keyboard lang="id">🏠 Beranda, 🔎 Jelajahi</g-keyboard>
       <g-message lang="id">
         ❌ Checkout dibatalkan
 
@@ -393,12 +393,12 @@ export class CheckoutPage extends PageBase {
 
     <g-base id="${Base.infoMissing}">
       <g-keyboard>🧾 History, 🏠 Home, 🔎 Browse Products</g-keyboard>
+      <g-keyboard lang="id">🧾 Riwayat, 🏠 Beranda, 🔎 Jelajahi</g-keyboard>
       <g-message>
         ⚠️ Order not found
 
         Open history to review your latest orders, then try refresh again from an active order card.
       </g-message>
-      <g-keyboard lang="id">🧾 Riwayat, 🏠 Beranda, 🔎 Jelajahi</g-keyboard>
       <g-message lang="id">
         ⚠️ Pesanan tidak ditemukan
 

@@ -1,11 +1,11 @@
 import {PageBase} from "~/base/page"
-import {CartStore, type CartState, ProductCatalog} from "~/data/store"
 import {CartPage} from "./cart"
 import {CatalogPage} from "./catalog"
 import {CheckoutPage} from "./checkout"
+import {CartStore, type CartState, ProductCatalog} from "~/data/store"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
   static infoAdded = `i-added`
   static warnStock = `w-stock`
   static warnMissing = `w-missing`
@@ -21,22 +21,22 @@ class Helper {
   }
 
   static kb(ctx: ProductPage, productId: string, bi?: string) {
-    return ctx.inlineKeyboardT([ctx.data.callbackData(`buy`, productId), ctx.data.callbackData(`add`, productId), CartPage, CatalogPage.data.callbackData(`page`, `0`)], `2-1`, bi)
+    return ctx.inlineKeyboardT([ctx.data.callbackData(`buy`, productId), ctx.data.callbackData(`add`, productId), CartPage, CatalogPage], `2-1`, bi)
   }
 
   static kbBack(ctx: ProductPage, bi?: string) {
-    return ctx.inlineKeyboardT([CatalogPage.data.callbackData(Base.step1, `page`, `0`), CartPage], `2`, bi)
+    return ctx.inlineKeyboardT([CatalogPage, CartPage], `2`, bi)
   }
 }
 
 class Main {
-  static async showStep1Form(ctx: ProductPage, productId: string) {
+  static async showIndexForm(ctx: ProductPage, productId: string) {
     const product = ProductCatalog.getById(productId)
     if (!product) {
       return await Main.showWarnMissing(ctx)
     }
 
-    const bi = Base.step1
+    const bi = Base.index
     const kb = Helper.kb(ctx, productId, bi)
     const da = {
       name: product.name,
@@ -52,7 +52,7 @@ class Main {
     await ctx.edit(kb, da, bi)
   }
 
-  static async processStep1Answer(ctx: ProductPage, action?: string, productId?: string) {
+  static async processIndexForm(ctx: ProductPage, action?: string, productId?: string) {
     if (!productId) {
       return await Main.showWarnMissing(ctx)
     }
@@ -107,15 +107,16 @@ export class ProductPage extends PageBase {
   async handleArgsCallbackData() {
     const [action, productId] = this.callbackDataArgs
     if (action === `detail` && productId) {
-      await Main.showStep1Form(this, productId)
+      await Main.showIndexForm(this, productId)
     } else {
-      await Main.processStep1Answer(this, action, productId)
+      await Main.processIndexForm(this, action, productId)
     }
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.index}">
       <g-keyboard>✅ Buy Now, ➕ Add Cart, 🛒 Cart, ⬅️ Back</g-keyboard>
+      <g-keyboard lang="id">✅ Beli, ➕ Tambah, 🛒 Keranjang, ⬅️ Kembali</g-keyboard>
       <g-message>
         📦 {{name}}
 
@@ -131,7 +132,6 @@ export class ProductPage extends PageBase {
         Benefits:
         {{benefits}}
       </g-message>
-      <g-keyboard lang="id">✅ Beli, ➕ Tambah, 🛒 Keranjang, ⬅️ Kembali</g-keyboard>
       <g-message lang="id">
         📦 {{name}}
 
@@ -150,13 +150,13 @@ export class ProductPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.infoAdded}">
-      <g-keyboard>🔎 Browse Products, 🛒 Cart</g-keyboard>
+      <g-keyboard>🔎 Browse, 🛒 Cart</g-keyboard>
+      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
       <g-message>
         ✅ Added to cart
 
         {{name}} is now in your cart. You can continue shopping or review the cart whenever you're ready.
       </g-message>
-      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
       <g-message lang="id">
         ✅ Ditambahkan ke keranjang
 
@@ -165,13 +165,13 @@ export class ProductPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.warnStock}">
-      <g-keyboard>🔎 Browse Products, 🛒 Cart</g-keyboard>
+      <g-keyboard>🔎 Browse, 🛒 Cart</g-keyboard>
+      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
       <g-message>
         ⛔ Out of stock
 
         {{name}} is currently unavailable. Please choose another product or check again later.
       </g-message>
-      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
       <g-message lang="id">
         ⛔ Stok habis
 
@@ -181,12 +181,12 @@ export class ProductPage extends PageBase {
 
     <g-base id="${Base.warnMissing}">
       <g-keyboard>🔎 Browse Products, 🛒 Cart</g-keyboard>
+      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
       <g-message>
         ⚠️ Product not found
 
         We could not find that subscription product. Please return to the catalog.
       </g-message>
-      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
       <g-message lang="id">
         ⚠️ Produk tidak ditemukan
 

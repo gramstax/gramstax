@@ -2,8 +2,8 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Base {
-  static s1 = `s1`
-  static s2 = `s2`
+  static title = `t`
+  static notes = `n`
   static success = `s`
 }
 
@@ -24,27 +24,27 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: CreatePage) {
-    const bi = Base.s1
+  static async showTitleForm(ctx: CreatePage) {
+    const bi = Base.title
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {}
     await ctx.setSessionFreeText({step: bi})
     await ctx.edit(kb, da, bi)
   }
 
-  static async processStep1Answer(ctx: CreatePage, title: string) {
-    await ctx.setSessionFreeText({step: Base.s2, title})
-    await Main.showStep2Form(ctx, title)
+  static async processTitleForm(ctx: CreatePage, title: string) {
+    await ctx.setSessionFreeText({step: Base.notes, title})
+    await Main.showNotesForm(ctx, title)
   }
 
-  static async showStep2Form(ctx: CreatePage, title: string) {
-    const bi = Base.s2
+  static async showNotesForm(ctx: CreatePage, title: string) {
+    const bi = Base.notes
     const kb = Helper.buildHomeKeyboard(ctx, bi)
     const da = {title}
     await ctx.reply(kb, da, bi)
   }
 
-  static async processStep2Answer(ctx: CreatePage, title: string, description: string) {
+  static async processNotesForm(ctx: CreatePage, title: string, description: string) {
     const item = await ctx.db.items.create(ctx.userId, title, description)
     await Main.showSuccess(ctx, {
       id: item.id,
@@ -65,21 +65,21 @@ class Main {
 // Creates a new item in cache.
 export class CreatePage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showTitleForm(this)
   }
 
   async handleSessionFreeText() {
     const {step, title} = Helper.getSessionParams(this)
     const input = this.msgText.trim()
-    if (step === Base.s1) {
-      await Main.processStep1Answer(this, input)
-    } else if (step === Base.s2) {
-      await Main.processStep2Answer(this, title!, input)
+    if (step === Base.title) {
+      await Main.processTitleForm(this, input)
+    } else if (step === Base.notes) {
+      await Main.processNotesForm(this, title!, input)
     }
   }
 
   static template = `
-    <g-base id="${Base.s1}">
+    <g-base id="${Base.title}">
       ${this.kbk.cancel()}
       <g-message>
         ✏️ Create a new item
@@ -95,7 +95,7 @@ export class CreatePage extends PageBase {
       </g-message>
     </g-base>
 
-    <g-base id="${Base.s2}">
+    <g-base id="${Base.notes}">
       ${this.kbk.cancel()}
       <g-message>
         ✅ Title saved: {{title}}

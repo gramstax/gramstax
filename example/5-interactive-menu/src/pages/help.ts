@@ -1,24 +1,15 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Main {
-  static async showStep1Form(ctx: HelpPage, edit = true) {
-    const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
+  static async showIndex(ctx: HelpPage, edit = true) {
+    const kb = ctx.inlineKeyboardT([StartPage], `1`)
     const da = {}
     if (edit) {
-      await ctx.edit(kb, da, bi)
+      await ctx.edit(kb, da)
     } else {
-      await ctx.reply(kb, da, bi)
+      await ctx.reply(kb, da)
     }
-  }
-
-  static async processStep1Answer(ctx: HelpPage) {
-    throw ctx
   }
 }
 
@@ -27,15 +18,15 @@ export class HelpPage extends PageBase {
   static data = this.buildData({intentText: `Help`})
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleText() {
-    await Main.showStep1Form(this, false)
+    await Main.showIndex(this, false)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       ${this.kbk.back()}
       <g-message>
         ❓ Help & Navigation
@@ -43,7 +34,6 @@ export class HelpPage extends PageBase {
         Use inline buttons to explore menus, and the bottom keyboard for quick actions.
         Pagination buttons appear when lists are long.
       </g-message>
-      ${this.kbk.back(`id`)}
       <g-message lang="id">
         ❓ Bantuan & Navigasi
 

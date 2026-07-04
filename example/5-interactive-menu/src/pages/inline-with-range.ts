@@ -3,10 +3,6 @@ import {StartPage} from "./start"
 import {BlankPage} from "./blank"
 import {CatalogData} from "~/data/catalog"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Constant {
   static ITEMS_PER_PAGE = 4
 }
@@ -18,25 +14,21 @@ class Helper {
     const start = safePage * Constant.ITEMS_PER_PAGE
     const end = start + Constant.ITEMS_PER_PAGE
     const items = CatalogData.menuItems.slice(start, end)
-    const bi = Base.step1
-    const kb = ctx.inlineKeyboard(
-      (k, l) => {
-        items.forEach((item) => {
-          k.text(item.name, ctx.data.callbackData(bi, `item`, item.id)).row()
-        })
+    const kb = ctx.inlineKeyboard((k, l) => {
+      items.forEach((item) => {
+        k.text(item.name, ctx.data.callbackData(`item`, item.id)).row()
+      })
 
-        k.row()
-        if (safePage > 0) {
-          k.text(l[0]!, ctx.data.callbackData(bi, `page`, safePage - 1))
-        }
-        k.text(`${l[2]} ${safePage + 1}/${totalPages}`, BlankPage.data.callbackData())
-        if (safePage < totalPages - 1) {
-          k.text(l[1]!, ctx.data.callbackData(bi, `page`, safePage + 1))
-        }
-        return k.row().text(l[3]!, StartPage.data.callbackData())
-      },
-      {AGBaseId: bi}
-    )
+      k.row()
+      if (safePage > 0) {
+        k.text(l[0]!, ctx.data.callbackData(`page`, safePage - 1))
+      }
+      k.text(`${l[2]} ${safePage + 1}/${totalPages}`, BlankPage.data.callbackData())
+      if (safePage < totalPages - 1) {
+        k.text(l[1]!, ctx.data.callbackData(`page`, safePage + 1))
+      }
+      return k.row().text(l[3]!, StartPage.data.callbackData())
+    })
     return kb
   }
 
@@ -48,23 +40,22 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: InlineWithRangePage, page: number, edit = true) {
+  static async showIndexForm(ctx: InlineWithRangePage, page: number, edit = true) {
     const {page: currentPage, totalPages, safePage} = Helper.pageData(page)
-    const bi = Base.step1
     const da = {page: currentPage, totalPages}
     const kb = Helper.kb(ctx, safePage)
     if (edit) {
-      await ctx.edit(kb, da, bi)
+      await ctx.edit(kb, da)
     } else {
-      await ctx.reply(kb, da, bi)
+      await ctx.reply(kb, da)
     }
   }
 
-  static async processStep1Answer(ctx: InlineWithRangePage, action: string, value?: string) {
+  static async processIndexForm(ctx: InlineWithRangePage, action: string, value?: string) {
     if (action === `page`) {
       const nextPage = Number(value)
       if (!isNaN(nextPage)) {
-        await Main.showStep1Form(ctx, nextPage, true)
+        await Main.showIndexForm(ctx, nextPage, true)
       }
     } else if (action === `item` && value) {
       // ???
@@ -74,22 +65,21 @@ class Main {
 
 // Inline keyboard with total page count.
 export class InlineWithRangePage extends PageBase {
-  static data = this.buildData((step?: string, action?: string, page?: string) => [step, action, page])
+  static data = this.buildData((action?: string, page?: string) => [action, page])
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, 0, true)
+    await Main.showIndexForm(this, 0, true)
   }
 
   async handleArgsCallbackData() {
-    const [step, action, value] = this.callbackDataArgs
-    if (step === Base.step1) {
-      await Main.processStep1Answer(this, action!, value)
-    }
+    const [action, value] = this.callbackDataArgs
+    await Main.processIndexForm(this, action!, value)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       <g-keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, 📄 Page, ${this.kbl.home.default}</g-keyboard>
+      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, 📄 Halaman, ${this.kbl.home.id}</g-keyboard>
       <g-message>
         📊 Inline Menu (With Count + Range)
 
@@ -97,7 +87,6 @@ export class InlineWithRangePage extends PageBase {
 
         Use Prev/Next to navigate, or tap Home to exit.
       </g-message>
-      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, 📄 Halaman, ${this.kbl.home.id}</g-keyboard>
       <g-message lang="id">
         📊 Menu Inline (Dengan Hitungan + Rentang)
 

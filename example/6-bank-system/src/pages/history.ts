@@ -1,10 +1,6 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Base {
-  static step1 = `s1`
-}
-
 class Helper {
   static formatHistory(ctx: HistoryPage) {
     const entries = ctx.bankStore.getHistory(ctx.userId)
@@ -39,34 +35,28 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: HistoryPage) {
+  static async showIndex(ctx: HistoryPage) {
     const history = Helper.formatHistory(ctx)
-    const bi = Base.step1
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
+    const kb = ctx.inlineKeyboardT([StartPage])
     const da = {history}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processStep1Answer(ctx: HistoryPage) {
-    throw ctx
+    await ctx.edit(kb, da)
   }
 }
 
 // Shows recent transaction history.
 export class HistoryPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this)
+    await Main.showIndex(this)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       ${this.kbk.back()}
       <g-message>
         📜 Recent transactions
 
         {{history}}
       </g-message>
-      ${this.kbk.back(`id`)}
       <g-message lang="id">
         📜 Transaksi Terbaru
 

@@ -51,7 +51,6 @@ export class GeneralStatusPage extends PageBase {
         Code: {{code}}
         Detail: {{error}}
       </g-message>
-      ${this.kbk.home(`id`)}
       <g-message lang="id">
         ⚠️ Toko tidak tersedia sementara
 
@@ -68,7 +67,6 @@ export class GeneralStatusPage extends PageBase {
 
         Please return home and choose an action from the store menu.
       </g-message>
-      ${this.kbk.home(`id`)}
       <g-message lang="id">
         🔎 Tindakan tidak ditemukan
 

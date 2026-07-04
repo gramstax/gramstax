@@ -4,12 +4,12 @@ import {CategoryPage} from "./category"
 import {ItemDetailPage} from "./item-detail"
 
 class Base {
-  static step1 = `s1`
+  static index = `i`
 }
 
 class Helper {
   static kb(ctx: ItemListPage, categoryId: string, page: number, category = CatalogData.getCategoryById(categoryId)) {
-    const bi = Base.step1
+    const bi = Base.index
     if (!category) {
       const kb = ctx.inlineKeyboardT([CategoryPage], `1`, bi)
       return kb
@@ -46,7 +46,7 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: ItemListPage, categoryId: string, page = 0, edit = true) {
+  static async showIndexForm(ctx: ItemListPage, categoryId: string, page = 0, edit = true) {
     await ctx.cacheState.set(`${ctx.userId}:category`, categoryId)
     await ctx.cacheState.set(`${ctx.userId}:page`, page)
 
@@ -55,7 +55,7 @@ class Main {
 
     const da = {category: categoryName}
     const kb = Helper.kb(ctx, categoryId, page, category)
-    const bi = Base.step1
+    const bi = Base.index
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -63,12 +63,12 @@ class Main {
     }
   }
 
-  static async processStep1Answer(ctx: ItemListPage, page: number) {
+  static async processIndexAnswer(ctx: ItemListPage, page: number) {
     const categoryId = await ctx.cacheState.get(`${ctx.userId}:category`)
     if (!categoryId) {
       await new CategoryPage(ctx).showStep1Form(true)
     } else {
-      await Main.showStep1Form(ctx, categoryId, page, true)
+      await Main.showIndexForm(ctx, categoryId, page, true)
     }
   }
 }
@@ -79,24 +79,24 @@ export class ItemListPage extends PageBase {
 
   async handleArgsCallbackData() {
     const [step, page] = this.callbackDataArgs
-    if (step === Base.step1) {
-      await Main.processStep1Answer(this, Number(page))
+    if (step === Base.index) {
+      await Main.processIndexAnswer(this, Number(page))
     }
   }
 
   async showStep1Form(categoryId: string, page = 0, isEdit = true) {
-    await Main.showStep1Form(this, categoryId, page, isEdit)
+    await Main.showIndexForm(this, categoryId, page, isEdit)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       <g-keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.back.default}</g-keyboard>
+      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.back.id}</g-keyboard>
       <g-message>
         📦 Items in {{category}}
 
         Use Prev/Next to navigate the list.
       </g-message>
-      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.back.id}</g-keyboard>
       <g-message lang="id">
         📦 Item di {{category}}
 

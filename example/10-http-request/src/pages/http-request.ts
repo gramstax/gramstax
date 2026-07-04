@@ -1,7 +1,7 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 import {HttpService} from "~/services/http"
-import type {HttpResponse} from "~/services/http"
+import type {IHttpResponse} from "~/services/http"
 
 class Base {
   static method = `s-method`
@@ -53,12 +53,7 @@ class Helper {
   // Build inline keyboard for result pages: toggle view + Home
   static buildSuccessKeyboard(ctx: HttpRequestPage, viewMode: string) {
     const toggleLabel = viewMode === `formatted` ? `🔁 Raw` : `🔁 Formatted`
-    return ctx.inlineKeyboardT(
-      [HttpRequestPage.data.callbackData(`toggle_view`), StartPage],
-      `2`,
-      Base.success,
-      {toggleLabel}
-    )
+    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackData(`toggle_view`), StartPage], `2`, Base.success, {toggleLabel})
   }
 
   static escapeHtml(text: string): string {
@@ -82,14 +77,12 @@ class Helper {
   }
 
   // Prepare body text according to view mode.
-  static renderBody(result: HttpResponse, viewMode: string): string {
+  static renderBody(result: IHttpResponse, viewMode: string): string {
     if (viewMode === `raw`) {
       return Helper.formatBody(result.rawBody)
     }
     // formatted: re-pretty-print from rawBody, then format for display
-    const prettyBody = result.contentType.includes(`application/json`)
-      ? HttpService.formatJson(result.rawBody)
-      : result.rawBody
+    const prettyBody = result.contentType.includes(`application/json`) ? HttpService.formatJson(result.rawBody) : result.rawBody
     return Helper.formatBody(prettyBody)
   }
 }
@@ -191,7 +184,7 @@ class Main {
     }
   }
 
-  static async showSuccess(ctx: HttpRequestPage, result: HttpResponse, viewMode: string = `formatted`, edit = false) {
+  static async showSuccess(ctx: HttpRequestPage, result: IHttpResponse, viewMode: string = `formatted`, edit = false) {
     const kb = Helper.buildSuccessKeyboard(ctx, viewMode)
     const emoji = result.status >= 200 && result.status < 300 ? `✅` : result.status >= 400 ? `❌` : `⚠️`
     const headersText = Helper.formatHeaders(result.headers)
@@ -251,7 +244,7 @@ export class HttpRequestPage extends PageBase {
 
     if (action === `toggle_view`) {
       const session = await this.getSession()
-      const result = session?.params?.httpResult as HttpResponse | undefined
+      const result = session?.params?.httpResult as IHttpResponse | undefined
       if (!result) return
       const currentView = (session?.params?.httpViewMode as string) || `formatted`
       const newView = currentView === `formatted` ? `raw` : `formatted`
@@ -260,15 +253,19 @@ export class HttpRequestPage extends PageBase {
       const emoji = result.status >= 200 && result.status < 300 ? `✅` : result.status >= 400 ? `❌` : `⚠️`
       const headersText = Helper.formatHeaders(result.headers)
       const bodyPreview = Helper.renderBody(result, newView)
-      await this.edit(kb, {
-        status: result.status,
-        statusText: result.statusText,
-        duration: result.duration,
-        method: result.method,
-        emoji,
-        headersText,
-        bodyPreview
-      }, Base.success)
+      await this.edit(
+        kb,
+        {
+          status: result.status,
+          statusText: result.statusText,
+          duration: result.duration,
+          method: result.method,
+          emoji,
+          headersText,
+          bodyPreview
+        },
+        Base.success
+      )
       return
     }
 
@@ -288,17 +285,10 @@ export class HttpRequestPage extends PageBase {
 
     if (step === `url`) {
       await Main.processUrl(this, input, session.params?.httpMethod as string, true)
-      return
-    }
-
-    if (step === `token`) {
+    } else if (step === `token`) {
       await Main.proceedFromToken(this, input)
-      return
-    }
-
-    if (step === `body`) {
+    } else if (step === `body`) {
       await Main.processBody(this, input, session)
-      return
     }
   }
 

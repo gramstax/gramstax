@@ -3,45 +3,31 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 import {CatalogPage} from "./catalog"
 
-class Base {
-  static step1 = `s1`
-}
-
-class Helper {
-  static kb(ctx: HelpPage, bi?: string) {
-    return ctx.inlineKeyboardT([CatalogPage.data.callbackData(Base.step1, `page`, `0`), StartPage], `1`, bi)
-  }
-}
-
 class Main {
-  static async showStep1Form(ctx: HelpPage, edit = true) {
-    const bi = Base.step1
-    const kb = Helper.kb(ctx, bi)
+  static async showIndex(ctx: HelpPage, edit = true) {
+    const kb = ctx.inlineKeyboardT([CatalogPage, StartPage])
     const da = {support: Env.STORE_ADMIN_USERNAME}
     if (edit) {
-      await ctx.edit(kb, da, bi)
+      await ctx.edit(kb, da)
     } else {
-      await ctx.reply(kb, da, bi)
+      await ctx.reply(kb, da)
     }
-  }
-
-  static async processStep1Answer(ctx: HelpPage) {
-    throw ctx
   }
 }
 
 export class HelpPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleCommandText() {
-    await Main.showStep1Form(this, false)
+    await Main.showIndex(this, false)
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base>
       <g-keyboard>🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-keyboard lang="id">🔎 Jelajahi, 🏠 Beranda</g-keyboard>
       <g-message>
         ❓ Store Help
 
@@ -52,7 +38,6 @@ export class HelpPage extends PageBase {
 
         Support: {{support}}
       </g-message>
-      <g-keyboard lang="id">🔎 Jelajahi, 🏠 Beranda</g-keyboard>
       <g-message lang="id">
         ❓ Bantuan Toko
 

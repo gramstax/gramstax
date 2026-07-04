@@ -80,7 +80,7 @@ class Main {
     }
   }
 
-  static async processStep1Answer(ctx: UpdatePage, type: string, idOrPage: string) {
+  static async processStep1Form(ctx: UpdatePage, type: string, idOrPage: string) {
     if (type === `page`) {
       return await Main.showStep1Form(ctx, parseInt(idOrPage))
     } else if (type === `select`) {
@@ -100,7 +100,7 @@ class Main {
     await ctx.edit(kb, da, bi)
   }
 
-  static async processStep2Answer(ctx: UpdatePage, status: IVItem[`status`], id: string, edit = true) {
+  static async processStep2Form(ctx: UpdatePage, status: IVItem[`status`], id: string, edit = true) {
     const item = await ctx.db.items.fetch(ctx.userId, id)
     if (!item) {
       return await Main.showStep1Form(ctx, 0, edit)
@@ -151,9 +151,9 @@ export class UpdatePage extends PageBase {
   async handleArgsCallbackData() {
     const [step, arg1, arg2] = this.callbackDataArgs
     if (step === Base.step1) {
-      await Main.processStep1Answer(this, arg1!, arg2!)
+      await Main.processStep1Form(this, arg1!, arg2!)
     } else if (step === Base.step2) {
-      await Main.processStep2Answer(this, arg1 as IVItem[`status`], arg2!, true)
+      await Main.processStep2Form(this, arg1 as IVItem[`status`], arg2!, true)
     }
   }
 
