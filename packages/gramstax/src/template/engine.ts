@@ -706,7 +706,6 @@ export class TemplateEngine {
           .replace(/^\n+/, ``)
           .replace(/\n+$/, ``)
           .trim()
-          .replace(/`/g, `\\\``)
 
         values.forEach((v) => {
           casesJs += `case "${v}": `
@@ -722,7 +721,6 @@ export class TemplateEngine {
           .replace(/^\n+/, ``)
           .replace(/\n+$/, ``)
           .trim()
-        //  .replace(/`/g, `\\\``)
         casesJs += `default: return \`${content}\`; `
       } else {
         casesJs += `default: return ''; `
@@ -759,44 +757,81 @@ export class TemplateEngine {
    * @public
    */
   static _processGMapBlocks(template: string) {
-    const mapRegex = /<g-map(?:\s+([^>]*))?>([\s\S]*?)<\/g-map>/gi
-    return template.replace(mapRegex, (_, attributesStr, rawContent) => {
-      const attrs: {[key: string]: string} = {}
-      const attrRegex = /(\w+)="([^"]*)"/g
+    // Match innermost g-map blocks — those whose content has no nested <g-map.
+    // Uses a tempered greedy token: (?:(?!<g-map)[\s\S])*? matches any char
+    // as long as the next 6 chars aren't "<g-map". Combined with lazy *?, this
+    // ensures we only match g-map blocks that don't contain another g-map inside.
+    const innerRegex = /<g-map(\s+[^>]*)?>((?:(?!<g-map)[\s\S])*?)<\/g-map>/gi
 
-      if (attributesStr) {
-        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
-          attrs[attrMatch[1]!] = attrMatch[2]!
+    let result = template
+    let _loopGuard = 0
+
+    while (/<g-map\b/i.test(result)) {
+      if (++_loopGuard > 50) break
+      result = result.replace(innerRegex, (fullMatch: string, attrsStr: string | undefined, content: string, offset: number) => {
+        // Compute nesting depth: open g-map tags before this match + 1.
+        // The current block adds another level, so its depth is one more
+        // than the number of open outer tags.
+        let openTags = 0
+        const tagRegex = /<(\/?)g-map\b[^>]*>/gi
+        let m: RegExpExecArray | null
+        while ((m = tagRegex.exec(result)) !== null) {
+          if (m.index >= offset) break
+          if (m[1] === `/`) {
+            if (openTags > 0) openTags--
+          } else {
+            openTags++
+          }
         }
-      }
+        const depth = openTags + 1
+        const suffix = depth === 1 ? `` : String(depth)
 
-      const src = attrs.src
-      if (!src) return ``
+        // Parse src attribute
+        const srcAttrMatch = attrsStr?.match(/src="([^"]*)"/)
+        const src = srcAttrMatch?.[1]
+        if (!src) return ``
 
-      const join = attrs.join ?? `\\n`
+        // Parse join attribute (default: \n)
+        const joinAttrMatch = attrsStr?.match(/join="([^"]*)"/)
+        const join = joinAttrMatch?.[1] ?? `\\n`
 
-      let content = rawContent
-        .replace(/^[\t ]+/gm, ``)
-        .replace(/^\n+/, ``)
-        .replace(/\n+$/, ``)
-        .replace(/`/g, `\\\``) // escape backticks
+        // Clean content: strip line-leading whitespace, trim surrounding newlines
+        let processed = content
+          .replace(/^[\t ]+/gm, ``)
+          .replace(/^\n+/, ``)
+          .replace(/\n+$/, ``)
 
-      // Handle local variables {{e...}} and {{i}}
-      content = content.replace(/\{\{([\w.]+)\}\}/g, (match: string, inner: string) => {
-        if (inner === `e` || inner.startsWith(`e.`)) {
-          return `\${${inner}}`
-        }
-        if (inner === `i`) {
-          return `\${i}`
-        }
-        return match
+        // Replace loop variable references with depth-indexed JS expressions.
+        // {{e}} / {{e.prop}}  →  current depth's element (e, e2, e3...)
+        // {{e2}} / {{e2.prop}} → explicit depth element
+        // {{i}} / {{i2}}       → current/explicit depth index
+        // Everything else passes through for _processScopeVariables.
+        processed = processed.replace(/\{\{([\w.]+)\}\}/g, (_m: string, inner: string) => {
+          const eMatch = inner.match(/^(e(\d*))(?:\.(.+))?$/)
+          if (eMatch) {
+            const varSuffix = eMatch[2] || suffix
+            const prop = eMatch[3]
+            return prop ? `\${e${varSuffix}.${prop}}` : `\${e${varSuffix}}`
+          }
+          const iMatch = inner.match(/^i(\d*)$/)
+          if (iMatch) {
+            return `\${i${iMatch[1] || suffix}}`
+          }
+          return _m
+        })
+
+        // Resolve src: "e.prop" or "e2.prop" → parent loop element property, else data key
+        const srcRef = src.match(/^(e\d*)\.(.+)$/)
+        const srcExpr = srcRef
+          ? `(${srcRef[1]} && ${srcRef[1]}["${srcRef[2]}"])`
+          : `(data && data["${src}"])`
+
+        const safeJoin = join.replace(/"/g, `\\"`)
+        return `\${(() => { const __arr${suffix} = ${srcExpr} || []; let __out${suffix} = ""; for (let i${suffix} = 0; i${suffix} < __arr${suffix}.length; i${suffix}++) { const e${suffix} = __arr${suffix}[i${suffix}]; if (i${suffix} > 0) { __out${suffix} += "${safeJoin}" } __out${suffix} += \`${processed}\`; } return __out${suffix}; })()}`
       })
+    }
 
-      // We need to escape the join string for the JS code
-      const safeJoin = join.replace(/"/g, `\\"`)
-
-      return `\${(() => { const __arr = (data && data["${src}"]) || []; let __out = ""; for (let i = 0; i < __arr.length; i++) { const e = __arr[i]; if (i > 0) { __out += "${safeJoin}" } __out += \`${content}\`; } return __out; })()}`
-    })
+    return result
   }
 
   /**
@@ -1511,6 +1546,71 @@ export class TemplateEngine {
    *
    * @public
    */
+  /**
+   * Splits keyboard label content on commas while respecting HTML tag
+   * boundaries and double-quoted attribute values. Commas inside `<...>`
+   * tags or inside `"..."` attribute values are not treated as separators.
+   *
+   * @param content - Raw keyboard label content, possibly containing `<g-*>`
+   *                  blocks with commas in attribute values (e.g. join=", ")
+   * @returns Array of trimmed label strings
+   *
+   * @internal
+   */
+  static _splitKeyboardLabels(content: string): string[] {
+    const labels: string[] = []
+    let current = ``
+    let inTag = false
+    let inQuotes = false
+
+    for (let i = 0; i < content.length; i++) {
+      const char = content[i]!
+      const prev = i > 0 ? content[i - 1]! : ``
+
+      if (inTag) {
+        if (char === `"` && !inQuotes) {
+          inQuotes = true
+        } else if (char === `"` && inQuotes) {
+          inQuotes = false
+        } else if (char === `>` && !inQuotes) {
+          inTag = false
+        }
+        current += char
+      } else if (inQuotes) {
+        if (char === `"`) {
+          inQuotes = false
+        }
+        current += char
+      } else {
+        // NORMAL state — outside any tag
+        if (char === `<`) {
+          inTag = true
+          current += char
+        } else if (char === `,` && prev !== `\\`) {
+          labels.push(current.trim())
+          current = ``
+        } else {
+          current += char
+        }
+      }
+    }
+
+    // Always push the final segment (even empty) to match String.split() semantics
+    labels.push(current.trim())
+
+    return labels
+  }
+
+  /**
+   * Compiles keyboard labels from a processed template, executing blocks and
+   * scope variables to produce final label arrays for inline/bottom keyboards.
+   *
+   * @param template - The processed template string containing `<g-keyboard>` blocks
+   * @param gBaseBlocks - Optional pre-parsed base blocks (avoids re-parsing)
+   * @returns A nested record of compiled label functions keyed by base, lang, and mode
+   *
+   * @public
+   */
   static compileBlockGKeyboards(template: string, gBaseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
     const bases = gBaseBlocks || this._processGBaseBlocks(template)
     const result: {
@@ -1530,8 +1630,8 @@ export class TemplateEngine {
         result[AGBaseId][lang] = {}
 
         for (const [mode, content] of Object.entries(modes)) {
-          // Seperates label, handle escaped comma
-          const labels = content.split(/(?<!\\),\s*/).map((label: string) => label.replace(/\\,/g, `,`).trim())
+          // Separates label, handle escaped comma — now quote-aware (commas inside HTML attributes are not split)
+          const labels = this._splitKeyboardLabels(content).map((label: string) => label.replace(/\\,/g, `,`).trim())
 
           const processedLabels = labels.map((label) => this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(label))))))
 
@@ -1978,6 +2078,8 @@ export class TemplateEngine {
    * - `<g-media>` can also appear directly inside `<g-media-group>` as a group item.
    * - `<g-switch>`, `<g-map>` can only appear inside `<g-message>`, `<g-keyboard>`, `<g-media>`, or `<g-description>`.
    * - `<g-case>` and `<g-default>` can only appear inside `<g-switch>`.
+   * - `<g-map>` is also allowed inside `<g-case>` and `<g-default>` (explicitly and via
+   *   parent-child inheritance — see `inheritsContentFromParent`).
    * - Telegram formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`, `<blockquote expandable>`)
    *   are passthrough and ignored during validation.
    *
@@ -2018,6 +2120,11 @@ export class TemplateEngine {
 
     // Allowed parent context for each structural block.
     // `__root__` represents the outermost level (outside any block).
+    // Blocks whose only parent is g-switch (g-case, g-default) inherit
+    // the same content children as the blocks g-switch lives in.
+    // This prevents needing to manually update allowedParents when new
+    // g-switch child blocks are added.
+    const inheritsContentFromParent: Set<string> = new Set([`g-case`, `g-default`])
     const allowedParents: Record<string, Set<string>> = {
       "g-base": new Set([`__root__`]),
       "g-message": new Set([`g-base`]),
@@ -2028,7 +2135,7 @@ export class TemplateEngine {
       "g-switch": new Set([`g-message`, `g-keyboard`, `g-media`, `g-description`]),
       "g-case": new Set([`g-switch`]),
       "g-default": new Set([`g-switch`]),
-      "g-map": new Set([`g-message`, `g-keyboard`, `g-media`, `g-description`]),
+      "g-map": new Set([`g-message`, `g-keyboard`, `g-media`, `g-description`, `g-case`, `g-default`, `g-map`]),
       "g-div": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-case`, `g-default`, `g-map`]),
       "g-script": new Set([`g-base`, `g-message`, `g-description`, `g-keyboard`, `g-case`, `g-default`, `g-map`, `g-div`]),
       "g-import": new Set([`g-base`]),
@@ -2071,14 +2178,42 @@ export class TemplateEngine {
         // Self-closing tag: validate parent only, no stack push
         const currentParent = stack.length > 0 ? stack[stack.length - 1]!.block : `__root__`
         const allowed = allowedParents[tagName]!
-        if (!allowed.has(currentParent)) {
+        let isAllowed = allowed.has(currentParent)
+        // Check inheritance: if currentParent inherits from its own parent(s)
+        if (!isAllowed && inheritsContentFromParent.has(currentParent)) {
+          for (const parentBlock of allowedParents[currentParent] || []) {
+            for (const grandParent of allowedParents[parentBlock] || []) {
+              const gpAllowed = allowedParents[tagName]
+              if (gpAllowed && gpAllowed.has(grandParent)) {
+                isAllowed = true
+                break
+              }
+            }
+            if (isAllowed) break
+          }
+        }
+        if (!isAllowed) {
           errors.push({line, message: `Block <${tagName}> is not allowed inside <${currentParent}>`})
         }
       } else {
         // Opening tag: validate parent, then push to stack
         const currentParent = stack.length > 0 ? stack[stack.length - 1]!.block : `__root__`
         const allowed = allowedParents[tagName]!
-        if (!allowed.has(currentParent)) {
+        let isAllowed = allowed.has(currentParent)
+        // Check inheritance: if currentParent inherits from its own parent(s)
+        if (!isAllowed && inheritsContentFromParent.has(currentParent)) {
+          for (const parentBlock of allowedParents[currentParent] || []) {
+            for (const grandParent of allowedParents[parentBlock] || []) {
+              const gpAllowed = allowedParents[tagName]
+              if (gpAllowed && gpAllowed.has(grandParent)) {
+                isAllowed = true
+                break
+              }
+            }
+            if (isAllowed) break
+          }
+        }
+        if (!isAllowed) {
           errors.push({line, message: `Block <${tagName}> is not allowed inside <${currentParent}>`})
         }
         stack.push({block: tagName, line})

@@ -100,6 +100,83 @@ describe(`TemplateEngine`, () => {
     })
   })
 
+  describe(`_splitKeyboardLabels`, () => {
+    it(`should split simple comma-separated labels`, () => {
+      const result = TemplateEngine._splitKeyboardLabels(`Yes, No, Cancel`)
+      expect(result).toEqual([`Yes`, `No`, `Cancel`])
+    })
+
+    it(`should NOT split on commas inside double-quoted HTML attribute values`, () => {
+      const result = TemplateEngine._splitKeyboardLabels(
+        `Btn1, <g-map src="items" join=", ">{{e.name}}</g-map>, Done`
+      )
+      expect(result).toEqual([
+        `Btn1`,
+        `<g-map src="items" join=", ">{{e.name}}</g-map>`,
+        `Done`
+      ])
+    })
+
+    it(`should NOT split on commas inside nested g-map blocks`, () => {
+      const result = TemplateEngine._splitKeyboardLabels(
+        `<g-map src="outer" join="|"><g-map src="e.items" join=", ">{{e2}}</g-map></g-map>, Last`
+      )
+      expect(result).toEqual([
+        `<g-map src="outer" join="|"><g-map src="e.items" join=", ">{{e2}}</g-map></g-map>`,
+        `Last`
+      ])
+    })
+
+    it(`should handle escaped commas as literal characters`, () => {
+      const result = TemplateEngine._splitKeyboardLabels(`a\\, b, c`)
+      expect(result).toEqual([`a\\, b`, `c`])
+    })
+
+    it(`should handle single label with no commas`, () => {
+      const result = TemplateEngine._splitKeyboardLabels(`JustOneButton`)
+      expect(result).toEqual([`JustOneButton`])
+    })
+
+    it(`should handle empty string`, () => {
+      const result = TemplateEngine._splitKeyboardLabels(``)
+      expect(result).toEqual([``])
+    })
+
+    it(`should handle g-map with multiple attributes containing commas`, () => {
+      const result = TemplateEngine._splitKeyboardLabels(
+        `<g-map src="data" join=", " filter="a,b,c">{{e}}</g-map>`
+      )
+      expect(result).toEqual([
+        `<g-map src="data" join=", " filter="a,b,c">{{e}}</g-map>`
+      ])
+    })
+
+    it(`should handle multiple g-map blocks separated by commas`, () => {
+      const result = TemplateEngine._splitKeyboardLabels(
+        `<g-map src="a">{{e}}</g-map>, <g-map src="b" join=", ">{{e}}</g-map>`
+      )
+      expect(result).toEqual([
+        `<g-map src="a">{{e}}</g-map>`,
+        `<g-map src="b" join=", ">{{e}}</g-map>`
+      ])
+    })
+
+    it(`should handle self-closing tags with attributes`, () => {
+      const result = TemplateEngine._splitKeyboardLabels(
+        `<g-media type="photo" src="x"/>, Next`
+      )
+      expect(result).toEqual([
+        `<g-media type="photo" src="x"/>`,
+        `Next`
+      ])
+    })
+
+    it(`should trim whitespace from labels`, () => {
+      const result = TemplateEngine._splitKeyboardLabels(`  A  ,  B  ,  C  `)
+      expect(result).toEqual([`A`, `B`, `C`])
+    })
+  })
+
   describe(`_processGMapBlocks`, () => {
     it(`should iterate over a list with e and i`, () => {
       const template = `<g-map src="users">{{i}}. {{e.name}}</g-map>`
@@ -148,6 +225,134 @@ describe(`TemplateEngine`, () => {
 
       const data = {emptyList: []}
       expect(fn(data)).toBe(`List:\n`)
+    })
+  })
+
+  describe(`_processGSwitchBlocks with g-map`, () => {
+    it(`should compile <g-switch> with <g-map> in <g-case>`, () => {
+      const template = `<g-switch value="status"><g-case is="active"><g-map src="items">{{e}}</g-map></g-case><g-default>none</g-default></g-switch>`
+      let processed = TemplateEngine._processGMapBlocks(template)
+      processed = TemplateEngine._processGSwitchBlocks(processed)
+      processed = TemplateEngine._processScopeExec(processed)
+      processed = TemplateEngine._processScopeVariables(processed)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {
+        status: `active`,
+        items: [`a`, `b`, `c`]
+      }
+      expect(fn(data)).toBe(`a\nb\nc`)
+    })
+
+    it(`should compile <g-switch> with <g-map> in <g-default>`, () => {
+      const template = `<g-switch value="status"><g-case is="inactive">none</g-case><g-default><g-map src="items">{{e}}</g-map></g-default></g-switch>`
+      let processed = TemplateEngine._processGMapBlocks(template)
+      processed = TemplateEngine._processGSwitchBlocks(processed)
+      processed = TemplateEngine._processScopeExec(processed)
+      processed = TemplateEngine._processScopeVariables(processed)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {
+        status: `unknown`,
+        items: [`x`, `y`]
+      }
+      expect(fn(data)).toBe(`x\ny`)
+    })
+
+    it(`should fall back to default case when no match`, () => {
+      const template = `<g-switch value="status"><g-case is="active"><g-map src="items">{{e}}</g-map></g-case><g-default>fallback</g-default></g-switch>`
+      let processed = TemplateEngine._processGMapBlocks(template)
+      processed = TemplateEngine._processGSwitchBlocks(processed)
+      processed = TemplateEngine._processScopeExec(processed)
+      processed = TemplateEngine._processScopeVariables(processed)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      expect(fn({status: `unknown`, items: [`a`]})).toBe(`fallback`)
+    })
+  })
+
+  describe(`g-map inside g-switch children (integration)`, () => {
+    it(`should compile a full <g-message> with <g-switch> containing <g-map> in <g-case>`, () => {
+      const template = `
+        <g-base>
+          <g-message>
+            Status: <g-switch value="status">
+              <g-case is="active"><g-map src="users" join=", ">{{e.name}}</g-map></g-case>
+              <g-default>inactive</g-default>
+            </g-switch>
+          </g-message>
+        </g-base>
+      `
+      const result = TemplateEngine.compileBlockGMessage(template)
+      const fn = result.default!.default!
+
+      const activeData = {
+        status: `active`,
+        users: [{name: `Alice`}, {name: `Bob`}]
+      }
+      expect(fn(activeData)).toBe(`Status: Alice, Bob`)
+
+      const inactiveData = {
+        status: `offline`,
+        users: [{name: `Charlie`}]
+      }
+      expect(fn(inactiveData)).toBe(`Status: inactive`)
+    })
+
+    it(`should compile a full <g-message> with <g-map> in <g-default>`, () => {
+      const template = `
+        <g-base>
+          <g-message>
+            <g-switch value="role">
+              <g-case is="admin">Admin panel</g-case>
+              <g-default>
+                <g-map src="notifications">{{e.title}}</g-map>
+              </g-default>
+            </g-switch>
+          </g-message>
+        </g-base>
+      `
+      const result = TemplateEngine.compileBlockGMessage(template)
+      const fn = result.default!.default!
+
+      const userData = {
+        role: `user`,
+        notifications: [{title: `New message`}, {title: `System update`}]
+      }
+      expect(fn(userData)).toBe(`New message\nSystem update`)
+
+      const adminData = {role: `admin`}
+      expect(fn(adminData)).toBe(`Admin panel`)
+    })
+
+    it(`should handle <g-map> with scope exec inside <g-case>`, () => {
+      const template = `
+        <g-base>
+          <g-message>
+            <g-switch value="show">
+              <g-case is="true"><g-map src="nums">{~ e * 2 ~}</g-map></g-case>
+              <g-default>hidden</g-default>
+            </g-switch>
+          </g-message>
+        </g-base>
+      `
+      const result = TemplateEngine.compileBlockGMessage(template)
+      const fn = result.default!.default!
+
+      expect(fn({show: `true`, nums: [1, 2, 3]})).toBe(`2\n4\n6`)
+      expect(fn({show: `false`, nums: [5]})).toBe(`hidden`)
+    })
+
+    it(`should handle <g-map> with custom join inside <g-case>`, () => {
+      const template = `<g-switch value="t"><g-case is="yes"><g-map src="tags" join=" | ">{{e}}</g-map></g-case><g-default>no</g-default></g-switch>`
+      let processed = TemplateEngine._processGMapBlocks(template)
+      processed = TemplateEngine._processGSwitchBlocks(processed)
+      processed = TemplateEngine._processScopeExec(processed)
+      processed = TemplateEngine._processScopeVariables(processed)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      expect(fn({t: `yes`, tags: [`a`, `b`, `c`]})).toBe(`a | b | c`)
+      expect(fn({t: `no`})).toBe(`no`)
     })
   })
 
@@ -385,6 +590,254 @@ describe(`TemplateEngine`, () => {
       }
       expect(fn1(data)).toBe(`local`)
       expect(fn2(data)).toBe(`local`)
+    })
+  })
+
+  describe(`nested g-map blocks`, () => {
+    it(`should iterate over nested g-map blocks with depth indexing`, () => {
+      const template = [
+        `<g-map src="orders">`,
+        `  {{e.id}}:`,
+        `  <g-map src="e.items" join=", ">{{e2.name}}</g-map>`,
+        `</g-map>`
+      ].join(`\n`)
+      const processed = TemplateEngine._processGMapBlocks(template)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {
+        orders: [
+          {id: 1, items: [{name: `A`}, {name: `B`}]},
+          {id: 2, items: [{name: `C`}]}
+        ]
+      }
+      expect(fn(data).trim()).toBe(`1:\nA, B\n2:\nC`)
+    })
+
+    it(`should handle three levels of nested g-map`, () => {
+      const template = [
+        `<g-map src="groups">`,
+        `  {{e.name}}:`,
+        `  <g-map src="e.items">`,
+        `    - {{e2.name}}`,
+        `    <g-map src="e2.tags" join=", ">{{e3}}</g-map>`,
+        `  </g-map>`,
+        `</g-map>`
+      ].join(`\n`)
+      const processed = TemplateEngine._processGMapBlocks(template)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {
+        groups: [
+          {
+            name: `Fruits`,
+            items: [
+              {name: `Apple`, tags: [`red`, `sweet`]},
+              {name: `Lemon`, tags: [`yellow`, `sour`]}
+            ]
+          }
+        ]
+      }
+      const result = fn(data).trim()
+      expect(result).toContain(`Fruits:`)
+      expect(result).toContain(`- Apple`)
+      expect(result).toContain(`red, sweet`)
+      expect(result).toContain(`- Lemon`)
+      expect(result).toContain(`yellow, sour`)
+    })
+
+    it(`should produce identical output for non-nested maps (backward compat)`, () => {
+      const template = `<g-map src="users" join=", ">{{e.name}} ({{i}})</g-map>`
+      const processed = TemplateEngine._processGMapBlocks(template)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {users: [{name: `Alice`}, {name: `Bob`}]}
+      expect(fn(data)).toBe(`Alice (0), Bob (1)`)
+    })
+
+    it(`should work with scope exec inside nested maps`, () => {
+      const template = [
+        `<g-map src="orders">`,
+        `  <g-map src="e.items" join=", ">{~ e2.price * e2.qty ~}</g-map>`,
+        `</g-map>`
+      ].join(`\n`)
+      let processed = TemplateEngine._processGMapBlocks(template)
+      processed = TemplateEngine._processScopeExec(processed)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {
+        orders: [
+          {items: [{price: 10, qty: 2}, {price: 5, qty: 3}]}
+        ]
+      }
+      expect(fn(data).trim()).toBe(`20, 15`)
+    })
+
+    it(`should work with global variables in nested maps`, () => {
+      const template = [
+        `<g-map src="orders">`,
+        `  <g-map src="e.items" join=", ">{{e2.name}}-{{prefix}}</g-map>`,
+        `</g-map>`
+      ].join(`\n`)
+      let processed = TemplateEngine._processGMapBlocks(template)
+      processed = TemplateEngine._processScopeVariables(processed)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {
+        orders: [{items: [{name: `A`}, {name: `B`}]}],
+        prefix: `#`
+      }
+      expect(fn(data).trim()).toBe(`A-#, B-#`)
+    })
+
+    it(`should handle empty arrays at outer level`, () => {
+      const template = [
+        `<g-map src="orders">`,
+        `  {{e.id}}:`,
+        `  <g-map src="e.items">{{e2.name}}</g-map>`,
+        `</g-map>`
+      ].join(`\n`)
+      const processed = TemplateEngine._processGMapBlocks(template)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      expect(fn({orders: []}).trim()).toBe(``)
+    })
+
+    it(`should handle empty arrays at inner level`, () => {
+      const template = [
+        `<g-map src="orders">`,
+        `  {{e.id}}:`,
+        `  <g-map src="e.items">{{e2.name}}</g-map>`,
+        `</g-map>`
+      ].join(`\n`)
+      const processed = TemplateEngine._processGMapBlocks(template)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {orders: [{id: 1, items: []}]}
+      expect(fn(data).trim()).toBe(`1:`)
+    })
+
+    it(`should support join at both outer and inner levels`, () => {
+      const template = [
+        `<g-map src="categories" join="\\n---\\n">`,
+        `  {{e.cat}}: <g-map src="e.items" join=", ">{{e2}}</g-map>`,
+        `</g-map>`
+      ].join(`\n`)
+      const processed = TemplateEngine._processGMapBlocks(template)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {
+        categories: [
+          {cat: `A`, items: [`x`, `y`]},
+          {cat: `B`, items: [`z`]}
+        ]
+      }
+      expect(fn(data).trim()).toBe(`A: x, y\n---\nB: z`)
+    })
+
+    it(`should compile full <g-message> with nested g-map`, () => {
+      const template = [
+        `<g-base>`,
+        `  <g-message>`,
+        `    <g-map src="orders">`,
+        `      Order {{i}}: {{e.name}}`,
+        `      <g-map src="e.items" join="\\n">- {{e2.name}} ({{e2.qty}})</g-map>`,
+        `    </g-map>`,
+        `  </g-message>`,
+        `</g-base>`
+      ].join(`\n`)
+      const compiled = TemplateEngine.compileBlockGMessage(template)
+      const fn = compiled.default!.default!
+
+      const data = {
+        orders: [{
+          name: `Order1`,
+          items: [{name: `ItemA`, qty: 2}, {name: `ItemB`, qty: 1}]
+        }]
+      }
+      const result = fn(data)
+      expect(result).toContain(`Order 0: Order1`)
+      expect(result).toContain(`- ItemA (2)`)
+      expect(result).toContain(`- ItemB (1)`)
+    })
+  })
+
+  describe(`nested g-map validation and integration`, () => {
+    it(`should validate nested g-map inside g-map`, () => {
+      const template = [
+        `<g-base>`,
+        `  <g-message>`,
+        `    <g-map src="outer">`,
+        `      <g-map src="e.inner">{{e2}}</g-map>`,
+        `    </g-map>`,
+        `  </g-message>`,
+        `</g-base>`
+      ].join(`\n`)
+      const result = TemplateEngine.validateTemplate(template)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should validate nested g-map inside g-case`, () => {
+      const template = [
+        `<g-base>`,
+        `  <g-message>`,
+        `    <g-switch value="s">`,
+        `      <g-case is="a"><g-map src="items"><g-map src="e.sub">{{e2}}</g-map></g-map></g-case>`,
+        `      <g-default>none</g-default>`,
+        `    </g-switch>`,
+        `  </g-message>`,
+        `</g-base>`
+      ].join(`\n`)
+      const result = TemplateEngine.validateTemplate(template)
+      expect(result.valid).toBe(true)
+    })
+
+    it(`should compile nested g-map in keyboard pipeline`, () => {
+      const template = [
+        `<g-base>`,
+        `  <g-keyboard>`,
+        `    <g-map src="rows">{{e.name}}</g-map>`,
+        `  </g-keyboard>`,
+        `</g-base>`
+      ].join(`\n`)
+      const compiled = TemplateEngine.compileBlockGKeyboards(template)
+      const fn = compiled.default!.default!.inline!
+      const result = fn({rows: [{name: `Alice`}, {name: `Bob`}]})
+      expect(result).toEqual([`Alice\nBob`])
+    })
+
+    it(`should handle g-map with join attribute inside keyboard`, () => {
+      const template = [
+        `<g-base>`,
+        `  <g-keyboard>`,
+        `    Fixed, <g-map src="items" join=", ">{{e}}</g-map>, Done`,
+        `  </g-keyboard>`,
+        `</g-base>`
+      ].join(`\n`)
+      const compiled = TemplateEngine.compileBlockGKeyboards(template)
+      const fn = compiled.default!.default!.inline!
+      const result = fn({items: [`A`, `B`, `C`]})
+      expect(result).toEqual([`Fixed`, `A, B, C`, `Done`])
+    })
+
+    it(`should handle g-div inside nested g-map`, () => {
+      const template = [
+        `<g-map src="outer" join="\\n">`,
+        `  <g-div>{{e.name}}</g-div>`,
+        `  <g-map src="e.inner" join=", "><g-div>{{e2}}</g-div></g-map>`,
+        `</g-map>`
+      ].join(`\n`)
+      let processed = TemplateEngine._processGMapBlocks(template)
+      processed = TemplateEngine._processGDivBlocks(processed)
+      const fn = TemplateEngine._compileToFunction(processed, false)
+
+      const data = {
+        outer: [
+          {name: `X`, inner: [`a`, `b`]},
+          {name: `Y`, inner: [`c`]}
+        ]
+      }
+      expect(fn(data).trim()).toBe(`X\na, b\nY\nc`)
     })
   })
 
@@ -675,6 +1128,63 @@ describe(`TemplateEngine`, () => {
       const result = TemplateEngine.validatePositionsBlock(template)
       expect(result.valid).toBe(true)
       expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for <g-map> inside <g-case>`, () => {
+      const template = `
+        <g-base>
+          <g-message>
+            <g-switch value="status">
+              <g-case is="active"><g-map src="items">{{e}}</g-map></g-case>
+            </g-switch>
+          </g-message>
+        </g-base>
+      `
+      const result = TemplateEngine.validatePositionsBlock(template)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should return valid for <g-map> inside <g-default>`, () => {
+      const template = `
+        <g-base>
+          <g-message>
+            <g-switch value="status">
+              <g-default><g-map src="items">{{e}}</g-map></g-default>
+            </g-switch>
+          </g-message>
+        </g-base>
+      `
+      const result = TemplateEngine.validatePositionsBlock(template)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should inherit allowed parents: <g-div> inside <g-case>`, () => {
+      const result = TemplateEngine.validatePositionsBlock(`
+        <g-base>
+          <g-message>
+            <g-switch value="x">
+              <g-case is="test"><g-div>content</g-div></g-case>
+            </g-switch>
+          </g-message>
+        </g-base>
+      `)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toEqual([])
+    })
+
+    it(`should NOT inherit across levels: <g-base> inside <g-case>`, () => {
+      const result = TemplateEngine.validatePositionsBlock(`
+        <g-base>
+          <g-message>
+            <g-switch value="x">
+              <g-case is="test"><g-base>nested</g-base></g-case>
+            </g-switch>
+          </g-message>
+        </g-base>
+      `)
+      expect(result.valid).toBe(false)
     })
 
     it(`should return valid for <g-import> and <g-space> blocks`, () => {
