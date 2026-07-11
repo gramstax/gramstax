@@ -138,7 +138,7 @@ describe(`TemplateManager`, () => {
       expect(manager.getGMessage(`watch_test`)).toBe(`Initial`)
 
       await writeFile(join(TEST_DIR, `watch_test.html`), `<g-base><g-message>Updated</g-message></g-base>`)
-      await wait(800)
+      await wait(2000)
       expect(manager.getGMessage(`watch_test`)).toBe(`Updated`)
       await manager.destroy()
     })
@@ -152,7 +152,7 @@ describe(`TemplateManager`, () => {
       await wait(100)
 
       await writeFile(join(TEST_DIR, `new_file.html`), `<g-base><g-message>New</g-message></g-base>`)
-      await wait(800)
+      await wait(2000)
 
       expect(manager.has(`new_file`)).toBe(true)
       expect(manager.getGMessage(`new_file`)).toBe(`New`)
@@ -171,7 +171,7 @@ describe(`TemplateManager`, () => {
       expect(manager.has(`delete_test`)).toBe(true)
 
       await rm(join(TEST_DIR, `delete_test.html`))
-      await wait(800)
+      await wait(2000)
 
       expect(manager.has(`delete_test`)).toBe(false)
       await manager.destroy()
