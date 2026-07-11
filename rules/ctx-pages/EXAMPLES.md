@@ -10,7 +10,7 @@ import { StartPage } from "./start";
 
 // 1. BASE ID CONSTANTS
 class Base {
-  static step1 = `s1`;
+  static amount = `s1`;
   static success = `s`;
   static warnInvalid = `w-invalid`;
 }
@@ -27,15 +27,18 @@ class Helper {
 
 // 4. MAIN LOGIC
 class Main {
-  static async showStep1Form(ctx: DepositPage) {
+  static async showAmount(ctx: DepositPage) {
     await ctx.setSessionFreeText();
-    const bi = Base.step1;
+    const bi = Base.amount;
     const kb = Helper.kb(ctx, bi);
     const da = {};
     await ctx.edit(kb, da, bi);
   }
 
-  static async processStep1Answer(ctx: DepositPage) {
+  // processAmount is defined because showAmount expects a text answer.
+  // If a show{NameBase} method had no answer to process, OMIT process{NameBase}
+  // entirely — do NOT add a `throw ctx` placeholder.
+  static async processAmount(ctx: DepositPage) {
     const amountInput = ctx.msgText.trim();
     if (!amountInput) {
       return await Main.showWarnInvalid(ctx);
@@ -46,7 +49,7 @@ class Main {
     await Main.showSuccess(ctx, amountInput, newBalance);
   }
 
-  // Feedback methods at the bottom (after all showStep/processStep)
+  // Feedback methods at the bottom (after all show{NameBase} / process{NameBase})
   static async showSuccess(ctx: DepositPage, amount: string, balance: string) {
     const bi = Base.success;
     const da = { amount, balance };
@@ -65,15 +68,15 @@ class Main {
 // 5. EXPORTED PAGE CLASS
 export class DepositPage extends PageBase {
   async handleCallbackData() {
-    await Main.showStep1Form(this);
+    await Main.showAmount(this);
   }
 
   async handleSessionFreeText() {
-    await Main.processStep1Answer(this);
+    await Main.processAmount(this);
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.amount}">
       ${this.kbk.cancel()}
       <g-message>
         ➕ Deposit funds

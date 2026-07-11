@@ -222,7 +222,7 @@ expect(idReq!.body?.media![0]?.caption).toBe(e2e.gmedia(intent, \`<g-base id="..
 | `e2e.gmsg(page, id, data?, lang?)`       | Render expected message text                             |
 | `e2e.gkb(page, id, type?, data?, lang?)` | Build expected keyboard labels                           |
 | `e2e.gmedia(page, id, data?, lang?)`     | Get expected media config                                |
-| `e2e.extractButtonLabels(call)`                 | Extract inline keyboard button text from a captured call |
+| `e2e.extractButtonLabels(call)`          | Extract inline keyboard button text from a captured call |
 
 ### Types
 
@@ -339,7 +339,7 @@ Note: `blank.test.ts` only imports `bot`, not `e2e`. Only create this file if th
 | `resp.body?.reply_markup`            | `resp.body?.reply_markup` (unchanged)              |
 | `gmsg()` standalone                  | `e2e.gmsg()`                                       |
 | `gkb()` standalone                   | `e2e.gkb()`                                        |
-| `extractButtonLabels()` standalone          | `e2e.extractButtonLabels()`                               |
+| `extractButtonLabels()` standalone   | `e2e.extractButtonLabels()`                        |
 | `gmedia()` standalone                | `e2e.gmedia()`                                     |
 | `getEnv()` + `beforeAll`             | **Not needed** — bot is created at module level    |
 | Webhook URL polling (5s loop)        | **Not needed** — `handleUpdate` is called directly |
