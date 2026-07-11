@@ -33,7 +33,8 @@ export class HelpPage extends PageBase {
         <b>🎰 Random Number</b> - Generate a random number
         <b>➕ Sum Number</b> - Add two numbers together
 
-        <details><summary>📋 More commands</summary>
+        <details>
+          <summary>📋 More commands</summary>
           /start - Show welcome message
           /help - Show this help
           /random - Generate a random number
@@ -48,7 +49,8 @@ export class HelpPage extends PageBase {
         <b>🎰 Angka Acak</b> - Menghasilkan angka secara acak
         <b>➕ Jumlah Angka</b> - Menjumlahkan dua angka
 
-        <details><summary>📋 Perintah lainnya</summary>
+        <details>
+          <summary>📋 Perintah lainnya</summary>
           /start - Tampilkan pesan selamat datang
           /help - Tampilkan bantuan ini
           /random - Hasilkan angka acak

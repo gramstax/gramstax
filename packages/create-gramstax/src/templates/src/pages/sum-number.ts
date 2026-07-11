@@ -18,7 +18,7 @@ class Helper {
 }
 
 class Main {
-  static async showLeftForm(ctx: SumNumberPage, edit: boolean) {
+  static async showLeft(ctx: SumNumberPage, edit: boolean) {
     const bi = Base.left
     const kb = Helper.kb(ctx, bi)
     const da = {}
@@ -30,15 +30,15 @@ class Main {
     }
   }
 
-  static async processLeftForm(ctx: SumNumberPage, left: number) {
+  static async processLeft(ctx: SumNumberPage, left: number) {
     if (!Number.isFinite(left)) {
-      await Main.showLeftForm(ctx, false)
+      await Main.showLeft(ctx, false)
     } else {
-      await this.showRightForm(ctx, left)
+      await Main.showRight(ctx, left)
     }
   }
 
-  static async showRightForm(ctx: SumNumberPage, left: number) {
+  static async showRight(ctx: SumNumberPage, left: number) {
     const bi = Base.right
     const kb = Helper.kb(ctx, bi)
     const da = {}
@@ -46,11 +46,11 @@ class Main {
     await ctx.reply(kb, da, bi)
   }
 
-  static async processRightForm(ctx: SumNumberPage, left: number, right: number) {
+  static async processRight(ctx: SumNumberPage, left: number, right: number) {
     if (!Number.isFinite(right)) {
-      await Main.showRightForm(ctx, right)
+      await Main.showRight(ctx, right)
     } else if (!Number.isFinite(right ?? NaN)) {
-      await Main.showLeftForm(ctx, false)
+      await Main.showLeft(ctx, false)
     } else {
       await Main.showSuccess(ctx, left, right)
     }
@@ -67,11 +67,11 @@ class Main {
 
 export class SumNumberPage extends PageBase {
   async handleCallbackData() {
-    await Main.showLeftForm(this, true)
+    await Main.showLeft(this, true)
   }
 
   async handleCommandText() {
-    await Main.showLeftForm(this, false)
+    await Main.showLeft(this, false)
   }
 
   async handleSessionFreeText() {
@@ -79,9 +79,9 @@ export class SumNumberPage extends PageBase {
     const input = this.msgText?.trim()
     const value = input ? Number(input) : NaN
     if (step === Base.left) {
-      await Main.processLeftForm(this, value)
+      await Main.processLeft(this, value)
     } else if (step === Base.right) {
-      await Main.processRightForm(this, left!, value)
+      await Main.processRight(this, left!, value)
     }
   }
 
