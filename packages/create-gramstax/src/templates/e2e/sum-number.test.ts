@@ -15,13 +15,13 @@ describe(`E2E: SumNumberPage`, () => {
 
     const step1 = await e2e.sendCallbackQuery(intent, asUser)
     expect(step1.length).toBeGreaterThan(0)
-    expect(step1[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
+    expect(step1[0]!.body?.text).toBe(e2e.gmsg(intent, `l`, {}))
     e2e.clearCalls()
 
     // input 1
     const step2 = await e2e.sendText(`23`, asUser)
     expect(step2.length).toBeGreaterThan(0)
-    expect(step2[0]!.body?.text).toBe(e2e.gmsg(intent, `s2`, {}))
+    expect(step2[0]!.body?.text).toBe(e2e.gmsg(intent, `r`, {}))
     e2e.clearCalls()
 
     // input 2
@@ -41,6 +41,6 @@ describe(`E2E: SumNumberPage`, () => {
 
     const retry = await e2e.sendText(`not-a-number`, asUser)
     expect(retry.length).toBeGreaterThan(0)
-    expect(retry[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
+    expect(retry[0]!.body?.text).toBe(e2e.gmsg(intent, `l`, {}))
   })
 })

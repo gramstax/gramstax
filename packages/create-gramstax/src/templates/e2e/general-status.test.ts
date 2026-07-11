@@ -22,7 +22,7 @@ describe(`E2E: GeneralStatusPage`, () => {
     const replyId = responsesId[0]!
     expect(reply).toBeDefined()
     expect(replyId).toBeDefined()
-    expect(reply.body?.text).toBe(e2e.gmsg(intent, `d`, {isNotFound: true}))
-    expect(replyId.body?.text).toBe(e2e.gmsg(intent, `d`, {isNotFound: true}, `id`))
+    expect(reply.body?.text).toBe(e2e.gmsg(intent, `default`, {isNotFound: true}))
+    expect(replyId.body?.text).toBe(e2e.gmsg(intent, `default`, {isNotFound: true}, `id`))
   })
 })

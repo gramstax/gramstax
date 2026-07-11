@@ -17,8 +17,8 @@ describe(`E2E: UserNameNotFoundPage`, () => {
     expect(responses.length).toBeGreaterThan(0)
     const reply = responses[0]!
     expect(reply).toBeDefined()
-    expect(reply.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
+    expect(reply.body?.text).toBe(e2e.gmsg(intent, `default`, {}))
     expect(reply.body?.text).toContain(`Username Required`)
-    expect(e2e.extractButtonLabels(reply)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
+    expect(e2e.extractButtonLabels(reply)).toEqual(e2e.gkb(intent, `default`, `inline`, {}))
   })
 })
