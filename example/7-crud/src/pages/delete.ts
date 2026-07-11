@@ -37,7 +37,7 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: DeletePage) {
+  static async showIndex(ctx: DeletePage) {
     const getItems = await ctx.db.items.list(ctx.userId)
     const items = getItems.slice(0, Helper.MAX_ITEMS)
     if (items.length === 0) {
@@ -51,16 +51,16 @@ class Main {
     }
   }
 
-  static async processIndexForm(ctx: DeletePage, id: string, edit = false) {
+  static async processIndex(ctx: DeletePage, id: string, isEdit = false) {
     if (!id) {
-      return await Main.showWarnInvalid(ctx, edit)
+      return await Main.showWarnInvalid(ctx, isEdit)
     }
 
     const deleted = await ctx.db.items.remove(ctx.userId, id)
     if (!deleted) {
-      await Main.showErrorNotFound(ctx, id, edit)
+      await Main.showErrorNotFound(ctx, id, isEdit)
     } else {
-      await Main.showSuccess(ctx, id, edit)
+      await Main.showSuccess(ctx, id, isEdit)
     }
   }
 
@@ -111,13 +111,13 @@ export class DeletePage extends PageBase {
   static data = this.buildData((step?: string, id?: string) => [step, id])
 
   async handleCallbackData() {
-    await Main.showIndexForm(this)
+    await Main.showIndex(this)
   }
 
   async handleArgsCallbackData() {
     const [step, id] = this.callbackDataArgs
     if (step === Base.index) {
-      await Main.processIndexForm(this, id!, true)
+      await Main.processIndex(this, id!, true)
     }
   }
 
@@ -125,7 +125,7 @@ export class DeletePage extends PageBase {
     const {step} = this.temp.session.params
     const input = this.msgText.trim()
     if (step === Base.index) {
-      await Main.processIndexForm(this, input, false)
+      await Main.processIndex(this, input, false)
     }
   }
 

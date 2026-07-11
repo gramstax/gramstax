@@ -3,7 +3,7 @@ import {HelpPage} from "./help"
 import {StatsPage} from "./stats"
 
 class Main {
-  static async showIndexForm(ctx: StartPage, edit = true) {
+  static async showIndex(ctx: StartPage, edit = true) {
     await ctx.clearSession()
     const subscribed = await ctx.db.subs.isSubscribed(ctx.userId)
     const da = {subscribed}
@@ -15,7 +15,7 @@ class Main {
     }
   }
 
-  static async processIndexForm(ctx: StartPage) {
+  static async processIndex(ctx: StartPage) {
     const subscribed = await ctx.db.subs.isSubscribed(ctx.userId)
     if (subscribed) {
       await ctx.db.subs.unsubscribe(ctx.userId)
@@ -26,7 +26,7 @@ class Main {
         language: ctx.userLanguage
       })
     }
-    await Main.showIndexForm(ctx, true)
+    await Main.showIndex(ctx, true)
   }
 }
 
@@ -34,22 +34,22 @@ export class StartPage extends PageBase {
   static data = this.buildData((action?: string) => [action])
 
   async handleCallbackData() {
-    await Main.showIndexForm(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleArgsCallbackData() {
     const [action] = this.callbackDataArgs
     if (action === `switch`) {
-      await Main.processIndexForm(this)
+      await Main.processIndex(this)
     }
   }
 
   async handleCommandText() {
-    await Main.showIndexForm(this, false)
+    await Main.showIndex(this, false)
   }
 
-  async showStep1Form(edit = true) {
-    await Main.showIndexForm(this, edit)
+  async showIndex(edit = true) {
+    await Main.showIndex(this, edit)
   }
 
   static template = `

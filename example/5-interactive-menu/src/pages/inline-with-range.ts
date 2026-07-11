@@ -8,9 +8,9 @@ class Constant {
 }
 
 class Helper {
-  static kb(ctx: InlineWithRangePage, page: number) {
+  static kb(ctx: InlineWithRangePage, pageNo: number) {
     const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / Constant.ITEMS_PER_PAGE), 1)
-    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
+    const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
     const start = safePage * Constant.ITEMS_PER_PAGE
     const end = start + Constant.ITEMS_PER_PAGE
     const items = CatalogData.menuItems.slice(start, end)
@@ -32,30 +32,30 @@ class Helper {
     return kb
   }
 
-  static pageData(page: number) {
+  static pageData(pageNo: number) {
     const totalPages = Math.max(Math.ceil(CatalogData.menuItems.length / Constant.ITEMS_PER_PAGE), 1)
-    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-    return {page: safePage + 1, totalPages, safePage}
+    const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
+    return {pageNo: safePage + 1, totalPages, safePage}
   }
 }
 
 class Main {
-  static async showIndexForm(ctx: InlineWithRangePage, page: number, edit = true) {
-    const {page: currentPage, totalPages, safePage} = Helper.pageData(page)
-    const da = {page: currentPage, totalPages}
+  static async showIndex(ctx: InlineWithRangePage, pageNo: number, isEdit = true) {
+    const {pageNo: currentPage, totalPages, safePage} = Helper.pageData(pageNo)
+    const da = {pageNo: currentPage, totalPages}
     const kb = Helper.kb(ctx, safePage)
-    if (edit) {
+    if (isEdit) {
       await ctx.edit(kb, da)
     } else {
       await ctx.reply(kb, da)
     }
   }
 
-  static async processIndexForm(ctx: InlineWithRangePage, action: string, value?: string) {
+  static async processIndex(ctx: InlineWithRangePage, action: string, value?: string) {
     if (action === `page`) {
       const nextPage = Number(value)
       if (!isNaN(nextPage)) {
-        await Main.showIndexForm(ctx, nextPage, true)
+        await Main.showIndex(ctx, nextPage, true)
       }
     } else if (action === `item` && value) {
       // ???
@@ -68,12 +68,12 @@ export class InlineWithRangePage extends PageBase {
   static data = this.buildData((action?: string, page?: string) => [action, page])
 
   async handleCallbackData() {
-    await Main.showIndexForm(this, 0, true)
+    await Main.showIndex(this, 0, true)
   }
 
   async handleArgsCallbackData() {
     const [action, value] = this.callbackDataArgs
-    await Main.processIndexForm(this, action!, value)
+    await Main.processIndex(this, action!, value)
   }
 
   static template = `
@@ -83,14 +83,14 @@ export class InlineWithRangePage extends PageBase {
       <g-message>
         📊 Inline Menu (With Count + Range)
 
-        Page {{page}}/{{totalPages}}
+        Page {{pageNo}}/{{totalPages}}
 
         Use Prev/Next to navigate, or tap Home to exit.
       </g-message>
       <g-message lang="id">
         📊 Menu Inline (Dengan Hitungan + Rentang)
 
-        Halaman {{page}}/{{totalPages}}
+        Halaman {{pageNo}}/{{totalPages}}
 
         Gunakan Sebelumnya/Selanjutnya, atau ketuk Beranda untuk keluar.
       </g-message>

@@ -30,7 +30,7 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: ProductPage, productId: string) {
+  static async showIndex(ctx: ProductPage, productId: string) {
     const product = ProductCatalog.getById(productId)
     if (!product) {
       return await Main.showWarnMissing(ctx)
@@ -52,7 +52,7 @@ class Main {
     await ctx.edit(kb, da, bi)
   }
 
-  static async processIndexForm(ctx: ProductPage, action?: string, productId?: string) {
+  static async processIndex(ctx: ProductPage, action?: string, productId?: string) {
     if (!productId) {
       return await Main.showWarnMissing(ctx)
     }
@@ -71,7 +71,7 @@ class Main {
     await Helper.setCart(ctx, next)
 
     if (action === `buy`) {
-      await new CheckoutPage(ctx).showStep1Form(true)
+      await new CheckoutPage(ctx).showIndex(true)
     } else if (action === `add`) {
       await Main.showInfoAdded(ctx, productId)
     }
@@ -107,9 +107,9 @@ export class ProductPage extends PageBase {
   async handleArgsCallbackData() {
     const [action, productId] = this.callbackDataArgs
     if (action === `detail` && productId) {
-      await Main.showIndexForm(this, productId)
+      await Main.showIndex(this, productId)
     } else {
-      await Main.processIndexForm(this, action, productId)
+      await Main.processIndex(this, action, productId)
     }
   }
 

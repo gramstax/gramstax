@@ -6,8 +6,8 @@ import {StartPage} from "./start"
 import {ProductPage} from "./product"
 
 class Helper {
-  static kb(ctx: CatalogPage, page = 0) {
-    const productPage = ProductCatalog.getPage(page)
+  static kb(ctx: CatalogPage, pageNo = 0) {
+    const productPage = ProductCatalog.getPage(pageNo)
     return ctx.inlineKeyboard((k, l) => {
       productPage.items.forEach((product) => {
         k.text(`${product.stockStatus === `available` ? `📦` : `⛔`} ${product.name}`, ProductPage.data.callbackData(`detail`, product.id))
@@ -15,10 +15,10 @@ class Helper {
       })
 
       if (productPage.hasPrev) {
-        k.text(l[0]!, ctx.data.callbackData(`page`, `${productPage.page - 1}`))
+        k.text(l[0]!, ctx.data.callbackData(`page`, `${productPage.pageNo - 1}`))
       }
       if (productPage.hasNext) {
-        k.text(l[1]!, ctx.data.callbackData(`page`, `${productPage.page + 1}`))
+        k.text(l[1]!, ctx.data.callbackData(`page`, `${productPage.pageNo + 1}`))
       }
 
       return k.row().text(l[2]!, CartPage.data.callbackData()).text(l[3]!, HelpPage.data.callbackData()).row().text(l[4]!, StartPage.data.callbackData())
@@ -27,12 +27,12 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: CatalogPage, page = 0, edit = true) {
-    const productPage = ProductCatalog.getPage(page)
-    await ctx.cacheState.set(`${ctx.userId}:catalogPage`, productPage.page)
-    const kb = Helper.kb(ctx, productPage.page)
+  static async showIndex(ctx: CatalogPage, pageNo = 0, edit = true) {
+    const productPage = ProductCatalog.getPage(pageNo)
+    await ctx.cacheState.set(`${ctx.userId}:catalogPage`, productPage.pageNo)
+    const kb = Helper.kb(ctx, productPage.pageNo)
     const da = {
-      page: productPage.page + 1,
+      pageNo: productPage.pageNo + 1,
       totalPages: productPage.totalPages,
       totalItems: productPage.totalItems,
       products: productPage.items.map((product, index) => `${index + 1}. ${product.name} — ${ProductCatalog.formatPrice(product.price)} (${ProductCatalog.stockLabel(product)})`).join(`\n`)
@@ -44,9 +44,9 @@ class Main {
     }
   }
 
-  static async processIndexForm(ctx: CatalogPage, action?: string, value?: string) {
+  static async processIndex(ctx: CatalogPage, action?: string, value?: string) {
     if (action === `page`) {
-      await Main.showIndexForm(ctx, Number(value ?? 0), true)
+      await Main.showIndex(ctx, Number(value ?? 0), true)
     }
   }
 }
@@ -55,16 +55,16 @@ export class CatalogPage extends PageBase {
   static data = this.buildData((action?: string, value?: string) => [action, value])
 
   async handleCallbackData() {
-    await Main.showIndexForm(this, 0, true)
+    await Main.showIndex(this, 0, true)
   }
 
   async handleArgsCallbackData() {
     const [action, value] = this.callbackDataArgs
-    await Main.processIndexForm(this, action, value)
+    await Main.processIndex(this, action, value)
   }
 
-  async showStep1Form(page = 0, edit = true) {
-    await Main.showIndexForm(this, page, edit)
+  async showIndex(pageNo = 0, edit = true) {
+    await Main.showIndex(this, pageNo, edit)
   }
 
   static template = `
@@ -74,7 +74,7 @@ export class CatalogPage extends PageBase {
       <g-message>
         🔎 Subscription Catalog
 
-        Page {{page}} of {{totalPages}} — {{totalItems}} products available.
+        Page {{pageNo}} of {{totalPages}} — {{totalItems}} products available.
 
         {{products}}
 
@@ -83,7 +83,7 @@ export class CatalogPage extends PageBase {
       <g-message lang="id">
         🔎 Katalog Langganan
 
-        Halaman {{page}} dari {{totalPages}} — {{totalItems}} produk tersedia.
+        Halaman {{pageNo}} dari {{totalPages}} — {{totalItems}} produk tersedia.
 
         {{products}}
 

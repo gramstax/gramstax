@@ -16,7 +16,7 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: WithdrawPage) {
+  static async showIndex(ctx: WithdrawPage) {
     await ctx.setSessionFreeText()
     const bi = Base.index
     const kb = Helper.kb(ctx, bi)
@@ -24,7 +24,7 @@ class Main {
     await ctx.edit(kb, da, bi)
   }
 
-  static async processIndexForm(ctx: WithdrawPage) {
+  static async processIndex(ctx: WithdrawPage) {
     const amountInput = ctx.msgText.trim()
     if (!amountInput) {
       return await Main.showWarnInvalid(ctx)
@@ -78,11 +78,11 @@ class Main {
 // Withdraw funds from the user's balance.
 export class WithdrawPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndexForm(this)
+    await Main.showIndex(this)
   }
 
   async handleSessionFreeText() {
-    await Main.processIndexForm(this)
+    await Main.processIndex(this)
   }
 
   static template = `

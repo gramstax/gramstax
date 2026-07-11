@@ -30,21 +30,21 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: KeyboardBottomPage, count?: number) {
+  static async showIndex(ctx: KeyboardBottomPage, count?: number) {
     await Helper.built(ctx, count, Base.index)
   }
 
-  static async processIndexAnswer(ctx: KeyboardBottomPage, action?: string) {
+  static async processIndex(ctx: KeyboardBottomPage, action?: string) {
     if (action === Base.reset) {
-      await Main.showActionReset(ctx, action)
+      await Main.showReset(ctx, action)
     } else if (action === Base.delete) {
-      await Main.showActionDelete(ctx, action)
+      await Main.showDelete(ctx, action)
     } else {
-      await Main.showIndexForm(ctx, parseInt(ctx.msgTextArg))
+      await Main.showIndex(ctx, parseInt(ctx.msgTextArg))
     }
   }
 
-  static async showActionDelete(ctx: KeyboardBottomPage, bi: string) {
+  static async showDelete(ctx: KeyboardBottomPage, bi: string) {
     const kb = ctx.inlineKeyboardT([StartPage], `1`, Base.index)
     const da = {}
     await ctx.reply(kb, da, bi, {
@@ -54,7 +54,7 @@ class Main {
     })
   }
 
-  static async showActionReset(ctx: KeyboardBottomPage, bi: string) {
+  static async showReset(ctx: KeyboardBottomPage, bi: string) {
     await Helper.built(ctx, undefined, bi)
   }
 }
@@ -66,23 +66,23 @@ export class KeyboardBottomPage extends PageBase {
   })
 
   async handleCallbackData() {
-    await Main.showIndexForm(this)
+    await Main.showIndex(this)
   }
 
   async handleText() {
-    await Main.showIndexForm(this)
+    await Main.showIndex(this)
   }
 
   async handleArgsText() {
-    await Main.processIndexAnswer(this)
+    await Main.processIndex(this)
   }
 
   async handleCommandText() {
-    await Main.showIndexForm(this)
+    await Main.showIndex(this)
   }
 
   async handleCommandArgsText() {
-    await Main.processIndexAnswer(this, this.msgTextCommandArg)
+    await Main.processIndex(this, this.msgTextCommandArg)
   }
 
   static template = `    

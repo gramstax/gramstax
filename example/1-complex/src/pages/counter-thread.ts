@@ -3,15 +3,15 @@ import {StartPage} from "./start"
 import {IncrementJob} from "~/jobs/increment"
 
 class Main {
-  static async showIndexForm(ctx: CounterThreadPage) {
+  static async showIndex(ctx: CounterThreadPage) {
     const count = await IncrementJob.mtdGetCount() // difference thread
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`1`), StartPage])
     const da = {count, timestamp: new Date().getTime()}
     await ctx.edit(kb, da)
   }
 
-  static async processIndexForm(ctx: CounterThreadPage) {
-    await Main.showIndexForm(ctx)
+  static async processIndex(ctx: CounterThreadPage) {
+    await Main.showIndex(ctx)
   }
 }
 
@@ -19,13 +19,13 @@ export class CounterThreadPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
   async handleCallbackData() {
-    await Main.showIndexForm(this)
+    await Main.showIndex(this)
   }
 
   async handleArgsCallbackData() {
     const [exe] = this.callbackDataArgs
     if (exe === `1`) {
-      await Main.processIndexForm(this)
+      await Main.processIndex(this)
     }
   }
 

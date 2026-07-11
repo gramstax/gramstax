@@ -32,14 +32,14 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: TransferPage) {
+  static async showIndex(ctx: TransferPage) {
     const bi = Base.index
     const kb = Helper.kb(ctx, bi)
     const da = {}
     await ctx.edit(kb, da, bi)
   }
 
-  static async processIndexForm(ctx: TransferPage) {
+  static async processIndex(ctx: TransferPage) {
     const [amountInput, targetInput] = ctx.msgText.trim().split(/\s+/)
     if (!amountInput || !targetInput) {
       return await Main.showWarnInvalid(ctx)
@@ -129,11 +129,11 @@ class Main {
 // Transfer funds to another user.
 export class TransferPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndexForm(this)
+    await Main.showIndex(this)
   }
 
   async handleSessionFreeText() {
-    await Main.processIndexForm(this)
+    await Main.processIndex(this)
   }
 
   static template = `

@@ -3,8 +3,8 @@ import {StartPage} from "./start"
 import type {IVItem} from "~/db/db"
 
 class Base {
-  static step1 = `s1`
-  static step2 = `s2`
+  static selectItem = `si`
+  static selectStatus = `ss`
   static success = `s`
   static infoEmpty = `i-empty`
   static infoNotFound = `i-notfound`
@@ -13,16 +13,16 @@ class Base {
 class Helper {
   static PAGE_SIZE = 5
 
-  static buildHomeKeyboard(ctx: UpdatePage, AGBaseId: string) {
+  static buildHomeKb(ctx: UpdatePage, AGBaseId: string) {
     const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
     return kb
   }
 
-  static async buildStep1Keyboard(ctx: UpdatePage, page: number, items: IVItem[]) {
+  static async buildSItemKb(ctx: UpdatePage, pageNo: number, items: IVItem[]) {
     const allItems = await ctx.db.items.list(ctx.userId)
     const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
-    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
-    const bi = Base.step1
+    const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
+    const bi = Base.selectItem
     const kb = ctx.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
@@ -46,8 +46,8 @@ class Helper {
     return kb
   }
 
-  static buildStep2Keyboard(ctx: UpdatePage, id: string) {
-    const bi = Base.step2
+  static buildSStatusKb(ctx: UpdatePage, id: string) {
+    const bi = Base.selectStatus
     const b1 = ctx.data.callbackData(bi, `todo`, id)
     const b2 = ctx.data.callbackData(bi, `in-progress`, id)
     const b3 = ctx.data.callbackData(bi, `done`, id)
@@ -58,7 +58,7 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: UpdatePage, page = 0, edit = true) {
+  static async showSelectItem(ctx: UpdatePage, page = 0, edit = true) {
     const allItems = await ctx.db.items.list(ctx.userId)
     const totalPages = Math.max(Math.ceil(allItems.length / Helper.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(page, 0), totalPages - 1)
@@ -70,9 +70,9 @@ class Main {
       return await Main.showInfoEmpty(ctx, edit)
     }
 
-    const bi = Base.step1
-    const da = {count: allItems.length, page: safePage + 1, totalPages}
-    const kb = await Helper.buildStep1Keyboard(ctx, safePage, items)
+    const bi = Base.selectItem
+    const da = {count: allItems.length, pageNo: safePage + 1, totalPages}
+    const kb = await Helper.buildSItemKb(ctx, safePage, items)
     if (edit) {
       await ctx.edit(kb, da, bi)
     } else {
@@ -80,52 +80,52 @@ class Main {
     }
   }
 
-  static async processStep1Form(ctx: UpdatePage, type: string, idOrPage: string) {
+  static async processSelectItem(ctx: UpdatePage, type: string, idOrPage: string) {
     if (type === `page`) {
-      return await Main.showStep1Form(ctx, parseInt(idOrPage))
+      return await Main.showSelectItem(ctx, parseInt(idOrPage))
     } else if (type === `select`) {
       const item = await ctx.db.items.fetch(ctx.userId, idOrPage)
       if (item) {
-        await Main.showStep2Form(ctx, item)
+        await Main.showSelectStatusForm(ctx, item)
       } else {
         await Main.showInfoNotFound(ctx, idOrPage)
       }
     }
   }
 
-  static async showStep2Form(ctx: UpdatePage, item: {id: string; title: string; status: string}) {
-    const bi = Base.step2
-    const kb = Helper.buildStep2Keyboard(ctx, item.id)
+  static async showSelectStatusForm(ctx: UpdatePage, item: {id: string; title: string; status: string}) {
+    const bi = Base.selectStatus
+    const kb = Helper.buildSStatusKb(ctx, item.id)
     const da = {id: item.id, title: item.title, status: item.status}
     await ctx.edit(kb, da, bi)
   }
 
-  static async processStep2Form(ctx: UpdatePage, status: IVItem[`status`], id: string, edit = true) {
+  static async processSelectStatus(ctx: UpdatePage, status: IVItem[`status`], id: string, isEdit = true) {
     const item = await ctx.db.items.fetch(ctx.userId, id)
     if (!item) {
-      return await Main.showStep1Form(ctx, 0, edit)
+      return await Main.showSelectItem(ctx, 0, isEdit)
     }
 
     const updated = await ctx.db.items.edit(ctx.userId, id, item.title, item.description, status)
     if (updated) {
       await Main.showSuccess(ctx, id, status)
     } else {
-      await Main.showStep1Form(ctx, 0, edit)
+      await Main.showSelectItem(ctx, 0, isEdit)
     }
   }
 
   static async showSuccess(ctx: UpdatePage, id: string, status: IVItem[`status`]) {
     const bi = Base.success
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const kb = Helper.buildHomeKb(ctx, bi)
     const da = {id, status}
     await ctx.edit(kb, da, bi)
   }
 
-  static async showInfoEmpty(ctx: UpdatePage, edit = true) {
+  static async showInfoEmpty(ctx: UpdatePage, isEdit = true) {
     const bi = Base.infoEmpty
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const kb = Helper.buildHomeKb(ctx, bi)
     const da = {}
-    if (edit) {
+    if (isEdit) {
       await ctx.edit(kb, da, bi)
     } else {
       await ctx.reply(kb, da, bi)
@@ -134,7 +134,7 @@ class Main {
 
   static async showInfoNotFound(ctx: UpdatePage, id: string) {
     const bi = Base.infoNotFound
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
+    const kb = Helper.buildHomeKb(ctx, bi)
     const da = {id}
     await ctx.edit(kb, da, bi)
   }
@@ -145,35 +145,35 @@ export class UpdatePage extends PageBase {
   static data = this.buildData((step?: string, arg1?: string, arg2?: string) => [step, arg1, arg2])
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, 0, true)
+    await Main.showSelectItem(this, 0, true)
   }
 
   async handleArgsCallbackData() {
     const [step, arg1, arg2] = this.callbackDataArgs
-    if (step === Base.step1) {
-      await Main.processStep1Form(this, arg1!, arg2!)
-    } else if (step === Base.step2) {
-      await Main.processStep2Form(this, arg1 as IVItem[`status`], arg2!, true)
+    if (step === Base.selectItem) {
+      await Main.processSelectItem(this, arg1!, arg2!)
+    } else if (step === Base.selectStatus) {
+      await Main.processSelectStatus(this, arg1 as IVItem[`status`], arg2!, true)
     }
   }
 
   static template = `
-    <g-base id="${Base.step1}">
+    <g-base id="${Base.selectItem}">
       <g-keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</g-keyboard>
       <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</g-keyboard>
       <g-message>
         ✏️ Select an item to update its status.
 
-        Showing {{count}} items • Page {{page}}/{{totalPages}}
+        Showing {{count}} items • Page {{pageNo}}/{{totalPages}}
       </g-message>
       <g-message lang="id">
         ✏️ Pilih item untuk memperbarui status.
 
-        Menampilkan {{count}} item • Halaman {{page}}/{{totalPages}}
+        Menampilkan {{count}} item • Halaman {{pageNo}}/{{totalPages}}
       </g-message>
     </g-base>
 
-    <g-base id="${Base.step2}">
+    <g-base id="${Base.selectStatus}">
       <g-keyboard>📝 Todo, 🔄 In Progress, ✅ Done, 🏠 Home</g-keyboard>
       <g-keyboard lang="id">📝 Todo, 🔄 Proses, ✅ Selesai, 🏠 Beranda</g-keyboard>
       <g-message>

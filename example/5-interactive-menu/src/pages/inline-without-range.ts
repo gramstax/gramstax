@@ -12,8 +12,8 @@ class Constant {
 }
 
 class Helper {
-  static kb(ctx: InlineWithoutRangePage, page: number) {
-    const safePage = Math.max(page, 0)
+  static kb(ctx: InlineWithoutRangePage, pageNo: number) {
+    const safePage = Math.max(pageNo, 0)
     const start = safePage * Constant.ITEMS_PER_PAGE
     const end = start + Constant.ITEMS_PER_PAGE
     const items = CatalogData.menuItems.slice(start, end)
@@ -41,30 +41,30 @@ class Helper {
     return kb
   }
 
-  static pageData(page: number) {
-    const safePage = Math.max(page, 0)
-    return {page: safePage + 1, safePage}
+  static pageData(pageNo: number) {
+    const safePage = Math.max(pageNo, 0)
+    return {pageNo: safePage + 1, safePage}
   }
 }
 
 class Main {
-  static async showIndexForm(ctx: InlineWithoutRangePage, page: number, edit = true) {
-    const {page: currentPage, safePage} = Helper.pageData(page)
-    const da = {page: currentPage}
+  static async showIndex(ctx: InlineWithoutRangePage, pageNo: number, isEdit = true) {
+    const {pageNo: currentPage, safePage} = Helper.pageData(pageNo)
+    const da = {pageNo: currentPage}
     const kb = Helper.kb(ctx, safePage)
     const bi = Base.index
-    if (edit) {
+    if (isEdit) {
       await ctx.edit(kb, da, bi)
     } else {
       await ctx.reply(kb, da, bi)
     }
   }
 
-  static async processIndexAnswer(ctx: InlineWithoutRangePage, action: string, value?: string) {
+  static async processIndex(ctx: InlineWithoutRangePage, action: string, value?: string) {
     if (action === `page`) {
       const nextPage = Number(value)
       if (!isNaN(nextPage)) {
-        await Main.showIndexForm(ctx, nextPage, true)
+        await Main.showIndex(ctx, nextPage, true)
       }
     } else if (action === `item` && value) {
       // ???
@@ -77,13 +77,13 @@ export class InlineWithoutRangePage extends PageBase {
   static data = this.buildData((step?: string, action?: string, page?: string) => [step, action, page])
 
   async handleCallbackData() {
-    await Main.showIndexForm(this, 0, true)
+    await Main.showIndex(this, 0, true)
   }
 
   async handleArgsCallbackData() {
     const [step, action, value] = this.callbackDataArgs
     if (step === Base.index) {
-      await Main.processIndexAnswer(this, action!, value)
+      await Main.processIndex(this, action!, value)
     }
   }
 
@@ -94,14 +94,14 @@ export class InlineWithoutRangePage extends PageBase {
       <g-message>
         🧾 Inline Menu (Without Range (only count))
 
-        Page {{page}}
+        Page {{pageNo}}
 
         Use Prev/Next to navigate, or tap Home to exit.
       </g-message>
       <g-message lang="id">
         🧾 Menu Inline (Tanpa Rentang (hanya hitungan))
 
-        Halaman {{page}}
+        Halaman {{pageNo}}
 
         Gunakan Sebelumnya/Selanjutnya, atau ketuk Beranda untuk keluar.
       </g-message>

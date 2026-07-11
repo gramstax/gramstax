@@ -15,8 +15,8 @@ class Helper {
     return kb
   }
 
-  static buildKeyboard(ctx: ListPage, page: number, totalPages: number) {
-    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
+  static buildKeyboard(ctx: ListPage, pageNo: number, totalPages: number) {
+    const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
     const bi = Base.index
     const kb = ctx.inlineKeyboard(
       (k, l) => {
@@ -35,14 +35,14 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: ListPage, page = 0) {
+  static async showIndex(ctx: ListPage, pageNo = 0) {
     const totalItems = await ctx.db.items.total(ctx.userId)
     if (totalItems === 0) {
       return await Main.showInfoEmpty(ctx)
     }
 
     const totalPages = Math.max(Math.ceil(totalItems / Helper.PAGE_SIZE), 1)
-    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
+    const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
     const offset = safePage * Helper.PAGE_SIZE
     const items = await ctx.db.items.list(ctx.userId, {limit: Helper.PAGE_SIZE, offset})
     const list = items
@@ -53,17 +53,17 @@ class Main {
       .join(`\n`)
 
     const bi = Base.index
-    const da = {items: list, page: safePage + 1, totalPages}
+    const da = {items: list, pageNo: safePage + 1, totalPages}
     const kb = Helper.buildKeyboard(ctx, safePage, totalPages)
     await ctx.edit(kb, da, bi)
   }
 
-  static async processIndexForm(ctx: ListPage) {
-    const [page] = ctx.callbackDataArgs
+  static async processIndex(ctx: ListPage) {
+    const [pageNo] = ctx.callbackDataArgs
 
-    const nextPage = Number(page)
+    const nextPage = Number(pageNo)
     const pageNum = Number.isNaN(nextPage) ? 0 : nextPage
-    await Main.showIndexForm(ctx, pageNum)
+    await Main.showIndex(ctx, pageNum)
   }
 
   static async showInfoEmpty(ctx: ListPage) {
@@ -76,14 +76,14 @@ class Main {
 
 // Lists all cached items.
 export class ListPage extends PageBase {
-  static data = this.buildData((page?: string) => [page])
+  static data = this.buildData((pageNo?: string) => [pageNo])
 
   async handleCallbackData() {
-    await Main.showIndexForm(this, 0)
+    await Main.showIndex(this, 0)
   }
 
   async handleArgsCallbackData() {
-    await Main.processIndexForm(this)
+    await Main.processIndex(this)
   }
 
   static template = `
@@ -93,14 +93,14 @@ export class ListPage extends PageBase {
       <g-message>
         📋 Cached items
 
-        Page {{page}}/{{totalPages}} • Browse and select an item by ID.
+        Page {{pageNo}}/{{totalPages}} • Browse and select an item by ID.
 
         {{items}}
       </g-message>
       <g-message lang="id">
         📋 Daftar item tersimpan
 
-        Halaman {{page}}/{{totalPages}} • Pilih item berdasarkan ID.
+        Halaman {{pageNo}}/{{totalPages}} • Pilih item berdasarkan ID.
 
         {{items}}
       </g-message>

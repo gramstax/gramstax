@@ -50,29 +50,29 @@ class Helper {
 }
 
 class Main {
-  static async showStep1Form(ctx: BroadcastPage, draftText: string, isEmpty = false, edit = true) {
+  static async showIndex(ctx: BroadcastPage, draftText: string, isEmpty = false, isEdit = true) {
     await ctx.setSession([ctx.methodSessionFreeText(), ctx.methodSessionFreePhoto(), ctx.methodSessionFreeVideo(), ctx.methodSessionFreeAnimation()], {position: `form`})
     const bi = Base.index
     const kb = ctx.inlineKeyboardT([ctx.data.callbackData(bi, `hybrid`), ctx.data.callbackData(bi, `cancel`), StartPage], `1-2`, bi)
     const da = {draftText, isEmpty}
-    if (edit) {
+    if (isEdit) {
       await ctx.edit(kb, da, bi)
     } else {
       await ctx.reply(kb, da, bi)
     }
   }
 
-  static async processStep1Form(ctx: BroadcastPage, action: string) {
+  static async processIndex(ctx: BroadcastPage, action: string) {
     const {position, draftText, mediaType, fileId, caption} = Helper.getSessionParams(ctx)
     if (position !== `confirm`) {
       return
     }
 
     if (action === `edit`) {
-      await Main.showStep1Form(ctx, mediaType ? `-` : draftText || `-`, false, true)
+      await Main.showIndex(ctx, mediaType ? `-` : draftText || `-`, false, true)
     } else if (action === `send`) {
       if (!draftText && !mediaType) {
-        return await Main.showStep1Form(ctx, `-`, true, true)
+        return await Main.showIndex(ctx, `-`, true, true)
       }
 
       const subscribers = await ctx.db.subs.list()
@@ -205,17 +205,17 @@ export class BroadcastPage extends PageBase {
   }
 
   async handleCallbackData() {
-    await Main.showStep1Form(this, `-`, false, true)
+    await Main.showIndex(this, `-`, false, true)
   }
 
   async handleCommandText() {
-    await Main.showStep1Form(this, `-`, false, false)
+    await Main.showIndex(this, `-`, false, false)
   }
 
   async handleSessionArgsCallbackData() {
     const [step, action] = this.callbackDataArgs
     if (step === Base.index) {
-      await Main.processStep1Form(this, action!)
+      await Main.processIndex(this, action!)
     }
   }
 

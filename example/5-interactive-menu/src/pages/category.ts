@@ -30,10 +30,10 @@ class Main {
     }
   }
 
-  static async processIndexAnswer(ctx: CategoryPage, categoryId: string) {
+  static async processIndex(ctx: CategoryPage, categoryId: string) {
     await ctx.cacheState.set(`${ctx.userId}:category`, categoryId)
     await ctx.cacheState.set(`${ctx.userId}:page`, 0)
-    await new ItemListPage(ctx).showStep1Form(categoryId, 0, true)
+    await new ItemListPage(ctx).showIndex(categoryId, 0, true)
   }
 }
 
@@ -55,11 +55,11 @@ export class CategoryPage extends PageBase {
   async handleArgsCallbackData() {
     const [step, categoryId] = this.callbackDataArgs
     if (step === Base.index) {
-      await Main.processIndexAnswer(this, categoryId!)
+      await Main.processIndex(this, categoryId!)
     }
   }
 
-  async showStep1Form(edit = true) {
+  async showIndex(edit = true) {
     await Main.showIndex(this, edit)
   }
 

@@ -17,7 +17,7 @@ export type Product = {
 
 export type ProductPage = {
   items: Product[]
-  page: number
+  pageNo: number
   totalPages: number
   totalItems: number
   hasPrev: boolean
@@ -173,15 +173,15 @@ export class ProductCatalog {
     }
   ]
 
-  static getPage(page: number): ProductPage {
+  static getPage(pageNo: number): ProductPage {
     const totalPages = Math.max(Math.ceil(this.products.length / this.pageSize), 1)
-    const safePage = Math.min(Math.max(Math.trunc(page || 0), 0), totalPages - 1)
+    const safePage = Math.min(Math.max(Math.trunc(pageNo || 0), 0), totalPages - 1)
     const start = safePage * this.pageSize
     const items = this.products.slice(start, start + this.pageSize)
 
     return {
       items,
-      page: safePage,
+      pageNo: safePage,
       totalPages,
       totalItems: this.products.length,
       hasPrev: safePage > 0,

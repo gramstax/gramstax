@@ -30,18 +30,18 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: LanguagePage) {
+  static async showIndex(ctx: LanguagePage) {
     const kb = Helper.kb(ctx)
     const da = {}
     await ctx.edit(kb, da)
   }
 
-  static async processIndexForm(ctx: LanguagePage) {
+  static async processIndex(ctx: LanguagePage) {
     const language = ctx.callbackDataArg.toLowerCase().split(` `)[1] as string
 
     await ctx.cacheData.set(`${ctx.userId}:lang`, language)
     ctx.userLanguage = language
-    await Main.showIndexForm(ctx)
+    await Main.showIndex(ctx)
   }
 }
 
@@ -49,11 +49,11 @@ export class LanguagePage extends PageBase {
   static data = this.buildData((lang?: string) => [lang])
 
   async handleCallbackData() {
-    await Main.showIndexForm(this)
+    await Main.showIndex(this)
   }
 
   async handleArgsCallbackData() {
-    await Main.processIndexForm(this)
+    await Main.processIndex(this)
   }
 
   static template = `

@@ -3,13 +3,13 @@ import {StartPage} from "./start"
 
 class Helper {
   static kb(ctx: CounterPage) {
-    const kb = ctx.inlineKeyboardT([ctx.data.callbackData(`I`), ctx.data.callbackData(`D`), StartPage], `2`)
+    const kb = ctx.inlineKeyboardT([CounterPage.data.callbackData(`I`), CounterPage.data.callbackData(`D`), StartPage], `2`)
     return kb
   }
 }
 
 class Main {
-  static async showIndexForm(ctx: CounterPage) {
+  static async showIndex(ctx: CounterPage) {
     const key = `${ctx.userId}`
     const count = (await ctx.cacheData.get(key)) || `0`
     const kb = Helper.kb(ctx)
@@ -17,7 +17,7 @@ class Main {
     await ctx.edit(kb, da)
   }
 
-  static async processIndexForm(ctx: CounterPage, execution: string) {
+  static async processIndex(ctx: CounterPage, execution: string) {
     const key = `${ctx.userId}`
     const getCache = (await ctx.cacheData.get(key)) as string
     const data = getCache || `0`
@@ -40,11 +40,11 @@ export class CounterPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
   async handleCallbackData() {
-    await Main.showIndexForm(this)
+    await Main.showIndex(this)
   }
 
   async handleArgsCallbackData() {
-    await Main.processIndexForm(this, this.callbackDataArg)
+    await Main.processIndex(this, this.callbackDataArg)
   }
 
   static template = `

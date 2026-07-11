@@ -10,10 +10,10 @@ describe(`ProductCatalog`, () => {
     const overflow = ProductCatalog.getPage(99)
 
     expect(first.items).toHaveLength(4)
-    expect(first.page).toBe(0)
+    expect(first.pageNo).toBe(0)
     expect(first.totalPages).toBeGreaterThanOrEqual(2)
     expect(second.items[0]?.id).not.toBe(first.items[0]?.id)
-    expect(overflow.page).toBe(first.totalPages - 1)
+    expect(overflow.pageNo).toBe(first.totalPages - 1)
   })
 
   it(`returns product details and rejects missing products`, () => {

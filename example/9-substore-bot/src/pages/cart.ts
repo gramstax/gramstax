@@ -48,7 +48,7 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: CartPage, edit = true) {
+  static async showIndex(ctx: CartPage, edit = true) {
     const cart = await Helper.getCart(ctx)
     const summary = CartStore.getSummary(cart)
     const bi = summary.isEmpty ? Base.empty : Base.index
@@ -65,7 +65,7 @@ class Main {
     }
   }
 
-  static async processIndexForm(ctx: CartPage, action?: string, productId?: string) {
+  static async processIndex(ctx: CartPage, action?: string, productId?: string) {
     const cart = await Helper.getCart(ctx)
     let next = cart
 
@@ -82,7 +82,7 @@ class Main {
     }
 
     await Helper.setCart(ctx, next)
-    await Main.showIndexForm(ctx, true)
+    await Main.showIndex(ctx, true)
   }
 
   static async showInfoCleared(ctx: CartPage) {
@@ -97,18 +97,18 @@ export class CartPage extends PageBase {
   static data = this.buildData((step?: string, action?: string, productId?: string) => [step, action, productId])
 
   async handleCallbackData() {
-    await Main.showIndexForm(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleArgsCallbackData() {
     const [step, action, productId] = this.callbackDataArgs
     if (step === Base.index) {
-      await Main.processIndexForm(this, action, productId)
+      await Main.processIndex(this, action, productId)
     }
   }
 
-  async showStep1Form(edit = true) {
-    await Main.showIndexForm(this, edit)
+  async showIndex(edit = true) {
+    await Main.showIndex(this, edit)
   }
 
   static template = `

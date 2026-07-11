@@ -8,7 +8,7 @@ class Base {
 }
 
 class Helper {
-  static kb(ctx: ItemListPage, categoryId: string, page: number, category = CatalogData.getCategoryById(categoryId)) {
+  static kb(ctx: ItemListPage, categoryId: string, pageNo: number, category = CatalogData.getCategoryById(categoryId)) {
     const bi = Base.index
     if (!category) {
       const kb = ctx.inlineKeyboardT([CategoryPage], `1`, bi)
@@ -17,7 +17,7 @@ class Helper {
 
     const PAGE_SIZE = 3
     const totalPages = Math.max(Math.ceil(category.items.length / PAGE_SIZE), 1)
-    const safePage = Math.min(Math.max(page, 0), totalPages - 1)
+    const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
     const start = safePage * PAGE_SIZE
     const end = start + PAGE_SIZE
     const items = category.items.slice(start, end)
@@ -46,7 +46,7 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: ItemListPage, categoryId: string, page = 0, edit = true) {
+  static async showIndex(ctx: ItemListPage, categoryId: string, page = 0, edit = true) {
     await ctx.cacheState.set(`${ctx.userId}:category`, categoryId)
     await ctx.cacheState.set(`${ctx.userId}:page`, page)
 
@@ -63,29 +63,29 @@ class Main {
     }
   }
 
-  static async processIndexAnswer(ctx: ItemListPage, page: number) {
+  static async processIndex(ctx: ItemListPage, pageNo: number) {
     const categoryId = await ctx.cacheState.get(`${ctx.userId}:category`)
     if (!categoryId) {
-      await new CategoryPage(ctx).showStep1Form(true)
+      await new CategoryPage(ctx).showIndex(true)
     } else {
-      await Main.showIndexForm(ctx, categoryId, page, true)
+      await Main.showIndex(ctx, categoryId, pageNo, true)
     }
   }
 }
 
 // Item list with pagination and dynamic buttons.
 export class ItemListPage extends PageBase {
-  static data = this.buildData((step: string, page: string) => [step, page])
+  static data = this.buildData((step: string, pageNo: string) => [step, pageNo])
 
   async handleArgsCallbackData() {
-    const [step, page] = this.callbackDataArgs
+    const [step, pageNo] = this.callbackDataArgs
     if (step === Base.index) {
-      await Main.processIndexAnswer(this, Number(page))
+      await Main.processIndex(this, Number(pageNo))
     }
   }
 
-  async showStep1Form(categoryId: string, page = 0, isEdit = true) {
-    await Main.showIndexForm(this, categoryId, page, isEdit)
+  async showIndex(categoryId: string, page = 0, isEdit = true) {
+    await Main.showIndex(this, categoryId, page, isEdit)
   }
 
   static template = `

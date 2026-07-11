@@ -74,7 +74,7 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: CheckoutPage, edit = true) {
+  static async showIndex(ctx: CheckoutPage, edit = true) {
     const cart = await Helper.getCart(ctx)
     const summary = CartStore.getSummary(cart)
     if (summary.isEmpty) {
@@ -95,7 +95,7 @@ class Main {
     }
   }
 
-  static async processIndexForm(ctx: CheckoutPage, action?: string) {
+  static async processIndex(ctx: CheckoutPage, action?: string) {
     if (action === `confirm`) {
       await Main.showSuccess(ctx)
     } else if (action === Base.refresh) {
@@ -105,7 +105,7 @@ class Main {
     }
   }
 
-  static async showConfirmForm(ctx: CheckoutPage, input: string) {
+  static async showConfirm(ctx: CheckoutPage, input: string) {
     const {contact, notes} = Helper.splitContactNotes(input)
     if (!Helper.isValidContact(contact)) {
       return await Main.showWarnInvalid(ctx, contact)
@@ -223,23 +223,23 @@ export class CheckoutPage extends PageBase {
   static data = this.buildData((action?: string, orderId?: string) => [action, orderId])
 
   async handleCallbackData() {
-    await Main.showIndexForm(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleArgsCallbackData() {
     const [action] = this.callbackDataArgs
-    await Main.processIndexForm(this, action)
+    await Main.processIndex(this, action)
   }
 
   async handleSessionFreeText() {
     const {position} = Helper.getSession(this)
     if (position === `contact`) {
-      await Main.showConfirmForm(this, this.msgText.trim())
+      await Main.showConfirm(this, this.msgText.trim())
     }
   }
 
-  async showStep1Form(edit = true) {
-    await Main.showIndexForm(this, edit)
+  async showIndex(edit = true) {
+    await Main.showIndex(this, edit)
   }
 
   static template = `

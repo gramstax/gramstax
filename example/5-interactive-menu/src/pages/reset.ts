@@ -29,7 +29,7 @@ export class ResetPage extends PageBase {
     await Main.showIndex(this, false)
   }
 
-  async showStep1Form(edit = false) {
+  async showIndex(edit = false) {
     await Main.showIndex(this, edit)
   }
 

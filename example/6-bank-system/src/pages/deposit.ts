@@ -15,7 +15,7 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: DepositPage) {
+  static async showIndex(ctx: DepositPage) {
     await ctx.setSessionFreeText()
     const bi = Base.index
     const kb = Helper.kb(ctx, bi)
@@ -23,7 +23,7 @@ class Main {
     await ctx.edit(kb, da, bi)
   }
 
-  static async processIndexForm(ctx: DepositPage) {
+  static async processIndex(ctx: DepositPage) {
     const amountInput = ctx.msgText.trim()
     if (!amountInput) {
       return await Main.showWarnInvalid(ctx)
@@ -66,11 +66,11 @@ class Main {
 // Deposits funds into the user's balance.
 export class DepositPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndexForm(this)
+    await Main.showIndex(this)
   }
 
   async handleSessionFreeText() {
-    await Main.processIndexForm(this)
+    await Main.processIndex(this)
   }
 
   static template = `

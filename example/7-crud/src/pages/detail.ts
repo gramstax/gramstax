@@ -18,7 +18,7 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: DetailPage) {
+  static async showIndex(ctx: DetailPage) {
     await ctx.setSessionFreeText()
     const bi = Base.index
     const kb = Helper.buildHomeKeyboard(ctx, bi)
@@ -26,7 +26,7 @@ class Main {
     await ctx.edit(kb, da, bi)
   }
 
-  static async processIndexForm(ctx: DetailPage) {
+  static async processIndex(ctx: DetailPage) {
     const id = ctx.msgText.trim()
     if (!id) {
       return await Main.showWarnInvalid(ctx)
@@ -80,11 +80,11 @@ class Main {
 // Shows a single item by ID.
 export class DetailPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndexForm(this)
+    await Main.showIndex(this)
   }
 
   async handleSessionFreeText() {
-    await Main.processIndexForm(this)
+    await Main.processIndex(this)
   }
 
   static template = `

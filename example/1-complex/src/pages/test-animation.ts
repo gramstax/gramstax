@@ -7,7 +7,7 @@ class Base {
 }
 
 class Helper {
-  static kbStep1(ctx: TestAnimationPage, isDynamic = false) {
+  static kbIndex(ctx: TestAnimationPage, isDynamic = false) {
     const bi = Base.index
     const kb = ctx.inlineKeyboard(
       (k, l) => {
@@ -23,20 +23,20 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: TestAnimationPage) {
+  static async showIndex(ctx: TestAnimationPage) {
     const bi = Base.index
-    const kb = Helper.kbStep1(ctx)
+    const kb = Helper.kbIndex(ctx)
     const da = {}
     await ctx.editAnimation(kb, da, bi)
   }
 
-  static async processIndexAnswer(ctx: TestAnimationPage) {
+  static async processIndex(ctx: TestAnimationPage) {
     const swc = ctx.callbackDataArg
     if (swc == `static`) {
       await ctx.handleCallbackData()
     } else if (swc == `dynamic`) {
       const bi = Base.dynamicAttr
-      const kb = Helper.kbStep1(ctx, true)
+      const kb = Helper.kbIndex(ctx, true)
       const da = {
         src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
       }
@@ -49,11 +49,11 @@ export class TestAnimationPage extends PageBase {
   static data = this.buildData((swc?: string) => [swc])
 
   async handleCallbackData() {
-    await Main.showIndexForm(this)
+    await Main.showIndex(this)
   }
 
   async handleArgsCallbackData() {
-    await Main.processIndexAnswer(this)
+    await Main.processIndex(this)
   }
 
   static template = `

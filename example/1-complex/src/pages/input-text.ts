@@ -14,7 +14,7 @@ class Helper {
 }
 
 class Main {
-  static async showIndexForm(ctx: InputTextPage, edit = true) {
+  static async showIndex(ctx: InputTextPage, edit = true) {
     const bi = Base.index
     const kb = Helper.kb(ctx, bi)
     const da = {}
@@ -26,7 +26,7 @@ class Main {
     }
   }
 
-  static async processIndexForm(ctx: InputTextPage) {
+  static async processIndex(ctx: InputTextPage) {
     await Main.showSuccess(ctx)
   }
 
@@ -42,17 +42,17 @@ export class InputTextPage extends PageBase {
   static data = this.buildData({intentCommandText: `input_text`})
 
   async handleCallbackData() {
-    await Main.showIndexForm(this, true)
+    await Main.showIndex(this, true)
   }
 
   async handleCommandText() {
-    await Main.showIndexForm(this, false)
+    await Main.showIndex(this, false)
   }
 
   async handleSessionFreeText() {
     const {step} = this.temp.session.params
     if (step === Base.index) {
-      await Main.processIndexForm(this)
+      await Main.processIndex(this)
     }
   }
 
