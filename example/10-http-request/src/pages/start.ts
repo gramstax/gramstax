@@ -27,8 +27,8 @@ export class StartPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>🌐 New Request, ❓ Help</g-keyboard>
-      <g-keyboard lang="id">🌐 Permintaan Baru, ❓ Bantuan</g-keyboard>
+      <g-keyboard type="inline">🌐 New Request, ❓ Help</g-keyboard>
+      <g-keyboard lang="id" type="inline">🌐 Permintaan Baru, ❓ Bantuan</g-keyboard>
       <g-message>
         🌐 HTTP Request Bot
 

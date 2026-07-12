@@ -54,8 +54,8 @@ export class StartPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>{~subscribed ? "🚫 Unsubscribe" : "✅ Subscribe"~}, 📊 Stats, ❓ Help</g-keyboard>
-      <g-keyboard lang="id">{~subscribed ? "🚫 Berhenti" : "✅ Langganan"~}, 📊 Statistik, ❓ Bantuan</g-keyboard>
+      <g-keyboard type="inline">{~subscribed ? "🚫 Unsubscribe" : "✅ Subscribe"~}, 📊 Stats, ❓ Help</g-keyboard>
+      <g-keyboard lang="id" type="inline">{~subscribed ? "🚫 Berhenti" : "✅ Langganan"~}, 📊 Statistik, ❓ Bantuan</g-keyboard>
       <g-message>
         📰 Newsletter Hub
 

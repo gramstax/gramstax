@@ -29,8 +29,8 @@ export class StartPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>💳 Balance, ➕ Deposit, ➖ Withdraw, 🔁 Transfer, 📜 History</g-keyboard>
-      <g-keyboard lang="id">💳 Saldo, ➕ Setor, ➖ Tarik, 🔁 Transfer, 📜 Riwayat</g-keyboard>
+      <g-keyboard type="inline">💳 Balance, ➕ Deposit, ➖ Withdraw, 🔁 Transfer, 📜 History</g-keyboard>
+      <g-keyboard lang="id" type="inline">💳 Saldo, ➕ Setor, ➖ Tarik, 🔁 Transfer, 📜 Riwayat</g-keyboard>
       <g-message>
         💼 Banking Menu
 

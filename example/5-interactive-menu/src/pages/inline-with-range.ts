@@ -78,8 +78,8 @@ export class InlineWithRangePage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, 📄 Page, ${this.kbl.home.default}</g-keyboard>
-      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, 📄 Halaman, ${this.kbl.home.id}</g-keyboard>
+      <g-keyboard type="inline">${this.kbl.prev.default}, ${this.kbl.next.default}, 📄 Page, ${this.kbl.home.default}</g-keyboard>
+      <g-keyboard lang="id" type="inline">${this.kbl.prev.id}, ${this.kbl.next.id}, 📄 Halaman, ${this.kbl.home.id}</g-keyboard>
       <g-message>
         📊 Inline Menu (With Count + Range)
 

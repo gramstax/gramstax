@@ -113,7 +113,8 @@ export class CartPage extends PageBase {
 
   static template = `
     <g-base id="${Base.index}">
-      <g-keyboard>➕, ➖, 🗑️ Remove, 💳 Checkout, 🧹 Clear, 🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-keyboard type="inline">➕, ➖, 🗑️ Remove, 💳 Checkout, 🧹 Clear, 🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-keyboard type="inline" lang="id">➕, ➖, 🗑️ Hapus, 💳 Bayar, 🧹 Kosongkan, 🔎 Jelajahi, 🏠 Beranda</g-keyboard>
       <g-message>
         🛒 Your Cart
 
@@ -123,7 +124,6 @@ export class CartPage extends PageBase {
 
         Adjust quantities or continue to checkout.
       </g-message>
-      <g-keyboard lang="id">➕, ➖, 🗑️ Hapus, 💳 Bayar, 🧹 Kosongkan, 🔎 Jelajahi, 🏠 Beranda</g-keyboard>
       <g-message lang="id">
         🛒 Keranjang Anda
 
@@ -134,30 +134,28 @@ export class CartPage extends PageBase {
         Sesuaikan jumlah atau lanjutkan ke pembayaran.
       </g-message>
     </g-base>
-
     <g-base id="${Base.empty}">
-      <g-keyboard>🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-keyboard type="inline">🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-keyboard type="inline" lang="id">🔎 Jelajahi, 🏠 Beranda</g-keyboard>
       <g-message>
         🛒 Your Cart is Empty
 
         Browse subscription products and add your favorites before checkout.
       </g-message>
-      <g-keyboard lang="id">🔎 Jelajahi, 🏠 Beranda</g-keyboard>
       <g-message lang="id">
         🛒 Keranjang Kosong
 
         Jelajahi produk langganan dan tambahkan favorit Anda sebelum checkout.
       </g-message>
     </g-base>
-
     <g-base id="${Base.infoCleared}">
-      <g-keyboard>🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-keyboard type="inline">🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-keyboard type="inline" lang="id">🔎 Jelajahi, 🏠 Beranda</g-keyboard>
       <g-message>
         🧹 Cart cleared
 
         Your cart is empty now. You can continue browsing anytime.
       </g-message>
-      <g-keyboard lang="id">🔎 Jelajahi, 🏠 Beranda</g-keyboard>
       <g-message lang="id">
         🧹 Keranjang dikosongkan
 

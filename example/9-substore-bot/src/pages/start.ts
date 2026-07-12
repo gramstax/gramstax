@@ -34,8 +34,8 @@ export class StartPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>🔎 Browse Products, 🛒 Cart, 🧾 History, ❓ Help</g-keyboard>
-      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang, 🧾 Riwayat, ❓ Bantuan</g-keyboard>
+      <g-keyboard type="inline">🔎 Browse Products, 🛒 Cart, 🧾 History, ❓ Help</g-keyboard>
+      <g-keyboard type="inline" lang="id">🔎 Jelajahi, 🛒 Keranjang, 🧾 Riwayat, ❓ Bantuan</g-keyboard>
       <g-message>
         🛒 SubStore Bot
 

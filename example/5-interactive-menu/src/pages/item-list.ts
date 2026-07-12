@@ -90,8 +90,8 @@ export class ItemListPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.back.default}</g-keyboard>
-      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.back.id}</g-keyboard>
+      <g-keyboard type="inline">${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.back.default}</g-keyboard>
+      <g-keyboard lang="id" type="inline">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.back.id}</g-keyboard>
       <g-message>
         📦 Items in {{category}}
 

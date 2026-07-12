@@ -58,9 +58,8 @@ export class LanguagePage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>🇺🇸 EN, 🇮🇩 ID, ${this.kbl.back.default}</g-keyboard>
-      <g-keyboard lang="id">🇺🇸 EN, 🇮🇩 ID, ${this.kbl.back.id}</g-keyboard>
-
+      <g-keyboard type="inline">🇺🇸 EN, 🇮🇩 ID, ${this.kbl.back.default}</g-keyboard>
+      <g-keyboard lang="id" type="inline">🇺🇸 EN, 🇮🇩 ID, ${this.kbl.back.id}</g-keyboard>
       <g-message>
         🌐 Language
 

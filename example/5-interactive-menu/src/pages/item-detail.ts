@@ -31,8 +31,8 @@ export class ItemDetailPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>⬅️ Back to List</g-keyboard>
-      <g-keyboard lang="id">⬅️ Kembali ke Daftar</g-keyboard>
+      <g-keyboard type="inline">⬅️ Back to List</g-keyboard>
+      <g-keyboard lang="id" type="inline">⬅️ Kembali ke Daftar</g-keyboard>
       <g-message>
         📌 {~name || "Unknown"~}
 

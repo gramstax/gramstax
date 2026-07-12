@@ -58,8 +58,8 @@ export class TestAnimationPage extends PageBase {
 
   static template = `
     <g-base id="${Base.index}">
-      <g-keyboard>🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.default}</g-keyboard>
-      <g-keyboard lang="id">🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.id}</g-keyboard>
+      <g-keyboard type="inline">🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.default}</g-keyboard>
+      <g-keyboard lang="id" type="inline">🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.id}</g-keyboard>
       <g-media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
         🎞️ Animation demo
         

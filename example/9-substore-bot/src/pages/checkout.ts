@@ -244,8 +244,8 @@ export class CheckoutPage extends PageBase {
 
   static template = `
     <g-base id="${Base.index}">
-      <g-keyboard>🛒 Cart, 🔎 Browse Products</g-keyboard>
-      <g-keyboard lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
+      <g-keyboard type="inline">🛒 Cart, 🔎 Browse Products</g-keyboard>
+      <g-keyboard type="inline" lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
       <g-message>
         💳 Checkout Details
 
@@ -275,8 +275,8 @@ export class CheckoutPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.confirm}">
-      <g-keyboard>✅ Confirm, ❌ Cancel, 🛒 Cart</g-keyboard>
-      <g-keyboard lang="id">✅ Konfirmasi, ❌ Batal, 🛒 Keranjang</g-keyboard>
+      <g-keyboard type="inline">✅ Confirm, ❌ Cancel, 🛒 Cart</g-keyboard>
+      <g-keyboard type="inline" lang="id">✅ Konfirmasi, ❌ Batal, 🛒 Keranjang</g-keyboard>
       <g-message>
         ✅ Confirm Order
 
@@ -304,8 +304,8 @@ export class CheckoutPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.success}">
-      <g-keyboard>🔄 refresh, 🧾 History, 🏠 Home, 🔎 Browse Products</g-keyboard>
-      <g-keyboard lang="id">🔄 refresh, 🧾 Riwayat, 🏠 Beranda, 🔎 Jelajahi</g-keyboard>
+      <g-keyboard type="inline">🔄 refresh, 🧾 History, 🏠 Home, 🔎 Browse Products</g-keyboard>
+      <g-keyboard type="inline" lang="id">🔄 refresh, 🧾 Riwayat, 🏠 Beranda, 🔎 Jelajahi</g-keyboard>
       <g-media type="photo" src="{{qrisImageUrl}}">
         🎉 Order Created
 
@@ -347,8 +347,8 @@ export class CheckoutPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.warnEmpty}">
-      <g-keyboard>🛒 Cart, 🔎 Browse Products</g-keyboard>
-      <g-keyboard lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
+      <g-keyboard type="inline">🛒 Cart, 🔎 Browse Products</g-keyboard>
+      <g-keyboard type="inline" lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
       <g-message>
         🛒 Empty cart
 
@@ -362,8 +362,8 @@ export class CheckoutPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.warnInvalid}">
-      <g-keyboard>🛒 Cart, 🔎 Browse Products</g-keyboard>
-      <g-keyboard lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
+      <g-keyboard type="inline">🛒 Cart, 🔎 Browse Products</g-keyboard>
+      <g-keyboard type="inline" lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
       <g-message>
         ⚠️ Contact needed
 
@@ -377,8 +377,8 @@ export class CheckoutPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.infoCancel}">
-      <g-keyboard>🏠 Home, 🔎 Browse</g-keyboard>
-      <g-keyboard lang="id">🏠 Beranda, 🔎 Jelajahi</g-keyboard>
+      <g-keyboard type="inline">🏠 Home, 🔎 Browse</g-keyboard>
+      <g-keyboard type="inline" lang="id">🏠 Beranda, 🔎 Jelajahi</g-keyboard>
       <g-message>
         ❌ Checkout cancelled
 
@@ -392,8 +392,8 @@ export class CheckoutPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.infoMissing}">
-      <g-keyboard>🧾 History, 🏠 Home, 🔎 Browse Products</g-keyboard>
-      <g-keyboard lang="id">🧾 Riwayat, 🏠 Beranda, 🔎 Jelajahi</g-keyboard>
+      <g-keyboard type="inline">🧾 History, 🏠 Home, 🔎 Browse Products</g-keyboard>
+      <g-keyboard type="inline" lang="id">🧾 Riwayat, 🏠 Beranda, 🔎 Jelajahi</g-keyboard>
       <g-message>
         ⚠️ Order not found
 

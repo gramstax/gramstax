@@ -115,8 +115,8 @@ export class ProductPage extends PageBase {
 
   static template = `
     <g-base id="${Base.index}">
-      <g-keyboard>✅ Buy Now, ➕ Add Cart, 🛒 Cart, ⬅️ Back</g-keyboard>
-      <g-keyboard lang="id">✅ Beli, ➕ Tambah, 🛒 Keranjang, ⬅️ Kembali</g-keyboard>
+      <g-keyboard type="inline">✅ Buy Now, ➕ Add Cart, 🛒 Cart, ⬅️ Back</g-keyboard>
+      <g-keyboard type="inline" lang="id">✅ Beli, ➕ Tambah, 🛒 Keranjang, ⬅️ Kembali</g-keyboard>
       <g-message>
         📦 {{name}}
 
@@ -150,8 +150,8 @@ export class ProductPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.infoAdded}">
-      <g-keyboard>🔎 Browse, 🛒 Cart</g-keyboard>
-      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
+      <g-keyboard type="inline">🔎 Browse, 🛒 Cart</g-keyboard>
+      <g-keyboard type="inline" lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
       <g-message>
         ✅ Added to cart
 
@@ -165,8 +165,8 @@ export class ProductPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.warnStock}">
-      <g-keyboard>🔎 Browse, 🛒 Cart</g-keyboard>
-      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
+      <g-keyboard type="inline">🔎 Browse, 🛒 Cart</g-keyboard>
+      <g-keyboard type="inline" lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
       <g-message>
         ⛔ Out of stock
 
@@ -180,8 +180,8 @@ export class ProductPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.warnMissing}">
-      <g-keyboard>🔎 Browse Products, 🛒 Cart</g-keyboard>
-      <g-keyboard lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
+      <g-keyboard type="inline">🔎 Browse Products, 🛒 Cart</g-keyboard>
+      <g-keyboard type="inline" lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
       <g-message>
         ⚠️ Product not found
 

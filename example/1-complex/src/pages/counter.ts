@@ -49,8 +49,8 @@ export class CounterPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>➕ Increase, ➖ Decrease, ${this.kbl.back.default}</g-keyboard>
-      <g-keyboard lang="id">➕ Tambah, ➖ Kurang, ${this.kbl.back.id}</g-keyboard>
+      <g-keyboard type="inline">➕ Increase, ➖ Decrease, ${this.kbl.back.default}</g-keyboard>
+      <g-keyboard lang="id" type="inline">➕ Tambah, ➖ Kurang, ${this.kbl.back.id}</g-keyboard>
       <g-message>
         🔢 Counter
 

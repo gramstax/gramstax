@@ -27,14 +27,14 @@ export class BlockSwitchPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>
+      <g-keyboard type="inline">
         <g-switch value="status">
           <g-case is="1">🔴 Off</g-case>
           <g-default>🟢 On</g-default>
         </g-switch>,
         ${this.kbl.back.default}
       </g-keyboard>
-      <g-keyboard lang="id">
+      <g-keyboard lang="id" type="inline">
         <g-switch value="status">
           <g-case is="1">🔴 Mati</g-case>
           <g-default>🟢 Nyala</g-default>

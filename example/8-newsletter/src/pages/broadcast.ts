@@ -241,13 +241,13 @@ export class BroadcastPage extends PageBase {
     </g-base>
 
     <g-base id="${Base.kbConfirm}">
-      <g-keyboard>✅ Send, ✏️ Edit, ${this.kbl.cancelHome.default}</g-keyboard>
-      <g-keyboard lang="id">✅ Kirim, ✏️ Edit, ${this.kbl.cancelHome.id}</g-keyboard>
+      <g-keyboard type="inline">✅ Send, ✏️ Edit, ${this.kbl.cancelHome.default}</g-keyboard>
+      <g-keyboard lang="id" type="inline">✅ Kirim, ✏️ Edit, ${this.kbl.cancelHome.id}</g-keyboard>
     </g-base>
 
     <g-base id="${Base.index}">
-      <g-keyboard>📰 Hybrid Media, ${this.kbl.cancelHome.default}</g-keyboard>
-      <g-keyboard lang="id">📰 Media Hibrid, ${this.kbl.cancelHome.id}</g-keyboard>
+      <g-keyboard type="inline">📰 Hybrid Media, ${this.kbl.cancelHome.default}</g-keyboard>
+      <g-keyboard lang="id" type="inline">📰 Media Hibrid, ${this.kbl.cancelHome.id}</g-keyboard>
       <g-message>
         📣 Broadcast Message
 

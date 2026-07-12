@@ -69,8 +69,8 @@ export class CatalogPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>⬅️ Prev, ➡️ Next, 🛒 Cart, ❓ Help, 🏠 Home</g-keyboard>
-      <g-keyboard lang="id">⬅️ Sebelumnya, ➡️ Selanjutnya, 🛒 Keranjang, ❓ Bantuan, 🏠 Beranda</g-keyboard>
+      <g-keyboard type="inline">⬅️ Prev, ➡️ Next, 🛒 Cart, ❓ Help, 🏠 Home</g-keyboard>
+      <g-keyboard type="inline" lang="id">⬅️ Sebelumnya, ➡️ Selanjutnya, 🛒 Keranjang, ❓ Bantuan, 🏠 Beranda</g-keyboard>
       <g-message>
         🔎 Subscription Catalog
 

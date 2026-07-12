@@ -3,9 +3,8 @@ import {StartPage} from "./start"
 
 class Main {
   static async showIndex(ctx: BlockImportPage) {
-    const number = Math.random()
     const kb = ctx.inlineKeyboardT([ctx, StartPage], `1`)
-    const da = {number}
+    const da = {number: Math.random()}
     await ctx.edit(kb, da)
   }
 }

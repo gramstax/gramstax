@@ -23,8 +23,8 @@ export class StartPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>Refresh</g-keyboard>
-      <g-keyboard lang="id">Segarkan</g-keyboard>
+      <g-keyboard type="inline">Refresh</g-keyboard>
+      <g-keyboard lang="id" type="inline">Segarkan</g-keyboard>
       <g-message>
         Hello World! 
         Time now: {{time}}

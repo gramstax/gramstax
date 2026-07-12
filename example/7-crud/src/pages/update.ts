@@ -159,8 +159,8 @@ export class UpdatePage extends PageBase {
 
   static template = `
     <g-base id="${Base.selectItem}">
-      <g-keyboard>${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</g-keyboard>
-      <g-keyboard lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</g-keyboard>
+      <g-keyboard type="inline">${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</g-keyboard>
+      <g-keyboard lang="id" type="inline">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</g-keyboard>
       <g-message>
         ✏️ Select an item to update its status.
 
@@ -174,8 +174,8 @@ export class UpdatePage extends PageBase {
     </g-base>
 
     <g-base id="${Base.selectStatus}">
-      <g-keyboard>📝 Todo, 🔄 In Progress, ✅ Done, 🏠 Home</g-keyboard>
-      <g-keyboard lang="id">📝 Todo, 🔄 Proses, ✅ Selesai, 🏠 Beranda</g-keyboard>
+      <g-keyboard type="inline">📝 Todo, 🔄 In Progress, ✅ Done, 🏠 Home</g-keyboard>
+      <g-keyboard lang="id" type="inline">📝 Todo, 🔄 Proses, ✅ Selesai, 🏠 Beranda</g-keyboard>
       <g-message>
         📋 Item #{{id}}: {{title}}
 

@@ -26,8 +26,8 @@ export class HelpPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard>🔎 Browse Products, 🏠 Home</g-keyboard>
-      <g-keyboard lang="id">🔎 Jelajahi, 🏠 Beranda</g-keyboard>
+      <g-keyboard type="inline">🔎 Browse Products, 🏠 Home</g-keyboard>
+      <g-keyboard type="inline" lang="id">🔎 Jelajahi, 🏠 Beranda</g-keyboard>
       <g-message>
         ❓ Store Help
 
