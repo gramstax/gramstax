@@ -58,7 +58,7 @@ Barrel (`src/index.ts`) re-exports all public symbols. No default exports. Add n
 - Template pipeline is regex/parser-based with `new Function()` compilation.
 - Supports hot-reload for template files via chokidar.
 - Test mode via `deploy: "test"` + `MockTelegramServer`.
-- Exception: worker bots pass `templateManager: {} as any` (raw API calls only, no page templates).
+- Raw mode: pass `deploy: "raw"` to get a bare grammY `Bot` (no pages, no templates, no Gramstax routing, no auto-start). Write raw grammY handlers on `bot.bot` and start it yourself. The legacy `templateManager: {} as any` exception was removed — using it in a non-raw mode now throws.
 
 ## Complexity Hotspots
 

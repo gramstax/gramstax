@@ -48,20 +48,29 @@ Use this `_INDEX.md` as the module index for `@gramstax/lmdb` database layer rul
 
 This section documents core architecture patterns and exceptions that apply to any Gramstax project.
 
-#### Worker Bot — templateManager Exception
+#### Worker Bot — Use `deploy: "raw"` Instead
 
-When a scheduler/worker thread needs a minimal Gramstax instance solely to call raw `bot.api` methods (e.g., `deleteMessage`) — without loading page templates, routing, or sessions — the `templateManager` parameter **must** be passed as `{} as any`.
+When a scheduler/worker thread needs a minimal Gramstax instance solely to call raw `bot.api` methods (e.g., `deleteMessage`) — without loading page templates, routing, or sessions — use `deploy: "raw"`:
 
 ```typescript
-templateManager: {} as any // intentionally empty: worker bot must NOT load page templates
+const bot = new Gramstax({
+  token: process.env.BOT_TOKEN!,
+  deploy: "raw",      // bare grammY bot: no pages, no templates, no routing
+  log: true
+})
+// use bot.bot directly:
+await bot.bot.api.deleteMessage(chatId, messageId)
 ```
 
-This is an **intentional exception** to the `any` avoidance guideline:
+This is the **official** path:
 
-- `new TemplateManager({path: []})` still triggers internal path resolution that can throw.
-- The worker bot is never used to render pages — only raw `bot.api` calls.
-- The `any` cast is scoped to a single isolated param; the rest of the instance remains type-safe.
-- `_pageLoads()` must also be overridden to return an empty object to prevent page loading.
+- No `TemplateManager` is instantiated (no filesystem scanning, no watchers).
+- No pages or routing listeners are registered.
+- No auto-start — you control the lifecycle (`bot.bot.start()`, etc.).
+- `bot.bot` exposes the raw grammY `Bot` with `.api`, `.use`, `.on`, `.command`.
+- `_pageLoads()` is skipped entirely — no override needed.
+
+The legacy `templateManager: {} as any` exception was **removed**. Passing a non-`TemplateManager` value in the `templateManager` param for any non-raw deploy mode now throws a clear error directing you to use `deploy: "raw"`.
 
 Do **not** apply this pattern in the main bot instance, which **must** load pages and render templates properly.
 

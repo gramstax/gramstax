@@ -119,12 +119,12 @@ Each page file (`*.ts` in `src/pages/`) follows a consistent structure with up t
 
 ### Class Overview
 
-| Class        | Purpose                                                             | Required                                              |
-| ------------ | ------------------------------------------------------------------- | ----------------------------------------------------- |
-| **Base**     | Base ID strings for template states                                 | When template has multiple `<g-base id="...">` states |
-| **Helper**   | Reusable utility functions (keyboard builders, formatters)          | When reusable logic appears 2+ times                  |
-| **Constant** | Reusable common constant string/number                              | When reusable constants used 2+ times                 |
-| **Main**     | Primary business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)      |
+| Class      | Purpose                                                             | Required                                              |
+| ---------- | ------------------------------------------------------------------- | ----------------------------------------------------- |
+| **Base**   | Base ID strings for template states                                 | When template has multiple `<g-base id="...">` states |
+| **Helper** | Reusable utility functions (keyboard builders, formatters)          | When reusable logic appears 2+ times                  |
+| **Const**  | Reusable common constant string/number                              | When reusable constants used 2+ times                 |
+| **Main**   | Primary business logic (`showStep{N}Form` / `processStep{N}Answer`) | **Always required** (except `general-status.ts`)      |
 
 ---
 
@@ -433,7 +433,7 @@ Classes must appear in this specific order:
 
 ```
 1. Base     (if needed)
-2. Constant (if needed)
+2. Const (if needed)
 3. Helper   (if needed)
 4. Main     (REQUIRED - except for general-status.ts)
 5. *Page    (export class - REQUIRED)
@@ -446,7 +446,7 @@ Classes must appear in this specific order:
 ```typescript
 class Base {...}       // 1. Base (if needed)
 
-class Constant {...}   // 2. Constant (if needed)
+class Const {...}      // 2. Constant (if needed)
 
 class Helper {...}     // 3. Helper (if needed)
 
@@ -465,7 +465,7 @@ export class DepositPage extends PageBase {...}  // 5. Page (REQUIRED)
 class Main {...}      // ❌ Must be position 4
 class Base {...}      // ❌ Must be position 1
 export class Page {...} // ❌ Must be position 5
-class Constant {...} // ❌ Must be position 2
+class Const {...} // ❌ Must be position 2
 class Helper {...}    // ❌ Must be position 3
 ```
 

@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gsx — AI that writes your Telegram bot code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       GRAMFORGE — Stripi design language (single-file landing)
+       ============================================================ */
+    :root {
+      /* Brand & accent */
+      --primary: #533afd;
+      --primary-deep: #4434d4;
+      --primary-press: #2e2b8c;
+      --primary-soft: #665efd;
+      --primary-subdued: #b9b9f9;
+      --brand-dark-900: #1c1e54;
+      --ruby: #ea2261;
+      --magenta: #f96bee;
+      --lemon: #9b6829;
+
+      /* Surface */
+      --canvas: #ffffff;
+      --canvas-soft: #f6f9fc;
+      --canvas-cream: #f5e9d4;
+      --hairline: #e3e8ee;
+      --hairline-input: #a8c3de;
+
+      /* Text */
+      --ink: #0d253d;
+      --ink-secondary: #273951;
+      --ink-mute: #64748d;
+      --ink-mute-2: #61718a;
+      --on-primary: #ffffff;
+
+      /* Spacing (8px base) */
+      --s-xs: 4px;
+      --s-sm: 8px;
+      --s-md: 12px;
+      --s-lg: 16px;
+      --s-xl: 24px;
+      --s-xxl: 32px;
+      --s-huge: 64px;
+
+      /* Radius */
+      --r-xs: 4px;
+      --r-sm: 6px;
+      --r-md: 8px;
+      --r-lg: 12px;
+      --r-xl: 16px;
+      --r-pill: 9999px;
+
+      /* Elevation */
+      --shadow-1: 0 1px 3px rgba(0, 55, 112, 0.08);
+      --shadow-2: 0 8px 24px rgba(0, 55, 112, 0.08), 0 2px 6px rgba(0, 55, 112, 0.04);
+
+      /* Type scale */
+      --t-display-xxl: 56px;
+      --t-display-xl: 48px;
+      --t-display-lg: 32px;
+      --t-display-md: 26px;
+      --t-heading-lg: 22px;
+      --t-heading-md: 20px;
+      --t-heading-sm: 18px;
+      --t-body-lg: 16px;
+      --t-body-md: 15px;
+      --t-body-tabular: 14px;
+      --t-button-md: 16px;
+      --t-button-sm: 14px;
+      --t-caption: 13px;
+      --t-micro: 11px;
+      --t-micro-cap: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Inter", "SF Pro Display", system-ui, -apple-system, sans-serif;
+      font-weight: 300;
+      color: var(--ink);
+      background: var(--canvas);
+      font-feature-settings: "ss01";
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      line-height: 1.4;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--s-xl);
+    }
+
+    .tnum { font-feature-settings: "ss01", "tnum"; font-variant-numeric: tabular-nums; letter-spacing: -0.42px; }
+
+    /* ---------- Typography helpers ---------- */
+    .display-xxl { font-size: var(--t-display-xxl); font-weight: 300; line-height: 1.03; letter-spacing: -1.4px; }
+    .display-xl { font-size: var(--t-display-xl); font-weight: 300; line-height: 1.15; letter-spacing: -0.96px; }
+    .display-lg { font-size: var(--t-display-lg); font-weight: 300; line-height: 1.1; letter-spacing: -0.64px; }
+    .display-md { font-size: var(--t-display-md); font-weight: 300; line-height: 1.12; letter-spacing: -0.26px; }
+    .heading-lg { font-size: var(--t-heading-lg); font-weight: 300; line-height: 1.1; letter-spacing: -0.22px; }
+    .heading-md { font-size: var(--t-heading-md); font-weight: 300; line-height: 1.4; letter-spacing: -0.2px; }
+    .heading-sm { font-size: var(--t-heading-sm); font-weight: 300; line-height: 1.4; }
+    .body-lg { font-size: var(--t-body-lg); font-weight: 300; line-height: 1.4; }
+    .body-md { font-size: var(--t-body-md); font-weight: 300; line-height: 1.4; }
+    .body-tabular { font-size: var(--t-body-tabular); font-weight: 300; line-height: 1.4; letter-spacing: -0.42px; }
+    .caption { font-size: var(--t-caption); font-weight: 400; line-height: 1.4; letter-spacing: -0.39px; }
+    .micro { font-size: var(--t-micro); font-weight: 300; line-height: 1.4; }
+    .micro-cap {
+      font-size: var(--t-micro-cap); font-weight: 400; line-height: 1.15; letter-spacing: 0.1px;
+      text-transform: uppercase;
+    }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--s-xs);
+      border-radius: var(--r-pill);
+      font-family: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--primary); color: var(--on-primary); font-size: var(--t-button-md); font-weight: 400; padding: var(--s-sm) var(--s-lg); line-height: 1; }
+    .btn-primary:hover { background: var(--primary-deep); }
+    .btn-primary:active { background: var(--primary-press); }
+    .btn-secondary { background: var(--canvas); color: var(--primary); border-color: var(--primary); font-size: var(--t-button-md); font-weight: 400; padding: var(--s-sm) var(--s-lg); line-height: 1; }
+    .btn-secondary:hover { background: rgba(83, 58, 253, 0.06); }
+    .btn-on-dark { background: var(--brand-dark-900); color: var(--on-primary); font-size: var(--t-button-md); font-weight: 400; padding: var(--s-sm) var(--s-lg); line-height: 1; }
+    .btn-on-dark:hover { background: #15173f; }
+    .btn-sm { font-size: var(--t-button-sm); padding: 7px 14px; }
+
+    .link-on-light { color: var(--primary); font-size: var(--t-body-md); text-decoration: none; font-weight: 400; }
+    .link-on-light:hover { text-decoration: underline; }
+
+    /* ---------- Pills / tags ---------- */
+    .pill-tag-soft {
+      display: inline-block; background: var(--primary-subdued); color: var(--primary-deep);
+      font-size: var(--t-micro-cap); font-weight: 400; line-height: 1.15; letter-spacing: 0.1px;
+      text-transform: uppercase; padding: 4px 8px; border-radius: var(--r-pill);
+    }
+
+    /* ---------- Gradient mesh ---------- */
+    .mesh-wrap { position: absolute; top: 0; left: 0; width: 100%; height: 520px; overflow: hidden; z-index: 0; pointer-events: none; }
+    .mesh-wrap svg { width: 100%; height: 100%; display: block; }
+
+    /* ---------- Nav ---------- */
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--s-lg) var(--s-xl);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid rgba(227, 232, 238, 0.6);
+    }
+    .nav-inner { max-width: 1200px; margin: 0 auto; width: 100%; display: flex; align-items: center; justify-content: space-between; }
+    .wordmark { display: flex; align-items: center; gap: var(--s-sm); color: var(--ink); font-weight: 400; font-size: 19px; letter-spacing: -0.2px; text-decoration: none; }
+    .wordmark .glyph {
+      width: 26px; height: 26px; border-radius: 7px; background: var(--primary);
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .wordmark .glyph svg { width: 15px; height: 15px; }
+    .nav-links { display: flex; gap: var(--s-xl); align-items: center; }
+    .nav-links a { color: var(--ink-secondary); text-decoration: none; font-size: var(--t-body-md); font-weight: 300; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-actions { display: flex; align-items: center; gap: var(--s-lg); }
+    .nav-actions .signin { color: var(--ink); text-decoration: none; font-size: var(--t-body-md); }
+    .nav-actions .signin:hover { color: var(--primary); }
+    .nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+    .nav-toggle span { display: block; width: 22px; height: 2px; background: var(--ink); margin: 4px 0; border-radius: 2px; }
+
+    /* ---------- Hero ---------- */
+    .hero { position: relative; z-index: 1; padding-top: var(--s-huge); padding-bottom: var(--s-huge); }
+    .hero .container { position: relative; z-index: 1; }
+    .hero-copy { max-width: 720px; }
+    .hero h1 { margin: var(--s-lg) 0; }
+    .hero .sub { color: var(--ink-secondary); max-width: 560px; margin-bottom: var(--s-xl); }
+    .hero-cta { display: flex; gap: var(--s-md); flex-wrap: wrap; align-items: center; }
+    .announce {
+      display: inline-flex; align-items: center; gap: 6px; background: var(--canvas);
+      border: 1px solid var(--hairline); color: var(--ink-secondary);
+      font-size: var(--t-micro-cap); text-transform: uppercase; letter-spacing: 0.1px;
+      padding: 5px 10px; border-radius: var(--r-pill); text-decoration: none; margin-bottom: var(--s-lg);
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    .announce:hover { border-color: var(--primary); color: var(--primary); }
+    .announce .spark { color: var(--primary); font-size: 11px; }
+    .hero-note { font-size: var(--t-micro); color: var(--ink-mute); margin-left: var(--s-xs); }
+    .hero-trust { display: flex; align-items: center; gap: var(--s-lg); margin-top: var(--s-xl); flex-wrap: wrap; }
+    .hero-trust .label { font-size: var(--t-micro-cap); text-transform: uppercase; letter-spacing: 0.1px; color: var(--ink-mute); }
+    .logo-strip { display: flex; gap: var(--s-xl); align-items: center; flex-wrap: wrap; }
+    .logo-strip span { font-size: 15px; font-weight: 400; color: var(--ink-mute-2); letter-spacing: -0.2px; opacity: 0.85; }
+    .mockup-caption { text-align: center; font-size: var(--t-micro); color: var(--ink-mute); margin-top: var(--s-md); }
+
+    .gen-prompt { padding: var(--s-xl); background: var(--canvas); }
+    .gen-prompt .gp-label { font-size: var(--t-micro-cap); text-transform: uppercase; letter-spacing: 0.1px; color: var(--ink-mute); }
+    .gen-prompt .gp-text { font-size: var(--t-body-lg); color: var(--ink); margin-top: var(--s-sm); line-height: 1.45; }
+
+    .how-strip { display: flex; gap: var(--s-xl); margin-top: var(--s-xl); flex-wrap: wrap; }
+    .how-step { display: flex; align-items: center; gap: 10px; }
+    .how-step .n { width: 26px; height: 26px; border-radius: 50%; background: var(--primary-subdued); color: var(--primary-deep); font-size: 13px; font-weight: 400; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .how-step .t { font-size: var(--t-body-md); color: var(--ink-secondary); }
+    .how-step .t b { color: var(--ink); font-weight: 400; }
+
+    .mockup-tabs { display: flex; gap: 2px; padding: 10px 14px 0; background: var(--canvas); border-bottom: 1px solid var(--hairline); }
+    .mockup-tabs .tab { font-size: 12px; color: var(--ink-mute); padding: 7px 13px; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none; }
+    .mockup-tabs .tab.active { color: var(--ink); background: var(--canvas-soft); border-color: var(--hairline); margin-bottom: -1px; }
+    .mockup-status { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: var(--canvas-soft); border-top: 1px solid var(--hairline); font-size: 11px; color: var(--ink-mute); }
+    .mockup-status .ok { color: #1c8a5b; display: inline-flex; align-items: center; gap: 6px; }
+    .mockup-status .ok .d { width: 7px; height: 7px; border-radius: 50%; background: #1c8a5b; box-shadow: 0 0 0 3px rgba(28, 138, 91, 0.15); }
+    .mockup-status .meta { font-feature-settings: "ss01", "tnum"; font-variant-numeric: tabular-nums; letter-spacing: -0.3px; }
+
+    /* ---------- Dashboard mockup ---------- */
+    .mockup {
+      background: var(--canvas); border-radius: var(--r-lg);
+      box-shadow: var(--shadow-2); border: 1px solid var(--hairline); margin-top: var(--s-huge); overflow: hidden;
+    }
+    .mockup-grid { display: grid; grid-template-columns: 1.1fr 1fr 0.9fr; gap: var(--s-md); padding: var(--s-xl); }
+    .panel { border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--hairline); }
+    .panel-head {
+      display: flex; align-items: center; gap: 6px; padding: 10px 12px;
+      background: var(--canvas-soft); border-bottom: 1px solid var(--hairline);
+    }
+    .panel-head .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .panel-head .label { font-size: var(--t-micro-cap); text-transform: uppercase; letter-spacing: 0.1px; color: var(--ink-mute); font-weight: 400; margin-left: 6px; }
+
+    /* code panel */
+    .code-panel-body { background: var(--brand-dark-900); padding: var(--s-md); font-family: "SFMono-Regular", ui-monospace, "Menlo", monospace; font-size: 12px; line-height: 1.7; }
+    .code-panel-body .ln { white-space: pre; color: #c7cdf5; }
+    .code-panel-body .k { color: var(--primary-soft); }
+    .code-panel-body .s { color: #f9a8c9; }
+    .code-panel-body .c { color: #6f76a8; }
+    .code-panel-body .f { color: #8fe3c4; }
+
+    /* flow panel */
+    .flow-panel-body { background: var(--canvas-soft); padding: var(--s-md); display: flex; flex-direction: column; gap: 10px; }
+    .node {
+      background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-sm);
+      padding: 10px 12px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-1);
+    }
+    .node .badge { width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .node .badge svg { width: 13px; height: 13px; }
+    .node .nt { font-size: 13px; font-weight: 400; color: var(--ink); }
+    .node .ns { font-size: 11px; color: var(--ink-mute); }
+    .node-connector { width: 2px; height: 12px; background: var(--hairline); margin: 0 auto; }
+
+    /* chart panel */
+    .chart-panel-body { background: var(--canvas-soft); padding: var(--s-md); }
+    .metric { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+    .metric .val { font-size: 26px; font-weight: 300; letter-spacing: -0.26px; color: var(--ink); }
+    .metric .delta { font-size: 12px; color: var(--primary-deep); font-weight: 400; }
+    .bars { display: flex; align-items: flex-end; gap: 5px; height: 84px; }
+    .bars .bar { flex: 1; background: linear-gradient(180deg, var(--primary-soft), var(--primary)); border-radius: 3px 3px 0 0; opacity: 0.9; }
+
+    /* ---------- Sections ---------- */
+    section { position: relative; z-index: 1; }
+    .band-soft { background: var(--canvas-soft); }
+    .band-cream { background: var(--canvas-cream); }
+    .section-pad { padding: var(--s-huge) 0; }
+    .section-head { max-width: 760px; margin-bottom: var(--s-xxl); }
+    .section-head .eyebrow { margin-bottom: var(--s-sm); }
+
+    /* feature grid */
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-xl); }
+    .card-feature-light {
+      background: var(--canvas); padding: var(--s-xxl); border-radius: var(--r-lg);
+      border: 1px solid var(--hairline); box-shadow: var(--shadow-1);
+    }
+    .feature-icon {
+      width: 44px; height: 44px; border-radius: 10px; background: rgba(83, 58, 253, 0.08);
+      display: inline-flex; align-items: center; justify-content: center; margin-bottom: var(--s-lg);
+    }
+    .feature-icon svg { width: 22px; height: 22px; stroke: var(--primary); }
+    .card-feature-light h3 { margin-bottom: var(--s-sm); }
+    .card-feature-light p { color: var(--ink-secondary); margin-bottom: var(--s-lg); }
+    .feature-mock {
+      background: var(--canvas-soft); border: 1px solid var(--hairline); border-radius: var(--r-md);
+      padding: var(--s-md); font-family: ui-monospace, monospace; font-size: 11px; color: var(--ink-mute); line-height: 1.8;
+    }
+
+    /* cream band */
+    .card-cream-band { background: var(--canvas-cream); color: var(--ink); padding: var(--s-huge) var(--s-xxl); border-radius: var(--r-lg); text-align: center; }
+    .card-cream-band h2 { max-width: 720px; margin: 0 auto var(--s-xxl); }
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-xl); }
+    .stat .num { font-size: var(--t-display-lg); font-weight: 300; letter-spacing: -0.64px; color: var(--ink); }
+    .stat .lbl { font-size: var(--t-body-md); color: var(--ink-secondary); margin-top: var(--s-xs); }
+
+    /* big composite */
+    .composite-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-xl); align-items: stretch; padding: var(--s-xl); }
+    .composite-left { display: flex; flex-direction: column; gap: var(--s-md); }
+    .composite-right { display: flex; flex-direction: column; gap: var(--s-md); }
+
+    /* usage table */
+    .usage-table { width: 100%; border-collapse: collapse; background: var(--canvas); border-radius: var(--r-lg); overflow: hidden; border: 1px solid var(--hairline); box-shadow: var(--shadow-1); }
+    .usage-table th, .usage-table td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--hairline); }
+    .usage-table thead th { font-size: var(--t-micro-cap); text-transform: uppercase; letter-spacing: 0.1px; color: var(--ink-mute); font-weight: 400; background: var(--canvas-soft); }
+    .usage-table tbody td { font-size: var(--t-body-tabular); color: var(--ink); }
+    .usage-table tbody tr:last-child td { border-bottom: none; }
+    .usage-table .num { font-feature-settings: "ss01", "tnum"; font-variant-numeric: tabular-nums; letter-spacing: -0.42px; }
+
+    /* pricing */
+    .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-lg); }
+    .card-pricing {
+      background: var(--canvas); padding: var(--s-xxl); border-radius: var(--r-lg);
+      border: 1px solid var(--hairline); display: flex; flex-direction: column;
+    }
+    .card-pricing .tier { margin-bottom: var(--s-sm); }
+    .card-pricing .price { margin-bottom: var(--s-sm); }
+    .card-pricing .price .per { font-size: var(--t-body-md); color: var(--ink-mute); letter-spacing: 0; }
+    .card-pricing .blurb { color: var(--ink-secondary); margin-bottom: var(--s-xl); min-height: 44px; }
+    .card-pricing ul { list-style: none; display: flex; flex-direction: column; gap: var(--s-sm); margin-bottom: var(--s-xl); flex: 1; }
+    .card-pricing li { display: flex; align-items: flex-start; gap: var(--s-sm); font-size: var(--t-body-md); color: var(--ink-secondary); }
+    .card-pricing li svg { width: 16px; height: 16px; flex: 0 0 auto; margin-top: 3px; stroke: var(--primary); }
+    .card-pricing-featured { background: var(--brand-dark-900); color: var(--on-primary); border-color: var(--brand-dark-900); }
+    .card-pricing-featured .blurb { color: #c7cdf5; }
+    .card-pricing-featured li { color: #c7cdf5; }
+    .card-pricing-featured li svg { stroke: var(--primary-soft); }
+    .card-pricing-featured .price .per { color: #9aa0d8; }
+
+    /* footer */
+    .footer { background: var(--canvas); color: var(--ink-mute); padding: var(--s-huge) var(--s-xl); border-top: 1px solid var(--hairline); }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-cols { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: var(--s-xl); }
+    .footer h4 { font-size: var(--t-micro-cap); text-transform: uppercase; letter-spacing: 0.1px; color: var(--ink); font-weight: 400; margin-bottom: var(--s-md); }
+    .footer ul { list-style: none; display: flex; flex-direction: column; gap: var(--s-sm); }
+    .footer a { color: var(--ink-mute); text-decoration: none; font-size: var(--t-caption); }
+    .footer a:hover { color: var(--ink); }
+    .footer .brand-col .wordmark { margin-bottom: var(--s-md); }
+    .footer .brand-col p { font-size: var(--t-caption); max-width: 240px; }
+    .footer-legal { display: flex; align-items: center; justify-content: space-between; margin-top: var(--s-huge); padding-top: var(--s-xl); border-top: 1px solid var(--hairline); flex-wrap: wrap; gap: var(--s-md); }
+    .socials { display: flex; gap: var(--s-sm); }
+    .socials a { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--hairline); display: inline-flex; align-items: center; justify-content: center; }
+    .socials svg { width: 14px; height: 14px; stroke: var(--ink-mute); }
+
+    /* ---------- Interaction polish ---------- */
+    a:focus-visible, button:focus-visible, .btn:focus-visible, .text-input:focus-visible {
+      outline: 2px solid var(--primary); outline-offset: 2px;
+    }
+    .card-feature-light { transition: transform 0.18s ease, box-shadow 0.18s ease; }
+    .card-feature-light:hover { transform: translateY(-3px); box-shadow: var(--shadow-2); }
+    .card-pricing { transition: transform 0.18s ease, box-shadow 0.18s ease; }
+    .card-pricing:hover { transform: translateY(-3px); box-shadow: var(--shadow-1); }
+    .section-head p { color: var(--ink-secondary); margin-top: var(--s-md); max-width: 620px; }
+
+    .badge-popular {
+      display: inline-block; background: var(--primary); color: var(--on-primary);
+      font-size: var(--t-micro-cap); text-transform: uppercase; letter-spacing: 0.1px;
+      padding: 4px 9px; border-radius: var(--r-pill); font-weight: 400; margin-bottom: var(--s-sm);
+    }
+
+    /* text-input (spec component) */
+    .text-input {
+      background: var(--canvas); color: var(--ink); font-family: inherit; font-size: var(--t-body-md); font-weight: 300;
+      padding: var(--s-sm) var(--s-md); border-radius: var(--r-sm); border: 1px solid var(--hairline-input);
+      width: 100%; outline: none; transition: border-color 0.15s ease;
+    }
+    .text-input::placeholder { color: var(--ink-mute); }
+    .text-input:focus { border-color: var(--primary); }
+
+    /* final CTA band */
+    .cta-band { background: var(--brand-dark-900); border-radius: var(--r-xl); padding: var(--s-huge) var(--s-xxl); text-align: center; color: var(--on-primary); }
+    .cta-band h2 { color: var(--on-primary); max-width: 640px; margin: 0 auto var(--s-md); }
+    .cta-band p { color: #c7cdf5; max-width: 520px; margin: 0 auto var(--s-xl); }
+    .cta-form { display: flex; gap: var(--s-sm); max-width: 440px; margin: 0 auto; }
+    .cta-form .text-input { background: rgba(255, 255, 255, 0.06); color: var(--on-primary); border-color: rgba(255, 255, 255, 0.25); }
+    .cta-form .text-input::placeholder { color: #9aa0d8; }
+    .cta-form .text-input:focus { border-color: var(--primary-soft); }
+    .cta-form .btn-primary { background: var(--on-primary); color: var(--brand-dark-900); flex: 0 0 auto; }
+    .cta-form .btn-primary:hover { background: #e9ebff; }
+
+    /* FAQ (CSS-only) */
+    .faq { max-width: 760px; margin: 0 auto; }
+    .faq details { border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 0 var(--s-lg); margin-bottom: var(--s-md); background: var(--canvas); transition: box-shadow 0.15s ease; }
+    .faq details[open] { box-shadow: var(--shadow-1); }
+    .faq summary { list-style: none; cursor: pointer; padding: var(--s-lg) 0; font-size: var(--t-heading-sm); font-weight: 300; color: var(--ink); display: flex; align-items: center; justify-content: space-between; gap: var(--s-md); }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary .chev { transition: transform 0.2s ease; color: var(--ink-mute); flex: 0 0 auto; }
+    .faq details[open] summary .chev { transform: rotate(45deg); }
+    .faq .answer { padding: 0 0 var(--s-lg); color: var(--ink-secondary); font-size: var(--t-body-md); }
+
+    /* ---------- Builder preview ---------- */
+    .builder { background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-lg); box-shadow: var(--shadow-2); overflow: hidden; margin-top: var(--s-xxl); }
+    .builder-bar { display: flex; align-items: center; gap: var(--s-md); padding: 10px 14px; background: var(--brand-dark-900); }
+    .builder-bar .lights { display: flex; gap: 6px; }
+    .builder-bar .lights i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+    .builder-tabs { display: flex; gap: 2px; }
+    .builder-tabs .bt { font-size: 12px; color: #9aa0d8; padding: 6px 12px; border-radius: 6px; }
+    .builder-tabs .bt.active { color: #fff; background: rgba(255, 255, 255, 0.08); }
+    .builder-bar .spacer { flex: 1; }
+    .builder-deploy { background: var(--on-primary); color: var(--brand-dark-900); font-size: var(--t-button-sm); font-weight: 400; padding: 7px 14px; border-radius: var(--r-pill); border: none; cursor: pointer; }
+    .builder-body { display: grid; grid-template-columns: 210px 1fr 250px; min-height: 440px; }
+    .builder-palette { background: var(--canvas-soft); border-right: 1px solid var(--hairline); padding: var(--s-lg); }
+    .builder-palette h4, .builder-inspector h4 { font-size: var(--t-micro-cap); text-transform: uppercase; letter-spacing: 0.1px; color: var(--ink-mute); font-weight: 400; margin-bottom: var(--s-md); }
+    .palette-item { display: flex; align-items: center; gap: 10px; background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-sm); padding: 9px 11px; margin-bottom: 8px; box-shadow: var(--shadow-1); font-size: 13px; color: var(--ink); }
+    .palette-item .pi { width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .palette-item .pi svg { width: 13px; height: 13px; }
+    .builder-canvas { position: relative; background-color: var(--canvas); background-image: radial-gradient(var(--hairline) 1px, transparent 1px); background-size: 18px 18px; padding: var(--s-xl); overflow: auto; }
+    .flow { display: flex; flex-direction: column; align-items: center; }
+    .flow-node { width: 232px; background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 12px 14px; box-shadow: var(--shadow-1); display: flex; align-items: center; gap: 11px; }
+    .flow-node.sel { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(83, 58, 253, 0.15); }
+    .flow-node .fi { width: 30px; height: 30px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .flow-node .fi svg { width: 16px; height: 16px; }
+    .flow-node .ft { font-size: 14px; font-weight: 400; color: var(--ink); }
+    .flow-node .fs { font-size: 11px; color: var(--ink-mute); }
+    .flow-connector { width: 2px; height: 22px; background: var(--hairline-input); }
+    .flow-branch { display: flex; gap: 48px; }
+    .flow-branch .col { display: flex; flex-direction: column; align-items: center; }
+    .builder-inspector { background: var(--canvas-soft); border-left: 1px solid var(--hairline); padding: var(--s-lg); }
+    .insp-field { margin-bottom: var(--s-md); }
+    .insp-field label { display: block; font-size: 12px; color: var(--ink-secondary); margin-bottom: 5px; }
+    .insp-field .text-input { font-size: 13px; padding: 7px 10px; }
+    .insp-prompt { background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-sm); padding: 10px; font-size: 12px; color: var(--ink-secondary); line-height: 1.6; min-height: 64px; }
+    .toggle { display: flex; align-items: center; justify-content: space-between; background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-sm); padding: 9px 11px; }
+    .toggle .tl { font-size: 13px; color: var(--ink); }
+    .switch { position: relative; width: 36px; height: 20px; border-radius: 9999px; background: var(--primary); flex: 0 0 auto; }
+    .switch::after { content: ""; position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+    .insp-test { width: 100%; margin-top: var(--s-sm); }
+
+    /* ---------- Animations ---------- */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; transition-delay: var(--d, 0s); }
+    .reveal.in-view { opacity: 1; transform: none; }
+    .bars .bar { transform: scaleY(0); transform-origin: bottom; animation: growBar 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) forwards; }
+    .bars .bar:nth-child(1) { animation-delay: 0.05s; }
+    .bars .bar:nth-child(2) { animation-delay: 0.11s; }
+    .bars .bar:nth-child(3) { animation-delay: 0.17s; }
+    .bars .bar:nth-child(4) { animation-delay: 0.23s; }
+    .bars .bar:nth-child(5) { animation-delay: 0.29s; }
+    .bars .bar:nth-child(6) { animation-delay: 0.35s; }
+    .bars .bar:nth-child(7) { animation-delay: 0.41s; }
+    @keyframes growBar { to { transform: scaleY(1); } }
+    @keyframes meshFloat { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -10px, 0); } }
+    .mesh-wrap svg { animation: meshFloat 16s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .bars .bar { transform: none; animation: none; }
+      .mesh-wrap svg { animation: none; }
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 1024px) {
+      :root { --t-display-xxl: 48px; --t-display-xl: 40px; --t-display-lg: 28px; }
+      .mockup-grid { grid-template-columns: 1fr 1fr; }
+      .mockup-grid .chart-panel { display: none; }
+      .composite-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+      .feature-grid { grid-template-columns: 1fr 1fr; }
+      .builder-body { grid-template-columns: 1fr; }
+      .builder-palette { border-right: none; border-bottom: 1px solid var(--hairline); }
+      .builder-palette .palette-item { display: inline-flex; margin: 0 8px 8px 0; }
+      .builder-inspector { border-left: none; border-top: 1px solid var(--hairline); }
+    }
+    @media (max-width: 768px) {
+      :root { --t-display-xxl: 36px; --t-display-xl: 30px; --t-display-lg: 26px; }
+      .nav-links, .nav-actions .signin { display: none; }
+      .nav-toggle { display: block; }
+      .hero { padding-top: var(--s-xxl); padding-bottom: var(--s-xxl); }
+      .mockup { margin-top: var(--s-xxl); }
+      .mockup-grid { grid-template-columns: 1fr; }
+      .mockup-grid .flow-panel { display: none; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: 1fr; gap: var(--s-xxl); }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .footer-cols { grid-template-columns: 1fr 1fr; }
+      .btn { padding-top: 12px; padding-bottom: 12px; }
+      .section-pad { padding: var(--s-xxl) 0; }
+      .cta-form { flex-direction: column; }
+      .cta-band { padding: var(--s-xxl) var(--s-lg); }
+      .how-strip { flex-direction: column; align-items: flex-start; gap: var(--s-md); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== NAV ===================== -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="wordmark" href="#">
+        <span class="glyph">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 9 9 0 0 1-4-1L3 20l1-5.5a8.38 8.38 0 0 1-1-4A8.5 8.5 0 0 1 21 11.5z" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        gsx
+      </a>
+      <div class="nav-links">
+        <a href="#product">Product</a>
+        <a href="#features">Templates</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#docs">Docs</a>
+      </div>
+      <div class="nav-actions">
+        <a class="signin" href="#">Sign in</a>
+        <a class="btn btn-primary btn-sm" href="#">Start building</a>
+        <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== HERO ===================== -->
+  <header class="hero">
+    <div class="mesh-wrap" aria-hidden="true">
+      <svg viewBox="0 0 1440 520" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="gCream" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f5e9d4"/><stop offset="100%" stop-color="#f5e9d4" stop-opacity="0"/></radialGradient>
+          <radialGradient id="gOrange" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f6b26b"/><stop offset="100%" stop-color="#f6b26b" stop-opacity="0"/></radialGradient>
+          <radialGradient id="gLav" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#c9b8f5"/><stop offset="100%" stop-color="#c9b8f5" stop-opacity="0"/></radialGradient>
+          <radialGradient id="gIndigo" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#533afd"/><stop offset="100%" stop-color="#533afd" stop-opacity="0"/></radialGradient>
+          <radialGradient id="gRuby" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ea2261"/><stop offset="100%" stop-color="#ea2261" stop-opacity="0"/></radialGradient>
+          <radialGradient id="gMagenta" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f96bee"/><stop offset="100%" stop-color="#f96bee" stop-opacity="0"/></radialGradient>
+          <linearGradient id="gFade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#ffffff"/>
+          </linearGradient>
+          <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="78"/></filter>
+        </defs>
+        <rect width="1440" height="520" fill="#ffffff"/>
+        <g filter="url(#soft)">
+          <ellipse cx="170" cy="170" rx="360" ry="250" fill="url(#gCream)"/>
+          <ellipse cx="470" cy="110" rx="320" ry="220" fill="url(#gOrange)" opacity="0.85"/>
+          <ellipse cx="780" cy="150" rx="360" ry="250" fill="url(#gLav)"/>
+          <ellipse cx="1060" cy="110" rx="330" ry="230" fill="url(#gIndigo)" opacity="0.6"/>
+          <ellipse cx="1290" cy="190" rx="340" ry="240" fill="url(#gRuby)" opacity="0.55"/>
+          <ellipse cx="1190" cy="320" rx="240" ry="180" fill="url(#gMagenta)" opacity="0.6"/>
+          <ellipse cx="300" cy="320" rx="220" ry="170" fill="url(#gIndigo)" opacity="0.18"/>
+        </g>
+        <rect width="1440" height="520" fill="url(#gFade)"/>
+      </svg>
+    </div>
+
+    <div class="container">
+      <div class="hero-copy">
+        <span class="pill-tag-soft">AI Telegram bot builder</span>
+        <h1 class="display-xxl">Describe your bot. gsx writes the code.</h1>
+        <p class="body-lg sub">gsx is an AI builder for Telegram bots. Describe what you want in plain language and it generates the working bot code — handlers, AI replies, and webhooks included. Edit the code or ship it in one click. No boilerplate, no servers to wire.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#">Start building free</a>
+          <a class="btn btn-secondary" href="#how">See how it works</a>
+          <span class="hero-note">No card · free to start</span>
+        </div>
+        <div class="how-strip">
+          <div class="how-step"><span class="n">1</span><span class="t"><b>Prompt</b> your bot</span></div>
+          <div class="how-step"><span class="n">2</span><span class="t"><b>gsx</b> generates the code</span></div>
+          <div class="how-step"><span class="n">3</span><span class="t"><b>Deploy</b> to Telegram</span></div>
+        </div>
+      </div>
+
+      <div class="mockup" id="product">
+        <div class="mockup-tabs">
+          <span class="tab active">prompt</span>
+          <span class="tab">code</span>
+          <span class="tab">live</span>
+        </div>
+        <div class="gen-prompt">
+          <span class="gp-label">You prompted</span>
+          <p class="gp-text">"Build a support bot that answers from my FAQ, uses AI for follow-ups, and escalates to a human when it's unsure."</p>
+        </div>
+        <div class="code-panel-body">
+<div class="ln"><span class="c">// generated by gsx</span></div>
+<div class="ln"><span class="k">on</span>(<span class="s">"/start"</span>) <span class="k">=&gt;</span> reply(<span class="s">"Hi 👋 I'm your AI assistant"</span>)</div>
+<div class="ln"><span class="k">on</span>(text) <span class="k">=&gt;</span> {</div>
+<div class="ln">  <span class="k">const</span> <span class="f">ans</span> = <span class="k">await</span> ai.respond(text, { <span class="f">faq</span>: faqStore })</div>
+<div class="ln">  <span class="k">if</span> (ans.confidence &lt; 0.6) <span class="k">return</span> escalateToHuman()</div>
+<div class="ln">  send(ans.text, { <span class="f">parse_mode</span>: <span class="s">"html"</span> })</div>
+<div class="ln">}</div>
+<div class="ln"><span class="k">deploy</span>({ <span class="f">platform</span>: <span class="s">"telegram"</span> })</div>
+        </div>
+        <div class="mockup-status">
+          <span class="ok"><span class="d"></span> @supportbot · live · deployed 2 min ago</span>
+          <span class="meta">generations used: 1 · p99 388ms</span>
+        </div>
+      </div>
+      <p class="mockup-caption">Prompt in, working Telegram bot code out — edit it or ship it.</p>
+    </div>
+  </header>
+
+  <!-- ===================== FEATURES ===================== -->
+  <section class="band-soft section-pad" id="features">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill-tag-soft eyebrow">Why gsx</span>
+        <h2 class="display-xl">Everything to build, ship, and scale.</h2>
+        <p class="body-lg">From the first trigger to production traffic — gsx handles the runtime so you can focus on the conversation your users actually want.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="card-feature-light reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3" stroke-linecap="round"/></svg>
+          </div>
+          <h3 class="display-lg">Visual bot builder</h3>
+          <p class="body-md">Drag triggers, AI steps, and actions into a flow. gsx compiles it to clean, deployable TypeScript.</p>
+          <div class="feature-mock">
+<span style="color:#665efd">flow:</span> trigger → ai → send<br/>
+<span style="color:#ea2261">nodes:</span> 3 · webhooks: 0<br/>
+<span style="color:#9b6829">status:</span> ready to deploy
+          </div>
+        </div>
+        <div class="card-feature-light reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 3a4 4 0 0 1 4 4 4 4 0 0 1-2 7h-4a4 4 0 0 1-2-7 4 4 0 0 1 4-4z"/><path d="M12 14v7M8 21h8" stroke-linecap="round"/></svg>
+          </div>
+          <h3 class="display-lg">AI responses, out of the box</h3>
+          <p class="body-md">Wire any model to your bot with memory, tools, and guardrails. No prompt plumbing, no token bookkeeping.</p>
+          <div class="feature-mock">
+<span style="color:#665efd">model:</span> gpt · claude · local<br/>
+<span style="color:#ea2261">memory:</span> per-user<br/>
+<span style="color:#9b6829">tools:</span> 6 connected
+          </div>
+        </div>
+        <div class="card-feature-light reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" stroke-linejoin="round"/></svg>
+          </div>
+          <h3 class="display-lg">Deploy in one click</h3>
+          <p class="body-md">Ship to gsx's edge runtime with autoscaling, uptime monitoring, and zero servers to manage.</p>
+          <div class="feature-mock">
+<span style="color:#665efd">region:</span> auto<br/>
+<span style="color:#ea2261">scale:</span> elastic<br/>
+<span style="color:#9b6829">uptime:</span> 99.98%
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CREAM BAND ===================== -->
+  <section class="band-cream section-pad">
+    <div class="container">
+      <div class="card-cream-band reveal">
+        <h2 class="display-lg">The fastest path from idea to a bot your users actually talk to.</h2>
+        <div class="stat-row">
+          <div class="stat">
+            <div class="num tnum">12,400+</div>
+            <div class="lbl">bots shipped</div>
+          </div>
+          <div class="stat">
+            <div class="num tnum">$0.002</div>
+            <div class="lbl">per message</div>
+          </div>
+          <div class="stat">
+            <div class="num tnum">99.98%</div>
+            <div class="lbl">runtime uptime</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== BUILDER PREVIEW ===================== -->
+  <section class="section-pad" id="how">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="pill-tag-soft eyebrow">Builder</span>
+        <h2 class="display-xl">A visual builder that compiles to real code.</h2>
+        <p class="body-lg">Drag blocks onto the canvas, connect them, and gsx generates clean, deployable TypeScript. Edit the flow on the left — the code and the live bot update on the right.</p>
+      </div>
+
+      <div class="builder reveal">
+        <div class="builder-bar">
+          <span class="lights"><i style="background:#ea2261"></i><i style="background:#f6b26b"></i><i style="background:#665efd"></i></span>
+          <div class="builder-tabs">
+            <span class="bt active">Flow</span>
+            <span class="bt">Blocks</span>
+            <span class="bt">Deploy</span>
+          </div>
+          <span class="spacer"></span>
+          <button class="builder-deploy" type="button">Deploy</button>
+        </div>
+        <div class="builder-body">
+          <aside class="builder-palette">
+            <h4>Blocks</h4>
+            <div class="palette-item"><span class="pi" style="background:rgba(83,58,253,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="#533afd" stroke-width="1.8"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" stroke-linejoin="round"/></svg></span> Trigger</div>
+            <div class="palette-item"><span class="pi" style="background:rgba(234,34,97,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="#ea2261" stroke-width="1.8"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" stroke-linejoin="round"/></svg></span> AI response</div>
+            <div class="palette-item"><span class="pi" style="background:rgba(102,94,253,0.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#665efd" stroke-width="1.8"><path d="M8 7l-4 5 4 5M16 7l4 5-4 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> API call</div>
+            <div class="palette-item"><span class="pi" style="background:rgba(83,58,253,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="#533afd" stroke-width="1.8"><path d="M21 3 3 10l7 3 3 7 8-17z" stroke-linejoin="round"/></svg></span> Send message</div>
+            <div class="palette-item"><span class="pi" style="background:rgba(155,104,41,0.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#9b6829" stroke-width="1.8"><path d="M6 3v6a3 3 0 0 0 3 3h6a3 3 0 0 1 3 3v6M18 3v6" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Condition</div>
+            <div class="palette-item"><span class="pi" style="background:rgba(100,116,141,0.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#64748d" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2" stroke-linecap="round"/></svg></span> Delay</div>
+          </aside>
+
+          <div class="builder-canvas">
+            <div class="flow">
+              <div class="flow-node reveal" style="--d:.05s">
+                <span class="fi" style="background:rgba(83,58,253,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="#533afd" stroke-width="1.8"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" stroke-linejoin="round"/></svg></span>
+                <span><span class="ft">Trigger</span><br/><span class="fs">/start · message</span></span>
+              </div>
+              <div class="flow-connector"></div>
+              <div class="flow-node sel reveal" style="--d:.12s">
+                <span class="fi" style="background:rgba(234,34,97,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="#ea2261" stroke-width="1.8"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" stroke-linejoin="round"/></svg></span>
+                <span><span class="ft">AI response</span><br/><span class="fs">gpt-4o-mini · memory</span></span>
+              </div>
+              <div class="flow-connector"></div>
+              <div class="flow-node reveal" style="--d:.19s">
+                <span class="fi" style="background:rgba(155,104,41,0.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#9b6829" stroke-width="1.8"><path d="M6 3v6a3 3 0 0 0 3 3h6a3 3 0 0 1 3 3v6M18 3v6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span><span class="ft">Condition</span><br/><span class="fs">if intent == "refund"</span></span>
+              </div>
+              <div class="flow-branch">
+                <div class="col">
+                  <div class="flow-connector"></div>
+                  <div class="flow-node reveal" style="--d:.26s">
+                    <span class="fi" style="background:rgba(83,58,253,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="#533afd" stroke-width="1.8"><path d="M21 3 3 10l7 3 3 7 8-17z" stroke-linejoin="round"/></svg></span>
+                    <span><span class="ft">Send</span><br/><span class="fs">refund status</span></span>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="flow-connector"></div>
+                  <div class="flow-node reveal" style="--d:.33s">
+                    <span class="fi" style="background:rgba(102,94,253,0.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#665efd" stroke-width="1.8"><path d="M8 7l-4 5 4 5M16 7l4 5-4 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <span><span class="ft">API call</span><br/><span class="fs">orders.lookup</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="builder-inspector">
+            <h4>Inspector · AI response</h4>
+            <div class="insp-field">
+              <label>Model</label>
+              <input class="text-input" type="text" value="gpt-4o-mini" />
+            </div>
+            <div class="insp-field">
+              <label>System prompt</label>
+              <div class="insp-prompt">You are a friendly support agent for @acme. Use order context when available. Keep replies under 3 sentences.</div>
+            </div>
+            <div class="insp-field">
+              <div class="toggle"><span class="tl">Memory</span><span class="switch"></span></div>
+            </div>
+            <button class="btn btn-primary insp-test" type="button">Test run</button>
+          </aside>
+        </div>
+      </div>
+      <p class="mockup-caption">Live builder — select a node to edit its properties.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BIG COMPOSITE ===================== -->
+  <section class="section-pad">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill-tag-soft eyebrow">Observability</span>
+        <h2 class="display-xl">See your bot's world in real time.</h2>
+      </div>
+      <div class="mockup reveal">
+        <div class="composite-grid">
+          <div class="composite-left">
+            <div class="panel">
+              <div class="panel-head">
+                <span class="dot" style="background:#ea2261"></span>
+                <span class="dot" style="background:#f6b26b"></span>
+                <span class="dot" style="background:#665efd"></span>
+                <span class="label">runtime.log</span>
+              </div>
+              <div class="code-panel-body">
+<div class="ln"><span class="c">[12:04:11]</span> <span class="f">recv</span> /start from user#8821</div>
+<div class="ln"><span class="c">[12:04:11]</span> <span class="k">ai</span> respond (412ms)</div>
+<div class="ln"><span class="c">[12:04:12]</span> <span class="f">send</span> html + keyboard</div>
+<div class="ln"><span class="c">[12:04:40]</span> <span class="f">recv</span> "refund status"</div>
+<div class="ln"><span class="c">[12:04:41]</span> <span class="k">tool</span> orders.lookup → ok</div>
+<div class="ln"><span class="c">[12:04:42]</span> <span class="f">send</span> order #A-2291</div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <span class="dot" style="background:#665efd"></span>
+                <span class="label">Top intents</span>
+              </div>
+              <div class="chart-panel-body">
+                <div class="bars" style="height:90px">
+                  <span class="bar" style="height:100%"></span>
+                  <span class="bar" style="height:74%"></span>
+                  <span class="bar" style="height:61%"></span>
+                  <span class="bar" style="height:48%"></span>
+                  <span class="bar" style="height:35%"></span>
+                </div>
+                <p class="caption" style="margin-top:10px;color:var(--ink-mute)">support · orders · refund · faq · other</p>
+              </div>
+            </div>
+          </div>
+          <div class="composite-right">
+            <div class="panel" style="flex:1">
+              <div class="panel-head">
+                <span class="dot" style="background:#9b6829"></span>
+                <span class="label">Usage — this month</span>
+              </div>
+              <div style="padding:var(--s-md)">
+                <table class="usage-table" style="box-shadow:none;border:none">
+                  <thead>
+                    <tr><th>Metric</th><th>Value</th><th>Cost</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Messages</td><td class="num">428,910</td><td class="num">$857.82</td></tr>
+                    <tr><td>AI tokens</td><td class="num">61.2M</td><td class="num">$491.40</td></tr>
+                    <tr><td>Active users</td><td class="num">19,340</td><td class="num">—</td></tr>
+                    <tr><td>Avg latency</td><td class="num">388ms</td><td class="num">—</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRICING ===================== -->
+  <section class="band-soft section-pad" id="pricing">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill-tag-soft eyebrow">Pricing</span>
+        <h2 class="display-xl">Pricing that scales with your bots.</h2>
+        <p class="body-lg">Every plan includes AI code generation, the visual editor, and one-click deploy to Telegram. Buy generations as you grow — no contract, cancel anytime.</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="card-pricing reveal">
+          <div class="tier heading-lg">Free</div>
+          <div class="price display-md">$0<span class="per"> /mo</span></div>
+          <p class="blurb body-md">For tinkering and your first bot.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>1 deployed bot</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>25 generations / mo</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>5k messages / mo</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Community models</li>
+          </ul>
+          <a class="btn btn-secondary" href="#">Get started</a>
+        </div>
+
+        <div class="card-pricing reveal">
+          <div class="tier heading-lg">Starter</div>
+          <div class="price display-md">$20<span class="per"> /mo</span></div>
+          <p class="blurb body-md">For growing bots with real users.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>5 bots</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>300 generations / mo</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>100k messages / mo</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Premium models</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Analytics</li>
+          </ul>
+          <a class="btn btn-primary" href="#">Choose Starter</a>
+        </div>
+
+        <div class="card-pricing card-pricing-featured reveal">
+          <span class="badge-popular">Most popular</span>
+          <div class="tier heading-lg">Pro</div>
+          <div class="price display-md">$49<span class="per"> /mo</span></div>
+          <p class="blurb body-md">For teams running in production.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited bots</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>2,000 generations / mo</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>2M messages / mo</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Tools &amp; memory</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>3 team seats</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>SSO &amp; audit log</li>
+          </ul>
+          <a class="btn btn-on-dark" href="#">Choose Pro</a>
+        </div>
+
+        <div class="card-pricing reveal">
+          <div class="tier heading-lg">Enterprise</div>
+          <div class="price display-md">Custom</div>
+          <p class="blurb body-md">For scale, compliance, and support.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Custom generations &amp; volume</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>VPC deploy</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Dedicated support</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>SLA 99.99%</li>
+          </ul>
+          <a class="btn btn-secondary" href="#">Contact sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== USAGE TABLE ===================== -->
+  <section class="section-pad">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill-tag-soft eyebrow">Limits</span>
+        <h2 class="display-lg">Plan limits at a glance.</h2>
+      </div>
+      <table class="usage-table">
+        <thead>
+          <tr><th>Plan</th><th>Generations / mo</th><th>Messages / mo</th><th>Price</th></tr>
+         </thead>
+         <tbody>
+           <tr><td>Free</td><td class="num">25</td><td class="num">5,000</td><td class="num">$0</td></tr>
+           <tr><td>Starter</td><td class="num">300</td><td class="num">100,000</td><td class="num">$20</td></tr>
+           <tr><td>Pro</td><td class="num">2,000</td><td class="num">2,000,000</td><td class="num">$49</td></tr>
+           <tr><td>Enterprise</td><td class="num">Custom</td><td class="num">Custom</td><td class="num">Custom</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== FAQ ===================== -->
+  <section class="section-pad">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill-tag-soft eyebrow">FAQ</span>
+        <h2 class="display-lg">Questions, answered.</h2>
+      </div>
+      <div class="faq reveal">
+        <details open>
+          <summary>Do I need to know how to code?<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg></span></summary>
+          <div class="answer">No. The visual builder compiles your flow to clean TypeScript, but you can ship without writing a line. Developers can open the generated code anytime.</div>
+        </details>
+        <details>
+          <summary>Which AI models can my bot use?<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg></span></summary>
+          <div class="answer">Any model with an API — GPT, Claude, open-source, or your own fine-tune. Wire it once and switch per flow or per user.</div>
+        </details>
+        <details>
+          <summary>How does billing work?<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg></span></summary>
+          <div class="answer">You pay a flat plan price that includes a monthly pool of AI generations. Extra generations and messages above your plan are metered with tabular precision — see the limits table above.</div>
+        </details>
+        <details>
+          <summary>Can I self-host or deploy to my own region?<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg></span></summary>
+          <div class="answer">Pro runs on our autoscaling edge runtime across 12 regions. Enterprise adds VPC deploy and dedicated capacity with a 99.99% SLA.</div>
+        </details>
+        <details>
+          <summary>Is there a free tier?<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg></span></summary>
+          <div class="answer">Yes — Free includes 25 AI generations and 5,000 messages a month, forever. No card required to start.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FINAL CTA ===================== -->
+  <section class="section-pad">
+    <div class="container">
+      <div class="cta-band reveal">
+        <h2 class="display-xl">Build your first Telegram AI bot today.</h2>
+        <p class="body-lg">Start free, deploy in minutes, and talk to your users before your coffee gets cold.</p>
+        <form class="cta-form" onsubmit="return false">
+          <input class="text-input" type="email" placeholder="you@company.com" aria-label="Work email" />
+          <button class="btn btn-primary" type="submit">Start free</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer" id="docs">
+    <div class="footer-inner">
+      <div class="footer-cols">
+        <div class="brand-col">
+          <a class="wordmark" href="#">
+            <span class="glyph">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 9 9 0 0 1-4-1L3 20l1-5.5a8.38 8.38 0 0 1-1-4A8.5 8.5 0 0 1 21 11.5z" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            gsx
+          </a>
+          <p class="caption">The Telegram AI bot builder. Prompts in, bots live — no plumbing required.</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#">Builder</a></li>
+            <li><a href="#">AI models</a></li>
+            <li><a href="#">Runtime</a></li>
+            <li><a href="#">Templates</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Developers</h4>
+          <ul>
+            <li><a href="#">Documentation</a></li>
+            <li><a href="#">API reference</a></li>
+            <li><a href="#">CLI</a></li>
+            <li><a href="#">Status</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">Security</a></li>
+            <li><a href="#">DPA</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <span class="caption">© 2026 gsx, Inc. All rights reserved.</span>
+        <div class="socials">
+          <a href="#" aria-label="X"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 4l16 16M20 4L4 20" stroke-linecap="round"/></svg></a>
+          <a href="#" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M9 19c-4 1.5-4-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.6 11.6 0 0 0-6 0C6.3 2.3 5.3 2.6 5.3 2.6a4.3 4.3 0 0 0-.1 3.2A4.6 4.6 0 0 0 3.9 9c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a href="#" aria-label="Telegram"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M21 5 3 12l5 2 2 5 3-3 4 3 4-14z" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <noscript><style>.reveal{opacity:1!important;transform:none!important}.bars .bar{transform:none!important;animation:none!important}</style></noscript>
+  <script>
+    (function () {
+      var els = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(function (e) { e.classList.add('in-view'); });
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) {
+            en.target.classList.add('in-view');
+            io.unobserve(en.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      els.forEach(function (e) { io.observe(e); });
+    })();
+  </script>
+
+</body>
+</html>

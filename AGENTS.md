@@ -275,7 +275,7 @@ The repo has a broader scope than a typical 2-package Bun/Nx monorepo:
 - **No `vitest`/`jest`** — use `bun:test` exclusively.
 - **No `Makefile`** or `Dockerfile`.
 - **Type suppression in tests** is common (`as any`, `as unknown as`); acceptable in test files.
-- **`templateManager: {} as any`** is an intentional exception for worker bots (documented in `rules/_INDEX.md` § Worker Bot — templateManager Exception).
+- **`deploy: "raw"`** is the official way to run a bare grammY bot (no pages, no templates, no Gramstax routing). The legacy `templateManager: {} as any` exception was removed — use `deploy: "raw"` instead.
 
 ## Cursor/Copilot Rules
 

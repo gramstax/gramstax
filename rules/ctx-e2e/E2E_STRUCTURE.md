@@ -281,8 +281,8 @@ Or for inline use when only the language differs:
 In every page template, add ID variants:
 
 ```
-<g-keyboard>Button1, Button2</g-keyboard>
-<g-keyboard lang="id">Tombol1, Tombol2</g-keyboard>
+<g-keyboard type="inline">Button1, Button2</g-keyboard>
+<g-keyboard type="inline" lang="id">Tombol1, Tombol2</g-keyboard>
 
 <g-message>English text</g-message>
 <g-message lang="id">Teks Indonesia</g-message>
