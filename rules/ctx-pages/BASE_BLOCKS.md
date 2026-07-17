@@ -12,6 +12,14 @@
 - **EXTENSIONS**: You may add context for clarity (e.g., s1-form, s1-success).
 - **STATIC CONSTANTS**: Always define Base IDs as static properties in an internal Base class for type-safe referencing.
 
+## b\* Object Convention
+
+Each `<g-base>` block must have a corresponding `b<name>` object on the Page class:
+
+- **No `id`** → `bdefault` (single-base page)
+- **`id="s1"`** → `bs1`
+- **`id="amount"`** → `bamount`
+
 ## Usage Example
 
 ```typescript

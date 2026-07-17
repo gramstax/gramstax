@@ -29,4 +29,4 @@ Gramstax is built for high-conversion, interactive bot experiences.
 ### Method Placement
 
 - **DATA PRECEDENCE**: If you need to manipulate data before rendering, use this.buildData. This logic **MUST** appear at the very beginning of your handler.
-- **STATIC METHODS**: Prefer static methods in the Main class to handle transitions between steps.
+- **b\* OBJECTS**: Encapsulate step transitions and rendering logic inside `b<name>` objects (`bdefault.show()`, `bstep.process()`). Handler methods on the Page class MUST be thin wrappers that delegate to the appropriate `b<*>` method and contain no core business logic.
