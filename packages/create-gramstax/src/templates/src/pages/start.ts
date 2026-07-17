@@ -3,36 +3,32 @@ import {PageBase} from "~/base/page"
 import {RandomNumberPage} from "./random-number"
 import {SumNumberPage} from "./sum-number"
 
-class Main {
-  static async showIndex(ctx: StartPage, edit = true) {
-    await ctx.clearSession()
-    const kb = ctx.inlineKeyboardT([RandomNumberPage, SumNumberPage, HelpPage], `2`)
-    const da = {userName: ctx.userName}
-    if (edit) {
-      await ctx.editRich(kb, da)
-    } else {
-      await ctx.replyRich(kb, da)
-    }
-  }
-}
-
 export class StartPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bdefault.show(true)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bdefault.show(false)
   }
 
-  async showStep1Form(edit = true) {
-    await Main.showIndex(this, edit)
+  bdefault = {
+    show: async (isEdit = true) => {
+      await this.clearSession()
+      const kb = this.inlineKeyboardT([RandomNumberPage, SumNumberPage, HelpPage], `2`)
+      const da = {userName: this.userName}
+      if (isEdit) {
+        await this.editRich(kb, da)
+      } else {
+        await this.replyRich(kb, da)
+      }
+    }
   }
 
   static template = `
     <g-base>
-      <g-keyboard>🎰 Random Number, ➕ Sum Number, 🆘 Help</g-keyboard>
-      <g-keyboard lang="id">🎰 Angka Acak, ➕ Jumlah Angka, 🆘 Bantuan</g-keyboard>
+      <g-keyboard type="inline">🎰 Random Number, ➕ Sum Number, 🆘 Help</g-keyboard>
+      <g-keyboard type="inline" lang="id">🎰 Angka Acak, ➕ Jumlah Angka, 🆘 Bantuan</g-keyboard>
       <g-message>
         <b>👋 Welcome to the bot {{userName}}</b>
 

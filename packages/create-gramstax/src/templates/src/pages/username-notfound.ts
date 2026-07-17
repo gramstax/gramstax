@@ -1,21 +1,16 @@
 import {HelpPage} from "./help"
 import {PageBase} from "~/base/page"
 
-class Main {
-  static async showIndex(ctx: UserNameNotFoundPage, edit = true) {
-    const kb = ctx.inlineKeyboardT([HelpPage])
-    const da = {}
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-}
-
 export class UserNameNotFoundPage extends PageBase {
-  async showIndex(edit = true) {
-    await Main.showIndex(this, edit)
+  bdefault = {
+    show: async (isEdit = true) => {
+      const kb = this.inlineKeyboardT([HelpPage])
+      if (isEdit) {
+        await this.edit(kb, {})
+      } else {
+        await this.reply(kb, {})
+      }
+    }
   }
 
   static template = `

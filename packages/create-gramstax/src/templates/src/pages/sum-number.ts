@@ -17,61 +17,13 @@ class Helper {
   }
 }
 
-class Main {
-  static async showLeft(ctx: SumNumberPage, edit: boolean) {
-    const bi = Base.left
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    await ctx.setSessionFreeText({step: bi})
-    if (edit) {
-      await ctx.edit(kb, da, bi)
-    } else {
-      await ctx.reply(kb, da, bi)
-    }
-  }
-
-  static async processLeft(ctx: SumNumberPage, left: number) {
-    if (!Number.isFinite(left)) {
-      await Main.showLeft(ctx, false)
-    } else {
-      await Main.showRight(ctx, left)
-    }
-  }
-
-  static async showRight(ctx: SumNumberPage, left: number) {
-    const bi = Base.right
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    await ctx.setSessionFreeText({step: bi, left})
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async processRight(ctx: SumNumberPage, left: number, right: number) {
-    if (!Number.isFinite(right)) {
-      await Main.showRight(ctx, right)
-    } else if (!Number.isFinite(right ?? NaN)) {
-      await Main.showLeft(ctx, false)
-    } else {
-      await Main.showSuccess(ctx, left, right)
-    }
-  }
-
-  static async showSuccess(ctx: SumNumberPage, left: number, right: number) {
-    await ctx.clearSession()
-    const bi = Base.success
-    const kb = Helper.kb(ctx, bi)
-    const da = {result: left! + right}
-    await ctx.reply(kb, da, bi)
-  }
-}
-
 export class SumNumberPage extends PageBase {
   async handleCallbackData() {
-    await Main.showLeft(this, true)
+    await this.bleft.show(true)
   }
 
   async handleCommandText() {
-    await Main.showLeft(this, false)
+    await this.bleft.show(false)
   }
 
   async handleSessionFreeText() {
@@ -79,9 +31,52 @@ export class SumNumberPage extends PageBase {
     const input = this.msgText?.trim()
     const value = input ? Number(input) : NaN
     if (step === Base.left) {
-      await Main.processLeft(this, value)
+      await this.bleft.process(value)
     } else if (step === Base.right) {
-      await Main.processRight(this, left!, value)
+      await this.bright.process(value, left!)
+    }
+  }
+
+  bleft = {
+    show: async (edit: boolean) => {
+      const kb = Helper.kb(this, Base.left)
+      await this.setSessionFreeText({step: Base.left})
+      if (edit) {
+        await this.edit(kb, {}, Base.left)
+      } else {
+        await this.reply(kb, {}, Base.left)
+      }
+    },
+    process: async (left: number) => {
+      if (!Number.isFinite(left)) {
+        await this.bleft.show(false)
+      } else {
+        await this.bright.show(left)
+      }
+    }
+  }
+
+  bright = {
+    show: async (left: number) => {
+      const kb = Helper.kb(this, Base.right)
+      await this.setSessionFreeText({step: Base.right, left})
+      await this.reply(kb, {}, Base.right)
+    },
+    process: async (value: number, left: number) => {
+      if (!Number.isFinite(value)) {
+        await this.bright.show(left)
+      } else {
+        await this.clearSession()
+        await this.bsuccess.show(left, value)
+      }
+    }
+  }
+
+  bsuccess = {
+    show: async (left: number, right: number) => {
+      const kb = Helper.kb(this, Base.success)
+      const da = {result: left + right}
+      await this.reply(kb, da, Base.success)
     }
   }
 
@@ -99,7 +94,6 @@ export class SumNumberPage extends PageBase {
         Contoh: 23
       </g-message>
     </g-base>
-
     <g-base id="${Base.right}">
       ${this.kbk.cancel()}
       <g-message>
@@ -113,7 +107,6 @@ export class SumNumberPage extends PageBase {
         Contoh: 10
       </g-message>
     </g-base>
-
     <g-base id="${Base.success}">
       ${this.kbk.home()}
       <g-message>

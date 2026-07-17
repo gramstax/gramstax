@@ -1,35 +1,31 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Main {
-  static async showIndex(ctx: RandomNumberPage, edit = true) {
-    const kb = ctx.inlineKeyboardT([ctx, StartPage])
-    const da = {result: Math.random() * 10 ** 18}
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-}
-
 export class RandomNumberPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bdefault.show(true)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bdefault.show(false)
   }
 
-  async showStep1Form(edit = true) {
-    await Main.showIndex(this, edit)
+  bdefault = {
+    show: async (isEdit = true) => {
+      const kb = this.inlineKeyboardT([this, StartPage])
+      const da = {result: Math.random() * 10 ** 18}
+      if (isEdit) {
+        await this.edit(kb, da)
+      } else {
+        await this.reply(kb, da)
+      }
+    }
   }
 
   static template = `
     <g-base>
-      <g-keyboard>🎲 Shake, ${this.kbl.back.default}</g-keyboard>
-      <g-keyboard lang="id">🎲 Kocok, ${this.kbl.back.id}</g-keyboard>
+      <g-keyboard type="inline">🎲 Shake, ${this.kbl.back.default}</g-keyboard>
+      <g-keyboard type="inline" lang="id">🎲 Kocok, ${this.kbl.back.id}</g-keyboard>
       <g-message>
         <b>🎰 Random Number</b>
 
