@@ -181,8 +181,8 @@ export class Ctx {
    * class MyPage extends Ctx {
    *   static template = `
    *     <g-base id="lah">
-   *       <g-keyboard>Button 1, Button 2</g-keyboard>
-   *       <g-keyboard lang="id">Tombol 1, Tombol 2</g-keyboard>
+   *       <g-keyboard type="inline">Button 1, Button 2</g-keyboard>
+   *       <g-keyboard type="inline" lang="id">Tombol 1, Tombol 2</g-keyboard>
    *     </g-base>
    *     <g-base>
    *       <g-message>Hello {{name}}!</g-message>
@@ -196,6 +196,47 @@ export class Ctx {
    * @public
    */
   static template?: string
+
+  private static readonly ANSWER_API_METHODS = new Set([
+    `sendMessage`,
+    `sendPhoto`,
+    `sendAudio`,
+    `sendDocument`,
+    `sendVideo`,
+    `sendAnimation`,
+    `sendVoice`,
+    `sendVideoNote`,
+    `sendMediaGroup`,
+    `sendLocation`,
+    `sendVenue`,
+    `sendContact`,
+    `sendPoll`,
+    `sendDice`,
+    `sendSticker`,
+    `sendChatAction`,
+    `sendInvoice`,
+    `sendGame`,
+    `answerCallbackQuery`,
+    `answerInlineQuery`,
+    `answerWebAppQuery`,
+    `answerShippingQuery`,
+    `answerPreCheckoutQuery`,
+    `editMessageText`,
+    `editMessageCaption`,
+    `editMessageMedia`,
+    `editMessageReplyMarkup`,
+    `editMessageLiveLocation`,
+    `stopMessageLiveLocation`,
+    `deleteMessage`,
+    `deleteMessages`,
+    `forwardMessage`,
+    `copyMessage`,
+    `pinChatMessage`,
+    `unpinChatMessage`,
+    `unpinAllChatMessages`
+  ])
+
+  /**
 
   /**
    * Page routing data created by `Ctx.buildData`.
@@ -903,8 +944,18 @@ export class Ctx {
    *
    * @public
    */
+  /** Tracks per-request Api instances where the answer guard transformer has already been installed */
+  private static readonly _answerApiGuard = new WeakSet<object>()
+
   constructor(params: ITCtxParams) {
     this.ct = params.ct
+    if (!Ctx._answerApiGuard.has(params.ct.api)) {
+      Ctx._answerApiGuard.add(params.ct.api)
+      params.ct.api.config.use((prev, method, payload, signal) => {
+        this.temp.isAnswer = Ctx.ANSWER_API_METHODS.has(method)
+        return prev(method, payload, signal)
+      })
+    }
     this.cacheSession = params.cacheSession
     this.cacheKeyboard = params.cacheKeyboard
     this.templateManager = params.templateManager
@@ -1038,7 +1089,6 @@ export class Ctx {
     const res = {successCount: 0, failedCount: 0, totalCount: 0}
     res.totalCount = ids.length
     try {
-      this.temp.isAnswer = true
       const limitFree = 30
       const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId, it, data))
       for (let index = 0; index < ids.length; index++) {
@@ -1106,7 +1156,6 @@ export class Ctx {
     const res = {successCount: 0, failedCount: 0, totalCount: 0}
     res.totalCount = ids.length
     try {
-      this.temp.isAnswer = true
       const limitFree = 30
       const medias = languageCode.map((it) => this.templateManager.getGMedia(this.data.name, AGBaseId, it, data))
 
@@ -1189,7 +1238,6 @@ export class Ctx {
    * @public
    */
   async reply(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReply) {
-    this.temp.isAnswer = true
     const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.userLanguage, data)
     return await this.ct.reply(msg, {
       parse_mode: `HTML`,
@@ -1239,7 +1287,6 @@ export class Ctx {
    * @public
    */
   async replyRich(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1]) {
-    this.temp.isAnswer = true
     const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.userLanguage, data)
     return await this.ct.replyWithRichMessage(
       {html: msg, ...options1},
@@ -1288,7 +1335,6 @@ export class Ctx {
    */
   async editRich(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit, fallbackReply = true) {
     try {
-      this.temp.isAnswer = true
       const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.userLanguage, data)
       return await this.ct.editMessageText(
         {html: msg, ...options1},
@@ -1357,7 +1403,6 @@ export class Ctx {
                         ? ITOptReplyContact
                         : undefined
   ) {
-    this.temp.isAnswer = true
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId, this.userLanguage, data)
     const opt = {parse_mode: `HTML`, reply_markup: keyboard, ...options} as Record<any, any>
 
@@ -1399,7 +1444,6 @@ export class Ctx {
    * @public
    */
   async replyMediaGroup(type?: ITMediaGroupType, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument) {
-    this.temp.isAnswer = true
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId, this.userLanguage, data)
     const opt = {parse_mode: `HTML`, ...options} as Record<any, any>
     if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
@@ -1703,7 +1747,6 @@ export class Ctx {
    */
   async edit(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEdit, fallbackReply = true) {
     try {
-      this.temp.isAnswer = true
       const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.userLanguage, data)
       return await this.ct.editMessageText(msg, {
         parse_mode: `HTML`,
@@ -1768,7 +1811,6 @@ export class Ctx {
     fallbackReply = true
   ) {
     try {
-      this.temp.isAnswer = true
       const med = this.templateManager.getGMedia(this.data.name, AGBaseId, this.userLanguage, data)
       const {src, caption} = med
       if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
@@ -2194,7 +2236,6 @@ export class Ctx {
    */
   async callbackQueryAnswer(options?: Parameters<typeof Ctx.prototype.ct.answerCallbackQuery>[0]) {
     try {
-      this.temp.isAnswer = true
       return await this.ct.answerCallbackQuery(options)
     } catch {
       return null

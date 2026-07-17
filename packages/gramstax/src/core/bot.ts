@@ -65,7 +65,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Uses {@link TemplateManager} to load page templates from disk.
    */
-  templateManager: TemplateManager
+  templateManager!: TemplateManager
 
   /**
    * In-memory cache for keyboard instances by language.
@@ -162,7 +162,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Deploy type from constructor params
    */
-  deployType: `polling` | `webhook` | `serverless` | `test`
+  deployType: `polling` | `webhook` | `serverless` | `test` | `raw`
 
   /**
    * In-process E2E testing helper.
@@ -288,15 +288,43 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.cacheKeyboard = params.cacheKeyboard || new Map()
     this.botConfig = params.botConfig
     this.webhookQueue = params.webhookQueue
+
+    this.bot = this.createBot(params.token)
+    this.bot.catch(this._onCatch)
+    this.registerLowPlugin?.()?.forEach((func) => this.bot.use(func)) // Handle middleware ct
+
+    // Default for customize (very rarely used)
+    this.handlerBotUpdate = this.bot.handleUpdate
+
+    // Graceful shutdown (all modes)
+    process.once(`SIGINT`, () => this.stop())
+    process.once(`SIGTERM`, () => this.stop())
+
+    // ── RAW MODE ──────────────────────────────────────────────────────────
+    // Bare grammY bot: no TemplateManager, no page loading, no Gramstax
+    // routing listeners, no command sync, and NO auto-start. The caller owns
+    // the lifecycle and writes raw grammY handlers on `this.bot`.
+    if (params.deploy === `raw`) {
+      this.deployType = `raw`
+      this.pages = this._buildEmptyPages()
+      this.hookBeforeStart?.()
+      return
+    }
+    // ─────────────────────────────────────────────────────────────────────
+
+    // ── GRAMSTAX PAGE/ROUTING MODE ───────────────────────────────────────
+    // Validate templateManager param — the legacy `templateManager: {} as any`
+    // worker-bot exception was removed; use `deploy: "raw"` instead.
+    if (params.templateManager !== undefined && !(params.templateManager instanceof TemplateManager)) {
+      throw new Error(`Raw/worker bots must use deploy: "raw". The templateManager: {} as any exception was removed; ` + `pass a real TemplateManager or omit the option.`)
+    }
+
     this.templateManager =
       params.templateManager ||
       new TemplateManager({
         path: [join(process.cwd(), `src`, `pages`)]
       })
 
-    this.bot = this.createBot(params.token)
-    this.bot.catch(this._onCatch)
-    this.registerLowPlugin?.()?.forEach((func) => this.bot.use(func)) // Handle middleware ct
     this.registerLowOnCallbackData() // Handle callback queries from inline keyboards
     this.registerLowOnMessageText() // Handle global text messages
     this.registerLowOnMessagePhoto() // Handle global photo messages
@@ -310,15 +338,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.registerLowOnMessageLocation() // Handle global location messages
     this.registerLowOnMessageContact() // Handle global contact messages
 
-    // Default for customize (very rarely used)
-    this.handlerBotUpdate = this.bot.handleUpdate
-
     // Load pages AFTER templateManager is initialized
     this.pages = this._pageLoads(this.templateManager._path?.[0])
-
-    // Graceful shutdown
-    process.once(`SIGINT`, () => this.stop())
-    process.once(`SIGTERM`, () => this.stop())
 
     if (params.deploy.startsWith(`polling`)) {
       this.deployType = `polling`
@@ -339,7 +360,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       this.hookAfterStart?.()
       // nothing, for test unit internal area
     } else {
-      throw new Error(`Params deploy is not valid, expected: polling, webhook:<public-url>, serverless:<your-adapter>`)
+      throw new Error(`Params deploy is not valid, expected: polling, webhook:<public-url>, serverless:<your-adapter>, raw`)
     }
   }
 
@@ -1086,25 +1107,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   /**
-   * Loads all page classes and builds routing tables.
+   * Builds the empty pages routing skeleton (no routes loaded).
    *
    * @remarks
-   * Scans the pages directory, processes each page class, and builds
-   * optimized routing tables for O(1) lookups.
+   * Returns the same shape produced by {@link Gramstax._pageLoads} but without
+   * scanning the filesystem or sorting any page classes. Used by raw deploy mode
+   * so `this.pages` stays type-correct while carrying zero routes.
    *
-   * @param pagesPath - Optional path to the pages directory. When omitted,
-   * falls back to `PageManager.getFilePath()` which defaults to
-   * `process.cwd() + "/src/pages"`. The Gramstax constructor passes
-   * `this.templateManager._path[0]` so that custom template paths
-   * are respected without requiring `process.chdir()`.
-   *
-   * @returns The pages routing structure.
-   *
-   * @public
+   * @internal
    */
-  _pageLoads(pagesPath?: string) {
-    this.log?.info?.(`Load pages..`)
-
+  protected _buildEmptyPages() {
     // Helper to keep map result as literal types (prevents widening to string[])
     const toSession = <T extends string>(route: T): `handleSession${T extends `handle${infer R}` ? R : T}` => {
       return `handleSession${route.startsWith(`handle`) ? route.slice(6) : route}` as any
@@ -1190,7 +1202,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const makeObject = <const T extends readonly string[], V extends () => any>(keys: T, val: V): {[K in T[number]]: ReturnType<V>} => Object.fromEntries(keys.map((k) => [k, val()])) as {[K in T[number]]: ReturnType<V>}
     const initDynamicSpesific = () => [] as {name: string; routeName: string}[] // [0]{name: Page.data.name, routeName: routeFunctionName}
 
-    const pages = {
+    return {
       all: {} as Record<string, typeof Ctx>, // [page.data.name]: Classes Page
       routeDynamic: [] as string[], // [Page]{ handleFree: (...) => ... }
       // <method>: Array<{name: Page.data.name, routeName:routeFunctionName}>
@@ -1219,6 +1231,29 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       lenListRouteStaticSession: listRouteStaticSession.length,
       lenListRouteDynamicSpesific: listRouteDynamicSpesific.length
     }
+  }
+
+  /**
+   * Loads all page classes and builds routing tables.
+   *
+   * @remarks
+   * Scans the pages directory, processes each page class, and builds
+   * optimized routing tables for O(1) lookups.
+   *
+   * @param pagesPath - Optional path to the pages directory. When omitted,
+   * falls back to `PageManager.getFilePath()` which defaults to
+   * `process.cwd() + "/src/pages"`. The Gramstax constructor passes
+   * `this.templateManager._path[0]` so that custom template paths
+   * are respected without requiring `process.chdir()`.
+   *
+   * @returns The pages routing structure.
+   *
+   * @public
+   */
+  _pageLoads(pagesPath?: string) {
+    this.log?.info?.(`Load pages..`)
+
+    const pages = this._buildEmptyPages()
 
     PageManager.getFileManySync(pagesPath).forEach(({path, page}, index) => {
       this._pageBuildData(page, path) // create if not exist and set name (without ext) according filePath

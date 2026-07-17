@@ -822,9 +822,7 @@ export class TemplateEngine {
 
         // Resolve src: "e.prop" or "e2.prop" → parent loop element property, else data key
         const srcRef = src.match(/^(e\d*)\.(.+)$/)
-        const srcExpr = srcRef
-          ? `(${srcRef[1]} && ${srcRef[1]}["${srcRef[2]}"])`
-          : `(data && data["${src}"])`
+        const srcExpr = srcRef ? `(${srcRef[1]} && ${srcRef[1]}["${srcRef[2]}"])` : `(data && data["${src}"])`
 
         const safeJoin = join.replace(/"/g, `\\"`)
         return `\${(() => { const __arr${suffix} = ${srcExpr} || []; let __out${suffix} = ""; for (let i${suffix} = 0; i${suffix} < __arr${suffix}.length; i${suffix}++) { const e${suffix} = __arr${suffix}[i${suffix}]; if (i${suffix} > 0) { __out${suffix} += "${safeJoin}" } __out${suffix} += \`${processed}\`; } return __out${suffix}; })()}`
@@ -1200,9 +1198,9 @@ export class TemplateEngine {
    * @example
    * ```typescript
    * const template = `
-   *   <g-keyboard>Yes, No</g-keyboard>
+   *   <g-keyboard type="inline">Yes, No</g-keyboard>
    *   <g-keyboard type="bottom">Button 1, Button 2</g-keyboard>
-   *   <g-keyboard lang="id">Ya, Tidak</g-keyboard>
+   *   <g-keyboard type="inline" lang="id">Ya, Tidak</g-keyboard>
    * `;
    * const keyboards = TemplateEngine._processGKeyboardBlocks(template);
    * // Result: {

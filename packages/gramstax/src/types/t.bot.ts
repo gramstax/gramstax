@@ -131,6 +131,11 @@ export type ITGramstaxParams = {
    * - `"webhook:<url>"` - Webhook mode with specified URL
    * - `"serverless:<adapter>"` - Serverless mode with specified adapter
    * - `"test"` - Test mode with E2eHelper
+   * - `"raw"` - Bare grammY bot: no pages, no templates, no Gramstax routing.
+   *   The constructor builds `this.bot` (grammY `Bot`) and returns without
+   *   auto-start. Write raw grammY handlers on `bot.bot` and call
+   *   `bot.bot.start()` (or `bot.bot.startWebhook(...)`) yourself.
+   *   `templateManager` is left undefined.
    *
    * @example
    * ```typescript
@@ -138,6 +143,7 @@ export type ITGramstaxParams = {
    * deploy: "webhook:https://example.com/bot"
    * deploy: "serverless:std/http"
    * deploy: "test"
+   * deploy: "raw"
    * ```
    */
   deploy: string
