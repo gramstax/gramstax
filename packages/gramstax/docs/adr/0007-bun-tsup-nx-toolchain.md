@@ -1,0 +1,54 @@
+# ADR-0007: Bun + tsup + Nx + API-Extractor toolchain
+
+**Status:** Accepted
+**Date:** 2025 (inferred from package history)
+
+## Context
+
+`gramstax` is a published TypeScript library inside a multi-package monorepo (`packages/*`, `example/*`). It needs: a fast runtime + test runner, a dual ESM/CJS build with type declarations, monorepo task orchestration, and generated API reference docs. The toolchain should be consistent across every package in the repo.
+
+## Decision
+
+Standardize on the **Bun + tsup + Nx + API-Extractor** stack:
+
+- **Runtime / tests**: `bun` (`bun:test`, `Bun.serve` for webhooks). `package.json` scripts use `bun test`, `bun run lint`, etc.
+- **Build**: `tsup` (`tsup.config.ts`) emits to `dist/src` as `cjs` + `esm` with `dts: true`, `minify: true`, `platform: node`, `target: esnext`, keeping `bun` external. `project.json` wires Nx `build` → `tsup` in `packages/gramstax`.
+- **Orchestration**: Nx (`nx.json`) defines `build`/`lint`/`test` target defaults (cache, `dependsOn: ^build`, production inputs) and a `release` config (conventional-commits versioning, git tag `v{version}`, GitHub changelog, `packages/*` projects).
+- **API docs**: `api-extractor` + `api-documenter` (`build:docs` script, `api-extractor.json`) generate `docs/markdown/*` and `docs/yaml/*` from the emitted `.d.ts`.
+
+## Consequences
+
+### Benefits
+
+- One `bun` command surface for test/lint/build across the monorepo.
+- Dual ESM/CJS + d.ts means the library is consumable by both modern and legacy bundlers.
+- Nx gives caching and proper build ordering (`^build`) and drives `nx release`.
+- API reference is generated, not hand-maintained.
+
+### Trade-offs
+
+- `tsup` + Nx + API-Extractor is a heavier setup than a single `tsc` build.
+- Generated docs (`docs/markdown`, `docs/yaml`) are artifacts that must not be hand-edited.
+
+### Alternatives Considered
+
+| Alternative | Why Not Chosen |
+|-------------|---------------|
+| `tsc` only | No bundling/minify, no dual CJS/ESM-with-dts ergonomics, no task graph. |
+| `vitest`/`jest` | Repo explicitly bans them (`AGENTS.md`); `bun:test` is the standard. |
+
+## Sources
+
+| Source Type | Reference |
+|-------------|-----------|
+| Config | `tsup.config.ts` — `outDir: ./dist/src`, `format:["cjs","esm"]`, `dts:true`, `minify:true`, `platform:node` |
+| Config | `project.json` — `"build": {"executor":"nx:run-commands","command":"tsup"}` |
+| Config | `nx.json` — `targetDefaults` (build/lint/test), `release` (conventional-commits, tag `v{version}`) |
+| Config | `api-extractor.json`, `tsconfig.build.docs.json` — API doc generation |
+| Scripts | `package.json` (root) — `build:all`, `build:gramstax`, `ci:test:*`, `release:*`, `dry-run` |
+| CI | `.github/workflows/release.yml` — install→`ci:test:packages`+`build:all`→`dry-run`→`release` |
+
+## Related
+
+- [Development](../development.md) — build/test/lint commands
+- [ADR-0008](0008-lint-export-dep-conventions.md) — lint/export rules the toolchain enforces
