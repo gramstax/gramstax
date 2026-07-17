@@ -1,17 +1,16 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Main {
-  static async showIndex(ctx: TestAudioPage) {
-    const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)])
-    const da = {}
-    await ctx.editAudio(kb, da)
-  }
-}
-
 export class TestAudioPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bdefault.show()
+  }
+
+  bdefault = {
+    show: async () => {
+      const kb = this.inlineKeyboardT([StartPage.data.callbackData(`3`)])
+      await this.editAudio(kb)
+    }
   }
 
   static template = `

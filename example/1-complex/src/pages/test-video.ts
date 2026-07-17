@@ -1,17 +1,16 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Main {
-  static async showIndex(ctx: TestVideoPage) {
-    const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)])
-    const da = {}
-    await ctx.editVideo(kb, da)
-  }
-}
-
 export class TestVideoPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bdefault.show()
+  }
+
+  bdefault = {
+    show: async () => {
+      const kb = this.inlineKeyboardT([StartPage.data.callbackData(`3`)])
+      await this.editVideo(kb)
+    }
   }
 
   static template = `

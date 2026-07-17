@@ -9,68 +9,70 @@ class Base {
 
 class Helper {
   static kb(ctx: DepositPage, AGBaseId?: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-    return kb
-  }
-}
-
-class Main {
-  static async showIndex(ctx: DepositPage) {
-    await ctx.setSessionFreeText()
-    const bi = Base.index
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processIndex(ctx: DepositPage) {
-    const amountInput = ctx.msgText.trim()
-    if (!amountInput) {
-      return await Main.showWarnInvalid(ctx)
-    }
-
-    const amount = ctx.bankStore.parseAmount(amountInput)
-    if (amount === null) {
-      return await Main.showWarnInvalid(ctx, amountInput)
-    }
-
-    const current = ctx.bankStore.getBalance(ctx.userId)
-    const next = current + amount
-    const amountHex = ctx.bankStore.toHex(amount)
-    ctx.bankStore.setBalance(ctx.userId, next)
-    ctx.bankStore.recordTransaction(ctx.userId, {
-      type: `deposit`,
-      amountHex,
-      ts: Date.now()
-    })
-
-    await Main.showSuccess(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
-  }
-
-  static async showSuccess(ctx: DepositPage, amount: string, balance: string) {
-    await ctx.clearSession()
-    const bi = Base.success
-    const da = {amount, balance}
-    const kb = Helper.kb(ctx, bi)
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnInvalid(ctx: DepositPage, amount = ``) {
-    const bi = Base.warnInvalid
-    const kb = Helper.kb(ctx, bi)
-    const da = {amount}
-    await ctx.reply(kb, da, bi)
+    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
   }
 }
 
 // Deposits funds into the user's balance.
 export class DepositPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bindex.show()
   }
 
   async handleSessionFreeText() {
-    await Main.processIndex(this)
+    const amountInput = this.msgText.trim()
+    await this.bindex.process(amountInput)
+  }
+
+  bindex = {
+    show: async () => {
+      await this.setSessionFreeText()
+      const bi = Base.index
+      const kb = Helper.kb(this, bi)
+      await this.edit(kb, {}, bi)
+    },
+    process: async (amountInput: string) => {
+      if (!amountInput) {
+        return await this.bwarnInvalid.show()
+      }
+
+      const amount = this.bankStore.parseAmount(amountInput)
+      if (amount === null) {
+        return await this.bwarnInvalid.show(amountInput)
+      }
+
+      const current = this.bankStore.getBalance(this.userId)
+      const next = current + amount
+      const amountHex = this.bankStore.toHex(amount)
+      this.bankStore.setBalance(this.userId, next)
+      this.bankStore.recordTransaction(this.userId, {
+        type: `deposit`,
+        amountHex,
+        ts: Date.now()
+      })
+
+      await this.bsuccess.show(amount, next)
+    }
+  }
+  bsuccess = {
+    show: async (amount: bigint, next: bigint) => {
+      await this.clearSession()
+      const bi = Base.success
+      const da = {
+        amount: this.bankStore.formatAmount(amount),
+        balance: this.bankStore.formatAmount(next)
+      }
+      const kb = Helper.kb(this, bi)
+      await this.reply(kb, da, bi)
+    }
+  }
+  bwarnInvalid = {
+    show: async (amount = ``) => {
+      const bi = Base.warnInvalid
+      const kb = Helper.kb(this, bi)
+      const da = {amount}
+      await this.reply(kb, da, bi)
+    }
   }
 
   static template = `
@@ -89,7 +91,6 @@ export class DepositPage extends PageBase {
         Contoh: 125.000
       </g-message>
     </g-base>
-
     <g-base id="${Base.success}">
       ${this.kbk.home()}
       <g-message>
@@ -105,7 +106,6 @@ export class DepositPage extends PageBase {
         Saldo diperbarui: {{balance}}
       </g-message>
     </g-base>
-
     <g-base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
       <g-message>

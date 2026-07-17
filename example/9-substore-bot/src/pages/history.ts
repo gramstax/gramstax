@@ -3,42 +3,29 @@ import {StartPage} from "./start"
 import {CatalogPage} from "./catalog"
 import {type OrderRecord, OrderHistoryStore} from "~/data/store"
 
-class Helper {
-  static async getHistory(ctx: HistoryPage): Promise<OrderRecord[]> {
-    return ((await ctx.cacheState.get(`${ctx.userId}:orders`)) ?? []) as OrderRecord[]
-  }
-
-  static async setHistory(ctx: HistoryPage, history: OrderRecord[]) {
-    await ctx.cacheState.set(`${ctx.userId}:orders`, history)
-  }
-
-  static kb(ctx: HistoryPage) {
-    return ctx.inlineKeyboardT([CatalogPage, StartPage], `1`)
-  }
-}
-
-class Main {
-  static async showIndex(ctx: HistoryPage, edit = true) {
-    const history = OrderHistoryStore.refreshStatuses(await Helper.getHistory(ctx))
-    await Helper.setHistory(ctx, history)
-
-    const kb = ctx.inlineKeyboardT([CatalogPage, StartPage], `1`)
-    const da = {history: OrderHistoryStore.formatHistory(history)}
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-}
-
 export class HistoryPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bdefault.show(true)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bdefault.show(false)
+  }
+
+  bdefault = {
+    show: async (isEdit = true) => {
+      const raw = ((await this.cacheState.get(`${this.userId}:orders`)) ?? []) as OrderRecord[]
+      const history = OrderHistoryStore.refreshStatuses(raw)
+      await this.cacheState.set(`${this.userId}:orders`, history)
+
+      const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`)
+      const da = {history: OrderHistoryStore.formatHistory(history)}
+      if (isEdit) {
+        await this.edit(kb, da)
+      } else {
+        await this.reply(kb, da)
+      }
+    }
   }
 
   static template = `

@@ -1,28 +1,24 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Main {
-  static async showIndex(ctx: BlockSwitchPage, status: string) {
-    const da = {status}
-    const kb = ctx.inlineKeyboardT([BlockSwitchPage.data.callbackData(status == `1` ? `0` : `1`), StartPage], `1`, null, da)
-    await ctx.edit(kb, da)
-  }
-
-  static async processIndex(ctx: BlockSwitchPage, status: string) {
-    await Main.showIndex(ctx, status)
-  }
-}
-
 export class BlockSwitchPage extends PageBase {
   static data = this.buildData((status?: string) => [status])
 
   async handleCallbackData() {
-    await Main.showIndex(this, `0`)
+    await this.bdefault.show(`0`)
   }
 
   async handleArgsCallbackData() {
     const [status] = this.callbackDataArgs
-    await Main.processIndex(this, status!)
+    await this.bdefault.show(status!)
+  }
+
+  bdefault = {
+    show: async (status: string) => {
+      const da = {status}
+      const kb = this.inlineKeyboardT([this.data.callbackData(status == `1` ? `0` : `1`), StartPage], `1`, null, da)
+      await this.edit(kb, da)
+    }
   }
 
   static template = `
@@ -34,7 +30,7 @@ export class BlockSwitchPage extends PageBase {
         </g-switch>,
         ${this.kbl.back.default}
       </g-keyboard>
-      <g-keyboard lang="id" type="inline">
+      <g-keyboard type="inline" lang="id">
         <g-switch value="status">
           <g-case is="1">🔴 Mati</g-case>
           <g-default>🟢 Nyala</g-default>

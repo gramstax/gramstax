@@ -1,20 +1,20 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Main {
-  static async showIndex(ctx: BalancePage) {
-    const balance = ctx.bankStore.getBalance(ctx.userId)
-    const formatted = ctx.bankStore.formatAmount(balance)
-    const da = {balance: formatted}
-    const kb = ctx.inlineKeyboardT([StartPage])
-    await ctx.edit(kb, da)
-  }
-}
-
 // Shows the current user balance.
 export class BalancePage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bdefault.show()
+  }
+
+  bdefault = {
+    show: async () => {
+      const balance = this.bankStore.getBalance(this.userId)
+      const formatted = this.bankStore.formatAmount(balance)
+      const da = {balance: formatted}
+      const kb = this.inlineKeyboardT([StartPage])
+      await this.edit(kb, da)
+    }
   }
 
   static template = `

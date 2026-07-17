@@ -6,46 +6,42 @@ class Base {
   static success = `s`
 }
 
-class Helper {
-  static kb(ctx: InputText2Page, AGBaseId?: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-    return kb
-  }
-}
-
-class Main {
-  static async showIndex(ctx: InputText2Page, edit = true) {
-    const bi = Base.index
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    if (edit) {
-      await ctx.edit(kb, da, bi)
-    } else {
-      await ctx.reply(kb, da, bi)
-    }
-  }
-
-  static async showSuccess(ctx: InputText2Page) {
-    const bi = Base.success
-    const da = {res: ctx.msgText}
-    const kb = Helper.kb(ctx, bi)
-    await ctx.reply(kb, da, bi)
-  }
-}
-
 export class InputText2Page extends PageBase {
   static data = this.buildData({intentCommandText: `input_text2`})
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bindex.show(true)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bindex.show(false)
   }
 
   async handleFreeText() {
-    await Main.showSuccess(this)
+    await this.bindex.process()
+  }
+
+  bindex = {
+    show: async (isEdit = true) => {
+      const bi = Base.index
+      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
+      if (isEdit) {
+        await this.edit(kb, {}, bi)
+      } else {
+        await this.reply(kb, {}, bi)
+      }
+    },
+    process: async () => {
+      await this.bsuccess.show()
+    }
+  }
+  bsuccess = {
+    show: async () => {
+      const bi = Base.success
+      const da = {res: this.msgText}
+      const kb = this.inlineKeyboardT([StartPage], `1`, bi)
+      await this.reply(kb, da, bi)
+    }
   }
 
   static template = `
@@ -62,7 +58,6 @@ export class InputText2Page extends PageBase {
         Kirim pesan untuk melihat balasan secara langsung.
       </g-message>
     </g-base>
-
     <g-base id="${Base.success}">
       ${this.kbk.home()}
       <g-message>

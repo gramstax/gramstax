@@ -2,41 +2,32 @@ import {LogHe} from "../helpers/log.js"
 import {PageBase} from "../base/page.js"
 import {StartPage} from "./start.js"
 
-class Main {
-  static async showError(ctx, funcName, error, edit = true) {
-    LogHe.errorMake(error, ctx.constructorName, funcName)
-
-    await ctx.clearSession()
-    const kb = ctx.inlineKeyboardT([StartPage])
-    const da = {isNotFound: false}
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-
-  static async showErrorInputNotFound(ctx) {
-    const kb = ctx.inlineKeyboardT([StartPage])
-    const da = {isNotFound: true}
-    await ctx.reply(kb, da)
-  }
-}
-
 export class GeneralStatusPage extends PageBase {
-  constructorName
-
   constructor(p) {
     super(p)
     this.constructorName = p?.constructor?.name
   }
 
-  async showError(...args) {
-    await Main.showError(this, ...args)
-  }
+  berror = {
+    show: async (funcName, error, isEdit = true) => {
+      LogHe.errorMake(error, this.constructorName, funcName)
 
-  async showErrorInputNotFound() {
-    await Main.showErrorInputNotFound(this)
+      await this.clearSession()
+      const kb = this.inlineKeyboardT([StartPage])
+      const da = {isNotFound: false}
+      if (isEdit) {
+        await this.edit(kb, da)
+      } else {
+        await this.reply(kb, da)
+      }
+    }
+  }
+  berrorInputNotFound = {
+    show: async () => {
+      const kb = this.inlineKeyboardT([StartPage])
+      const da = {isNotFound: true}
+      await this.reply(kb, da)
+    }
   }
 
   static template = `

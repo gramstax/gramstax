@@ -12,8 +12,7 @@ class Base {
 
 class Helper {
   static kb(ctx: TransferPage, AGBaseId?: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-    return kb
+    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
   }
 
   static resolveTarget(ctx: TransferPage, input: string) {
@@ -31,109 +30,111 @@ class Helper {
   }
 }
 
-class Main {
-  static async showIndex(ctx: TransferPage) {
-    const bi = Base.index
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processIndex(ctx: TransferPage) {
-    const [amountInput, targetInput] = ctx.msgText.trim().split(/\s+/)
-    if (!amountInput || !targetInput) {
-      return await Main.showWarnInvalid(ctx)
-    }
-
-    const amount = ctx.bankStore.parseAmount(amountInput)
-    if (amount === null) {
-      return await Main.showWarnInvalid(ctx, amountInput)
-    }
-
-    const target = Helper.resolveTarget(ctx, targetInput)
-    if (!target) {
-      return await Main.showWarnUnknownUser(ctx, targetInput)
-    }
-
-    if (target.id === ctx.userId) {
-      return await Main.showWarnSelf(ctx)
-    }
-
-    const current = ctx.bankStore.getBalance(ctx.userId)
-    if (current < amount) {
-      return await Main.showWarnInsufficient(ctx, ctx.bankStore.formatAmount(current))
-    }
-
-    const nextSender = current - amount
-    const targetBalance = ctx.bankStore.getBalance(target.id)
-    const nextTarget = targetBalance + amount
-    const amountHex = ctx.bankStore.toHex(amount)
-
-    ctx.bankStore.setBalance(ctx.userId, nextSender)
-    ctx.bankStore.setBalance(target.id, nextTarget)
-    ctx.bankStore.recordTransaction(ctx.userId, {
-      type: `transfer-out`,
-      amountHex,
-      peerId: target.id,
-      peerName: target.label,
-      ts: Date.now()
-    })
-    ctx.bankStore.recordTransaction(target.id, {
-      type: `transfer-in`,
-      amountHex,
-      peerId: ctx.userId,
-      peerName: ctx.userName || `user-${ctx.userId}`,
-      ts: Date.now()
-    })
-
-    await Main.showSuccess(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(nextSender), target.label)
-  }
-
-  static async showWarnInvalid(ctx: TransferPage, amount = ``) {
-    const bi = Base.warnInvalid
-    const kb = Helper.kb(ctx, bi)
-    const da = {amount}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnUnknownUser(ctx: TransferPage, target: string) {
-    const bi = Base.warnUnknownUser
-    const kb = Helper.kb(ctx, bi)
-    const da = {target}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnSelf(ctx: TransferPage) {
-    const bi = Base.warnSelf
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnInsufficient(ctx: TransferPage, balance: string) {
-    const bi = Base.warnInsufficient
-    const kb = Helper.kb(ctx, bi)
-    const da = {balance}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showSuccess(ctx: TransferPage, amount: string, balance: string, target: string) {
-    await ctx.clearSession()
-    const bi = Base.success
-    const kb = Helper.kb(ctx, bi)
-    const da = {amount, balance, target}
-    await ctx.reply(kb, da, bi)
-  }
-}
-
 // Transfer funds to another user.
 export class TransferPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bdefault.show()
   }
 
   async handleSessionFreeText() {
-    await Main.processIndex(this)
+    await this.bdefault.process(this.msgText)
+  }
+
+  bdefault = {
+    show: async () => {
+      const bi = Base.index
+      const kb = Helper.kb(this, bi)
+      await this.edit(kb, {}, bi)
+    },
+    process: async (input: string) => {
+      const [amountInput, targetInput] = input.trim().split(/\s+/)
+      if (!amountInput || !targetInput) {
+        return await this.bwarnInvalid.show()
+      }
+
+      const amount = this.bankStore.parseAmount(amountInput)
+      if (amount === null) {
+        return await this.bwarnInvalid.show(amountInput)
+      }
+
+      const target = Helper.resolveTarget(this, targetInput)
+      if (!target) {
+        return await this.bwarnUnknownUser.show(targetInput)
+      }
+
+      if (target.id === this.userId) {
+        return await this.bwarnSelf.show()
+      }
+
+      const current = this.bankStore.getBalance(this.userId)
+      if (current < amount) {
+        return await this.bwarnInsufficient.show(this.bankStore.formatAmount(current))
+      }
+
+      const nextSender = current - amount
+      const targetBalance = this.bankStore.getBalance(target.id)
+      const nextTarget = targetBalance + amount
+      const amountHex = this.bankStore.toHex(amount)
+
+      this.bankStore.setBalance(this.userId, nextSender)
+      this.bankStore.setBalance(target.id, nextTarget)
+      this.bankStore.recordTransaction(this.userId, {
+        type: `transfer-out`,
+        amountHex,
+        peerId: target.id,
+        peerName: target.label,
+        ts: Date.now()
+      })
+      this.bankStore.recordTransaction(target.id, {
+        type: `transfer-in`,
+        amountHex,
+        peerId: this.userId,
+        peerName: this.userName || `user-${this.userId}`,
+        ts: Date.now()
+      })
+
+      await this.bsuccess.show(this.bankStore.formatAmount(amount), this.bankStore.formatAmount(nextSender), target.label)
+    }
+  }
+  bwarnInvalid = {
+    show: async (amount = ``) => {
+      const bi = Base.warnInvalid
+      const kb = Helper.kb(this, bi)
+      const da = {amount}
+      await this.reply(kb, da, bi)
+    }
+  }
+  bwarnUnknownUser = {
+    show: async (target: string) => {
+      const bi = Base.warnUnknownUser
+      const kb = Helper.kb(this, bi)
+      const da = {target}
+      await this.reply(kb, da, bi)
+    }
+  }
+  bwarnSelf = {
+    show: async () => {
+      const bi = Base.warnSelf
+      const kb = Helper.kb(this, bi)
+      await this.reply(kb, {}, bi)
+    }
+  }
+  bwarnInsufficient = {
+    show: async (balance: string) => {
+      const bi = Base.warnInsufficient
+      const kb = Helper.kb(this, bi)
+      const da = {balance}
+      await this.reply(kb, da, bi)
+    }
+  }
+  bsuccess = {
+    show: async (amount: string, balance: string, target: string) => {
+      await this.clearSession()
+      const bi = Base.success
+      const kb = Helper.kb(this, bi)
+      const da = {amount, balance, target}
+      await this.reply(kb, da, bi)
+    }
   }
 
   static template = `
@@ -156,7 +157,6 @@ export class TransferPage extends PageBase {
         Contoh: 125.000 12345
       </g-message>
     </g-base>
-
     <g-base id="${Base.success}">
       ${this.kbk.home()}
       <g-message>
@@ -172,7 +172,6 @@ export class TransferPage extends PageBase {
         Saldo diperbarui: {{balance}}
       </g-message>
     </g-base>
-
     <g-base id="${Base.warnInsufficient}">
       ${this.kbk.cancel()}
       <g-message>
@@ -188,7 +187,6 @@ export class TransferPage extends PageBase {
         Harap masukkan jumlah yang lebih kecil.
       </g-message>
     </g-base>
-
     <g-base id="${Base.warnUnknownUser}">
       ${this.kbk.cancel()}
       <g-message>
@@ -204,7 +202,6 @@ export class TransferPage extends PageBase {
         Berikan ID numerik atau nama pengguna terdaftar.
       </g-message>
     </g-base>
-
     <g-base id="${Base.warnSelf}">
       ${this.kbk.cancel()}
       <g-message>
@@ -220,7 +217,6 @@ export class TransferPage extends PageBase {
         Harap pilih penerima yang berbeda.
       </g-message>
     </g-base>
-
     <g-base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
       <g-message>

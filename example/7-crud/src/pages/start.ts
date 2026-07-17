@@ -6,33 +6,32 @@ import {DetailPage} from "./detail"
 import {UpdatePage} from "./update"
 import {DeletePage} from "./delete"
 
-class Main {
-  static async showIndex(ctx: StartPage, edit: boolean) {
-    await ctx.clearSession()
-    const kb = ctx.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`)
-    const da = {}
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-}
-
 // Main menu page for CRUD example.
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.gdefault.show(false)
   }
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.gdefault.show(true)
+  }
+
+  gdefault = {
+    show: async (isEdit: boolean) => {
+      await this.clearSession()
+      const kb = this.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`)
+      if (isEdit) {
+        await this.edit(kb)
+      } else {
+        await this.reply(kb)
+      }
+    }
   }
 
   static template = `
     <g-base>
       <g-keyboard type="inline">➕ Create, 📋 List, 🔎 Detail, ✅ Update, 🗑️ Delete, ❓ Help</g-keyboard>
-      <g-keyboard lang="id" type="inline">➕ Buat, 📋 Daftar, 🔎 Detail, ✅ Perbarui, 🗑️ Hapus, ❓ Bantuan</g-keyboard>
+      <g-keyboard type="inline" lang="id">➕ Buat, 📋 Daftar, 🔎 Detail, ✅ Perbarui, 🗑️ Hapus, ❓ Bantuan</g-keyboard>
       <g-message>
         ✅ CRUD Menu
 

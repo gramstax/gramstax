@@ -3,26 +3,14 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 class Helper {
-  static async built(ctx: GeneralStatusPage, isNotFound: boolean, edit = true) {
+  static async built(ctx: GeneralStatusPage, isNotFound: boolean, isEdit = true) {
     const kb = ctx.inlineKeyboardT([StartPage])
     const da = {isNotFound}
-    if (edit) {
+    if (isEdit) {
       await ctx.edit(kb, da)
     } else {
       await ctx.reply(kb, da)
     }
-  }
-}
-
-class Main {
-  static async showError(ctx: GeneralStatusPage, funcName: string, error: any, edit = true) {
-    LogHe.errorMake(error, ctx.constructorName, funcName)
-    await ctx.clearSession()
-    await Helper.built(ctx, false, edit)
-  }
-
-  static async showErrorInputNotFound(ctx: GeneralStatusPage) {
-    await Helper.built(ctx, true, false)
   }
 }
 
@@ -34,12 +22,17 @@ export class GeneralStatusPage extends PageBase {
     this.constructorName = p?.constructor?.name
   }
 
-  async showError(...args: Parameters<typeof Main.showError> extends [any, ...infer R] ? R : []) {
-    await Main.showError(this, ...args)
+  berror = {
+    show: async (funcName: string, error: any, isEdit = true) => {
+      LogHe.errorMake(error, this.constructorName, funcName)
+      await this.clearSession()
+      await Helper.built(this, false, isEdit)
+    }
   }
-
-  async showErrorInputNotFound() {
-    await Main.showErrorInputNotFound(this)
+  berrorInputNotFound = {
+    show: async () => {
+      await Helper.built(this, true, false)
+    }
   }
 
   static template = `

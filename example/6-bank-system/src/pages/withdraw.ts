@@ -10,79 +10,81 @@ class Base {
 
 class Helper {
   static kb(ctx: WithdrawPage, AGBaseId?: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-    return kb
-  }
-}
-
-class Main {
-  static async showIndex(ctx: WithdrawPage) {
-    await ctx.setSessionFreeText()
-    const bi = Base.index
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processIndex(ctx: WithdrawPage) {
-    const amountInput = ctx.msgText.trim()
-    if (!amountInput) {
-      return await Main.showWarnInvalid(ctx)
-    }
-
-    const amount = ctx.bankStore.parseAmount(amountInput)
-    if (amount === null) {
-      return await Main.showWarnInvalid(ctx, amountInput)
-    }
-
-    const current = ctx.bankStore.getBalance(ctx.userId)
-    if (current < amount) {
-      return await Main.showWarnInsufficient(ctx, ctx.bankStore.formatAmount(current))
-    }
-
-    const next = current - amount
-    const amountHex = ctx.bankStore.toHex(amount)
-    ctx.bankStore.setBalance(ctx.userId, next)
-    ctx.bankStore.recordTransaction(ctx.userId, {
-      type: `withdraw`,
-      amountHex,
-      ts: Date.now()
-    })
-
-    await Main.showSuccess(ctx, ctx.bankStore.formatAmount(amount), ctx.bankStore.formatAmount(next))
-  }
-
-  static async showSuccess(ctx: WithdrawPage, amount: string, balance: string) {
-    await ctx.clearSession()
-    const bi = Base.success
-    const da = {amount, balance}
-    const kb = Helper.kb(ctx, bi)
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnInsufficient(ctx: WithdrawPage, balance: string) {
-    const bi = Base.warnInsufficient
-    const kb = Helper.kb(ctx, bi)
-    const da = {balance}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnInvalid(ctx: WithdrawPage, amount = ``) {
-    const bi = Base.warnInvalid
-    const kb = Helper.kb(ctx, bi)
-    const da = {amount}
-    await ctx.reply(kb, da, bi)
+    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
   }
 }
 
 // Withdraw funds from the user's balance.
 export class WithdrawPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bindex.show()
   }
 
   async handleSessionFreeText() {
-    await Main.processIndex(this)
+    const amountInput = this.msgText.trim()
+    await this.bindex.process(amountInput)
+  }
+
+  bindex = {
+    show: async () => {
+      await this.setSessionFreeText()
+      const bi = Base.index
+      const kb = Helper.kb(this, bi)
+      await this.edit(kb, {}, bi)
+    },
+    process: async (amountInput: string) => {
+      if (!amountInput) {
+        return await this.bwarnInvalid.show()
+      }
+
+      const amount = this.bankStore.parseAmount(amountInput)
+      if (amount === null) {
+        return await this.bwarnInvalid.show(amountInput)
+      }
+
+      const current = this.bankStore.getBalance(this.userId)
+      if (current < amount) {
+        return this.bwarnInsufficient.show(current)
+      }
+
+      const next = current - amount
+      this.bankStore.setBalance(this.userId, next)
+      this.bankStore.recordTransaction(this.userId, {
+        type: `withdraw`,
+        amountHex: this.bankStore.toHex(amount),
+        ts: Date.now()
+      })
+
+      await this.bsuccess.show(amount, next)
+    }
+  }
+  bsuccess = {
+    show: async (amount: bigint, next: bigint) => {
+      await this.clearSession()
+      const bi = Base.success
+      const kb = Helper.kb(this, bi)
+      const da = {
+        amount: this.bankStore.formatAmount(amount),
+        balance: this.bankStore.formatAmount(next)
+      }
+      await this.reply(kb, da, bi)
+    }
+  }
+  bwarnInsufficient = {
+    show: async (current: bigint) => {
+      const bi = Base.warnInsufficient
+      const kb = Helper.kb(this, bi)
+      const da = {balance: this.bankStore.formatAmount(current)}
+      await this.reply(kb, da, bi)
+    }
+  }
+  bwarnInvalid = {
+    show: async (amount = ``) => {
+      const bi = Base.warnInvalid
+      const kb = Helper.kb(this, bi)
+      const da = {amount}
+      await this.reply(kb, da, bi)
+    }
   }
 
   static template = `
@@ -101,7 +103,6 @@ export class WithdrawPage extends PageBase {
         Contoh: 50.000
       </g-message>
     </g-base>
-
     <g-base id="${Base.success}">
       ${this.kbk.home()}
       <g-message>
@@ -117,7 +118,6 @@ export class WithdrawPage extends PageBase {
         Saldo diperbarui: {{balance}}
       </g-message>
     </g-base>
-
     <g-base id="${Base.warnInsufficient}">
       ${this.kbk.cancel()}
       <g-message>
@@ -133,7 +133,6 @@ export class WithdrawPage extends PageBase {
         Harap masukkan jumlah yang lebih kecil.
       </g-message>
     </g-base>
-
     <g-base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
       <g-message>

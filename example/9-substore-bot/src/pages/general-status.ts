@@ -1,3 +1,4 @@
+import {LogHe} from "~/helpers/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
@@ -6,39 +7,46 @@ class Base {
   static notFound = `nf`
 }
 
-class Helper {
-  static kb(ctx: GeneralStatusPage, bi?: string) {
-    return ctx.inlineKeyboardT([StartPage], `1`, bi)
-  }
-}
+export class GeneralStatusPage extends PageBase {
+  constructorName?: string
 
-class Main {
-  static async showError(ctx: GeneralStatusPage, code: string, error: unknown, isEdit = false) {
-    const bi = Base.error
-    const kb = Helper.kb(ctx, bi)
-    const da = {code, error: String(error)}
-    if (isEdit) {
-      await ctx.edit(kb, da, bi)
-    } else {
-      await ctx.reply(kb, da, bi)
+  constructor(p: any) {
+    super(p)
+    this.constructorName = p?.constructor?.name
+  }
+
+  bdefault = {
+    show: async (funcName: string, error: any, isEdit = true) => {
+      LogHe.errorMake(error, this.constructorName, funcName)
+
+      await this.clearSession()
+      const kb = this.inlineKeyboardT([StartPage])
+      const da = {isNotFound: false}
+      if (isEdit) {
+        await this.edit(kb, da)
+      } else {
+        await this.reply(kb, da)
+      }
     }
   }
 
-  static async showErrorInputNotFound(ctx: GeneralStatusPage) {
-    const bi = Base.notFound
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    await ctx.reply(kb, da, bi)
+  berror = {
+    show: async (code: string, error: unknown, isEdit = false) => {
+      const kb = this.inlineKeyboardT([StartPage], `1`, Base.error)
+      const da = {code, error: String(error)}
+      if (isEdit) {
+        await this.edit(kb, da, Base.error)
+      } else {
+        await this.reply(kb, da, Base.error)
+      }
+    }
   }
-}
 
-export class GeneralStatusPage extends PageBase {
-  async showError(code: string, error: unknown, isEdit = false) {
-    await Main.showError(this, code, error, isEdit)
-  }
-
-  async showErrorInputNotFound() {
-    await Main.showErrorInputNotFound(this)
+  bnotFound = {
+    show: async () => {
+      const kb = this.inlineKeyboardT([StartPage], `1`, Base.notFound)
+      await this.reply(kb, {}, Base.notFound)
+    }
   }
 
   static template = `
@@ -59,7 +67,6 @@ export class GeneralStatusPage extends PageBase {
         Detail: {{error}}
       </g-message>
     </g-base>
-
     <g-base id="${Base.notFound}">
       ${this.kbk.home()}
       <g-message>

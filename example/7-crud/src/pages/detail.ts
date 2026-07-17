@@ -12,79 +12,72 @@ class Base {
 
 class Helper {
   static buildHomeKeyboard(ctx: DetailPage, AGBaseId?: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-    return kb
-  }
-}
-
-class Main {
-  static async showIndex(ctx: DetailPage) {
-    await ctx.setSessionFreeText()
-    const bi = Base.index
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processIndex(ctx: DetailPage) {
-    const id = ctx.msgText.trim()
-    if (!id) {
-      return await Main.showWarnInvalid(ctx)
-    }
-
-    const item = await ctx.db.items.fetch(ctx.userId, id)
-    if (!item) {
-      await Main.showInfoNotFound(ctx, id)
-    } else {
-      await Main.showSuccess(ctx, item)
-    }
-  }
-
-  static async showSuccess(ctx: DetailPage, item: IVItem) {
-    if (!item) {
-      return
-    }
-    await ctx.clearSession()
-    const createdAt = TimeUt.formatTimestamp(item.createdAt)
-    const updatedAt = TimeUt.formatTimestamp(item.updatedAt)
-
-    const bi = Base.success
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    const da = {
-      id: item.id,
-      title: item.title,
-      description: item.description,
-      status: item.status,
-      createdAt,
-      updatedAt
-    }
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnInvalid(ctx: DetailPage) {
-    const bi = Base.warnInvalid
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    const da = {}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showInfoNotFound(ctx: DetailPage, id: string) {
-    await ctx.clearSession()
-    const bi = Base.infoNotFound
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    const da = {id}
-    await ctx.reply(kb, da, bi)
+    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
   }
 }
 
 // Shows a single item by ID.
 export class DetailPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bindex.show()
   }
 
   async handleSessionFreeText() {
-    await Main.processIndex(this)
+    const id = this.msgText.trim()
+    if (!id) {
+      await this.bwarnInvalid.show()
+    }
+
+    const item = await this.db.items.fetch(this.userId, id)
+    if (!item) {
+      await this.binfoNotFound.show(id)
+    } else {
+      await this.bsuccess.show(item)
+    }
+  }
+
+  bindex = {
+    show: async () => {
+      const bi = Base.index
+      const kb = Helper.buildHomeKeyboard(this, bi)
+      await this.setSessionFreeText()
+      await this.edit(kb, {}, bi)
+    }
+  }
+  bsuccess = {
+    show: async (item: IVItem) => {
+      await this.clearSession()
+      const createdAt = TimeUt.formatTimestamp(item.createdAt)
+      const updatedAt = TimeUt.formatTimestamp(item.updatedAt)
+
+      const bi = Base.success
+      const kb = Helper.buildHomeKeyboard(this, bi)
+      const da = {
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        status: item.status,
+        createdAt,
+        updatedAt
+      }
+      await this.reply(kb, da, bi)
+    }
+  }
+  binfoNotFound = {
+    show: async (id: string) => {
+      await this.clearSession()
+      const bi = Base.infoNotFound
+      const kb = Helper.buildHomeKeyboard(this, bi)
+      const da = {id}
+      await this.reply(kb, da, bi)
+    }
+  }
+  bwarnInvalid = {
+    show: async () => {
+      const bi = Base.warnInvalid
+      const kb = Helper.buildHomeKeyboard(this, bi)
+      await this.reply(kb, {}, bi)
+    }
   }
 
   static template = `
@@ -103,7 +96,6 @@ export class DetailPage extends PageBase {
         Contoh: 1
       </g-message>
     </g-base>
-
     <g-base id="${Base.success}">
       ${this.kbk.home()}
       <g-message>
@@ -125,7 +117,6 @@ export class DetailPage extends PageBase {
         🔄 Diperbarui: {{updatedAt}}
       </g-message>
     </g-base>
-
     <g-base id="${Base.infoNotFound}">
       ${this.kbk.cancel()}
       <g-message>
@@ -139,7 +130,6 @@ export class DetailPage extends PageBase {
         Periksa kembali ID, atau kembali ke daftar untuk melihat item.
       </g-message>
     </g-base>
-
     <g-base id="${Base.warnInvalid}">
       ${this.kbk.cancel()}
       <g-message>

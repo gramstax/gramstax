@@ -2,32 +2,31 @@ import {PageBase} from "~/base/page"
 import {HelpPage} from "./help"
 import {EchoPage} from "./echo"
 
-class Main {
-  static async showIndex(ctx: StartPage, edit = true) {
-    const kb = ctx.inlineKeyboardT([HelpPage, EchoPage], `1`)
-    const da = {}
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-}
-
 // Start page with welcome message and navigation.
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bdefault.show(false)
   }
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bdefault.show(true)
+  }
+
+  bdefault = {
+    show: async (isEdit = true) => {
+      const kb = this.inlineKeyboardT([HelpPage, EchoPage], `1`)
+      if (isEdit) {
+        await this.edit(kb)
+      } else {
+        await this.reply(kb)
+      }
+    }
   }
 
   static template = `
     <g-base>
       <g-keyboard type="inline">❓ Help, 🔁 Echo Tips</g-keyboard>
-      <g-keyboard lang="id" type="inline">❓ Bantuan, 🔁 Tips Echo</g-keyboard>
+      <g-keyboard type="inline" lang="id">❓ Bantuan, 🔁 Tips Echo</g-keyboard>
       <g-message>
         🔊 Echo Bot
 

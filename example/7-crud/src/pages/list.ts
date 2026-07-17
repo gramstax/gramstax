@@ -11,14 +11,12 @@ class Helper {
   static PAGE_SIZE = 5
 
   static buildHomeKeyboard(ctx: ListPage, AGBaseId: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-    return kb
+    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
   }
 
   static buildKeyboard(ctx: ListPage, pageNo: number, totalPages: number) {
     const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
-    const bi = Base.index
-    const kb = ctx.inlineKeyboard(
+    return ctx.inlineKeyboard(
       (k, l) => {
         if (safePage > 0) {
           k.text(l[0]!, ctx.data.callbackData(`${safePage - 1}`))
@@ -28,49 +26,8 @@ class Helper {
         }
         return k.row().text(l[2]!, StartPage.data.callbackData())
       },
-      {AGBaseId: bi}
+      {AGBaseId: Base.index}
     )
-    return kb
-  }
-}
-
-class Main {
-  static async showIndex(ctx: ListPage, pageNo = 0) {
-    const totalItems = await ctx.db.items.total(ctx.userId)
-    if (totalItems === 0) {
-      return await Main.showInfoEmpty(ctx)
-    }
-
-    const totalPages = Math.max(Math.ceil(totalItems / Helper.PAGE_SIZE), 1)
-    const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
-    const offset = safePage * Helper.PAGE_SIZE
-    const items = await ctx.db.items.list(ctx.userId, {limit: Helper.PAGE_SIZE, offset})
-    const list = items
-      .map((item) => {
-        const ts = TimeUt.formatTimestamp(item.updatedAt)
-        return `#${item.id} ${item.title} [${item.status}] (updated ${ts})`
-      })
-      .join(`\n`)
-
-    const bi = Base.index
-    const da = {items: list, pageNo: safePage + 1, totalPages}
-    const kb = Helper.buildKeyboard(ctx, safePage, totalPages)
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processIndex(ctx: ListPage) {
-    const [pageNo] = ctx.callbackDataArgs
-
-    const nextPage = Number(pageNo)
-    const pageNum = Number.isNaN(nextPage) ? 0 : nextPage
-    await Main.showIndex(ctx, pageNum)
-  }
-
-  static async showInfoEmpty(ctx: ListPage) {
-    const bi = Base.infoEmpty
-    const kb = Helper.buildHomeKeyboard(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
   }
 }
 
@@ -79,17 +36,55 @@ export class ListPage extends PageBase {
   static data = this.buildData((pageNo?: string) => [pageNo])
 
   async handleCallbackData() {
-    await Main.showIndex(this, 0)
+    await this.gindex.show(0)
   }
 
   async handleArgsCallbackData() {
-    await Main.processIndex(this)
+    const pageNo = this.callbackDataArg
+    await this.gindex.process(pageNo)
+  }
+
+  gindex = {
+    show: async (pageNo = 0) => {
+      const totalItems = await this.db.items.total(this.userId)
+      if (totalItems === 0) {
+        return await this.ginfoEmpty.show()
+      }
+
+      const totalPages = Math.max(Math.ceil(totalItems / Helper.PAGE_SIZE), 1)
+      const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
+      const offset = safePage * Helper.PAGE_SIZE
+      const items = await this.db.items.list(this.userId, {limit: Helper.PAGE_SIZE, offset})
+      const list = items
+        .map((item) => {
+          const ts = TimeUt.formatTimestamp(item.updatedAt)
+          return `#${item.id} ${item.title} [${item.status}] (updated ${ts})`
+        })
+        .join(`\n`)
+
+      const bi = Base.index
+      const da = {items: list, pageNo: safePage + 1, totalPages}
+      const kb = Helper.buildKeyboard(this, safePage, totalPages)
+      await this.edit(kb, da, bi)
+    },
+    process: async (pageNo: string) => {
+      const nextPage = Number(pageNo)
+      const pageNum = Number.isNaN(nextPage) ? 0 : nextPage
+      await this.gindex.show(pageNum)
+    }
+  }
+  ginfoEmpty = {
+    show: async () => {
+      const bi = Base.infoEmpty
+      const kb = Helper.buildHomeKeyboard(this, bi)
+      await this.edit(kb, {}, bi)
+    }
   }
 
   static template = `
     <g-base id="${Base.index}">
       <g-keyboard type="inline">${this.kbl.prev.default}, ${this.kbl.next.default}, ${this.kbl.home.default}</g-keyboard>
-      <g-keyboard lang="id" type="inline">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</g-keyboard>
+      <g-keyboard type="inline" lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, ${this.kbl.home.id}</g-keyboard>
       <g-message>
         📋 Cached items
 
@@ -105,7 +100,6 @@ export class ListPage extends PageBase {
         {{items}}
       </g-message>
     </g-base>
-
     <g-base id="${Base.infoEmpty}">
       ${this.kbk.home()}
       <g-message>

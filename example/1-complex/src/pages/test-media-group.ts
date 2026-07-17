@@ -1,17 +1,16 @@
 import {PageBase} from "~/base/page"
 
-class Main {
-  static async showIndex(ctx: TestMediaGroupPage) {
-    // ATTENTION: <g-media-group> is not support inline/bottom keyboard
-    // const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)], `1`, bi)
-    const da = {}
-    await ctx.editPhotoGroup(da)
-  }
-}
-
 export class TestMediaGroupPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bdefault.show()
+  }
+
+  bdefault = {
+    show: async () => {
+      // ATTENTION: <g-media-group> is not support inline/bottom keyboard
+      // const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`3`)], `1`, bi)
+      await this.editPhotoGroup()
+    }
   }
 
   static template = `

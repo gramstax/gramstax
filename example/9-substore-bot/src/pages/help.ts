@@ -3,25 +3,25 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 import {CatalogPage} from "./catalog"
 
-class Main {
-  static async showIndex(ctx: HelpPage, edit = true) {
-    const kb = ctx.inlineKeyboardT([CatalogPage, StartPage])
-    const da = {support: Env.STORE_ADMIN_USERNAME}
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-}
-
 export class HelpPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bdefault.show(true)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bdefault.show(false)
+  }
+
+  bdefault = {
+    show: async (isEdit = true) => {
+      const kb = this.inlineKeyboardT([CatalogPage, StartPage])
+      const da = {support: Env.STORE_ADMIN_USERNAME}
+      if (isEdit) {
+        await this.edit(kb, da)
+      } else {
+        await this.reply(kb, da)
+      }
+    }
   }
 
   static template = `

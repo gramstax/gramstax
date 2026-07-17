@@ -3,42 +3,33 @@ import {StartPage} from "./start"
 import {BlankPage} from "./blank"
 import {CatalogData} from "~/data/catalog"
 
-class Base {
-  static index = `i`
-}
-
-class Constant {
+class Const {
   static ITEMS_PER_PAGE = 4
 }
 
 class Helper {
   static kb(ctx: InlineWithoutRangePage, pageNo: number) {
     const safePage = Math.max(pageNo, 0)
-    const start = safePage * Constant.ITEMS_PER_PAGE
-    const end = start + Constant.ITEMS_PER_PAGE
+    const start = safePage * Const.ITEMS_PER_PAGE
+    const end = start + Const.ITEMS_PER_PAGE
     const items = CatalogData.menuItems.slice(start, end)
     const hasPrevious = safePage > 0
     const hasMore = end < CatalogData.menuItems.length
-    const bi = Base.index
-    const kb = ctx.inlineKeyboard(
-      (k, l) => {
-        items.forEach((item) => {
-          k.text(item.name, ctx.data.callbackData(bi, `item`, item.id)).row()
-        })
+    return ctx.inlineKeyboard((k, l) => {
+      items.forEach((item) => {
+        k.text(item.name, ctx.data.callbackData(`item`, item.id)).row()
+      })
 
-        k.row()
-        if (hasPrevious) {
-          k.text(l[0]!, ctx.data.callbackData(bi, `page`, safePage - 1))
-        }
-        k.text(`${l[2]} ${safePage + 1}`, BlankPage.data.callbackData())
-        if (hasMore) {
-          k.text(l[1]!, ctx.data.callbackData(bi, `page`, safePage + 1))
-        }
-        return k.row().text(l[3]!, StartPage.data.callbackData())
-      },
-      {AGBaseId: bi}
-    )
-    return kb
+      k.row()
+      if (hasPrevious) {
+        k.text(l[0]!, ctx.data.callbackData(`page`, safePage - 1))
+      }
+      k.text(`${l[2]} ${safePage + 1}`, BlankPage.data.callbackData())
+      if (hasMore) {
+        k.text(l[1]!, ctx.data.callbackData(`page`, safePage + 1))
+      }
+      return k.row().text(l[3]!, StartPage.data.callbackData())
+    })
   }
 
   static pageData(pageNo: number) {
@@ -47,50 +38,46 @@ class Helper {
   }
 }
 
-class Main {
-  static async showIndex(ctx: InlineWithoutRangePage, pageNo: number, isEdit = true) {
-    const {pageNo: currentPage, safePage} = Helper.pageData(pageNo)
-    const da = {pageNo: currentPage}
-    const kb = Helper.kb(ctx, safePage)
-    const bi = Base.index
-    if (isEdit) {
-      await ctx.edit(kb, da, bi)
-    } else {
-      await ctx.reply(kb, da, bi)
-    }
-  }
-
-  static async processIndex(ctx: InlineWithoutRangePage, action: string, value?: string) {
-    if (action === `page`) {
-      const nextPage = Number(value)
-      if (!isNaN(nextPage)) {
-        await Main.showIndex(ctx, nextPage, true)
-      }
-    } else if (action === `item` && value) {
-      // ???
-    }
-  }
-}
-
 // Inline keyboard with page info (no total count).
 export class InlineWithoutRangePage extends PageBase {
   static data = this.buildData((step?: string, action?: string, page?: string) => [step, action, page])
 
   async handleCallbackData() {
-    await Main.showIndex(this, 0, true)
+    await this.bdefault.show(0, true)
   }
 
   async handleArgsCallbackData() {
-    const [step, action, value] = this.callbackDataArgs
-    if (step === Base.index) {
-      await Main.processIndex(this, action!, value)
+    const [action, value] = this.callbackDataArgs
+    await this.bdefault.process(action!, value!)
+  }
+
+  bdefault = {
+    show: async (pageNo: number, isEdit = true) => {
+      const {pageNo: currentPage, safePage} = Helper.pageData(pageNo)
+      const da = {pageNo: currentPage}
+      const kb = Helper.kb(this, safePage)
+      if (isEdit) {
+        await this.edit(kb, da)
+      } else {
+        await this.reply(kb, da)
+      }
+    },
+    process: async (action: string, value: string) => {
+      if (action === `page`) {
+        const nextPage = Number(value)
+        if (!isNaN(nextPage)) {
+          await this.bdefault.show(nextPage, true)
+        }
+      } else if (action === `item` && value) {
+        // ???
+      }
     }
   }
 
   static template = `
-    <g-base id="${Base.index}">
+    <g-base>
       <g-keyboard type="inline">${this.kbl.prev.default}, ${this.kbl.next.default}, 📄 Page, ${this.kbl.home.default}</g-keyboard>
-      <g-keyboard lang="id" type="inline">${this.kbl.prev.id}, ${this.kbl.next.id}, 📄 Halaman, ${this.kbl.home.id}</g-keyboard>
+      <g-keyboard type="inline" lang="id">${this.kbl.prev.id}, ${this.kbl.next.id}, 📄 Halaman, ${this.kbl.home.id}</g-keyboard>
       <g-message>
         🧾 Inline Menu (Without Range (only count))
 

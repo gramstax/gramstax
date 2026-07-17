@@ -6,7 +6,7 @@ import {CatalogPage} from "./catalog"
 import {HistoryPage} from "./history"
 import {CartStore, type CartState, type OrderRecord, OrderHistoryStore, OrderStore, ProductCatalog} from "~/data/store"
 
-type CheckoutSession = {
+type ICheckoutSession = {
   position?: `contact` | `confirm`
   contact?: string
   notes?: string
@@ -40,8 +40,8 @@ class Helper {
     await ctx.cacheState.set(`${ctx.userId}:orders`, history)
   }
 
-  static getSession(ctx: CheckoutPage): CheckoutSession {
-    return (ctx.temp.session?.params as CheckoutSession) ?? {}
+  static getSession(ctx: CheckoutPage): ICheckoutSession {
+    return (ctx.temp.session?.params as ICheckoutSession) ?? {}
   }
 
   static splitContactNotes(input: string) {
@@ -73,173 +73,152 @@ class Helper {
   }
 }
 
-class Main {
-  static async showIndex(ctx: CheckoutPage, edit = true) {
-    const cart = await Helper.getCart(ctx)
-    const summary = CartStore.getSummary(cart)
-    if (summary.isEmpty) {
-      return await Main.showWarnEmpty(ctx)
-    }
-
-    await ctx.setSessionFreeText({position: `contact`})
-    const bi = Base.index
-    const kb = Helper.kbCart(ctx, bi)
-    const da = {
-      items: OrderStore.formatCart(summary),
-      subtotal: ProductCatalog.formatPrice(summary.subtotal)
-    }
-    if (edit) {
-      await ctx.edit(kb, da, bi)
-    } else {
-      await ctx.reply(kb, da, bi)
-    }
-  }
-
-  static async processIndex(ctx: CheckoutPage, action?: string) {
-    if (action === `confirm`) {
-      await Main.showSuccess(ctx)
-    } else if (action === Base.refresh) {
-      await Main.showRefreshedStatus(ctx, ctx.callbackDataArgs[1])
-    } else if (action === `cancel`) {
-      await Main.showInfoCancel(ctx)
-    }
-  }
-
-  static async showConfirm(ctx: CheckoutPage, input: string) {
-    const {contact, notes} = Helper.splitContactNotes(input)
-    if (!Helper.isValidContact(contact)) {
-      return await Main.showWarnInvalid(ctx, contact)
-    }
-
-    const cart = await Helper.getCart(ctx)
-    const summary = CartStore.getSummary(cart)
-    if (summary.isEmpty) {
-      return await Main.showWarnEmpty(ctx)
-    }
-
-    await ctx.setSessionFreeText({position: `confirm`, contact, notes})
-    const bi = Base.confirm
-    const kb = Helper.kbConfirm(ctx, bi)
-    const da = {
-      items: OrderStore.formatCart(summary),
-      subtotal: ProductCatalog.formatPrice(summary.subtotal),
-      contact,
-      notes
-    }
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showWarnEmpty(ctx: CheckoutPage) {
-    const bi = Base.warnEmpty
-    const kb = Helper.kbCart(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async showWarnInvalid(ctx: CheckoutPage, contact = ``) {
-    await ctx.setSessionFreeText({position: `contact`})
-    const bi = Base.warnInvalid
-    const kb = Helper.kbCart(ctx, bi)
-    const da = {contact}
-    await ctx.reply(kb, da, bi)
-  }
-
-  static async showInfoCancel(ctx: CheckoutPage) {
-    await ctx.clearSession()
-    const bi = Base.infoCancel
-    const kb = Helper.kbHome(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async showInfoMissing(ctx: CheckoutPage) {
-    const bi = Base.infoMissing
-    const kb = Helper.kbHome(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async showSuccess(ctx: CheckoutPage) {
-    const cart = await Helper.getCart(ctx)
-    const summary = CartStore.getSummary(cart)
-    const session = Helper.getSession(ctx)
-    const order = OrderStore.createOrder({
-      userId: ctx.userId,
-      summary,
-      contact: session.contact || `-`,
-      notes: session.notes || `No additional notes.`,
-      support: Env.STORE_ADMIN_USERNAME
-    })
-    const history = await Helper.getHistory(ctx)
-    const bi = Base.success
-    const kb = Helper.kbSuccess(ctx, order.id, bi)
-    const da = {
-      orderId: order.id,
-      items: OrderStore.formatCart(summary),
-      subtotal: ProductCatalog.formatPrice(order.subtotal),
-      contact: order.contact,
-      notes: order.notes,
-      support: order.support,
-      statusLabel: OrderStore.statusLabel(order.status),
-      deadlineMinutes: String(order.deadlineMinutes),
-      deadlineAt: order.deadlineAt,
-      timeNow: new Date(),
-      qrisImageUrl: order.qrisImageUrl
-    }
-    await Helper.setHistory(ctx, OrderHistoryStore.addOrder(history, order))
-    await Helper.setCart(ctx, CartStore.clear())
-    await ctx.clearSession()
-    await ctx.editPhoto(kb, da, bi)
-  }
-
-  static async showRefreshedStatus(ctx: CheckoutPage, orderId?: string) {
-    const refreshedHistory = OrderHistoryStore.refreshStatuses(await Helper.getHistory(ctx))
-    await Helper.setHistory(ctx, refreshedHistory)
-    const order = orderId ? refreshedHistory.find((item) => item.id === orderId) : refreshedHistory[0]
-    if (!order) {
-      return await Main.showInfoMissing(ctx)
-    }
-
-    const bi = Base.success
-    const kb = Helper.kbSuccess(ctx, order.id, bi)
-    const da = {
-      orderId: order.id,
-      items: OrderStore.formatCart({items: order.items, subtotal: order.subtotal, isEmpty: order.items.length === 0}),
-      subtotal: ProductCatalog.formatPrice(order.subtotal),
-      contact: order.contact,
-      notes: order.notes,
-      support: order.support,
-      statusLabel: OrderStore.statusLabel(order.status),
-      deadlineMinutes: String(order.deadlineMinutes),
-      deadlineAt: order.deadlineAt,
-      timeNow: new Date(),
-      qrisImageUrl: order.qrisImageUrl
-    }
-    await ctx.editPhoto(kb, da, bi)
-  }
-}
-
 export class CheckoutPage extends PageBase {
   static data = this.buildData((action?: string, orderId?: string) => [action, orderId])
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bindex.show()
   }
 
   async handleArgsCallbackData() {
-    const [action] = this.callbackDataArgs
-    await Main.processIndex(this, action)
-  }
-
-  async handleSessionFreeText() {
-    const {position} = Helper.getSession(this)
-    if (position === `contact`) {
-      await Main.showConfirm(this, this.msgText.trim())
+    const [action, orderId] = this.callbackDataArgs
+    if (action === `confirm`) {
+      await this.bconfirm.process()
+    } else if (action === Base.refresh) {
+      await this.brefresh.process(orderId)
+    } else if (action === `cancel`) {
+      await this.binfoCancel.show()
     }
   }
 
-  async showIndex(edit = true) {
-    await Main.showIndex(this, edit)
+  async handleSessionFreeText() {
+    await this.bindex.process()
+  }
+
+  bindex = {
+    show: async () => {
+      const cart = await Helper.getCart(this)
+      const summary = CartStore.getSummary(cart)
+      if (summary.isEmpty) {
+        return await this.bwarnEmpty.show()
+      }
+
+      await this.setSessionFreeText({position: `contact`})
+      const kb = Helper.kbCart(this, Base.index)
+      const da = {
+        items: OrderStore.formatCart(summary),
+        subtotal: ProductCatalog.formatPrice(summary.subtotal)
+      }
+      await this.edit(kb, da, Base.index)
+    },
+    process: async () => {
+      const {position} = Helper.getSession(this)
+      if (position !== `contact`) return
+
+      const input = this.msgText.trim()
+      const {contact, notes} = Helper.splitContactNotes(input)
+      if (!Helper.isValidContact(contact)) {
+        await this.setSessionFreeText({position: `contact`})
+        return await this.bwarnInvalid.show(contact)
+      }
+
+      const cart = await Helper.getCart(this)
+      const summary = CartStore.getSummary(cart)
+      if (summary.isEmpty) {
+        return await this.bwarnEmpty.show()
+      }
+
+      await this.setSessionFreeText({position: `confirm`, contact, notes})
+      await this.bconfirm.show(OrderStore.formatCart(summary), ProductCatalog.formatPrice(summary.subtotal), contact, notes)
+    }
+  }
+
+  bconfirm = {
+    show: async (items: string, subtotal: string, contact: string, notes: string) => {
+      const kb = Helper.kbConfirm(this, Base.confirm)
+      const da = {items, subtotal, contact, notes}
+      await this.reply(kb, da, Base.confirm)
+    },
+    process: async () => {
+      const cart = await Helper.getCart(this)
+      const summary = CartStore.getSummary(cart)
+      const session = Helper.getSession(this)
+      const order = OrderStore.createOrder({
+        userId: this.userId,
+        summary,
+        contact: session.contact || `-`,
+        notes: session.notes || `No additional notes.`,
+        support: Env.STORE_ADMIN_USERNAME
+      })
+      const history = await Helper.getHistory(this)
+      await Helper.setHistory(this, OrderHistoryStore.addOrder(history, order))
+      await Helper.setCart(this, CartStore.clear())
+      await this.clearSession()
+      await this.bsuccess.show(order)
+    }
+  }
+
+  brefresh = {
+    process: async (orderId?: string) => {
+      const refreshedHistory = OrderHistoryStore.refreshStatuses(await Helper.getHistory(this))
+      await Helper.setHistory(this, refreshedHistory)
+      const order = orderId ? refreshedHistory.find((item) => item.id === orderId) : refreshedHistory[0]
+      if (!order) {
+        return await this.binfoMissing.show()
+      }
+      await this.bsuccess.show(order)
+    }
+  }
+
+  bsuccess = {
+    show: async (order: OrderRecord) => {
+      const kb = Helper.kbSuccess(this, order.id, Base.success)
+      const da = {
+        orderId: order.id,
+        items: OrderStore.formatCart({items: order.items, subtotal: order.subtotal, isEmpty: order.items.length === 0}),
+        subtotal: ProductCatalog.formatPrice(order.subtotal),
+        contact: order.contact,
+        notes: order.notes,
+        support: order.support,
+        statusLabel: OrderStore.statusLabel(order.status),
+        deadlineMinutes: String(order.deadlineMinutes),
+        deadlineAt: order.deadlineAt,
+        timeNow: new Date(),
+        qrisImageUrl: order.qrisImageUrl
+      }
+      await this.editPhoto(kb, da, Base.success)
+    }
+  }
+
+  bwarnEmpty = {
+    show: async () => {
+      const kb = Helper.kbCart(this, Base.warnEmpty)
+      await this.edit(kb, {}, Base.warnEmpty)
+    }
+  }
+
+  bwarnInvalid = {
+    show: async (contact: string) => {
+      await this.setSessionFreeText({position: `contact`})
+      const kb = Helper.kbCart(this, Base.warnInvalid)
+      const da = {contact}
+      await this.reply(kb, da, Base.warnInvalid)
+    }
+  }
+
+  binfoCancel = {
+    show: async () => {
+      await this.clearSession()
+      const kb = Helper.kbHome(this, Base.infoCancel)
+      await this.edit(kb, {}, Base.infoCancel)
+    }
+  }
+
+  binfoMissing = {
+    show: async () => {
+      const kb = Helper.kbHome(this, Base.infoMissing)
+      await this.edit(kb, {}, Base.infoMissing)
+    }
   }
 
   static template = `
@@ -273,7 +252,6 @@ export class CheckoutPage extends PageBase {
         Tolong kirim setelah konfirmasi pembayaran.
       </g-message>
     </g-base>
-
     <g-base id="${Base.confirm}">
       <g-keyboard type="inline">✅ Confirm, ❌ Cancel, 🛒 Cart</g-keyboard>
       <g-keyboard type="inline" lang="id">✅ Konfirmasi, ❌ Batal, 🛒 Keranjang</g-keyboard>
@@ -302,7 +280,6 @@ export class CheckoutPage extends PageBase {
         Konfirmasi jika detail sudah benar.
       </g-message>
     </g-base>
-
     <g-base id="${Base.success}">
       <g-keyboard type="inline">🔄 refresh, 🧾 History, 🏠 Home, 🔎 Browse Products</g-keyboard>
       <g-keyboard type="inline" lang="id">🔄 refresh, 🧾 Riwayat, 🏠 Beranda, 🔎 Jelajahi</g-keyboard>
@@ -345,7 +322,6 @@ export class CheckoutPage extends PageBase {
         QRIS saja: scan kode QRIS toko menggunakan DANA, ShopeePay, atau aplikasi perbankan yang mendukung QRIS. Setelah pembayaran, kirim bukti ke {{support}} dengan ID Pesanan Anda.
       </g-media>
     </g-base>
-
     <g-base id="${Base.warnEmpty}">
       <g-keyboard type="inline">🛒 Cart, 🔎 Browse Products</g-keyboard>
       <g-keyboard type="inline" lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
@@ -360,7 +336,6 @@ export class CheckoutPage extends PageBase {
         Tambah setidaknya satu langganan tersedia sebelum checkout.
       </g-message>
     </g-base>
-
     <g-base id="${Base.warnInvalid}">
       <g-keyboard type="inline">🛒 Cart, 🔎 Browse Products</g-keyboard>
       <g-keyboard type="inline" lang="id">🛒 Keranjang, 🔎 Jelajahi</g-keyboard>
@@ -375,7 +350,6 @@ export class CheckoutPage extends PageBase {
         Tidak dapat menggunakan "{{contact}}" sebagai kontak. Kirim username Telegram, email, atau nomor WhatsApp minimal 5 karakter.
       </g-message>
     </g-base>
-
     <g-base id="${Base.infoCancel}">
       <g-keyboard type="inline">🏠 Home, 🔎 Browse</g-keyboard>
       <g-keyboard type="inline" lang="id">🏠 Beranda, 🔎 Jelajahi</g-keyboard>
@@ -390,7 +364,6 @@ export class CheckoutPage extends PageBase {
         Keranjang Anda tetap disimpan. Anda dapat melanjutkan belanja atau checkout lagi nanti.
       </g-message>
     </g-base>
-
     <g-base id="${Base.infoMissing}">
       <g-keyboard type="inline">🧾 History, 🏠 Home, 🔎 Browse Products</g-keyboard>
       <g-keyboard type="inline" lang="id">🧾 Riwayat, 🏠 Beranda, 🔎 Jelajahi</g-keyboard>

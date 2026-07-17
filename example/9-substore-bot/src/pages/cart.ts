@@ -10,105 +10,90 @@ class Base {
   static infoCleared = `i-cleared`
 }
 
-class Helper {
-  static async getCart(ctx: CartPage): Promise<CartState> {
-    return ((await ctx.cacheState.get(`${ctx.userId}:cart`)) ?? {}) as CartState
-  }
-
-  static async setCart(ctx: CartPage, cart: CartState) {
-    await ctx.cacheState.set(`${ctx.userId}:cart`, cart)
-  }
-
-  static kb(ctx: CartPage, cart: CartState, bi?: string) {
-    const summary = CartStore.getSummary(cart)
-    return ctx.inlineKeyboard(
-      (k, l) => {
-        summary.items.forEach((item) => {
-          k.text(`${l[0]!} ${item.product.name}`, ctx.data.callbackData(bi, `inc`, item.product.id))
-          k.text(l[1]!, ctx.data.callbackData(bi, `dec`, item.product.id))
-          k.text(l[2]!, ctx.data.callbackData(bi, `remove`, item.product.id))
-          k.row()
-        })
-
-        if (!summary.isEmpty) {
-          k.text(l[3]!, CheckoutPage.data.callbackData())
-          k.text(l[4]!, ctx.data.callbackData(bi, `clear`))
-          k.row()
-        }
-
-        return k.text(l[5]!, CatalogPage.data.callbackData()).text(l[6]!, StartPage.data.callbackData())
-      },
-      {AGBaseId: bi}
-    )
-  }
-
-  static kbEmpty(ctx: CartPage, bi?: string) {
-    return ctx.inlineKeyboardT([CatalogPage, StartPage], `1`, bi)
-  }
-}
-
-class Main {
-  static async showIndex(ctx: CartPage, edit = true) {
-    const cart = await Helper.getCart(ctx)
-    const summary = CartStore.getSummary(cart)
-    const bi = summary.isEmpty ? Base.empty : Base.index
-    const kb = summary.isEmpty ? Helper.kbEmpty(ctx, bi) : Helper.kb(ctx, cart, bi)
-    const da = {
-      items: OrderStore.formatCart(summary),
-      subtotal: ProductCatalog.formatPrice(summary.subtotal)
-    }
-
-    if (edit) {
-      await ctx.edit(kb, da, bi)
-    } else {
-      await ctx.reply(kb, da, bi)
-    }
-  }
-
-  static async processIndex(ctx: CartPage, action?: string, productId?: string) {
-    const cart = await Helper.getCart(ctx)
-    let next = cart
-
-    if (action === `inc` && productId) {
-      next = CartStore.addItem(cart, productId)
-    } else if (action === `dec` && productId) {
-      next = CartStore.decreaseItem(cart, productId)
-    } else if (action === `remove` && productId) {
-      next = CartStore.removeItem(cart, productId)
-    } else if (action === `clear`) {
-      next = CartStore.clear()
-      await Helper.setCart(ctx, next)
-      return await Main.showInfoCleared(ctx)
-    }
-
-    await Helper.setCart(ctx, next)
-    await Main.showIndex(ctx, true)
-  }
-
-  static async showInfoCleared(ctx: CartPage) {
-    const bi = Base.infoCleared
-    const kb = Helper.kbEmpty(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-}
-
 export class CartPage extends PageBase {
   static data = this.buildData((step?: string, action?: string, productId?: string) => [step, action, productId])
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bindex.show(true)
   }
 
   async handleArgsCallbackData() {
     const [step, action, productId] = this.callbackDataArgs
     if (step === Base.index) {
-      await Main.processIndex(this, action, productId)
+      await this.bindex.process(action, productId)
     }
   }
 
-  async showIndex(edit = true) {
-    await Main.showIndex(this, edit)
+  bindex = {
+    show: async (isEdit = true) => {
+      const cart = ((await this.cacheState.get(`${this.userId}:cart`)) ?? {}) as CartState
+      const summary = CartStore.getSummary(cart)
+      if (summary.isEmpty) {
+        return await this.bempty.show()
+      }
+
+      const bi = Base.index
+      const kb = this.inlineKeyboard(
+        (k, l) => {
+          summary.items.forEach((item) => {
+            k.text(`${l[0]!} ${item.product.name}`, this.data.callbackData(bi, `inc`, item.product.id))
+            k.text(l[1]!, this.data.callbackData(bi, `dec`, item.product.id))
+            k.text(l[2]!, this.data.callbackData(bi, `remove`, item.product.id))
+            k.row()
+          })
+
+          k.text(l[3]!, CheckoutPage.data.callbackData())
+          k.text(l[4]!, this.data.callbackData(bi, `clear`))
+          k.row()
+
+          return k.text(l[5]!, CatalogPage.data.callbackData()).text(l[6]!, StartPage.data.callbackData())
+        },
+        {AGBaseId: bi}
+      )
+      const da = {
+        items: OrderStore.formatCart(summary),
+        subtotal: ProductCatalog.formatPrice(summary.subtotal)
+      }
+
+      if (isEdit) {
+        await this.edit(kb, da, bi)
+      } else {
+        await this.reply(kb, da, bi)
+      }
+    },
+    process: async (action?: string, productId?: string) => {
+      const cart = ((await this.cacheState.get(`${this.userId}:cart`)) ?? {}) as CartState
+
+      let next = cart
+      if (action === `inc` && productId) {
+        next = CartStore.addItem(cart, productId)
+      } else if (action === `dec` && productId) {
+        next = CartStore.decreaseItem(cart, productId)
+      } else if (action === `remove` && productId) {
+        next = CartStore.removeItem(cart, productId)
+      } else if (action === `clear`) {
+        next = CartStore.clear()
+        await this.cacheState.set(`${this.userId}:cart`, next)
+        return await this.binfoCleared.show()
+      }
+
+      await this.cacheState.set(`${this.userId}:cart`, next)
+      await this.bindex.show(true)
+    }
+  }
+
+  bempty = {
+    show: async () => {
+      const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`, Base.empty)
+      await this.edit(kb, {}, Base.empty)
+    }
+  }
+
+  binfoCleared = {
+    show: async () => {
+      const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`, Base.infoCleared)
+      await this.edit(kb, {}, Base.infoCleared)
+    }
   }
 
   static template = `

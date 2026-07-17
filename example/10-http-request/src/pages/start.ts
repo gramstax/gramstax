@@ -2,33 +2,32 @@ import {PageBase} from "~/base/page"
 import {HttpRequestPage} from "./http-request"
 import {HelpPage} from "./help"
 
-class Main {
-  static async showIndex(ctx: StartPage, edit: boolean) {
-    await ctx.clearSession()
-    const kb = ctx.inlineKeyboardT([HttpRequestPage, HelpPage], `1`)
-    const da = {}
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-}
-
 // Main menu page for HTTP Request example.
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bdefault.show(false)
   }
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bdefault.show(true)
+  }
+
+  bdefault = {
+    show: async (edit = true) => {
+      await this.clearSession()
+      const kb = this.inlineKeyboardT([HttpRequestPage, HelpPage], `1`)
+      if (edit) {
+        await this.edit(kb, {})
+      } else {
+        await this.reply(kb, {})
+      }
+    }
   }
 
   static template = `
     <g-base>
       <g-keyboard type="inline">🌐 New Request, ❓ Help</g-keyboard>
-      <g-keyboard lang="id" type="inline">🌐 Permintaan Baru, ❓ Bantuan</g-keyboard>
+      <g-keyboard type="inline" lang="id">🌐 Permintaan Baru, ❓ Bantuan</g-keyboard>
       <g-message>
         🌐 HTTP Request Bot
 

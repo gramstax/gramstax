@@ -4,32 +4,31 @@ import {HelpPage} from "./help"
 import {CatalogPage} from "./catalog"
 import {HistoryPage} from "./history"
 
-class Main {
-  static async showIndex(ctx: StartPage, edit = false) {
-    await ctx.clearSession()
-    const kb = ctx.inlineKeyboardT([CatalogPage, CartPage, HistoryPage, HelpPage], `2`)
-    const da = {}
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-}
-
 export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Home`})
 
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bdefault.show(false)
   }
 
   async handleText() {
-    await Main.showIndex(this, false)
+    await this.bdefault.show(false)
   }
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bdefault.show(true)
+  }
+
+  bdefault = {
+    show: async (isEdit = false) => {
+      await this.clearSession()
+      const kb = this.inlineKeyboardT([CatalogPage, CartPage, HistoryPage, HelpPage], `2`)
+      if (isEdit) {
+        await this.edit(kb)
+      } else {
+        await this.reply(kb)
+      }
+    }
   }
 
   static template = `

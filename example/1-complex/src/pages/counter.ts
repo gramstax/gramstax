@@ -3,36 +3,7 @@ import {StartPage} from "./start"
 
 class Helper {
   static kb(ctx: CounterPage) {
-    const kb = ctx.inlineKeyboardT([CounterPage.data.callbackData(`I`), CounterPage.data.callbackData(`D`), StartPage], `2`)
-    return kb
-  }
-}
-
-class Main {
-  static async showIndex(ctx: CounterPage) {
-    const key = `${ctx.userId}`
-    const count = (await ctx.cacheData.get(key)) || `0`
-    const kb = Helper.kb(ctx)
-    const da = {count}
-    await ctx.edit(kb, da)
-  }
-
-  static async processIndex(ctx: CounterPage, execution: string) {
-    const key = `${ctx.userId}`
-    const getCache = (await ctx.cacheData.get(key)) as string
-    const data = getCache || `0`
-
-    let count
-    if (execution == `I`) {
-      count = `${parseInt(data) + 1}`
-    } else if (execution == `D`) {
-      count = `${parseInt(data) - 1}`
-    }
-
-    await ctx.cacheData.set(key, count)
-    const kb = Helper.kb(ctx)
-    const da = {count}
-    await ctx.edit(kb, da)
+    return ctx.inlineKeyboardT([ctx.data.callbackData(`I`), ctx.data.callbackData(`D`), StartPage], `2`)
   }
 }
 
@@ -40,17 +11,45 @@ export class CounterPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.default.show()
   }
 
   async handleArgsCallbackData() {
-    await Main.processIndex(this, this.callbackDataArg)
+    await this.default.process()
+  }
+
+  default = {
+    show: async () => {
+      const key = `${this.userId}`
+      const count = (await this.cacheData.get(key)) || `0`
+      const kb = Helper.kb(this)
+      const da = {count}
+      await this.edit(kb, da)
+    },
+    process: async () => {
+      const exe = this.callbackDataArg
+      const key = `${this.userId}`
+      const getCache = (await this.cacheData.get(key)) as string
+      const data = getCache || `0`
+
+      let count
+      if (exe == `I`) {
+        count = `${parseInt(data) + 1}`
+      } else if (exe == `D`) {
+        count = `${parseInt(data) - 1}`
+      }
+
+      await this.cacheData.set(key, count)
+      const kb = Helper.kb(this)
+      const da = {count}
+      await this.edit(kb, da)
+    }
   }
 
   static template = `
     <g-base>
       <g-keyboard type="inline">➕ Increase, ➖ Decrease, ${this.kbl.back.default}</g-keyboard>
-      <g-keyboard lang="id" type="inline">➕ Tambah, ➖ Kurang, ${this.kbl.back.id}</g-keyboard>
+      <g-keyboard type="inline" lang="id">➕ Tambah, ➖ Kurang, ${this.kbl.back.id}</g-keyboard>
       <g-message>
         🔢 Counter
 

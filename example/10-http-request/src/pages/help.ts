@@ -1,26 +1,25 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Main {
-  static async showIndex(ctx: HelpPage, edit = true) {
-    const kb = ctx.inlineKeyboardT([StartPage])
-    const da = {}
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-}
-
 // Help page with usage instructions.
 export class HelpPage extends PageBase {
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bdefault.show(false)
   }
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bdefault.show(true)
+  }
+
+  bdefault = {
+    show: async (isEdit = true) => {
+      const kb = this.inlineKeyboardT([StartPage])
+      if (isEdit) {
+        await this.edit(kb, {})
+      } else {
+        await this.reply(kb, {})
+      }
+    }
   }
 
   static template = `

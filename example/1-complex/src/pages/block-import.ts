@@ -1,17 +1,17 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Main {
-  static async showIndex(ctx: BlockImportPage) {
-    const kb = ctx.inlineKeyboardT([ctx, StartPage], `1`)
-    const da = {number: Math.random()}
-    await ctx.edit(kb, da)
-  }
-}
-
 export class BlockImportPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bdefault.show()
+  }
+
+  bdefault = {
+    show: async () => {
+      const kb = this.inlineKeyboardT([this, StartPage], `1`)
+      const da = {number: Math.random()}
+      await this.edit(kb, da)
+    }
   }
 
   static template = `

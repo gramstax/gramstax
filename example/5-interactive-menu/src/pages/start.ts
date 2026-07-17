@@ -10,41 +10,38 @@ class Base {
   static infoQuick = `i-quick`
 }
 
-class Main {
-  static async showIndex(ctx: StartPage, edit = false) {
-    const bi = Base.index
-    const ikb = ctx.inlineKeyboardT([CategoryPage, InlineWithRangePage, InlineWithoutRangePage, HelpPage, ResetPage], `2`, bi)
-    const da = {}
-    if (edit) {
-      await ctx.edit(ikb, da, bi)
-    } else {
-      await ctx.reply(ikb, da, bi)
-      await Main.showInfoQuick(ctx)
-    }
-  }
-
-  static async showInfoQuick(ctx: StartPage) {
-    const bi = Base.infoQuick
-    const bkb = ctx.bottomKeyboardT(`2`, bi)
-    const da = {}
-    await ctx.reply(bkb, da, bi)
-  }
-}
-
 // Main menu page for the interactive bot.
 export class StartPage extends PageBase {
   static data = this.buildData({intentText: `Home`})
 
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bindex.show(false)
   }
 
   async handleText() {
-    await Main.showIndex(this, false)
+    await this.bindex.show(false)
   }
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bindex.show(true)
+  }
+
+  bindex = {
+    show: async (isEdit = false) => {
+      const bi = Base.index
+      const ikb = this.inlineKeyboardT([CategoryPage, InlineWithRangePage, InlineWithoutRangePage, HelpPage, ResetPage], `2`)
+      if (isEdit) {
+        await this.edit(ikb, {}, bi)
+      } else {
+        await this.reply(ikb, {}, bi)
+        {
+          const bi = Base.infoQuick
+          const bkb = this.bottomKeyboardT(`2`, bi)
+          const da = {}
+          await this.reply(bkb, da, bi)
+        }
+      }
+    }
   }
 
   static template = `

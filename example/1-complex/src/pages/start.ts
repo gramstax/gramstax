@@ -30,8 +30,7 @@ class Base {
 
 class Helper {
   static kb(ctx: StartPage) {
-    const bi = Base.index
-    const kb = ctx.inlineKeyboard(
+    return ctx.inlineKeyboard(
       (k, l) => {
         return k
           .text(l[0]!, CounterPage.data.callbackData()) //
@@ -69,31 +68,8 @@ class Helper {
           .row()
           .text(l[22]!, ctx.data.callbackData())
       },
-      {cache: true, AGBaseId: bi}
+      {cache: true, AGBaseId: Base.index}
     )
-    return kb
-  }
-}
-
-class Main {
-  static async showIndex(ctx: StartPage, condition = 1) {
-    const bi = Base.index
-    const kb = Helper.kb(ctx)
-    const da = {
-      firstName: ctx.userFirstName,
-      time: new Date().toString(),
-      thumbsEmojiId: `5368324170671202286`
-    }
-
-    await ctx.clearSession()
-    if (condition == 1) {
-      await ctx.replyRich(kb, da, bi)
-    } else if (condition == 2) {
-      await ctx.edit(kb, da, bi)
-    } else if (condition == 3) {
-      await ctx.delete()
-      await ctx.reply(kb, da, bi)
-    }
   }
 }
 
@@ -101,34 +77,55 @@ export class StartPage extends PageBase {
   static data = this.buildData((rdm?: string) => [rdm])
 
   async handleText() {
-    await Main.showIndex(this, 1)
+    await this.bindex.show(1)
   }
 
   async handleArgsText() {
-    await Main.showIndex(this, 1)
+    await this.bindex.show(1)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this, 1)
+    await this.bindex.show(1)
   }
 
   async handleCommandArgsText() {
-    await Main.showIndex(this, 1)
+    await this.bindex.show(1)
   }
 
   async handleCallbackData() {
-    await Main.showIndex(this, 2)
+    await this.bindex.show(2)
   }
 
   async handleArgsCallbackData() {
-    await Main.showIndex(this, 3)
+    await this.bindex.show(3)
+  }
+
+  bindex = {
+    show: async (condition = 1) => {
+      const bi = Base.index
+      const kb = Helper.kb(this)
+      const da = {
+        firstName: this.userFirstName,
+        time: new Date().toString(),
+        thumbsEmojiId: `5368324170671202286`
+      }
+
+      await this.clearSession()
+      if (condition == 1) {
+        await this.replyRich(kb, da, bi)
+      } else if (condition == 2) {
+        await this.edit(kb, da, bi)
+      } else if (condition == 3) {
+        await this.delete()
+        await this.reply(kb, da, bi)
+      }
+    }
   }
 
   static template = `
     <g-base id="${Base.kbForImport}">
       ${this.kbk.refresh_back()}
     </g-base>
-
     <g-base id="${Base.forImport}">
       <g-import src="start" base="${Base.kbForImport}" />
       <g-message>
@@ -146,13 +143,12 @@ export class StartPage extends PageBase {
         Acak: {{number}}
       </g-message>
     </g-base>
-
     <g-base id="${Base.index}">
-      <g-description>Default description command /start</g-description>
-      <g-description lang="en">[EN] Description command /start</g-description>
-      <g-description lang="id">[ID] Deskripsi perintah /start</g-description>
+      <g-description>Default description command /start (you can change this)</g-description>
+      <g-description lang="en">[EN] Description command /start (you can change this)</g-description>
+      <g-description lang="id">[ID] Deskripsi perintah /start (anda dapat merubah ini)</g-description>
       <g-keyboard type="inline">🔢 Counter, 🧵 Counter Thread, ❓ Help, 🌐 Language, 🖼️ Test Photo, 🖼️ Test Media Group, 🎥 Test Video, 🎧 Test Audio, 📄 Test Document, 🎞️ Test Animation, 🎙️ Test Voice, 🎬 Test VideoN, 😀 Test Sticker, 📍 Test Location, 👤 Test Contact, 🧪 Test Error, 📝 Input Text2, ✍️ Input Text, 🧭 Block Map, 📦 Block Import, 🔀 Block Switch, ⌨️ KB Bottom, 🔄 Refresh</g-keyboard>
-      <g-keyboard lang="id" type="inline">🔢 Kounter, 🧵 Kounter Thread, ❓ Bantuan, 🌐 Bahasa, 🖼️ Test Foto, 🖼️ Test Media Grup, 🎥 Test Video, 🎧 Test Suara, 📄 Test Dokumen, 🎞️ Test Animasi, 🎙️ Test Suara, 🎬 Test VideoN, 😀 Test Stiker, 📍 Test Lokasi, 👤 Test Kontak, 🧪 Test Salah, 📝 Masukkan Teks2, ✍️ Masukkan Teks, 🧭 Blok Map, 📦 Blok Import, 🔀 Blok Switch, ⌨️ KB Bottom, 🔄 Segarkan</g-keyboard>
+      <g-keyboard type="inline" lang="id">🔢 Kounter, 🧵 Kounter Thread, ❓ Bantuan, 🌐 Bahasa, 🖼️ Test Foto, 🖼️ Test Media Grup, 🎥 Test Video, 🎧 Test Suara, 📄 Test Dokumen, 🎞️ Test Animasi, 🎙️ Test Suara, 🎬 Test VideoN, 😀 Test Stiker, 📍 Test Lokasi, 👤 Test Kontak, 🧪 Test Salah, 📝 Masukkan Teks2, ✍️ Masukkan Teks, 🧭 Blok Map, 📦 Blok Import, 🔀 Blok Switch, ⌨️ KB Bottom, 🔄 Segarkan</g-keyboard>
       <g-message>
         {{time}}
 

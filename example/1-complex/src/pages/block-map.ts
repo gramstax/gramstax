@@ -1,22 +1,22 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Main {
-  static async showIndex(ctx: BlockMapPage) {
-    const kb = ctx.inlineKeyboardT([ctx, StartPage], `1`)
-    const da = {
-      arr: Array.from({length: Math.floor(Math.random() * 4) + 3}, () => ({number: Math.random()})),
-      status: 1,
-      e: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`,
-      i: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`
-    }
-    await ctx.edit(kb, da)
-  }
-}
-
 export class BlockMapPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bdefault.show()
+  }
+
+  bdefault = {
+    show: async () => {
+      const kb = this.inlineKeyboardT([this, StartPage], `1`)
+      const da = {
+        arr: Array.from({length: Math.floor(Math.random() * 4) + 3}, () => ({number: Math.random()})),
+        status: 1,
+        e: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`,
+        i: `It will not work if accessed inside the &lt;map&gt; block. Change it first with the "as" and "index" attributes in &lt;map&gt;`
+      }
+      await this.edit(kb, da)
+    }
   }
 
   static template = `

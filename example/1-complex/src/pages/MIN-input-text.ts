@@ -4,9 +4,8 @@ import {StartPage} from "./start"
 export class InputTextPage extends PageBase {
   async handleCommandText() {
     const kb = this.inlineKeyboardT([StartPage])
-    const da = {}
     await this.setSessionFreeText()
-    await this.reply(kb, da)
+    await this.reply(kb)
   }
 
   async handleSessionFreeText() {

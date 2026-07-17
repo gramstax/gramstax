@@ -1,36 +1,31 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Main {
-  static async showIndex(ctx: ResetPage, edit = false) {
-    await ctx.clearSession()
-    await ctx.cacheState.delete(`${ctx.userId}:category`)
-    await ctx.cacheState.delete(`${ctx.userId}:page`)
-
-    const kb = ctx.inlineKeyboardT([StartPage], `1`)
-    const da = {}
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-}
-
 // Reset state and return to main menu.
 export class ResetPage extends PageBase {
   static data = this.buildData({intentText: `Reset`})
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bdefault.show(true)
   }
 
   async handleText() {
-    await Main.showIndex(this, false)
+    await this.bdefault.show(false)
   }
 
-  async showIndex(edit = false) {
-    await Main.showIndex(this, edit)
+  bdefault = {
+    show: async (isEdit = false) => {
+      await this.clearSession()
+      await this.cacheState.delete(`${this.userId}:category`)
+      await this.cacheState.delete(`${this.userId}:page`)
+
+      const kb = this.inlineKeyboardT([StartPage])
+      if (isEdit) {
+        await this.edit(kb)
+      } else {
+        await this.reply(kb)
+      }
+    }
   }
 
   static template = `

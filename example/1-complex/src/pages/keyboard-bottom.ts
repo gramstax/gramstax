@@ -9,7 +9,6 @@ class Base {
 
 class Helper {
   static async built(ctx: KeyboardBottomPage, count?: number, AGBaseId?: string) {
-    const da = {}
     const kb = ctx.bottomKeyboard(
       (k, l) => {
         return k
@@ -25,37 +24,7 @@ class Helper {
         }
       }
     )
-    await ctx.reply(kb, da, AGBaseId)
-  }
-}
-
-class Main {
-  static async showIndex(ctx: KeyboardBottomPage, count?: number) {
-    await Helper.built(ctx, count, Base.index)
-  }
-
-  static async processIndex(ctx: KeyboardBottomPage, action?: string) {
-    if (action === Base.reset) {
-      await Main.showReset(ctx, action)
-    } else if (action === Base.delete) {
-      await Main.showDelete(ctx, action)
-    } else {
-      await Main.showIndex(ctx, parseInt(ctx.msgTextArg))
-    }
-  }
-
-  static async showDelete(ctx: KeyboardBottomPage, bi: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, Base.index)
-    const da = {}
-    await ctx.reply(kb, da, bi, {
-      reply_markup: {
-        remove_keyboard: true
-      }
-    })
-  }
-
-  static async showReset(ctx: KeyboardBottomPage, bi: string) {
-    await Helper.built(ctx, undefined, bi)
+    await ctx.reply(kb, {}, AGBaseId)
   }
 }
 
@@ -66,31 +35,61 @@ export class KeyboardBottomPage extends PageBase {
   })
 
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bindex.show()
   }
 
   async handleText() {
-    await Main.showIndex(this)
+    await this.bindex.show()
   }
 
   async handleArgsText() {
-    await Main.processIndex(this)
+    await this.bindex.process(this.msgTextArg)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this)
+    await this.bindex.show()
   }
 
   async handleCommandArgsText() {
-    await Main.processIndex(this, this.msgTextCommandArg)
+    await this.bindex.process(this.msgTextCommandArg)
+  }
+
+  bindex = {
+    show: async (count?: number) => {
+      await Helper.built(this, count, Base.index)
+    },
+    process: async (action: string) => {
+      if (action === Base.reset) {
+        await this.breset.show()
+      } else if (action === Base.delete) {
+        await this.bdelete.show()
+      } else {
+        await this.bindex.show(parseInt(this.msgTextArg))
+      }
+    }
+  }
+  breset = {
+    show: async () => {
+      await Helper.built(this, undefined, Base.reset)
+    }
+  }
+  bdelete = {
+    show: async () => {
+      const kb = this.inlineKeyboardT([StartPage], `1`, Base.index)
+      await this.reply(kb, {}, Base.delete, {
+        reply_markup: {
+          remove_keyboard: true
+        }
+      })
+    }
   }
 
   static template = `    
     <g-base id="${Base.index}">
       <g-keyboard type="inline">${this.kbl.home.default}</g-keyboard>
-      <g-keyboard lang="id" type="inline">${this.kbl.home.id}</g-keyboard>
+      <g-keyboard type="inline" lang="id">${this.kbl.home.id}</g-keyboard>
       <g-keyboard type="bottom">{{first}}, ${this.kbl.home.default}</g-keyboard>
-      <g-keyboard lang="id" type="bottom">{{first}}, ${this.kbl.home.id}</g-keyboard>
+      <g-keyboard type="bottom" lang="id">{{first}}, ${this.kbl.home.id}</g-keyboard>
       <g-message>
         ⌨️ Bottom keyboard
 
@@ -101,8 +100,7 @@ export class KeyboardBottomPage extends PageBase {
 
         Gunakan keyboard bawah dengan emoji dan argument dinamis untuk aksi cepat.
       </g-message>
-    </g-base>
-    
+    </g-base>    
     <g-base id="${Base.reset}">
       <g-message>
         ✅ Keyboard reset
@@ -115,7 +113,6 @@ export class KeyboardBottomPage extends PageBase {
         Keyboard bawah berhasil direset.
       </g-message>    
     </g-base>
-
     <g-base id="${Base.delete}">
       <g-message>
         ✅ Keyboard removed

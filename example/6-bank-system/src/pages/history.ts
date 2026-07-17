@@ -34,19 +34,19 @@ class Helper {
   }
 }
 
-class Main {
-  static async showIndex(ctx: HistoryPage) {
-    const history = Helper.formatHistory(ctx)
-    const kb = ctx.inlineKeyboardT([StartPage])
-    const da = {history}
-    await ctx.edit(kb, da)
-  }
-}
-
 // Shows recent transaction history.
 export class HistoryPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bdefault.show()
+  }
+
+  bdefault = {
+    show: async () => {
+      const history = Helper.formatHistory(this)
+      const kb = this.inlineKeyboardT([StartPage])
+      const da = {history}
+      await this.edit(kb, da)
+    }
   }
 
   static template = `

@@ -2,60 +2,55 @@ import {PageBase} from "~/base/page"
 import {HelpPage} from "./help"
 import {StatsPage} from "./stats"
 
-class Main {
-  static async showIndex(ctx: StartPage, edit = true) {
-    await ctx.clearSession()
-    const subscribed = await ctx.db.subs.isSubscribed(ctx.userId)
-    const da = {subscribed}
-    const kb = ctx.inlineKeyboardT([StartPage.data.callbackData(`switch`), StatsPage, HelpPage], `2`, null, da)
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-
-  static async processIndex(ctx: StartPage) {
-    const subscribed = await ctx.db.subs.isSubscribed(ctx.userId)
-    if (subscribed) {
-      await ctx.db.subs.unsubscribe(ctx.userId)
-    } else {
-      await ctx.db.subs.subscribe(ctx.userId, {
-        userName: ctx.userName,
-        fullName: ctx.userFullName,
-        language: ctx.userLanguage
-      })
-    }
-    await Main.showIndex(ctx, true)
-  }
-}
-
 export class StartPage extends PageBase {
   static data = this.buildData((action?: string) => [action])
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bdefault.show(true)
   }
 
   async handleArgsCallbackData() {
-    const [action] = this.callbackDataArgs
-    if (action === `switch`) {
-      await Main.processIndex(this)
-    }
+    const action = this.callbackDataArg
+    await this.bdefault.process(action)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bdefault.show(false)
   }
 
-  async showIndex(edit = true) {
-    await Main.showIndex(this, edit)
+  bdefault = {
+    show: async (isEdit = true) => {
+      await this.clearSession()
+      const subscribed = await this.db.subs.isSubscribed(this.userId)
+      const da = {subscribed}
+      const kb = this.inlineKeyboardT([StartPage.data.callbackData(`switch`), StatsPage, HelpPage], `2`, null, da)
+      if (isEdit) {
+        await this.edit(kb, da)
+      } else {
+        await this.reply(kb, da)
+      }
+    },
+    process: async (action: string) => {
+      if (action === `switch`) {
+        const subscribed = await this.db.subs.isSubscribed(this.userId)
+        if (subscribed) {
+          await this.db.subs.unsubscribe(this.userId)
+        } else {
+          await this.db.subs.subscribe(this.userId, {
+            userName: this.userName,
+            fullName: this.userFullName,
+            language: this.userLanguage
+          })
+        }
+        await this.bdefault.show(true)
+      }
+    }
   }
 
   static template = `
     <g-base>
       <g-keyboard type="inline">{~subscribed ? "🚫 Unsubscribe" : "✅ Subscribe"~}, 📊 Stats, ❓ Help</g-keyboard>
-      <g-keyboard lang="id" type="inline">{~subscribed ? "🚫 Berhenti" : "✅ Langganan"~}, 📊 Statistik, ❓ Bantuan</g-keyboard>
+      <g-keyboard type="inline" lang="id">{~subscribed ? "🚫 Berhenti" : "✅ Langganan"~}, 📊 Statistik, ❓ Bantuan</g-keyboard>
       <g-message>
         📰 Newsletter Hub
 

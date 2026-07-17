@@ -1,19 +1,19 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Main {
-  static async showIndex(ctx: StatsPage) {
-    const count = await ctx.db.subs.total()
-    const subscribed = await ctx.db.subs.isSubscribed(ctx.userId)
-    const kb = ctx.inlineKeyboardT([StartPage])
-    const da = {count, subscribed}
-    await ctx.edit(kb, da)
-  }
-}
-
 export class StatsPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bdefault.show()
+  }
+
+  bdefault = {
+    show: async () => {
+      const count = await this.db.subs.total()
+      const subscribed = await this.db.subs.isSubscribed(this.userId)
+      const kb = this.inlineKeyboardT([StartPage])
+      const da = {count, subscribed}
+      await this.edit(kb, da)
+    }
   }
 
   static template = `

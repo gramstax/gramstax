@@ -8,33 +8,7 @@ class Base {
 
 class Helper {
   static kb(ctx: InputTextPage, AGBaseId?: string) {
-    const kb = ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
-    return kb
-  }
-}
-
-class Main {
-  static async showIndex(ctx: InputTextPage, edit = true) {
-    const bi = Base.index
-    const kb = Helper.kb(ctx, bi)
-    const da = {}
-    await ctx.setSessionFreeText({step: bi})
-    if (edit) {
-      await ctx.edit(kb, da, bi)
-    } else {
-      await ctx.reply(kb, da, bi)
-    }
-  }
-
-  static async processIndex(ctx: InputTextPage) {
-    await Main.showSuccess(ctx)
-  }
-
-  static async showSuccess(ctx: InputTextPage) {
-    const bi = Base.success
-    const da = {res: ctx.msgText}
-    const kb = Helper.kb(ctx, bi)
-    await ctx.reply(kb, da, bi)
+    return ctx.inlineKeyboardT([StartPage], `1`, AGBaseId)
   }
 }
 
@@ -42,17 +16,41 @@ export class InputTextPage extends PageBase {
   static data = this.buildData({intentCommandText: `input_text`})
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bindex.show(true)
   }
 
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bindex.show(false)
   }
 
   async handleSessionFreeText() {
     const {step} = this.temp.session.params
     if (step === Base.index) {
-      await Main.processIndex(this)
+      await this.bindex.process()
+    }
+  }
+
+  bindex = {
+    show: async (isEdit = true) => {
+      const bi = Base.index
+      const kb = Helper.kb(this, bi)
+      await this.setSessionFreeText({step: bi})
+      if (isEdit) {
+        await this.edit(kb, {}, bi)
+      } else {
+        await this.reply(kb, {}, bi)
+      }
+    },
+    process: async () => {
+      await this.bsuccess.show()
+    }
+  }
+  bsuccess = {
+    show: async () => {
+      const bi = Base.success
+      const da = {res: this.msgText}
+      const kb = Helper.kb(this, bi)
+      await this.reply(kb, da, bi)
     }
   }
 
@@ -70,7 +68,6 @@ export class InputTextPage extends PageBase {
         Kirim teks apa pun dan hasilnya akan ditampilkan pada langkah berikutnya.
       </g-message>
     </g-base>
-
     <g-base id="${Base.success}">
       ${this.kbk.home()}
       <g-message>

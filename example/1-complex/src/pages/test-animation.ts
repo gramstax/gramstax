@@ -3,45 +3,20 @@ import {StartPage} from "./start"
 
 class Base {
   static index = `i`
-  static dynamicAttr = `dynamic-attribute`
+  static dynamic = `dynamic-attribute`
 }
 
 class Helper {
-  static kbIndex(ctx: TestAnimationPage, isDynamic = false) {
-    const bi = Base.index
-    const kb = ctx.inlineKeyboard(
+  static kb(ctx: TestAnimationPage, isDynamic = false) {
+    return ctx.inlineKeyboard(
       (k, l) => {
         return k //
           .text(isDynamic ? l[1] : l[0]!, ctx.data.callbackData(isDynamic ? `static` : `dynamic`))
           .row()
           .text(l[2]!, StartPage.data.callbackData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the `handleArgsCallbackData` route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
       },
-      {AGBaseId: bi}
+      {AGBaseId: Base.index}
     )
-    return kb
-  }
-}
-
-class Main {
-  static async showIndex(ctx: TestAnimationPage) {
-    const bi = Base.index
-    const kb = Helper.kbIndex(ctx)
-    const da = {}
-    await ctx.editAnimation(kb, da, bi)
-  }
-
-  static async processIndex(ctx: TestAnimationPage) {
-    const swc = ctx.callbackDataArg
-    if (swc == `static`) {
-      await ctx.handleCallbackData()
-    } else if (swc == `dynamic`) {
-      const bi = Base.dynamicAttr
-      const kb = Helper.kbIndex(ctx, true)
-      const da = {
-        src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
-      }
-      await ctx.editAnimation(kb, da, bi)
-    }
   }
 }
 
@@ -49,17 +24,40 @@ export class TestAnimationPage extends PageBase {
   static data = this.buildData((swc?: string) => [swc])
 
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bindex.show()
   }
 
   async handleArgsCallbackData() {
-    await Main.processIndex(this)
+    await this.bdynamic.show()
+  }
+
+  bindex = {
+    show: async () => {
+      const bi = Base.index
+      const kb = Helper.kb(this)
+      await this.editAnimation(kb, {}, bi)
+    }
+  }
+  bdynamic = {
+    show: async () => {
+      const swc = this.callbackDataArg
+      if (swc == `static`) {
+        await this.handleCallbackData()
+      } else if (swc == `dynamic`) {
+        const bi = Base.dynamic
+        const kb = Helper.kb(this, true)
+        const da = {
+          src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
+        }
+        await this.editAnimation(kb, da, bi)
+      }
+    }
   }
 
   static template = `
     <g-base id="${Base.index}">
       <g-keyboard type="inline">🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.default}</g-keyboard>
-      <g-keyboard lang="id" type="inline">🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.id}</g-keyboard>
+      <g-keyboard type="inline" lang="id">🧩 Dynamic Attr, 📌 Static Attr, ${this.kbl.back.id}</g-keyboard>
       <g-media type="animation" src="https://www.easygifanimator.net/images/samples/eglite.gif">
         🎞️ Animation demo
         
@@ -71,8 +69,7 @@ export class TestAnimationPage extends PageBase {
         Animasi ini menunjukkan sumber media statis dengan caption.
       </g-media>
     </g-base>
-    
-    <g-base id="${Base.dynamicAttr}">
+    <g-base id="${Base.dynamic}">
       <g-media type="animation" src="{{src}}">
         🧩 Dynamic attribute demo
 

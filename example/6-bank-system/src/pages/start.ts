@@ -5,32 +5,31 @@ import {DepositPage} from "./deposit"
 import {WithdrawPage} from "./withdraw"
 import {TransferPage} from "./transfer"
 
-class Main {
-  static async showIndex(ctx: StartPage, edit = true) {
-    const kb = ctx.inlineKeyboardT([BalancePage, DepositPage, WithdrawPage, TransferPage, HistoryPage], `2`)
-    const da = {}
-    if (edit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
-  }
-}
-
 // Main menu page for the bank system bot.
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await Main.showIndex(this, false)
+    await this.bdefault.show(false)
   }
 
   async handleCallbackData() {
-    await Main.showIndex(this, true)
+    await this.bdefault.show(true)
+  }
+
+  bdefault = {
+    show: async (isEdit = true) => {
+      const kb = this.inlineKeyboardT([BalancePage, DepositPage, WithdrawPage, TransferPage, HistoryPage], `2`)
+      if (isEdit) {
+        await this.edit(kb)
+      } else {
+        await this.reply(kb)
+      }
+    }
   }
 
   static template = `
     <g-base>
       <g-keyboard type="inline">💳 Balance, ➕ Deposit, ➖ Withdraw, 🔁 Transfer, 📜 History</g-keyboard>
-      <g-keyboard lang="id" type="inline">💳 Saldo, ➕ Setor, ➖ Tarik, 🔁 Transfer, 📜 Riwayat</g-keyboard>
+      <g-keyboard type="inline" lang="id">💳 Saldo, ➕ Setor, ➖ Tarik, 🔁 Transfer, 📜 Riwayat</g-keyboard>
       <g-message>
         💼 Banking Menu
 

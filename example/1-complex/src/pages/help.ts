@@ -1,17 +1,15 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
-class Main {
-  static async showIndex(ctx: HelpPage) {
-    const kb = ctx.inlineKeyboardT([StartPage])
-    const da = {}
-    await ctx.edit(kb, da)
-  }
-}
-
 export class HelpPage extends PageBase {
   async handleCallbackData() {
-    await Main.showIndex(this)
+    await this.bdefault.show()
+  }
+
+  bdefault = {
+    show: async () => {
+      await this.edit(this.inlineKeyboardT([StartPage]))
+    }
   }
 
   static template = `

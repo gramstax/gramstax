@@ -11,105 +11,87 @@ class Base {
   static warnMissing = `w-missing`
 }
 
-class Helper {
-  static async getCart(ctx: ProductPage): Promise<CartState> {
-    return ((await ctx.cacheState.get(`${ctx.userId}:cart`)) ?? {}) as CartState
-  }
-
-  static async setCart(ctx: ProductPage, cart: CartState) {
-    await ctx.cacheState.set(`${ctx.userId}:cart`, cart)
-  }
-
-  static kb(ctx: ProductPage, productId: string, bi?: string) {
-    return ctx.inlineKeyboardT([ctx.data.callbackData(`buy`, productId), ctx.data.callbackData(`add`, productId), CartPage, CatalogPage], `2-1`, bi)
-  }
-
-  static kbBack(ctx: ProductPage, bi?: string) {
-    return ctx.inlineKeyboardT([CatalogPage, CartPage], `2`, bi)
-  }
-}
-
-class Main {
-  static async showIndex(ctx: ProductPage, productId: string) {
-    const product = ProductCatalog.getById(productId)
-    if (!product) {
-      return await Main.showWarnMissing(ctx)
-    }
-
-    const bi = Base.index
-    const kb = Helper.kb(ctx, productId, bi)
-    const da = {
-      name: product.name,
-      service: product.service,
-      duration: product.duration,
-      accountType: product.accountType,
-      stock: ProductCatalog.detailStockLabel(product),
-      price: ProductCatalog.formatPrice(product.price),
-      description: product.description,
-      benefits: product.benefits.map((benefit) => `• ${benefit}`).join(`\n`),
-      delivery: product.deliveryEstimate
-    }
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async processIndex(ctx: ProductPage, action?: string, productId?: string) {
-    if (!productId) {
-      return await Main.showWarnMissing(ctx)
-    }
-
-    const product = ProductCatalog.getById(productId)
-    if (!product) {
-      return await Main.showWarnMissing(ctx)
-    }
-
-    if (product.stockStatus !== `available`) {
-      return await Main.showWarnStock(ctx, productId)
-    }
-
-    const cart = await Helper.getCart(ctx)
-    const next = CartStore.addItem(cart, productId)
-    await Helper.setCart(ctx, next)
-
-    if (action === `buy`) {
-      await new CheckoutPage(ctx).showIndex(true)
-    } else if (action === `add`) {
-      await Main.showInfoAdded(ctx, productId)
-    }
-  }
-
-  static async showInfoAdded(ctx: ProductPage, productId: string) {
-    const product = ProductCatalog.getById(productId)
-    const bi = Base.infoAdded
-    const kb = Helper.kbBack(ctx, bi)
-    const da = {name: product?.name ?? `Selected product`}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async showWarnStock(ctx: ProductPage, productId: string) {
-    const product = ProductCatalog.getById(productId)
-    const bi = Base.warnStock
-    const kb = Helper.kbBack(ctx, bi)
-    const da = {name: product?.name ?? `This product`}
-    await ctx.edit(kb, da, bi)
-  }
-
-  static async showWarnMissing(ctx: ProductPage) {
-    const bi = Base.warnMissing
-    const kb = Helper.kbBack(ctx, bi)
-    const da = {}
-    await ctx.edit(kb, da, bi)
-  }
-}
-
 export class ProductPage extends PageBase {
   static data = this.buildData((action?: string, productId?: string) => [action, productId])
 
   async handleArgsCallbackData() {
     const [action, productId] = this.callbackDataArgs
     if (action === `detail` && productId) {
-      await Main.showIndex(this, productId)
+      await this.bindex.show(productId)
     } else {
-      await Main.processIndex(this, action, productId)
+      await this.bindex.process(action, productId)
+    }
+  }
+
+  bindex = {
+    show: async (productId: string) => {
+      const product = ProductCatalog.getById(productId)
+      if (!product) {
+        return await this.bwarnMissing.show()
+      }
+
+      const kb = this.inlineKeyboardT([this.data.callbackData(`buy`, productId), this.data.callbackData(`add`, productId), CartPage, CatalogPage], `2-1`, Base.index)
+      const da = {
+        name: product.name,
+        service: product.service,
+        duration: product.duration,
+        accountType: product.accountType,
+        stock: ProductCatalog.detailStockLabel(product),
+        price: ProductCatalog.formatPrice(product.price),
+        description: product.description,
+        benefits: product.benefits.map((benefit) => `• ${benefit}`).join(`\n`),
+        delivery: product.deliveryEstimate
+      }
+      await this.edit(kb, da, Base.index)
+    },
+    process: async (action?: string, productId?: string) => {
+      if (!productId) {
+        return await this.bwarnMissing.show()
+      }
+
+      const product = ProductCatalog.getById(productId)
+      if (!product) {
+        return await this.bwarnMissing.show()
+      }
+
+      if (product.stockStatus !== `available`) {
+        return await this.bwarnStock.show(productId)
+      }
+
+      const cart = ((await this.cacheState.get(`${this.userId}:cart`)) ?? {}) as CartState
+      const next = CartStore.addItem(cart, productId)
+      await this.cacheState.set(`${this.userId}:cart`, next)
+
+      if (action === `buy`) {
+        await new CheckoutPage(this).bindex.show()
+      } else if (action === `add`) {
+        await this.binfoAdded.show(productId)
+      }
+    }
+  }
+
+  binfoAdded = {
+    show: async (productId: string) => {
+      const product = ProductCatalog.getById(productId)
+      const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.infoAdded)
+      const da = {name: product?.name ?? `Selected product`}
+      await this.edit(kb, da, Base.infoAdded)
+    }
+  }
+
+  bwarnStock = {
+    show: async (productId: string) => {
+      const product = ProductCatalog.getById(productId)
+      const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.warnStock)
+      const da = {name: product?.name ?? `This product`}
+      await this.edit(kb, da, Base.warnStock)
+    }
+  }
+
+  bwarnMissing = {
+    show: async () => {
+      const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.warnMissing)
+      await this.edit(kb, {}, Base.warnMissing)
     }
   }
 
@@ -148,7 +130,6 @@ export class ProductPage extends PageBase {
         {{benefits}}
       </g-message>
     </g-base>
-
     <g-base id="${Base.infoAdded}">
       <g-keyboard type="inline">🔎 Browse, 🛒 Cart</g-keyboard>
       <g-keyboard type="inline" lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
@@ -163,7 +144,6 @@ export class ProductPage extends PageBase {
         {{name}} sekarang di keranjang Anda. Anda dapat melanjutkan belanja atau lihat keranjang kapan saja.
       </g-message>
     </g-base>
-
     <g-base id="${Base.warnStock}">
       <g-keyboard type="inline">🔎 Browse, 🛒 Cart</g-keyboard>
       <g-keyboard type="inline" lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
@@ -178,7 +158,6 @@ export class ProductPage extends PageBase {
         {{name}} sedang tidak tersedia. Silakan pilih produk lain atau cek lagi nanti.
       </g-message>
     </g-base>
-
     <g-base id="${Base.warnMissing}">
       <g-keyboard type="inline">🔎 Browse Products, 🛒 Cart</g-keyboard>
       <g-keyboard type="inline" lang="id">🔎 Jelajahi, 🛒 Keranjang</g-keyboard>
