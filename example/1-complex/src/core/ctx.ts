@@ -5,6 +5,6 @@ export class CtxCore extends Ctx {
 
   constructor(params: ConstructorParameters<typeof Ctx>[0] & {cacheData: CacheExternal}) {
     super({...params})
-    this.cacheData = params.cacheData
+    this.cacheData = params.cacheData ?? (params as any).ct?.cacheData
   }
 }

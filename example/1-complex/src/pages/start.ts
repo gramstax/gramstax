@@ -33,40 +33,40 @@ class Helper {
     return ctx.inlineKeyboard(
       (k, l) => {
         return k
-          .text(l[0]!, CounterPage.data.callbackData()) //
-          .text(l[1]!, CounterThreadPage.data.callbackData())
+          .text(l[0]!, CounterPage.data.callbackQueryData()) //
+          .text(l[1]!, CounterThreadPage.data.callbackQueryData())
           .row()
-          .text(l[2]!, HelpPage.data.callbackData())
-          .text(l[3]!, LanguagePage.data.callbackData())
+          .text(l[2]!, HelpPage.data.callbackQueryData())
+          .text(l[3]!, LanguagePage.data.callbackQueryData())
           .row()
-          .text(l[4]!, TestPhotoPage.data.callbackData())
-          .text(l[5]!, TestMediaGroupPage.data.callbackData())
+          .text(l[4]!, TestPhotoPage.data.callbackQueryData())
+          .text(l[5]!, TestMediaGroupPage.data.callbackQueryData())
           .row()
-          .text(l[6]!, TestVideoPage.data.callbackData())
-          .text(l[7]!, TestAudioPage.data.callbackData())
+          .text(l[6]!, TestVideoPage.data.callbackQueryData())
+          .text(l[7]!, TestAudioPage.data.callbackQueryData())
           .row()
-          .text(l[8]!, TestDocumentPage.data.callbackData())
-          .text(l[9]!, TestAnimationPage.data.callbackData())
+          .text(l[8]!, TestDocumentPage.data.callbackQueryData())
+          .text(l[9]!, TestAnimationPage.data.callbackQueryData())
           .row()
-          .text(l[10]!, TestVoicePage.data.callbackData())
-          .text(l[11]!, TestVideoNotePage.data.callbackData())
+          .text(l[10]!, TestVoicePage.data.callbackQueryData())
+          .text(l[11]!, TestVideoNotePage.data.callbackQueryData())
           .row()
-          .text(l[12]!, TestStickerPage.data.callbackData())
-          .text(l[13]!, TestLocationPage.data.callbackData())
+          .text(l[12]!, TestStickerPage.data.callbackQueryData())
+          .text(l[13]!, TestLocationPage.data.callbackQueryData())
           .row()
-          .text(l[14]!, TestContactPage.data.callbackData())
-          .text(l[15]!, TestErrorPage.data.callbackData())
+          .text(l[14]!, TestContactPage.data.callbackQueryData())
+          .text(l[15]!, TestErrorPage.data.callbackQueryData())
           .row()
-          .text(l[16]!, InputText2Page.data.callbackData())
-          .text(l[17]!, InputTextPage.data.callbackData())
+          .text(l[16]!, InputText2Page.data.callbackQueryData())
+          .text(l[17]!, InputTextPage.data.callbackQueryData())
           .row()
-          .text(l[18]!, BlockMapPage.data.callbackData())
-          .text(l[19]!, BlockImportPage.data.callbackData())
+          .text(l[18]!, BlockMapPage.data.callbackQueryData())
+          .text(l[19]!, BlockImportPage.data.callbackQueryData())
           .row()
-          .text(l[20]!, BlockSwitchPage.data.callbackData())
-          .text(l[21]!, KeyboardBottomPage.data.callbackData())
+          .text(l[20]!, BlockSwitchPage.data.callbackQueryData())
+          .text(l[21]!, KeyboardBottomPage.data.callbackQueryData())
           .row()
-          .text(l[22]!, ctx.data.callbackData())
+          .text(l[22]!, ctx.data.callbackQueryData())
       },
       {cache: true, AGBaseId: Base.index}
     )
@@ -92,11 +92,11 @@ export class StartPage extends PageBase {
     await this.bindex.show(1)
   }
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bindex.show(2)
   }
 
-  async handleArgsCallbackData() {
+  async handleArgsCallbackQueryData() {
     await this.bindex.show(3)
   }
 
@@ -105,19 +105,19 @@ export class StartPage extends PageBase {
       const bi = Base.index
       const kb = Helper.kb(this)
       const da = {
-        firstName: this.userFirstName,
+        firstName: this.from!.first_name,
         time: new Date().toString(),
         thumbsEmojiId: `5368324170671202286`
       }
 
       await this.clearSession()
       if (condition == 1) {
-        await this.replyRich(kb, da, bi)
+        await this.renderRich(kb, da, bi)
       } else if (condition == 2) {
-        await this.edit(kb, da, bi)
+        await this.renderEdit(kb, da, bi)
       } else if (condition == 3) {
-        await this.delete()
-        await this.reply(kb, da, bi)
+        await this.deleteMessage()
+        await this.render(kb, da, bi)
       }
     }
   }

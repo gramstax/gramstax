@@ -4,20 +4,20 @@ import {StartPage} from "./start"
 export class BlockSwitchPage extends PageBase {
   static data = this.buildData((status?: string) => [status])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(`0`)
   }
 
-  async handleArgsCallbackData() {
-    const [status] = this.callbackDataArgs
+  async handleArgsCallbackQueryData() {
+    const [status] = this.callbackQueryDataArgs
     await this.bdefault.show(status!)
   }
 
   bdefault = {
     show: async (status: string) => {
       const da = {status}
-      const kb = this.inlineKeyboardT([this.data.callbackData(status == `1` ? `0` : `1`), StartPage], `1`, null, da)
-      await this.edit(kb, da)
+      const kb = this.inlineKeyboardT([this.data.callbackQueryData(status == `1` ? `0` : `1`), StartPage], `1`, null, da)
+      await this.renderEdit(kb, da)
     }
   }
 

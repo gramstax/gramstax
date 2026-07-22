@@ -5,12 +5,12 @@ import {IncrementJob} from "~/jobs/increment"
 export class CounterThreadPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show()
   }
 
-  async handleArgsCallbackData() {
-    const [exe] = this.callbackDataArgs
+  async handleArgsCallbackQueryData() {
+    const [exe] = this.callbackQueryDataArgs
     if (exe === `1`) {
       await this.bdefault.process()
     }
@@ -19,9 +19,9 @@ export class CounterThreadPage extends PageBase {
   bdefault = {
     show: async () => {
       const count = await IncrementJob.mtdGetCount() // difference thread
-      const kb = this.inlineKeyboardT([this.data.callbackData(`1`), StartPage])
+      const kb = this.inlineKeyboardT([this.data.callbackQueryData(`1`), StartPage])
       const da = {count, timestamp: new Date().getTime()}
-      await this.edit(kb, da)
+      await this.renderEdit(kb, da)
     },
     process: async () => {
       await this.bdefault.show()

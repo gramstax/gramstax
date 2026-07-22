@@ -5,7 +5,7 @@ export class StartPage extends PageBase {
     await this.bdefault.show(false)
   }
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
@@ -14,9 +14,9 @@ export class StartPage extends PageBase {
       const kb = this.inlineKeyboardT([this])
       const da = {time: new Date().toString()}
       if (isEdit) {
-        await this.edit(kb, da)
+        await this.renderEdit(kb, da)
       } else {
-        await this.reply(kb, da)
+        await this.render(kb, da)
       }
     }
   }

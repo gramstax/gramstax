@@ -8,7 +8,7 @@ class Helper {
       const backButton = l[l.length - 1]! // Get the back button text
 
       // Get current user language for comparison
-      const currentLang = ctx.userLanguage?.toLowerCase()
+      const currentLang = ctx.from!.language_code!.toLowerCase()
 
       // Add language buttons in rows of 3
       for (let i = 0; i < languages.length; i += 3) {
@@ -17,13 +17,13 @@ class Helper {
           const langCode = lang.toLowerCase()
           const isSelected = langCode.endsWith(currentLang)
           const displayText = isSelected ? `+ ${lang}` : lang
-          k.text(displayText, ctx.data.callbackData(langCode))
+          k.text(displayText, ctx.data.callbackQueryData(langCode))
         })
         k.row()
       }
 
       // Add back button
-      return k.text(backButton, StartPage.data.callbackData())
+      return k.text(backButton, StartPage.data.callbackQueryData())
     })
   }
 }
@@ -31,24 +31,24 @@ class Helper {
 export class LanguagePage extends PageBase {
   static data = this.buildData((lang?: string) => [lang])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show()
   }
 
-  async handleArgsCallbackData() {
+  async handleArgsCallbackQueryData() {
     await this.bdefault.process()
   }
 
   bdefault = {
     show: async () => {
       const kb = Helper.kb(this)
-      await this.edit(kb)
+      await this.renderEdit(kb)
     },
     process: async () => {
-      const language = this.callbackDataArg.toLowerCase().split(` `)[1] as string
+      const language = this.callbackQueryDataArg.toLowerCase().split(` `)[1] as string
 
-      await this.cacheData.set(`${this.userId}:lang`, language)
-      this.userLanguage = language
+      this.from!.language_code = language
+      await this.cacheData.set(`${this.from!.id}:lang`, language)
       await this.bdefault.show()
     }
   }

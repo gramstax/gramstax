@@ -5,15 +5,15 @@ export class InputTextPage extends PageBase {
   async handleCommandText() {
     const kb = this.inlineKeyboardT([StartPage])
     await this.setSessionFreeText()
-    await this.reply(kb)
+    await this.render(kb)
   }
 
   async handleSessionFreeText() {
     const bi = `success`
-    const da = {res: this.msgText}
+    const da = {res: this.msg?.text}
     const kb = this.inlineKeyboardT([StartPage], `1`, bi)
     await this.clearSession()
-    await this.reply(kb, da, bi)
+    await this.render(kb, da, bi)
   }
 
   static template = `

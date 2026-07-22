@@ -3,32 +3,32 @@ import {StartPage} from "./start"
 
 class Helper {
   static kb(ctx: CounterPage) {
-    return ctx.inlineKeyboardT([ctx.data.callbackData(`I`), ctx.data.callbackData(`D`), StartPage], `2`)
+    return ctx.inlineKeyboardT([ctx.data.callbackQueryData(`I`), ctx.data.callbackQueryData(`D`), StartPage], `2`)
   }
 }
 
 export class CounterPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.default.show()
   }
 
-  async handleArgsCallbackData() {
+  async handleArgsCallbackQueryData() {
     await this.default.process()
   }
 
   default = {
     show: async () => {
-      const key = `${this.userId}`
+      const key = `${this.from!.id}`
       const count = (await this.cacheData.get(key)) || `0`
       const kb = Helper.kb(this)
       const da = {count}
-      await this.edit(kb, da)
+      await this.renderEdit(kb, da)
     },
     process: async () => {
-      const exe = this.callbackDataArg
-      const key = `${this.userId}`
+      const exe = this.callbackQueryDataArg
+      const key = `${this.from!.id}`
       const getCache = (await this.cacheData.get(key)) as string
       const data = getCache || `0`
 
@@ -42,7 +42,7 @@ export class CounterPage extends PageBase {
       await this.cacheData.set(key, count)
       const kb = Helper.kb(this)
       const da = {count}
-      await this.edit(kb, da)
+      await this.renderEdit(kb, da)
     }
   }
 

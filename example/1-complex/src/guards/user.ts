@@ -10,9 +10,9 @@ export class UserGuard extends GuardBase {
   async overrideLang() {
     try {
       // override language_code
-      const lang = await this.cacheData.get(`${this.userId}:lang`)
+      const lang = await this.cacheData.get(`${this.from!.id}:lang`)
       if (lang) {
-        this.userLanguage = lang
+        this.from!.language_code = lang
       }
 
       return true

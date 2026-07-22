@@ -11,7 +11,7 @@ class Index {
       token: Env.TELEGRAM_BOT_TOKEN,
       log: LogHe,
       optionsPage: {
-        shortCallbackData: true
+        shortCallbackQueryData: true
       }
     })
   }

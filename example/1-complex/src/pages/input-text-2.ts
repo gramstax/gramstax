@@ -9,7 +9,7 @@ class Base {
 export class InputText2Page extends PageBase {
   static data = this.buildData({intentCommandText: `input_text2`})
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bindex.show(true)
   }
 
@@ -25,11 +25,7 @@ export class InputText2Page extends PageBase {
     show: async (isEdit = true) => {
       const bi = Base.index
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      if (isEdit) {
-        await this.edit(kb, {}, bi)
-      } else {
-        await this.reply(kb, {}, bi)
-      }
+      await this.renderAuto(kb, {}, bi, null, isEdit)
     },
     process: async () => {
       await this.bsuccess.show()
@@ -38,9 +34,9 @@ export class InputText2Page extends PageBase {
   bsuccess = {
     show: async () => {
       const bi = Base.success
-      const da = {res: this.msgText}
+      const da = {res: this.msg?.text}
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
 

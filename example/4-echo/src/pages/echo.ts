@@ -24,7 +24,7 @@ class Helper {
 
 // Echo page responds to any free text input.
 export class EchoPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bindex.show()
   }
 
@@ -77,12 +77,12 @@ export class EchoPage extends PageBase {
       const bi = Base.index
       const kb = Helper.kbIndex(this)
       const da = {}
-      await this.edit(kb, da, bi)
+      await this.renderEdit(kb, da, bi)
     }
   }
   bftext = {
     show: async () => {
-      const text = this.msgText
+      const text = this.msg!.text!
       if (text.startsWith(`/`)) {
         return null
       }
@@ -90,13 +90,13 @@ export class EchoPage extends PageBase {
       const kb = Helper.kbIndex(this)
       const da = {text}
       const bi = Base.ftext
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
   bfphoto = {
     show: async () => {
-      const caption = this.msgCaption
-      const fileIdLargest = this.msgPhoto[this.msgPhoto.length - 1].file_id
+      const caption = this.msg?.caption
+      const fileIdLargest = this.msg!.photo![this.msg!.photo!.length - 1].file_id
       if (caption?.startsWith(`/`)) {
         return null
       }
@@ -104,13 +104,13 @@ export class EchoPage extends PageBase {
       const kb = Helper.kbIndex(this)
       const da = {caption, fileId: fileIdLargest}
       const bi = Base.fphoto
-      await this.replyPhoto(kb, da, bi)
+      await this.renderPhoto(kb, da, bi)
     }
   }
   bfvideo = {
     show: async () => {
-      const caption = this.msgCaption
-      const fileId = this.msgVideo.file_id
+      const caption = this.msg?.caption
+      const fileId = this.msg!.video!.file_id
       if (caption?.startsWith(`/`)) {
         return null
       }
@@ -118,13 +118,13 @@ export class EchoPage extends PageBase {
       const kb = Helper.kbIndex(this)
       const da = {caption, fileId}
       const bi = Base.fvideo
-      await this.replyVideo(kb, da, bi)
+      await this.renderVideo(kb, da, bi)
     }
   }
   bfaudio = {
     show: async () => {
-      const caption = this.msgCaption
-      const fileId = this.msgAudio.file_id
+      const caption = this.msg?.caption
+      const fileId = this.msg!.audio!.file_id
       if (caption?.startsWith(`/`)) {
         return null
       }
@@ -132,13 +132,13 @@ export class EchoPage extends PageBase {
       const kb = Helper.kbIndex(this)
       const da = {caption, fileId}
       const bi = Base.faudio
-      await this.replyAudio(kb, da, bi)
+      await this.renderAudio(kb, da, bi)
     }
   }
   bfdocument = {
     show: async () => {
-      const caption = this.msgCaption
-      const fileId = this.msgDocument.file_id
+      const caption = this.msg?.caption
+      const fileId = this.msg!.document!.file_id
       if (caption?.startsWith(`/`)) {
         return null
       }
@@ -146,13 +146,13 @@ export class EchoPage extends PageBase {
       const kb = Helper.kbIndex(this)
       const da = {caption, fileId}
       const bi = Base.fdocument
-      await this.replyDocument(kb, da, bi)
+      await this.renderDocument(kb, da, bi)
     }
   }
   bfanimation = {
     show: async () => {
-      const caption = this.msgCaption
-      const fileId = this.msgAnimation.file_id
+      const caption = this.msg?.caption
+      const fileId = this.msg!.animation!.file_id
       if (caption?.startsWith(`/`)) {
         return null
       }
@@ -160,13 +160,13 @@ export class EchoPage extends PageBase {
       const kb = Helper.kbIndex(this)
       const da = {caption, fileId}
       const bi = Base.fanimation
-      await this.replyAnimation(kb, da, bi)
+      await this.renderAnimation(kb, da, bi)
     }
   }
   bfvoice = {
     show: async () => {
-      const caption = this.msgCaption
-      const fileId = this.msgVoice.file_id
+      const caption = this.msg?.caption
+      const fileId = this.msg!.voice!.file_id
       if (caption?.startsWith(`/`)) {
         return null
       }
@@ -174,47 +174,47 @@ export class EchoPage extends PageBase {
       const kb = Helper.kbIndex(this)
       const da = {caption, fileId}
       const bi = Base.fvoice
-      await this.replyVoice(kb, da, bi)
+      await this.renderVoice(kb, da, bi)
     }
   }
   bfvideoNote = {
     show: async () => {
       // not support caption
-      const fileId = this.msgVideoNote.file_id
+      const fileId = this.msg!.video_note!.file_id
       const kb = Helper.kbIndex(this)
       const da = {fileId}
       const bi = Base.fvideoNote
-      await this.replyVideoNote(kb, da, bi)
+      await this.renderVideoNote(kb, da, bi)
     }
   }
   bfsticker = {
     show: async () => {
       // not support caption
-      const fileId = this.msgSticker.file_id
+      const fileId = this.msg!.sticker!.file_id
       const kb = Helper.kbIndex(this)
       const da = {fileId}
       const bi = Base.fsticker
-      await this.replySticker(kb, da, bi)
+      await this.renderSticker(kb, da, bi)
     }
   }
   bflocation = {
     show: async () => {
       // not support caption
-      const {latitude, longitude} = this.msgLocation
+      const {latitude, longitude} = this.msg!.location!
       const kb = Helper.kbIndex(this)
       const da = {latitude, longitude}
       const bi = Base.flocation
-      await this.replyLocation(kb, da, bi)
+      await this.renderLocation(kb, da, bi)
     }
   }
   bfcontact = {
     show: async () => {
       // not support caption
-      const {first_name, last_name, phone_number, user_id, vcard} = this.msgContact
+      const {first_name, last_name, phone_number, user_id, vcard} = this.msg!.contact!
       const kb = Helper.kbIndex(this)
       const da = {first_name, last_name, phone_number, user_id, vcard}
       const bi = Base.fcontact
-      await this.replyContact(kb, da, bi)
+      await this.renderContact(kb, da, bi)
     }
   }
 

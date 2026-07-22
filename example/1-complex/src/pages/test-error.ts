@@ -1,7 +1,7 @@
 import {PageBase} from "~/base/page"
 
 export class TestErrorPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show()
   }
 

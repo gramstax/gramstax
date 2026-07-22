@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class BlockImportPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show()
   }
 
@@ -10,7 +10,7 @@ export class BlockImportPage extends PageBase {
     show: async () => {
       const kb = this.inlineKeyboardT([this, StartPage], `1`)
       const da = {number: Math.random()}
-      await this.edit(kb, da)
+      await this.renderEdit(kb, da)
     }
   }
 

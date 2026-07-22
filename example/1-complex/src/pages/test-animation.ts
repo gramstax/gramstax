@@ -11,9 +11,9 @@ class Helper {
     return ctx.inlineKeyboard(
       (k, l) => {
         return k //
-          .text(isDynamic ? l[1] : l[0]!, ctx.data.callbackData(isDynamic ? `static` : `dynamic`))
+          .text(isDynamic ? l[1] : l[0]!, ctx.data.callbackQueryData(isDynamic ? `static` : `dynamic`))
           .row()
-          .text(l[2]!, StartPage.data.callbackData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the `handleArgsCallbackData` route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
+          .text(l[2]!, StartPage.data.callbackQueryData(`3`)) // It doesn't have to be "3" and can be filled in with anything. This will automatically enter the `handleArgsCallbackQueryData` route. Why is it filled in? Because the media method doesn't support editing via editMessageText.
       },
       {AGBaseId: Base.index}
     )
@@ -23,11 +23,11 @@ class Helper {
 export class TestAnimationPage extends PageBase {
   static data = this.buildData((swc?: string) => [swc])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bindex.show()
   }
 
-  async handleArgsCallbackData() {
+  async handleArgsCallbackQueryData() {
     await this.bdynamic.show()
   }
 
@@ -35,21 +35,21 @@ export class TestAnimationPage extends PageBase {
     show: async () => {
       const bi = Base.index
       const kb = Helper.kb(this)
-      await this.editAnimation(kb, {}, bi)
+      await this.renderEditAnimation(kb, {}, bi)
     }
   }
   bdynamic = {
     show: async () => {
-      const swc = this.callbackDataArg
+      const swc = this.callbackQueryDataArg
       if (swc == `static`) {
-        await this.handleCallbackData()
+        await this.handleCallbackQueryData()
       } else if (swc == `dynamic`) {
         const bi = Base.dynamic
         const kb = Helper.kb(this, true)
         const da = {
           src: `https://www.easygifanimator.net/images/samples/eglite.gif` // Assuming is that the src value is a dynamic thing that is obtained from input or something else like a database.
         }
-        await this.editAnimation(kb, da, bi)
+        await this.renderEditAnimation(kb, da, bi)
       }
     }
   }

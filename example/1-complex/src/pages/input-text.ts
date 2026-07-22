@@ -15,7 +15,7 @@ class Helper {
 export class InputTextPage extends PageBase {
   static data = this.buildData({intentCommandText: `input_text`})
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bindex.show(true)
   }
 
@@ -35,11 +35,7 @@ export class InputTextPage extends PageBase {
       const bi = Base.index
       const kb = Helper.kb(this, bi)
       await this.setSessionFreeText({step: bi})
-      if (isEdit) {
-        await this.edit(kb, {}, bi)
-      } else {
-        await this.reply(kb, {}, bi)
-      }
+      await this.renderAuto(kb, {}, bi, null, isEdit)
     },
     process: async () => {
       await this.bsuccess.show()
@@ -48,9 +44,9 @@ export class InputTextPage extends PageBase {
   bsuccess = {
     show: async () => {
       const bi = Base.success
-      const da = {res: this.msgText}
+      const da = {res: this.msg?.text}
       const kb = Helper.kb(this, bi)
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
 

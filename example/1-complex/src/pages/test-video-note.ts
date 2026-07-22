@@ -2,14 +2,14 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class TestVideoNotePage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show()
   }
 
   bdefault = {
     show: async () => {
-      const kb = this.inlineKeyboardT([StartPage.data.callbackData(`3`)])
-      await this.editVideoNote(kb)
+      const kb = this.inlineKeyboardT([StartPage.data.callbackQueryData(`3`)])
+      await this.renderEditVideoNote(kb)
     }
   }
 

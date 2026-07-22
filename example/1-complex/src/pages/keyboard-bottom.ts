@@ -24,7 +24,7 @@ class Helper {
         }
       }
     )
-    await ctx.reply(kb, {}, AGBaseId)
+    await ctx.render(kb, {}, AGBaseId)
   }
 }
 
@@ -34,7 +34,7 @@ export class KeyboardBottomPage extends PageBase {
     intentCommandText: `keyboard_bottom` // <===== overrides trigger for function "handleCommandText" and "handleCommandArgsText*" because file name user "-" that not support command in telegram
   })
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bindex.show()
   }
 
@@ -76,7 +76,7 @@ export class KeyboardBottomPage extends PageBase {
   bdelete = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage], `1`, Base.index)
-      await this.reply(kb, {}, Base.delete, {
+      await this.render(kb, {}, Base.delete, {
         reply_markup: {
           remove_keyboard: true
         }
