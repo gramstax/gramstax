@@ -286,7 +286,7 @@ Add tests that prove the bot works from the user’s point of view and that extr
 - Use Gramstax `MockTelegramServer` to simulate Telegram instead of calling the real Telegram API.
 - Initialize the generated bot core with a test token, webhook deploy mode, a `TemplateManager` that loads `src/pages`, and `botConfig.client.apiRoot` pointing to `mockServer.apiRoot`.
 - Start `MockTelegramServer` in `beforeAll`, stop both `botCore` and the mock server in `afterAll`, and call `mockServer.clearRequests()` in `beforeEach`.
-- Prefer helper functions for repeated user context and keyboard lookup, such as `createPrivateUserContext(id)` and `getCallbackDataByLabel(responses, label)`.
+- Prefer helper functions for repeated user context and keyboard lookup, such as `createPrivateUserContext(id)` and `getCallbackQueryDataByLabel(responses, label)`.
 - Cover `/start` without code: helpful instruction message and user saved.
 - Cover `/start valid-code`: content delivered, expiry text shown, delivery record created.
 - Cover `/start invalid-code`: helpful not-found message.

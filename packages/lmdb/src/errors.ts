@@ -32,13 +32,14 @@ export class LmdbError extends Error {
  * Thrown when an operation is attempted on an env that is not yet open.
  *
  * @remarks
- * {@link LmdbEnv.open} must be awaited before any sub-database access.
+ * The env opens on construction; this error indicates the env was closed
+ * before the operation was attempted.
  *
  * @public
  */
 export class LmdbEnvNotOpenError extends LmdbError {
   constructor() {
-    super(`LmdbEnv is not open. Call \`await env.open()\` before performing operations.`)
+    super(`LmdbEnv is not open. The env must be in 'open' state before performing operations.`)
     this.name = `LmdbEnvNotOpenError`
   }
 }

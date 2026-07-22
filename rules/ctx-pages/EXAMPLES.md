@@ -11,7 +11,7 @@ import { PageBase } from "~/base/page";
 import { HelpPage } from "./help";
 
 export class StartPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true);
   }
 
@@ -23,7 +23,7 @@ export class StartPage extends PageBase {
     show: async (isEdit = true) => {
       await this.clearSession();
       const kb = this.inlineKeyboardT([HelpPage], `1`);
-      const da = { userName: this.userName };
+      const da = { userName: this.from?.username };
       if (isEdit) {
         await this.editRich(kb, da);
       } else {
@@ -77,7 +77,7 @@ class Helper {
 
 // 4. EXPORTED PAGE CLASS
 export class DepositPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bamount.show(true);
   }
 

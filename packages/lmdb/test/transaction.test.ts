@@ -45,7 +45,6 @@ let sessionRepo: SessionRepository
 beforeEach(async () => {
   tmpDir = mkdtempSync(join(tmpdir(), `lmdb-tx-test-`))
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
-  await env.open()
   userRepo = env.register(UserRepository)
   sessionRepo = env.register(SessionRepository)
 })
@@ -225,13 +224,11 @@ describe(`read-only env transactions`, () => {
   it(`readTransaction works on read-only envs`, async () => {
     const dir = mkdtempSync(join(tmpdir(), `lmdb-readonly-tx-`))
     const writeEnv = new LmdbEnv({path: dir, maxDbs: 5})
-    await writeEnv.open()
     const writeUsers = writeEnv.register(UserRepository)
     await writeUsers.set(`u1`, {id: `u1`, name: `Initial`})
     await writeEnv.close()
 
     const roEnv = new LmdbEnv({path: dir, maxDbs: 5, readOnly: true})
-    await roEnv.open()
     try {
       const roUsers = roEnv.register(UserRepository)
       const got = await roEnv.readTransaction(async (tx) => {

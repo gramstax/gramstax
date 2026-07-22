@@ -44,7 +44,7 @@ describe(`resolveCodec`, () => {
 
   class WithExplicit extends LmdbRepository {}
   ;(WithExplicit as any).dbName = `with-explicit-codec-test`
-  const explicit = LmdbCodec.create<number, string>(String, String)
+  const explicit = LmdbCodec.create<number, string>(String, Number)
   ;(WithExplicit as any).codec = explicit
 
   it(`returns the explicit codec when set`, () => {

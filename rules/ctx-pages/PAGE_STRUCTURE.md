@@ -30,13 +30,13 @@ Each `<g-base>` block gets a corresponding `b<name>` object field on the exporte
 
 - **Form Display**: The `b<name>` object MUST have a `show` method. Name the object after the step (e.g., `bamount`, `bconfirm`, `bsuccess`).
 - **Processing (OPTIONAL)**: Add a `process` method when the step expects a text/answer input that must be validated or processed (e.g., a form the user fills in). If `show` has no answer to process, OMIT `process` entirely — do NOT define a `throw ctx` no-op placeholder.
-- **Handler Delegation**: Handler methods on the Page class (`handleCallbackData`, `handleCommandText`, `handleSessionFreeText`) MUST be thin wrappers containing no core business logic. They route to the appropriate `b<*>.show()` or `b<*>.process()` call.
+- **Handler Delegation**: Handler methods on the Page class (`handleCallbackQueryData`, `handleCommandText`, `handleSessionFreeText`) MUST be thin wrappers containing no core business logic. They route to the appropriate `b<*>.show()` or `b<*>.process()` call.
 
 ### Simple pages (single base, no id)
 
 ```typescript
 export class StartPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true);
   }
 
@@ -68,7 +68,7 @@ class Helper {
 }
 
 export class DepositPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bamount.show(true)
   }
 
@@ -107,7 +107,7 @@ Members within the file **MUST** be declared in this exact order:
 2. **Constant** (if needed)
 3. **Helper** (if needed)
 4. **Page** (The exported class, inheriting from PageBase)
-   a. Handler methods (`handleCallbackData`, `handleCommandText`, `handleSessionFreeText`)
+   a. Handler methods (`handleCallbackQueryData`, `handleCommandText`, `handleSessionFreeText`)
    b. `b<*>` object fields
    c. `static template`
 

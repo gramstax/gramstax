@@ -337,7 +337,7 @@ class Main {
 }
 
 export class DepositPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await Main.showStep1Form(this);
   }
 
@@ -536,7 +536,7 @@ class Main {
   static async showStep1Form(ctx: StartPage) {
     const bi = Base.step1;
     const kb = ctx.inlineKeyboardT([ctx]);
-    const da = { name: ctx.userFirstName, random: Math.random() };
+    const da = { name: ctx.from!.first_name, random: Math.random() };
     await ctx.edit(kb, da, bi);
   }
 

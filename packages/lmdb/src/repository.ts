@@ -18,8 +18,8 @@
  * await userRepo.set("u1", { name: "Alice", age: 30 });
  * ```
  *
- * Custom serialization: override `static serialize` / `static deserialize`
- * or assign a full {@link ICodec} to `static codec`.
+ * Custom serialization: override static serialize / static deserialize`
+ * or assign a full {@link ICodec} to static codec.
  *
  * @packageDocumentation
  * @public
@@ -28,51 +28,9 @@
 import {LmdbTransaction} from "./transaction"
 import {resolveCodec} from "./codec"
 import {LmdbMissingDbNameError, LmdbReadOnlyError} from "./errors"
-import type {ICodec, IRangeOptions, LMDBKey} from "./types"
-import type {Database} from "lmdb"
-
-/**
- * Forward-declared `LmdbEnv` shape. The real class lives in `./env` and is
- * injected via the constructor — this avoids a circular import between
- * `Repository` and `LmdbEnv`.
- *
- * @internal
- */
-interface IEnvForRepo {
-  /** @internal */
-  getDb(name: string): any
-  /** @internal */
-  readonly readOnly: boolean
-  /**
-   * Run a callback inside a write transaction.
-   *
-   * @remarks
-   * All writes performed inside the callback (via any repository registered
-   * with this env) are batched into a single atomic commit.
-   *
-   * @param fn - Callback receiving the {@link LmdbTransaction} wrapper.
-   * @returns The callback's resolved value.
-   */
-  transaction<T>(fn: (tx: LmdbTransaction) => Promise<T>): Promise<T>
-  /**
-   * Run a callback inside a read-only transaction (consistent snapshot).
-   *
-   * @param fn - Callback receiving the read-only {@link LmdbTransaction}.
-   * @returns The callback's resolved value.
-   */
-  readTransaction<T>(fn: (tx: LmdbTransaction) => Promise<T>): Promise<T>
-  /**
-   * Retrieve a previously registered repository by class.
-   *
-   * @remarks
-   * Enables cross-repository access within transaction callbacks.
-   * All repositories must be registered before calling this method.
-   *
-   * @param repoClass - The LmdbRepository subclass constructor.
-   * @returns The registered repository instance.
-   */
-  getRepository<T extends LmdbRepository<any, any>>(repoClass: new (...args: any[]) => T): T
-}
+import type {ICodec, IRangeOptions, ILmdbKey} from "./types"
+import type {Key} from "lmdb"
+import type {IEnvForRepo} from "./env"
 
 /**
  * Base class for typed repositories over LMDB.
@@ -82,7 +40,7 @@ interface IEnvForRepo {
  *
  * @public
  */
-export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
+export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   /**
    * Sub-database name. Must be unique within the {@link LmdbEnv}.
    *
@@ -137,19 +95,17 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
   static deserialize?(raw: unknown): any
 
   /**
-   * The owning {@link LmdbEnv} instance.
+   * The sub-database handle, augmented with root-env methods.
    *
    * @remarks
-   * Exposed as public to allow subclasses to call `env.transaction()`,
-   * `env.getRepository()`, and other env-level methods directly.
+   * The repository delegates all data operations (`get`, `put`, `remove`,
+   * etc.) to the env — which routes them to the correct LMDB sub-database
+   * handle. Root-env capabilities (`transaction`, `getRepository`, `readOnly`)
+   * are also accessible here.
    *
    * @public
    */
-  protected readonly env: IEnvForRepo
-
-  /** @internal Raw LMDB sub-database handle (`Database<any, any>` retains
-   *  method autocomplete while key/value safety is handled by `LmdbRepository`). */
-  protected readonly raw: Database<any, any>
+  readonly env: IEnvForRepo
 
   /** @internal */
   protected readonly _codec: ICodec<T> | undefined
@@ -163,17 +119,25 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @remarks
    * Called by {@link LmdbEnv.register}, not by user code directly.
    *
-   * @param env - The owning env.
+   * @param rootEnv - The owning root env.
    * @param dbName - The sub-database name. Defaults to the static `dbName`.
    * @internal
    */
-  constructor(env: IEnvForRepo, dbName?: string) {
+  constructor(rootEnv: IEnvForRepo, dbName?: string) {
     const resolved = dbName ?? (this.constructor as any).dbName
     if (!resolved) {
       throw new LmdbMissingDbNameError(this.constructor.name)
     }
-    this.env = env
-    this.raw = env.getDb(resolved)
+    // Build a combined object: data operations go to the sub-DB handle,
+    // root-env methods (transaction, getRepository, readOnly) come from rootEnv.
+    const subDb = rootEnv.getDb(resolved)
+    const combined = Object.create(subDb) as IEnvForRepo
+    combined.transaction = rootEnv.transaction.bind(rootEnv) as IEnvForRepo[`transaction`]
+    combined.readTransaction = rootEnv.readTransaction.bind(rootEnv) as IEnvForRepo[`readTransaction`]
+    combined.getRepository = rootEnv.getRepository.bind(rootEnv) as IEnvForRepo[`getRepository`]
+    Object.defineProperty(combined, `readOnly`, {value: rootEnv.readOnly})
+    combined.getDb = rootEnv.getDb.bind(rootEnv) as IEnvForRepo[`getDb`]
+    this.env = combined
     this._codec = resolveCodec(this.constructor)
   }
 
@@ -210,17 +174,12 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    *
    * @throws {@link LmdbReadOnlyError} if the env is read-only.
    *
-   * @example
-   * ```typescript
-   * await userRepo.set("u1", { name: "Alice" });
-   * ```
-   *
    * @public
    */
-  async set(key: K, value: T, _tx?: LmdbTransaction): Promise<void> {
-    if (this.env.readOnly) throw new LmdbReadOnlyError(`set`)
+  set(key: K, value: T, _tx?: LmdbTransaction): Promise<void> {
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`set`))
     const encoded = this._codec ? this._codec.serialize(value) : value
-    await this.raw.put(key, encoded)
+    return this.env.put(key, encoded).then(() => undefined as void)
   }
 
   /**
@@ -232,23 +191,17 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * a stored `null` value is indistinguishable from a missing key after
    * the codec roundtrip).
    *
+   * Delegates to LMDB's synchronous `Database.get()` — no Promise overhead.
+   *
    * @param key - Key to look up.
    * @param tx - Optional read transaction for snapshot consistency.
    * @returns The deserialized value, or `undefined` if the key is absent.
    *
-   * @example
-   * ```typescript
-   * const user = await userRepo.get("u1");
-   * if (user) {
-   *   console.log(user.name);
-   * }
-   * ```
-   *
    * @public
    */
-  async get(key: K, _tx?: LmdbTransaction): Promise<T | undefined> {
+  get(key: K, _tx?: LmdbTransaction): T | undefined {
     const opts = this._readOpts(_tx)
-    const raw = opts ? await this.raw.get(key, opts) : await this.raw.get(key)
+    const raw = opts ? this.env.get(key, opts) : this.env.get(key)
     if (raw === undefined) return undefined
     return this._codec ? this._decodeValue(raw) : (raw as T)
   }
@@ -259,15 +212,17 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @remarks
    * **SQL equivalent**: `SELECT EXISTS (SELECT 1 FROM {prefix} WHERE key = ?)`
    *
+   * Delegates to LMDB's synchronous `doesExist()` — no Promise overhead.
+   *
    * @param key - Key to check.
    * @param tx - Optional read transaction for snapshot consistency.
    * @returns `true` if the key exists, `false` otherwise.
    *
    * @public
    */
-  async has(key: K, _tx?: LmdbTransaction): Promise<boolean> {
+  has(key: K, _tx?: LmdbTransaction): boolean {
     const opts = this._readOpts(_tx)
-    return Boolean(opts ? await this.raw.doesExist(key, opts) : await this.raw.doesExist(key))
+    return Boolean(opts ? this.env.doesExist(key, opts) : this.env.doesExist(key))
   }
 
   /**
@@ -277,8 +232,8 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * **SQL equivalent**: `DELETE FROM {prefix} WHERE key = ?`
    * (returns the affected-row count: `true` = 1 row deleted, `false` = 0 rows).
    *
-   * Delegates directly to LMDB's `remove()` which returns `true` when the
-   * key existed and `false` when it didn't — no extra `doesExist` probe.
+   * Checks existence first via LMDB's synchronous `doesExist`, then removes
+   * if present. Returns `false` when the key is absent.
    *
    * @param key - Key to remove.
    * @param tx - Optional write transaction for cross-repo atomic writes.
@@ -288,13 +243,12 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    *
    * @public
    */
-  async delete(key: K, _tx?: LmdbTransaction): Promise<boolean> {
-    if (this.env.readOnly) throw new LmdbReadOnlyError(`delete`)
-    if (await this.raw.doesExist(key)) {
-      await this.raw.remove(key)
-      return true
+  delete(key: K, _tx?: LmdbTransaction): Promise<boolean> {
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`delete`))
+    if (this.env.doesExist(key)) {
+      return this.env.remove(key).then(() => true)
     }
-    return false
+    return Promise.resolve(false)
   }
 
   /**
@@ -310,9 +264,9 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    *
    * @public
    */
-  async clear(_tx?: LmdbTransaction): Promise<void> {
-    if (this.env.readOnly) throw new LmdbReadOnlyError(`clear`)
-    await this.raw.clearAsync()
+  clear(_tx?: LmdbTransaction): Promise<void> {
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`clear`))
+    return this.env.clearAsync()
   }
 
   /**
@@ -325,20 +279,15 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    *
    * @throws {@link LmdbReadOnlyError} if the env is read-only.
    *
-   * @example
-   * ```typescript
-   * await users.drop();
-   * ```
-   *
    * @public
    */
-  async drop(): Promise<void> {
-    if (this.env.readOnly) throw new LmdbReadOnlyError(`drop`)
-    await this.raw.drop()
+  drop(): Promise<void> {
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`drop`))
+    return this.env.drop()
   }
 
   /**
-   * Asynchronously prefetch the given keys into the page cache.
+   * Prefetch the given keys into the page cache.
    *
    * @remarks
    * Delegates to LMDB's native `prefetch` which runs on a separate
@@ -348,16 +297,10 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    *
    * @param keys - Keys whose pages should be pre-faulted.
    *
-   * @example
-   * ```typescript
-   * await users.prefetch(["u1", "u2", "u3"]);
-   * // Subsequent users.get("u1") is now cheap (no page fault).
-   * ```
-   *
    * @public
    */
-  async prefetch(keys: K[]): Promise<void> {
-    await this.raw.prefetch(keys)
+  prefetch(keys: K[]): Promise<void> {
+    return this.env.prefetch(keys).then(() => undefined as void)
   }
 
   /**
@@ -376,16 +319,10 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @returns Array of values in the same order as `keys`. Missing keys
    * are `undefined`.
    *
-   * @example
-   * ```typescript
-   * const users = await userRepo.getMany(["u1", "u2", "u3"]);
-   * ```
-   *
    * @public
    */
-  async getMany(keys: K[]): Promise<Array<T | undefined>> {
-    const raws = (await this.raw.getMany(keys)) as Array<unknown>
-    return raws.map((raw) => (raw === undefined ? undefined : this._decodeValue(raw)))
+  getMany(keys: K[]): Promise<Array<T | undefined>> {
+    return (this.env.getMany(keys) as Promise<Array<unknown>>).then((raws) => raws.map((raw) => (raw === undefined ? undefined : this._decodeValue(raw))))
   }
 
   /**
@@ -395,14 +332,16 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * **SQL equivalent**: `SELECT COUNT(*) FROM {prefix}`
    * (LMDB keeps an accurate count per sub-DB; this is O(1), no scan).
    *
+   * Delegates to LMDB's synchronous `getCount()` — no Promise overhead.
+   *
    * @param tx - Optional read transaction for snapshot consistency.
    * @returns Total entry count.
    *
    * @public
    */
-  async count(_tx?: LmdbTransaction): Promise<number> {
+  count(_tx?: LmdbTransaction): number {
     const opts = this._readOpts(_tx)
-    return (opts ? await this.raw.getCount(opts) : await this.raw.getCount()) as number
+    return (opts ? this.env.getCount(opts) : this.env.getCount()) as number
   }
 
   // ──────────────────────────────────────────────────────────────────
@@ -422,15 +361,10 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * read transaction from {@link LmdbEnv.readTransaction}).
    * @returns Array of keys. Empty if no matches.
    *
-   * @example
-   * ```typescript
-   * const userIds = await userRepo.keys({ start: "u", end: "v", limit: 100 });
-   * ```
-   *
    * @public
    */
-  async keys(options?: IRangeOptions, _tx?: LmdbTransaction): Promise<K[]> {
-    return (await this.raw.getKeys(options).asArray) as K[]
+  keys(options?: IRangeOptions, _tx?: LmdbTransaction): Promise<K[]> {
+    return Promise.resolve(this.env.getKeys(options).asArray) as Promise<K[]>
   }
 
   /**
@@ -447,9 +381,8 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    *
    * @public
    */
-  async values(options?: IRangeOptions, _tx?: LmdbTransaction): Promise<T[]> {
-    const arr = (await this.raw.getRange(options).asArray) as Array<{key: K; value: unknown}>
-    return arr.map((e) => this._decodeValue(e.value))
+  values(options?: IRangeOptions, _tx?: LmdbTransaction): Promise<T[]> {
+    return Promise.resolve(this.env.getRange(options).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => this._decodeValue(e.value)))
   }
 
   /**
@@ -466,9 +399,8 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    *
    * @public
    */
-  async entries(options?: IRangeOptions, _tx?: LmdbTransaction): Promise<Array<[K, T]>> {
-    const arr = (await this.raw.getRange(options).asArray) as Array<{key: K; value: unknown}>
-    return arr.map((e) => [e.key as K, this._decodeValue(e.value)])
+  entries(options?: IRangeOptions, _tx?: LmdbTransaction): Promise<Array<[K, T]>> {
+    return Promise.resolve(this.env.getRange(options).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)]))
   }
 
   /**
@@ -493,7 +425,7 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @public
    */
   async *iterate(options?: IRangeOptions, _tx?: LmdbTransaction): AsyncIterableIterator<[K, T]> {
-    const iter = this.raw.getRange(options) as Iterable<{key: K; value: unknown}>
+    const iter = this.env.getRange(options) as Iterable<{key: K; value: unknown}>
     for (const entry of iter) {
       yield [entry.key as K, this._decodeValue(entry.value)]
     }
@@ -583,6 +515,43 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
   }
 
   /**
+   * Infer a bounded `[start, end)` range from a LIKE pattern's literal
+   * prefix anchor, so non-prefix patterns no longer force a full-table scan.
+   *
+   * @remarks
+   * Walks the pattern from the start collecting literal characters until the
+   * first wildcard (`*` or `?`) is hit. That literal run becomes a range
+   * lower bound; the exclusive upper bound is derived via {@link _prefixEnd}.
+   * Only `string` keys are bounded (Buffer/numeric fall back to full scan).
+   *
+   * Example: `"user:*"` → `{start: "user:", end: "user:￿"}` (caller also
+   * applies the regex so `*foo` and `user:1*5` stay correct); `"foo*bar"`
+   * → `{start: "foo", end: "foo￿"}`; `"*foo"` → `null` (no literal prefix,
+   * full scan required).
+   *
+   * The regex filter is always still applied on top, so bounding the range
+   * never changes the result set — it only shrinks the number of keys the
+   * cursor must visit and materialize.
+   *
+   * @param pattern - Glob pattern.
+   * @returns Range bounds `{start, end}` when a literal prefix exists and
+   * the key type is supported, otherwise `null`.
+   * @internal
+   */
+  private _inferRangeFromPrefix(pattern: string): {start: K; end: K} | null {
+    if (pattern.length === 0) return null
+    let anchor = ``
+    for (const ch of pattern) {
+      if (ch === `*` || ch === `?`) break
+      anchor += ch
+    }
+    if (anchor.length === 0) return null
+    const end = this._prefixEnd(anchor as K)
+    if (end === undefined) return null
+    return {start: anchor as K, end}
+  }
+
+  /**
    * Find entries whose key matches a LIKE-style glob pattern.
    *
    * @remarks
@@ -610,40 +579,38 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * patterns, `start`/`end` are overridden by the detected prefix bounds.
    * @returns Array of matching `[key, value]` tuples. Empty if no matches.
    *
-   * @example
-   * ```typescript
-   * // Keys starting with "user:" — uses fast range scan
-   * await users.like("user:*")
-   *
-   * // Keys matching pattern "u_er:1" (single char wildcard)
-   * await users.like("u?er:1")
-   *
-   * // Keys containing ":admin" anywhere — full scan + lazy filter
-   * await users.like("*admin*")
-   * ```
-   *
    * @public
    */
-  async like(pattern: string, options?: IRangeOptions): Promise<Array<[K, T]>> {
+  like(pattern: string, options?: IRangeOptions): Promise<Array<[K, T]>> {
     const prefix = this._extractPrefixLikePattern(pattern)
     if (prefix !== null) {
       const endKey = this._prefixEnd(prefix as K)
       if (endKey !== undefined) {
-        const arr = await this.raw.getRange({
-          start: prefix as K,
-          end: endKey,
-          limit: options?.limit,
-          offset: options?.offset,
-          reverse: options?.reverse,
-          inclusiveEnd: options?.inclusiveEnd,
-          exclusiveStart: options?.exclusiveStart
-        }).asArray
-        return arr.map((e: {key: K; value: unknown}) => [e.key as K, this._decodeValue(e.value)])
+        return Promise.resolve(
+          this.env.getRange({
+            start: prefix as K,
+            end: endKey,
+            limit: options?.limit,
+            offset: options?.offset,
+            reverse: options?.reverse,
+            inclusiveEnd: options?.inclusiveEnd,
+            exclusiveStart: options?.exclusiveStart
+          }).asArray
+        ).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)]))
       }
     }
     const regex = this._patternToRegex(pattern)
-    const arr = await this.raw.getRange(options).filter(({key}: {key: K}) => regex.test(String(key))).asArray
-    return arr.map((e: {key: K; value: unknown}) => [e.key as K, this._decodeValue(e.value)])
+    // Bound the scan by a literal prefix anchor so we don't full-scan the
+    // sub-DB; the regex still filters on top, so results are unchanged.
+    const inferred = this._inferRangeFromPrefix(pattern)
+    const rangeOpts: IRangeOptions = {...options}
+    if (inferred) {
+      rangeOpts.start = (options?.start as K) ?? inferred.start
+      if (options?.end === undefined) {
+        rangeOpts.end = inferred.end
+      }
+    }
+    return Promise.resolve(this.env.getRange(rangeOpts).filter(({key}: {key: Key}) => regex.test(String(key))).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)]))
   }
 
   /**
@@ -653,30 +620,30 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * **SQL equivalent**: `SELECT key, value FROM {prefix} WHERE key LIKE {prefix}%`
    *
    * Uses an LMDB range scan on `[prefix, prefixEnd)` for string/Buffer
-   * keys — **O(log N + M)** where M is the match count. For numeric or
-   * other unsupported key types, falls back to a lazy full scan with
-   * `String(...).startsWith(prefix)` filter (values are deserialized only
-   * for matching keys).
+   * keys. For numeric or other unsupported key types, falls back to a
+   * lazy full scan with `String(...).startsWith(prefix)` filter.
    *
    * @param prefix - Key prefix to match.
    * @param options - Range bounds (`limit`/`offset`/`reverse`).
    * @returns Array of matching `[key, value]` tuples. Empty if no matches.
    *
-   * @example
-   * ```typescript
-   * const admins = await users.findByPrefix("admin:");
-   * ```
-   *
    * @public
    */
-  async findByPrefix(prefix: K, options?: IRangeOptions): Promise<Array<[K, T]>> {
+  findByPrefix(prefix: K, options?: IRangeOptions): Promise<Array<[K, T]>> {
     const endKey = this._prefixEnd(prefix)
     if (endKey !== undefined) {
-      const arr = (await this.raw.getRange({start: prefix, end: endKey, ...options}).asArray) as Array<{key: K; value: unknown}>
-      return arr.map((e) => [e.key as K, this._decodeValue(e.value)])
+      return Promise.resolve(this.env.getRange({start: prefix, end: endKey, ...options}).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)]))
     }
-    const arr = (await this.raw.getRange(options).filter(({key}: {key: K}) => String(key).startsWith(String(prefix))).asArray) as Array<{key: K; value: unknown}>
-    return arr.map((e) => [e.key as K, this._decodeValue(e.value)])
+    // Unsupported key type (e.g. numeric): no prefix bounds possible, so we
+    // must scan. To avoid materializing every value, collect only the keys
+    // (cheap, no decode), filter by prefix, then fetch the matched values.
+    return Promise.resolve(this.env.getKeys(options).asArray)
+      .then((keys) => (keys as K[]).filter((k) => String(k).startsWith(String(prefix))))
+      .then((matchedKeys) =>
+        this.env.getMany(matchedKeys).then((raws) =>
+          (raws as Array<unknown>).map((raw, i) => [matchedKeys[i] as K, this._decodeValue(raw)] as [K, T])
+        )
+      )
   }
 
   /**
@@ -687,26 +654,31 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    *
    * For string/Buffer keys, delegates to LMDB's native `getKeysCount`
    * which is **O(log N + M)** — no array allocation, no per-key iteration.
+   * This path is fully synchronous (no `async`).
+   *
    * For numeric/other key types (no prefix bounds possible), falls back to
-   * a full scan + filter.
+   * async key collection via `.asArray`.
    *
    * @param prefix - Key prefix to match.
    * @returns Number of entries with matching key prefix.
    *
-   * @example
-   * ```typescript
-   * const adminCount = await users.countByPrefix("admin:");
-   * ```
-   *
    * @public
    */
-  async countByPrefix(prefix: K): Promise<number> {
+  countByPrefix(prefix: K): number | Promise<number> {
     const endKey = this._prefixEnd(prefix)
     if (endKey !== undefined) {
-      return this.raw.getKeysCount({start: prefix, end: endKey})
+      return this.env.getKeysCount({start: prefix, end: endKey})
     }
-    const keys = (await this.raw.getKeys().asArray) as K[]
-    return keys.filter((k) => String(k).startsWith(String(prefix))).length
+    // Unsupported key type (e.g. numeric): no prefix bounds possible, so we
+    // must scan. Use the native key-array drain (fast path) and count inline
+    // instead of allocating a second filtered array via `.filter().length`.
+    return Promise.resolve(this.env.getKeys().asArray).then((keys) => {
+      let count = 0
+      for (const k of keys as K[]) {
+        if (String(k).startsWith(String(prefix))) count++
+      }
+      return count
+    })
   }
 
   /**
@@ -715,32 +687,44 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * @remarks
    * **SQL equivalent**: `DELETE FROM {prefix} WHERE key LIKE {prefix}%`
    *
-   * Range-scans the keys, then issues all `remove()` calls in the same
-   * event turn. LMDB's async batching coalesces them into one atomic
-   * transaction commit. Returns the count actually removed (concurrent
-   * writes can lower this below the pre-count).
+   * Range-scans the keys, then issues all `remove()` calls. Returns the
+   * count actually removed.
    *
    * @param prefix - Key prefix to match.
    * @returns Number of entries deleted.
    *
    * @throws {@link LmdbReadOnlyError} if the env is read-only.
    *
-   * @example
-   * ```typescript
-   * const removed = await sessions.deleteByPrefix("expired:");
-   * console.log(`Purged ${removed} expired sessions`);
-   * ```
-   *
    * @public
    */
-  async deleteByPrefix(prefix: K): Promise<number> {
-    if (this.env.readOnly) throw new LmdbReadOnlyError(`deleteByPrefix`)
+  deleteByPrefix(prefix: K): Promise<number> {
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`deleteByPrefix`))
     const endKey = this._prefixEnd(prefix)
-    const keys = endKey !== undefined ? ((await this.raw.getKeys({start: prefix, end: endKey}).asArray) as K[]) : ((await this.raw.getKeys().asArray) as K[]).filter((k) => String(k).startsWith(String(prefix)))
-    const results = await Promise.all(keys.map((k) => this.raw.remove(k)))
-    let removed = 0
-    for (const r of results) if (r) removed++
-    return removed
+    // Bounded range scan for string/Buffer keys. For unsupported key types
+    // (e.g. numeric) there is no prefix bound, so we drain the native key
+    // array once and filter inline.
+    const keysPromise: Promise<K[]> =
+      endKey !== undefined
+        ? (Promise.resolve(this.env.getKeys({start: prefix, end: endKey}).asArray) as Promise<K[]>)
+        : Promise.resolve(this.env.getKeys().asArray).then((keys) => {
+            const matched: K[] = []
+            const prefixStr = String(prefix)
+            for (const k of keys as K[]) {
+              if (String(k).startsWith(prefixStr)) matched.push(k)
+            }
+            return matched
+          })
+    // Synchronous remove inside a single txn avoids N promise allocations
+    // and lets lmdb-js coalesce the removals into one native commit.
+    return keysPromise.then((keys) =>
+      this.env.transaction(() => {
+        let removed = 0
+        for (const k of keys) {
+          if (this.env.removeSync(k)) removed++
+        }
+        return removed
+      })
+    )
   }
 
   /**
@@ -753,17 +737,13 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    *
    * @returns First `[key, value]` tuple, or `undefined` if the repository is empty.
    *
-   * @example
-   * ```typescript
-   * const [firstKey, firstUser] = (await users.first()) ?? [];
-   * ```
-   *
    * @public
    */
-  async first(): Promise<[K, T] | undefined> {
-    const arr = (await this.raw.getRange({limit: 1}).asArray) as Array<{key: K; value: unknown}>
-    const entry = arr[0]
-    return entry ? [entry.key as K, this._decodeValue(entry.value)] : undefined
+  first(): Promise<[K, T] | undefined> {
+    return Promise.resolve(this.env.getRange({limit: 1}).asArray).then((arr) => {
+      const entry = (arr as Array<{key: K; value: unknown}>)[0]
+      return entry ? ([entry.key as K, this._decodeValue(entry.value)] as [K, T]) : undefined
+    })
   }
 
   /**
@@ -777,17 +757,13 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    *
    * @returns Last `[key, value]` tuple, or `undefined` if the repository is empty.
    *
-   * @example
-   * ```typescript
-   * const [lastKey, lastUser] = (await users.last()) ?? [];
-   * ```
-   *
    * @public
    */
-  async last(): Promise<[K, T] | undefined> {
-    const arr = (await this.raw.getRange({reverse: true, limit: 1}).asArray) as Array<{key: K; value: unknown}>
-    const entry = arr[0]
-    return entry ? [entry.key as K, this._decodeValue(entry.value)] : undefined
+  last(): Promise<[K, T] | undefined> {
+    return Promise.resolve(this.env.getRange({reverse: true, limit: 1}).asArray).then((arr) => {
+      const entry = (arr as Array<{key: K; value: unknown}>)[0]
+      return entry ? ([entry.key as K, this._decodeValue(entry.value)] as [K, T]) : undefined
+    })
   }
 
   /**
@@ -798,8 +774,10 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    * `UPDATE {prefix} SET value = {updater(current)} WHERE key = ?`
    * (or `INSERT ... ON CONFLICT UPDATE` semantics).
    *
-   * Not transactional — concurrent `update()` calls on the same key may
-   * race. Wrap in {@link LmdbEnv.transaction} if you need atomicity.
+   * Atomic — the read and write run inside a single LMDB write transaction
+   * (via {@link LmdbEnv.transaction} with a synchronous callback), so
+   * concurrent `update()` calls on the same key cannot interleave. The
+   * read sees a consistent snapshot and the write is committed atomically.
    *
    * @param key - Key to update.
    * @param updater - Function transforming the current value (or `undefined`
@@ -808,22 +786,15 @@ export abstract class LmdbRepository<T = unknown, K extends LMDBKey = string> {
    *
    * @throws {@link LmdbReadOnlyError} if the env is read-only.
    *
-   * @example
-   * ```typescript
-   * // Increment a counter (not thread-safe; use env.transaction if needed)
-   * const newCount = await counters.update("hits", (n) => (n ?? 0) + 1);
-   *
-   * // Upsert with default
-   * await users.update("u42", (u) => u ?? {id: "u42", name: "New"});
-   * ```
-   *
    * @public
    */
-  async update(key: K, updater: (current: T | undefined) => T): Promise<T> {
-    if (this.env.readOnly) throw new LmdbReadOnlyError(`update`)
-    const current = await this.get(key)
-    const next = updater(current)
-    await this.set(key, next)
-    return next
+  update(key: K, updater: (current: T | undefined) => T): Promise<T> {
+    if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`update`))
+    return this.env.transaction(() => {
+      const current = this.get(key)
+      const next = updater(current)
+      this.set(key, next)
+      return next
+    })
   }
 }

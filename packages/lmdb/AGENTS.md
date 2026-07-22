@@ -24,40 +24,43 @@ class UserRepo extends LmdbRepository<{ name: string }, number> {
 
 class Db extends LmdbEnv {
   users!: UserRepo;
-  async init() {
-    await this.open();
-    this.users = this.register(UserRepo);
+  constructor(path: string) {
+    super({path, maxDbs: 10, compression: true});
+    this.users = this.register(UserRepo);     // register in constructor
   }
 }
 ```
 
 - **Root class**: `class Db extends LmdbEnv` — subclass, do not wrap.
 - **Repository**: extend `LmdbRepository<T,K>` with `static dbName` for each sub-DB.
-- **Atomic writes**: `env.transaction()` for every read-then-write pattern.
+- **Env opens on construction** — no explicit `open()` call.
+- **Sync reads**: `get()`/`has()`/`count()` are synchronous (delegate to lmdb sync methods).
+- **Atomic writes**: `env.transaction()` for every read-then-write pattern. Use a sync callback (non-async) — repository methods are non-async, and a sync callback keeps all writes in the same event turn for proper batching.
 - **Cross-repo access**: `this.env.getRepository(OtherRepo)` inside transactions.
 - **Key design**: natural key per repo — no namespace prefixes.
-- **Counting**: `repo.count()` = O(1) — prefer over manual counters.
+- **Counting**: `repo.count()` = O(1), synchronous — prefer over manual counters.
 - **Encoding**: default msgpack (fast, Date/Map/Set/BigInt); `encoding: "json"` for human-readable.
 
 ## API
 
-| Method                          | Description              |
-| ------------------------------- | ------------------------ |
-| `set(key, value, tx?)`          | Upsert                   |
-| `get(key, tx?)`                 | Read (T \| undefined)    |
-| `has(key)`                      | Existence check          |
-| `delete(key)`                   | Delete (returns boolean) |
-| `clear()`                       | Remove all               |
-| `count()`                       | O(1) count               |
-| `keys/values/entries(options?)` | Range queries            |
-| `iterate(options?)`             | Async streaming          |
-| `first()`, `last()`             | Edge reads               |
-| `findByPrefix(prefix)`          | Prefix scan              |
-| `like(pattern)`                 | Glob-style filter        |
-| `prefetch(keys)`                | Warm page cache          |
-| `getMany(keys)`                 | Parallel reads           |
+| Method                          | Return type              | Sync/Async |
+| ------------------------------- | ------------------------ | ---------- |
+| `get(key, tx?)`                 | `T \| undefined`         | sync       |
+| `has(key)`                      | `boolean`                | sync       |
+| `count()`                       | `number`                 | sync       |
+| `set(key, value, tx?)`          | `Promise<void>`          | async      |
+| `delete(key)`                   | `Promise<boolean>`       | async      |
+| `clear()`                       | `Promise<void>`          | async      |
+| `drop()`                        | `Promise<void>`          | async      |
+| `keys/values/entries(options?)` | `Promise<array>`         | async      |
+| `iterate(options?)`             | `AsyncIterableIterator`  | async      |
+| `first()`, `last()`             | `Promise<tuple\|undefined>` | async   |
+| `findByPrefix(prefix)`          | `Promise<array>`         | async      |
+| `like(pattern)`                 | `Promise<array>`         | async      |
+| `prefetch(keys)`                | `Promise<void>`          | async      |
+| `getMany(keys)`                 | `Promise<array>`         | async      |
 
-Constructor options: `path`, `maxDbs`, `compression`, `encoding`, `readOnly`, `mapSize`.
+Constructor options: `path`, `maxDbs`, `compression`, `encoding`, `readOnly`, `mapSize`, `cache`, `useVersions`, `keyEncoding`, `dupSort`, `noSync`, `encryptionKey`, `commitDelay`, `pageSize`, and all other `lmdb` `open()` options.
 
 ## Build & Test
 

@@ -65,7 +65,7 @@ export const httpServerUrl = \`http://127.0.0.1:$\{testServer.port\}\`
 
 // 6-bank-system — Page monkey-patch (runs BEFORE bot creation)
 import {TransferPage} from "../src/pages/transfer"
-TransferPage.prototype.handleCallbackData = async function () {
+TransferPage.prototype.handleCallbackQueryData = async function () {
   await this.setSessionFreeText()
   await original.call(this)
 }

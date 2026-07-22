@@ -28,7 +28,6 @@ async function main() {
 
   try {
     const env = new LmdbEnv({path: dir, maxDbs: 3})
-    await env.open()
 
     const logs = env.register(LogRepository)
 

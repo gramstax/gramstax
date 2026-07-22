@@ -59,7 +59,6 @@ async function main() {
 
   try {
     const env = new LmdbEnv({path: dir, maxDbs: 3})
-    await env.open()
 
     const dates = env.register(DateRepo)
     const sessions = env.register(SessionRepo)

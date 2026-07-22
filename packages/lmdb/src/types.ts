@@ -18,7 +18,7 @@
  *
  * @public
  */
-export type LMDBKey = string | number | Buffer
+export type ILmdbKey = string | number | Buffer
 
 /**
  * Options accepted by {@link LmdbEnv}.
@@ -57,7 +57,7 @@ export interface ILmdbEnvOptions {
    * All sub-databases in this env share the same encoding.
    * @defaultValue `msgpack`
    */
-  encoding?: LmdbEncoding
+  encoding?: ILmdbEncoding
 
   /**
    * Enable LMDB's built-in compression for stored values.
@@ -67,7 +67,7 @@ export interface ILmdbEnvOptions {
    * Off-thread LZ4 — typically negligible impact.
    * @defaultValue `false`
    */
-  compression?: boolean | CompressionOptions
+  compression?: boolean | ICompressionOptions
 
   /**
    * Whether the env is opened in read-only mode.
@@ -275,7 +275,7 @@ export interface ILmdbEnvOptions {
  *
  * @public
  */
-export interface CompressionOptions {
+export interface ICompressionOptions {
   /** Minimum entry size in bytes to compress. @defaultValue `1000` */
   threshold?: number
   /** Custom LZ4 dictionary buffer. @defaultValue built-in JSON/English dict */
@@ -295,10 +295,10 @@ export interface CompressionOptions {
  */
 export interface IRangeOptions {
   /** Lower bound (inclusive). Iteration starts here. */
-  start?: LMDBKey
+  start?: ILmdbKey
 
   /** Upper bound (exclusive). Iteration stops before this key. */
-  end?: LMDBKey
+  end?: ILmdbKey
 
   /**
    * Include `end` in the results (default `false`).
@@ -383,11 +383,11 @@ export interface ICodec<T> {
  *
  * @public
  */
-export type LmdbEncoding = `msgpack` | `json` | `string` | `binary` | `ordered-binary`
+export type ILmdbEncoding = `msgpack` | `json` | `string` | `binary` | `ordered-binary`
 
 /**
  * Lifecycle state of an {@link LmdbEnv}.
  *
  * @public
  */
-export type LmdbEnvState = `closed` | `opening` | `open` | `closing`
+export type ILmdbEnvState = `closed` | `opening` | `open` | `closing`

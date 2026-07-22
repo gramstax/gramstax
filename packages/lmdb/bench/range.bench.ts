@@ -105,12 +105,10 @@ async function main(): Promise<void> {
 
   // --- iterate (async generator) ---
   await bench(`iterate({limit:10})`, async () => {
-    let c = 0
-    for await (const _ of repo.iterate({limit: 10})) { c++ }
+    for await (const _ of repo.iterate({limit: 10})) { /* count */ }
   })
   await bench(`iterate({limit:100})`, async () => {
-    let c = 0
-    for await (const _ of repo.iterate({limit: 100})) { c++ }
+    for await (const _ of repo.iterate({limit: 100})) { /* count */ }
   })
 
   // --- offset ---

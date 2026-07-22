@@ -57,7 +57,6 @@ let dates: DateRepo
 beforeEach(async () => {
   tmpDir = mkdtempSync(join(tmpdir(), `lmdb-repo-test-`))
   env = new LmdbEnv({path: tmpDir, maxDbs: 10})
-  await env.open()
   users = env.register(UserRepo)
   counters = env.register(CounterRepo)
   noCodec = env.register(NoCodecRepo)
@@ -326,7 +325,6 @@ describe(`LmdbRepository read-only env`, () => {
   it(`rejects writes`, async () => {
     await env.close()
     const roEnv = new LmdbEnv({path: tmpDir, maxDbs: 10, readOnly: true})
-    await roEnv.open()
     try {
       const roUsers = roEnv.register(UserRepo)
       await expect(roUsers.set(`u1`, {id: `u1`, name: `A`, age: 1})).rejects.toThrow(LmdbReadOnlyError)
@@ -570,7 +568,6 @@ describe(`LmdbRepository.drop (sub-DB removal)`, () => {
   it(`removes the sub-database and all entries`, async () => {
     const freshDir = mkdtempSync(join(tmpdir(), `lmdb-drop-test-`))
     const freshEnv = new LmdbEnv({path: freshDir, maxDbs: 5})
-    await freshEnv.open()
     const freshUsers = freshEnv.register(UserRepo)
     await freshUsers.set(`u1`, {id: `u1`, name: `A`, age: 1})
     expect(await freshUsers.count()).toBe(1)
@@ -578,7 +575,6 @@ describe(`LmdbRepository.drop (sub-DB removal)`, () => {
     await freshEnv.close()
     const reopenEnv = new LmdbEnv({path: freshDir, maxDbs: 5})
     try {
-      await reopenEnv.open()
       const reopenUsers = reopenEnv.register(UserRepo)
       expect(await reopenUsers.count()).toBe(0)
     } finally {
@@ -589,7 +585,6 @@ describe(`LmdbRepository.drop (sub-DB removal)`, () => {
   it(`rejects on read-only env`, async () => {
     const roEnv = new LmdbEnv({path: tmpDir, readOnly: true})
     try {
-      await roEnv.open()
       const roUsers = roEnv.register(UserRepo)
       await expect(roUsers.drop()).rejects.toThrow(LmdbReadOnlyError)
     } finally {

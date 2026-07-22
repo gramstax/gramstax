@@ -22,7 +22,7 @@ Gramstax is built for high-conversion, interactive bot experiences.
 
 ### Callback Query Response Pattern
 
-- **EDIT OVER REPLY**: When the handler is triggered by an inline keyboard callback (i.e., inside `handleCallbackData` or any method called from a callback query), always use `ctx.edit()` or `ctx.editMessageText()` to update the existing message in place. Do **not** use `ctx.reply()`, `ctx.replyWithHTML()`, or other `reply*` methods for callback-initiated responses.
+- **EDIT OVER REPLY**: When the handler is triggered by an inline keyboard callback (i.e., inside `handleCallbackQueryData` or any method called from a callback query), always use `ctx.edit()` or `ctx.editMessageText()` to update the existing message in place. Do **not** use `ctx.reply()`, `ctx.replyWithHTML()`, or other `reply*` methods for callback-initiated responses.
 - **REPLY IS FOR FREE TEXT**: Reserve `ctx.reply()` and similar `reply*` methods for handlers triggered by user text input (e.g., `handleSessionFreeText`, `process{NameBase}`), where sending a new message is appropriate. Note that `process{NameBase}` is optional and only defined when the paired `show{NameBase}` expects an answer.
 - **RATIONALE**: Editing the existing message keeps the conversation contextual and avoids message sprawl. Replying to a callback query with a new message creates duplicate or orphaned messages that confuse users.
 
