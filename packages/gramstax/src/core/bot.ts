@@ -103,7 +103,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * If true, uses numeric index for callback data instead of page names.
      * @defaultValue false
      */
-    shortCallbackData: false
+    shortCallbackQueryData: false
   }
 
   /**
@@ -277,8 +277,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       throw new Error(`Token is not valid or empty`)
     }
 
-    if (typeof params.optionsPage?.shortCallbackData == `boolean`) {
-      this.optionsPage.shortCallbackData = params.optionsPage.shortCallbackData
+    if (typeof params.optionsPage?.shortCallbackQueryData == `boolean`) {
+      this.optionsPage.shortCallbackQueryData = params.optionsPage.shortCallbackQueryData
     }
 
     this.log = params.log === true ? log : !params.log ? undefined : params.log
@@ -325,7 +325,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         path: [join(process.cwd(), `src`, `pages`)]
       })
 
-    this.registerLowOnCallbackData() // Handle callback queries from inline keyboards
+    this.registerLowOnCallbackQueryData() // Handle callback queries from inline keyboards
     this.registerLowOnMessageText() // Handle global text messages
     this.registerLowOnMessagePhoto() // Handle global photo messages
     this.registerLowOnMessageVideo() // Handle global video messages
@@ -500,7 +500,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * ```typescript
    * async hookBeforeRoute(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookBeforeRoute`]>>[1]>) {
    *   console.log(`from listener ${data.listenerName}`)
-   *   if (ctx.userId === blockedUserId) {
+   *   if (ctx.from!.id! === blockedUserId) {
    *     return false // Will not response
    *   }
    *   return true
@@ -904,7 +904,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (!Page.data.name) Page.data.name = name
     if (!Page.data.intentText) Page.data.intentText = Page.data.name
     if (!Page.data.intentCommandText) Page.data.intentCommandText = Page.data.name
-    if (!Page.data.intentCallbackData) Page.data.intentCallbackData = Page.data.name
+    if (!Page.data.intentCallbackQueryData) Page.data.intentCallbackQueryData = Page.data.name
   }
 
   /**
@@ -915,11 +915,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * **Phase 1 — Non-session static/intent routes** (id=2, id=3):
    * Iterates `listRouteStatic` and `listRouteStaticIntent`. Registers exact-match
-   * routes (`handleCallbackData`, `handleText`, `handleCommandText`, `handleCaption*`,
+   * routes (`handleCallbackQueryData`, `handleText`, `handleCommandText`, `handleCaption*`,
    * `handleCommandCaption*`) into `routeStatic` — and intent-with-args variants
    * (`handleArgs*`, `handleCommandArgs*`, `handleCaptionArgs*`,
    * `handleCommandCaptionArgs*`) into `routeStaticIntent`.
-   * Routes are keyed by `intentCommandText` (prefixed with `/`), `intentCallbackData`,
+   * Routes are keyed by `intentCommandText` (prefixed with `/`), `intentCallbackQueryData`,
    * `intentText`, or `Page.data.name`.
    *
    * **Phase 2 — Session routes** (id=1):
@@ -939,7 +939,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @param Page - The page class.
    * @param pages - The pages routing structure.
-   * @param indexPage - The page index (used for shortCallbackData).
+   * @param indexPage - The page index (used for shortCallbackQueryData).
    *
    * @public
    */
@@ -977,18 +977,18 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const p = ps || psi
         if (p !== undefined) {
           const _isCommand = routeName.includes(partCommand)
-          const _isCallbackData = routeName.endsWith(`CallbackData`)
+          const _isCallbackQueryData = routeName.endsWith(`CallbackQueryData`)
           const _isText = routeName.endsWith(`Text`)
 
           let key: string | undefined
           if (_isCommand) {
             const _key = Page.data.intentCommandText
             key = _key ? `/${_key}` : undefined
-          } else if (_isCallbackData) {
-            let _key = Page.data.intentCallbackData
-            if (this.optionsPage.shortCallbackData === true) {
+          } else if (_isCallbackQueryData) {
+            let _key = Page.data.intentCallbackQueryData
+            if (this.optionsPage.shortCallbackQueryData === true) {
               _key = String(indexPage)
-              Page.data.intentCallbackData = _key
+              Page.data.intentCallbackQueryData = _key
             }
             key = _key
           } else if (_isText) {
@@ -1123,7 +1123,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     }
     const listRouteStatic = [
       // callback
-      `handleCallbackData`,
+      `handleCallbackQueryData`,
       // text
       `handleText`,
       `handleCommandText`,
@@ -1148,7 +1148,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     ] as const
     const listRouteStaticIntent = [
       // callback
-      `handleArgsCallbackData`,
+      `handleArgsCallbackQueryData`,
       // text
       `handleArgsText`,
       `handleCommandArgsText`,
@@ -1279,7 +1279,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *    - Only runs when the user has an active session (`session.method` is set)
    *    - Iterates `routeStaticSession` and matches by `session.method` value
    *    - **Filtered by input type**: only routes whose name ends with `fromListener`
-   *      are checked (e.g., callback queries only match `*CallbackData` session routes,
+   *      are checked (e.g., callback queries only match `*CallbackQueryData` session routes,
    *      text only matches `*Text`, photo captions only match `*CaptionPhoto`, etc.)
    *    - This prevents cross-type handler misdispatch (e.g., a callback query
    *      accidentally matching `handleSessionFreeText`)
@@ -1292,7 +1292,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * 3. **staticIntent** — Intent with args routes (O(1) lookup)
    *    - Matches intent prefix when args are present
-   *    - Example: "start:123" → `handleArgsCallbackData()`, "/add item" → `handleCommandArgsText()`
+   *    - Example: "start:123" → `handleArgsCallbackQueryData()`, "/add item" → `handleCommandArgsText()`
    *
    * 4. **dynamicSpesific** — Non-session free handlers (O(n) iteration)
    *    - Runs all `handleFree*` handlers (defined directly on the page, not inherited)
@@ -1311,7 +1311,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  async _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{state: `matched` | `no-match` | `no-handler` | `blocked`}> {
+  async _pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{state: `matched` | `no-match` | `no-handler` | `blocked`}> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: {name: string; routeName: string} | undefined
@@ -1355,19 +1355,19 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * id = 2
      * type = static
      * algoritme = O(1)
-     * example = handleCaptionAnimation, handleCallbackData, handleCommandText
+     * example = handleCaptionAnimation, handleCallbackQueryData, handleCommandText
      * description = route only intent, example "/start", "start", "take-photo-live-in-indonesia"
      */
     if (Page === undefined) {
-      const cd = ctx.callbackData
-      const mt = ctx.msgText
-      const mc = ctx.msgCaption
+      const cd = ctx.callbackQuery?.data
+      const mt = ctx.msg?.text
+      const mc = ctx.msg?.caption
       const pStatic = this.pages.routeStatic
 
       for (let index = 0; index < this.pages.lenListRouteStatic; index++) {
         const routeName = this.pages.listRouteStatic[index] as `handleCaptionAnimation`
         if (routeName.toLowerCase().endsWith(fromListener)) {
-          res = pStatic[routeName][cd || mt || mc]
+          res = pStatic[routeName][cd || mt || mc || ``]
         }
 
         if (res) break
@@ -1382,15 +1382,15 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
      * id = 3
      * type = staticIntent
      * algoritme = x = startsWith; O(x)
-     * example = handleCommandCaptionArgsAnimation, handleCommandArgsCallbackData, handleCommandArgsText
+     * example = handleCommandCaptionArgsAnimation, handleCommandArgsCallbackQueryData, handleCommandArgsText
      * description = route with intent and args, example "/start helloworld", "start helloworld", "/add item1", "/add item1 item2"
      *               "wallet:123", "wallet:123:kkk"
      */
     if (Page === undefined) {
       const pStaticIntent = this.pages.routeStaticIntent
-      const isCallback = fromListener === `callbackdata`
+      const isCallback = fromListener === `callbackquerydata`
       const seperatorMethod = isCallback ? `colon` : `space`
-      const data = isCallback ? ctx.callbackData : ctx.msgText || ctx.msgCaption
+      const data = isCallback ? ctx.callbackQuery!.data! : ctx.msg!.text! || ctx.msg!.caption!
       const haveArgs = ctx.haveArgs(data, seperatorMethod)
 
       if (data && haveArgs) {
@@ -1423,7 +1423,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         return {state: `no-handler`}
       }
 
-      const initPage = new Page(ctx) as any
+      const initPage = new Page({
+        ct: ctx,
+        cacheSession: ctx.cacheSession,
+        cacheKeyboard: ctx.cacheKeyboard,
+        templateManager: this.templateManager,
+        temp: ctx.temp
+      }) as any
       if ((await initPage.hookBeforeRoute?.()) !== false) {
         await initPage[res.routeName]?.()
         await initPage.hookAfterRoute?.()
@@ -1455,7 +1461,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       if (typeof Page.prototype[value.routeName as keyof typeof Page.prototype] == `function`) {
-        const initPage = new Page(ctx) as any
+        const initPage = new Page({
+          ct: ctx,
+          cacheSession: ctx.cacheSession,
+          cacheKeyboard: ctx.cacheKeyboard,
+          templateManager: this.templateManager,
+          temp: ctx.temp
+        }) as any
         if ((await initPage.hookBeforeRoute?.()) !== false) {
           await initPage[value.routeName]()
           await initPage.hookAfterRoute?.()
@@ -1482,7 +1494,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       if (typeof Page.prototype.handleFree == `function`) {
-        const initPage = new Page(ctx)
+        const initPage = new Page({
+          ct: ctx,
+          cacheSession: ctx.cacheSession,
+          cacheKeyboard: ctx.cacheKeyboard,
+          templateManager: this.templateManager,
+          temp: ctx.temp
+        })
         if ((await initPage.hookBeforeRoute?.()) !== false) {
           await initPage.handleFree!()
           await initPage.hookAfterRoute?.()
@@ -1496,7 +1514,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   async _onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
     let state: any
     const ctx = this.createCtx(ct)
-    const isEdit = listenerName === `callbackdata`
+    const isEdit = listenerName === `callbackquerydata`
     const before = await this.hookBeforeRoute?.(ctx, {listenerName, isEdit})
     if (before === false) {
       return
@@ -1588,59 +1606,59 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * ```typescript
    * class MyBot extends Gramstax {
    *   // Override if need to route via a custom event bus instead of the default bot
-   *   registerLowOnCallbackData() {
+   *   registerLowOnCallbackQueryData() {
    *     // default is `callback_query:data`
-   *     this.bot.on(`cb_data`, (ctx) => this._onHandle(ctx, `callbackdata`))
+   *     this.bot.on(`cb_data`, (ctx) => this._onHandle(ctx, `callbackquerydata`))
    *   }
    * }
    * ```
    *
    * @public
    */
-  registerLowOnCallbackData() {
-    this.bot.on(`callback_query:data`, (ctx) => this._onHandle(ctx, `callbackdata`)) // Handle callback queries from inline keyboards
+  registerLowOnCallbackQueryData() {
+    this.bot.on(`callback_query:data`, (ctx) => this._onHandle(ctx, `callbackquerydata`)) // Handle callback queries from inline keyboards
   }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessageText() {
     this.bot.on(`message:text`, (ctx) => this._onHandle(ctx, `text`)) // Handle global text messages
   }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessagePhoto() {
     this.bot.on(`message:photo`, (ctx) => this._onHandle(ctx, `photo`)) // Handle global photo messages
   }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessageVideo() {
     this.bot.on(`message:video`, (ctx) => this._onHandle(ctx, `video`)) // Handle global video messages
   }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessageAudio() {
     this.bot.on(`message:audio`, (ctx) => this._onHandle(ctx, `audio`)) // Handle global audio messages
   }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessageDocument() {
     this.bot.on(`message:document`, (ctx) => this._onHandle(ctx, `document`)) // Handle global document messages
   }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessageAnimation() {
     this.bot.on(`message:animation`, (ctx) => this._onHandle(ctx, `animation`)) // Handle global animation messages
   }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessageVoice() {
     this.bot.on(`message:voice`, (ctx) => this._onHandle(ctx, `voice`)) // Handle global voice messages
   }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessageVideoNote() {
     this.bot.on(`message:video_note`, (ctx) => this._onHandle(ctx, `videonote`)) // Handle global video note messages
   }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessageSticker() {
     this.bot.on(`message:sticker`, (ctx) => this._onHandle(ctx, `sticker`)) // Handle global sticker messages
   }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessageLocation() {
     this.bot.on(`message:location`, (ctx) => this._onHandle(ctx, `location`)) // Handle global location messages
   }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackData} */
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessageContact() {
     this.bot.on(`message:contact`, (ctx) => this._onHandle(ctx, `contact`)) // Handle global contact messages
   }

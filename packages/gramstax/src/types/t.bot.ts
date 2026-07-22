@@ -208,6 +208,6 @@ export type ITGramstaxParams = {
      *
      * @defaultValue `false`
      */
-    shortCallbackData?: boolean
+    shortCallbackQueryData?: boolean
   }
 }

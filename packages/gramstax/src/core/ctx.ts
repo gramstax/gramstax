@@ -11,12 +11,11 @@
 
 import {setTimeout} from "node:timers/promises"
 import {TemplateManager} from "~/template/manager"
-import {InlineKeyboard, InputMediaBuilder, Keyboard} from "grammy"
+import {Context, InlineKeyboard, InputMediaBuilder, Keyboard} from "grammy"
 import type {InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
 import {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {ITMediaBlock} from "~/template/engine"
 import type {
-  ITCt,
   ITInBoKb,
   ITData,
   ITOptEdit,
@@ -31,7 +30,6 @@ import type {
   ITOptReplyPhoto,
   ITOptReplyContact,
   ITOptReplySticker,
-  ITReplyAction,
   ITOptReplyDocument,
   ITOptReplyLocation,
   ITOptReplyAnimation,
@@ -61,7 +59,7 @@ class Helper {
   }
 
   static buildMediaGroupOptions(options: Record<string, unknown>) {
-    const mediaGroupOptions = {...options}
+    const mediaGroupOptions = {...(options ?? {})}
     delete mediaGroupOptions.parse_mode
     delete mediaGroupOptions.reply_markup
     return mediaGroupOptions
@@ -104,9 +102,9 @@ class Helper {
  * import {Menu2Page} from "./menu2"
  *
  * class StartPage extends Ctx {
- *   async handleCallbackData() {
+ *   async handleCallbackQueryData() {
  *     const kb = this.inlineKeyboardT([Menu1Page, Menu2Page])
- *     await this.reply(kb)
+ *     await this.render(kb)
  *   }
  *
  *   static template = `
@@ -125,9 +123,9 @@ class Helper {
  * import {Menu2Page} from "./menu2"
  *
  * class StartPage extends Ctx {
- *   async handleCallbackData() {
+ *   async handleCallbackQueryData() {
  *     const kb = this.inlineKeyboardT([Menu1Page, Menu2Page], "2", "special-kb")
- *     await this.reply()
+ *     await this.render()
  *   }
  *
  *   static template = `
@@ -143,7 +141,7 @@ class Helper {
  *
  * @public
  */
-export class Ctx {
+export class Ctx extends Context {
   /**
    * HTML-like template string for the page.
    *
@@ -248,12 +246,12 @@ export class Ctx {
    * @example
    * ```typescript
    * class MyPage extends Ctx {
-   *   // For args `handle*CallbackData`
+   *   // For args `handle*CallbackQueryData`
    *   static data = this.buildData((confirm?: string) => [confirm])
    *
-   *   // For args `handle*CallbackData` and `handle*Text` and `handle*CommandText` (Besides "handleFree*")
+   *   // For args `handle*CallbackQueryData` and `handle*Text` and `handle*CommandText` (Besides "handleFree*")
    *   static data = this.buildData({
-   *     callbackData: (confirm?: string) => [confirm],
+   *     callbackQueryData: (confirm?: string) => [confirm],
    *     intentText: `my_page`,
    *     intentCommandText: `hello`
    *   })
@@ -269,13 +267,13 @@ export class Ctx {
    *
    * @remarks
    * This property mirrors the static `data` property but is accessible via `this.data`
-   * within instance methods. Use `this.data.callbackDataData()` internally.
+   * within instance methods. Use `this.data.callbackQueryData()` internally.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   const callbackData = this.data.callbackData("argument_1", "args2")
-   *   console.log(callbackData) // "page_name:argument_1:args2"
+   * async handleCallbackQueryData() {
+   *   const cbd = this.data.callbackQueryData("argument_1", "args2")
+   *   console.log(cbd) // "page_name:argument_1:args2"
    * }
    * ```
    *
@@ -285,84 +283,309 @@ export class Ctx {
   data = (this.constructor as Record<any, any>).data as ITPageData<any>
 
   /**
-   * Indicates whether the current user has Telegram Premium.
+   * The full {@link Context.message} object from Telegram (non-nullable).
    *
-   * @remarks
-   * Returns `false` if the premium status is not available.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackData() {
-   *   if (this.userIsPremium) {
-   *     await this.reply(undefined, {tier: "Premium"})
-   *   }
-   * }
-   * ```
+   * Alias for `ctx.update.message`.
    *
    * @readonly
    * @public
    */
-  get userIsPremium() {
-    return this.ct.from?.is_premium ?? false
+  get message(): NonNullable<Context[`message`]> {
+    return super.message as NonNullable<Context[`message`]>
   }
 
   /**
-   * Indicates whether the current sender is a bot account.
+   * The full {@link Context.msg} object from Telegram (non-nullable).
    *
-   * @remarks
-   * Returns `false` if the bot status is not available.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackData() {
-   *   if (this.userIsBot) {
-   *     return // Ignore bot messages
-   *   }
-   * }
-   * ```
+   * Shorthand for `this.message` with fallback across message-like update fields.
    *
    * @readonly
    * @public
    */
-  get userIsBot() {
-    return this.ct.from?.is_bot ?? false
+  get msg(): NonNullable<Context[`msg`]> {
+    return super.msg as NonNullable<Context[`msg`]>
   }
 
   /**
-   * The Telegram user ID from the current update context.
+   * The full {@link Context.callbackQuery} object from Telegram (non-nullable).
    *
-   * @example
-   * ```typescript
-   * async handleCallbackData() {
-   *   console.log(this.userId) // 12345678
-   * }
-   * ```
+   * Alias for `ctx.update.callback_query`.
    *
    * @readonly
    * @public
    */
-  get userId() {
-    return this.ct.from?.id as number
+  get callbackQuery(): NonNullable<Context[`callbackQuery`]> {
+    return super.callbackQuery as NonNullable<Context[`callbackQuery`]>
   }
 
   /**
-   * The Telegram username from the user profile.
-   *
-   * @remarks
-   * May be `undefined` if the user has not set a username.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackData() {
-   *   console.log(this.userName) // "gramstax_user"
-   * }
-   * ```
+   * The full {@link Context.from} object from Telegram (non-nullable).
    *
    * @readonly
    * @public
    */
-  get userName() {
-    return this.ct.from?.username as string
+  get from(): NonNullable<Context[`from`]> {
+    return super.from as NonNullable<Context[`from`]>
+  }
+
+  /**
+   * The full {@link Context.businessConnection} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.business_connection`.
+   *
+   * @readonly
+   * @public
+   */
+  get businessConnection(): NonNullable<Context[`businessConnection`]> {
+    return super.businessConnection as NonNullable<Context[`businessConnection`]>
+  }
+
+  /**
+   * The full {@link Context.businessMessage} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.business_message`.
+   *
+   * @readonly
+   * @public
+   */
+  get businessMessage(): NonNullable<Context[`businessMessage`]> {
+    return super.businessMessage as NonNullable<Context[`businessMessage`]>
+  }
+
+  /**
+   * The full {@link Context.channelPost} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.channel_post`.
+   *
+   * @readonly
+   * @public
+   */
+  get channelPost(): NonNullable<Context[`channelPost`]> {
+    return super.channelPost as NonNullable<Context[`channelPost`]>
+  }
+
+  /**
+   * The full {@link Context.chat} object from Telegram (non-nullable).
+   *
+   * @readonly
+   * @public
+   */
+  get chat(): NonNullable<Context[`chat`]> {
+    return super.chat as NonNullable<Context[`chat`]>
+  }
+
+  /**
+   * The full {@link Context.chatBoost} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.chat_boost`.
+   *
+   * @readonly
+   * @public
+   */
+  get chatBoost(): NonNullable<Context[`chatBoost`]> {
+    return super.chatBoost as NonNullable<Context[`chatBoost`]>
+  }
+
+  /**
+   * The full {@link Context.chatJoinRequest} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.chat_join_request`.
+   *
+   * @readonly
+   * @public
+   */
+  get chatJoinRequest(): NonNullable<Context[`chatJoinRequest`]> {
+    return super.chatJoinRequest as NonNullable<Context[`chatJoinRequest`]>
+  }
+
+  /**
+   * The full {@link Context.chatMember} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.chat_member`.
+   *
+   * @readonly
+   * @public
+   */
+  get chatMember(): NonNullable<Context[`chatMember`]> {
+    return super.chatMember as NonNullable<Context[`chatMember`]>
+  }
+
+  /**
+   * The full {@link Context.chosenInlineResult} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.chosen_inline_result`.
+   *
+   * @readonly
+   * @public
+   */
+  get chosenInlineResult(): NonNullable<Context[`chosenInlineResult`]> {
+    return super.chosenInlineResult as NonNullable<Context[`chosenInlineResult`]>
+  }
+
+  /**
+   * The full {@link Context.deletedBusinessMessages} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.deleted_business_messages`.
+   *
+   * @readonly
+   * @public
+   */
+  get deletedBusinessMessages(): NonNullable<Context[`deletedBusinessMessages`]> {
+    return super.deletedBusinessMessages as NonNullable<Context[`deletedBusinessMessages`]>
+  }
+
+  /**
+   * The full {@link Context.editedBusinessMessage} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.edited_business_message`.
+   *
+   * @readonly
+   * @public
+   */
+  get editedBusinessMessage(): NonNullable<Context[`editedBusinessMessage`]> {
+    return super.editedBusinessMessage as NonNullable<Context[`editedBusinessMessage`]>
+  }
+
+  /**
+   * The full {@link Context.editedChannelPost} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.edited_channel_post`.
+   *
+   * @readonly
+   * @public
+   */
+  get editedChannelPost(): NonNullable<Context[`editedChannelPost`]> {
+    return super.editedChannelPost as NonNullable<Context[`editedChannelPost`]>
+  }
+
+  /**
+   * The full {@link Context.editedMessage} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.edited_message`.
+   *
+   * @readonly
+   * @public
+   */
+  get editedMessage(): NonNullable<Context[`editedMessage`]> {
+    return super.editedMessage as NonNullable<Context[`editedMessage`]>
+  }
+
+  /**
+   * The full {@link Context.guestMessage} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.guest_message`.
+   *
+   * @readonly
+   * @public
+   */
+  get guestMessage(): NonNullable<Context[`guestMessage`]> {
+    return super.guestMessage as NonNullable<Context[`guestMessage`]>
+  }
+
+  /**
+   * The full {@link Context.inlineQuery} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.inline_query`.
+   *
+   * @readonly
+   * @public
+   */
+  get inlineQuery(): NonNullable<Context[`inlineQuery`]> {
+    return super.inlineQuery as NonNullable<Context[`inlineQuery`]>
+  }
+
+  /**
+   * The full {@link Context.managedBot} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.managed_bot`.
+   *
+   * @readonly
+   * @public
+   */
+  get managedBot(): NonNullable<Context[`managedBot`]> {
+    return super.managedBot as NonNullable<Context[`managedBot`]>
+  }
+
+  /**
+   * The full {@link Context.messageReaction} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.message_reaction`.
+   *
+   * @readonly
+   * @public
+   */
+  get messageReaction(): NonNullable<Context[`messageReaction`]> {
+    return super.messageReaction as NonNullable<Context[`messageReaction`]>
+  }
+
+  /**
+   * The full {@link Context.poll} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.poll`.
+   *
+   * @readonly
+   * @public
+   */
+  get poll(): NonNullable<Context[`poll`]> {
+    return super.poll as NonNullable<Context[`poll`]>
+  }
+
+  /**
+   * The full {@link Context.pollAnswer} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.poll_answer`.
+   *
+   * @readonly
+   * @public
+   */
+  get pollAnswer(): NonNullable<Context[`pollAnswer`]> {
+    return super.pollAnswer as NonNullable<Context[`pollAnswer`]>
+  }
+
+  /**
+   * The full {@link Context.preCheckoutQuery} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.pre_checkout_query`.
+   *
+   * @readonly
+   * @public
+   */
+  get preCheckoutQuery(): NonNullable<Context[`preCheckoutQuery`]> {
+    return super.preCheckoutQuery as NonNullable<Context[`preCheckoutQuery`]>
+  }
+
+  /**
+   * The full {@link Context.purchasedPaidMedia} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.purchased_paid_media`.
+   *
+   * @readonly
+   * @public
+   */
+  get purchasedPaidMedia(): NonNullable<Context[`purchasedPaidMedia`]> {
+    return super.purchasedPaidMedia as NonNullable<Context[`purchasedPaidMedia`]>
+  }
+
+  /**
+   * The full {@link Context.removedChatBoost} object from Telegram (non-nullable).
+   *
+   * Alias for `ctx.update.removed_chat_boost`.
+   *
+   * @readonly
+   * @public
+   */
+  get removedChatBoost(): NonNullable<Context[`removedChatBoost`]> {
+    return super.removedChatBoost as NonNullable<Context[`removedChatBoost`]>
+  }
+
+  /**
+   * The full {@link Context.senderChat} object from Telegram (non-nullable).
+   *
+   * @readonly
+   * @public
+   */
+  get senderChat(): NonNullable<Context[`senderChat`]> {
+    return super.senderChat as NonNullable<Context[`senderChat`]>
   }
 
   /**
@@ -370,94 +593,18 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   console.log(this.userFullName) // "Alya Putri"
+   * async handleCallbackQueryData() {
+   *   // this.from.first_name = "Alya"
+   *   // this.from.last_name = "Putri"
+   *   console.log(this.fromFullName) // "Alya Putri"
    * }
    * ```
    *
    * @readonly
    * @public
    */
-  get userFullName() {
-    return `${this.ct.from?.first_name} ${this.ct.from?.last_name || ``}`
-  }
-
-  /**
-   * The user's first name from the Telegram profile.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackData() {
-   *   console.log(this.userFirstName) // "Alya"
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get userFirstName() {
-    return this.ct.from?.first_name as string
-  }
-
-  /**
-   * The user's last name from the Telegram profile.
-   *
-   * @remarks
-   * May be `undefined` if the user has not set a last name.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackData() {
-   *   console.log(this.userLastName) // "Putri"
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get userLastName() {
-    return this.ct.from?.last_name as string
-  }
-
-  /**
-   * The user's language code from Telegram (e.g., "en", "id").
-   *
-   * @remarks
-   * This property can be both read and written. Setting this value overrides
-   * the language used for template rendering.
-   *
-   * @example
-   * ```typescript
-   * async handleCallbackData() {
-   *   console.log(this.userLanguage) // "en"
-   *   this.userLanguage = "id" // Override to Indonesian
-   * }
-   * ```
-   *
-   * @public
-   */
-  get userLanguage() {
-    return this.ct.from?.language_code as string
-  }
-  set userLanguage(v: string) {
-    this.ct.from!.language_code = v
-  }
-
-  /**
-   * The raw message text from the current update.
-   *
-   * @example
-   * ```typescript
-   * async handleFreeText() {
-   *   console.log(this.msgText) // "Hello World"
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgText() {
-    return this.ct.message?.text as string
+  get fromFullName() {
+    return `${this.from?.first_name} ${this.from?.last_name || ``}`
   }
 
   /**
@@ -478,7 +625,7 @@ export class Ctx {
    * @public
    */
   get msgTextArgs() {
-    return this.getArgs(this.msgText, `space`, this.data?._positionArgText || this.temp?.data?._positionArgText)
+    return this.getArgs(this.msg?.text, `space`, this.data?._positionArgText || this.temp?.data?._positionArgText)
   }
 
   /**
@@ -517,7 +664,7 @@ export class Ctx {
    * @public
    */
   get msgTextCommandArgs() {
-    return this.getArgs(this.msgText, `space`)
+    return this.getArgs(this.msg?.text, `space`)
   }
 
   /**
@@ -539,23 +686,6 @@ export class Ctx {
   }
 
   /**
-   * The caption text for media messages.
-   *
-   * @example
-   * ```typescript
-   * async handleFreePhoto() {
-   *   console.log(this.msgCaption) // "<Photo caption>"
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgCaption() {
-    return this.ct.message?.caption as string
-  }
-
-  /**
    * All arg tokens parsed from caption text.
    *
    * @example
@@ -570,7 +700,7 @@ export class Ctx {
    * @public
    */
   get msgCaptionArgs() {
-    return this.getArgs(this.msgCaption, `space`)
+    return this.getArgs(this.msg?.caption, `space`)
   }
 
   /**
@@ -606,7 +736,7 @@ export class Ctx {
    * @public
    */
   get msgCommandCaptionArgs() {
-    return this.getArgs(this.msgCaption, `space`)
+    return this.getArgs(this.msg?.caption, `space`)
   }
 
   /**
@@ -628,239 +758,6 @@ export class Ctx {
   }
 
   /**
-   * Photo sizes attached to the message.
-   *
-   * @example
-   * ```typescript
-   * async handleFreePhoto() {
-   *   const photos = this.msgPhoto
-   *   const largest = photos?.[photos.length - 1]
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgPhoto() {
-    return this.ct.message?.photo
-  }
-
-  /**
-   * Video arg attached to the message.
-   *
-   * @example
-   * ```typescript
-   * async handleFreeVideo() {
-   *   const video = this.msgVideo
-   *   console.log(video?.file_id)
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgVideo() {
-    return this.ct.message?.video
-  }
-
-  /**
-   * Audio arg attached to the message.
-   *
-   * @example
-   * ```typescript
-   * async handleFreeAudio() {
-   *   const audio = this.msgAudio
-   *   console.log(audio?.file_id)
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgAudio() {
-    return this.ct.message?.audio
-  }
-
-  /**
-   * Document arg attached to the message.
-   *
-   * @example
-   * ```typescript
-   * async handleFreeDocument() {
-   *   const doc = this.msgDocument
-   *   console.log(doc?.file_name)
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgDocument() {
-    return this.ct.message?.document
-  }
-
-  /**
-   * Animation/GIF arg attached to the message.
-   *
-   * @example
-   * ```typescript
-   * async handleFreeAnimation() {
-   *   const anim = this.msgAnimation
-   *   console.log(anim?.file_id)
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgAnimation() {
-    return this.ct.message?.animation
-  }
-
-  /**
-   * Voice message arg attached to the message.
-   *
-   * @example
-   * ```typescript
-   * async handleFreeVoice() {
-   *   const voice = this.msgVoice
-   *   console.log(voice?.duration)
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgVoice() {
-    return this.ct.message?.voice
-  }
-
-  /**
-   * Video note (circular video) attached to the message.
-   *
-   * @example
-   * ```typescript
-   * async handleFreeVideoNote() {
-   *   const videoNote = this.msgVideoNote
-   *   console.log(videoNote?.length)
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgVideoNote() {
-    return this.ct.message?.video_note
-  }
-
-  /**
-   * Sticker arg attached to the message.
-   *
-   * @example
-   * ```typescript
-   * async handleFreeSticker() {
-   *   const sticker = this.msgSticker
-   *   console.log(sticker?.emoji)
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgSticker() {
-    return this.ct.message?.sticker
-  }
-
-  /**
-   * Location arg attached to the message.
-   *
-   * @example
-   * ```typescript
-   * async handleFreeLocation() {
-   *   const loc = this.msgLocation
-   *   console.log(loc?.latitude, loc?.longitude)
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgLocation() {
-    return this.ct.message?.location
-  }
-
-  /**
-   * Contact arg attached to the message.
-   *
-   * @example
-   * ```typescript
-   * async handleFreeContact() {
-   *   const contact = this.msgContact
-   *   console.log(contact?.phone_number)
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgContact() {
-    return this.ct.message?.contact
-  }
-
-  /**
-   * Web app data attached to the message.
-   *
-   * @example
-   * ```typescript
-   * async handleFree() {
-   *   const webAppData = this.msgWebAppData
-   *   console.log(webAppData?.data)
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgWebAppData() {
-    return this.ct.message?.web_app_data
-  }
-
-  /**
-   * Gift arg attached to the message.
-   *
-   * @example
-   * ```typescript
-   * async handleFree() {
-   *   const gift = this.msgGift
-   *   console.log(gift)
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get msgGift() {
-    return this.ct.message?.gift
-  }
-
-  /**
-   * Raw callback query data from inline keyboard interactions.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallbackData() {
-   *   console.log(this.callbackData) // "menu:settings:ok"
-   * }
-   * ```
-   *
-   * @readonly
-   * @public
-   */
-  get callbackData() {
-    return this.ct.callbackQuery?.data as string
-  }
-
-  /**
    * All arg tokens parsed from callback data.
    *
    * @remarks
@@ -870,15 +767,15 @@ export class Ctx {
    * ```typescript
    * // Callback: "menu:settings:ok"
    * async handleArgsCallback() {
-   *   console.log(this.callbackDataArgs) // ["settings", "ok"]
+   *   console.log(this.callbackQueryDataArgs) // ["settings", "ok"]
    * }
    * ```
    *
    * @readonly
    * @public
    */
-  get callbackDataArgs() {
-    return this.getArgs(this.callbackData, `colon`)
+  get callbackQueryDataArgs() {
+    return this.getArgs(this.callbackQuery?.data, `colon`)
   }
 
   /**
@@ -888,23 +785,16 @@ export class Ctx {
    * ```typescript
    * // Data: "menu:settings:ok"
    * async handleArgsCallback() {
-   *   console.log(this.callbackDataArg) // "settings"
+   *   console.log(this.callbackQueryDataArg) // "settings"
    * }
    * ```
    *
    * @readonly
    * @public
    */
-  get callbackDataArg() {
-    return this.callbackDataArgs?.[0] as string
+  get callbackQueryDataArg() {
+    return this.callbackQueryDataArgs?.[0] as string
   }
-
-  /**
-   * The grammY context object for low-level Telegram API access.
-   *
-   * @public
-   */
-  ct: ITCt
 
   /**
    * External cache for session storage.
@@ -948,10 +838,11 @@ export class Ctx {
   private static readonly _answerApiGuard = new WeakSet<object>()
 
   constructor(params: ITCtxParams) {
-    this.ct = params.ct
-    if (!Ctx._answerApiGuard.has(params.ct.api)) {
-      Ctx._answerApiGuard.add(params.ct.api)
-      params.ct.api.config.use((prev, method, payload, signal) => {
+    const ct = params.ct ?? params
+    super(ct.update, ct.api, ct.me)
+    if (this.api?.config?.use && !Ctx._answerApiGuard.has(this.api)) {
+      Ctx._answerApiGuard.add(this.api)
+      this.api.config.use((prev, method, payload, signal) => {
         this.temp.isAnswer = Ctx.ANSWER_API_METHODS.has(method)
         return prev(method, payload, signal)
       })
@@ -967,9 +858,9 @@ export class Ctx {
    *
    * @remarks
    * Return `false` to **skip only the target route handler** (e.g.
-   * `handleFreeText`, `handleCallbackData`, etc.). The rest of the
-   * framework is untouched — you can still call `.reply()`, `.edit()`,
-   * `.answerCallbackQuery()`, and other Ctx methods normally inside
+   * `handleFreeText`, `handleCallbackQueryData`, etc.). The rest of the
+   * framework is untouched — you can still call `.render()`, `.renderEdit()`,
+   * `.renderAnswerCallback()`, and other Ctx methods normally inside
    * this hook before returning `false`.
    *
    * In other words: returning `false` does NOT freeze the page — it
@@ -986,12 +877,12 @@ export class Ctx {
    * ```typescript
    * // Cooldown — reply then abort the handler
    * async hookBeforeRoute() {
-   *   const last = await this.cacheSession.get(`${this.userId}:lastAction`)
+   *   const last = await this.cacheSession.get(`${this.from.id}:lastAction`)
    *   if (last && Date.now() - Number(last) < 2000) {
-   *     await this.answerCallbackQuery(`Please wait...`) // still works
+   *     await this.renderAnswerCallback(`Please wait...`) // still works
    *     return false // only skips the target handler
    *   }
-   *   await this.cacheSession.set(`${this.userId}:lastAction`, String(Date.now()))
+   *   await this.cacheSession.set(`${this.from.id}:lastAction`, String(Date.now()))
    *   return true
    * }
    * ```
@@ -1000,7 +891,7 @@ export class Ctx {
    * ```typescript
    * // KYC gate — send redirect page then abort
    * async hookBeforeRoute() {
-   *   const profile = await this.db.getUser(this.userId)
+   *   const profile = await this.db.getUser(this.from.id)
    *   if (!profile?.kycVerified) {
    *     await new KycPage(this).showForm() // redirect works
    *     return false // only skips the guarded handler
@@ -1028,28 +919,10 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * // Track last visit per page
-   * async hookAfterRoute() {
-   *   await this.cacheSession.set(`${this.userId}:lastPage`, this.data.name)
-   * }
-   * ```
-   *
-   * @example
-   * ```typescript
-   * // Auto-clear session when user reaches a terminal step
-   * async hookAfterRoute() {
-   *   if (this.temp.session?.params.step === `completed`) {
-   *     await this.cacheSession.del(String(this.userId))
-   *   }
-   * }
-   * ```
-   *
-   * @example
-   * ```typescript
    * // Notify admins of high-value actions
    * async hookAfterRoute() {
    *   if (this.temp.session?.params.amount > 10000) {
-   *     await this.ct.api.sendMessage(ADMIN_CHAT_ID, `Large withdrawal: ${this.temp.session.amount}`)
+   *     await this.api.sendMessage(ADMIN_CHAT_ID, `Large withdrawal: ${this.temp.session.amount}`)
    *   }
    * }
    * ```
@@ -1068,36 +941,36 @@ export class Ctx {
    *
    * @param ids - Array of user IDs to send the message to.
    * @param languageCode - Array of language codes corresponding to each user.
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block message.
-   * @param options - Optional grammY send options.
-   * @param throwError - If true, throws errors instead of swallowing them.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).
+   * @param options - Optional grammY send options (or null to omit).
+   * @param throwError - If true, throws errors instead of swallowing them (or null to use false).
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
+   * async handleCallbackQueryData() {
    *   const userIds = [123456, 789012]
    *   const langs = ["en", "id"]
-   *   await this.broadcast(userIds, langs)
+   *   await this.renderBroadcast(userIds, langs)
    * }
    * ```
    *
    * @public
    */
-  async broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReply, throwError = false) {
+  async renderBroadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null, throwError: boolean | null = false) {
     const res = {successCount: 0, failedCount: 0, totalCount: 0}
     res.totalCount = ids.length
     try {
       const limitFree = 30
-      const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId, it, data))
+      const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
       for (let index = 0; index < ids.length; index++) {
         const id = ids[index]
         const msg = msgs[index]
-        await this.ct.api.sendMessage(id!, msg!, {
+        await this.api.sendMessage(id!, msg!, {
           parse_mode: `HTML`,
-          reply_markup: keyboard,
-          ...options
+          reply_markup: keyboard ?? undefined,
+          ...(options ?? {})
         })
 
         res.successCount += 1
@@ -1127,37 +1000,37 @@ export class Ctx {
    *
    * @param ids - Array of user IDs to send the media to.
    * @param languageCode - Array of language codes corresponding to each user.
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media.
-   * @param options - Optional grammY send options for the inferred media type.
-   * @param throwError - If true, throws errors instead of swallowing them.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
+   * @param options - Optional grammY send options for the inferred media type (or null to omit).
+   * @param throwError - If true, throws errors instead of swallowing them (or null to use false).
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
+   * async handleCallbackQueryData() {
    *   const userIds = [123456, 789012]
    *   const langs = ["en", "id"]
-   *   await this.broadcastMedia(userIds, langs)
+   *   await this.renderBroadcastMedia(userIds, langs)
    * }
    * ```
    *
    * @public
    */
-  async broadcastMedia(
+  async renderBroadcastMedia(
     ids: number[],
     languageCode: string[],
-    keyboard?: ITInBoKb,
-    data?: ITData,
-    AGBaseId?: string,
-    options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact,
-    throwError = false
+    keyboard?: ITInBoKb | null,
+    data?: ITData | null,
+    AGBaseId?: string | null,
+    options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact | null,
+    throwError: boolean | null = false
   ) {
     const res = {successCount: 0, failedCount: 0, totalCount: 0}
     res.totalCount = ids.length
     try {
       const limitFree = 30
-      const medias = languageCode.map((it) => this.templateManager.getGMedia(this.data.name, AGBaseId, it, data))
+      const medias = languageCode.map((it) => this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
 
       for (let index = 0; index < ids.length; index++) {
         const id = ids[index]
@@ -1165,10 +1038,10 @@ export class Ctx {
         if (!med) {
           continue
         }
-        const opt = {parse_mode: `HTML`, reply_markup: keyboard, ...options} as Record<any, any>
+        const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<any, any>
 
         if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
-          await this.ct.api.sendMediaGroup(id!, Helper.buildMediaGroupFromItems(med.mediaGroup, med.caption), Helper.buildMediaGroupOptions(opt))
+          await this.api.sendMediaGroup(id!, Helper.buildMediaGroupFromItems(med.mediaGroup, med.caption), Helper.buildMediaGroupOptions(opt))
           res.successCount += 1
           if (index + 1 == limitFree) {
             await setTimeout(1200)
@@ -1177,7 +1050,7 @@ export class Ctx {
         }
 
         if (Helper.isMediaGroupType(med.type) && med.srcList && med.srcList.length > 1) {
-          await this.ct.api.sendMediaGroup(id!, Helper.buildMediaGroup(med.type, med.srcList, med.caption), Helper.buildMediaGroupOptions(opt))
+          await this.api.sendMediaGroup(id!, Helper.buildMediaGroup(med.type, med.srcList, med.caption), Helper.buildMediaGroupOptions(opt))
           res.successCount += 1
           if (index + 1 == limitFree) {
             await setTimeout(1200)
@@ -1185,16 +1058,16 @@ export class Ctx {
           continue
         }
 
-        if (med.type == `photo`) await this.ct.api.sendPhoto(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type == `video`) await this.ct.api.sendVideo(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type == `audio`) await this.ct.api.sendAudio(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type == `document`) await this.ct.api.sendDocument(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type == `animation`) await this.ct.api.sendAnimation(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type == `voice`) await this.ct.api.sendVoice(id!, med.src!, opt)
-        if (med.type == `video_note`) await this.ct.api.sendVideoNote(id!, med.src!, opt)
-        if (med.type == `sticker`) await this.ct.api.sendSticker(id!, med.src!, opt)
-        if (med.type == `location`) await this.ct.api.sendLocation(id!, parseInt(med.latitude!), parseInt(med.longitude!), opt)
-        if (med.type == `contact`) await this.ct.api.sendContact(id!, med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
+        if (med.type == `photo`) await this.api.sendPhoto(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type == `video`) await this.api.sendVideo(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type == `audio`) await this.api.sendAudio(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type == `document`) await this.api.sendDocument(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type == `animation`) await this.api.sendAnimation(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type == `voice`) await this.api.sendVoice(id!, med.src!, opt)
+        if (med.type == `video_note`) await this.api.sendVideoNote(id!, med.src!, opt)
+        if (med.type == `sticker`) await this.api.sendSticker(id!, med.src!, opt)
+        if (med.type == `location`) await this.api.sendLocation(id!, parseInt(med.latitude!), parseInt(med.longitude!), opt)
+        if (med.type == `contact`) await this.api.sendContact(id!, med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
 
         res.successCount += 1
         if (index + 1 == limitFree) {
@@ -1213,36 +1086,36 @@ export class Ctx {
   /**
    * Sends a text message reply using the page template.
    *
-   * @param keyboard - Optional keyboard markup from {@link Ctx.inlineKeyboard} or {@link Ctx.bottomKeyboard}.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template base ID position for block message.
-   * @param options - Optional grammY reply options.
+   * @param keyboard - Optional keyboard markup from {@link Ctx.inlineKeyboard} or {@link Ctx.bottomKeyboard} (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template base ID position for block message (or null to use default).
+   * @param options - Optional grammY reply options (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
+   * async handleCallbackQueryData() {
    *   // Automatic reply with content from this.template
-   *   await this.reply()
+   *   await this.render()
    *
    *   // With keyboard builder and data
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.reply(kb, {name: "John"})
+   *   await this.render(kb, {name: "John"})
    *
    *   // With keyboard short and custom AGBaseId between reply and keyboard
    *   const kb = this.inlineKeyboardT([StartPage], `1`, "my-custom-id")
-   *   await this.reply(kb, {name: "John"}, "id-hello-world")
+   *   await this.render(kb, {name: "John"}, "id-hello-world")
    * }
    * ```
    *
    * @public
    */
-  async reply(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReply) {
-    const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.userLanguage, data)
-    return await this.ct.reply(msg, {
+  async render(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null) {
+    const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    return await this.reply(msg, {
       parse_mode: `HTML`,
-      reply_markup: keyboard,
-      ...options
+      reply_markup: keyboard ?? undefined,
+      ...(options ?? {})
     })
   }
 
@@ -1265,36 +1138,67 @@ export class Ctx {
    * - Up to 16 nesting levels
    * - Up to 20 table columns
    *
-   * @param keyboard - Optional keyboard markup from {@link Ctx.inlineKeyboard} or {@link Ctx.bottomKeyboard}.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template base ID position for block message.
-   * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`).
-   * @param options2 - Optional grammY send options.
+   * @param keyboard - Optional keyboard markup from {@link Ctx.inlineKeyboard} or {@link Ctx.bottomKeyboard} (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template base ID position for block message (or null to use default).
+   * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).
+   * @param options2 - Optional grammY send options (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
+   * async handleCallbackQueryData() {
    *   // Rich message with template content
-   *   await this.replyRich()
+   *   await this.renderRich()
    *
    *   // With keyboard and data
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.replyRich(kb, {name: "John"})
+   *   await this.renderRich(kb, {name: "John"})
    * }
    * ```
    *
    * @public
    */
-  async replyRich(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1]) {
-    const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.userLanguage, data)
-    return await this.ct.replyWithRichMessage(
-      {html: msg, ...options1},
+  async renderRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | null) {
+    const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    return await this.replyWithRichMessage(
+      {html: msg, ...(options1 ?? {})},
       {
-        reply_markup: keyboard,
-        ...options2
+        reply_markup: keyboard ?? undefined,
+        ...(options2 ?? {})
       }
     )
+  }
+
+  /**
+   * Sends or edits a rich message using the page template, auto-selecting
+   * between {@link Ctx.renderRich} and {@link Ctx.renderEditRich} based on
+   * the `isEdit` flag.
+   *
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template base ID (or null to use default).
+   * @param options1 - Optional `InputRichMessage` fields (or null to omit).
+   * @param options2 - Optional grammY send/edit options (or null to omit).
+   * @param isEdit - If true, edits existing message; if false, sends new.
+   *                 Defaults to `!!this.callbackQuery` (auto-detected).
+   * @returns The sent or edited message object.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderAutoRich()
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, isEdit?: boolean | null) {
+    const edit = isEdit ?? !!this.callbackQuery
+    if (edit) {
+      return await this.renderEditRich(keyboard as ITInlineKb, data, AGBaseId, options1, options2 as unknown as ITOptEdit)
+    }
+    return await this.renderRich(keyboard, data, AGBaseId, options1, options2 as ITOptReplyRich[1])
   }
 
   /**
@@ -1306,7 +1210,7 @@ export class Ctx {
    * rich messages — pass a rich HTML template and it will be sent as structured
    * rich content.
    *
-   * If editing fails (e.g. message too old) and `fallbackReply` is true (default),
+   * If editing fails (e.g. message too old) and `fallbackReply` is true,
    * a new rich message reply is sent instead.
    *
    * Rich message limits:
@@ -1315,37 +1219,37 @@ export class Ctx {
    * - Up to 16 nesting levels
    * - Up to 20 table columns
    *
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template base ID position for block message.
-   * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`).
-   * @param options2 - Optional grammY edit options.
-   * @param fallbackReply - If true, sends a rich reply if edit fails. Default: true.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template base ID position for block message (or null to use default).
+   * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).
+   * @param options2 - Optional grammY edit options (or null to omit).
+   * @param fallbackReply - If true, sends a rich reply if edit fails. Default: false.
    * @returns The edited message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
+   * async handleCallbackQueryData() {
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.editRich(kb, {status: "updated"})
+   *   await this.renderEditRich(kb, {status: "updated"})
    * }
    * ```
    *
    * @public
    */
-  async editRich(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit, fallbackReply = true) {
+  async renderEditRich(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit | null, fallbackReply: boolean | null = false) {
     try {
-      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.userLanguage, data)
-      return await this.ct.editMessageText(
-        {html: msg, ...options1},
+      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+      return await this.editMessageText(
+        {html: msg, ...(options1 ?? {})},
         {
-          reply_markup: keyboardInline,
-          ...options2
+          reply_markup: keyboardInline ?? undefined,
+          ...(options2 ?? {})
         }
       )
     } catch (error) {
       if (fallbackReply) {
-        await this.replyRich(keyboardInline, data, AGBaseId, options1, options2)
+        await this.renderRich(keyboardInline, data, AGBaseId, options1, options2)
       } else {
         throw error
       }
@@ -1357,31 +1261,31 @@ export class Ctx {
    *
    * @remarks
    * This is the base method for all media reply methods. Use specific methods
-   * like {@link Ctx.replyPhoto} or {@link Ctx.replyVideo} for simpler usage.
+   * like {@link Ctx.renderPhoto} or {@link Ctx.renderVideo} for simpler usage.
    *
    * @typeParam T - The media type to send.
    * @param type - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media.
-   * @param options - Type-specific options for the media.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
+   * @param options - Type-specific options for the media (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replyMedia("photo")
+   * async handleCallbackQueryData() {
+   *   await this.renderMedia("photo")
    * }
    * ```
    *
    * @public
    */
-  async replyMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(
+  async renderMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(
     type: T,
-    keyboard?: ITInBoKb,
-    data?: ITData,
-    AGBaseId?: string,
-    options?: T extends `photo`
+    keyboard?: ITInBoKb | null,
+    data?: ITData | null,
+    AGBaseId?: string | null,
+    options?: (T extends `photo`
       ? ITOptReplyPhoto
       : T extends `video`
         ? ITOptReplyVideo
@@ -1401,21 +1305,21 @@ export class Ctx {
                       ? ITOptReplyLocation
                       : T extends `contact`
                         ? ITOptReplyContact
-                        : undefined
+                        : undefined) | null
   ) {
-    const med = this.templateManager.getGMedia(this.data.name, AGBaseId, this.userLanguage, data)
-    const opt = {parse_mode: `HTML`, reply_markup: keyboard, ...options} as Record<any, any>
+    const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<any, any>
 
-    if (type == `photo`) return await this.ct.replyWithPhoto(med.src!, {caption: med.caption!, ...opt})
-    if (type == `video`) return await this.ct.replyWithVideo(med.src!, {caption: med.caption!, ...opt})
-    if (type == `audio`) return await this.ct.replyWithAudio(med.src!, {caption: med.caption!, ...opt})
-    if (type == `document`) return await this.ct.replyWithDocument(med.src!, {caption: med.caption!, ...opt})
-    if (type == `animation`) return await this.ct.replyWithAnimation(med.src!, {caption: med.caption!, ...opt})
-    if (type == `voice`) return await this.ct.replyWithVoice(med.src!, opt)
-    if (type == `video_note`) return await this.ct.replyWithVideoNote(med.src!, opt)
-    if (type == `sticker`) return await this.ct.replyWithSticker(med.src!, opt)
-    if (type == `location`) return await this.ct.replyWithLocation(parseInt(med.latitude!), parseInt(med.longitude!), opt)
-    if (type == `contact`) return await this.ct.replyWithContact(med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
+    if (type == `photo`) return await this.replyWithPhoto(med.src!, {caption: med.caption!, ...opt})
+    if (type == `video`) return await this.replyWithVideo(med.src!, {caption: med.caption!, ...opt})
+    if (type == `audio`) return await this.replyWithAudio(med.src!, {caption: med.caption!, ...opt})
+    if (type == `document`) return await this.replyWithDocument(med.src!, {caption: med.caption!, ...opt})
+    if (type == `animation`) return await this.replyWithAnimation(med.src!, {caption: med.caption!, ...opt})
+    if (type == `voice`) return await this.replyWithVoice(med.src!, opt)
+    if (type == `video_note`) return await this.replyWithVideoNote(med.src!, opt)
+    if (type == `sticker`) return await this.replyWithSticker(med.src!, opt)
+    if (type == `location`) return await this.replyWithLocation(parseInt(med.latitude!), parseInt(med.longitude!), opt)
+    if (type == `contact`) return await this.replyWithContact(med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
   }
 
   /**
@@ -1427,298 +1331,313 @@ export class Ctx {
    * The first item receives the template caption. Telegram media groups do not support
    * reply markup, so keyboards are ignored for grouped media.
    *
-   * @param type - Supported media group type. When the template uses `<g-media-group>`,
+   * @param type - Supported media group type. When the template uses `<g-media-group>` (or null to include all items).
    *   only items matching this type are included. When omitted, all items are sent.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media.
-   * @param options - Optional media-group send options.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
+   * @param options - Optional media-group send options (or null to omit).
    * @returns The sent media group messages.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replyMediaGroup("photo")
+   * async handleCallbackQueryData() {
+   *   await this.renderMediaGroup("photo")
    * }
    * ```
    *
    * @public
    */
-  async replyMediaGroup(type?: ITMediaGroupType, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument) {
-    const med = this.templateManager.getGMedia(this.data.name, AGBaseId, this.userLanguage, data)
-    const opt = {parse_mode: `HTML`, ...options} as Record<any, any>
+  async renderMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null) {
+    const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    const opt = {parse_mode: `HTML`, ...(options ?? {})} as Record<any, any>
     if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
       const items = type ? med.mediaGroup.filter((item) => item.type === type) : med.mediaGroup
       if (items.length === 0) {
         throw new Error(`replyMediaGroup: no items of type "${type}" found in <g-media-group>`)
       }
-      return await this.ct.replyWithMediaGroup(Helper.buildMediaGroupFromItems(items, med.caption), Helper.buildMediaGroupOptions(opt))
+      return await this.replyWithMediaGroup(Helper.buildMediaGroupFromItems(items, med.caption), Helper.buildMediaGroupOptions(opt))
     }
     if (!type) {
       throw new Error(`replyMediaGroup type is required when template media is not <g-media-group>`)
     }
     const srcList = med.srcList && med.srcList.length > 1 ? med.srcList : med.src ? [med.src] : []
-    return await this.ct.replyWithMediaGroup(Helper.buildMediaGroup(type, srcList, med.caption), Helper.buildMediaGroupOptions(opt))
+    return await this.replyWithMediaGroup(Helper.buildMediaGroup(type, srcList, med.caption), Helper.buildMediaGroupOptions(opt))
   }
 
   /**
    * Sends a photo message using the page template.
    *
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type photo.
-   * @param options - Optional photo-specific options.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
+   * @param options - Optional photo-specific options (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replyPhoto()
+   * async handleCallbackQueryData() {
+   *   await this.renderPhoto()
    * }
    * ```
    *
    * @public
    */
-  async replyPhoto(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto) {
-    return this.replyMedia(`photo`, keyboard, data, AGBaseId, options)
+  async renderPhoto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null) {
+    return this.renderMedia(`photo`, keyboard, data, AGBaseId, options)
   }
 
   /** Sends a photo media group using pipe-delimited `src` values from the page template. */
-  async replyPhotoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto) {
-    return this.replyMediaGroup(`photo`, data, AGBaseId, options)
+  async renderPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null) {
+    return this.renderMediaGroup(`photo`, data, AGBaseId, options)
   }
 
   /**
    * Sends a video message using the page template.
    *
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type video.
-   * @param options - Optional video-specific options.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
+   * @param options - Optional video-specific options (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replyVideo()
+   * async handleCallbackQueryData() {
+   *   await this.renderVideo()
    * }
    * ```
    *
    * @public
    */
-  async replyVideo(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyVideo) {
-    return this.replyMedia(`video`, keyboard, data, AGBaseId, options)
+  async renderVideo(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null) {
+    return this.renderMedia(`video`, keyboard, data, AGBaseId, options)
   }
 
   /** Sends a video media group using pipe-delimited `src` values from the page template. */
-  async replyVideoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyVideo) {
-    return this.replyMediaGroup(`video`, data, AGBaseId, options)
+  async renderVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null) {
+    return this.renderMediaGroup(`video`, data, AGBaseId, options)
   }
 
   /**
    * Sends an audio message using the page template.
    *
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type audio.
-   * @param options - Optional audio-specific options.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
+   * @param options - Optional audio-specific options (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replyAudio()
+   * async handleCallbackQueryData() {
+   *   await this.renderAudio()
    * }
    * ```
    *
    * @public
    */
-  async replyAudio(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyAudio) {
-    return this.replyMedia(`audio`, keyboard, data, AGBaseId, options)
+  async renderAudio(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null) {
+    return this.renderMedia(`audio`, keyboard, data, AGBaseId, options)
   }
 
   /** Sends an audio media group using pipe-delimited `src` values from the page template. */
-  async replyAudioGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyAudio) {
-    return this.replyMediaGroup(`audio`, data, AGBaseId, options)
+  async renderAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null) {
+    return this.renderMediaGroup(`audio`, data, AGBaseId, options)
   }
 
   /**
    * Sends a document message using the page template.
    *
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type document.
-   * @param options - Optional document-specific options.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
+   * @param options - Optional document-specific options (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replyDocument()
+   * async handleCallbackQueryData() {
+   *   await this.renderDocument()
    * }
    * ```
    *
    * @public
    */
-  async replyDocument(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyDocument) {
-    return this.replyMedia(`document`, keyboard, data, AGBaseId, options)
+  async renderDocument(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null) {
+    return this.renderMedia(`document`, keyboard, data, AGBaseId, options)
   }
 
   /** Sends a document media group using pipe-delimited `src` values from the page template. */
-  async replyDocumentGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyDocument) {
-    return this.replyMediaGroup(`document`, data, AGBaseId, options)
+  async renderDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null) {
+    return this.renderMediaGroup(`document`, data, AGBaseId, options)
   }
 
   /**
    * Sends an animation/GIF message using the page template.
    *
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type animation.
-   * @param options - Optional animation-specific options.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type animation (or null to use default).
+   * @param options - Optional animation-specific options (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replyAnimation()
+   * async handleCallbackQueryData() {
+   *   await this.renderAnimation()
    * }
    * ```
    *
    * @public
    */
-  async replyAnimation(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyAnimation) {
-    return this.replyMedia(`animation`, keyboard, data, AGBaseId, options)
+  async renderAnimation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAnimation | null) {
+    return this.renderMedia(`animation`, keyboard, data, AGBaseId, options)
   }
 
   /**
    * Sends a voice message using the page template.
    *
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type voice.
-   * @param options - Optional voice-specific options.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type voice (or null to use default).
+   * @param options - Optional voice-specific options (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replyVoice()
+   * async handleCallbackQueryData() {
+   *   await this.renderVoice()
    * }
    * ```
    *
    * @public
    */
-  async replyVoice(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyVoice) {
-    return this.replyMedia(`voice`, keyboard, data, AGBaseId, options)
+  async renderVoice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVoice | null) {
+    return this.renderMedia(`voice`, keyboard, data, AGBaseId, options)
   }
 
   /**
    * Sends a video note (circular video) using the page template.
    *
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type video_note.
-   * @param options - Optional video note-specific options.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type video_note (or null to use default).
+   * @param options - Optional video note-specific options (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replyVideoNote()
+   * async handleCallbackQueryData() {
+   *   await this.renderVideoNote()
    * }
    * ```
    *
    * @public
    */
-  async replyVideoNote(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyVideoNote) {
-    return this.replyMedia(`video_note`, keyboard, data, AGBaseId, options)
+  async renderVideoNote(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideoNote | null) {
+    return this.renderMedia(`video_note`, keyboard, data, AGBaseId, options)
   }
 
   /**
    * Sends a sticker using the page template.
    *
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type sticker.
-   * @param options - Optional sticker-specific options.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type sticker (or null to use default).
+   * @param options - Optional sticker-specific options (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replySticker()
+   * async handleCallbackQueryData() {
+   *   await this.renderSticker()
    * }
    * ```
    *
    * @public
    */
-  async replySticker(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplySticker) {
-    return this.replyMedia(`sticker`, keyboard, data, AGBaseId, options)
+  async renderSticker(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplySticker | null) {
+    return this.renderMedia(`sticker`, keyboard, data, AGBaseId, options)
   }
 
   /**
    * Sends a location using the page template.
    *
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type location.
-   * @param options - Optional location-specific options.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type location (or null to use default).
+   * @param options - Optional location-specific options (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replyLocation()
+   * async handleCallbackQueryData() {
+   *   await this.renderLocation()
    * }
    * ```
    *
    * @public
    */
-  async replyLocation(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyLocation) {
-    return this.replyMedia(`location`, keyboard, data, AGBaseId, options)
+  async renderLocation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyLocation | null) {
+    return this.renderMedia(`location`, keyboard, data, AGBaseId, options)
   }
 
   /**
    * Sends a contact using the page template.
    *
-   * @param keyboard - Optional keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type contact.
-   * @param options - Optional contact-specific options.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type contact (or null to use default).
+   * @param options - Optional contact-specific options (or null to omit).
    * @returns The sent message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replyContact()
+   * async handleCallbackQueryData() {
+   *   await this.renderContact()
    * }
    * ```
    *
    * @public
    */
-  async replyContact(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyContact) {
-    return this.replyMedia(`contact`, keyboard, data, AGBaseId, options)
+  async renderContact(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyContact | null) {
+    return this.renderMedia(`contact`, keyboard, data, AGBaseId, options)
   }
 
   /**
-   * Sends a chat action indicator (typing, uploading, etc.).
+   * Sends or edits a message using the page template, auto-selecting
+   * between {@link Ctx.render} and {@link Ctx.renderEdit} based on the
+   * `isEdit` flag.
    *
-   * @param type - The action type (typing, upload_photo, upload_video, etc.).
-   * @returns True if the action was sent successfully.
+   * @remarks
+   * When `isEdit` is `true`, delegates to `renderEdit` (inline keyboard only).
+   * When `false`, delegates to `render` (inline or bottom keyboard).
+   *
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template base ID position for block message (or null to use default).
+   * @param options - Optional grammY reply/edit options (or null to omit).
+   * @param isEdit - If `true`, edits the existing message; if `false`, sends a new one.
+   *                 Defaults to `!!this.callbackQuery` (auto-detected).
+   * @returns The sent or edited message object.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
-   *   await this.replyAction("typing")
-   *   // Do some work...
-   *   await this.reply()
+   * async handleCallbackQueryData() {
+   *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
+   *   // Auto-detect: callbackQuery exists → renderEdit
+   *   await this.renderAuto(kb, {status: "updated"})
    * }
    * ```
    *
    * @public
    */
-  async replyAction(type: ITReplyAction) {
-    return await this.ct.replyWithChatAction(type)
+  async renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, isEdit?: boolean | null) {
+    const edit = isEdit ?? !!this.callbackQuery
+    if (edit) {
+      return await this.renderEdit(keyboard as ITInlineKb, data, AGBaseId, options as ITOptEdit)
+    }
+    return await this.render(keyboard, data, AGBaseId, options as ITOptReply)
   }
 
   /**
@@ -1728,34 +1647,34 @@ export class Ctx {
    * If editing fails (e.g., message too old), falls back to sending a new reply
    * unless `fallbackReply` is set to false.
    *
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block message.
-   * @param options - Optional grammY edit options.
-   * @param fallbackReply - If true, sends a reply if edit fails. Default: true.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).
+   * @param options - Optional grammY edit options (or null to omit).
+   * @param fallbackReply - If true, sends a reply if edit fails. Default: false.
    * @returns The edited message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
    *   const kb = this.inlineKeyboard((k) => k.text("OK", "ok"))
-   *   await this.edit(kb, {status: "updated"})
+   *   await this.renderEdit(kb, {status: "updated"})
    * }
    * ```
    *
    * @public
    */
-  async edit(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEdit, fallbackReply = true) {
+  async renderEdit(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | null, fallbackReply: boolean | null = false) {
     try {
-      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId, this.userLanguage, data)
-      return await this.ct.editMessageText(msg, {
+      const msg = this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+      return await this.editMessageText(msg, {
         parse_mode: `HTML`,
-        reply_markup: keyboardInline,
-        ...options
+        reply_markup: keyboardInline ?? undefined,
+        ...(options ?? {})
       })
     } catch (error) {
       if (fallbackReply) {
-        await this.reply(keyboardInline, data, AGBaseId, options)
+        await this.render(keyboardInline, data, AGBaseId, options)
       } else {
         throw error
       }
@@ -1773,29 +1692,29 @@ export class Ctx {
    *
    * @typeParam T - The media type to edit to.
    * @param type - The media type.
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media.
-   * @param options1 - Type-specific media options.
-   * @param options2 - Additional edit options.
-   * @param fallbackReply - If true, sends a reply if edit fails. Default: true.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
+   * @param options1 - Type-specific media options (or null to omit).
+   * @param options2 - Additional edit options (or null to omit).
+   * @param fallbackReply - If true, sends a reply if edit fails. Default: false.
    * @returns The edited/sent message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.editMedia("photo")
+   *   await this.renderEditMedia("photo")
    * }
    * ```
    *
    * @public
    */
-  async editMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(
+  async renderEditMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(
     type: T,
-    keyboardInline?: ITInlineKb,
-    data?: ITData,
-    AGBaseId?: string,
-    options1?: T extends `voice`
+    keyboardInline?: ITInlineKb | null,
+    data?: ITData | null,
+    AGBaseId?: string | null,
+    options1?: (T extends `voice`
       ? ITOptReplyVoice
       : T extends `video_note`
         ? ITOptReplyVideoNote
@@ -1806,51 +1725,51 @@ export class Ctx {
             : T extends `contact`
               ? ITOptReplyContact
               : //
-                ITOptEditMedia1,
-    options2?: ITOptEditMedia2,
-    fallbackReply = true
+                ITOptEditMedia1) | null,
+    options2?: ITOptEditMedia2 | null,
+    fallbackReply: boolean | null = false
   ) {
     try {
-      const med = this.templateManager.getGMedia(this.data.name, AGBaseId, this.userLanguage, data)
+      const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
       const {src, caption} = med
       if (Helper.isMediaGroupType(type) && med.srcList && med.srcList.length > 1) {
-        await this.delete()
-        return await this.replyMediaGroup(type, data, AGBaseId)
+        await this.deleteMessage()
+        return await this.renderMediaGroup(type, data, AGBaseId)
       }
       if (type == `voice`) {
-        await this.delete()
-        return await this.replyVoice(keyboardInline, data, AGBaseId, options1)
+        await this.deleteMessage()
+        return await this.renderVoice(keyboardInline, data, AGBaseId, options1)
       }
       if (type == `video_note`) {
-        await this.delete()
-        return await this.replyVoice(keyboardInline, data, AGBaseId, options1)
+        await this.deleteMessage()
+        return await this.renderVoice(keyboardInline, data, AGBaseId, options1)
       }
       if (type == `sticker`) {
-        await this.delete()
-        return await this.replySticker(keyboardInline, data, AGBaseId, options1 as Record<any, any>)
+        await this.deleteMessage()
+        return await this.renderSticker(keyboardInline, data, AGBaseId, options1 as Record<any, any>)
       }
       if (type == `location`) {
-        await this.delete()
-        return await this.replyLocation(keyboardInline, data, AGBaseId, options1 as Record<any, any>)
+        await this.deleteMessage()
+        return await this.renderLocation(keyboardInline, data, AGBaseId, options1 as Record<any, any>)
       }
       if (type == `contact`) {
-        await this.delete()
-        return await this.replyContact(keyboardInline, data, AGBaseId, options1 as Record<any, any>)
+        await this.deleteMessage()
+        return await this.renderContact(keyboardInline, data, AGBaseId, options1 as Record<any, any>)
       }
 
-      return await this.ct.editMessageMedia(
+      return await this.editMessageMedia(
         {
           media: src!,
           caption,
           type,
           parse_mode: `HTML`,
-          ...options1
+          ...(options1 ?? {})
         },
-        {reply_markup: keyboardInline, ...options2}
+        {reply_markup: keyboardInline ?? undefined, ...(options2 ?? {})}
       )
     } catch (error) {
       if (fallbackReply === true) {
-        await this.reply(keyboardInline, data, AGBaseId, options2)
+        await this.render(keyboardInline, data, AGBaseId, options2)
       } else {
         throw error
       }
@@ -1860,93 +1779,93 @@ export class Ctx {
   /**
    * Edits an existing message to show a photo.
    *
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type photo.
-   * @param options1 - Optional media options.
-   * @param options2 - Optional edit options.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
+   * @param options1 - Optional media options (or null to omit).
+   * @param options2 - Optional edit options (or null to omit).
    * @returns The edited message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.editPhoto()
+   *   await this.renderEditPhoto()
    * }
    * ```
    *
    * @public
    */
-  async editPhoto(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
-    return await this.editMedia(`photo`, keyboardInline, data, AGBaseId, options1, options2)
+  async renderEditPhoto(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null) {
+    return await this.renderEditMedia(`photo`, keyboardInline, data, AGBaseId, options1, options2)
   }
 
   /**
    * Edits an existing message to show a video.
    *
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type video.
-   * @param options1 - Optional media options.
-   * @param options2 - Optional edit options.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
+   * @param options1 - Optional media options (or null to omit).
+   * @param options2 - Optional edit options (or null to omit).
    * @returns The edited message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.editVideo()
+   *   await this.renderEditVideo()
    * }
    * ```
    *
    * @public
    */
-  async editVideo(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
-    return await this.editMedia(`video`, keyboardInline, data, AGBaseId, options1, options2)
+  async renderEditVideo(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null) {
+    return await this.renderEditMedia(`video`, keyboardInline, data, AGBaseId, options1, options2)
   }
 
   /**
    * Edits an existing message to show an audio.
    *
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type audio.
-   * @param options1 - Optional media options.
-   * @param options2 - Optional edit options.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
+   * @param options1 - Optional media options (or null to omit).
+   * @param options2 - Optional edit options (or null to omit).
    * @returns The edited message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.editAudio()
+   *   await this.renderEditAudio()
    * }
    * ```
    *
    * @public
    */
-  async editAudio(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
-    return await this.editMedia(`audio`, keyboardInline, data, AGBaseId, options1, options2)
+  async renderEditAudio(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null) {
+    return await this.renderEditMedia(`audio`, keyboardInline, data, AGBaseId, options1, options2)
   }
 
   /**
    * Edits an existing message to show a document.
    *
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type document.
-   * @param options1 - Optional media options.
-   * @param options2 - Optional edit options.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
+   * @param options1 - Optional media options (or null to omit).
+   * @param options2 - Optional edit options (or null to omit).
    * @returns The edited message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.editDocument()
+   *   await this.renderEditDocument()
    * }
    * ```
    *
    * @public
    */
-  async editDocument(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
-    return await this.editMedia(`document`, keyboardInline, data, AGBaseId, options1, options2)
+  async renderEditDocument(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null) {
+    return await this.renderEditMedia(`document`, keyboardInline, data, AGBaseId, options1, options2)
   }
 
   /**
@@ -1958,29 +1877,29 @@ export class Ctx {
    * For a hardcoded type, use the convenience methods (`editPhotoGroup`, `editVideoGroup`, etc.).
    *
    * @param type - Optional media type filter. All items sent when omitted.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media.
-   * @param options - Optional media-agnostic options.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
+   * @param options - Optional media-agnostic options (or null to omit).
    * @returns The sent media group messages.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
+   * async handleCallbackQueryData() {
    *   // send only photos
-   *   await this.editMediaGroup("photo")
+   *   await this.renderEditMediaGroup("photo")
    * }
    *
    * async handleShowAll() {
    *   // send all media-group items
-   *   await this.editMediaGroup()
+   *   await this.renderEditMediaGroup()
    * }
    * ```
    *
    * @public
    */
-  async editMediaGroup(type?: ITMediaGroupType, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument) {
-    await this.delete()
-    return await this.replyMediaGroup(type, data, AGBaseId, options)
+  async renderEditMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null) {
+    await this.deleteMessage()
+    return await this.renderMediaGroup(type, data, AGBaseId, options)
   }
 
   /**
@@ -1990,22 +1909,22 @@ export class Ctx {
    * Deletes the original message and sends a new media group via `replyMediaGroup`.
    * Useful when the template uses pipe-delimited `src` values.
    *
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type photo.
-   * @param options - Optional photo-specific options.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type photo (or null to use default).
+   * @param options - Optional photo-specific options (or null to omit).
    * @returns The sent media group message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.editPhotoGroup()
+   *   await this.renderEditPhotoGroup()
    * }
    * ```
    *
    * @public
    */
-  async editPhotoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto) {
-    return this.editMediaGroup(`photo`, data, AGBaseId, options)
+  async renderEditPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null) {
+    return this.renderEditMediaGroup(`photo`, data, AGBaseId, options)
   }
 
   /**
@@ -2015,22 +1934,22 @@ export class Ctx {
    * Deletes the original message and sends a new media group via `replyMediaGroup`.
    * Useful when the template uses pipe-delimited `src` values.
    *
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type video.
-   * @param options - Optional video-specific options.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type video (or null to use default).
+   * @param options - Optional video-specific options (or null to omit).
    * @returns The sent media group message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.editVideoGroup()
+   *   await this.renderEditVideoGroup()
    * }
    * ```
    *
    * @public
    */
-  async editVideoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyVideo) {
-    return this.editMediaGroup(`video`, data, AGBaseId, options)
+  async renderEditVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null) {
+    return this.renderEditMediaGroup(`video`, data, AGBaseId, options)
   }
 
   /**
@@ -2040,22 +1959,22 @@ export class Ctx {
    * Deletes the original message and sends a new media group via `replyMediaGroup`.
    * Useful when the template uses pipe-delimited `src` values.
    *
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type audio.
-   * @param options - Optional audio-specific options.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type audio (or null to use default).
+   * @param options - Optional audio-specific options (or null to omit).
    * @returns The sent media group message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.editAudioGroup()
+   *   await this.renderEditAudioGroup()
    * }
    * ```
    *
    * @public
    */
-  async editAudioGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyAudio) {
-    return this.editMediaGroup(`audio`, data, AGBaseId, options)
+  async renderEditAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null) {
+    return this.renderEditMediaGroup(`audio`, data, AGBaseId, options)
   }
 
   /**
@@ -2065,45 +1984,45 @@ export class Ctx {
    * Deletes the original message and sends a new media group via `replyMediaGroup`.
    * Useful when the template uses pipe-delimited `src` values.
    *
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type document.
-   * @param options - Optional document-specific options.
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type document (or null to use default).
+   * @param options - Optional document-specific options (or null to omit).
    * @returns The sent media group message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.editDocumentGroup()
+   *   await this.renderEditDocumentGroup()
    * }
    * ```
    *
    * @public
    */
-  async editDocumentGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyDocument) {
-    return this.editMediaGroup(`document`, data, AGBaseId, options)
+  async renderEditDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null) {
+    return this.renderEditMediaGroup(`document`, data, AGBaseId, options)
   }
 
   /**
    * Edits an existing message to show an animation.
    *
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type animation.
-   * @param options1 - Optional media options.
-   * @param options2 - Optional edit options.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type animation (or null to use default).
+   * @param options1 - Optional media options (or null to omit).
+   * @param options2 - Optional edit options (or null to omit).
    * @returns The edited message object.
    *
    * @example
    * ```typescript
    * async handleArgsCallback() {
-   *   await this.editAnimation()
+   *   await this.renderEditAnimation()
    * }
    * ```
    *
    * @public
    */
-  async editAnimation(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2) {
-    return await this.editMedia(`animation`, keyboardInline, data, AGBaseId, options1, options2)
+  async renderEditAnimation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null) {
+    return await this.renderEditMedia(`animation`, keyboardInline, data, AGBaseId, options1, options2)
   }
 
   /**
@@ -2112,16 +2031,16 @@ export class Ctx {
    * @remarks
    * Voice messages cannot be edited in-place, so this deletes the original and sends a new one.
    *
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type voice.
-   * @param options - Optional edit options.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type voice (or null to use default).
+   * @param options - Optional edit options (or null to omit).
    * @returns The sent message object.
    *
    * @public
    */
-  async editVoice(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2) {
-    return await this.editMedia(`voice`, keyboardInline, data, AGBaseId, options)
+  async renderEditVoice(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null) {
+    return await this.renderEditMedia(`voice`, keyboardInline, data, AGBaseId, options)
   }
 
   /**
@@ -2130,16 +2049,16 @@ export class Ctx {
    * @remarks
    * Video notes cannot be edited in-place, so this deletes the original and sends a new one.
    *
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type video_note.
-   * @param options - Optional edit options.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type video_note (or null to use default).
+   * @param options - Optional edit options (or null to omit).
    * @returns The sent message object.
    *
    * @public
    */
-  async editVideoNote(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2) {
-    return await this.editMedia(`video_note`, keyboardInline, data, AGBaseId, options)
+  async renderEditVideoNote(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null) {
+    return await this.renderEditMedia(`video_note`, keyboardInline, data, AGBaseId, options)
   }
 
   /**
@@ -2148,16 +2067,16 @@ export class Ctx {
    * @remarks
    * Stickers cannot be edited in-place, so this deletes the original and sends a new one.
    *
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type sticker.
-   * @param options - Optional edit options.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type sticker (or null to use default).
+   * @param options - Optional edit options (or null to omit).
    * @returns The sent message object.
    *
    * @public
    */
-  async editSticker(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2) {
-    return await this.editMedia(`sticker`, keyboardInline, data, AGBaseId, options)
+  async renderEditSticker(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null) {
+    return await this.renderEditMedia(`sticker`, keyboardInline, data, AGBaseId, options)
   }
 
   /**
@@ -2166,16 +2085,16 @@ export class Ctx {
    * @remarks
    * Locations cannot be edited in-place, so this deletes the original and sends a new one.
    *
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type location.
-   * @param options - Optional edit options.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type location (or null to use default).
+   * @param options - Optional edit options (or null to omit).
    * @returns The sent message object.
    *
    * @public
    */
-  async editLocation(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2) {
-    return await this.editMedia(`location`, keyboardInline, data, AGBaseId, options)
+  async renderEditLocation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null) {
+    return await this.renderEditMedia(`location`, keyboardInline, data, AGBaseId, options)
   }
 
   /**
@@ -2184,62 +2103,16 @@ export class Ctx {
    * @remarks
    * Contacts cannot be edited in-place, so this deletes the original and sends a new one.
    *
-   * @param keyboardInline - Optional inline keyboard markup.
-   * @param data - Optional template interpolation data.
-   * @param AGBaseId - Optional template g-base ID position for block media type contact.
-   * @param options - Optional edit options.
+   * @param keyboardInline - Optional inline keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media type contact (or null to use default).
+   * @param options - Optional edit options (or null to omit).
    * @returns The sent message object.
    *
    * @public
    */
-  async editContact(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2) {
-    return await this.editMedia(`contact`, keyboardInline, data, AGBaseId, options)
-  }
-
-  /**
-   * Deletes the current message.
-   *
-   * @returns True if the message was deleted successfully.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   await this.delete()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async delete() {
-    return await this.ct.deleteMessage()
-  }
-
-  /**
-   * Answers a callback query with an optional notification.
-   *
-   * @remarks
-   * Should be called in callback handlers to acknowledge the callback query.
-   * Errors are silently caught and return null.
-   *
-   * @param options - Optional answer options (text, show_alert, url, cache_time).
-   * @returns True if the answer was sent, or null on error.
-   *
-   * @example
-   * ```typescript
-   * async handleArgsCallback() {
-   *   await this.callbackQueryAnswer({text: "Action completed!"})
-   *   await this.edit()
-   * }
-   * ```
-   *
-   * @public
-   */
-  async callbackQueryAnswer(options?: Parameters<typeof Ctx.prototype.ct.answerCallbackQuery>[0]) {
-    try {
-      return await this.ct.answerCallbackQuery(options)
-    } catch {
-      return null
-    }
+  async renderEditContact(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null) {
+    return await this.renderEditMedia(`contact`, keyboardInline, data, AGBaseId, options)
   }
 
   /**
@@ -2247,7 +2120,7 @@ export class Ctx {
    *
    * @remarks
    * Low-level API. In most cases use the shorthand `setSession*` methods instead
-   * (e.g. {@link Ctx.setSessionFreeText}, {@link Ctx.setSessionCallbackData}).
+   * (e.g. {@link Ctx.setSessionFreeText}, {@link Ctx.setSessionCallbackQueryData}).
    *
    * This method is only needed when:
    * - **Multi-session** — binding the same params to multiple route handlers at once:
@@ -2278,7 +2151,7 @@ export class Ctx {
   async setSession(method: string | string[], params: any, moreRoot?: Record<any, any>) {
     try {
       const value = {method, params, ...moreRoot}
-      const result = await this.cacheSession.set(`${this.userId}`, value)
+      const result = await this.cacheSession.set(`${this.from?.id}`, value)
       if (result) {
         this.temp.session = value
       }
@@ -2308,7 +2181,7 @@ export class Ctx {
    */
   async getSession(): Promise<ITCacheRpc | null> {
     try {
-      const result = await this.cacheSession.get(`${this.userId}`)
+      const result = await this.cacheSession.get(`${this.from?.id}`)
       if (result) this.temp.session = result
       return result || null
     } catch {
@@ -2326,9 +2199,9 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
+   * async handleCallbackQueryData() {
    *   await this.clearSession()
-   *   await this.reply()
+   *   await this.render()
    * }
    * ```
    *
@@ -2336,7 +2209,7 @@ export class Ctx {
    */
   async clearSession() {
     try {
-      const result = await this.cacheSession.delete(`${this.userId}`)
+      const result = await this.cacheSession.delete(`${this.from?.id}`)
       if (result) this.temp.session = {}
       return result
     } catch {
@@ -2351,14 +2224,14 @@ export class Ctx {
    * @remarks
    * This method has multiple overloads:
    * - `buildData()` - Returns default page data with no args.
-   * - `buildData(callbackData)` - Returns intentCallbackData + args.
+   * - `buildData(callbackQueryData)` - Returns intentCallbackQueryData + args.
    * - `buildData(options)` - Returns page data with custom options.
    *
    * The callback must return an array of arg values that will be joined
    * with the intent using colon separators.
    *
    * @typeParam C - The callback function type.
-   * @param callbackData - A function that returns arg values as an array.
+   * @param callbackQueryData - A function that returns arg values as an array.
    * @returns The page data configuration object.
    *
    * @example
@@ -2369,7 +2242,7 @@ export class Ctx {
    *
    *   // With custom intents
    *   static data = this.buildData({
-   *     callbackData: (action: string) => [action],
+   *     callbackQueryData: (action: string) => [action],
    *     intentText: "my_page",
    *     intentCommandText: "mycommand"
    *   })
@@ -2378,51 +2251,51 @@ export class Ctx {
    *
    * @public
    */
-  static buildData<C extends (...args: any[]) => any>(callbackData: C): ITPageData<Parameters<C>>
+  static buildData<C extends (...args: any[]) => any>(callbackQueryData: C): ITPageData<Parameters<C>>
 
   /**
    * Creates page routing data configuration with options.
    *
-   * @param options - Configuration options. See {@link ITBuildDataOptions} for details.
+   * @param options - Configuration options (or null to use defaults). See {@link ITBuildDataOptions} for details.
    * @returns The page data configuration object.
    *
    * @public
    */
-  static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions): ITPageData<Parameters<C>>
+  static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions | null): ITPageData<Parameters<C>>
 
   /**
    * Creates page routing data configuration with options (no type inference).
    *
-   * @param options - Configuration options. See {@link ITBuildDataOptions} for details.
+   * @param options - Configuration options (or null to use defaults). See {@link ITBuildDataOptions} for details.
    * @returns The page data configuration object.
    *
    * @public
    */
-  static buildData(options: ITBuildDataOptions): ITPageData<[]>
+  static buildData(options: ITBuildDataOptions | null): ITPageData<[]>
 
   /**
    * Creates default page routing data configuration.
    * @public
    */
   static buildData(): ITPageData<[]>
-  static buildData(params?: any): ITPageData<any> {
+  static buildData(params?: any | null): ITPageData<any> {
     const isFunc = typeof params === `function`
-    const options = isFunc ? {callbackData: params} : params || {}
-    const cbd = options.callbackData
+    const options = isFunc ? {callbackQueryData: params} : (params ?? {})
+    const cbd = options.callbackQueryData
     const addPld = this.prototype.addArgs.bind(this.prototype)
 
-    const name = options.name || ``
+    const name = options.name ?? ``
     const data: ITPageData<any> = {
       name,
-      intentText: options.intentText || name,
-      intentCommandText: options.intentCommandText || name,
-      intentCallbackData: name,
-      callbackData: cbd
-        ? function (this: {intentCallbackData: string}, ...args: any[]): string {
-            return addPld(this.intentCallbackData, `colon`, cbd(...args))
+      intentText: options.intentText ?? name,
+      intentCommandText: options.intentCommandText ?? name,
+      intentCallbackQueryData: name,
+      callbackQueryData: cbd
+        ? function (this: {intentCallbackQueryData: string}, ...args: any[]): string {
+            return addPld(this.intentCallbackQueryData, `colon`, cbd(...args))
           }
-        : function (this: {intentCallbackData: string}): string {
-            return this?.intentCallbackData
+        : function (this: {intentCallbackQueryData: string}): string {
+            return this?.intentCallbackQueryData
           },
       _positionArgText: options.intentText ? options.intentText.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any)
     }
@@ -2491,26 +2364,26 @@ export class Ctx {
    * Shorthand for {@link Ctx.bottomKeyboard} with automatic text button creation.
    *
    * @param layout - Layout format: "cols" or "cols-lastRow". Default: "1".
-   * @param AGBaseId - Optional template base ID position for block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId to the same value. Leaving AGBaseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a g-base ID in the template but not reusing it in the keyboard configuration.
-   * @param data - Optional template interpolation data.
+   * @param AGBaseId - Optional template base ID position for block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId to the same value. Leaving AGBaseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a g-base ID in the template but not reusing it in the keyboard configuration (or null to use default).
+   * @param data - Optional template interpolation data (or null to omit).
    * @returns The bottom keyboard instance.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
+   * async handleCallbackQueryData() {
    *   const kb = this.bottomKeyboardT("2")
-   *   await this.reply(kb)
+   *   await this.render(kb)
    * }
    * ```
    *
    * @public
    */
-  bottomKeyboardT(layout: ITKbCols = `1`, AGBaseId?: string | null, data?: Record<any, any>) {
+  bottomKeyboardT(layout: ITKbCols = `1`, AGBaseId?: string | null, data?: Record<any, any> | null) {
     return this.bottomKeyboard(
       (k, a) => {
         return this.keyboardCols(k, a, layout, (e) => k.text(e))
       },
-      {AGBaseId: AGBaseId ?? undefined, data}
+      {AGBaseId: AGBaseId ?? undefined, data: data ?? undefined}
     )
   }
 
@@ -2522,37 +2395,37 @@ export class Ctx {
    *
    * @param PageDest - Array of page classes or callback data strings.
    * @param layout - Layout format: "cols" or "cols-lastRow". Default: "1".
-   * @param AGBaseId - Optional template g-base ID position block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId to the same value. Leaving AGBaseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
-   * @param data - Optional template interpolation data.
+   * @param AGBaseId - Optional template g-base ID position block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId to the same value. Leaving AGBaseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration (or null to use default).
+   * @param data - Optional template interpolation data (or null to omit).
    * @returns The inline keyboard instance.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
+   * async handleCallbackQueryData() {
    *   const kb = this.inlineKeyboardT([SettingsPage, HelpPage], "2")
-   *   await this.reply(kb)
+   *   await this.render(kb)
    *
    *   // Or with arg
-   *   const kb = this.inlineKeyboardT([SettingsPage.data.callbackData(1), HelpPage.data.callbackData(`hi`)], "2")
-   *   await this.reply(kb)
+   *   const kb = this.inlineKeyboardT([SettingsPage.data.callbackQueryData(1), HelpPage.data.callbackQueryData(`hi`)], "2")
+   *   await this.render(kb)
    *
    *   // Compare with builder for basic but not recomended because very long syntax, only use builder when needed.!
-   *   this.inlineKeyboard((k, a) => k.text(SettingsPage.data.callbackData(), a[0]!).text(HelpPage.data.callbackData(), a[1]!))
+   *   this.inlineKeyboard((k, a) => k.text(SettingsPage.data.callbackQueryData(), a[0]!).text(HelpPage.data.callbackQueryData(), a[1]!))
    * }
    * ```
    *
    * @public
    */
-  inlineKeyboardT(PageDest: ITKbDest[], layout: ITKbCols = `1`, AGBaseId?: string | null, data?: ITData) {
+  inlineKeyboardT(PageDest: ITKbDest[], layout: ITKbCols = `1`, AGBaseId?: string | null, data?: ITData | null) {
     return this.inlineKeyboard(
       (k, a) => {
         return this.keyboardCols(k, a, layout, (e, i) => {
           const page = PageDest[i]!
-          const data = typeof page == `string` ? page : page.data.callbackData()
+          const data = typeof page == `string` ? page : page.data.callbackQueryData()
           k.text(e, data)
         })
       },
-      {AGBaseId: AGBaseId ?? undefined, data}
+      {AGBaseId: AGBaseId ?? undefined, data: data ?? undefined}
     )
   }
 
@@ -2564,30 +2437,30 @@ export class Ctx {
    * from the template. Supports optional caching for performance.
    *
    * @param callback - Builder function that receives keyboard and labels.
-   * @param params - Optional parameters. {@link ITInlineKbParams} for details.
+   * @param params - Optional parameters (or null to omit). {@link ITInlineKbParams} for details.
    * @returns The inline keyboard instance.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
+   * async handleCallbackQueryData() {
    *   const kb = this.inlineKeyboard((k, labels) => {
    *     labels.forEach((label, i) => k.text(label, `action:${i}`))
    *     return k
    *   })
-   *   await this.reply(kb)
+   *   await this.render(kb)
    * }
    * ```
    *
    * @public
    */
-  inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb {
+  inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams | null): ITInlineKb {
     const tkey = this.data.name
     if (params?.cache === true) {
-      const key = `${tkey}:${this.userLanguage}:i`
+      const key = `${tkey}:${this.from?.language_code}:i`
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const ikb = new InlineKeyboard()
-        const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId, this.userLanguage, `inline`, params?.data)
+        const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `inline`, params?.data ?? undefined)
         const rkb = callback(ikb, arr)
         this.cacheKeyboard.set(key, rkb)
         return rkb
@@ -2595,7 +2468,7 @@ export class Ctx {
       return ckb
     }
     const ikb = new InlineKeyboard()
-    const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId, this.userLanguage, `inline`, params?.data)
+    const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `inline`, params?.data ?? undefined)
     const rkb = callback(ikb, arr)
     return rkb
   }
@@ -2608,30 +2481,30 @@ export class Ctx {
    * from the template. Automatically applies `resized()` to the keyboard.
    *
    * @param callback - Builder function that receives keyboard and labels.
-   * @param params - Optional parameters. {@link ITBottomKbParams} for details.
+   * @param params - Optional parameters (or null to omit). {@link ITBottomKbParams} for details.
    * @returns The bottom keyboard instance.
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
+   * async handleCallbackQueryData() {
    *   const kb = this.bottomKeyboard((k, labels) => {
    *     labels.forEach(label => k.text(label))
    *     return k
    *   })
-   *   await this.reply(kb)
+   *   await this.render(kb)
    * }
    * ```
    *
    * @public
    */
-  bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb {
+  bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams | null): ITBottomKb {
     const tkey = this.data.name
     if (params?.cache === true) {
-      const key = `${tkey}:${this.userLanguage}:b`
+      const key = `${tkey}:${this.from?.language_code}:b`
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const kb = new Keyboard()
-        const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId, this.userLanguage, `bottom`, params?.data)
+        const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `bottom`, params?.data ?? undefined)
         const rkb = callback(kb, arr)
         rkb.resized(true)
         this.cacheKeyboard.set(key, rkb)
@@ -2640,7 +2513,7 @@ export class Ctx {
       return ckb
     }
     const kb = new Keyboard()
-    const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId, this.userLanguage, `bottom`, params?.data)
+    const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `bottom`, params?.data ?? undefined)
     const rkb = callback(kb, arr)
     rkb.resized()
     return rkb
@@ -2735,40 +2608,40 @@ export class Ctx {
 
   // =============== route function
   /**
-   * Route handler for callback queries without args matching `intentCallbackData`.
+   * Route handler for callback queries without args matching `intentCallbackQueryData`.
    *
    * @remarks Triggered by callback query data matching.
    *
-   * @example this.callbackData = "start".
+   * @example this.callbackQueryData = "start".
    * ```typescript
-   * async handleCallbackData() {
-   *    this.callbackData // "start"
+   * async handleCallbackQueryData() {
+   *    this.callbackQueryData // "start"
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async handleCallbackData?(): Promise<any>
+  async handleCallbackQueryData?(): Promise<any>
 
   /**
-   * Route handler for callback queries with args matching `intentCallbackData`.
+   * Route handler for callback queries with args matching `intentCallbackQueryData`.
    *
    * @remarks Triggered by callback data with args.
    *
-   * @example this.callbackData = "start:123"
+   * @example this.callbackQueryData = "start:123"
    * ```typescript
-   * async handleArgsCallbackData() {
-   *    this.callbackData // "start:123"
-   *    this.callbackDataArg // "123"
-   *    this.callbackDataArgs // ["123"]
+   * async handleArgsCallbackQueryData() {
+   *    this.callbackQueryData // "start:123"
+   *    this.callbackQueryDataArg // "123"
+   *    this.callbackQueryDataArgs // ["123"]
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async handleArgsCallbackData?(): Promise<any>
+  async handleArgsCallbackQueryData?(): Promise<any>
 
   /**
    * Route handler for text messages matching `intentText`.
@@ -2865,10 +2738,10 @@ export class Ctx {
    *
    * @remarks Triggered by photo with caption.
    *
-   * @example this.data.name = "start" && this.msgPhoto
+   * @example this.data.name = "start" && this.msg?.photo
    * ```typescript
    * async handleCaptionPhoto() {
-   *   this.msgPhoto // {...}
+   *   this.msg?.photo // {...}
    *   this.msgCaption // "start"
    * }
    * ```
@@ -2883,10 +2756,10 @@ export class Ctx {
    *
    * @remarks Triggered by photo with caption and with arg.
    *
-   * @example this.data.name = "start 123 aaa" && this.msgPhoto
+   * @example this.data.name = "start 123 aaa" && this.msg?.photo
    * ```typescript
    * async handleCaptionArgsPhoto() {
-   *   this.msgPhoto // {...}
+   *   this.msg?.photo // {...}
    *   this.msgCaption // "start"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs["123", "aaa"]
@@ -2903,10 +2776,10 @@ export class Ctx {
    *
    * @remarks Triggered by photo with caption command.
    *
-   * @example this.data.name = "/start" && this.msgPhoto
+   * @example this.data.name = "/start" && this.msg?.photo
    * ```typescript
    * async handleCommandCaptionPhoto() {
-   *   this.msgPhoto // {...}
+   *   this.msg?.photo // {...}
    *   this.msgCaption // "/start"
    * }
    * ```
@@ -2922,10 +2795,10 @@ export class Ctx {
    *
    * @remarks Triggered by photo with caption command and args.
    *
-   * @example this.data.name = "/start 123 aaa" && this.msgPhoto
+   * @example this.data.name = "/start 123 aaa" && this.msg?.photo
    * ```typescript
    * async handleCommandCaptionArgsPhoto() {
-   *   this.msgPhoto // {...}
+   *   this.msg?.photo // {...}
    *   this.msgCaption // "/start 123 aaa"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
@@ -2941,10 +2814,10 @@ export class Ctx {
    *
    * @remarks Triggered by any photo not matching other routes, typically used with sessions.
    *
-   * @example this.msgPhoto
+   * @example this.msg?.photo
    * ```typescript
    * async handleFreePhoto() {
-   *    this.msgPhoto // {...}
+   *    this.msg?.photo // {...}
    * }
    * ```
    *
@@ -2959,10 +2832,10 @@ export class Ctx {
    *
    * @remarks Triggered by video with caption.
    *
-   * @example this.data.name = "start" && this.msgVideo
+   * @example this.data.name = "start" && this.msg?.video
    * ```typescript
    * async handleCaptionVideo() {
-   *   this.msgVideo // {...}
+   *   this.msg?.video // {...}
    *   this.msgCaption // "start"
    * }
    * ```
@@ -2977,10 +2850,10 @@ export class Ctx {
    *
    * @remarks Triggered by video with caption and with arg.
    *
-   * @example this.data.name = "start 123 aaa" && this.msgVideo
+   * @example this.data.name = "start 123 aaa" && this.msg?.video
    * ```typescript
    * async handleCaptionArgsVideo() {
-   *   this.msgVideo // {...}
+   *   this.msg?.video // {...}
    *   this.msgCaption // "start"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
@@ -2997,10 +2870,10 @@ export class Ctx {
    *
    * @remarks Triggered by video with caption command.
    *
-   * @example this.data.name = "/start" && this.msgVideo
+   * @example this.data.name = "/start" && this.msg?.video
    * ```typescript
    * async handleCommandCaptionVideo() {
-   *   this.msgVideo // {...}
+   *   this.msg?.video // {...}
    *   this.msgCaption // "/start"
    * }
    * ```
@@ -3016,10 +2889,10 @@ export class Ctx {
    *
    * @remarks Triggered by video with caption command and args.
    *
-   * @example this.data.name = "/start 123 aaa" && this.msgVideo
+   * @example this.data.name = "/start 123 aaa" && this.msg?.video
    * ```typescript
    * async handleCommandCaptionArgsVideo() {
-   *   this.msgVideo // {...}
+   *   this.msg?.video // {...}
    *   this.msgCaption // "/start 123 aaa"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
@@ -3035,10 +2908,10 @@ export class Ctx {
    *
    * @remarks Triggered by any video not matching other routes, typically used with sessions.
    *
-   * @example this.msgVideo
+   * @example this.msg?.video
    * ```typescript
    * async handleFreeVideo() {
-   *    this.msgVideo // {...}
+   *    this.msg?.video // {...}
    * }
    * ```
    *
@@ -3053,10 +2926,10 @@ export class Ctx {
    *
    * @remarks Triggered by audio with caption.
    *
-   * @example this.data.name = "start" && this.msgAudio
+   * @example this.data.name = "start" && this.msg?.audio
    * ```typescript
    * async handleCaptionAudio() {
-   *   this.msgAudio // {...}
+   *   this.msg?.audio // {...}
    *   this.msgCaption // "start"
    * }
    * ```
@@ -3071,10 +2944,10 @@ export class Ctx {
    *
    * @remarks Triggered by audio with caption and with arg.
    *
-   * @example this.data.name = "start 123 aaa" && this.msgAudio
+   * @example this.data.name = "start 123 aaa" && this.msg?.audio
    * ```typescript
    * async handleCaptionArgsAudio() {
-   *   this.msgAudio // {...}
+   *   this.msg?.audio // {...}
    *   this.msgCaption // "start"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
@@ -3091,10 +2964,10 @@ export class Ctx {
    *
    * @remarks Triggered by audio with caption command.
    *
-   * @example this.data.name = "/start" && this.msgAudio
+   * @example this.data.name = "/start" && this.msg?.audio
    * ```typescript
    * async handleCommandCaptionAudio() {
-   *   this.msgAudio // {...}
+   *   this.msg?.audio // {...}
    *   this.msgCaption // "/start"
    * }
    * ```
@@ -3109,10 +2982,10 @@ export class Ctx {
    *
    * @remarks Triggered by audio with caption command and args.
    *
-   * @example this.data.name = "/start 123 aaa" && this.msgAudio
+   * @example this.data.name = "/start 123 aaa" && this.msg?.audio
    * ```typescript
    * async handleCommandCaptionArgsAudio() {
-   *   this.msgAudio // {...}
+   *   this.msg?.audio // {...}
    *   this.msgCaption // "/start 123 aaa"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
@@ -3129,10 +3002,10 @@ export class Ctx {
    *
    * @remarks Triggered by any audio not matching other routes, typically used with sessions.
    *
-   * @example this.msgAudio
+   * @example this.msg?.audio
    * ```typescript
    * async handleFreeAudio() {
-   *    this.msgAudio // {...}
+   *    this.msg?.audio // {...}
    * }
    * ```
    *
@@ -3147,10 +3020,10 @@ export class Ctx {
    *
    * @remarks Triggered by document with caption.
    *
-   * @example this.data.name = "start" && this.msgDocument
+   * @example this.data.name = "start" && this.msg?.document
    * ```typescript
    * async handleCaptionDocument() {
-   *   this.msgDocument // {...}
+   *   this.msg?.document // {...}
    *   this.msgCaption // "start"
    * }
    * ```
@@ -3165,10 +3038,10 @@ export class Ctx {
    *
    * @remarks Triggered by document with caption and with arg.
    *
-   * @example this.data.name = "start 123 aaa" && this.msgDocument
+   * @example this.data.name = "start 123 aaa" && this.msg?.document
    * ```typescript
    * async handleCaptionArgsDocument() {
-   *   this.msgDocument // {...}
+   *   this.msg?.document // {...}
    *   this.msgCaption // "start"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
@@ -3185,10 +3058,10 @@ export class Ctx {
    *
    * @remarks Triggered by document with caption command.
    *
-   * @example this.data.name = "/start" && this.msgDocument
+   * @example this.data.name = "/start" && this.msg?.document
    * ```typescript
    * async handleCommandCaptionDocument() {
-   *   this.msgDocument // {...}
+   *   this.msg?.document // {...}
    *   this.msgCaption // "/start"
    * }
    * ```
@@ -3207,7 +3080,7 @@ export class Ctx {
    * @example this.data.name = "/start 123 aaa"
    * ```typescript
    * async handleCommandCaptionArgsDocument() {
-   *   this.msgDocument // {...}
+   *   this.msg?.document // {...}
    *   this.msgCaption // "/start 123 aaa"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
@@ -3226,7 +3099,7 @@ export class Ctx {
    * @example
    * ```typescript
    * async handleFreeDocument() {
-   *    this.msgDocument // {...}
+   *    this.msg?.document // {...}
    * }
    * ```
    *
@@ -3244,7 +3117,7 @@ export class Ctx {
    * @example this.data.name = "start"
    * ```typescript
    * async handleCaptionAnimation() {
-   *   this.msgAnimation // {...}
+   *   this.msg?.animation // {...}
    *   this.msgCaption // "start"
    * }
    * ```
@@ -3262,7 +3135,7 @@ export class Ctx {
    * @example this.data.name = "start 123 aaa"
    * ```typescript
    * async handleCaptionArgsAnimation() {
-   *   this.msgAnimation // {...}
+   *   this.msg?.animation // {...}
    *   this.msgCaption // "start"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
@@ -3282,7 +3155,7 @@ export class Ctx {
    * @example this.data.name = "/start"
    * ```typescript
    * async handleCommandCaptionAnimation() {
-   *   this.msgAnimation // {...}
+   *   this.msg?.animation // {...}
    *   this.msgCaption // "/start"
    * }
    * ```
@@ -3301,7 +3174,7 @@ export class Ctx {
    * @example this.data.name = "/start 123 aaa"
    * ```typescript
    * async handleCommandCaptionArgsAnimation() {
-   *   this.msgAnimation // {...}
+   *   this.msg?.animation // {...}
    *   this.msgCaption // "/start 123 aaa"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
@@ -3320,7 +3193,7 @@ export class Ctx {
    * @example
    * ```typescript
    * async handleFreeAnimation() {
-   *    this.msgAnimation // {...}
+   *    this.msg?.animation // {...}
    * }
    * ```
    *
@@ -3338,7 +3211,7 @@ export class Ctx {
    * @example this.data.name = "start"
    * ```typescript
    * async handleCaptionVoice() {
-   *   this.msgVoice // {...}
+   *   this.msg?.voice // {...}
    *   this.msgCaption // "start"
    * }
    * ```
@@ -3356,7 +3229,7 @@ export class Ctx {
    * @example this.data.name = "start 123 aaa"
    * ```typescript
    * async handleCaptionArgsVoice() {
-   *   this.msgVoice // {...}
+   *   this.msg?.voice // {...}
    *   this.msgCaption // "start"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
@@ -3376,7 +3249,7 @@ export class Ctx {
    * @example this.data.name = "/start"
    * ```typescript
    * async voiceCommandCaption() {
-   *   this.msgVoice // {...}
+   *   this.msg?.voice // {...}
    *   this.msgCaption // "/start"
    * }
    * ```
@@ -3395,7 +3268,7 @@ export class Ctx {
    * @example this.data.name = "/start 123 aaa"
    * ```typescript
    * async handleCommandCaptionArgsVoice() {
-   *   this.msgVoice // {...}
+   *   this.msg?.voice // {...}
    *   this.msgCaption // "/start 123 aaa"
    *   this.msgCaptionArg // "123"
    *   this.msgCaptionArgs // ["123", "aaa"]
@@ -3415,7 +3288,7 @@ export class Ctx {
    * @example
    * ```typescript
    * async handleFreeVoice() {
-   *    this.msgVoice // {...}
+   *    this.msg?.voice // {...}
    * }
    * ```
    *
@@ -3432,7 +3305,7 @@ export class Ctx {
    * @example
    * ```typescript
    * async handleFreeVideoNote() {
-   *    this.msgVideoNote // {...}
+   *    this.msg?.video_note // {...}
    * }
    * ```
    * @virtual
@@ -3449,7 +3322,7 @@ export class Ctx {
    * @example
    * ```typescript
    * async handleFreeSticker() {
-   *    this.msgSticker // {...}
+   *    this.msg?.sticker // {...}
    * }
    * ```
    *
@@ -3467,7 +3340,7 @@ export class Ctx {
    * @example
    * ```typescript
    * async handleFreeLocation() {
-   *    this.msgLocation // {...}
+   *    this.msg?.location // {...}
    * }
    * ```
    *
@@ -3485,7 +3358,7 @@ export class Ctx {
    * @example
    * ```typescript
    * async handleFreeContact() {
-   *    this.msgContact // {...}
+   *    this.msg?.contact // {...}
    * }
    * ```
    *
@@ -3525,126 +3398,126 @@ export class Ctx {
    *   2. `session.method` matches the method key registered for this route
    *      (computed by the corresponding `methodSession*()`)
    *   3. The route name ends with `fromListener` — ensuring only the correct
-   *      update type triggers it (callback queries match `*CallbackData` only;
+   *      update type triggers it (callback queries match `*CallbackQueryData` only;
    *      text matches `*Text` only; etc.)
    *
    * Define `handleSession*` to handle session flows separately from normal
    * flows. The regular `handle*` will only be called for non-session flows
    * because id=1 dispatches before id=2 ever runs.
    *
-   * Works with ALL route types: CallbackData, ArgsCallbackData, Text,
+   * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text,
    * CommandText, FreeText, CaptionPhoto, etc.
    *
    * @example
    * ```typescript
    * // handle* — invoked via id=2 (static) when no session matches in id=1
-   * async handleCallbackData() {
-   *   await this.ct.editMessageText(`normal flow: ${this.callbackData}`)
+   * async handleCallbackQueryData() {
+   *   await this.editMessageText(`normal flow: ${this.callbackQueryData}`)
    * }
    *
    * // handleSession* — invoked via id=1 (session) when session.method matches
-   * async handleSessionCallbackData() {
+   * async handleSessionCallbackQueryData() {
    *   const {inputText} = this.temp.session.params
-   *   await this.ct.editMessageText(`session-active: ${inputText}`)
+   *   await this.editMessageText(`session-active: ${inputText}`)
    * }
    * ```
-   *
+
    * @example
    * ```typescript
-   * async handleArgsCallbackData() {
-   *   await this.ct.editMessageText(`normal: ${this.callbackData}`)
+   * async handleArgsCallbackQueryData() {
+   *   await this.editMessageText(`normal: ${this.callbackQueryData}`)
    * }
-   * async handleSessionArgsCallbackData() {
+   * async handleSessionArgsCallbackQueryData() {
    *   const {inputText} = this.temp.session.params
-   *   await this.ct.editMessageText(`session: ${this.callbackData}, params: ${inputText}`)
+   *   await this.editMessageText(`session: ${this.callbackQueryData}, params: ${inputText}`)
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async handleSessionCallbackData?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
-  async handleSessionArgsCallbackData?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  async handleSessionCallbackQueryData?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
+  async handleSessionArgsCallbackQueryData?(): Promise<any>
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionText?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionArgsText?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandText?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandArgsText?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeText?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionPhoto?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionArgsPhoto?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionPhoto?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionArgsPhoto?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreePhoto?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionVideo?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionArgsVideo?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionVideo?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionArgsVideo?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeVideo?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionAudio?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionArgsAudio?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionAudio?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionArgsAudio?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeAudio?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionDocument?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionArgsDocument?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionDocument?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionArgsDocument?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeDocument?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionAnimation?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionArgsAnimation?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionAnimation?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionArgsAnimation?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeAnimation?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionVoice?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionArgsVoice?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionVoice?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionArgsVoice?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeVoice?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeVideoNote?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeSticker?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeLocation?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeContact?(): Promise<any>
-  /** {@inheritDoc Ctx.handleSessionCallbackData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFree?(): Promise<any>
 
   // callback
@@ -3657,186 +3530,186 @@ export class Ctx {
    *
    * @example
    * ```typescript
-   * async handleCallbackData() {
+   * async handleCallbackQueryData() {
    *   // Set session input for `handleFreeText`
    *   await this.setSessionFreeText({data: "12345"})
-   *   await this.reply()
+   *   await this.render()
    * }
    * ```
    *
    * @public
    */
-  setSessionCallbackData(params?: any) {
-    return this.setSession(this.methodSessionCallbackData(), params)
+  setSessionCallbackQueryData(params?: any) {
+    return this.setSession(this.methodSessionCallbackQueryData(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
-  setSessionArgsCallbackData(params?: any) {
-    return this.setSession(this.methodSessionArgsCallbackData(), params)
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionArgsCallbackQueryData(params?: any) {
+    return this.setSession(this.methodSessionArgsCallbackQueryData(), params)
   }
   // text
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionText(params?: any) {
     return this.setSession(this.methodSessionText(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionArgsText(params?: any) {
     return this.setSession(this.methodSessionArgsText(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandText(params?: any) {
     return this.setSession(this.methodSessionCommandText(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandArgsText(params?: any) {
     return this.setSession(this.methodSessionCommandArgsText(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeText(params?: any) {
     return this.setSession(this.methodSessionFreeText(), params)
   }
   // photo
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionPhoto(params?: any) {
     return this.setSession(this.methodSessionCaptionPhoto(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionArgsPhoto(params?: any) {
     return this.setSession(this.methodSessionCaptionArgsPhoto(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionPhoto(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionPhoto(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionArgsPhoto(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsPhoto(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreePhoto(params?: any) {
     return this.setSession(this.methodSessionFreePhoto(), params)
   }
   // video
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionVideo(params?: any) {
     return this.setSession(this.methodSessionCaptionVideo(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionArgsVideo(params?: any) {
     return this.setSession(this.methodSessionCaptionArgsVideo(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionVideo(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionVideo(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionArgsVideo(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsVideo(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeVideo(params?: any) {
     return this.setSession(this.methodSessionFreeVideo(), params)
   }
   // audio
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionAudio(params?: any) {
     return this.setSession(this.methodSessionCaptionAudio(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionArgsAudio(params?: any) {
     return this.setSession(this.methodSessionCaptionArgsAudio(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionAudio(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionAudio(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionArgsAudio(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsAudio(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeAudio(params?: any) {
     return this.setSession(this.methodSessionFreeAudio(), params)
   }
   // document
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionDocument(params?: any) {
     return this.setSession(this.methodSessionCaptionDocument(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionArgsDocument(params?: any) {
     return this.setSession(this.methodSessionCaptionArgsDocument(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionDocument(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionDocument(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionArgsDocument(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsDocument(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeDocument(params?: any) {
     return this.setSession(this.methodSessionFreeDocument(), params)
   }
   // animation
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionAnimation(params?: any) {
     return this.setSession(this.methodSessionCaptionAnimation(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionArgsAnimation(params?: any) {
     return this.setSession(this.methodSessionCaptionArgsAnimation(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionAnimation(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionAnimation(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionArgsAnimation(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsAnimation(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeAnimation(params?: any) {
     return this.setSession(this.methodSessionFreeAnimation(), params)
   }
   // voice
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionVoice(params?: any) {
     return this.setSession(this.methodSessionCaptionVoice(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionArgsVoice(params?: any) {
     return this.setSession(this.methodSessionCaptionArgsVoice(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionVoice(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionVoice(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionArgsVoice(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsVoice(), params)
   }
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeVoice(params?: any) {
     return this.setSession(this.methodSessionFreeVoice(), params)
   }
   // video note
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeVideoNote(params?: any) {
     return this.setSession(this.methodSessionFreeVideoNote(), params)
   }
   // sticker
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeSticker(params?: any) {
     return this.setSession(this.methodSessionFreeSticker(), params)
   }
   // location
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeLocation(params?: any) {
     return this.setSession(this.methodSessionFreeLocation(), params)
   }
   // contact
-  /** {@inheritDoc Ctx.setSessionCallbackData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeContact(params?: any) {
     return this.setSession(this.methodSessionFreeContact(), params)
   }
@@ -3870,11 +3743,11 @@ export class Ctx {
     return `${prefix}-${name || this.data.name}`
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionCallbackData(name?: string) {
+  methodSessionCallbackQueryData(name?: string) {
     return this.methodSession(`1`, name)
   }
   /** {@inheritDoc Ctx.methodSession} */
-  methodSessionArgsCallbackData(name?: string) {
+  methodSessionArgsCallbackQueryData(name?: string) {
     return this.methodSession(`2`, name)
   }
   // text method

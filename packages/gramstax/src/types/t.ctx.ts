@@ -241,10 +241,10 @@ export type ITBottomKbParams = {
    * (for example, keyboard bindings will not work). A common mistake is defining
    * a base ID in the template but not reusing it in the keyboard configuration.
    */
-  AGBaseId?: string
+  AGBaseId?: string | null
 
   /** Template interpolation data. */
-  data?: ITData
+  data?: ITData | null
 
   /** If true, caches the keyboard by language. */
   cache?: boolean
@@ -265,10 +265,10 @@ export type ITInlineKbParams = {
    * (for example, keyboard bindings will not work). A common mistake is defining
    * a base ID in the template but not reusing it in the keyboard configuration.
    */
-  AGBaseId?: string
+  AGBaseId?: string | null
 
   /** Template interpolation data. */
-  data?: ITData
+  data?: ITData | null
 
   /** If true, caches the keyboard by language. */
   cache?: boolean
@@ -286,7 +286,7 @@ export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
    * @remarks
    * If not provided, the page name will be inferred from the route definition.
    */
-  name?: string
+  name?: string | null
 
   /**
    * Optional callback function for args.
@@ -294,7 +294,7 @@ export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
    * @remarks
    * Used to define the callback handler for this page route.
    */
-  callbackData?: C
+  callbackQueryData?: C | null
 
   /**
    * Optional. override intent trigger for `handle*Text`.
@@ -302,7 +302,7 @@ export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
    * @remarks
    * Overrides the default `handle*Text` intent matching for this page.
    */
-  intentText?: string
+  intentText?: string | null
 
   /**
    * Optional. override intent trigger for `handleCommand*Text`.
@@ -310,7 +310,7 @@ export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
    * @remarks
    * Overrides the default `handleCommand*Text` intent matching for this page.
    */
-  intentTextCommand?: string
+  intentTextCommand?: string | null
 }
 
 /**
@@ -387,7 +387,7 @@ export type ITPageData<T extends any[] = any[]> = {
    * Callback function that processes args and returns route data.
    *
    * @remarks
-   * Add args to `intentCallbackData`, will trigger only to route function "handle*Callback*" (besides the "handleFree*").
+   * Add args to `intentCallbackQueryData`, will trigger only to route function "handle*Callback*" (besides the "handleFree*").
    * This is usually used when you want to insert a arg into it.
    *
    * **Note:** Return value should use ARRAY only if there is a arg so that the background
@@ -400,7 +400,7 @@ export type ITPageData<T extends any[] = any[]> = {
    * @param args - The args parameters passed to the callback.
    * @returns Route data string.
    */
-  callbackData: (...args: T) => string
+  callbackQueryData: (...args: T) => string
 
   /**
    * `handle*Text` intent pattern for matching incoming text messages.
@@ -450,18 +450,18 @@ export type ITPageData<T extends any[] = any[]> = {
   _positionArgText: number
 
   /**
-   * `handle*CallbackData` intent pattern for matching callback query data.
+   * `handle*CallbackQueryData` intent pattern for matching callback query data.
    *
    * @remarks
-   * Internal intent value used to trigger route function `handle*CallbackData` (besides the `handleFree*`).
-   * If `constructorParams.shortCallbackData` is set to true, a numeric index value will be
+   * Internal intent value used to trigger route function `handle*CallbackQueryData` (besides the `handleFree*`).
+   * If `constructorParams.shortCallbackQueryData` is set to true, a numeric index value will be
    * used instead.
    *
    * **Default:** `this.data.name`
    *
    * **IMPORTANT:** Do not set this manually. Let the system handle it.
    */
-  intentCallbackData: string
+  intentCallbackQueryData: string
 }
 
 /**
