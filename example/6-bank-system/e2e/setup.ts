@@ -6,10 +6,10 @@ export type {ITE2eApiCall, ITE2eUpdateOptions} from "gramstax"
 
 // Monkey-patch TransferPage to call setSessionFreeText on callback,
 // matching the existing test setup.
-const originalTransferHandleCallbackData = TransferPage.prototype.handleCallbackData
-TransferPage.prototype.handleCallbackData = async function () {
+const originalTransferHandleCallbackQueryData = TransferPage.prototype.handleCallbackQueryData
+TransferPage.prototype.handleCallbackQueryData = async function () {
   await this.setSessionFreeText()
-  await originalTransferHandleCallbackData.call(this)
+  await originalTransferHandleCallbackQueryData.call(this)
 }
 
 export const bot = new BotCore({

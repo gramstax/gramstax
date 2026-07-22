@@ -18,14 +18,14 @@ class Helper {
   }
 
   static async buildSItemKb(ctx: UpdatePage, pageNo: number, items: IVItem[]) {
-    const allItems = await ctx.db.items.list(ctx.userId)
+    const allItems = await ctx.db.items.list(ctx.from!.id!)
     const totalPages = Math.max(Math.ceil(allItems.length / this.PAGE_SIZE), 1)
     const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
     const bi = Base.selectItem
     return ctx.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
-          k.text(`📝 #${item.id} ${item.title.slice(0, 5)}..`, ctx.data.callbackData(bi, `select`, item.id))
+          k.text(`📝 #${item.id} ${item.title.slice(0, 5)}..`, ctx.data.callbackQueryData(bi, `select`, item.id))
           if (index % 2 === 1) {
             k.row()
           }
@@ -33,12 +33,12 @@ class Helper {
 
         k.row()
         if (safePage > 0) {
-          k.text(l[0]!, ctx.data.callbackData(bi, `page`, `${safePage - 1}`))
+          k.text(l[0]!, ctx.data.callbackQueryData(bi, `page`, `${safePage - 1}`))
         }
         if (safePage < totalPages - 1) {
-          k.text(l[1]!, ctx.data.callbackData(bi, `page`, `${safePage + 1}`))
+          k.text(l[1]!, ctx.data.callbackQueryData(bi, `page`, `${safePage + 1}`))
         }
-        return k.row().text(l[2]!, StartPage.data.callbackData())
+        return k.row().text(l[2]!, StartPage.data.callbackQueryData())
       },
       {AGBaseId: bi}
     )
@@ -46,9 +46,9 @@ class Helper {
 
   static buildSStatusKb(ctx: UpdatePage, id: string) {
     const bi = Base.selectStatus
-    const b1 = ctx.data.callbackData(bi, `todo`, id)
-    const b2 = ctx.data.callbackData(bi, `in-progress`, id)
-    const b3 = ctx.data.callbackData(bi, `done`, id)
+    const b1 = ctx.data.callbackQueryData(bi, `todo`, id)
+    const b2 = ctx.data.callbackQueryData(bi, `in-progress`, id)
+    const b3 = ctx.data.callbackQueryData(bi, `done`, id)
     const b4 = StartPage
     return ctx.inlineKeyboardT([b1, b2, b3, b4], `3-1`, bi)
   }
@@ -58,12 +58,12 @@ class Helper {
 export class UpdatePage extends PageBase {
   static data = this.buildData((step?: string, arg1?: string, arg2?: string) => [step, arg1, arg2])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.gselectItem.show(0, true)
   }
 
-  async handleArgsCallbackData() {
-    const [step, arg1, arg2] = this.callbackDataArgs
+  async handleArgsCallbackQueryData() {
+    const [step, arg1, arg2] = this.callbackQueryDataArgs
     if (step === Base.selectItem) {
       await this.gselectItem.process(arg1!, arg2!)
     } else if (step === Base.selectStatus) {
@@ -73,7 +73,7 @@ export class UpdatePage extends PageBase {
 
   gselectItem = {
     show: async (pageNo = 0, isEdit = true) => {
-      const allItems = await this.db.items.list(this.userId)
+      const allItems = await this.db.items.list(this.from!.id)
       const totalPages = Math.max(Math.ceil(allItems.length / Helper.PAGE_SIZE), 1)
       const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
       const start = safePage * Helper.PAGE_SIZE
@@ -86,17 +86,13 @@ export class UpdatePage extends PageBase {
       const bi = Base.selectItem
       const da = {count: allItems.length, pageNo: safePage + 1, totalPages}
       const kb = await Helper.buildSItemKb(this, safePage, items)
-      if (isEdit) {
-        await this.edit(kb, da, bi)
-      } else {
-        await this.reply(kb, da, bi)
-      }
+      await this.renderAuto(kb, da, bi, null, isEdit)
     },
     process: async (type: string, idOrPage: string) => {
       if (type === `page`) {
         await this.gselectItem.show(parseInt(idOrPage))
       } else if (type === `select`) {
-        const item = await this.db.items.fetch(this.userId, idOrPage)
+        const item = await this.db.items.fetch(this.from!.id, idOrPage)
         if (item) {
           await this.gselectStatus.show(item)
         } else {
@@ -110,15 +106,15 @@ export class UpdatePage extends PageBase {
       const bi = Base.selectStatus
       const kb = Helper.buildSStatusKb(this, item.id)
       const da = {id: item.id, title: item.title, status: item.status}
-      await this.edit(kb, da, bi)
+      await this.renderEdit(kb, da, bi)
     },
     process: async (status: IVItem[`status`], id: string) => {
-      const item = await this.db.items.fetch(this.userId, id)
+      const item = await this.db.items.fetch(this.from!.id, id)
       if (!item) {
         return await this.gselectItem.show(0, true)
       }
 
-      const updated = await this.db.items.edit(this.userId, id, item.title, item.description, status)
+      const updated = await this.db.items.renderEdit(this.from!.id, id, item.title, item.description, status)
       if (updated) {
         await this.gsuccess.show(id, status)
       } else {
@@ -131,18 +127,14 @@ export class UpdatePage extends PageBase {
       const bi = Base.infoNotFound
       const kb = Helper.buildHomeKb(this, bi)
       const da = {id}
-      await this.edit(kb, da, bi)
+      await this.renderEdit(kb, da, bi)
     }
   }
   ginfoEmpty = {
     show: async (isEdit = true) => {
       const bi = Base.infoEmpty
       const kb = Helper.buildHomeKb(this, bi)
-      if (isEdit) {
-        await this.edit(kb, {}, bi)
-      } else {
-        await this.reply(kb, {}, bi)
-      }
+      await this.renderAuto(kb, {}, bi, null, isEdit)
     }
   }
   gsuccess = {
@@ -150,7 +142,7 @@ export class UpdatePage extends PageBase {
       const bi = Base.success
       const kb = Helper.buildHomeKb(this, bi)
       const da = {id, status}
-      await this.edit(kb, da, bi)
+      await this.renderEdit(kb, da, bi)
     }
   }
 

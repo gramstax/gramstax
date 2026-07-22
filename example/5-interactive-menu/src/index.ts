@@ -12,7 +12,7 @@ class Index {
       log: LogHe,
       optionsPage: {
         // Keep callback data intent short for menus.
-        shortCallbackData: true
+        shortCallbackQueryData: true
       }
     })
   }

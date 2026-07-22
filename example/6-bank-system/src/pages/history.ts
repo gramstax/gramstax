@@ -3,7 +3,7 @@ import {StartPage} from "./start"
 
 class Helper {
   static formatHistory(ctx: HistoryPage) {
-    const entries = ctx.bankStore.getHistory(ctx.userId)
+    const entries = ctx.bankStore.getHistory(ctx.from?.id)
     if (entries.length === 0) {
       return `No transactions available.`
     }
@@ -36,7 +36,7 @@ class Helper {
 
 // Shows recent transaction history.
 export class HistoryPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show()
   }
 
@@ -45,7 +45,7 @@ export class HistoryPage extends PageBase {
       const history = Helper.formatHistory(this)
       const kb = this.inlineKeyboardT([StartPage])
       const da = {history}
-      await this.edit(kb, da)
+      await this.renderEdit(kb, da)
     }
   }
 

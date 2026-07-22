@@ -32,19 +32,19 @@ class Helper {
 
 // Transfer funds to another user.
 export class TransferPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show()
   }
 
   async handleSessionFreeText() {
-    await this.bdefault.process(this.msgText)
+    await this.bdefault.process(this.msg!.text!)
   }
 
   bdefault = {
     show: async () => {
       const bi = Base.index
       const kb = Helper.kb(this, bi)
-      await this.edit(kb, {}, bi)
+      await this.renderEdit(kb, {}, bi)
     },
     process: async (input: string) => {
       const [amountInput, targetInput] = input.trim().split(/\s+/)
@@ -62,11 +62,11 @@ export class TransferPage extends PageBase {
         return await this.bwarnUnknownUser.show(targetInput)
       }
 
-      if (target.id === this.userId) {
+      if (target.id === this.from!.id) {
         return await this.bwarnSelf.show()
       }
 
-      const current = this.bankStore.getBalance(this.userId)
+      const current = this.bankStore.getBalance(this.from!.id)
       if (current < amount) {
         return await this.bwarnInsufficient.show(this.bankStore.formatAmount(current))
       }
@@ -76,9 +76,9 @@ export class TransferPage extends PageBase {
       const nextTarget = targetBalance + amount
       const amountHex = this.bankStore.toHex(amount)
 
-      this.bankStore.setBalance(this.userId, nextSender)
+      this.bankStore.setBalance(this.from!.id, nextSender)
       this.bankStore.setBalance(target.id, nextTarget)
-      this.bankStore.recordTransaction(this.userId, {
+      this.bankStore.recordTransaction(this.from!.id, {
         type: `transfer-out`,
         amountHex,
         peerId: target.id,
@@ -88,8 +88,8 @@ export class TransferPage extends PageBase {
       this.bankStore.recordTransaction(target.id, {
         type: `transfer-in`,
         amountHex,
-        peerId: this.userId,
-        peerName: this.userName || `user-${this.userId}`,
+        peerId: this.from!.id,
+        peerName: this.from?.username || `user-${this.from!.id}`,
         ts: Date.now()
       })
 
@@ -101,7 +101,7 @@ export class TransferPage extends PageBase {
       const bi = Base.warnInvalid
       const kb = Helper.kb(this, bi)
       const da = {amount}
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
   bwarnUnknownUser = {
@@ -109,14 +109,14 @@ export class TransferPage extends PageBase {
       const bi = Base.warnUnknownUser
       const kb = Helper.kb(this, bi)
       const da = {target}
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
   bwarnSelf = {
     show: async () => {
       const bi = Base.warnSelf
       const kb = Helper.kb(this, bi)
-      await this.reply(kb, {}, bi)
+      await this.render(kb, {}, bi)
     }
   }
   bwarnInsufficient = {
@@ -124,7 +124,7 @@ export class TransferPage extends PageBase {
       const bi = Base.warnInsufficient
       const kb = Helper.kb(this, bi)
       const da = {balance}
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
   bsuccess = {
@@ -133,7 +133,7 @@ export class TransferPage extends PageBase {
       const bi = Base.success
       const kb = Helper.kb(this, bi)
       const da = {amount, balance, target}
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
 

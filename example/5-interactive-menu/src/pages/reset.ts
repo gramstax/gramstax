@@ -5,7 +5,7 @@ import {StartPage} from "./start"
 export class ResetPage extends PageBase {
   static data = this.buildData({intentText: `Reset`})
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
@@ -16,15 +16,11 @@ export class ResetPage extends PageBase {
   bdefault = {
     show: async (isEdit = false) => {
       await this.clearSession()
-      await this.cacheState.delete(`${this.userId}:category`)
-      await this.cacheState.delete(`${this.userId}:page`)
+      await this.cacheState.delete(`${this.from!.id}:category`)
+      await this.cacheState.delete(`${this.from!.id}:page`)
 
       const kb = this.inlineKeyboardT([StartPage])
-      if (isEdit) {
-        await this.edit(kb)
-      } else {
-        await this.reply(kb)
-      }
+      await this.renderAuto(kb, null, null, null, isEdit)
     }
   }
 

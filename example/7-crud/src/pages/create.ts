@@ -24,13 +24,13 @@ class Helper {
 
 // Creates a new item in cache.
 export class CreatePage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.btitle.show()
   }
 
   async handleSessionFreeText() {
     const {step, title} = Helper.getSessionParams(this)
-    const input = this.msgText.trim()
+    const input = this.msg!.text!.trim()
     if (step === Base.title) {
       await this.bnotes.show(title!)
     } else if (step === Base.notes) {
@@ -43,7 +43,7 @@ export class CreatePage extends PageBase {
       const bi = Base.title
       const kb = Helper.buildHomeKeyboard(this, bi)
       await this.setSessionFreeText({step: bi})
-      await this.edit(kb, {}, bi)
+      await this.renderEdit(kb, {}, bi)
     }
   }
   bnotes = {
@@ -52,13 +52,13 @@ export class CreatePage extends PageBase {
       const kb = Helper.buildHomeKeyboard(this, bi)
       const da = {title}
       await this.setSessionFreeText({step: bi, title})
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
   bsuccess = {
     show: async (title: string, input: string) => {
       await this.clearSession()
-      const item = await this.db.items.create(this.userId, title!, input)
+      const item = await this.db.items.create(this.from!.id, title!, input)
       const bi = Base.success
       const kb = Helper.buildHomeKeyboard(this, bi)
       const da = {
@@ -67,7 +67,7 @@ export class CreatePage extends PageBase {
         description: item.description,
         status: item.status
       }
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
 

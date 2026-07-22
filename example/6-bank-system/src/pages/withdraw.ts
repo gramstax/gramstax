@@ -16,12 +16,12 @@ class Helper {
 
 // Withdraw funds from the user's balance.
 export class WithdrawPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bindex.show()
   }
 
   async handleSessionFreeText() {
-    const amountInput = this.msgText.trim()
+    const amountInput = this.msg!.text!.trim()
     await this.bindex.process(amountInput)
   }
 
@@ -30,7 +30,7 @@ export class WithdrawPage extends PageBase {
       await this.setSessionFreeText()
       const bi = Base.index
       const kb = Helper.kb(this, bi)
-      await this.edit(kb, {}, bi)
+      await this.renderEdit(kb, {}, bi)
     },
     process: async (amountInput: string) => {
       if (!amountInput) {
@@ -42,14 +42,14 @@ export class WithdrawPage extends PageBase {
         return await this.bwarnInvalid.show(amountInput)
       }
 
-      const current = this.bankStore.getBalance(this.userId)
+      const current = this.bankStore.getBalance(this.from!.id)
       if (current < amount) {
         return this.bwarnInsufficient.show(current)
       }
 
       const next = current - amount
-      this.bankStore.setBalance(this.userId, next)
-      this.bankStore.recordTransaction(this.userId, {
+      this.bankStore.setBalance(this.from!.id, next)
+      this.bankStore.recordTransaction(this.from!.id, {
         type: `withdraw`,
         amountHex: this.bankStore.toHex(amount),
         ts: Date.now()
@@ -67,7 +67,7 @@ export class WithdrawPage extends PageBase {
         amount: this.bankStore.formatAmount(amount),
         balance: this.bankStore.formatAmount(next)
       }
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
   bwarnInsufficient = {
@@ -75,7 +75,7 @@ export class WithdrawPage extends PageBase {
       const bi = Base.warnInsufficient
       const kb = Helper.kb(this, bi)
       const da = {balance: this.bankStore.formatAmount(current)}
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
   bwarnInvalid = {
@@ -83,7 +83,7 @@ export class WithdrawPage extends PageBase {
       const bi = Base.warnInvalid
       const kb = Helper.kb(this, bi)
       const da = {amount}
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
 

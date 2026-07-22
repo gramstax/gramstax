@@ -5,7 +5,7 @@ import {StartPage} from "./start"
 export class HelpPage extends PageBase {
   static data = this.buildData({intentText: `Help`})
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
@@ -16,11 +16,7 @@ export class HelpPage extends PageBase {
   bdefault = {
     show: async (isEdit = true) => {
       const kb = this.inlineKeyboardT([StartPage], `1`)
-      if (isEdit) {
-        await this.edit(kb)
-      } else {
-        await this.reply(kb)
-      }
+      await this.renderAuto(kb, null, null, null, isEdit)
     }
   }
 

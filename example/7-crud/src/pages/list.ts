@@ -19,12 +19,12 @@ class Helper {
     return ctx.inlineKeyboard(
       (k, l) => {
         if (safePage > 0) {
-          k.text(l[0]!, ctx.data.callbackData(`${safePage - 1}`))
+          k.text(l[0]!, ctx.data.callbackQueryData(`${safePage - 1}`))
         }
         if (safePage < totalPages - 1) {
-          k.text(l[1]!, ctx.data.callbackData(`${safePage + 1}`))
+          k.text(l[1]!, ctx.data.callbackQueryData(`${safePage + 1}`))
         }
-        return k.row().text(l[2]!, StartPage.data.callbackData())
+        return k.row().text(l[2]!, StartPage.data.callbackQueryData())
       },
       {AGBaseId: Base.index}
     )
@@ -35,18 +35,18 @@ class Helper {
 export class ListPage extends PageBase {
   static data = this.buildData((pageNo?: string) => [pageNo])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.gindex.show(0)
   }
 
-  async handleArgsCallbackData() {
-    const pageNo = this.callbackDataArg
+  async handleArgsCallbackQueryData() {
+    const pageNo = this.callbackQueryDataArg
     await this.gindex.process(pageNo)
   }
 
   gindex = {
     show: async (pageNo = 0) => {
-      const totalItems = await this.db.items.total(this.userId)
+      const totalItems = await this.db.items.total(this.from!.id)
       if (totalItems === 0) {
         return await this.ginfoEmpty.show()
       }
@@ -54,7 +54,7 @@ export class ListPage extends PageBase {
       const totalPages = Math.max(Math.ceil(totalItems / Helper.PAGE_SIZE), 1)
       const safePage = Math.min(Math.max(pageNo, 0), totalPages - 1)
       const offset = safePage * Helper.PAGE_SIZE
-      const items = await this.db.items.list(this.userId, {limit: Helper.PAGE_SIZE, offset})
+      const items = await this.db.items.list(this.from!.id, {limit: Helper.PAGE_SIZE, offset})
       const list = items
         .map((item) => {
           const ts = TimeUt.formatTimestamp(item.updatedAt)
@@ -65,7 +65,7 @@ export class ListPage extends PageBase {
       const bi = Base.index
       const da = {items: list, pageNo: safePage + 1, totalPages}
       const kb = Helper.buildKeyboard(this, safePage, totalPages)
-      await this.edit(kb, da, bi)
+      await this.renderEdit(kb, da, bi)
     },
     process: async (pageNo: string) => {
       const nextPage = Number(pageNo)
@@ -77,7 +77,7 @@ export class ListPage extends PageBase {
     show: async () => {
       const bi = Base.infoEmpty
       const kb = Helper.buildHomeKeyboard(this, bi)
-      await this.edit(kb, {}, bi)
+      await this.renderEdit(kb, {}, bi)
     }
   }
 

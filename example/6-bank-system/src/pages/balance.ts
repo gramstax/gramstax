@@ -3,17 +3,17 @@ import {StartPage} from "./start"
 
 // Shows the current user balance.
 export class BalancePage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show()
   }
 
   bdefault = {
     show: async () => {
-      const balance = this.bankStore.getBalance(this.userId)
+      const balance = this.bankStore.getBalance(this.from!.id)
       const formatted = this.bankStore.formatAmount(balance)
       const da = {balance: formatted}
       const kb = this.inlineKeyboardT([StartPage])
-      await this.edit(kb, da)
+      await this.renderEdit(kb, da)
     }
   }
 

@@ -15,12 +15,12 @@ class Helper {
 
 // Deposits funds into the user's balance.
 export class DepositPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bindex.show()
   }
 
   async handleSessionFreeText() {
-    const amountInput = this.msgText.trim()
+    const amountInput = this.msg!.text!.trim()
     await this.bindex.process(amountInput)
   }
 
@@ -29,7 +29,7 @@ export class DepositPage extends PageBase {
       await this.setSessionFreeText()
       const bi = Base.index
       const kb = Helper.kb(this, bi)
-      await this.edit(kb, {}, bi)
+      await this.renderEdit(kb, {}, bi)
     },
     process: async (amountInput: string) => {
       if (!amountInput) {
@@ -41,11 +41,11 @@ export class DepositPage extends PageBase {
         return await this.bwarnInvalid.show(amountInput)
       }
 
-      const current = this.bankStore.getBalance(this.userId)
+      const current = this.bankStore.getBalance(this.from!.id)
       const next = current + amount
       const amountHex = this.bankStore.toHex(amount)
-      this.bankStore.setBalance(this.userId, next)
-      this.bankStore.recordTransaction(this.userId, {
+      this.bankStore.setBalance(this.from!.id, next)
+      this.bankStore.recordTransaction(this.from!.id, {
         type: `deposit`,
         amountHex,
         ts: Date.now()
@@ -63,7 +63,7 @@ export class DepositPage extends PageBase {
         balance: this.bankStore.formatAmount(next)
       }
       const kb = Helper.kb(this, bi)
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
   bwarnInvalid = {
@@ -71,7 +71,7 @@ export class DepositPage extends PageBase {
       const bi = Base.warnInvalid
       const kb = Helper.kb(this, bi)
       const da = {amount}
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
 

@@ -18,12 +18,12 @@ class Helper {
     return ctx.inlineKeyboard(
       (k, l) => {
         items.forEach((item, index) => {
-          k.text(`🗑️ #${item.id} ${item.title.slice(0, 5)}..`, ctx.data.callbackData(bi, item.id))
+          k.text(`🗑️ #${item.id} ${item.title.slice(0, 5)}..`, ctx.data.callbackQueryData(bi, item.id))
           if (index % 2 === 1) {
             k.row()
           }
         })
-        return k.row().text(l[0]!, StartPage.data.callbackData())
+        return k.row().text(l[0]!, StartPage.data.callbackQueryData())
       },
       {AGBaseId: bi}
     )
@@ -38,8 +38,8 @@ class Helper {
 export class DeletePage extends PageBase {
   static data = this.buildData((step?: string, id?: string) => [step, id])
 
-  async handleCallbackData() {
-    const getItems = await this.db.items.list(this.userId)
+  async handleCallbackQueryData() {
+    const getItems = await this.db.items.list(this.from!.id)
     const items = getItems.slice(0, Helper.MAX_ITEMS)
     if (items.length === 0) {
       await this.binfoEmpty.show()
@@ -48,8 +48,8 @@ export class DeletePage extends PageBase {
     }
   }
 
-  async handleArgsCallbackData() {
-    const [step, id] = this.callbackDataArgs
+  async handleArgsCallbackQueryData() {
+    const [step, id] = this.callbackQueryDataArgs
     if (step === Base.index) {
       await this.bindex.process(id!, true)
     }
@@ -57,7 +57,7 @@ export class DeletePage extends PageBase {
 
   async handleSessionFreeText() {
     const {step} = this.temp.session.params
-    const input = this.msgText.trim()
+    const input = this.msg!.text!.trim()
     if (step === Base.index) {
       await this.bindex.process(input, false)
     }
@@ -69,38 +69,26 @@ export class DeletePage extends PageBase {
       const kb = Helper.buildListKeyboard(this, items)
       const da = {count: items.length}
       await this.setSessionFreeText({step: bi})
-      await this.edit(kb, da, bi)
+      await this.renderEdit(kb, da, bi)
     },
     process: async (id: string, isEdit = false) => {
       if (!id) {
         const bi = Base.warnInvalid
         const kb = Helper.buildHomeKeyboard(this, bi)
-        if (isEdit) {
-          await this.edit(kb, {}, bi)
-        } else {
-          await this.reply(kb, {}, bi)
-        }
+        await this.renderAuto(kb, {}, bi, null, isEdit)
       } else {
-        const deleted = await this.db.items.remove(this.userId, id)
+        const deleted = await this.db.items.remove(this.from!.id, id)
         if (!deleted) {
           const bi = Base.errorNotFound
           const da = {id}
           const kb = Helper.buildHomeKeyboard(this, bi)
-          if (isEdit) {
-            await this.edit(kb, da, bi)
-          } else {
-            await this.reply(kb, da, bi)
-          }
+          await this.renderAuto(kb, da, bi, null, isEdit)
         } else {
           await this.clearSession()
           const bi = Base.success
           const da = {id}
           const kb = Helper.buildHomeKeyboard(this, bi)
-          if (isEdit) {
-            await this.edit(kb, da, bi)
-          } else {
-            await this.reply(kb, da, bi)
-          }
+          await this.renderAuto(kb, da, bi, null, isEdit)
         }
       }
     }
@@ -109,7 +97,7 @@ export class DeletePage extends PageBase {
     show: async () => {
       const bi = Base.infoEmpty
       const kb = Helper.buildHomeKeyboard(this, bi)
-      await this.edit(kb, {}, bi)
+      await this.renderEdit(kb, {}, bi)
     }
   }
 

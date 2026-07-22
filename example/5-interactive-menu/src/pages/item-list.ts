@@ -17,7 +17,7 @@ class Helper {
     const items = category.items.slice(start, end)
     return ctx.inlineKeyboard((k, l) => {
       items.forEach((item, index) => {
-        k.text(item.name, ItemDetailPage.data.callbackData(`detail`, categoryId, item.id))
+        k.text(item.name, ItemDetailPage.data.callbackQueryData(`detail`, categoryId, item.id))
         if (index % 2 === 1) {
           k.row()
         }
@@ -25,12 +25,12 @@ class Helper {
 
       k.row()
       if (safePage > 0) {
-        k.text(l[0]!, ctx.data.callbackData(`page`, `${safePage - 1}`))
+        k.text(l[0]!, ctx.data.callbackQueryData(`page`, `${safePage - 1}`))
       }
       if (safePage < totalPages - 1) {
-        k.text(l[1]!, ctx.data.callbackData(`page`, `${safePage - 1}`))
+        k.text(l[1]!, ctx.data.callbackQueryData(`page`, `${safePage - 1}`))
       }
-      return k.row().text(l[2]!, CategoryPage.data.callbackData())
+      return k.row().text(l[2]!, CategoryPage.data.callbackQueryData())
     })
   }
 }
@@ -39,28 +39,24 @@ class Helper {
 export class ItemListPage extends PageBase {
   static data = this.buildData((pageNo: string) => [pageNo])
 
-  async handleArgsCallbackData() {
-    const pageNo = this.callbackDataArg
+  async handleArgsCallbackQueryData() {
+    const pageNo = this.callbackQueryDataArg
     await this.bdefault.process(pageNo)
   }
 
   bdefault = {
     show: async (categoryId: string, pageNo = 0, isEdit = true) => {
-      await this.cacheState.set(`${this.userId}:category`, categoryId)
-      await this.cacheState.set(`${this.userId}:page`, pageNo)
+      await this.cacheState.set(`${this.from!.id}:category`, categoryId)
+      await this.cacheState.set(`${this.from!.id}:page`, pageNo)
       const category = CatalogData.getCategoryById(categoryId)
       const categoryName = category?.name || `Unknown`
 
       const da = {category: categoryName}
       const kb = Helper.kb(this, categoryId, pageNo, category)
-      if (isEdit) {
-        await this.edit(kb, da)
-      } else {
-        await this.reply(kb, da)
-      }
+      await this.renderAuto(kb, da, null, null, isEdit)
     },
     process: async (pageNo: string) => {
-      const categoryId = await this.cacheState.get(`${this.userId}:category`)
+      const categoryId = await this.cacheState.get(`${this.from!.id}:category`)
       if (!categoryId) {
         await new CategoryPage(this).bdefault.show(true)
       } else {

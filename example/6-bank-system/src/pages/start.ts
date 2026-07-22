@@ -11,18 +11,14 @@ export class StartPage extends PageBase {
     await this.bdefault.show(false)
   }
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
   bdefault = {
     show: async (isEdit = true) => {
       const kb = this.inlineKeyboardT([BalancePage, DepositPage, WithdrawPage, TransferPage, HistoryPage], `2`)
-      if (isEdit) {
-        await this.edit(kb)
-      } else {
-        await this.reply(kb)
-      }
+      await this.renderAuto(kb, null, null, null, isEdit)
     }
   }
 

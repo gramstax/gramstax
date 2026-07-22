@@ -6,11 +6,7 @@ class Helper {
   static async built(ctx: GeneralStatusPage, isNotFound: boolean, isEdit = true) {
     const kb = ctx.inlineKeyboardT([StartPage])
     const da = {isNotFound}
-    if (isEdit) {
-      await ctx.edit(kb, da)
-    } else {
-      await ctx.reply(kb, da)
-    }
+    await ctx.renderAuto(kb, da, null, null, isEdit)
   }
 }
 

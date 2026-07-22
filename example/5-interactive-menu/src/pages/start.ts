@@ -22,7 +22,7 @@ export class StartPage extends PageBase {
     await this.bindex.show(false)
   }
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bindex.show(true)
   }
 
@@ -30,15 +30,13 @@ export class StartPage extends PageBase {
     show: async (isEdit = false) => {
       const bi = Base.index
       const ikb = this.inlineKeyboardT([CategoryPage, InlineWithRangePage, InlineWithoutRangePage, HelpPage, ResetPage], `2`)
-      if (isEdit) {
-        await this.edit(ikb, {}, bi)
-      } else {
-        await this.reply(ikb, {}, bi)
+      await this.renderAuto(ikb, {}, bi, null, isEdit)
+      if (!isEdit) {
         {
           const bi = Base.infoQuick
           const bkb = this.bottomKeyboardT(`2`, bi)
           const da = {}
-          await this.reply(bkb, da, bi)
+          await this.render(bkb, da, bi)
         }
       }
     }

@@ -17,18 +17,18 @@ class Helper {
     const hasMore = end < CatalogData.menuItems.length
     return ctx.inlineKeyboard((k, l) => {
       items.forEach((item) => {
-        k.text(item.name, ctx.data.callbackData(`item`, item.id)).row()
+        k.text(item.name, ctx.data.callbackQueryData(`item`, item.id)).row()
       })
 
       k.row()
       if (hasPrevious) {
-        k.text(l[0]!, ctx.data.callbackData(`page`, safePage - 1))
+        k.text(l[0]!, ctx.data.callbackQueryData(`page`, safePage - 1))
       }
-      k.text(`${l[2]} ${safePage + 1}`, BlankPage.data.callbackData())
+      k.text(`${l[2]} ${safePage + 1}`, BlankPage.data.callbackQueryData())
       if (hasMore) {
-        k.text(l[1]!, ctx.data.callbackData(`page`, safePage + 1))
+        k.text(l[1]!, ctx.data.callbackQueryData(`page`, safePage + 1))
       }
-      return k.row().text(l[3]!, StartPage.data.callbackData())
+      return k.row().text(l[3]!, StartPage.data.callbackQueryData())
     })
   }
 
@@ -42,12 +42,12 @@ class Helper {
 export class InlineWithoutRangePage extends PageBase {
   static data = this.buildData((step?: string, action?: string, page?: string) => [step, action, page])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(0, true)
   }
 
-  async handleArgsCallbackData() {
-    const [action, value] = this.callbackDataArgs
+  async handleArgsCallbackQueryData() {
+    const [action, value] = this.callbackQueryDataArgs
     await this.bdefault.process(action!, value!)
   }
 
@@ -56,11 +56,7 @@ export class InlineWithoutRangePage extends PageBase {
       const {pageNo: currentPage, safePage} = Helper.pageData(pageNo)
       const da = {pageNo: currentPage}
       const kb = Helper.kb(this, safePage)
-      if (isEdit) {
-        await this.edit(kb, da)
-      } else {
-        await this.reply(kb, da)
-      }
+      await this.renderAuto(kb, da, null, null, isEdit)
     },
     process: async (action: string, value: string) => {
       if (action === `page`) {

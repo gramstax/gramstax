@@ -6,11 +6,11 @@ import {ItemListPage} from "./item-list"
 // Category list page with dynamic inline buttons.
 export class CategoryPage extends PageBase {
   static data = this.buildData({
-    callbackData: (payload: string) => [payload],
+    callbackQueryData: (payload: string) => [payload],
     intentText: `Browse`
   })
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
@@ -18,8 +18,8 @@ export class CategoryPage extends PageBase {
     await this.bdefault.show(false)
   }
 
-  async handleArgsCallbackData() {
-    const categoryId = this.callbackDataArg
+  async handleArgsCallbackQueryData() {
+    const categoryId = this.callbackQueryDataArg
     await this.bdefault.process(categoryId!)
   }
 
@@ -27,22 +27,18 @@ export class CategoryPage extends PageBase {
     show: async (isEdit = true) => {
       const kb = this.inlineKeyboard((k, l) => {
         CatalogData.list.forEach((category, index) => {
-          k.text(category.name, this.data.callbackData(category.id))
+          k.text(category.name, this.data.callbackQueryData(category.id))
           if (index % 2 === 1) {
             k.row()
           }
         })
-        return k.row().text(l[0]!, StartPage.data.callbackData())
+        return k.row().text(l[0]!, StartPage.data.callbackQueryData())
       })
-      if (isEdit) {
-        await this.edit(kb)
-      } else {
-        await this.reply(kb)
-      }
+      await this.renderAuto(kb, null, null, null, isEdit)
     },
     process: async (categoryId: string) => {
-      await this.cacheState.set(`${this.userId}:category`, categoryId)
-      await this.cacheState.set(`${this.userId}:page`, 0)
+      await this.cacheState.set(`${this.from!.id}:category`, categoryId)
+      await this.cacheState.set(`${this.from!.id}:page`, 0)
       await new ItemListPage(this).bdefault.show(categoryId, 0, true)
     }
   }

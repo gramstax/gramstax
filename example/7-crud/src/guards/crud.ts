@@ -3,7 +3,7 @@ import type {CtxCore} from "~/core/ctx"
 export class CrudGuard {
   static async ensureUser(ctx: CtxCore) {
     await ctx.db.init()
-    ctx.db.sequences.ensure(ctx.userId)
+    ctx.db.sequences.ensure(ctx.from!.id!)
     return true
   }
 }

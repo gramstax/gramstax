@@ -6,8 +6,8 @@ import {ItemListPage} from "./item-list"
 export class ItemDetailPage extends PageBase {
   static data = this.buildData((action?: string, categoryId?: string, itemId?: string) => [action, categoryId, itemId])
 
-  async handleArgsCallbackData() {
-    const [action, categoryId, itemId] = this.callbackDataArgs
+  async handleArgsCallbackQueryData() {
+    const [action, categoryId, itemId] = this.callbackQueryDataArgs
     if (action !== `detail` || !categoryId || !itemId) {
       return
     }
@@ -17,14 +17,14 @@ export class ItemDetailPage extends PageBase {
   bdefault = {
     show: async (categoryId: string, itemId: string) => {
       const item = CatalogData.getItemById(categoryId, itemId)
-      const getPage = await this.cacheState.get(`${this.userId}:page`)
+      const getPage = await this.cacheState.get(`${this.from!.id}:page`)
       const page = Number(getPage ?? 0)
-      const kb = this.inlineKeyboardT([ItemListPage.data.callbackData(`${page}`)], `1`)
+      const kb = this.inlineKeyboardT([ItemListPage.data.callbackQueryData(`${page}`)], `1`)
       const da = {
         name: item?.name,
         description: item?.description
       }
-      await this.edit(kb, da)
+      await this.renderEdit(kb, da)
     }
   }
 

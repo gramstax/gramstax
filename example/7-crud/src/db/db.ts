@@ -13,7 +13,6 @@ export class Db extends LmdbEnv {
 
   async init() {
     if (this.items) return
-    await this.open()
     this.items = this.register(ItemRepository)
     this.sequences = this.register(SequenceRepository)
   }

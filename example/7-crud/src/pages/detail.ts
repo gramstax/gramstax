@@ -18,17 +18,17 @@ class Helper {
 
 // Shows a single item by ID.
 export class DetailPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bindex.show()
   }
 
   async handleSessionFreeText() {
-    const id = this.msgText.trim()
+    const id = this.msg!.text!.trim()
     if (!id) {
       await this.bwarnInvalid.show()
     }
 
-    const item = await this.db.items.fetch(this.userId, id)
+    const item = await this.db.items.fetch(this.from!.id, id)
     if (!item) {
       await this.binfoNotFound.show(id)
     } else {
@@ -41,7 +41,7 @@ export class DetailPage extends PageBase {
       const bi = Base.index
       const kb = Helper.buildHomeKeyboard(this, bi)
       await this.setSessionFreeText()
-      await this.edit(kb, {}, bi)
+      await this.renderEdit(kb, {}, bi)
     }
   }
   bsuccess = {
@@ -60,7 +60,7 @@ export class DetailPage extends PageBase {
         createdAt,
         updatedAt
       }
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
   binfoNotFound = {
@@ -69,14 +69,14 @@ export class DetailPage extends PageBase {
       const bi = Base.infoNotFound
       const kb = Helper.buildHomeKeyboard(this, bi)
       const da = {id}
-      await this.reply(kb, da, bi)
+      await this.render(kb, da, bi)
     }
   }
   bwarnInvalid = {
     show: async () => {
       const bi = Base.warnInvalid
       const kb = Helper.buildHomeKeyboard(this, bi)
-      await this.reply(kb, {}, bi)
+      await this.render(kb, {}, bi)
     }
   }
 

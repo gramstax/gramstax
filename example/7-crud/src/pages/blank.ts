@@ -1,8 +1,8 @@
 import {PageBase} from "~/base/page"
 
 export class BlankPage extends PageBase {
-  async handleCallbackData() {
-    await this.callbackQueryAnswer()
+  async handleCallbackQueryData() {
+    await this.answerCallbackQuery()
   }
 
   static template = ``

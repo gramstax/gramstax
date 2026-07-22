@@ -12,7 +12,7 @@ export class StartPage extends PageBase {
     await this.gdefault.show(false)
   }
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.gdefault.show(true)
   }
 
@@ -20,11 +20,7 @@ export class StartPage extends PageBase {
     show: async (isEdit: boolean) => {
       await this.clearSession()
       const kb = this.inlineKeyboardT([CreatePage, ListPage, DetailPage, UpdatePage, DeletePage, HelpPage], `2`)
-      if (isEdit) {
-        await this.edit(kb)
-      } else {
-        await this.reply(kb)
-      }
+      await this.renderAuto(kb, null, null, null, isEdit)
     }
   }
 
