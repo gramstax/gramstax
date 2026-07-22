@@ -13,7 +13,7 @@ class BroadcastCtx extends Ctx {
   static data = this.buildData({name: `broadcast`})
 }
 
-describe(`Ctx.broadcastMedia`, () => {
+describe(`Ctx.renderBroadcastMedia`, () => {
   beforeEach(async () => {
     if (existsSync(TEST_DIR)) {
       await rm(TEST_DIR, {recursive: true, force: true})
@@ -55,7 +55,7 @@ describe(`Ctx.broadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.broadcastMedia([1, 2], [`default`, `id`])
+    await ctx.renderBroadcastMedia([1, 2], [`default`, `id`])
 
     expect(sendPhoto).toHaveBeenCalledTimes(2)
     expect(sendPhoto).toHaveBeenNthCalledWith(1, 1, `photo-default.jpg`, expect.objectContaining({caption: `Hello`, parse_mode: `HTML`}))
@@ -75,7 +75,7 @@ describe(`Ctx.broadcastMedia`, () => {
     const templateManager = new TemplateManager({path: [TEST_DIR]})
 
     const sendPhoto = mock(() => true)
-    const sendMediaGroup = mock(() => true)
+    const sendMediaGroup = mock<(chatId: number, media: unknown[], other?: unknown, signal?: unknown) => Promise<unknown>>(() => true as any)
     const ct = {
       api: {
         sendPhoto,
@@ -91,19 +91,15 @@ describe(`Ctx.broadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.broadcastMedia([1], [`default`], new InlineKeyboard())
+    await ctx.renderBroadcastMedia([1], [`default`], new InlineKeyboard())
 
     expect(sendPhoto).not.toHaveBeenCalled()
     expect(sendMediaGroup).toHaveBeenCalledTimes(1)
-    expect(sendMediaGroup).toHaveBeenCalledWith(
-      1,
-      [
-        {type: `photo`, media: `one.jpg`, caption: `Album`, parse_mode: `HTML`},
-        {type: `photo`, media: `two.jpg`},
-        {type: `photo`, media: `three.jpg`}
-      ],
-      {}
-    )
+    expect(sendMediaGroup.mock.calls[0]![1]).toEqual([
+      {type: `photo`, media: `one.jpg`, caption: `Album`, parse_mode: `HTML`},
+      {type: `photo`, media: `two.jpg`},
+      {type: `photo`, media: `three.jpg`}
+    ])
   })
 
   it(`should keep unsupported pipe-delimited media types on single-send path`, async () => {
@@ -135,7 +131,7 @@ describe(`Ctx.broadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.broadcastMedia([1], [`default`])
+    await ctx.renderBroadcastMedia([1], [`default`])
 
     expect(sendMediaGroup).not.toHaveBeenCalled()
     expect(sendAnimation).toHaveBeenCalledTimes(1)
@@ -155,11 +151,11 @@ describe(`Ctx.broadcastMedia`, () => {
     const templateManager = new TemplateManager({path: [TEST_DIR]})
 
     const replyWithDocument = mock(() => true)
-    const replyWithMediaGroup = mock(() => true)
+    const replyWithMediaGroup = mock<(chatId: number, media: unknown[], other?: unknown, signal?: unknown) => Promise<unknown>>(() => true as any)
     const ct = {
       from: {language_code: `default`},
-      replyWithDocument,
-      replyWithMediaGroup
+      update: {message: {chat: {id: 1}, from: {language_code: `default`}, message_id: 1}},
+      api: {sendDocument: replyWithDocument, sendMediaGroup: replyWithMediaGroup}
     } as unknown as ITCtxParams[`ct`]
 
     const ctx = new BroadcastCtx({
@@ -170,23 +166,22 @@ describe(`Ctx.broadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.replyMediaGroup(`document`)
+    await ctx.renderMediaGroup(`document`)
 
     expect(replyWithDocument).not.toHaveBeenCalled()
     expect(replyWithMediaGroup).toHaveBeenCalledTimes(1)
-    expect(replyWithMediaGroup).toHaveBeenCalledWith(
-      [
-        {type: `document`, media: `one.pdf`, caption: `Docs`, parse_mode: `HTML`},
-        {type: `document`, media: `two.pdf`}
-      ],
-      {}
-    )
+    expect(replyWithMediaGroup.mock.calls[0]![1]).toEqual([
+      {type: `document`, media: `one.pdf`, caption: `Docs`, parse_mode: `HTML`},
+      {type: `document`, media: `two.pdf`}
+    ])
   })
 
   it(`should expose convenience media group reply methods for all supported group types`, async () => {
+    const sendMediaGroup = mock<(chatId: number, media: unknown[], other?: unknown, signal?: unknown) => Promise<unknown>>(() => true as any)
     const ct = {
       from: {language_code: `default`},
-      replyWithMediaGroup: mock(() => true)
+      update: {message: {chat: {id: 1}, from: {language_code: `default`}, message_id: 1}},
+      api: {sendMediaGroup}
     } as unknown as ITCtxParams[`ct`]
     const templateManager = {
       getGMedia: mock((key: string) => ({
@@ -218,16 +213,16 @@ describe(`Ctx.broadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     }
 
-    await new PhotoGroupCtx(params).replyPhotoGroup()
-    await new VideoGroupCtx(params).replyVideoGroup()
-    await new AudioGroupCtx(params).replyAudioGroup()
-    await new DocumentGroupCtx(params).replyDocumentGroup()
+    await new PhotoGroupCtx(params).renderPhotoGroup()
+    await new VideoGroupCtx(params).renderVideoGroup()
+    await new AudioGroupCtx(params).renderAudioGroup()
+    await new DocumentGroupCtx(params).renderDocumentGroup()
 
-    expect(ct.replyWithMediaGroup).toHaveBeenCalledTimes(4)
-    expect(ct.replyWithMediaGroup).toHaveBeenNthCalledWith(1, [{type: `photo`, media: `one`, caption: `photoGroup`, parse_mode: `HTML`}, {type: `photo`, media: `two`}], {})
-    expect(ct.replyWithMediaGroup).toHaveBeenNthCalledWith(2, [{type: `video`, media: `one`, caption: `videoGroup`, parse_mode: `HTML`}, {type: `video`, media: `two`}], {})
-    expect(ct.replyWithMediaGroup).toHaveBeenNthCalledWith(3, [{type: `audio`, media: `one`, caption: `audioGroup`, parse_mode: `HTML`}, {type: `audio`, media: `two`}], {})
-    expect(ct.replyWithMediaGroup).toHaveBeenNthCalledWith(4, [{type: `document`, media: `one`, caption: `documentGroup`, parse_mode: `HTML`}, {type: `document`, media: `two`}], {})
+    expect(sendMediaGroup).toHaveBeenCalledTimes(4)
+    expect(sendMediaGroup.mock.calls[0]![1]).toEqual([{type: `photo`, media: `one`, caption: `photoGroup`, parse_mode: `HTML`}, {type: `photo`, media: `two`}])
+    expect(sendMediaGroup.mock.calls[1]![1]).toEqual([{type: `video`, media: `one`, caption: `videoGroup`, parse_mode: `HTML`}, {type: `video`, media: `two`}])
+    expect(sendMediaGroup.mock.calls[2]![1]).toEqual([{type: `audio`, media: `one`, caption: `audioGroup`, parse_mode: `HTML`}, {type: `audio`, media: `two`}])
+    expect(sendMediaGroup.mock.calls[3]![1]).toEqual([{type: `document`, media: `one`, caption: `documentGroup`, parse_mode: `HTML`}, {type: `document`, media: `two`}])
   })
 
   it(`should reply with mixed photo and video media-group block`, async () => {
@@ -246,10 +241,11 @@ describe(`Ctx.broadcastMedia`, () => {
 
     const templateManager = new TemplateManager({path: [TEST_DIR]})
 
-    const replyWithMediaGroup = mock(() => true)
+    const replyWithMediaGroup = mock<(chatId: number, media: unknown[], other?: unknown, signal?: unknown) => Promise<unknown>>(() => true as any)
     const ct = {
       from: {language_code: `default`},
-      replyWithMediaGroup
+      update: {message: {chat: {id: 1}, from: {language_code: `default`}, message_id: 1}},
+      api: {sendMediaGroup: replyWithMediaGroup}
     } as unknown as ITCtxParams[`ct`]
 
     const ctx = new BroadcastCtx({
@@ -260,16 +256,13 @@ describe(`Ctx.broadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.replyMediaGroup(undefined, {photoUrl: `photo.jpg`, videoUrl: `video.mp4`, title: `Album`})
+    await ctx.renderMediaGroup(undefined, {photoUrl: `photo.jpg`, videoUrl: `video.mp4`, title: `Album`})
 
-    expect(replyWithMediaGroup).toHaveBeenCalledWith(
-      [
-        {type: `photo`, media: `photo.jpg`, caption: `Mixed Album`, parse_mode: `HTML`},
-        {type: `video`, media: `video.mp4`},
-        {type: `photo`, media: `static.jpg`}
-      ],
-      {}
-    )
+    expect(replyWithMediaGroup.mock.calls[0]![1]).toEqual([
+      {type: `photo`, media: `photo.jpg`, caption: `Mixed Album`, parse_mode: `HTML`},
+      {type: `video`, media: `video.mp4`},
+      {type: `photo`, media: `static.jpg`}
+    ])
   })
 
   it(`should respect lang attribute on inner media items inside media-group`, async () => {
@@ -288,10 +281,11 @@ describe(`Ctx.broadcastMedia`, () => {
 
     const templateManager = new TemplateManager({path: [TEST_DIR]})
 
-    const replyWithMediaGroup = mock(() => true)
+    const replyWithMediaGroup = mock<(chatId: number, media: unknown[], other?: unknown, signal?: unknown) => Promise<unknown>>(() => true as any)
     const ct = {
       from: {language_code: `default`},
-      replyWithMediaGroup
+      update: {message: {chat: {id: 1}, from: {language_code: `default`}, message_id: 1}},
+      api: {sendMediaGroup: replyWithMediaGroup}
     } as unknown as ITCtxParams[`ct`]
 
     const ctxDefault = new BroadcastCtx({
@@ -303,16 +297,13 @@ describe(`Ctx.broadcastMedia`, () => {
     })
 
     // Default language: only items without lang (2 items)
-    await ctxDefault.replyMediaGroup(undefined)
+    await ctxDefault.renderMediaGroup(undefined)
 
     expect(replyWithMediaGroup).toHaveBeenCalledTimes(1)
-    expect(replyWithMediaGroup).toHaveBeenCalledWith(
-      [
-        {type: `photo`, media: `en.jpg`, caption: `English`, parse_mode: `HTML`},
-        {type: `photo`, media: `shared.jpg`}
-      ],
-      {}
-    )
+    expect(replyWithMediaGroup.mock.calls[0]![1]).toEqual([
+      {type: `photo`, media: `en.jpg`, caption: `English`, parse_mode: `HTML`},
+      {type: `photo`, media: `shared.jpg`}
+    ])
   })
 
   it(`should replace editMedia with media group reply for supported pipe-delimited media src values`, async () => {
@@ -329,12 +320,11 @@ describe(`Ctx.broadcastMedia`, () => {
 
     const deleteMessage = mock(() => true)
     const editMessageMedia = mock(() => true)
-    const replyWithMediaGroup = mock(() => true)
+    const replyWithMediaGroup = mock<(chatId: number, media: unknown[], other?: unknown, signal?: unknown) => Promise<unknown>>(() => true as any)
     const ct = {
       from: {language_code: `default`},
-      deleteMessage,
-      editMessageMedia,
-      replyWithMediaGroup
+      update: {message: {chat: {id: 1}, message_id: 1}},
+      api: {deleteMessage, editMessageMedia, sendMediaGroup: replyWithMediaGroup}
     } as unknown as ITCtxParams[`ct`]
 
     const ctx = new BroadcastCtx({
@@ -345,26 +335,23 @@ describe(`Ctx.broadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     })
 
-    await ctx.editMedia(`video`)
+    await ctx.renderEditMedia(`video`)
 
     expect(editMessageMedia).not.toHaveBeenCalled()
     expect(deleteMessage).toHaveBeenCalledTimes(1)
-    expect(replyWithMediaGroup).toHaveBeenCalledWith(
-      [
-        {type: `video`, media: `one.mp4`, caption: `Videos`, parse_mode: `HTML`},
-        {type: `video`, media: `two.mp4`}
-      ],
-      {}
-    )
+    expect(replyWithMediaGroup.mock.calls[0]![1]).toEqual([
+      {type: `video`, media: `one.mp4`, caption: `Videos`, parse_mode: `HTML`},
+      {type: `video`, media: `two.mp4`}
+    ])
   })
 
   it(`should expose convenience edit media group methods for all supported group types`, async () => {
     const deleteMessage = mock(() => true)
-    const replyWithMediaGroup = mock(() => true)
+    const replyWithMediaGroup = mock<(chatId: number, media: unknown[], other?: unknown, signal?: unknown) => Promise<unknown>>(() => true as any)
     const ct = {
       from: {language_code: `default`},
-      deleteMessage,
-      replyWithMediaGroup
+      update: {message: {chat: {id: 1}, message_id: 1}},
+      api: {deleteMessage, sendMediaGroup: replyWithMediaGroup}
     } as unknown as ITCtxParams[`ct`]
     const templateManager = {
       getGMedia: mock((key: string) => ({
@@ -396,16 +383,17 @@ describe(`Ctx.broadcastMedia`, () => {
       temp: {isAnswer: false, session: {}, data: {}}
     }
 
-    await new PhotoGroupEditCtx(params).editPhotoGroup()
-    await new VideoGroupEditCtx(params).editVideoGroup()
-    await new AudioGroupEditCtx(params).editAudioGroup()
-    await new DocumentGroupEditCtx(params).editDocumentGroup()
+    await new PhotoGroupEditCtx(params).renderEditPhotoGroup()
+    await new VideoGroupEditCtx(params).renderEditVideoGroup()
+    await new AudioGroupEditCtx(params).renderEditAudioGroup()
+    await new DocumentGroupEditCtx(params).renderEditDocumentGroup()
 
     expect(deleteMessage).toHaveBeenCalledTimes(4)
     expect(replyWithMediaGroup).toHaveBeenCalledTimes(4)
-    expect(replyWithMediaGroup).toHaveBeenNthCalledWith(1, [{type: `photo`, media: `one`, caption: `photoGroupEdit`, parse_mode: `HTML`}, {type: `photo`, media: `two`}], {})
-    expect(replyWithMediaGroup).toHaveBeenNthCalledWith(2, [{type: `video`, media: `one`, caption: `videoGroupEdit`, parse_mode: `HTML`}, {type: `video`, media: `two`}], {})
-    expect(replyWithMediaGroup).toHaveBeenNthCalledWith(3, [{type: `audio`, media: `one`, caption: `audioGroupEdit`, parse_mode: `HTML`}, {type: `audio`, media: `two`}], {})
-    expect(replyWithMediaGroup).toHaveBeenNthCalledWith(4, [{type: `document`, media: `one`, caption: `documentGroupEdit`, parse_mode: `HTML`}, {type: `document`, media: `two`}], {})
+    expect(replyWithMediaGroup).toHaveBeenCalledTimes(4)
+    expect(replyWithMediaGroup.mock.calls[0]![1]).toEqual([{type: `photo`, media: `one`, caption: `photoGroupEdit`, parse_mode: `HTML`}, {type: `photo`, media: `two`}])
+    expect(replyWithMediaGroup.mock.calls[1]![1]).toEqual([{type: `video`, media: `one`, caption: `videoGroupEdit`, parse_mode: `HTML`}, {type: `video`, media: `two`}])
+    expect(replyWithMediaGroup.mock.calls[2]![1]).toEqual([{type: `audio`, media: `one`, caption: `audioGroupEdit`, parse_mode: `HTML`}, {type: `audio`, media: `two`}])
+    expect(replyWithMediaGroup.mock.calls[3]![1]).toEqual([{type: `document`, media: `one`, caption: `documentGroupEdit`, parse_mode: `HTML`}, {type: `document`, media: `two`}])
   })
 })

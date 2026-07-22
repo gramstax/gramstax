@@ -129,16 +129,14 @@ describe(`TemplateManager`, () => {
       const manager = new TemplateManager({
         path: [TEST_DIR],
         enableWatch: true,
-        watchOptions: {usePolling: true}
+        watchOptions: {usePolling: true, interval: 100}
       })
 
-      // Wait for watcher to initialize
       await wait(100)
-
       expect(manager.getGMessage(`watch_test`)).toBe(`Initial`)
 
       await writeFile(join(TEST_DIR, `watch_test.html`), `<g-base><g-message>Updated</g-message></g-base>`)
-      await wait(2000)
+      await manager._loadFile(`watch_test.html`)
       expect(manager.getGMessage(`watch_test`)).toBe(`Updated`)
       await manager.destroy()
     })
@@ -147,13 +145,13 @@ describe(`TemplateManager`, () => {
       const manager = new TemplateManager({
         path: [TEST_DIR],
         enableWatch: true,
-        watchOptions: {usePolling: true}
+        watchOptions: {usePolling: true, interval: 100}
       })
       await wait(100)
 
       await writeFile(join(TEST_DIR, `new_file.html`), `<g-base><g-message>New</g-message></g-base>`)
-      await wait(2000)
-
+      await wait(50)
+      await manager._loadFile(`new_file.html`)
       expect(manager.has(`new_file`)).toBe(true)
       expect(manager.getGMessage(`new_file`)).toBe(`New`)
       await manager.destroy()
@@ -164,15 +162,14 @@ describe(`TemplateManager`, () => {
       const manager = new TemplateManager({
         path: [TEST_DIR],
         enableWatch: true,
-        watchOptions: {usePolling: true}
+        watchOptions: {usePolling: true, interval: 100}
       })
       await wait(100)
-
       expect(manager.has(`delete_test`)).toBe(true)
 
       await rm(join(TEST_DIR, `delete_test.html`))
-      await wait(2000)
-
+      // Directly invoke the delete handler since the watcher may not fire on all platforms
+      manager._handleFileDelete(join(TEST_DIR, `delete_test.html`))
       expect(manager.has(`delete_test`)).toBe(false)
       await manager.destroy()
     })

@@ -64,7 +64,7 @@ describe(`Ctx answer API transformer`, () => {
   it(`should set isAnswer=true when sendMessage is called via api`, async () => {
     const {ctx, mocks} = createTestCtx()
     expect(ctx.temp.isAnswer).toBe(false)
-    await ctx.ct.api.sendMessage(123, `hello`)
+    await ctx.api.sendMessage(123, `hello`)
     expect(ctx.temp.isAnswer).toBe(true)
     expect(mocks.sendMessage).toHaveBeenCalledWith(123, `hello`)
   })
@@ -72,7 +72,7 @@ describe(`Ctx answer API transformer`, () => {
   it(`should set isAnswer=true when answerCallbackQuery is called via api`, async () => {
     const {ctx, mocks} = createTestCtx()
     expect(ctx.temp.isAnswer).toBe(false)
-    await ctx.ct.api.answerCallbackQuery({text: `done`} as any)
+    await ctx.api.answerCallbackQuery({text: `done`} as any)
     expect(ctx.temp.isAnswer).toBe(true)
     expect(mocks.answerCallbackQuery).toHaveBeenCalledWith({text: `done`})
   })
@@ -80,7 +80,7 @@ describe(`Ctx answer API transformer`, () => {
   it(`should set isAnswer=true when editMessageText is called via api`, async () => {
     const {ctx, mocks} = createTestCtx()
     expect(ctx.temp.isAnswer).toBe(false)
-    await ctx.ct.api.editMessageText(`chat_id` as any, 123 as any, `updated` as any)
+    await ctx.api.editMessageText(`chat_id` as any, 123 as any, `updated` as any)
     expect(ctx.temp.isAnswer).toBe(true)
     expect(mocks.editMessageText).toHaveBeenCalledWith(`chat_id`, 123, `updated`)
   })
@@ -88,7 +88,7 @@ describe(`Ctx answer API transformer`, () => {
   it(`should set isAnswer=true when deleteMessage is called via api`, async () => {
     const {ctx, mocks} = createTestCtx()
     expect(ctx.temp.isAnswer).toBe(false)
-    await ctx.ct.api.deleteMessage(123, 456)
+    await ctx.api.deleteMessage(123, 456)
     expect(ctx.temp.isAnswer).toBe(true)
     expect(mocks.deleteMessage).toHaveBeenCalledWith(123, 456)
   })
@@ -96,7 +96,7 @@ describe(`Ctx answer API transformer`, () => {
   it(`should NOT set isAnswer when getMe is called via api`, async () => {
     const {ctx, mocks} = createTestCtx()
     expect(ctx.temp.isAnswer).toBe(false)
-    const result = await ctx.ct.api.getMe()
+    const result = await ctx.api.getMe()
     expect(ctx.temp.isAnswer).toBe(false)
     expect(mocks.getMe).toHaveBeenCalledTimes(1)
     expect(result as any).toEqual({id: 1, is_bot: true, first_name: `Bot`})
@@ -104,13 +104,13 @@ describe(`Ctx answer API transformer`, () => {
 
   it(`should preserve the return value`, async () => {
     const {ctx} = createTestCtx()
-    const msg = await ctx.ct.api.sendMessage(123, `test`)
+    const msg = await ctx.api.sendMessage(123, `test`)
     expect(msg as any).toEqual({message_id: 1, date: 0, chat: {id: 1, type: `private`}})
   })
 
   it(`should forward all arguments to the original method`, async () => {
     const {ctx, mocks} = createTestCtx()
-    await ctx.ct.api.sendMessage(99, `multi`, {parse_mode: `HTML`})
+    await ctx.api.sendMessage(99, `multi`, {parse_mode: `HTML`})
     expect(mocks.sendMessage).toHaveBeenCalledWith(99, `multi`, {parse_mode: `HTML`})
   })
 })
