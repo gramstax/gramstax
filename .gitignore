@@ -2,6 +2,7 @@ real-projects
 database
 data
 *.mdb
+.codegraph
 
 # dependencies (bun install)
 node_modules
