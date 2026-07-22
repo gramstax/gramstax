@@ -5,12 +5,12 @@ import {StatsPage} from "./stats"
 export class StartPage extends PageBase {
   static data = this.buildData((action?: string) => [action])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
-  async handleArgsCallbackData() {
-    const action = this.callbackDataArg
+  async handleArgsCallbackQueryData() {
+    const action = this.callbackQueryDataArg
     await this.bdefault.process(action)
   }
 
@@ -21,25 +21,21 @@ export class StartPage extends PageBase {
   bdefault = {
     show: async (isEdit = true) => {
       await this.clearSession()
-      const subscribed = await this.db.subs.isSubscribed(this.userId)
+      const subscribed = await this.db.subs.isSubscribed(this.from!.id)
       const da = {subscribed}
-      const kb = this.inlineKeyboardT([StartPage.data.callbackData(`switch`), StatsPage, HelpPage], `2`, null, da)
-      if (isEdit) {
-        await this.edit(kb, da)
-      } else {
-        await this.reply(kb, da)
-      }
+      const kb = this.inlineKeyboardT([StartPage.data.callbackQueryData(`switch`), StatsPage, HelpPage], `2`, null, da)
+      await this.renderAuto(kb, da, null, null, isEdit)
     },
     process: async (action: string) => {
       if (action === `switch`) {
-        const subscribed = await this.db.subs.isSubscribed(this.userId)
+        const subscribed = await this.db.subs.isSubscribed(this.from!.id)
         if (subscribed) {
-          await this.db.subs.unsubscribe(this.userId)
+          await this.db.subs.unsubscribe(this.from!.id)
         } else {
-          await this.db.subs.subscribe(this.userId, {
-            userName: this.userName,
-            fullName: this.userFullName,
-            language: this.userLanguage
+          await this.db.subs.subscribe(this.from!.id, {
+            userName: this.from?.username,
+            fullName: this.fromFullName,
+            language: this.from?.language_code
           })
         }
         await this.bdefault.show(true)

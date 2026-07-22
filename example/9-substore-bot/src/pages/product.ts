@@ -14,8 +14,8 @@ class Base {
 export class ProductPage extends PageBase {
   static data = this.buildData((action?: string, productId?: string) => [action, productId])
 
-  async handleArgsCallbackData() {
-    const [action, productId] = this.callbackDataArgs
+  async handleArgsCallbackQueryData() {
+    const [action, productId] = this.callbackQueryDataArgs
     if (action === `detail` && productId) {
       await this.bindex.show(productId)
     } else {
@@ -30,7 +30,7 @@ export class ProductPage extends PageBase {
         return await this.bwarnMissing.show()
       }
 
-      const kb = this.inlineKeyboardT([this.data.callbackData(`buy`, productId), this.data.callbackData(`add`, productId), CartPage, CatalogPage], `2-1`, Base.index)
+      const kb = this.inlineKeyboardT([this.data.callbackQueryData(`buy`, productId), this.data.callbackQueryData(`add`, productId), CartPage, CatalogPage], `2-1`, Base.index)
       const da = {
         name: product.name,
         service: product.service,
@@ -42,7 +42,7 @@ export class ProductPage extends PageBase {
         benefits: product.benefits.map((benefit) => `• ${benefit}`).join(`\n`),
         delivery: product.deliveryEstimate
       }
-      await this.edit(kb, da, Base.index)
+      await this.renderEdit(kb, da, Base.index)
     },
     process: async (action?: string, productId?: string) => {
       if (!productId) {
@@ -58,9 +58,9 @@ export class ProductPage extends PageBase {
         return await this.bwarnStock.show(productId)
       }
 
-      const cart = ((await this.cacheState.get(`${this.userId}:cart`)) ?? {}) as CartState
+      const cart = ((await this.cacheState.get(`${this.from!.id}:cart`)) ?? {}) as CartState
       const next = CartStore.addItem(cart, productId)
-      await this.cacheState.set(`${this.userId}:cart`, next)
+      await this.cacheState.set(`${this.from!.id}:cart`, next)
 
       if (action === `buy`) {
         await new CheckoutPage(this).bindex.show()
@@ -75,7 +75,7 @@ export class ProductPage extends PageBase {
       const product = ProductCatalog.getById(productId)
       const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.infoAdded)
       const da = {name: product?.name ?? `Selected product`}
-      await this.edit(kb, da, Base.infoAdded)
+      await this.renderEdit(kb, da, Base.infoAdded)
     }
   }
 
@@ -84,14 +84,14 @@ export class ProductPage extends PageBase {
       const product = ProductCatalog.getById(productId)
       const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.warnStock)
       const da = {name: product?.name ?? `This product`}
-      await this.edit(kb, da, Base.warnStock)
+      await this.renderEdit(kb, da, Base.warnStock)
     }
   }
 
   bwarnMissing = {
     show: async () => {
       const kb = this.inlineKeyboardT([CatalogPage, CartPage], `2`, Base.warnMissing)
-      await this.edit(kb, {}, Base.warnMissing)
+      await this.renderEdit(kb, {}, Base.warnMissing)
     }
   }
 

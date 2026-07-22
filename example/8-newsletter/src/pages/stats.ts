@@ -2,17 +2,17 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class StatsPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show()
   }
 
   bdefault = {
     show: async () => {
       const count = await this.db.subs.total()
-      const subscribed = await this.db.subs.isSubscribed(this.userId)
+      const subscribed = await this.db.subs.isSubscribed(this.from!.id)
       const kb = this.inlineKeyboardT([StartPage])
       const da = {count, subscribed}
-      await this.edit(kb, da)
+      await this.renderEdit(kb, da)
     }
   }
 

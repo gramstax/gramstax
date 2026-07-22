@@ -12,7 +12,6 @@ export class Db extends LmdbEnv {
 
   async init() {
     if (this.subs) return
-    await this.open()
     this.subs = this.register(SubscriberRepository)
   }
 }

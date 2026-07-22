@@ -13,12 +13,12 @@ class Base {
 export class CartPage extends PageBase {
   static data = this.buildData((step?: string, action?: string, productId?: string) => [step, action, productId])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bindex.show(true)
   }
 
-  async handleArgsCallbackData() {
-    const [step, action, productId] = this.callbackDataArgs
+  async handleArgsCallbackQueryData() {
+    const [step, action, productId] = this.callbackQueryDataArgs
     if (step === Base.index) {
       await this.bindex.process(action, productId)
     }
@@ -26,7 +26,7 @@ export class CartPage extends PageBase {
 
   bindex = {
     show: async (isEdit = true) => {
-      const cart = ((await this.cacheState.get(`${this.userId}:cart`)) ?? {}) as CartState
+      const cart = ((await this.cacheState.get(`${this.from!.id}:cart`)) ?? {}) as CartState
       const summary = CartStore.getSummary(cart)
       if (summary.isEmpty) {
         return await this.bempty.show()
@@ -36,17 +36,17 @@ export class CartPage extends PageBase {
       const kb = this.inlineKeyboard(
         (k, l) => {
           summary.items.forEach((item) => {
-            k.text(`${l[0]!} ${item.product.name}`, this.data.callbackData(bi, `inc`, item.product.id))
-            k.text(l[1]!, this.data.callbackData(bi, `dec`, item.product.id))
-            k.text(l[2]!, this.data.callbackData(bi, `remove`, item.product.id))
+            k.text(`${l[0]!} ${item.product.name}`, this.data.callbackQueryData(bi, `inc`, item.product.id))
+            k.text(l[1]!, this.data.callbackQueryData(bi, `dec`, item.product.id))
+            k.text(l[2]!, this.data.callbackQueryData(bi, `remove`, item.product.id))
             k.row()
           })
 
-          k.text(l[3]!, CheckoutPage.data.callbackData())
-          k.text(l[4]!, this.data.callbackData(bi, `clear`))
+          k.text(l[3]!, CheckoutPage.data.callbackQueryData())
+          k.text(l[4]!, this.data.callbackQueryData(bi, `clear`))
           k.row()
 
-          return k.text(l[5]!, CatalogPage.data.callbackData()).text(l[6]!, StartPage.data.callbackData())
+          return k.text(l[5]!, CatalogPage.data.callbackQueryData()).text(l[6]!, StartPage.data.callbackQueryData())
         },
         {AGBaseId: bi}
       )
@@ -55,14 +55,10 @@ export class CartPage extends PageBase {
         subtotal: ProductCatalog.formatPrice(summary.subtotal)
       }
 
-      if (isEdit) {
-        await this.edit(kb, da, bi)
-      } else {
-        await this.reply(kb, da, bi)
-      }
+      await this.renderAuto(kb, da, bi, null, isEdit)
     },
     process: async (action?: string, productId?: string) => {
-      const cart = ((await this.cacheState.get(`${this.userId}:cart`)) ?? {}) as CartState
+      const cart = ((await this.cacheState.get(`${this.from!.id}:cart`)) ?? {}) as CartState
 
       let next = cart
       if (action === `inc` && productId) {
@@ -73,11 +69,11 @@ export class CartPage extends PageBase {
         next = CartStore.removeItem(cart, productId)
       } else if (action === `clear`) {
         next = CartStore.clear()
-        await this.cacheState.set(`${this.userId}:cart`, next)
+        await this.cacheState.set(`${this.from!.id}:cart`, next)
         return await this.binfoCleared.show()
       }
 
-      await this.cacheState.set(`${this.userId}:cart`, next)
+      await this.cacheState.set(`${this.from!.id}:cart`, next)
       await this.bindex.show(true)
     }
   }
@@ -85,14 +81,14 @@ export class CartPage extends PageBase {
   bempty = {
     show: async () => {
       const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`, Base.empty)
-      await this.edit(kb, {}, Base.empty)
+      await this.renderEdit(kb, {}, Base.empty)
     }
   }
 
   binfoCleared = {
     show: async () => {
       const kb = this.inlineKeyboardT([CatalogPage, StartPage], `1`, Base.infoCleared)
-      await this.edit(kb, {}, Base.infoCleared)
+      await this.renderEdit(kb, {}, Base.infoCleared)
     }
   }
 

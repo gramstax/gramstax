@@ -8,7 +8,7 @@ export class StartPage extends PageBase {
     await this.bdefault.show(false)
   }
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
@@ -17,9 +17,9 @@ export class StartPage extends PageBase {
       await this.clearSession()
       const kb = this.inlineKeyboardT([HttpRequestPage, HelpPage], `1`)
       if (edit) {
-        await this.edit(kb, {})
+        await this.renderEdit(kb, {})
       } else {
-        await this.reply(kb, {})
+        await this.render(kb, {})
       }
     }
   }

@@ -17,11 +17,7 @@ export class GeneralStatusPage extends PageBase {
       await this.clearSession()
       const kb = this.inlineKeyboardT([StartPage])
       const da = {isNotFound: false}
-      if (isEdit) {
-        await this.edit(kb, da)
-      } else {
-        await this.reply(kb, da)
-      }
+      await this.renderAuto(kb, da, null, null, isEdit)
     }
   }
 
@@ -29,7 +25,7 @@ export class GeneralStatusPage extends PageBase {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage])
       const da = {isNotFound: true}
-      await this.reply(kb, da)
+      await this.render(kb, da)
     }
   }
 

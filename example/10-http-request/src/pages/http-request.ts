@@ -43,29 +43,22 @@ class Helper {
 
   static buildMethodKeyboard(ctx: HttpRequestPage) {
     return ctx.inlineKeyboardT(
-      [
-        HttpRequestPage.data.callbackData(`GET`),
-        HttpRequestPage.data.callbackData(`POST`),
-        HttpRequestPage.data.callbackData(`PUT`),
-        HttpRequestPage.data.callbackData(`DELETE`),
-        HttpRequestPage.data.callbackData(`PATCH`),
-        StartPage.data.callbackData()
-      ],
+      [HttpRequestPage.data.callbackQueryData(`GET`), HttpRequestPage.data.callbackQueryData(`POST`), HttpRequestPage.data.callbackQueryData(`PUT`), HttpRequestPage.data.callbackQueryData(`DELETE`), HttpRequestPage.data.callbackQueryData(`PATCH`), StartPage.data.callbackQueryData()],
       `3`,
       Base.method
     )
   }
 
   static buildUrlKeyboard(ctx: HttpRequestPage) {
-    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackData(`_back`), StartPage.data.callbackData()], `2`, Base.url)
+    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`_back`), StartPage.data.callbackQueryData()], `2`, Base.url)
   }
 
   static buildBodyKeyboard(ctx: HttpRequestPage) {
-    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackData(`_back`), StartPage.data.callbackData()], `2`, Base.body)
+    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`_back`), StartPage.data.callbackQueryData()], `2`, Base.body)
   }
 
   static buildTokenKeyboard(ctx: HttpRequestPage) {
-    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackData(`skip_token`), StartPage.data.callbackData()], `2`, Base.token)
+    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`skip_token`), StartPage.data.callbackQueryData()], `2`, Base.token)
   }
 
   static buildHomeKeyboard(ctx: HttpRequestPage) {
@@ -74,7 +67,7 @@ class Helper {
 
   static buildSuccessKeyboard(ctx: HttpRequestPage, viewMode: string) {
     const toggleLabel = viewMode === `formatted` ? `🔁 Raw` : `🔁 Formatted`
-    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackData(`toggle_view`), StartPage], `2`, Base.success, {toggleLabel})
+    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`toggle_view`), StartPage], `2`, Base.success, {toggleLabel})
   }
 }
 
@@ -82,12 +75,12 @@ class Helper {
 export class HttpRequestPage extends PageBase {
   static data = this.buildData((action: string) => [action])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bmethod.show()
   }
 
-  async handleArgsCallbackData() {
-    const args = this.callbackDataArgs
+  async handleArgsCallbackQueryData() {
+    const args = this.callbackQueryDataArgs
     const action = args[0]
     if (!action) return
     if (action === `_back`) {
@@ -102,7 +95,7 @@ export class HttpRequestPage extends PageBase {
   }
 
   async handleFreeText() {
-    const input = this.msgText.trim()
+    const input = this.msg!.text!.trim()
     const session = await this.getSession()
     const step = session?.params?.httpStep as string | undefined
     if (!step || step === `method` || step === `done`) {
@@ -119,18 +112,18 @@ export class HttpRequestPage extends PageBase {
   bmethod = {
     show: async () => {
       await this.clearSession()
-      await this.edit(Helper.buildMethodKeyboard(this), {}, Base.method)
+      await this.renderEdit(Helper.buildMethodKeyboard(this), {}, Base.method)
     }
   }
 
   burl = {
     show: async (method: string) => {
       await this.setSessionFreeText({httpStep: `url`, httpMethod: method})
-      await this.edit(Helper.buildUrlKeyboard(this), {method}, Base.url)
+      await this.renderEdit(Helper.buildUrlKeyboard(this), {method}, Base.url)
     },
     process: async (input: string, method: string, showToken = false) => {
       if (!HttpService.isValidUrl(input)) {
-        await this.edit(Helper.buildUrlKeyboard(this), {url: Helper.escapeHtml(input)}, Base.warnInvalid)
+        await this.renderEdit(Helper.buildUrlKeyboard(this), {url: Helper.escapeHtml(input)}, Base.warnInvalid)
         return
       }
 
@@ -155,7 +148,7 @@ export class HttpRequestPage extends PageBase {
   btoken = {
     show: async (method: string, url: string) => {
       await this.setSessionFreeText({httpStep: `token`, httpMethod: method, httpUrl: url})
-      await this.edit(Helper.buildTokenKeyboard(this), {method, url: Helper.escapeHtml(url)}, Base.token)
+      await this.renderEdit(Helper.buildTokenKeyboard(this), {method, url: Helper.escapeHtml(url)}, Base.token)
     },
     process: async (token: string | null) => {
       const session = await this.getSession()
@@ -191,7 +184,7 @@ export class HttpRequestPage extends PageBase {
     show: async (method: string, url: string) => {
       await this.setSessionFreeText({httpStep: `body`, httpMethod: method, httpUrl: url})
       const da = {method, url: Helper.escapeHtml(url)}
-      await this.edit(Helper.buildBodyKeyboard(this), da, Base.body)
+      await this.renderEdit(Helper.buildBodyKeyboard(this), da, Base.body)
     },
     process: async (body: string) => {
       const session = await this.getSession()
@@ -232,11 +225,7 @@ export class HttpRequestPage extends PageBase {
         headersText,
         bodyPreview
       }
-      if (isEdit) {
-        await this.edit(kb, da, Base.success)
-      } else {
-        await this.reply(kb, da, Base.success)
-      }
+      await this.renderAuto(kb, da, Base.success, null, isEdit)
     },
     process: async () => {
       const session = await this.getSession()
@@ -251,7 +240,7 @@ export class HttpRequestPage extends PageBase {
 
   bwarnInvalid = {
     show: async (url: string) => {
-      await this.edit(Helper.buildUrlKeyboard(this), {url: Helper.escapeHtml(url)}, Base.warnInvalid)
+      await this.renderEdit(Helper.buildUrlKeyboard(this), {url: Helper.escapeHtml(url)}, Base.warnInvalid)
     }
   }
 
@@ -260,9 +249,9 @@ export class HttpRequestPage extends PageBase {
       const kb = Helper.buildHomeKeyboard(this)
       const da = {url: Helper.escapeHtml(url), errorMessage: Helper.escapeHtml(errorMessage)}
       if (edit) {
-        await this.edit(kb, da, Base.warnNetwork)
+        await this.renderEdit(kb, da, Base.warnNetwork)
       } else {
-        await this.reply(kb, da, Base.warnNetwork)
+        await this.render(kb, da, Base.warnNetwork)
       }
     }
   }

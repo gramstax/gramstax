@@ -15,7 +15,7 @@ export class StartPage extends PageBase {
     await this.bdefault.show(false)
   }
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
@@ -23,11 +23,7 @@ export class StartPage extends PageBase {
     show: async (isEdit = false) => {
       await this.clearSession()
       const kb = this.inlineKeyboardT([CatalogPage, CartPage, HistoryPage, HelpPage], `2`)
-      if (isEdit) {
-        await this.edit(kb)
-      } else {
-        await this.reply(kb)
-      }
+      await this.renderAuto(kb, null, null, null, isEdit)
     }
   }
 

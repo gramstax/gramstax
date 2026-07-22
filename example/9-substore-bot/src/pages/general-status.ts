@@ -22,11 +22,7 @@ export class GeneralStatusPage extends PageBase {
       await this.clearSession()
       const kb = this.inlineKeyboardT([StartPage])
       const da = {isNotFound: false}
-      if (isEdit) {
-        await this.edit(kb, da)
-      } else {
-        await this.reply(kb, da)
-      }
+      await this.renderAuto(kb, da, null, null, isEdit)
     }
   }
 
@@ -34,18 +30,14 @@ export class GeneralStatusPage extends PageBase {
     show: async (code: string, error: unknown, isEdit = false) => {
       const kb = this.inlineKeyboardT([StartPage], `1`, Base.error)
       const da = {code, error: String(error)}
-      if (isEdit) {
-        await this.edit(kb, da, Base.error)
-      } else {
-        await this.reply(kb, da, Base.error)
-      }
+      await this.renderAuto(kb, da, Base.error, null, isEdit)
     }
   }
 
   bnotFound = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage], `1`, Base.notFound)
-      await this.reply(kb, {}, Base.notFound)
+      await this.render(kb, {}, Base.notFound)
     }
   }
 

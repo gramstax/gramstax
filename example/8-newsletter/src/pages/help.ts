@@ -2,14 +2,14 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class HelpPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show()
   }
 
   bdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage])
-      await this.edit(kb)
+      await this.renderEdit(kb)
     }
   }
 

@@ -6,6 +6,6 @@ export class CtxCore extends Ctx {
 
   constructor(params: ConstructorParameters<typeof Ctx>[0] & {db: Db}) {
     super({...params})
-    this.db = params.db
+    this.db = params.db ?? (params as any).ct?.db
   }
 }

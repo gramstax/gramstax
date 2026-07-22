@@ -25,19 +25,19 @@ class Base {
 
 class Helper {
   static async getCart(ctx: CheckoutPage): Promise<CartState> {
-    return ((await ctx.cacheState.get(`${ctx.userId}:cart`)) ?? {}) as CartState
+    return ((await ctx.cacheState.get(`${ctx.from!.id!}:cart`)) ?? {}) as CartState
   }
 
   static async setCart(ctx: CheckoutPage, cart: CartState) {
-    await ctx.cacheState.set(`${ctx.userId}:cart`, cart)
+    await ctx.cacheState.set(`${ctx.from!.id!}:cart`, cart)
   }
 
   static async getHistory(ctx: CheckoutPage): Promise<OrderRecord[]> {
-    return ((await ctx.cacheState.get(`${ctx.userId}:orders`)) ?? []) as OrderRecord[]
+    return ((await ctx.cacheState.get(`${ctx.from!.id!}:orders`)) ?? []) as OrderRecord[]
   }
 
   static async setHistory(ctx: CheckoutPage, history: OrderRecord[]) {
-    await ctx.cacheState.set(`${ctx.userId}:orders`, history)
+    await ctx.cacheState.set(`${ctx.from!.id!}:orders`, history)
   }
 
   static getSession(ctx: CheckoutPage): ICheckoutSession {
@@ -61,7 +61,7 @@ class Helper {
   }
 
   static kbConfirm(ctx: CheckoutPage, bi?: string) {
-    return ctx.inlineKeyboardT([ctx.data.callbackData(`confirm`), ctx.data.callbackData(`cancel`), CartPage], `2`, bi)
+    return ctx.inlineKeyboardT([ctx.data.callbackQueryData(`confirm`), ctx.data.callbackQueryData(`cancel`), CartPage], `2`, bi)
   }
 
   static kbHome(ctx: CheckoutPage, bi?: string) {
@@ -69,19 +69,19 @@ class Helper {
   }
 
   static kbSuccess(ctx: CheckoutPage, orderId: string, bi?: string) {
-    return ctx.inlineKeyboardT([ctx.data.callbackData(Base.refresh, orderId), HistoryPage, StartPage, CatalogPage], `2`, bi)
+    return ctx.inlineKeyboardT([ctx.data.callbackQueryData(Base.refresh, orderId), HistoryPage, StartPage, CatalogPage], `2`, bi)
   }
 }
 
 export class CheckoutPage extends PageBase {
   static data = this.buildData((action?: string, orderId?: string) => [action, orderId])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bindex.show()
   }
 
-  async handleArgsCallbackData() {
-    const [action, orderId] = this.callbackDataArgs
+  async handleArgsCallbackQueryData() {
+    const [action, orderId] = this.callbackQueryDataArgs
     if (action === `confirm`) {
       await this.bconfirm.process()
     } else if (action === Base.refresh) {
@@ -109,13 +109,13 @@ export class CheckoutPage extends PageBase {
         items: OrderStore.formatCart(summary),
         subtotal: ProductCatalog.formatPrice(summary.subtotal)
       }
-      await this.edit(kb, da, Base.index)
+      await this.renderEdit(kb, da, Base.index)
     },
     process: async () => {
       const {position} = Helper.getSession(this)
       if (position !== `contact`) return
 
-      const input = this.msgText.trim()
+      const input = this.msg!.text!.trim()
       const {contact, notes} = Helper.splitContactNotes(input)
       if (!Helper.isValidContact(contact)) {
         await this.setSessionFreeText({position: `contact`})
@@ -137,14 +137,14 @@ export class CheckoutPage extends PageBase {
     show: async (items: string, subtotal: string, contact: string, notes: string) => {
       const kb = Helper.kbConfirm(this, Base.confirm)
       const da = {items, subtotal, contact, notes}
-      await this.reply(kb, da, Base.confirm)
+      await this.render(kb, da, Base.confirm)
     },
     process: async () => {
       const cart = await Helper.getCart(this)
       const summary = CartStore.getSummary(cart)
       const session = Helper.getSession(this)
       const order = OrderStore.createOrder({
-        userId: this.userId,
+        userId: this.from!.id,
         summary,
         contact: session.contact || `-`,
         notes: session.notes || `No additional notes.`,
@@ -186,14 +186,14 @@ export class CheckoutPage extends PageBase {
         timeNow: new Date(),
         qrisImageUrl: order.qrisImageUrl
       }
-      await this.editPhoto(kb, da, Base.success)
+      await this.renderEditPhoto(kb, da, Base.success)
     }
   }
 
   bwarnEmpty = {
     show: async () => {
       const kb = Helper.kbCart(this, Base.warnEmpty)
-      await this.edit(kb, {}, Base.warnEmpty)
+      await this.renderEdit(kb, {}, Base.warnEmpty)
     }
   }
 
@@ -202,7 +202,7 @@ export class CheckoutPage extends PageBase {
       await this.setSessionFreeText({position: `contact`})
       const kb = Helper.kbCart(this, Base.warnInvalid)
       const da = {contact}
-      await this.reply(kb, da, Base.warnInvalid)
+      await this.render(kb, da, Base.warnInvalid)
     }
   }
 
@@ -210,14 +210,14 @@ export class CheckoutPage extends PageBase {
     show: async () => {
       await this.clearSession()
       const kb = Helper.kbHome(this, Base.infoCancel)
-      await this.edit(kb, {}, Base.infoCancel)
+      await this.renderEdit(kb, {}, Base.infoCancel)
     }
   }
 
   binfoMissing = {
     show: async () => {
       const kb = Helper.kbHome(this, Base.infoMissing)
-      await this.edit(kb, {}, Base.infoMissing)
+      await this.renderEdit(kb, {}, Base.infoMissing)
     }
   }
 

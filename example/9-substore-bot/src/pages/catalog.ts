@@ -8,12 +8,12 @@ import {ProductPage} from "./product"
 export class CatalogPage extends PageBase {
   static data = this.buildData((action?: string, value?: string) => [action, value])
 
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(0, true)
   }
 
-  async handleArgsCallbackData() {
-    const [action, value] = this.callbackDataArgs
+  async handleArgsCallbackQueryData() {
+    const [action, value] = this.callbackQueryDataArgs
     await this.bdefault.process(action, value)
   }
 
@@ -26,18 +26,18 @@ export class CatalogPage extends PageBase {
       const productPage = ProductCatalog.getPage(pageNo)
       const kb = this.inlineKeyboard((k, l) => {
         productPage.items.forEach((product) => {
-          k.text(`${product.stockStatus === `available` ? `📦` : `⛔`} ${product.name}`, ProductPage.data.callbackData(`detail`, product.id))
+          k.text(`${product.stockStatus === `available` ? `📦` : `⛔`} ${product.name}`, ProductPage.data.callbackQueryData(`detail`, product.id))
           k.row()
         })
 
         if (productPage.hasPrev) {
-          k.text(l[0]!, this.data.callbackData(`page`, `${productPage.pageNo - 1}`))
+          k.text(l[0]!, this.data.callbackQueryData(`page`, `${productPage.pageNo - 1}`))
         }
         if (productPage.hasNext) {
-          k.text(l[1]!, this.data.callbackData(`page`, `${productPage.pageNo + 1}`))
+          k.text(l[1]!, this.data.callbackQueryData(`page`, `${productPage.pageNo + 1}`))
         }
 
-        return k.row().text(l[2]!, CartPage.data.callbackData()).text(l[3]!, HelpPage.data.callbackData()).row().text(l[4]!, StartPage.data.callbackData())
+        return k.row().text(l[2]!, CartPage.data.callbackQueryData()).text(l[3]!, HelpPage.data.callbackQueryData()).row().text(l[4]!, StartPage.data.callbackQueryData())
       })
       const da = {
         pageNo: productPage.pageNo + 1,
@@ -46,12 +46,8 @@ export class CatalogPage extends PageBase {
         products: productPage.items.map((product, index) => `${index + 1}. ${product.name} — ${ProductCatalog.formatPrice(product.price)} (${ProductCatalog.stockLabel(product)})`).join(`\n`)
       }
 
-      await this.cacheState.set(`${this.userId}:catalogPage`, productPage.pageNo)
-      if (isEdit) {
-        await this.edit(kb, da)
-      } else {
-        await this.reply(kb, da)
-      }
+      await this.cacheState.set(`${this.from!.id}:catalogPage`, productPage.pageNo)
+      await this.renderAuto(kb, da, null, null, isEdit)
     },
     process: async (action?: string, value?: string) => {
       if (action === `page`) {

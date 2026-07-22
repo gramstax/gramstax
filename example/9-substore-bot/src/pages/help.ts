@@ -4,7 +4,7 @@ import {StartPage} from "./start"
 import {CatalogPage} from "./catalog"
 
 export class HelpPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
@@ -16,11 +16,7 @@ export class HelpPage extends PageBase {
     show: async (isEdit = true) => {
       const kb = this.inlineKeyboardT([CatalogPage, StartPage])
       const da = {support: Env.STORE_ADMIN_USERNAME}
-      if (isEdit) {
-        await this.edit(kb, da)
-      } else {
-        await this.reply(kb, da)
-      }
+      await this.renderAuto(kb, da, null, null, isEdit)
     }
   }
 
