@@ -22,36 +22,14 @@ Always runs after the handler returns (even when the handler returns undefined /
 
 Useful for: - Recording page visit timestamps - Auto-clearing stale session data - Firing post-processing jobs
 
-## Example 1
-
-
-```typescript
-// Track last visit per page
-async hookAfterRoute() {
-  await this.cacheSession.set(`${this.userId}:lastPage`, this.data.name)
-}
-```
-
-## Example 2
-
-
-```typescript
-// Auto-clear session when user reaches a terminal step
-async hookAfterRoute() {
-  if (this.temp.session?.params.step === `completed`) {
-    await this.cacheSession.del(String(this.userId))
-  }
-}
-```
-
-## Example 3
+## Example
 
 
 ```typescript
 // Notify admins of high-value actions
 async hookAfterRoute() {
   if (this.temp.session?.params.amount > 10000) {
-    await this.ct.api.sendMessage(ADMIN_CHAT_ID, `Large withdrawal: ${this.temp.session.amount}`)
+    await this.api.sendMessage(ADMIN_CHAT_ID, `Large withdrawal: ${this.temp.session.amount}`)
   }
 }
 ```

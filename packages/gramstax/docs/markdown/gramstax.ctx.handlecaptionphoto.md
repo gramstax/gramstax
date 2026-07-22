@@ -22,11 +22,11 @@ Triggered by photo with caption.
 
 ## Example
 
-this.data.name = "start" &amp;&amp; this.msgPhoto
+this.data.name = "start" &amp;&amp; this.msg?.photo
 
 ```typescript
 async handleCaptionPhoto() {
-  this.msgPhoto // {...}
+  this.msg?.photo // {...}
   this.msgCaption // "start"
 }
 ```

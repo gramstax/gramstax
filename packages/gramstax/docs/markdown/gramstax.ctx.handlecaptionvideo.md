@@ -22,11 +22,11 @@ Triggered by video with caption.
 
 ## Example
 
-this.data.name = "start" &amp;&amp; this.msgVideo
+this.data.name = "start" &amp;&amp; this.msg?.video
 
 ```typescript
 async handleCaptionVideo() {
-  this.msgVideo // {...}
+  this.msg?.video // {...}
   this.msgCaption // "start"
 }
 ```

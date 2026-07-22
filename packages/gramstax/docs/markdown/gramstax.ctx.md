@@ -9,8 +9,9 @@ The context/page base class that provides access to user data, session managemen
 **Signature:**
 
 ```typescript
-declare class Ctx 
+declare class Ctx extends Context 
 ```
+**Extends:** Context
 
 ## Remarks
 
@@ -26,9 +27,9 @@ import {Menu1Page} from "./menu1"
 import {Menu2Page} from "./menu2"
 
 class StartPage extends Ctx {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     const kb = this.inlineKeyboardT([Menu1Page, Menu2Page])
-    await this.reply(kb)
+    await this.render(kb)
   }
 
   static template = `
@@ -50,9 +51,9 @@ import {Menu1Page} from "./menu1"
 import {Menu2Page} from "./menu2"
 
 class StartPage extends Ctx {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     const kb = this.inlineKeyboardT([Menu1Page, Menu2Page], "2", "special-kb")
-    await this.reply()
+    await this.render()
   }
 
   static template = `
@@ -94,9 +95,7 @@ Description
 
 </td><td>
 
-Creates a new Ctx instance.
-
-\*\*note:\*\* For most pages do not define a constructor
+Constructs a new instance of the `Ctx` class
 
 
 </td></tr>
@@ -126,6 +125,52 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[businessConnection](./gramstax.ctx.businessconnection.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`businessConnection\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.businessConnection](./gramstax.ctx.businessconnection.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.business_connection`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[businessMessage](./gramstax.ctx.businessmessage.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`businessMessage\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.businessMessage](./gramstax.ctx.businessmessage.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.business_message`<!-- -->.
+
+
+</td></tr>
+<tr><td>
 
 [cacheKeyboard](./gramstax.ctx.cachekeyboard.md)
 
@@ -165,7 +210,7 @@ External cache for session storage.
 </td></tr>
 <tr><td>
 
-[callbackData](./gramstax.ctx.callbackdata.md)
+[callbackQuery](./gramstax.ctx.callbackquery.md)
 
 
 </td><td>
@@ -175,18 +220,20 @@ External cache for session storage.
 
 </td><td>
 
-string
+NonNullable&lt;Context\[\`callbackQuery\`\]&gt;
 
 
 </td><td>
 
-Raw callback query data from inline keyboard interactions.
+The full [Ctx.callbackQuery](./gramstax.ctx.callbackquery.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.callback_query`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[callbackDataArg](./gramstax.ctx.callbackdataarg.md)
+[callbackQueryDataArg](./gramstax.ctx.callbackquerydataarg.md)
 
 
 </td><td>
@@ -207,7 +254,7 @@ The first arg token parsed from callback data.
 </td></tr>
 <tr><td>
 
-[callbackDataArgs](./gramstax.ctx.callbackdataargs.md)
+[callbackQueryDataArgs](./gramstax.ctx.callbackquerydataargs.md)
 
 
 </td><td>
@@ -228,20 +275,137 @@ All arg tokens parsed from callback data.
 </td></tr>
 <tr><td>
 
-[ct](./gramstax.ctx.ct.md)
+[channelPost](./gramstax.ctx.channelpost.md)
 
 
 </td><td>
 
-
-</td><td>
-
-[ITCt](./gramstax.itct.md)
+`readonly`
 
 
 </td><td>
 
-The grammY context object for low-level Telegram API access.
+NonNullable&lt;Context\[\`channelPost\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.channelPost](./gramstax.ctx.channelpost.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.channel_post`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[chat](./gramstax.ctx.chat.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`chat\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.chat](./gramstax.ctx.chat.md) object from Telegram (non-nullable).
+
+
+</td></tr>
+<tr><td>
+
+[chatBoost](./gramstax.ctx.chatboost.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`chatBoost\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.chatBoost](./gramstax.ctx.chatboost.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.chat_boost`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[chatJoinRequest](./gramstax.ctx.chatjoinrequest.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`chatJoinRequest\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.chatJoinRequest](./gramstax.ctx.chatjoinrequest.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.chat_join_request`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[chatMember](./gramstax.ctx.chatmember.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`chatMember\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.chatMember](./gramstax.ctx.chatmember.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.chat_member`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[chosenInlineResult](./gramstax.ctx.choseninlineresult.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`chosenInlineResult\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.chosenInlineResult](./gramstax.ctx.choseninlineresult.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.chosen_inline_result`<!-- -->.
 
 
 </td></tr>
@@ -283,13 +447,13 @@ Instance-level access to the page routing data.
 
 </td><td>
 
-Page routing data created by `Ctx.buildData`<!-- -->.
+/\*\* Page routing data created by `Ctx.buildData`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[msgAnimation](./gramstax.ctx.msganimation.md)
+[deletedBusinessMessages](./gramstax.ctx.deletedbusinessmessages.md)
 
 
 </td><td>
@@ -299,18 +463,20 @@ Page routing data created by `Ctx.buildData`<!-- -->.
 
 </td><td>
 
-grammy\_types.Animation \| undefined
+NonNullable&lt;Context\[\`deletedBusinessMessages\`\]&gt;
 
 
 </td><td>
 
-Animation/GIF arg attached to the message.
+The full [Ctx.deletedBusinessMessages](./gramstax.ctx.deletedbusinessmessages.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.deleted_business_messages`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[msgAudio](./gramstax.ctx.msgaudio.md)
+[editedBusinessMessage](./gramstax.ctx.editedbusinessmessage.md)
 
 
 </td><td>
@@ -320,18 +486,87 @@ Animation/GIF arg attached to the message.
 
 </td><td>
 
-grammy\_types.Audio \| undefined
+NonNullable&lt;Context\[\`editedBusinessMessage\`\]&gt;
 
 
 </td><td>
 
-Audio arg attached to the message.
+The full [Ctx.editedBusinessMessage](./gramstax.ctx.editedbusinessmessage.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.edited_business_message`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[msgCaption](./gramstax.ctx.msgcaption.md)
+[editedChannelPost](./gramstax.ctx.editedchannelpost.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`editedChannelPost\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.editedChannelPost](./gramstax.ctx.editedchannelpost.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.edited_channel_post`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[editedMessage](./gramstax.ctx.editedmessage.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`editedMessage\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.editedMessage](./gramstax.ctx.editedmessage.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.edited_message`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[from](./gramstax.ctx.from.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`from\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.from](./gramstax.ctx.from.md) object from Telegram (non-nullable).
+
+
+</td></tr>
+<tr><td>
+
+[fromFullName](./gramstax.ctx.fromfullname.md)
 
 
 </td><td>
@@ -346,7 +581,145 @@ string
 
 </td><td>
 
-The caption text for media messages.
+The combined first and last name from the user's Telegram profile.
+
+
+</td></tr>
+<tr><td>
+
+[guestMessage](./gramstax.ctx.guestmessage.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`guestMessage\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.guestMessage](./gramstax.ctx.guestmessage.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.guest_message`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[inlineQuery](./gramstax.ctx.inlinequery.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`inlineQuery\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.inlineQuery](./gramstax.ctx.inlinequery.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.inline_query`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[managedBot](./gramstax.ctx.managedbot.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`managedBot\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.managedBot](./gramstax.ctx.managedbot.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.managed_bot`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[message](./gramstax.ctx.message.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`message\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.message](./gramstax.ctx.message.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.message`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[messageReaction](./gramstax.ctx.messagereaction.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`messageReaction\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.messageReaction](./gramstax.ctx.messagereaction.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.message_reaction`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[msg](./gramstax.ctx.msg.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`msg\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.msg](./gramstax.ctx.msg.md) object from Telegram (non-nullable).
+
+Shorthand for `this.message` with fallback across message-like update fields.
 
 
 </td></tr>
@@ -436,153 +809,6 @@ All arg tokens from a caption command.
 </td></tr>
 <tr><td>
 
-[msgContact](./gramstax.ctx.msgcontact.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-grammy\_types.Contact \| undefined
-
-
-</td><td>
-
-Contact arg attached to the message.
-
-
-</td></tr>
-<tr><td>
-
-[msgDocument](./gramstax.ctx.msgdocument.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-grammy\_types.Document \| undefined
-
-
-</td><td>
-
-Document arg attached to the message.
-
-
-</td></tr>
-<tr><td>
-
-[msgGift](./gramstax.ctx.msggift.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-grammy\_types.GiftInfo \| undefined
-
-
-</td><td>
-
-Gift arg attached to the message.
-
-
-</td></tr>
-<tr><td>
-
-[msgLocation](./gramstax.ctx.msglocation.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-grammy\_types.Location \| undefined
-
-
-</td><td>
-
-Location arg attached to the message.
-
-
-</td></tr>
-<tr><td>
-
-[msgPhoto](./gramstax.ctx.msgphoto.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-grammy\_types.PhotoSize\[\] \| undefined
-
-
-</td><td>
-
-Photo sizes attached to the message.
-
-
-</td></tr>
-<tr><td>
-
-[msgSticker](./gramstax.ctx.msgsticker.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-grammy\_types.Sticker \| undefined
-
-
-</td><td>
-
-Sticker arg attached to the message.
-
-
-</td></tr>
-<tr><td>
-
-[msgText](./gramstax.ctx.msgtext.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-The raw message text from the current update.
-
-
-</td></tr>
-<tr><td>
-
 [msgTextArg](./gramstax.ctx.msgtextarg.md)
 
 
@@ -667,7 +893,7 @@ All arg tokens from a command message.
 </td></tr>
 <tr><td>
 
-[msgVideo](./gramstax.ctx.msgvideo.md)
+[poll](./gramstax.ctx.poll.md)
 
 
 </td><td>
@@ -677,18 +903,20 @@ All arg tokens from a command message.
 
 </td><td>
 
-grammy\_types.Video \| undefined
+NonNullable&lt;Context\[\`poll\`\]&gt;
 
 
 </td><td>
 
-Video arg attached to the message.
+The full [Ctx.poll](./gramstax.ctx.poll.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.poll`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[msgVideoNote](./gramstax.ctx.msgvideonote.md)
+[pollAnswer](./gramstax.ctx.pollanswer.md)
 
 
 </td><td>
@@ -698,18 +926,20 @@ Video arg attached to the message.
 
 </td><td>
 
-grammy\_types.VideoNote \| undefined
+NonNullable&lt;Context\[\`pollAnswer\`\]&gt;
 
 
 </td><td>
 
-Video note (circular video) attached to the message.
+The full [Ctx.pollAnswer](./gramstax.ctx.pollanswer.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.poll_answer`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[msgVoice](./gramstax.ctx.msgvoice.md)
+[preCheckoutQuery](./gramstax.ctx.precheckoutquery.md)
 
 
 </td><td>
@@ -719,18 +949,20 @@ Video note (circular video) attached to the message.
 
 </td><td>
 
-grammy\_types.Voice \| undefined
+NonNullable&lt;Context\[\`preCheckoutQuery\`\]&gt;
 
 
 </td><td>
 
-Voice message arg attached to the message.
+The full [Ctx.preCheckoutQuery](./gramstax.ctx.precheckoutquery.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.pre_checkout_query`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[msgWebAppData](./gramstax.ctx.msgwebappdata.md)
+[purchasedPaidMedia](./gramstax.ctx.purchasedpaidmedia.md)
 
 
 </td><td>
@@ -740,12 +972,58 @@ Voice message arg attached to the message.
 
 </td><td>
 
-grammy\_types.WebAppData \| undefined
+NonNullable&lt;Context\[\`purchasedPaidMedia\`\]&gt;
 
 
 </td><td>
 
-Web app data attached to the message.
+The full [Ctx.purchasedPaidMedia](./gramstax.ctx.purchasedpaidmedia.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.purchased_paid_media`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[removedChatBoost](./gramstax.ctx.removedchatboost.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`removedChatBoost\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.removedChatBoost](./gramstax.ctx.removedchatboost.md) object from Telegram (non-nullable).
+
+Alias for `ctx.update.removed_chat_boost`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[senderChat](./gramstax.ctx.senderchat.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+NonNullable&lt;Context\[\`senderChat\`\]&gt;
+
+
+</td><td>
+
+The full [Ctx.senderChat](./gramstax.ctx.senderchat.md) object from Telegram (non-nullable).
 
 
 </td></tr>
@@ -805,172 +1083,6 @@ _(Optional)_ HTML-like template string for the page.
 </td><td>
 
 Template manager for message rendering.
-
-
-</td></tr>
-<tr><td>
-
-[userFirstName](./gramstax.ctx.userfirstname.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-The user's first name from the Telegram profile.
-
-
-</td></tr>
-<tr><td>
-
-[userFullName](./gramstax.ctx.userfullname.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-The combined first and last name from the user's Telegram profile.
-
-
-</td></tr>
-<tr><td>
-
-[userId](./gramstax.ctx.userid.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-The Telegram user ID from the current update context.
-
-
-</td></tr>
-<tr><td>
-
-[userIsBot](./gramstax.ctx.userisbot.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-Indicates whether the current sender is a bot account.
-
-
-</td></tr>
-<tr><td>
-
-[userIsPremium](./gramstax.ctx.userispremium.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-Indicates whether the current user has Telegram Premium.
-
-
-</td></tr>
-<tr><td>
-
-[userLanguage](./gramstax.ctx.userlanguage.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-The user's language code from Telegram (e.g., "en", "id").
-
-
-</td></tr>
-<tr><td>
-
-[userLastName](./gramstax.ctx.userlastname.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-The user's last name from the Telegram profile.
-
-
-</td></tr>
-<tr><td>
-
-[userName](./gramstax.ctx.username.md)
-
-
-</td><td>
-
-`readonly`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-The Telegram username from the user profile.
 
 
 </td></tr>
@@ -1038,35 +1150,7 @@ Creates a bottom keyboard with template-based text buttons.
 </td></tr>
 <tr><td>
 
-[broadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError)](./gramstax.ctx.broadcast.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Sends a message to multiple users in bulk.
-
-
-</td></tr>
-<tr><td>
-
-[broadcastMedia(ids, languageCode, keyboard, data, AGBaseId, options, throwError)](./gramstax.ctx.broadcastmedia.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Sends a media message to multiple users in bulk.
-
-
-</td></tr>
-<tr><td>
-
-[buildData(callbackData)](./gramstax.ctx.builddata.md)
+[buildData(callbackQueryData)](./gramstax.ctx.builddata.md)
 
 
 </td><td>
@@ -1130,20 +1214,6 @@ Creates default page routing data configuration.
 </td></tr>
 <tr><td>
 
-[callbackQueryAnswer(options)](./gramstax.ctx.callbackqueryanswer.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Answers a callback query with an optional notification.
-
-
-</td></tr>
-<tr><td>
-
 [clearSession()](./gramstax.ctx.clearsession.md)
 
 
@@ -1153,272 +1223,6 @@ Answers a callback query with an optional notification.
 </td><td>
 
 Clears session data for the current user.
-
-
-</td></tr>
-<tr><td>
-
-[delete()](./gramstax.ctx.delete.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Deletes the current message.
-
-
-</td></tr>
-<tr><td>
-
-[edit(keyboardInline, data, AGBaseId, options, fallbackReply)](./gramstax.ctx.edit.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Edits an existing message text using the page template.
-
-
-</td></tr>
-<tr><td>
-
-[editAnimation(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.editanimation.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Edits an existing message to show an animation.
-
-
-</td></tr>
-<tr><td>
-
-[editAudio(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.editaudio.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Edits an existing message to show an audio.
-
-
-</td></tr>
-<tr><td>
-
-[editAudioGroup(data, AGBaseId, options)](./gramstax.ctx.editaudiogroup.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Replaces the current message with an audio media group.
-
-
-</td></tr>
-<tr><td>
-
-[editContact(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.editcontact.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Replaces the current message with a contact.
-
-
-</td></tr>
-<tr><td>
-
-[editDocument(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.editdocument.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Edits an existing message to show a document.
-
-
-</td></tr>
-<tr><td>
-
-[editDocumentGroup(data, AGBaseId, options)](./gramstax.ctx.editdocumentgroup.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Replaces the current message with a document media group.
-
-
-</td></tr>
-<tr><td>
-
-[editLocation(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.editlocation.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Replaces the current message with a location.
-
-
-</td></tr>
-<tr><td>
-
-[editMedia(type, keyboardInline, data, AGBaseId, options1, options2, fallbackReply)](./gramstax.ctx.editmedia.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Edits an existing media message with dynamic type selection.
-
-
-</td></tr>
-<tr><td>
-
-[editMediaGroup(type, data, AGBaseId, options)](./gramstax.ctx.editmediagroup.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Replaces the current message with a media group filtered by the given type.
-
-
-</td></tr>
-<tr><td>
-
-[editPhoto(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.editphoto.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Edits an existing message to show a photo.
-
-
-</td></tr>
-<tr><td>
-
-[editPhotoGroup(data, AGBaseId, options)](./gramstax.ctx.editphotogroup.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Replaces the current message with a photo media group.
-
-
-</td></tr>
-<tr><td>
-
-[editRich(keyboardInline, data, AGBaseId, options1, options2, fallbackReply)](./gramstax.ctx.editrich.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Edits an existing message with rich content using the page template.
-
-
-</td></tr>
-<tr><td>
-
-[editSticker(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.editsticker.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Replaces the current message with a sticker.
-
-
-</td></tr>
-<tr><td>
-
-[editVideo(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.editvideo.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Edits an existing message to show a video.
-
-
-</td></tr>
-<tr><td>
-
-[editVideoGroup(data, AGBaseId, options)](./gramstax.ctx.editvideogroup.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Replaces the current message with a video media group.
-
-
-</td></tr>
-<tr><td>
-
-[editVideoNote(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.editvideonote.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Replaces the current message with a video note.
-
-
-</td></tr>
-<tr><td>
-
-[editVoice(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.editvoice.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Replaces the current message with a voice message.
 
 
 </td></tr>
@@ -1480,7 +1284,7 @@ Retrieves session data for the current user.
 </td></tr>
 <tr><td>
 
-[handleArgsCallbackData()?](./gramstax.ctx.handleargscallbackdata.md)
+[handleArgsCallbackQueryData()?](./gramstax.ctx.handleargscallbackquerydata.md)
 
 
 </td><td>
@@ -1488,7 +1292,7 @@ Retrieves session data for the current user.
 
 </td><td>
 
-_(Optional)_ Route handler for callback queries with args matching `intentCallbackData`<!-- -->.
+_(Optional)_ Route handler for callback queries with args matching `intentCallbackQueryData`<!-- -->.
 
 
 </td></tr>
@@ -1508,7 +1312,7 @@ _(Optional)_ Route handler for text messages with args match intent `intentText`
 </td></tr>
 <tr><td>
 
-[handleCallbackData()?](./gramstax.ctx.handlecallbackdata.md)
+[handleCallbackQueryData()?](./gramstax.ctx.handlecallbackquerydata.md)
 
 
 </td><td>
@@ -1516,7 +1320,7 @@ _(Optional)_ Route handler for text messages with args match intent `intentText`
 
 </td><td>
 
-_(Optional)_ Route handler for callback queries without args matching `intentCallbackData`<!-- -->.
+_(Optional)_ Route handler for callback queries without args matching `intentCallbackQueryData`<!-- -->.
 
 
 </td></tr>
@@ -2054,7 +1858,7 @@ _(Optional)_ Route handler for free-form voice input.
 </td></tr>
 <tr><td>
 
-[handleSessionArgsCallbackData()?](./gramstax.ctx.handlesessionargscallbackdata.md)
+[handleSessionArgsCallbackQueryData()?](./gramstax.ctx.handlesessionargscallbackquerydata.md)
 
 
 </td><td>
@@ -2082,7 +1886,7 @@ _(Optional)_ Session-aware route handler for callback queries without args.
 </td></tr>
 <tr><td>
 
-[handleSessionCallbackData()?](./gramstax.ctx.handlesessioncallbackdata.md)
+[handleSessionCallbackQueryData()?](./gramstax.ctx.handlesessioncallbackquerydata.md)
 
 
 </td><td>
@@ -2754,7 +2558,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 </td></tr>
 <tr><td>
 
-[methodSessionArgsCallbackData(name)](./gramstax.ctx.methodsessionargscallbackdata.md)
+[methodSessionArgsCallbackQueryData(name)](./gramstax.ctx.methodsessionargscallbackquerydata.md)
 
 
 </td><td>
@@ -2782,7 +2586,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 </td></tr>
 <tr><td>
 
-[methodSessionCallbackData(name)](./gramstax.ctx.methodsessioncallbackdata.md)
+[methodSessionCallbackQueryData(name)](./gramstax.ctx.methodsessioncallbackquerydata.md)
 
 
 </td><td>
@@ -3328,7 +3132,7 @@ Helper method to arrange keyboard buttons in a grid layout.
 </td></tr>
 <tr><td>
 
-[reply(keyboard, data, AGBaseId, options)](./gramstax.ctx.reply.md)
+[render(keyboard, data, AGBaseId, options)](./gramstax.ctx.render.md)
 
 
 </td><td>
@@ -3342,21 +3146,7 @@ Sends a text message reply using the page template.
 </td></tr>
 <tr><td>
 
-[replyAction(type)](./gramstax.ctx.replyaction.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Sends a chat action indicator (typing, uploading, etc.).
-
-
-</td></tr>
-<tr><td>
-
-[replyAnimation(keyboard, data, AGBaseId, options)](./gramstax.ctx.replyanimation.md)
+[renderAnimation(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderanimation.md)
 
 
 </td><td>
@@ -3370,7 +3160,7 @@ Sends an animation/GIF message using the page template.
 </td></tr>
 <tr><td>
 
-[replyAudio(keyboard, data, AGBaseId, options)](./gramstax.ctx.replyaudio.md)
+[renderAudio(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderaudio.md)
 
 
 </td><td>
@@ -3384,7 +3174,7 @@ Sends an audio message using the page template.
 </td></tr>
 <tr><td>
 
-[replyAudioGroup(data, AGBaseId, options)](./gramstax.ctx.replyaudiogroup.md)
+[renderAudioGroup(data, AGBaseId, options)](./gramstax.ctx.renderaudiogroup.md)
 
 
 </td><td>
@@ -3398,7 +3188,63 @@ Sends an audio media group using pipe-delimited `src` values from the page templ
 </td></tr>
 <tr><td>
 
-[replyContact(keyboard, data, AGBaseId, options)](./gramstax.ctx.replycontact.md)
+[renderAuto(keyboard, data, AGBaseId, options, isEdit)](./gramstax.ctx.renderauto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits a message using the page template, auto-selecting between [Ctx.render()](./gramstax.ctx.render.md) and [Ctx.renderEdit()](./gramstax.ctx.renderedit.md) based on the `isEdit` flag.
+
+
+</td></tr>
+<tr><td>
+
+[renderAutoRich(keyboard, data, AGBaseId, options1, options2, isEdit)](./gramstax.ctx.renderautorich.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits a rich message using the page template, auto-selecting between [Ctx.renderRich()](./gramstax.ctx.renderrich.md) and [Ctx.renderEditRich()](./gramstax.ctx.rendereditrich.md) based on the `isEdit` flag.
+
+
+</td></tr>
+<tr><td>
+
+[renderBroadcast(ids, languageCode, keyboard, data, AGBaseId, options, throwError)](./gramstax.ctx.renderbroadcast.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a message to multiple users in bulk.
+
+
+</td></tr>
+<tr><td>
+
+[renderBroadcastMedia(ids, languageCode, keyboard, data, AGBaseId, options, throwError)](./gramstax.ctx.renderbroadcastmedia.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends a media message to multiple users in bulk.
+
+
+</td></tr>
+<tr><td>
+
+[renderContact(keyboard, data, AGBaseId, options)](./gramstax.ctx.rendercontact.md)
 
 
 </td><td>
@@ -3412,7 +3258,7 @@ Sends a contact using the page template.
 </td></tr>
 <tr><td>
 
-[replyDocument(keyboard, data, AGBaseId, options)](./gramstax.ctx.replydocument.md)
+[renderDocument(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderdocument.md)
 
 
 </td><td>
@@ -3426,7 +3272,7 @@ Sends a document message using the page template.
 </td></tr>
 <tr><td>
 
-[replyDocumentGroup(data, AGBaseId, options)](./gramstax.ctx.replydocumentgroup.md)
+[renderDocumentGroup(data, AGBaseId, options)](./gramstax.ctx.renderdocumentgroup.md)
 
 
 </td><td>
@@ -3440,7 +3286,259 @@ Sends a document media group using pipe-delimited `src` values from the page tem
 </td></tr>
 <tr><td>
 
-[replyLocation(keyboard, data, AGBaseId, options)](./gramstax.ctx.replylocation.md)
+[renderEdit(keyboardInline, data, AGBaseId, options, fallbackReply)](./gramstax.ctx.renderedit.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits an existing message text using the page template.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditAnimation(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.rendereditanimation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits an existing message to show an animation.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditAudio(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.rendereditaudio.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits an existing message to show an audio.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditAudioGroup(data, AGBaseId, options)](./gramstax.ctx.rendereditaudiogroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with an audio media group.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditContact(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.rendereditcontact.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a contact.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditDocument(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.rendereditdocument.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits an existing message to show a document.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditDocumentGroup(data, AGBaseId, options)](./gramstax.ctx.rendereditdocumentgroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a document media group.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditLocation(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.rendereditlocation.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a location.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditMedia(type, keyboardInline, data, AGBaseId, options1, options2, fallbackReply)](./gramstax.ctx.rendereditmedia.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits an existing media message with dynamic type selection.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditMediaGroup(type, data, AGBaseId, options)](./gramstax.ctx.rendereditmediagroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a media group filtered by the given type.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditPhoto(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.rendereditphoto.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits an existing message to show a photo.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditPhotoGroup(data, AGBaseId, options)](./gramstax.ctx.rendereditphotogroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a photo media group.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditRich(keyboardInline, data, AGBaseId, options1, options2, fallbackReply)](./gramstax.ctx.rendereditrich.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits an existing message with rich content using the page template.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditSticker(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.rendereditsticker.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a sticker.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditVideo(keyboardInline, data, AGBaseId, options1, options2)](./gramstax.ctx.rendereditvideo.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Edits an existing message to show a video.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditVideoGroup(data, AGBaseId, options)](./gramstax.ctx.rendereditvideogroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a video media group.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditVideoNote(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.rendereditvideonote.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a video note.
+
+
+</td></tr>
+<tr><td>
+
+[renderEditVoice(keyboardInline, data, AGBaseId, options)](./gramstax.ctx.rendereditvoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Replaces the current message with a voice message.
+
+
+</td></tr>
+<tr><td>
+
+[renderLocation(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderlocation.md)
 
 
 </td><td>
@@ -3454,7 +3552,7 @@ Sends a location using the page template.
 </td></tr>
 <tr><td>
 
-[replyMedia(type, keyboard, data, AGBaseId, options)](./gramstax.ctx.replymedia.md)
+[renderMedia(type, keyboard, data, AGBaseId, options)](./gramstax.ctx.rendermedia.md)
 
 
 </td><td>
@@ -3468,7 +3566,7 @@ Sends a media message reply with dynamic type selection.
 </td></tr>
 <tr><td>
 
-[replyMediaGroup(type, data, AGBaseId, options)](./gramstax.ctx.replymediagroup.md)
+[renderMediaGroup(type, data, AGBaseId, options)](./gramstax.ctx.rendermediagroup.md)
 
 
 </td><td>
@@ -3482,7 +3580,7 @@ Sends a Telegram media group using pipe-delimited `src` values or a `<g-media-gr
 </td></tr>
 <tr><td>
 
-[replyPhoto(keyboard, data, AGBaseId, options)](./gramstax.ctx.replyphoto.md)
+[renderPhoto(keyboard, data, AGBaseId, options)](./gramstax.ctx.renderphoto.md)
 
 
 </td><td>
@@ -3496,7 +3594,7 @@ Sends a photo message using the page template.
 </td></tr>
 <tr><td>
 
-[replyPhotoGroup(data, AGBaseId, options)](./gramstax.ctx.replyphotogroup.md)
+[renderPhotoGroup(data, AGBaseId, options)](./gramstax.ctx.renderphotogroup.md)
 
 
 </td><td>
@@ -3510,7 +3608,7 @@ Sends a photo media group using pipe-delimited `src` values from the page templa
 </td></tr>
 <tr><td>
 
-[replyRich(keyboard, data, AGBaseId, options1, options2)](./gramstax.ctx.replyrich.md)
+[renderRich(keyboard, data, AGBaseId, options1, options2)](./gramstax.ctx.renderrich.md)
 
 
 </td><td>
@@ -3524,7 +3622,7 @@ Sends a rich message reply using the page template.
 </td></tr>
 <tr><td>
 
-[replySticker(keyboard, data, AGBaseId, options)](./gramstax.ctx.replysticker.md)
+[renderSticker(keyboard, data, AGBaseId, options)](./gramstax.ctx.rendersticker.md)
 
 
 </td><td>
@@ -3538,7 +3636,7 @@ Sends a sticker using the page template.
 </td></tr>
 <tr><td>
 
-[replyVideo(keyboard, data, AGBaseId, options)](./gramstax.ctx.replyvideo.md)
+[renderVideo(keyboard, data, AGBaseId, options)](./gramstax.ctx.rendervideo.md)
 
 
 </td><td>
@@ -3552,7 +3650,7 @@ Sends a video message using the page template.
 </td></tr>
 <tr><td>
 
-[replyVideoGroup(data, AGBaseId, options)](./gramstax.ctx.replyvideogroup.md)
+[renderVideoGroup(data, AGBaseId, options)](./gramstax.ctx.rendervideogroup.md)
 
 
 </td><td>
@@ -3566,7 +3664,7 @@ Sends a video media group using pipe-delimited `src` values from the page templa
 </td></tr>
 <tr><td>
 
-[replyVideoNote(keyboard, data, AGBaseId, options)](./gramstax.ctx.replyvideonote.md)
+[renderVideoNote(keyboard, data, AGBaseId, options)](./gramstax.ctx.rendervideonote.md)
 
 
 </td><td>
@@ -3580,7 +3678,7 @@ Sends a video note (circular video) using the page template.
 </td></tr>
 <tr><td>
 
-[replyVoice(keyboard, data, AGBaseId, options)](./gramstax.ctx.replyvoice.md)
+[renderVoice(keyboard, data, AGBaseId, options)](./gramstax.ctx.rendervoice.md)
 
 
 </td><td>
@@ -3608,7 +3706,7 @@ Sends a voice message using the page template.
 </td></tr>
 <tr><td>
 
-[setSessionArgsCallbackData(params)](./gramstax.ctx.setsessionargscallbackdata.md)
+[setSessionArgsCallbackQueryData(params)](./gramstax.ctx.setsessionargscallbackquerydata.md)
 
 
 </td><td>
@@ -3636,7 +3734,7 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
-[setSessionCallbackData(params)](./gramstax.ctx.setsessioncallbackdata.md)
+[setSessionCallbackQueryData(params)](./gramstax.ctx.setsessioncallbackquerydata.md)
 
 
 </td><td>

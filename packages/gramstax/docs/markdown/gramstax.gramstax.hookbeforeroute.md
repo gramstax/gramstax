@@ -95,7 +95,7 @@ Advanced
 ```typescript
 async hookBeforeRoute(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookBeforeRoute`]>>[1]>) {
   console.log(`from listener ${data.listenerName}`)
-  if (ctx.userId === blockedUserId) {
+  if (ctx.from!.id! === blockedUserId) {
     return false // Will not response
   }
   return true

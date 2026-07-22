@@ -11,11 +11,11 @@ Page routing data configuration.
 ```typescript
 type ITPageData<T extends any[] = any[]> = {
     name: string;
-    callbackData: (...args: T) => string;
+    callbackQueryData: (...args: T) => string;
     intentText: string;
     intentCommandText: string;
     _positionArgText: number;
-    intentCallbackData: string;
+    intentCallbackQueryData: string;
 };
 ```
 

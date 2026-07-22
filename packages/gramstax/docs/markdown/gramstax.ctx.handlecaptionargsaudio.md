@@ -22,11 +22,11 @@ Triggered by audio with caption and with arg.
 
 ## Example
 
-this.data.name = "start 123 aaa" &amp;&amp; this.msgAudio
+this.data.name = "start 123 aaa" &amp;&amp; this.msg?.audio
 
 ```typescript
 async handleCaptionArgsAudio() {
-  this.msgAudio // {...}
+  this.msg?.audio // {...}
   this.msgCaption // "start"
   this.msgCaptionArg // "123"
   this.msgCaptionArgs // ["123", "aaa"]

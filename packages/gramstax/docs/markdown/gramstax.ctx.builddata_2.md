@@ -9,7 +9,7 @@ Creates page routing data configuration with options (no type inference).
 **Signature:**
 
 ```typescript
-static buildData(options: ITBuildDataOptions): ITPageData<[]>;
+static buildData(options: ITBuildDataOptions | null): ITPageData<[]>;
 ```
 
 ## Parameters
@@ -37,12 +37,12 @@ options
 
 </td><td>
 
-[ITBuildDataOptions](./gramstax.itbuilddataoptions.md)
+[ITBuildDataOptions](./gramstax.itbuilddataoptions.md) \| null
 
 
 </td><td>
 
-Configuration options. See [ITBuildDataOptions](./gramstax.itbuilddataoptions.md) for details.
+Configuration options (or null to use defaults). See [ITBuildDataOptions](./gramstax.itbuilddataoptions.md) for details.
 
 
 </td></tr>

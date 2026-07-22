@@ -172,7 +172,7 @@ External cache for user session data.
 
 </td><td>
 
-\`polling\` \| \`webhook\` \| \`serverless\` \| \`test\`
+\`polling\` \| \`webhook\` \| \`serverless\` \| \`test\` \| \`raw\`
 
 
 </td><td>
@@ -248,7 +248,7 @@ Logger instance for debugging and info output.
 
 </td><td>
 
-{ shortCallbackData: boolean; }
+{ shortCallbackQueryData: boolean; }
 
 
 </td><td>
@@ -614,7 +614,7 @@ _(Optional)_ Hook called when a page handler throws an error.
 </td></tr>
 <tr><td>
 
-[registerLowOnCallbackData()](./gramstax.gramstax.registerlowoncallbackdata.md)
+[registerLowOnCallbackQueryData()](./gramstax.gramstax.registerlowoncallbackquerydata.md)
 
 
 </td><td>

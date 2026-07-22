@@ -10,9 +10,9 @@ Options for building page routing data configuration.
 
 ```typescript
 type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
-    name?: string;
-    callbackData?: C;
-    intentText?: string;
-    intentTextCommand?: string;
+    name?: string | null;
+    callbackQueryData?: C | null;
+    intentText?: string | null;
+    intentTextCommand?: string | null;
 };
 ```

@@ -26,7 +26,7 @@ this.data.name = "/start 123 aaa"
 
 ```typescript
 async handleCommandCaptionArgsDocument() {
-  this.msgDocument // {...}
+  this.msg?.document // {...}
   this.msgCaption // "/start 123 aaa"
   this.msgCaptionArg // "123"
   this.msgCaptionArgs // ["123", "aaa"]

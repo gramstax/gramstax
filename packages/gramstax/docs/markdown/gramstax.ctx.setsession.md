@@ -88,7 +88,7 @@ True if the session was set successfully, or null on error.
 
 ## Remarks
 
-Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g. [Ctx.setSessionFreeText()](./gramstax.ctx.setsessionfreetext.md)<!-- -->, [Ctx.setSessionCallbackData()](./gramstax.ctx.setsessioncallbackdata.md)<!-- -->).
+Low-level API. In most cases use the shorthand `setSession*` methods instead (e.g. [Ctx.setSessionFreeText()](./gramstax.ctx.setsessionfreetext.md)<!-- -->, [Ctx.setSessionCallbackQueryData()](./gramstax.ctx.setsessioncallbackquerydata.md)<!-- -->).
 
 This method is only needed when: - \*\*Multi-session\*\* — binding the same params to multiple route handlers at once: `setSession([methodSessionFreeVideo(), methodSessionFreeText()], params)` - \*\*Dynamic method name\*\* — method string is computed at runtime rather than known at dev-time, so `methodSession*()` cannot be called.
 

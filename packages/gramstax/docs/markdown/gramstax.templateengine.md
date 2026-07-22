@@ -719,7 +719,7 @@ Compiles description blocks from a template into executable functions.
 
 </td><td>
 
-Compiles keyboard blocks from a template into executable functions.
+Compiles keyboard labels from a processed template, executing blocks and scope variables to produce final label arrays for inline/bottom keyboards.
 
 
 </td></tr>

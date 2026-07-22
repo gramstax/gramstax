@@ -25,7 +25,7 @@ Triggered by any sticker not matching other routes, typically used with sessions
 
 ```typescript
 async handleFreeSticker() {
-   this.msgSticker // {...}
+   this.msg?.sticker // {...}
 }
 ```
 

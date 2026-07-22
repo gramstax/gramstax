@@ -25,7 +25,7 @@ Triggered by any animation not matching other routes, typically used with sessio
 
 ```typescript
 async handleFreeAnimation() {
-   this.msgAnimation // {...}
+   this.msg?.animation // {...}
 }
 ```
 

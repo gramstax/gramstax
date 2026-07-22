@@ -9,7 +9,7 @@ Creates a bottom (reply) keyboard using a builder callback.
 **Signature:**
 
 ```typescript
-bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb;
+bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams | null): ITBottomKb;
 ```
 
 ## Parameters
@@ -53,12 +53,12 @@ params
 
 </td><td>
 
-[ITBottomKbParams](./gramstax.itbottomkbparams.md)
+[ITBottomKbParams](./gramstax.itbottomkbparams.md) \| null
 
 
 </td><td>
 
-_(Optional)_ Optional parameters. [ITBottomKbParams](./gramstax.itbottomkbparams.md) for details.
+_(Optional)_ Optional parameters (or null to omit). [ITBottomKbParams](./gramstax.itbottomkbparams.md) for details.
 
 
 </td></tr>
@@ -78,12 +78,12 @@ The callback receives the keyboard instance and an array of button labels from t
 
 
 ```typescript
-async handleCallbackData() {
+async handleCallbackQueryData() {
   const kb = this.bottomKeyboard((k, labels) => {
     labels.forEach(label => k.text(label))
     return k
   })
-  await this.reply(kb)
+  await this.render(kb)
 }
 ```
 

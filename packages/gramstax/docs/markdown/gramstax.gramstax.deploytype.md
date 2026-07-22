@@ -9,7 +9,7 @@ Deploy type
 **Signature:**
 
 ```typescript
-deployType: `polling` | `webhook` | `serverless` | `test`;
+deployType: `polling` | `webhook` | `serverless` | `test` | `raw`;
 ```
 
 ## Remarks

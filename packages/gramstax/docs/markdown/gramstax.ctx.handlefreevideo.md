@@ -22,11 +22,11 @@ Triggered by any video not matching other routes, typically used with sessions.
 
 ## Example
 
-this.msgVideo
+this.msg?.video
 
 ```typescript
 async handleFreeVideo() {
-   this.msgVideo // {...}
+   this.msg?.video // {...}
 }
 ```
 

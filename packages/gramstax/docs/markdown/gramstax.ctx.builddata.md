@@ -9,7 +9,7 @@ Creates page routing data configuration.
 **Signature:**
 
 ```typescript
-static buildData<C extends (...args: any[]) => any>(callbackData: C): ITPageData<Parameters<C>>;
+static buildData<C extends (...args: any[]) => any>(callbackQueryData: C): ITPageData<Parameters<C>>;
 ```
 
 ## Parameters
@@ -32,7 +32,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-callbackData
+callbackQueryData
 
 
 </td><td>
@@ -56,7 +56,7 @@ The page data configuration object.
 
 ## Remarks
 
-This method has multiple overloads: - `buildData()` - Returns default page data with no args. - `buildData(callbackData)` - Returns intentCallbackData + args. - `buildData(options)` - Returns page data with custom options.
+This method has multiple overloads: - `buildData()` - Returns default page data with no args. - `buildData(callbackQueryData)` - Returns intentCallbackQueryData + args. - `buildData(options)` - Returns page data with custom options.
 
 The callback must return an array of arg values that will be joined with the intent using colon separators.
 
@@ -70,7 +70,7 @@ class MyPage extends Ctx {
 
   // With custom intents
   static data = this.buildData({
-    callbackData: (action: string) => [action],
+    callbackQueryData: (action: string) => [action],
     intentText: "my_page",
     intentCommandText: "mycommand"
   })

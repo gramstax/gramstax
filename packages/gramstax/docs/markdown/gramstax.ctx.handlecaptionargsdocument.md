@@ -22,11 +22,11 @@ Triggered by document with caption and with arg.
 
 ## Example
 
-this.data.name = "start 123 aaa" &amp;&amp; this.msgDocument
+this.data.name = "start 123 aaa" &amp;&amp; this.msg?.document
 
 ```typescript
 async handleCaptionArgsDocument() {
-  this.msgDocument // {...}
+  this.msg?.document // {...}
   this.msgCaption // "start"
   this.msgCaptionArg // "123"
   this.msgCaptionArgs // ["123", "aaa"]

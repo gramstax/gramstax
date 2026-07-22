@@ -182,9 +182,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'deployType: `polling` | `webhook` | `serverless` | `test`;'
+      content: 'deployType: `polling` | `webhook` | `serverless` | `test` | `raw`;'
       return:
-        type: '`polling` | `webhook` | `serverless` | `test`'
+        type: '`polling` | `webhook` | `serverless` | `test` | `raw`'
   - name: e2e
     uid: gramstax!Gramstax#e2e:member
     package: gramstax!
@@ -246,12 +246,12 @@ properties:
     syntax:
       content: |-
         optionsPage: {
-                shortCallbackData: boolean;
+                shortCallbackQueryData: boolean;
             };
       return:
         type: |-
           {
-                  shortCallbackData: boolean;
+                  shortCallbackQueryData: boolean;
               }
   - name: pages
     uid: gramstax!Gramstax#pages:member
@@ -445,7 +445,7 @@ methods:
                     }[];
                 };
                 routeStatic: {
-                    handleCallbackData: Record<string, {
+                    handleCallbackQueryData: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
@@ -507,7 +507,7 @@ methods:
                     }>;
                 };
                 routeStaticIntent: {
-                    handleArgsCallbackData: Record<string, {
+                    handleArgsCallbackQueryData: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
@@ -569,7 +569,7 @@ methods:
                     }>;
                 };
                 routeStaticSession: {
-                    handleSessionCallbackData: Record<string, {
+                    handleSessionCallbackQueryData: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
@@ -629,7 +629,7 @@ methods:
                         name: string;
                         routeName: string;
                     }>;
-                    handleSessionArgsCallbackData: Record<string, {
+                    handleSessionArgsCallbackQueryData: Record<string, {
                         name: string;
                         routeName: string;
                     }>;
@@ -734,9 +734,9 @@ methods:
                         routeName: string;
                     }>;
                 };
-                listRouteStatic: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
-                listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
-                listRouteStaticSession: readonly [...("handleSessionCallbackData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
+                listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
+                listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
+                listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
                 listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
                 lenListRouteStatic: 15;
                 lenListRouteStaticIntent: 15;
@@ -802,7 +802,7 @@ methods:
                       }[];
                   };
                   routeStatic: {
-                      handleCallbackData: Record&lt;string, {
+                      handleCallbackQueryData: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
@@ -864,7 +864,7 @@ methods:
                       }&gt;;
                   };
                   routeStaticIntent: {
-                      handleArgsCallbackData: Record&lt;string, {
+                      handleArgsCallbackQueryData: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
@@ -926,7 +926,7 @@ methods:
                       }&gt;;
                   };
                   routeStaticSession: {
-                      handleSessionCallbackData: Record&lt;string, {
+                      handleSessionCallbackQueryData: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
@@ -986,7 +986,7 @@ methods:
                           name: string;
                           routeName: string;
                       }&gt;;
-                      handleSessionArgsCallbackData: Record&lt;string, {
+                      handleSessionArgsCallbackQueryData: Record&lt;string, {
                           name: string;
                           routeName: string;
                       }&gt;;
@@ -1091,9 +1091,9 @@ methods:
                           routeName: string;
                       }&gt;;
                   };
-                  listRouteStatic: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
-                  listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
-                  listRouteStaticSession: readonly [...("handleSessionCallbackData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
+                  listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
+                  listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
+                  listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
                   listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
                   lenListRouteStatic: 15;
                   lenListRouteStaticIntent: 15;
@@ -1117,8 +1117,8 @@ methods:
       1. \*\*staticSession\*\* — Session-aware routes, filtered by input type (O(n) lookup) - Only runs when the user
       has an active session (`session.method` is set) - Iterates `routeStaticSession` and matches by `session.method`
       value - \*\*Filtered by input type\*\*: only routes whose name ends with `fromListener` are checked (e.g.,
-      callback queries only match `*CallbackData` session routes, text only matches `*Text`<!-- -->, photo captions only
-      match `*CaptionPhoto`<!-- -->, etc.) - This prevents cross-type handler misdispatch (e.g., a callback query
+      callback queries only match `*CallbackQueryData` session routes, text only matches `*Text`<!-- -->, photo captions
+      only match `*CaptionPhoto`<!-- -->, etc.) - This prevents cross-type handler misdispatch (e.g., a callback query
       accidentally matching `handleSessionFreeText`<!-- -->) - Example: session with method "7-mypage" → finds
       `handleSessionFreeText["7-mypage"]` when `fromListener = "text"`
 
@@ -1128,7 +1128,7 @@ methods:
 
 
       3. \*\*staticIntent\*\* — Intent with args routes (O(1) lookup) - Matches intent prefix when args are present -
-      Example: "start:123" → `handleArgsCallbackData()`<!-- -->, "/add item" → `handleCommandArgsText()`
+      Example: "start:123" → `handleArgsCallbackQueryData()`<!-- -->, "/add item" → `handleCommandArgsText()`
 
 
       4. \*\*dynamicSpesific\*\* — Non-session free handlers (O(n) iteration) - Runs all `handleFree*` handlers (defined
@@ -1144,7 +1144,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof
+        _pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | keyof typeof
         Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
                 state: `matched` | `no-match` | `no-handler` | `blocked`;
             }>;
@@ -1154,7 +1154,7 @@ methods:
           type: ICtx
         - id: fromListener
           description: The listener type that triggered the route.
-          type: '`callbackdata` | keyof typeof gramstax!~__type#<xref uid="routeDynamicSpesific:member" />'
+          type: '`callbackquerydata` | keyof typeof gramstax!~__type#<xref uid="routeDynamicSpesific:member" />'
       return:
         type: |-
           Promise&lt;{
@@ -1171,11 +1171,11 @@ methods:
 
 
       \*\*Phase 1 — Non-session static/intent routes\*\* (id=2, id=3): Iterates `listRouteStatic` and
-      `listRouteStaticIntent`<!-- -->. Registers exact-match routes (`handleCallbackData`<!-- -->, `handleText`<!-- -->,
-      `handleCommandText`<!-- -->, `handleCaption*`<!-- -->, `handleCommandCaption*`<!-- -->) into `routeStatic` — and
-      intent-with-args variants (`handleArgs*`<!-- -->, `handleCommandArgs*`<!-- -->, `handleCaptionArgs*`<!-- -->,
+      `listRouteStaticIntent`<!-- -->. Registers exact-match routes (`handleCallbackQueryData`<!-- -->, `handleText`<!--
+      -->, `handleCommandText`<!-- -->, `handleCaption*`<!-- -->, `handleCommandCaption*`<!-- -->) into `routeStatic` —
+      and intent-with-args variants (`handleArgs*`<!-- -->, `handleCommandArgs*`<!-- -->, `handleCaptionArgs*`<!-- -->,
       `handleCommandCaptionArgs*`<!-- -->) into `routeStaticIntent`<!-- -->. Routes are keyed by `intentCommandText`
-      (prefixed with `/`<!-- -->), `intentCallbackData`<!-- -->, `intentText`<!-- -->, or `Page.data.name`<!-- -->.
+      (prefixed with `/`<!-- -->), `intentCallbackQueryData`<!-- -->, `intentText`<!-- -->, or `Page.data.name`<!-- -->.
 
 
       \*\*Phase 2 — Session routes\*\* (id=1): Iterates `listRouteStaticSession`<!-- -->. Registers session-aware
@@ -1204,7 +1204,7 @@ methods:
           description: The pages routing structure.
           type: typeof gramstax!Gramstax#<xref uid="pages:member" />
         - id: indexPage
-          description: The page index (used for shortCallbackData).
+          description: The page index (used for shortCallbackQueryData).
           type: number
       return:
         type: void
@@ -1452,7 +1452,7 @@ methods:
         ```typescript
         async hookBeforeRoute(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookBeforeRoute`]>>[1]>) {
           console.log(`from listener ${data.listenerName}`)
-          if (ctx.userId === blockedUserId) {
+          if (ctx.from!.id! === blockedUserId) {
             return false // Will not response
           }
           return true
@@ -1628,10 +1628,10 @@ methods:
       return:
         type: Promise&lt;void&gt;
         description: ''
-  - name: registerLowOnCallbackData()
-    uid: gramstax!Gramstax#registerLowOnCallbackData:member(1)
+  - name: registerLowOnCallbackQueryData()
+    uid: gramstax!Gramstax#registerLowOnCallbackQueryData:member(1)
     package: gramstax!
-    fullName: registerLowOnCallbackData()
+    fullName: registerLowOnCallbackQueryData()
     summary: Registers an event handler for a bot event.
     remarks: >-
       These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
@@ -1643,16 +1643,16 @@ methods:
         ```typescript
         class MyBot extends Gramstax {
           // Override if need to route via a custom event bus instead of the default bot
-          registerLowOnCallbackData() {
+          registerLowOnCallbackQueryData() {
             // default is `callback_query:data`
-            this.bot.on(`cb_data`, (ctx) => this._onHandle(ctx, `callbackdata`))
+            this.bot.on(`cb_data`, (ctx) => this._onHandle(ctx, `callbackquerydata`))
           }
         }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'registerLowOnCallbackData(): void;'
+      content: 'registerLowOnCallbackQueryData(): void;'
       return:
         type: void
         description: ''

@@ -25,7 +25,7 @@ Triggered by any video note not matching other routes, typically used with sessi
 
 ```typescript
 async handleFreeVideoNote() {
-   this.msgVideoNote // {...}
+   this.msg?.video_note // {...}
 }
 ```
 

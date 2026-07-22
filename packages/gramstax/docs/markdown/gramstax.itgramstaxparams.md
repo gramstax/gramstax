@@ -19,7 +19,7 @@ type ITGramstaxParams = {
     cacheKeyboard?: Map<any, any>;
     templateManager?: TemplateManager;
     optionsPage?: {
-        shortCallbackData?: boolean;
+        shortCallbackQueryData?: boolean;
     };
 };
 ```

@@ -35,76 +35,48 @@ export class CacheExternal<V = any> extends Keyv<V> {
 }
 
 // @public
-export class Ctx {
+export class Ctx extends Context {
     constructor(params: ITCtxParams);
     addArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], pld: (string | undefined)[]): string;
-    bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams): ITBottomKb;
-    bottomKeyboardT(layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any>): Keyboard;
-    broadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReply, throwError?: boolean): Promise<{
-        successCount: number;
-        failedCount: number;
-        totalCount: number;
-    }>;
-    broadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact, throwError?: boolean): Promise<{
-        successCount: number;
-        failedCount: number;
-        totalCount: number;
-    }>;
-    static buildData<C extends (...args: any[]) => any>(callbackData: C): ITPageData<Parameters<C>>;
-    static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions): ITPageData<Parameters<C>>;
-    static buildData(options: ITBuildDataOptions): ITPageData<[]>;
+    bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams | null): ITBottomKb;
+    bottomKeyboardT(layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): Keyboard;
+    static buildData<C extends (...args: any[]) => any>(callbackQueryData: C): ITPageData<Parameters<C>>;
+    static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions | null): ITPageData<Parameters<C>>;
+    static buildData(options: ITBuildDataOptions | null): ITPageData<[]>;
     static buildData(): ITPageData<[]>;
+    get businessConnection(): NonNullable<Context[`businessConnection`]>;
+    get businessMessage(): NonNullable<Context[`businessMessage`]>;
     cacheKeyboard: Map<any, any>;
     cacheSession: CacheExternal<ITCacheRpc>;
-    get callbackData(): string;
-    get callbackDataArg(): string;
-    get callbackDataArgs(): string[];
-    callbackQueryAnswer(options?: Parameters<typeof Ctx.prototype.ct.answerCallbackQuery>[0]): Promise<true | null>;
+    get callbackQuery(): NonNullable<Context[`callbackQuery`]>;
+    get callbackQueryDataArg(): string;
+    get callbackQueryDataArgs(): string[];
+    get channelPost(): NonNullable<Context[`channelPost`]>;
+    get chat(): NonNullable<Context[`chat`]>;
+    get chatBoost(): NonNullable<Context[`chatBoost`]>;
+    get chatJoinRequest(): NonNullable<Context[`chatJoinRequest`]>;
+    get chatMember(): NonNullable<Context[`chatMember`]>;
+    get chosenInlineResult(): NonNullable<Context[`chosenInlineResult`]>;
     clearSession(): Promise<boolean | null>;
-    ct: ITCt;
     static data: ITPageData<any>;
     data: ITPageData<any>;
-    delete(): Promise<true>;
-    edit(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEdit, fallbackReply?: boolean): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
-        text: string;
-    } & Partial<{
-        entities: grammy_types.MessageEntity[];
-    }>) | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
-        rich_message: grammy_types.RichMessage;
-    }) | undefined>;
-    editAnimation(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    editAudio(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    editAudioGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyAudio): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    editContact(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    editDocument(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    editDocumentGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyDocument): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    editLocation(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    editMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1, options2?: ITOptEditMedia2, fallbackReply?: boolean): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    editMediaGroup(type?: ITMediaGroupType, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    editPhoto(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    editPhotoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    editRich(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit, fallbackReply?: boolean): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
-        text: string;
-    } & Partial<{
-        entities: grammy_types.MessageEntity[];
-    }>) | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
-        rich_message: grammy_types.RichMessage;
-    }) | undefined>;
-    editSticker(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    editVideo(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options1?: ITOptEditMedia1, options2?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    editVideoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyVideo): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    editVideoNote(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
-    editVoice(keyboardInline?: ITInlineKb, data?: ITData, AGBaseId?: string, options?: ITOptEditMedia2): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    get deletedBusinessMessages(): NonNullable<Context[`deletedBusinessMessages`]>;
+    get editedBusinessMessage(): NonNullable<Context[`editedBusinessMessage`]>;
+    get editedChannelPost(): NonNullable<Context[`editedChannelPost`]>;
+    get editedMessage(): NonNullable<Context[`editedMessage`]>;
+    get from(): NonNullable<Context[`from`]>;
+    get fromFullName(): string;
     getArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], positionStart?: number): string[];
     getIntent(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], positionEnd?: number): string;
     getSeperatorTag(mtd?: `space` | `colon`): " " | ":";
     getSession(): Promise<ITCacheRpc | null>;
+    get guestMessage(): NonNullable<Context[`guestMessage`]>;
     // @virtual
-    handleArgsCallbackData?(): Promise<any>;
+    handleArgsCallbackQueryData?(): Promise<any>;
     // @virtual
     handleArgsText?(): Promise<any>;
     // @virtual
-    handleCallbackData?(): Promise<any>;
+    handleCallbackQueryData?(): Promise<any>;
     // @virtual
     handleCaptionAnimation?(): Promise<any>;
     // @virtual
@@ -181,10 +153,10 @@ export class Ctx {
     handleFreeVideoNote?(): Promise<any>;
     // @virtual
     handleFreeVoice?(): Promise<any>;
-    handleSessionArgsCallbackData?(): Promise<any>;
+    handleSessionArgsCallbackQueryData?(): Promise<any>;
     handleSessionArgsText?(): Promise<any>;
     // @virtual
-    handleSessionCallbackData?(): Promise<any>;
+    handleSessionCallbackQueryData?(): Promise<any>;
     handleSessionCaptionAnimation?(): Promise<any>;
     handleSessionCaptionArgsAnimation?(): Promise<any>;
     handleSessionCaptionArgsAudio?(): Promise<any>;
@@ -231,13 +203,17 @@ export class Ctx {
     hookAfterRoute?(): Promise<void>;
     // @virtual
     hookBeforeRoute?(): Promise<boolean>;
-    inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb;
-    inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData): InlineKeyboard;
+    inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams | null): ITInlineKb;
+    inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData | null): InlineKeyboard;
+    get inlineQuery(): NonNullable<Context[`inlineQuery`]>;
     keyboardCols<T = any>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;
+    get managedBot(): NonNullable<Context[`managedBot`]>;
+    get message(): NonNullable<Context[`message`]>;
+    get messageReaction(): NonNullable<Context[`messageReaction`]>;
     methodSession(prefix: string, name: string | undefined): string;
-    methodSessionArgsCallbackData(name?: string): string;
+    methodSessionArgsCallbackQueryData(name?: string): string;
     methodSessionArgsText(name?: string): string;
-    methodSessionCallbackData(name?: string): string;
+    methodSessionCallbackQueryData(name?: string): string;
     methodSessionCaptionAnimation(name?: string): string;
     methodSessionCaptionArgsAnimation(name?: string): string;
     methodSessionCaptionArgsAudio(name?: string): string;
@@ -276,52 +252,92 @@ export class Ctx {
     methodSessionFreeVideoNote(name?: string): string;
     methodSessionFreeVoice(name?: string): string;
     methodSessionText(name?: string): string;
-    get msgAnimation(): grammy_types.Animation | undefined;
-    get msgAudio(): grammy_types.Audio | undefined;
-    get msgCaption(): string;
+    get msg(): NonNullable<Context[`msg`]>;
     get msgCaptionArg(): string;
     get msgCaptionArgs(): string[];
     get msgCommandCaptionArg(): string;
     get msgCommandCaptionArgs(): string[];
-    get msgContact(): grammy_types.Contact | undefined;
-    get msgDocument(): grammy_types.Document | undefined;
-    get msgGift(): grammy_types.GiftInfo | undefined;
-    get msgLocation(): grammy_types.Location | undefined;
-    get msgPhoto(): grammy_types.PhotoSize[] | undefined;
-    get msgSticker(): grammy_types.Sticker | undefined;
-    get msgText(): string;
     get msgTextArg(): string;
     get msgTextArgs(): string[];
     get msgTextCommandArg(): string;
     get msgTextCommandArgs(): string[];
-    get msgVideo(): grammy_types.Video | undefined;
-    get msgVideoNote(): grammy_types.VideoNote | undefined;
-    get msgVoice(): grammy_types.Voice | undefined;
-    get msgWebAppData(): grammy_types.WebAppData | undefined;
-    reply(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReply): Promise<grammy_types.Message.TextMessage>;
-    replyAction(type: ITReplyAction): Promise<true>;
-    replyAnimation(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyAnimation): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    replyAudio(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyAudio): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    replyAudioGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyAudio): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    replyContact(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyContact): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    replyDocument(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyDocument): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    replyDocumentGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyDocument): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    replyLocation(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyLocation): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    replyMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    get poll(): NonNullable<Context[`poll`]>;
+    get pollAnswer(): NonNullable<Context[`pollAnswer`]>;
+    get preCheckoutQuery(): NonNullable<Context[`preCheckoutQuery`]>;
+    get purchasedPaidMedia(): NonNullable<Context[`purchasedPaidMedia`]>;
+    get removedChatBoost(): NonNullable<Context[`removedChatBoost`]>;
+    render(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null): Promise<grammy_types.Message.TextMessage>;
+    renderAnimation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAnimation | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    renderAudio(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    renderAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, isEdit?: boolean | null): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        rich_message: grammy_types.RichMessage;
+    }) | undefined>;
+    renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, isEdit?: boolean | null): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        text: string;
+    } & Partial<{
+        entities: grammy_types.MessageEntity[];
+    }>) | undefined>;
+    renderBroadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null, throwError?: boolean | null): Promise<{
+        successCount: number;
+        failedCount: number;
+        totalCount: number;
+    }>;
+    renderBroadcastMedia(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact | null, throwError?: boolean | null): Promise<{
+        successCount: number;
+        failedCount: number;
+        totalCount: number;
+    }>;
+    renderContact(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyContact | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    renderDocument(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    renderDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderEdit(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | null, fallbackReply?: boolean | null): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        text: string;
+    } & Partial<{
+        entities: grammy_types.MessageEntity[];
+    }>) | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        rich_message: grammy_types.RichMessage;
+    }) | undefined>;
+    renderEditAnimation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    renderEditAudio(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    renderEditAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderEditContact(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    renderEditDocument(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    renderEditDocumentGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderEditLocation(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    renderEditMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : ITOptEditMedia1) | null, options2?: ITOptEditMedia2 | null, fallbackReply?: boolean | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    renderEditMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderEditPhoto(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    renderEditPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderEditRich(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptEdit | null, fallbackReply?: boolean | null): Promise<true | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        text: string;
+    } & Partial<{
+        entities: grammy_types.MessageEntity[];
+    }>) | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+        rich_message: grammy_types.RichMessage;
+    }) | undefined>;
+    renderEditSticker(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    renderEditVideo(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptEditMedia1 | null, options2?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    renderEditVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderEditVideoNote(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    renderEditVoice(keyboardInline?: ITInlineKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEditMedia2 | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    renderLocation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyLocation | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    renderMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined) | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     // Warning: (ae-forgotten-export) The symbol "ITMediaGroupType" needs to be exported by the entry point index.d.ts
-    replyMediaGroup(type?: ITMediaGroupType, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    replyPhoto(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    replyPhotoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyPhoto): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    replyRich(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1]): Promise<grammy_types.Message.RichMessageMessage>;
-    replySticker(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplySticker): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    replyVideo(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyVideo): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    replyVideoGroup(data?: ITData, AGBaseId?: string, options?: ITOptReplyVideo): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    replyVideoNote(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyVideoNote): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    replyVoice(keyboard?: ITInBoKb, data?: ITData, AGBaseId?: string, options?: ITOptReplyVoice): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    renderMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderPhoto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    renderPhotoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | null): Promise<grammy_types.Message.RichMessageMessage>;
+    renderSticker(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplySticker | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    renderVideo(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    renderVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderVideoNote(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideoNote | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    renderVoice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVoice | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
+    get senderChat(): NonNullable<Context[`senderChat`]>;
     setSession(method: string | string[], params: any, moreRoot?: Record<any, any>): Promise<boolean | null>;
-    setSessionArgsCallbackData(params?: any): Promise<boolean | null>;
+    setSessionArgsCallbackQueryData(params?: any): Promise<boolean | null>;
     setSessionArgsText(params?: any): Promise<boolean | null>;
-    setSessionCallbackData(params?: any): Promise<boolean | null>;
+    setSessionCallbackQueryData(params?: any): Promise<boolean | null>;
     setSessionCaptionAnimation(params?: any): Promise<boolean | null>;
     setSessionCaptionArgsAnimation(params?: any): Promise<boolean | null>;
     setSessionCaptionArgsAudio(params?: any): Promise<boolean | null>;
@@ -364,15 +380,6 @@ export class Ctx {
     // @virtual
     static template?: string;
     templateManager: TemplateManager;
-    get userFirstName(): string;
-    get userFullName(): string;
-    get userId(): number;
-    get userIsBot(): boolean;
-    get userIsPremium(): boolean;
-    get userLanguage(): string;
-    set userLanguage(v: string);
-    get userLastName(): string;
-    get userName(): string;
 }
 
 // @public
@@ -413,62 +420,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     constructor(params: ITGramstaxParams);
     bot: Bot;
     botConfig?: BotConfig<ITCt>;
-    cacheKeyboard: Map<any, any>;
-    cacheSession: CacheExternal<ITCacheRpc>;
-    createBot(token: string): Bot<grammy.Context, grammy.Api<grammy.RawApi>>;
-    createCtx(ct: ITCt): ICtx;
-    deployType: `polling` | `webhook` | `serverless` | `test`;
-    e2e?: E2eHelper;
-    // (undocumented)
-    executeSyncBlocksDescription(pages: typeof Gramstax.prototype.pages): Promise<void>;
-    getWebhookQueueStats(): {
-        length: number;
-        maxSize: number;
-        waitingEnqueue: number;
-        waitingDequeue: number;
-        enabled: boolean;
-        maxQueueSize: number;
-        workerCount: number;
-        perChatConcurrency: number;
-        blockWhenFull: boolean;
-    } | null;
-    handlerBotUpdate: any;
-    // @virtual
-    hookAfterRoute?(ctx: ICtx, data?: {
-        listenerName: string;
-        state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `notfound`;
-        isEdit: boolean;
-    }): Promise<void>;
-    // @virtual
-    hookAfterStart?(): Promise<any>;
-    // @virtual
-    hookBeforeRoute?(ctx: ICtx, data?: {
-        listenerName: string;
-        isEdit: boolean;
-    }): Promise<boolean>;
-    // @virtual
-    hookBeforeStart?(): Promise<any>;
-    // @virtual
-    hookErrorInputNotFoundPage?(ctx: ICtx, data?: {
-        listenerName: string;
-        isEdit: boolean;
-    }): Promise<void>;
-    // @virtual
-    hookErrorPage?(ctx: ICtx, data?: {
-        listenerName: string;
-        error: any;
-        isEdit: boolean;
-    }): Promise<void>;
-    log: LoggingHelper | undefined;
-    _onCatch(error: BotError<ITCt>): void;
-    // (undocumented)
-    _onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound?: boolean): Promise<void>;
-    _onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null): Promise<void>;
-    optionsPage: {
-        shortCallbackData: boolean;
-    };
-    _pageBuildData(Page: typeof Ctx, filePath: string): void;
-    _pageLoads(pagesPath?: string): {
+    // @internal
+    protected _buildEmptyPages(): {
         all: Record<string, typeof Ctx>;
         routeDynamic: string[];
         routeDynamicSpesific: {
@@ -518,7 +471,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
             }[];
         };
         routeStatic: {
-            handleCallbackData: Record<string, {
+            handleCallbackQueryData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
@@ -580,7 +533,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
             }>;
         };
         routeStaticIntent: {
-            handleArgsCallbackData: Record<string, {
+            handleArgsCallbackQueryData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
@@ -642,7 +595,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
             }>;
         };
         routeStaticSession: {
-            handleSessionCallbackData: Record<string, {
+            handleSessionCallbackQueryData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
@@ -702,7 +655,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
                 name: string;
                 routeName: string;
             }>;
-            handleSessionArgsCallbackData: Record<string, {
+            handleSessionArgsCallbackQueryData: Record<string, {
                 name: string;
                 routeName: string;
             }>;
@@ -807,21 +760,424 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
                 routeName: string;
             }>;
         };
-        listRouteStatic: readonly ["handleCallbackData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
-        listRouteStaticIntent: readonly ["handleArgsCallbackData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
-        listRouteStaticSession: readonly [...("handleSessionCallbackData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
+        listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
+        listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
+        listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
         listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
         lenListRouteStatic: 15;
         lenListRouteStaticIntent: 15;
         lenListRouteStaticSession: number;
         lenListRouteDynamicSpesific: 11;
     };
-    _pageRoutes(ctx: ICtx, fromListener: `callbackdata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
+    cacheKeyboard: Map<any, any>;
+    cacheSession: CacheExternal<ITCacheRpc>;
+    createBot(token: string): Bot<grammy.Context, grammy.Api<grammy.RawApi>>;
+    createCtx(ct: ITCt): ICtx;
+    deployType: `polling` | `webhook` | `serverless` | `test` | `raw`;
+    e2e?: E2eHelper;
+    // (undocumented)
+    executeSyncBlocksDescription(pages: typeof Gramstax.prototype.pages): Promise<void>;
+    getWebhookQueueStats(): {
+        length: number;
+        maxSize: number;
+        waitingEnqueue: number;
+        waitingDequeue: number;
+        enabled: boolean;
+        maxQueueSize: number;
+        workerCount: number;
+        perChatConcurrency: number;
+        blockWhenFull: boolean;
+    } | null;
+    handlerBotUpdate: any;
+    // @virtual
+    hookAfterRoute?(ctx: ICtx, data?: {
+        listenerName: string;
+        state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `notfound`;
+        isEdit: boolean;
+    }): Promise<void>;
+    // @virtual
+    hookAfterStart?(): Promise<any>;
+    // @virtual
+    hookBeforeRoute?(ctx: ICtx, data?: {
+        listenerName: string;
+        isEdit: boolean;
+    }): Promise<boolean>;
+    // @virtual
+    hookBeforeStart?(): Promise<any>;
+    // @virtual
+    hookErrorInputNotFoundPage?(ctx: ICtx, data?: {
+        listenerName: string;
+        isEdit: boolean;
+    }): Promise<void>;
+    // @virtual
+    hookErrorPage?(ctx: ICtx, data?: {
+        listenerName: string;
+        error: any;
+        isEdit: boolean;
+    }): Promise<void>;
+    log: LoggingHelper | undefined;
+    _onCatch(error: BotError<ITCt>): void;
+    // (undocumented)
+    _onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound?: boolean): Promise<void>;
+    _onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null): Promise<void>;
+    optionsPage: {
+        shortCallbackQueryData: boolean;
+    };
+    _pageBuildData(Page: typeof Ctx, filePath: string): void;
+    _pageLoads(pagesPath?: string): {
+        all: Record<string, typeof Ctx>;
+        routeDynamic: string[];
+        routeDynamicSpesific: {
+            text: {
+                name: string;
+                routeName: string;
+            }[];
+            photo: {
+                name: string;
+                routeName: string;
+            }[];
+            video: {
+                name: string;
+                routeName: string;
+            }[];
+            audio: {
+                name: string;
+                routeName: string;
+            }[];
+            document: {
+                name: string;
+                routeName: string;
+            }[];
+            animation: {
+                name: string;
+                routeName: string;
+            }[];
+            voice: {
+                name: string;
+                routeName: string;
+            }[];
+            videonote: {
+                name: string;
+                routeName: string;
+            }[];
+            sticker: {
+                name: string;
+                routeName: string;
+            }[];
+            location: {
+                name: string;
+                routeName: string;
+            }[];
+            contact: {
+                name: string;
+                routeName: string;
+            }[];
+        };
+        routeStatic: {
+            handleCallbackQueryData: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleText: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandText: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCaptionPhoto: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandCaptionPhoto: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCaptionVideo: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandCaptionVideo: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCaptionAudio: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandCaptionAudio: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCaptionDocument: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandCaptionDocument: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCaptionAnimation: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandCaptionAnimation: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCaptionVoice: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandCaptionVoice: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+        };
+        routeStaticIntent: {
+            handleArgsCallbackQueryData: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleArgsText: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandArgsText: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCaptionArgsPhoto: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandCaptionArgsPhoto: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCaptionArgsVideo: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandCaptionArgsVideo: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCaptionArgsAudio: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandCaptionArgsAudio: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCaptionArgsDocument: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandCaptionArgsDocument: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCaptionArgsAnimation: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandCaptionArgsAnimation: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCaptionArgsVoice: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleCommandCaptionArgsVoice: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+        };
+        routeStaticSession: {
+            handleSessionCallbackQueryData: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionText: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandText: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCaptionPhoto: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandCaptionPhoto: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCaptionVideo: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandCaptionVideo: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCaptionAudio: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandCaptionAudio: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCaptionDocument: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandCaptionDocument: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCaptionAnimation: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandCaptionAnimation: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCaptionVoice: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandCaptionVoice: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionArgsCallbackQueryData: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionArgsText: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandArgsText: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCaptionArgsPhoto: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandCaptionArgsPhoto: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCaptionArgsVideo: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandCaptionArgsVideo: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCaptionArgsAudio: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandCaptionArgsAudio: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCaptionArgsDocument: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandCaptionArgsDocument: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCaptionArgsAnimation: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandCaptionArgsAnimation: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCaptionArgsVoice: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionCommandCaptionArgsVoice: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeText: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreePhoto: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeVideo: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeAudio: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeDocument: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeAnimation: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeVoice: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeVideoNote: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeSticker: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeLocation: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeContact: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+        };
+        listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
+        listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
+        listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
+        listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
+        lenListRouteStatic: 15;
+        lenListRouteStaticIntent: 15;
+        lenListRouteStaticSession: number;
+        lenListRouteDynamicSpesific: 11;
+    };
+    _pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
         state: `matched` | `no-match` | `no-handler` | `blocked`;
     }>;
     pages: ReturnType<typeof Gramstax._pageLoads>;
     _pageSorts(Page: typeof Ctx, pages: typeof Gramstax.prototype.pages, indexPage: number): void;
-    registerLowOnCallbackData(): void;
+    registerLowOnCallbackQueryData(): void;
     registerLowOnMessageAnimation(): void;
     registerLowOnMessageAudio(): void;
     registerLowOnMessageContact(): void;
@@ -858,17 +1214,17 @@ export type ITBottomKb = Keyboard;
 
 // @public
 export type ITBottomKbParams = {
-    AGBaseId?: string;
-    data?: ITData;
+    AGBaseId?: string | null;
+    data?: ITData | null;
     cache?: boolean;
 };
 
 // @public
 export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
-    name?: string;
-    callbackData?: C;
-    intentText?: string;
-    intentTextCommand?: string;
+    name?: string | null;
+    callbackQueryData?: C | null;
+    intentText?: string | null;
+    intentTextCommand?: string | null;
 };
 
 // @public
@@ -980,7 +1336,7 @@ export type ITGramstaxParams = {
     cacheKeyboard?: Map<any, any>;
     templateManager?: TemplateManager;
     optionsPage?: {
-        shortCallbackData?: boolean;
+        shortCallbackQueryData?: boolean;
     };
 };
 
@@ -992,8 +1348,8 @@ export type ITInlineKb = InlineKeyboard;
 
 // @public
 export type ITInlineKbParams = {
-    AGBaseId?: string;
-    data?: ITData;
+    AGBaseId?: string | null;
+    data?: ITData | null;
     cache?: boolean;
 };
 
@@ -1154,11 +1510,11 @@ export type ITOptReplyVoice = Parameters<Context[`replyWithVoice`]>[1];
 // @public
 export type ITPageData<T extends any[] = any[]> = {
     name: string;
-    callbackData: (...args: T) => string;
+    callbackQueryData: (...args: T) => string;
     intentText: string;
     intentCommandText: string;
     _positionArgText: number;
-    intentCallbackData: string;
+    intentCallbackQueryData: string;
 };
 
 // @public
@@ -1347,6 +1703,8 @@ export class TemplateEngine {
     static _processGSwitchBlocks(template: string): string;
     static _processScopeExec(template: string): string;
     static _processScopeVariables(template: string): string;
+    // @internal
+    static _splitKeyboardLabels(content: string): string[];
     // (undocumented)
     static _splitMediaSrcList(src: string): string[];
     static _TELEGRAM_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>>;
@@ -1605,7 +1963,7 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:8703:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:8966:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

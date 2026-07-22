@@ -70,9 +70,9 @@ This internal method identifies all `<g-keyboard>` blocks and extracts their con
 
 ```typescript
 const template = `
-  <g-keyboard>Yes, No</g-keyboard>
+  <g-keyboard type="inline">Yes, No</g-keyboard>
   <g-keyboard type="bottom">Button 1, Button 2</g-keyboard>
-  <g-keyboard lang="id">Ya, Tidak</g-keyboard>
+  <g-keyboard type="inline" lang="id">Ya, Tidak</g-keyboard>
 `;
 const keyboards = TemplateEngine._processGKeyboardBlocks(template);
 // Result: {

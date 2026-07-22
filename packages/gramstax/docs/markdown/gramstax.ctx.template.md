@@ -57,8 +57,8 @@ Multi Language
 class MyPage extends Ctx {
   static template = `
     <g-base id="lah">
-      <g-keyboard>Button 1, Button 2</g-keyboard>
-      <g-keyboard lang="id">Tombol 1, Tombol 2</g-keyboard>
+      <g-keyboard type="inline">Button 1, Button 2</g-keyboard>
+      <g-keyboard type="inline" lang="id">Tombol 1, Tombol 2</g-keyboard>
     </g-base>
     <g-base>
       <g-message>Hello {{name}}!</g-message>

@@ -9,7 +9,7 @@ Creates an inline keyboard using a builder callback.
 **Signature:**
 
 ```typescript
-inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams): ITInlineKb;
+inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams | null): ITInlineKb;
 ```
 
 ## Parameters
@@ -53,12 +53,12 @@ params
 
 </td><td>
 
-[ITInlineKbParams](./gramstax.itinlinekbparams.md)
+[ITInlineKbParams](./gramstax.itinlinekbparams.md) \| null
 
 
 </td><td>
 
-_(Optional)_ Optional parameters. [ITInlineKbParams](./gramstax.itinlinekbparams.md) for details.
+_(Optional)_ Optional parameters (or null to omit). [ITInlineKbParams](./gramstax.itinlinekbparams.md) for details.
 
 
 </td></tr>
@@ -78,12 +78,12 @@ The callback receives the keyboard instance and an array of button labels from t
 
 
 ```typescript
-async handleCallbackData() {
+async handleCallbackQueryData() {
   const kb = this.inlineKeyboard((k, labels) => {
     labels.forEach((label, i) => k.text(label, `action:${i}`))
     return k
   })
-  await this.reply(kb)
+  await this.render(kb)
 }
 ```
 

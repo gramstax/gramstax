@@ -25,7 +25,7 @@ Triggered by any contact not matching other routes, typically used with sessions
 
 ```typescript
 async handleFreeContact() {
-   this.msgContact // {...}
+   this.msg?.contact // {...}
 }
 ```
 

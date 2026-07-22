@@ -25,7 +25,7 @@ Triggered by any document not matching other routes, typically used with session
 
 ```typescript
 async handleFreeDocument() {
-   this.msgDocument // {...}
+   this.msg?.document // {...}
 }
 ```
 

@@ -4,9 +4,7 @@
 
 ## Ctx.(constructor)
 
-Creates a new Ctx instance.
-
-\*\*note:\*\* For most pages do not define a constructor
+Constructs a new instance of the `Ctx` class
 
 **Signature:**
 
@@ -43,8 +41,6 @@ params
 
 
 </td><td>
-
-The initialization parameters. See [ITCtxParams](./gramstax.itctxparams.md) for details.
 
 
 </td></tr>

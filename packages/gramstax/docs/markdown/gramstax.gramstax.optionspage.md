@@ -10,7 +10,7 @@ Page options configuration.
 
 ```typescript
 optionsPage: {
-        shortCallbackData: boolean;
+        shortCallbackQueryData: boolean;
     };
 ```
 

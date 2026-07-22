@@ -9,7 +9,7 @@ Creates an inline keyboard with template-based buttons linked to page destinatio
 **Signature:**
 
 ```typescript
-inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData): InlineKeyboard;
+inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData | null): InlineKeyboard;
 ```
 
 ## Parameters
@@ -74,7 +74,7 @@ string \| null
 
 </td><td>
 
-_(Optional)_ Optional template g-base ID position block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId to the same value. Leaving AGBaseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration.
+_(Optional)_ Optional template g-base ID position block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId to the same value. Leaving AGBaseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a base ID in the template but not reusing it in the keyboard configuration (or null to use default).
 
 
 </td></tr>
@@ -85,12 +85,12 @@ data
 
 </td><td>
 
-[ITData](./gramstax.itdata.md)
+[ITData](./gramstax.itdata.md) \| null
 
 
 </td><td>
 
-_(Optional)_ Optional template interpolation data.
+_(Optional)_ Optional template interpolation data (or null to omit).
 
 
 </td></tr>
@@ -110,16 +110,16 @@ Shorthand for [Ctx.inlineKeyboard()](./gramstax.ctx.inlinekeyboard.md) with auto
 
 
 ```typescript
-async handleCallbackData() {
+async handleCallbackQueryData() {
   const kb = this.inlineKeyboardT([SettingsPage, HelpPage], "2")
-  await this.reply(kb)
+  await this.render(kb)
 
   // Or with arg
-  const kb = this.inlineKeyboardT([SettingsPage.data.callbackData(1), HelpPage.data.callbackData(`hi`)], "2")
-  await this.reply(kb)
+  const kb = this.inlineKeyboardT([SettingsPage.data.callbackQueryData(1), HelpPage.data.callbackQueryData(`hi`)], "2")
+  await this.render(kb)
 
   // Compare with builder for basic but not recomended because very long syntax, only use builder when needed.!
-  this.inlineKeyboard((k, a) => k.text(SettingsPage.data.callbackData(), a[0]!).text(HelpPage.data.callbackData(), a[1]!))
+  this.inlineKeyboard((k, a) => k.text(SettingsPage.data.callbackQueryData(), a[0]!).text(HelpPage.data.callbackQueryData(), a[1]!))
 }
 ```
 

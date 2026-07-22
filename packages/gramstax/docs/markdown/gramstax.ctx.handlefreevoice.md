@@ -25,7 +25,7 @@ Triggered by any voice not matching other routes, typically used with sessions.
 
 ```typescript
 async handleFreeVoice() {
-   this.msgVoice // {...}
+   this.msg?.voice // {...}
 }
 ```
 

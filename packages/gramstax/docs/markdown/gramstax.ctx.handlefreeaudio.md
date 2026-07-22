@@ -22,11 +22,11 @@ Triggered by any audio not matching other routes, typically used with sessions.
 
 ## Example
 
-this.msgAudio
+this.msg?.audio
 
 ```typescript
 async handleFreeAudio() {
-   this.msgAudio // {...}
+   this.msg?.audio // {...}
 }
 ```
 

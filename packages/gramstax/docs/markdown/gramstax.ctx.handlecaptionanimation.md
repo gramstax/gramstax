@@ -26,7 +26,7 @@ this.data.name = "start"
 
 ```typescript
 async handleCaptionAnimation() {
-  this.msgAnimation // {...}
+  this.msg?.animation // {...}
   this.msgCaption // "start"
 }
 ```

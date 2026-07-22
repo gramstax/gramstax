@@ -9,7 +9,7 @@ Creates a bottom keyboard with template-based text buttons.
 **Signature:**
 
 ```typescript
-bottomKeyboardT(layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any>): Keyboard;
+bottomKeyboardT(layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): Keyboard;
 ```
 
 ## Parameters
@@ -58,7 +58,7 @@ string \| null
 
 </td><td>
 
-_(Optional)_ Optional template base ID position for block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId to the same value. Leaving AGBaseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a g-base ID in the template but not reusing it in the keyboard configuration.
+_(Optional)_ Optional template base ID position for block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId to the same value. Leaving AGBaseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a g-base ID in the template but not reusing it in the keyboard configuration (or null to use default).
 
 
 </td></tr>
@@ -69,12 +69,12 @@ data
 
 </td><td>
 
-Record&lt;any, any&gt;
+Record&lt;any, any&gt; \| null
 
 
 </td><td>
 
-_(Optional)_ Optional template interpolation data.
+_(Optional)_ Optional template interpolation data (or null to omit).
 
 
 </td></tr>
@@ -94,9 +94,9 @@ Shorthand for [Ctx.bottomKeyboard()](./gramstax.ctx.bottomkeyboard.md) with auto
 
 
 ```typescript
-async handleCallbackData() {
+async handleCallbackQueryData() {
   const kb = this.bottomKeyboardT("2")
-  await this.reply(kb)
+  await this.render(kb)
 }
 ```
 

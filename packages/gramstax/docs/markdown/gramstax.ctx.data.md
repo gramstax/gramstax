@@ -4,7 +4,7 @@
 
 ## Ctx.data property
 
-Page routing data created by `Ctx.buildData`<!-- -->.
+/\*\* Page routing data created by `Ctx.buildData`<!-- -->.
 
 **Signature:**
 
@@ -21,12 +21,12 @@ Only define when you want to override the intent and have a callback arg. If not
 
 ```typescript
 class MyPage extends Ctx {
-  // For args `handle*CallbackData`
+  // For args `handle*CallbackQueryData`
   static data = this.buildData((confirm?: string) => [confirm])
 
-  // For args `handle*CallbackData` and `handle*Text` and `handle*CommandText` (Besides "handleFree*")
+  // For args `handle*CallbackQueryData` and `handle*Text` and `handle*CommandText` (Besides "handleFree*")
   static data = this.buildData({
-    callbackData: (confirm?: string) => [confirm],
+    callbackQueryData: (confirm?: string) => [confirm],
     intentText: `my_page`,
     intentCommandText: `hello`
   })

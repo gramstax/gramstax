@@ -10,8 +10,8 @@ Parameters for bottom keyboard configuration.
 
 ```typescript
 type ITBottomKbParams = {
-    AGBaseId?: string;
-    data?: ITData;
+    AGBaseId?: string | null;
+    data?: ITData | null;
     cache?: boolean;
 };
 ```

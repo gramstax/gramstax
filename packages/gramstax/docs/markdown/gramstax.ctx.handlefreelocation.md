@@ -25,7 +25,7 @@ Triggered by any location not matching other routes, typically used with session
 
 ```typescript
 async handleFreeLocation() {
-   this.msgLocation // {...}
+   this.msg?.location // {...}
 }
 ```
 
