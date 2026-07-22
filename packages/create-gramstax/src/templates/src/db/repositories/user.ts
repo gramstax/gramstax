@@ -15,25 +15,25 @@ export class UserRepo extends LmdbRepository<IVUser, IKUser> {
   static dbName = `user`
 
   async findOrCreate(tgId: number, data: {username: string; firstName: string; lastName: string; languageCode: string}): Promise<{user: IVUser; created: boolean}> {
-    return this.env.transaction(async () => {
-      const existing = await this.get(tgId)
+    return this.env.transaction(() => {
+      const existing = this.get(tgId)
       if (existing) {
         const updated: IVUser = {...existing, ...data, updatedAt: Date.now()}
-        await this.set(tgId, updated)
+        this.set(tgId, updated)
         return {user: updated, created: false}
       }
       const now = Date.now()
       const user: IVUser = {tgId, ...data, createdAt: now, updatedAt: now}
-      await this.set(tgId, user)
+      this.set(tgId, user)
       return {user, created: true}
     })
   }
 
   async touch(tgId: number) {
-    return this.env.transaction(async () => {
-      const user = await this.get(tgId)
+    return this.env.transaction(() => {
+      const user = this.get(tgId)
       if (user) {
-        await this.set(tgId, {...user, updatedAt: Date.now()})
+        this.set(tgId, {...user, updatedAt: Date.now()})
       }
     })
   }
