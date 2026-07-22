@@ -106,6 +106,7 @@ describe(`Gramstax deploy:"raw" exception removal`, () => {
 
   it(`still accepts a real TemplateManager in non-raw mode`, () => {
     const tm = new TemplateManager({path: [TEST_DIR]})
-    expect(() => new Gramstax({token: `123:abc`, deploy: `polling`, templateManager: tm, log: false})).not.toThrow()
+    // Use deploy:test to avoid async 401 from fake-token bot.start()
+    expect(() => new Gramstax({token: `123:abc`, deploy: `test`, templateManager: tm, log: false})).not.toThrow()
   })
 })
