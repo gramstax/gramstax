@@ -283,7 +283,7 @@ export class Ctx extends Context {
   data = (this.constructor as Record<any, any>).data as ITPageData<any>
 
   /**
-   * The full {@link Context.message} object from Telegram (non-nullable).
+   * The full {@link Ctx.message} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.message`.
    *
@@ -295,7 +295,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.msg} object from Telegram (non-nullable).
+   * The full {@link Ctx.msg} object from Telegram (non-nullable).
    *
    * Shorthand for `this.message` with fallback across message-like update fields.
    *
@@ -307,7 +307,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.callbackQuery} object from Telegram (non-nullable).
+   * The full {@link Ctx.callbackQuery} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.callback_query`.
    *
@@ -319,7 +319,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.from} object from Telegram (non-nullable).
+   * The full {@link Ctx.from} object from Telegram (non-nullable).
    *
    * @readonly
    * @public
@@ -329,7 +329,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.businessConnection} object from Telegram (non-nullable).
+   * The full {@link Ctx.businessConnection} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.business_connection`.
    *
@@ -341,7 +341,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.businessMessage} object from Telegram (non-nullable).
+   * The full {@link Ctx.businessMessage} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.business_message`.
    *
@@ -353,7 +353,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.channelPost} object from Telegram (non-nullable).
+   * The full {@link Ctx.channelPost} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.channel_post`.
    *
@@ -365,7 +365,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.chat} object from Telegram (non-nullable).
+   * The full {@link Ctx.chat} object from Telegram (non-nullable).
    *
    * @readonly
    * @public
@@ -375,7 +375,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.chatBoost} object from Telegram (non-nullable).
+   * The full {@link Ctx.chatBoost} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.chat_boost`.
    *
@@ -387,7 +387,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.chatJoinRequest} object from Telegram (non-nullable).
+   * The full {@link Ctx.chatJoinRequest} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.chat_join_request`.
    *
@@ -399,7 +399,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.chatMember} object from Telegram (non-nullable).
+   * The full {@link Ctx.chatMember} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.chat_member`.
    *
@@ -411,7 +411,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.chosenInlineResult} object from Telegram (non-nullable).
+   * The full {@link Ctx.chosenInlineResult} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.chosen_inline_result`.
    *
@@ -423,7 +423,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.deletedBusinessMessages} object from Telegram (non-nullable).
+   * The full {@link Ctx.deletedBusinessMessages} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.deleted_business_messages`.
    *
@@ -435,7 +435,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.editedBusinessMessage} object from Telegram (non-nullable).
+   * The full {@link Ctx.editedBusinessMessage} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.edited_business_message`.
    *
@@ -447,7 +447,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.editedChannelPost} object from Telegram (non-nullable).
+   * The full {@link Ctx.editedChannelPost} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.edited_channel_post`.
    *
@@ -459,7 +459,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.editedMessage} object from Telegram (non-nullable).
+   * The full {@link Ctx.editedMessage} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.edited_message`.
    *
@@ -471,7 +471,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.guestMessage} object from Telegram (non-nullable).
+   * The full {@link Ctx.guestMessage} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.guest_message`.
    *
@@ -483,7 +483,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.inlineQuery} object from Telegram (non-nullable).
+   * The full {@link Ctx.inlineQuery} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.inline_query`.
    *
@@ -495,7 +495,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.managedBot} object from Telegram (non-nullable).
+   * The full {@link Ctx.managedBot} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.managed_bot`.
    *
@@ -507,7 +507,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.messageReaction} object from Telegram (non-nullable).
+   * The full {@link Ctx.messageReaction} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.message_reaction`.
    *
@@ -519,7 +519,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.poll} object from Telegram (non-nullable).
+   * The full {@link Ctx.poll} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.poll`.
    *
@@ -531,7 +531,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.pollAnswer} object from Telegram (non-nullable).
+   * The full {@link Ctx.pollAnswer} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.poll_answer`.
    *
@@ -543,7 +543,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.preCheckoutQuery} object from Telegram (non-nullable).
+   * The full {@link Ctx.preCheckoutQuery} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.pre_checkout_query`.
    *
@@ -555,7 +555,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.purchasedPaidMedia} object from Telegram (non-nullable).
+   * The full {@link Ctx.purchasedPaidMedia} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.purchased_paid_media`.
    *
@@ -567,7 +567,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.removedChatBoost} object from Telegram (non-nullable).
+   * The full {@link Ctx.removedChatBoost} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.removed_chat_boost`.
    *
@@ -579,7 +579,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Context.senderChat} object from Telegram (non-nullable).
+   * The full {@link Ctx.senderChat} object from Telegram (non-nullable).
    *
    * @readonly
    * @public
