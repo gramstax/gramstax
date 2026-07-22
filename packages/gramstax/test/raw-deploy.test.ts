@@ -99,7 +99,7 @@ describe(`Gramstax deploy:"raw" exception removal`, () => {
   })
 
   it(`throws when templateManager: {} as any is used in a non-raw mode`, () => {
-    expect(() => new Gramstax({token: `123:abc`, deploy: `polling`, templateManager: {} as any, log: false})).toThrow(
+    expect(() => new Gramstax({token: `123:abc`, deploy: `test`, templateManager: {} as any, log: false})).toThrow(
       /deploy: "raw"/
     )
   })
