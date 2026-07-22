@@ -4,7 +4,7 @@ import {RandomNumberPage} from "./random-number"
 import {SumNumberPage} from "./sum-number"
 
 export class StartPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
@@ -16,12 +16,8 @@ export class StartPage extends PageBase {
     show: async (isEdit = true) => {
       await this.clearSession()
       const kb = this.inlineKeyboardT([RandomNumberPage, SumNumberPage, HelpPage], `2`)
-      const da = {userName: this.userName}
-      if (isEdit) {
-        await this.editRich(kb, da)
-      } else {
-        await this.replyRich(kb, da)
-      }
+      const da = {userName: this.from?.username}
+      await this.renderAutoRich(kb, da, null, null, null, isEdit)
     }
   }
 

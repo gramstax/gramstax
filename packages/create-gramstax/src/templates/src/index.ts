@@ -13,7 +13,7 @@ class Index {
       deploy: Env.TELEGRAM_BOT_DEPLOY,
       cacheSession: new CacheExternal(Env.TELEGRAM_CACHE_SESSION, 4 * 60 * 60 * 1000, `s`), // 4 hours
       optionsPage: {
-        shortCallbackData: true
+        shortCallbackQueryData: true
       }
     })
   }

@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class HelpPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
@@ -13,11 +13,7 @@ export class HelpPage extends PageBase {
   bdefault = {
     show: async (isEdit = true) => {
       const kb = this.inlineKeyboardT([StartPage])
-      if (isEdit) {
-        await this.editRich(kb)
-      } else {
-        await this.replyRich(kb)
-      }
+      await this.renderAutoRich(kb, null, null, null, null, isEdit)
     }
   }
 

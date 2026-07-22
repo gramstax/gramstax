@@ -11,7 +11,6 @@ export class Db extends LmdbEnv {
   }
 
   private async _init() {
-    await this.open()
     this.user = this.register(UserRepo)
   }
 

@@ -10,7 +10,7 @@ export class UserGuard extends GuardBase {
 
   async ensureUsername(edit: boolean) {
     try {
-      if (!this.userName || this.userName.length == 0) {
+      if (!this.from?.username || this.from?.username.length == 0) {
         await new UserNameNotFoundPage(this).bdefault.show(edit)
         return null
       }

@@ -18,7 +18,7 @@ class Helper {
 }
 
 export class SumNumberPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bleft.show(true)
   }
 
@@ -28,7 +28,7 @@ export class SumNumberPage extends PageBase {
 
   async handleSessionFreeText() {
     const {step, left} = Helper.getSessionParams(this)
-    const input = this.msgText?.trim()
+    const input = this.msg!.text!.trim()
     const value = input ? Number(input) : NaN
     if (step === Base.left) {
       await this.bleft.process(value)
@@ -42,9 +42,9 @@ export class SumNumberPage extends PageBase {
       const kb = Helper.kb(this, Base.left)
       await this.setSessionFreeText({step: Base.left})
       if (edit) {
-        await this.edit(kb, {}, Base.left)
+        await this.renderEdit(kb, {}, Base.left)
       } else {
-        await this.reply(kb, {}, Base.left)
+        await this.render(kb, {}, Base.left)
       }
     },
     process: async (left: number) => {
@@ -60,7 +60,7 @@ export class SumNumberPage extends PageBase {
     show: async (left: number) => {
       const kb = Helper.kb(this, Base.right)
       await this.setSessionFreeText({step: Base.right, left})
-      await this.reply(kb, {}, Base.right)
+      await this.render(kb, {}, Base.right)
     },
     process: async (value: number, left: number) => {
       if (!Number.isFinite(value)) {
@@ -76,7 +76,7 @@ export class SumNumberPage extends PageBase {
     show: async (left: number, right: number) => {
       const kb = Helper.kb(this, Base.success)
       const da = {result: left + right}
-      await this.reply(kb, da, Base.success)
+      await this.render(kb, da, Base.success)
     }
   }
 

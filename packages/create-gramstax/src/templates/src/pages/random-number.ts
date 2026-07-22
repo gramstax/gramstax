@@ -2,7 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
 export class RandomNumberPage extends PageBase {
-  async handleCallbackData() {
+  async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
@@ -14,11 +14,7 @@ export class RandomNumberPage extends PageBase {
     show: async (isEdit = true) => {
       const kb = this.inlineKeyboardT([this, StartPage])
       const da = {result: Math.random() * 10 ** 18}
-      if (isEdit) {
-        await this.edit(kb, da)
-      } else {
-        await this.reply(kb, da)
-      }
+      await this.renderAuto(kb, da, null, null, isEdit)
     }
   }
 
