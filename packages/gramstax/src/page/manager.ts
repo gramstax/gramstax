@@ -19,7 +19,7 @@ import {createRequire} from "node:module"
  *
  * @remarks
  * Used internally by Gramstax to load page classes from the `src/pages` directory.
- * Pages must export a class (not default export) that extends {@link Ctx}.
+ * Pages must export a class (not default export) that extends {@link Ctx:class}.
  *
  * @example
  * ```typescript

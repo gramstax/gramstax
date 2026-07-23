@@ -196,7 +196,7 @@ export type ITGramstaxParams = {
   templateManager?: TemplateManager
 
   /**
-   * Enable/disable the stream plugin (@grammyjs/stream).
+   * Enable/disable the stream plugin (\@grammyjs/stream).
    *
    * @remarks
    * When enabled (default), the stream plugin is automatically registered,
@@ -208,7 +208,7 @@ export type ITGramstaxParams = {
   stream?: boolean
 
   /**
-   * Enable/disable the auto-retry plugin (@grammyjs/auto-retry).
+   * Enable/disable the auto-retry plugin (\@grammyjs/auto-retry).
    *
    * @remarks
    * When enabled (default), the auto-retry plugin is automatically registered
