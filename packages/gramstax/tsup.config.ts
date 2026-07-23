@@ -1,12 +1,4 @@
 import {defineConfig} from "tsup"
-import {rmdirSync} from "node:fs"
-
-// hard clean
-try {
-  rmdirSync(`./dist`)
-} catch {
-  //
-}
 
 export default defineConfig({
   outDir: `./dist/src`,
@@ -21,9 +13,5 @@ export default defineConfig({
   platform: `node`,
   target: `esnext`,
   external: [`bun`],
-  tsconfig: `./tsconfig.build.json`,
-  define: {
-    // __PKG_VERSION__: JSON.stringify(version)
-  },
-  shims: true
+  tsconfig: `./tsconfig.build.json`
 })
