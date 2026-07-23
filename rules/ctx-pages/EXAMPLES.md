@@ -58,7 +58,8 @@ class Base {
   static warnInvalid = `w-invalid`;
 }
 
-// 2. CONSTANTS (If any)
+// 2. CONSTANTS — use top-level const, NOT a class wrapper
+const DEPOSIT_TIMEOUT = 300_000;
 
 // 3. HELPERS (Keyboards, Formatters, Session helpers)
 class Helper {

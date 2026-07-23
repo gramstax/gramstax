@@ -30,3 +30,43 @@ For more complex applications, follow these patterns:
 - `src/db`: Centralized database connection and configuration.
 - `src/db/repositories`: Data access logic (CRUD operations).
 - `src/services`: Orchestration of external APIs or complex business workflows.
+
+## File Naming Convention
+
+### REQUIRED: kebab-case for All Files
+
+Every file inside `src/` **MUST** use `kebab-case`.
+
+| ✅ Correct                  | ❌ Incorrect                   |
+| :-------------------------- | :----------------------------- |
+| `user-service.ts`           | `userService.ts`               |
+| `bot-config.ts`             | `botConfig.ts`                 |
+| `telegram-utils.ts`         | `telegramUtils.ts`             |
+| `http-request-handler.ts`   | `HttpRequestHandler.ts`        |
+| `string-helper.ts`          | `string_helper.ts`             |
+| `index.ts`, `start.ts`      | (single word — still kebab)    |
+
+**Rules:**
+- Use `kebab-case` for all TypeScript/JavaScript source files.
+- File names consist of one or more words separated by hyphens (`-`).
+- **FORBIDDEN**: `camelCase`, `PascalCase`, or `snake_case` for file names.
+- Single-word files like `start.ts`, `index.ts`, `help.ts` are still valid.
+
+### Parent-Child Structure for Sub-Files
+
+When a file has sub-files that are logically part of it, use the `<parent>-<child>.ts` structure:
+
+```
+src/
+├── admin.ts              # Main file
+├── admin-list.ts         # Child: list
+├── admin-list-detail.ts  # Grandchild: detail from list
+├── order.ts              # Main file
+├── order-create.ts       # Child: create order
+└── order-checkout.ts     # Child: checkout order
+```
+
+**Rules:**
+- Use parent-child only when files have a hierarchical relationship.
+- Standalone files (no children) should just use a descriptive name without prefix.
+- No hard limit on depth — maximum 5 levels recommended for readability.

@@ -10,7 +10,10 @@ This directory contains E2E test rules for Gramstax projects. AI agents should r
 
 ## Rule Pages
 
-- `./E2E_STRUCTURE.md`: File layout, `setup.ts` template with `gmsg`/`gkb`/`gmedia` helpers, test file templates, assertion rules, session isolation, and Language variants.
+- `./E2E_SETUP.md`: `setup.ts` template, project-specific additions, available e2e methods, types, and API mapping.
+- `./E2E_TEMPLATES.md`: Test file templates for all scenarios (callback, text command, bottom keyboard, media, flow, error/edge cases, blank test, session isolation).
+- `./E2E_VALIDATION.md`: All required validation rules — message, keyboard, media, multi-call, callback answer, chat action, special media, language variant, and assertion summary.
+- `./E2E_CHECKLIST.md`: Comprehensive checklist for new projects.
 
 ---
 

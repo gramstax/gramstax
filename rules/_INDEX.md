@@ -9,7 +9,7 @@ This file is the entrypoint for rules in this directory.
 General project rules — initialization, structure, and code quality. Covers:
 
 - `./INIT.md`: Scaffolding with `create-gramstax`, CLI flags, non-interactive mode
-- `./PROJECT_STRUCTURE.md`: Directory layout, file naming, and organization
+- `./PROJECT_STRUCTURE.md`: Directory layout, file naming (kebab-case + parent-child), and organization
 - `./PRODUCTION_QUALITY.md`: Production standards, error handling, UX guidelines
 - `./LINTING_RULES.md`: Formatting, linting, and code style enforcement
 

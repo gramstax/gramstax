@@ -4,12 +4,12 @@
 
 Each page file must follow a strict modular structure. **Only define internal classes if they contain logic or data.** Empty class blocks are prohibited.
 
-| Member          | Purpose             | Convention                                    |
-| :-------------- | :------------------ | :-------------------------------------------- |
-| **Base**        | g-base id constants | static <idName> = `id`                        |
-| **Constant**    | Reusable literals   | static <CONST_NAME> = value                   |
-| **Helper**      | Local utilities     | static kb(ctx, bi) { ... }                    |
-| **b\* objects** | View/process pairs  | `b<name> = { show, [process] }` on Page class |
+| Member            | Purpose             | Convention                                            |
+| :---------------- | :------------------ | :---------------------------------------------------- |
+| **Base**          | g-base id constants | `static <idName> = \`id\`` inside `class Base`         |
+| **UPPER consts**  | Reusable literals   | `const <NAME> = <value>` at top level (below imports) |
+| **Helper**        | Local utilities     | `static kb(ctx, bi) { ... }`                          |
+| **b\* objects**   | View/process pairs  | `b<name> = { show, [process] }` on Page class         |
 
 ## Execution Path (b\* Objects)
 
@@ -61,6 +61,9 @@ class Base {
   static success = `s`
 }
 
+// Reusable literals — use top-level const, NOT a class wrapper
+const SOME_TIMEOUT = 5000
+
 class Helper {
   static kb(ctx: DepositPage, bi?: string) {
     return ctx.inlineKeyboardT([StartPage], `1`, bi)
@@ -103,10 +106,11 @@ export class DepositPage extends PageBase {
 
 Members within the file **MUST** be declared in this exact order:
 
-1. **Base** (if needed)
-2. **Constant** (if needed)
-3. **Helper** (if needed)
-4. **Page** (The exported class, inheriting from PageBase)
+1. **Imports**
+2. **Base** — internal `class Base` for g-base ID constants (if needed)
+3. **UPPER consts** — reusable literals as top-level `const` declarations (if needed) — do **not** wrap these in a class
+4. **Helper** — internal class for utility methods (if needed)
+5. **Page** — exported class extending PageBase
    a. Handler methods (`handleCallbackQueryData`, `handleCommandText`, `handleSessionFreeText`)
    b. `b<*>` object fields
    c. `static template`

@@ -15,6 +15,7 @@ This directory contains modularized rules for Gramstax development. AI agents sh
 - `./KEYBOARDS.md`: Keyboard blocks (kbk), labels (kbl), and reuse patterns.
 - `./BASE_BLOCKS.md`: Base block usage and ID naming.
 - `./PAGE_STRUCTURE.md`: Internal class composition, suffixes, and ordering.
+- `./FILE_NAMING.md`: File naming conventions — kebab-case and parent-child structure.
 - `./VARIABLE_NAMING.md`: Standardized shorthands (bi, kb, da).
 - `./EXAMPLES.md`: Reference implementations and code snippets.
 
