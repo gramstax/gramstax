@@ -141,6 +141,7 @@ class Helper {
  *
  * @public
  */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class Ctx extends Context {
   /**
    * HTML-like template string for the page.
@@ -3917,4 +3918,15 @@ export class Ctx extends Context {
   methodSessionFreeContact(name?: string) {
     return this.methodSession(`41`, name)
   }
+}
+
+/**
+ * Stream plugin methods added by {@link stream} middleware.
+ * @internal
+ */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging, no-redeclare
+export interface Ctx {
+  replyWithStream(stream: Iterable<string | {text: string; entities?: any[]}> | AsyncIterable<string | {text: string; entities?: any[]}>, otherMessageDraft?: any, otherMessage?: any, signal?: AbortSignal): Promise<any>
+  replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>
+  replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>
 }

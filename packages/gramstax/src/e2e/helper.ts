@@ -99,6 +99,18 @@ export class E2eHelper {
       if (method === `getUpdates`) {
         return {ok: true, result: []} as any
       }
+      // Stream plugin API methods
+      if (method === `sendMessageDraft`) {
+        const msgId = (payload as any)?.draft_id ?? this._nextApiMsgId++
+        return {ok: true, result: {message_id: msgId, date: Math.floor(Date.now() / 1000), chat: (payload as any)?.chat_id ? {id: (payload as any).chat_id, type: `private`} : {id: 0, type: `private`}}} as any
+      }
+      if (method === `sendRichMessageDraft`) {
+        const msgId = (payload as any)?.draft_id ?? this._nextApiMsgId++
+        return {ok: true, result: {message_id: msgId, date: Math.floor(Date.now() / 1000), chat: (payload as any)?.chat_id ? {id: (payload as any).chat_id, type: `private`} : {id: 0, type: `private`}}} as any
+      }
+      if (method === `sendRichMessage`) {
+        return {ok: true, result: {message_id: this._nextApiMsgId++, date: Math.floor(Date.now() / 1000), chat: {id: 0, type: `private`}}} as any
+      }
 
       return {ok: true, result: {message_id: this._nextApiMsgId++}} as any
     })
@@ -563,5 +575,38 @@ export class E2eHelper {
         query
       }
     })
+  }
+
+  // ── stream helpers ────────────────────────────────────────────
+
+  /**
+   * Get all captured stream-related API calls.
+   *
+   * @remarks
+   * Returns calls to `sendMessageDraft`, `sendRichMessageDraft`,
+   * `sendRichMessage`, and `sendMessage` methods made during stream operations.
+   *
+   * @returns Array of stream-related API calls.
+   */
+  streamCalls(): ITE2eApiCall[] {
+    return this.calls.filter(
+      (c) => c.method === `sendMessageDraft` || c.method === `sendRichMessageDraft` || c.method === `sendRichMessage` || c.method === `sendMessage`
+    )
+  }
+
+  /**
+   * Extract all text chunks from stream API calls.
+   *
+   * @remarks
+   * Collects the `text` field from `sendMessageDraft` calls and the HTML
+   * markup from `sendRichMessageDraft` and `sendRichMessage` calls —
+   * useful for asserting that streamed content matches expected output.
+   *
+   * @returns Array of text chunks.
+   */
+  streamChunks(): string[] {
+    return this.streamCalls()
+      .map((c) => (c.body as any)?.text ?? (c.body as any)?.rich_message?.markdown ?? (c.body as any)?.rich_message?.html ?? ``)
+      .filter(Boolean)
   }
 }

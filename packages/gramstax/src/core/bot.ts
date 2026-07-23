@@ -23,6 +23,8 @@ import type {ITGramstaxParams, ITWebhookQueueConfig} from "~/types/t.bot"
 import {WebhookQueue} from "~/webhook/queue"
 import {ITCt, ITCtMiddleware} from "~/types/t.ctx"
 import {E2eHelper} from "../e2e/helper"
+import {autoRetry} from "@grammyjs/auto-retry"
+import {stream} from "@grammyjs/stream"
 
 const __dirname = dirname(
   (() => {
@@ -120,7 +122,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Instance of the grammY `Bot`.
    */
-  bot: Bot
+   bot: Bot<ITCt>
 
   /**
    * Optional grammY bot configuration.
@@ -290,6 +292,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.webhookQueue = params.webhookQueue
 
     this.bot = this.createBot(params.token)
+    if (params.autoRetry !== false) {
+      this.bot.api.config.use(autoRetry())
+    }
+    if (params.stream !== false) {
+      this.bot.use(stream() as any)
+    }
     this.bot.catch(this._onCatch)
     this.registerLowPlugin?.()?.forEach((func) => this.bot.use(func)) // Handle middleware ct
 
@@ -612,8 +620,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  createBot(token: string) {
-    return new Bot(token, this.botConfig)
+  createBot(token: string): Bot<ITCt> {
+    return new Bot<ITCt>(token, this.botConfig)
   }
 
   /**

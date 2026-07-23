@@ -89,7 +89,7 @@
     },
     "packages/create-gramstax": {
       "name": "create-gramstax",
-      "version": "0.9.0",
+      "version": "0.11.3",
       "bin": {
         "create-gramstax": "dist/src/index.js",
       },
@@ -108,8 +108,10 @@
     },
     "packages/gramstax": {
       "name": "gramstax",
-      "version": "0.9.0",
+      "version": "0.11.3",
       "dependencies": {
+        "@grammyjs/auto-retry": "^2.0.2",
+        "@grammyjs/stream": "^1.1.0",
         "@keyv/redis": "^5.1.4",
         "chokidar": "^4.0.3",
         "grammy": "^1.44.0",
@@ -126,7 +128,7 @@
     },
     "packages/lmdb": {
       "name": "@gramstax/lmdb",
-      "version": "0.9.0",
+      "version": "0.11.3",
       "dependencies": {
         "lmdb": "^3.5.6",
       },
@@ -140,7 +142,7 @@
     },
     "packages/worker-thread": {
       "name": "@gramstax/worker-thread",
-      "version": "0.9.0",
+      "version": "0.11.3",
       "dependencies": {
         "net-ipc": "^2.2.2",
       },
@@ -425,6 +427,10 @@
     "@eslint/object-schema": ["@eslint/object-schema@2.1.7", "", {}, "sha512-VtAOaymWVfZcmZbp6E2mympDIHvyjXs/12LqWYjVw6qjrfF+VK+fyG33kChz3nnK+SU5/NeHOqrTEHS8sXO3OA=="],
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.4.1", "", { "dependencies": { "@eslint/core": "^0.17.0", "levn": "^0.4.1" } }, "sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA=="],
+
+    "@grammyjs/auto-retry": ["@grammyjs/auto-retry@2.0.2", "", { "dependencies": { "debug": "^4.3.4" }, "peerDependencies": { "grammy": "^1.10.0" } }, "sha512-b4A4p5jlYDiQtW0c0FXYe11WMkYoiW+5rvOaDMCOk1h7Pu2SDl7B7gmFF8cthWCx2+M2nWLOsBxAgbBG4kKWYg=="],
+
+    "@grammyjs/stream": ["@grammyjs/stream@1.1.0", "", { "dependencies": { "abort-controller": "^3.0.0" }, "peerDependencies": { "grammy": "^1.39.0" } }, "sha512-xaVjR5dg68Ef/my0O0gSB57OxZObdmfTd0WsjkVVP1NjW02RAkR7LNCA0QwZQSO++R5CHPdDcmOrG+JVkJguRQ=="],
 
     "@grammyjs/types": ["@grammyjs/types@3.28.0", "", {}, "sha512-4JvXCdxRZHCje0M4gHzLwtB4bLno3WD28xd8CNfk4POWIu73BFnSvGeW6OQ5gPem4eYTEwkD9yDaXssixl6tMQ=="],
 

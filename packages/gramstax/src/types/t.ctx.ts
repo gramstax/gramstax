@@ -1,4 +1,6 @@
 import type {Keyboard, Context, InlineKeyboard, Middleware} from "grammy"
+import type {StreamFlavor} from "@grammyjs/stream"
+export type {StreamFlavor}
 import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {Ctx} from "~/core/ctx"
 import type {TemplateManager} from "~/template/manager"

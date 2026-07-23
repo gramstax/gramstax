@@ -196,6 +196,30 @@ export type ITGramstaxParams = {
   templateManager?: TemplateManager
 
   /**
+   * Enable/disable the stream plugin (@grammyjs/stream).
+   *
+   * @remarks
+   * When enabled (default), the stream plugin is automatically registered,
+   * providing `ctx.replyWithStream`, `ctx.replyWithMarkdownStream`,
+   * and `ctx.replyWithHtmlStream` for streaming long messages.
+   *
+   * @defaultValue `true`
+   */
+  stream?: boolean
+
+  /**
+   * Enable/disable the auto-retry plugin (@grammyjs/auto-retry).
+   *
+   * @remarks
+   * When enabled (default), the auto-retry plugin is automatically registered
+   * on the API client, automatically handling Telegram rate limits by retrying
+   * failed requests. Strongly recommended when using the stream plugin.
+   *
+   * @defaultValue `true`
+   */
+  autoRetry?: boolean
+
+  /**
    * Page routing configuration options.
    */
   optionsPage?: {
