@@ -15,6 +15,7 @@ export default defineConfig({
   minify: true,
   sourcemap: false,
   keepNames: true,
+  shims: true,
   platform: `node`,
   target: `esnext`,
   external: [`bun`, `src/templates`],
