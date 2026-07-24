@@ -3601,18 +3601,6 @@ export class Ctx extends Context {
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFree?(): Promise<any>
 
-  // chat member
-  /** {@inheritDoc (Ctx:class).handleChatMemberOutIn} */
-  async handleSessionChatMemberOutIn?(): Promise<void>
-  /** {@inheritDoc (Ctx:class).handleMyChatMemberOutRegular} */
-  async handleSessionMyChatMemberOutRegular?(): Promise<void>
-  /** {@inheritDoc (Ctx:class).handleMyChatMemberOutAdmin} */
-  async handleSessionMyChatMemberOutAdmin?(): Promise<void>
-  /** {@inheritDoc (Ctx:class).handleMyChatMemberRegularAdmin} */
-  async handleSessionMyChatMemberRegularAdmin?(): Promise<void>
-  /** {@inheritDoc (Ctx:class).handleMyChatMemberAdminRegular} */
-  async handleSessionMyChatMemberAdminRegular?(): Promise<void>
-
   // callback
   /**
    * Session set helper methods.

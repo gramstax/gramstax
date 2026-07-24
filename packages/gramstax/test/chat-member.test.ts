@@ -136,8 +136,7 @@ class AdminPage extends Ctx {
 // ── help: create bot with custom pages ───────────────────────────
 
 function createBot(
-  pagesList: Array<{name: string; page: typeof Ctx}>,
-  chatMember?: boolean
+  pagesList: Array<{name: string; page: typeof Ctx}>
 ): TestBot {
   const tm = new TemplateManager({path: [TEST_PAGES_DIR]})
 
@@ -146,7 +145,6 @@ function createBot(
     deploy: `test`,
     templateManager: tm,
     log: false,
-    chatMember,
     botConfig: {botInfo: {id: 123456789, is_bot: true, first_name: `Bot`, username: `test_bot`}} as any
   })
 
@@ -167,27 +165,8 @@ function createBot(
   }
 
   bot.pages = pages as any
-
-  // Register the chat_member listener
-  if (chatMember !== false) {
-    bot.registerLowOnChatMember()
-  }
-
+  bot.registerLowOnChatMember()
   return bot
-}
-
-// ── create bot for chatMember:false test ─────────────────────────
-
-function createRawBot(): Gramstax {
-  const tm = new TemplateManager({path: [TEST_PAGES_DIR]})
-  return new Gramstax({
-    token: `test`,
-    deploy: `test`,
-    templateManager: tm,
-    log: false,
-    chatMember: false,
-    botConfig: {botInfo: {id: 123456789, is_bot: true, first_name: `Bot`, username: `test_bot`}} as any
-  })
 }
 
 // ── tests ────────────────────────────────────────────────────────
@@ -306,11 +285,13 @@ describe(`chat member routing`, () => {
     expect(bot.pages.chatMemberRoutes.length).toBe(0)
   })
 
-  it(`should not register chat_member listener when chatMember is false`, () => {
+  it(`should register chat_member listener by default`, () => {
     const onSpy = mock(() => {})
-    const bot = createRawBot()
+    const bot = createBot([{name: `welcome`, page: WelcomePage}])
     bot.bot.on = onSpy as any
-    expect(onSpy).not.toHaveBeenCalledWith(`chat_member`, expect.any(Function))
+    bot.registerLowOnChatMember()
+    expect(onSpy).toHaveBeenCalledWith(`chat_member`, expect.any(Function))
+    expect(onSpy).toHaveBeenCalledWith(`my_chat_member`, expect.any(Function))
   })
 
   it(`should support handleChatMember with array-like status transitions`, async () => {

@@ -346,9 +346,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.registerLowOnMessageSticker() // Handle global sticker messages
     this.registerLowOnMessageLocation() // Handle global location messages
     this.registerLowOnMessageContact() // Handle global contact messages
-    if (params.chatMember !== false) {
-      this.registerLowOnChatMember() // Handle chat member updates
-    }
+    this.registerLowOnChatMember() // Handle chat member updates
 
     // Load pages AFTER templateManager is initialized
     this.pages = this._pageLoads(this.templateManager._path?.[0])
@@ -1250,13 +1248,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       // location
       `handleSessionFreeLocation`,
       // contact
-      `handleSessionFreeContact`,
-      // chat member
-      `handleSessionChatMemberOutIn`,
-      `handleSessionMyChatMemberOutRegular`,
-      `handleSessionMyChatMemberOutAdmin`,
-      `handleSessionMyChatMemberRegularAdmin`,
-      `handleSessionMyChatMemberAdminRegular`
+      `handleSessionFreeContact`
     ] as const
     const listRouteDynamicSpesific = [`handleFreeText`, `handleFreePhoto`, `handleFreeVideo`, `handleFreeAudio`, `handleFreeDocument`, `handleFreeAnimation`, `handleFreeVoice`, `handleFreeVideoNote`, `handleFreeSticker`, `handleFreeLocation`, `handleFreeContact`] as const
 
