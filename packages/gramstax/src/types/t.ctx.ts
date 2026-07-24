@@ -49,7 +49,7 @@ export type ITCt = Context
  * Type alias for grammY Middleware.
  *
  * @remarks
- * Middleware from grammy.
+ * Middleware from the framework.
  *
  * @public
  */
