@@ -23,7 +23,7 @@
  */
 
 import type {Gramstax} from "~/core/bot"
-import type {ITE2eUpdateOptions, ITE2eMediaOptions, ITE2eLocationOptions, ITE2eContactOptions, ITE2eCallbackQueryOptions, ITE2eDiceOptions, ITE2eUser, ITE2eChat} from "~/types/t.e2e"
+import type {ITE2eUpdateOptions, ITE2eMediaOptions, ITE2eLocationOptions, ITE2eContactOptions, ITE2eCallbackQueryOptions, ITE2eDiceOptions, ITE2eChatMemberOptions, ITE2eUser, ITE2eChat} from "~/types/t.e2e"
 
 /**
  * Captured outbound Bot API call record.
@@ -573,6 +573,92 @@ export class E2eHelper {
         result_id: resultId,
         from: this._defaultUser(options?.user),
         query
+      }
+    })
+  }
+
+  // ── chat member helpers ────────────────────────────────────────
+
+  /**
+   * Simulate a chat member status transition (`chat_member` update).
+   *
+   * @remarks
+   * Fires `chatMemberFilter` handlers on pages that define corresponding
+   * `handleChatMember*` methods. The bot must be admin in the chat to
+   * normally receive these updates. In test mode the update is injected
+   * directly via {@link E2eHelper.handleUpdate}.
+   *
+   * @example
+   * ```typescript
+   * // Simulate a user joining (kicked → member)
+   * await e2e.sendChatMemberUpdate({oldStatus: "kicked", newStatus: "member", chat: {type: "supergroup"}})
+   * ```
+   *
+   * @param options - Old/new statuses and user/chat configuration.
+   * @returns API calls made while processing this update.
+   */
+  async sendChatMemberUpdate(options?: ITE2eChatMemberOptions) {
+    const {updateId} = this._nextIds(options)
+    const botId = options?.botId ?? this.bot.bot.botInfo?.id ?? 123456789
+    const userId = options?.user?.id ?? 1001
+    const oldStatus = options?.oldStatus ?? `kicked`
+    const newStatus = options?.newStatus ?? `member`
+    return await this.handleUpdate({
+      update_id: updateId,
+      chat_member: {
+        chat: this._defaultChat({...options?.chat, type: options?.chat?.type ?? `supergroup`}),
+        from: this._defaultUser(options?.user),
+        date: options?.date ?? Math.floor(Date.now() / 1000),
+        old_chat_member: {
+          user: {id: userId, is_bot: userId === botId, first_name: `User`},
+          status: oldStatus,
+          ...(oldStatus === `restricted` ? {is_member: options?.oldIsMember ?? false} : {})
+        },
+        new_chat_member: {
+          user: {id: userId, is_bot: userId === botId, first_name: `User`},
+          status: newStatus,
+          ...(newStatus === `restricted` ? {is_member: options?.newIsMember ?? true} : {})
+        }
+      }
+    })
+  }
+
+  /**
+   * Simulate the bot's own chat member status transition (`my_chat_member` update).
+   *
+   * @remarks
+   * Fires `myChatMemberFilter` handlers on pages that define corresponding
+   * `handleMyChatMember*` methods. Use this to test bot promotion/demotion
+   * scenarios.
+   *
+   * @example
+   * ```typescript
+   * // Simulate bot being promoted to admin
+   * await e2e.sendMyChatMemberUpdate({oldStatus: "member", newStatus: "administrator"})
+   * ```
+   *
+   * @param options - Old/new statuses and chat configuration.
+   * @returns API calls made while processing this update.
+   */
+  async sendMyChatMemberUpdate(options?: ITE2eChatMemberOptions) {
+    const {updateId} = this._nextIds(options)
+    const botId = options?.botId ?? this.bot.bot.botInfo?.id ?? 123456789
+    const oldStatus = options?.oldStatus ?? `left`
+    const newStatus = options?.newStatus ?? `member`
+    return await this.handleUpdate({
+      update_id: updateId,
+      my_chat_member: {
+        chat: this._defaultChat({...options?.chat, type: options?.chat?.type ?? `supergroup`}),
+        from: {id: botId, is_bot: true, first_name: `GramstaxBot`},
+        date: options?.date ?? Math.floor(Date.now() / 1000),
+        old_chat_member: {
+          user: {id: botId, is_bot: true, first_name: `GramstaxBot`},
+          status: oldStatus
+        },
+        new_chat_member: {
+          user: {id: botId, is_bot: true, first_name: `GramstaxBot`},
+          status: newStatus
+        }
       }
     })
   }

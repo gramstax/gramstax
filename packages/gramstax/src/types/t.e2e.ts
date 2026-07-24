@@ -67,3 +67,25 @@ export type ITE2eCallbackQueryOptions = ITE2eUpdateOptions & {
 export type ITE2eDiceOptions = ITE2eUpdateOptions & {
   emoji?: `🎲` | `🎯` | `🏀` | `⚽` | `🎰` | `🎳`
 }
+
+/**
+ * Options for simulating a chat member status transition update.
+ *
+ * @remarks
+ * Used with {@link E2eHelper.sendChatMemberUpdate} and
+ * {@link E2eHelper.sendMyChatMemberUpdate} to simulate membership changes.
+ *
+ * @public
+ */
+export type ITE2eChatMemberOptions = ITE2eUpdateOptions & {
+  /** Old chat member status (default: `"kicked"` for user, `"left"` for bot). */
+  oldStatus?: string
+  /** New chat member status (default: `"member"`). */
+  newStatus?: string
+  /** Whether the old member was restricted (`is_member`). */
+  oldIsMember?: boolean
+  /** Whether the new member is restricted (`is_member`). */
+  newIsMember?: boolean
+  /** Bot ID used for my_chat_member updates (default: matches bot info). */
+  botId?: number
+}

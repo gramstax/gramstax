@@ -1285,27 +1285,29 @@ export class Ctx extends Context {
     keyboard?: ITInBoKb | null,
     data?: ITData | null,
     AGBaseId?: string | null,
-    options?: (T extends `photo`
-      ? ITOptReplyPhoto
-      : T extends `video`
-        ? ITOptReplyVideo
-        : T extends `audio`
-          ? ITOptReplyAudio
-          : T extends `document`
-            ? ITOptReplyDocument
-            : T extends `animation`
-              ? ITOptReplyAnimation
-              : T extends `voice`
-                ? ITOptReplyVoice
-                : T extends `video_note`
-                  ? ITOptReplyVideoNote
-                  : T extends `sticker`
-                    ? ITOptReplySticker
-                    : T extends `location`
-                      ? ITOptReplyLocation
-                      : T extends `contact`
-                        ? ITOptReplyContact
-                        : undefined) | null
+    options?:
+      | (T extends `photo`
+          ? ITOptReplyPhoto
+          : T extends `video`
+            ? ITOptReplyVideo
+            : T extends `audio`
+              ? ITOptReplyAudio
+              : T extends `document`
+                ? ITOptReplyDocument
+                : T extends `animation`
+                  ? ITOptReplyAnimation
+                  : T extends `voice`
+                    ? ITOptReplyVoice
+                    : T extends `video_note`
+                      ? ITOptReplyVideoNote
+                      : T extends `sticker`
+                        ? ITOptReplySticker
+                        : T extends `location`
+                          ? ITOptReplyLocation
+                          : T extends `contact`
+                            ? ITOptReplyContact
+                            : undefined)
+      | null
   ) {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<any, any>
@@ -1714,18 +1716,20 @@ export class Ctx extends Context {
     keyboardInline?: ITInlineKb | null,
     data?: ITData | null,
     AGBaseId?: string | null,
-    options1?: (T extends `voice`
-      ? ITOptReplyVoice
-      : T extends `video_note`
-        ? ITOptReplyVideoNote
-        : T extends `sticker`
-          ? ITOptReplySticker
-          : T extends `location`
-            ? ITOptReplyLocation
-            : T extends `contact`
-              ? ITOptReplyContact
-              : //
-                ITOptEditMedia1) | null,
+    options1?:
+      | (T extends `voice`
+          ? ITOptReplyVoice
+          : T extends `video_note`
+            ? ITOptReplyVideoNote
+            : T extends `sticker`
+              ? ITOptReplySticker
+              : T extends `location`
+                ? ITOptReplyLocation
+                : T extends `contact`
+                  ? ITOptReplyContact
+                  : //
+                    ITOptEditMedia1)
+      | null,
     options2?: ITOptEditMedia2 | null,
     fallbackReply: boolean | null = false
   ) {
@@ -3917,11 +3921,52 @@ export class Ctx extends Context {
   methodSessionFreeContact(name?: string) {
     return this.methodSession(`41`, name)
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  Chat member route handlers
+  // ═══════════════════════════════════════════════════════════════
+  //
+  // Pages can override methods following the naming convention below
+  // to handle chat member status transitions. The bot must be an
+  // administrator in the group to receive `chat_member` updates.
+  //
+  // Convention:
+  //   handleChatMember{Old}{New}     — user membership changes
+  //   handleMyChatMember{Old}{New}   — bot's own membership changes
+  //
+  // Status values (PascalCase): Out, In, Kicked, Left, Member,
+  // Administrator, Creator, Restricted, Regular (myChatMember only).
+  //
+  // Example:
+  //   class WelcomePage extends PageBase {
+  //     async handleChatMemberOutIn() {
+  //       const {new_chat_member} = this.ctx.chatMember
+  //       await this.reply(`Welcome ${new_chat_member.user.first_name}!`)
+  //     }
+  //   }
+
+  /** User joins the chat (kicked/left → member/admin/creator). */
+  async handleChatMemberOutIn(): Promise<void> {}
+
+  /** Bot is added to the chat as a regular member. */
+  async handleMyChatMemberOutRegular(): Promise<void> {}
+
+  /** Bot is added to the chat as an administrator. */
+  async handleMyChatMemberOutAdmin(): Promise<void> {}
+
+  /** Bot is promoted from member/regular to administrator. */
+  async handleMyChatMemberRegularAdmin(): Promise<void> {}
+
+  /** Bot is demoted from administrator back to regular member. */
+  async handleMyChatMemberAdminRegular(): Promise<void> {}
 }
 
 /** @internal */
 export interface Ctx {
+  /** @internal */
   replyWithStream(stream: Iterable<string | {text: string; entities?: any[]}> | AsyncIterable<string | {text: string; entities?: any[]}>, otherMessageDraft?: any, otherMessage?: any, signal?: AbortSignal): Promise<any>
+  /** @internal */
   replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>
+  /** @internal */
   replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>
 }
