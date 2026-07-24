@@ -3601,6 +3601,18 @@ export class Ctx extends Context {
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFree?(): Promise<any>
 
+  // chat member
+  /** {@inheritDoc (Ctx:class).handleChatMemberOutIn} */
+  async handleSessionChatMemberOutIn?(): Promise<void>
+  /** {@inheritDoc (Ctx:class).handleMyChatMemberOutRegular} */
+  async handleSessionMyChatMemberOutRegular?(): Promise<void>
+  /** {@inheritDoc (Ctx:class).handleMyChatMemberOutAdmin} */
+  async handleSessionMyChatMemberOutAdmin?(): Promise<void>
+  /** {@inheritDoc (Ctx:class).handleMyChatMemberRegularAdmin} */
+  async handleSessionMyChatMemberRegularAdmin?(): Promise<void>
+  /** {@inheritDoc (Ctx:class).handleMyChatMemberAdminRegular} */
+  async handleSessionMyChatMemberAdminRegular?(): Promise<void>
+
   // callback
   /**
    * Session set helper methods.
@@ -3793,6 +3805,28 @@ export class Ctx extends Context {
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeContact(params?: any) {
     return this.setSession(this.methodSessionFreeContact(), params)
+  }
+
+  // chat member
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionChatMemberOutIn(params?: any) {
+    return this.setSession(this.methodSessionChatMemberOutIn(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionMyChatMemberOutRegular(params?: any) {
+    return this.setSession(this.methodSessionMyChatMemberOutRegular(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionMyChatMemberOutAdmin(params?: any) {
+    return this.setSession(this.methodSessionMyChatMemberOutAdmin(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionMyChatMemberRegularAdmin(params?: any) {
+    return this.setSession(this.methodSessionMyChatMemberRegularAdmin(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionMyChatMemberAdminRegular(params?: any) {
+    return this.setSession(this.methodSessionMyChatMemberAdminRegular(), params)
   }
 
   /**
@@ -3997,6 +4031,28 @@ export class Ctx extends Context {
   /** {@inheritDoc Ctx.methodSession} */
   methodSessionFreeContact(name?: string) {
     return this.methodSession(`41`, name)
+  }
+
+  // chat member method
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionChatMemberOutIn(name?: string) {
+    return this.methodSession(`42`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionMyChatMemberOutRegular(name?: string) {
+    return this.methodSession(`43`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionMyChatMemberOutAdmin(name?: string) {
+    return this.methodSession(`44`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionMyChatMemberRegularAdmin(name?: string) {
+    return this.methodSession(`45`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionMyChatMemberAdminRegular(name?: string) {
+    return this.methodSession(`46`, name)
   }
 }
 

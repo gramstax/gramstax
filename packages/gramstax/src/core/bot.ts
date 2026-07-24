@@ -1250,7 +1250,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       // location
       `handleSessionFreeLocation`,
       // contact
-      `handleSessionFreeContact`
+      `handleSessionFreeContact`,
+      // chat member
+      `handleSessionChatMemberOutIn`,
+      `handleSessionMyChatMemberOutRegular`,
+      `handleSessionMyChatMemberOutAdmin`,
+      `handleSessionMyChatMemberRegularAdmin`,
+      `handleSessionMyChatMemberAdminRegular`
     ] as const
     const listRouteDynamicSpesific = [`handleFreeText`, `handleFreePhoto`, `handleFreeVideo`, `handleFreeAudio`, `handleFreeDocument`, `handleFreeAnimation`, `handleFreeVoice`, `handleFreeVideoNote`, `handleFreeSticker`, `handleFreeLocation`, `handleFreeContact`] as const
 
