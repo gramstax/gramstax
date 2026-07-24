@@ -4,7 +4,7 @@
 
 ## ITInlineKb type
 
-Type alias for grammY InlineKeyboard.
+Type alias for InlineKeyboard.
 
 **Signature:**
 

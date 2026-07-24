@@ -14,5 +14,5 @@ type ITOptReplyAnimation = Parameters<Context[`replyWithAnimation`]>[1];
 
 ## Remarks
 
-Extracted from grammY's `Context.replyWithAnimation()` method options parameter.
+Extracted from `Context.replyWithAnimation()` method options parameter.
 

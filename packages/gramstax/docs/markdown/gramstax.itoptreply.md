@@ -14,5 +14,5 @@ type ITOptReply = Parameters<Context[`reply`]>[1];
 
 ## Remarks
 
-Extracted from grammY's `Context.reply()` method options parameter.
+Extracted from `Context.reply()` method options parameter.
 

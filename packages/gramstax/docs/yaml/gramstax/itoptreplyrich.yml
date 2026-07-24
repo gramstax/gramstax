@@ -4,7 +4,7 @@ uid: gramstax!ITOptReplyRich:type
 package: gramstax!
 fullName: ITOptReplyRich
 summary: Options for sending text rich messages.
-remarks: Extracted from grammY's `Context.replyWithRichMessage()` method options parameter.
+remarks: Extracted from `Context.replyWithRichMessage()` method options parameter.
 example: []
 isPreview: false
 isDeprecated: false

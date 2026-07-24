@@ -4,7 +4,7 @@
 
 ## Gramstax.createBot() method
 
-Creates the grammY Bot instance.
+Creates the Bot instance.
 
 **Signature:**
 

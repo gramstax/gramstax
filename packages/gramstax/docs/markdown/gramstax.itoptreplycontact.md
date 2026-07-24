@@ -14,5 +14,5 @@ type ITOptReplyContact = Parameters<Context[`replyWithContact`]>[2];
 
 ## Remarks
 
-Extracted from grammY's `Context.replyWithContact()` method options parameter.
+Extracted from `Context.replyWithContact()` method options parameter.
 

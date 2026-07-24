@@ -4,7 +4,7 @@
 
 ## ITBottomKb type
 
-Type alias for grammY Keyboard (reply keyboard).
+Type alias for Keyboard (reply keyboard).
 
 **Signature:**
 

@@ -14,5 +14,5 @@ type ITOptReplyDocument = Parameters<Context[`replyWithDocument`]>[1];
 
 ## Remarks
 
-Extracted from grammY's `Context.replyWithDocument()` method options parameter.
+Extracted from `Context.replyWithDocument()` method options parameter.
 

@@ -4,7 +4,7 @@
 
 ## Ctx.handleMyChatMemberRegularAdmin() method
 
-Handles the bot being promoted to administrator.
+Bot is promoted to administrator.
 
 **Signature:**
 

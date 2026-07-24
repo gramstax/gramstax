@@ -4,7 +4,7 @@
 
 ## Gramstax.bot property
 
-The underlying grammY Bot instance.
+The underlying Bot instance.
 
 **Signature:**
 
@@ -14,5 +14,5 @@ bot: Bot<ITCt>;
 
 ## Remarks
 
-Instance of the grammY `Bot`<!-- -->.
+Instance of the `Bot`<!-- -->.
 

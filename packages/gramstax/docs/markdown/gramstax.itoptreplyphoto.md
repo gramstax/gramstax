@@ -14,5 +14,5 @@ type ITOptReplyPhoto = Parameters<Context[`replyWithPhoto`]>[1];
 
 ## Remarks
 
-Extracted from grammY's `Context.replyWithPhoto()` method options parameter.
+Extracted from `Context.replyWithPhoto()` method options parameter.
 

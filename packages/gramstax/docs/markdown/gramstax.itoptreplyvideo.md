@@ -14,5 +14,5 @@ type ITOptReplyVideo = Parameters<Context[`replyWithVideo`]>[1];
 
 ## Remarks
 
-Extracted from grammY's `Context.replyWithVideo()` method options parameter.
+Extracted from `Context.replyWithVideo()` method options parameter.
 

@@ -3,8 +3,8 @@ name: ITCtMiddleware
 uid: gramstax!ITCtMiddleware:type
 package: gramstax!
 fullName: ITCtMiddleware
-summary: Type alias for grammY Middleware.
-remarks: Middleware from grammy.
+summary: Type alias for Middleware.
+remarks: Middleware used to handle updates.
 example: []
 isPreview: false
 isDeprecated: false

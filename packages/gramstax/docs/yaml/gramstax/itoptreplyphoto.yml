@@ -4,7 +4,7 @@ uid: gramstax!ITOptReplyPhoto:type
 package: gramstax!
 fullName: ITOptReplyPhoto
 summary: Options for sending photo messages.
-remarks: Extracted from grammY's `Context.replyWithPhoto()` method options parameter.
+remarks: Extracted from `Context.replyWithPhoto()` method options parameter.
 example: []
 isPreview: false
 isDeprecated: false

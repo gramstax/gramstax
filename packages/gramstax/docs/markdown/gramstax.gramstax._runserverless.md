@@ -42,7 +42,7 @@ string
 
 </td><td>
 
-The grammY adapter name (e.g., "std/http", "aws-lambda").
+The adapter name (e.g., "std/http", "aws-lambda").
 
 
 </td></tr>

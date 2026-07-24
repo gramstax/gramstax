@@ -4,7 +4,7 @@ uid: gramstax!ITOptReplyVideoNote:type
 package: gramstax!
 fullName: ITOptReplyVideoNote
 summary: Options for sending video note messages.
-remarks: Extracted from grammY's `Context.replyWithVideoNote()` method options parameter.
+remarks: Extracted from `Context.replyWithVideoNote()` method options parameter.
 example: []
 isPreview: false
 isDeprecated: false

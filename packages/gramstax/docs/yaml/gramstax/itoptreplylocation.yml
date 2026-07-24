@@ -4,7 +4,7 @@ uid: gramstax!ITOptReplyLocation:type
 package: gramstax!
 fullName: ITOptReplyLocation
 summary: Options for sending location messages.
-remarks: Extracted from grammY's `Context.replyWithLocation()` method options parameter.
+remarks: Extracted from `Context.replyWithLocation()` method options parameter.
 example: []
 isPreview: false
 isDeprecated: false

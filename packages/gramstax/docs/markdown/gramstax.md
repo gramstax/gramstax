@@ -197,7 +197,7 @@ Description
 
 </td><td>
 
-Type alias for grammY Keyboard (reply keyboard).
+Type alias for Keyboard (reply keyboard).
 
 
 </td></tr>
@@ -252,7 +252,7 @@ Compiled template structure containing all parsed template components.
 
 </td><td>
 
-Type alias for grammY Context.
+Type alias for Context.
 
 
 </td></tr>
@@ -263,7 +263,7 @@ Type alias for grammY Context.
 
 </td><td>
 
-Type alias for grammY Middleware.
+Type alias for Middleware.
 
 
 </td></tr>
@@ -420,7 +420,7 @@ Union type for both inline and reply keyboards.
 
 </td><td>
 
-Type alias for grammY InlineKeyboard.
+Type alias for InlineKeyboard.
 
 
 </td></tr>

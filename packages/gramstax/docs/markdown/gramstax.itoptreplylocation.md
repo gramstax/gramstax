@@ -14,5 +14,5 @@ type ITOptReplyLocation = Parameters<Context[`replyWithLocation`]>[2];
 
 ## Remarks
 
-Extracted from grammY's `Context.replyWithLocation()` method options parameter.
+Extracted from `Context.replyWithLocation()` method options parameter.
 

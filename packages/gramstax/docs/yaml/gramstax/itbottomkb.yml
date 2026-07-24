@@ -3,7 +3,7 @@ name: ITBottomKb
 uid: gramstax!ITBottomKb:type
 package: gramstax!
 fullName: ITBottomKb
-summary: Type alias for grammY Keyboard (reply keyboard).
+summary: Type alias for Keyboard (reply keyboard).
 remarks: Used to create reply keyboards that replace the user's device keyboard.
 example: []
 isPreview: false

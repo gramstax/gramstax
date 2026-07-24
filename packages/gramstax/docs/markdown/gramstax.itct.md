@@ -4,7 +4,7 @@
 
 ## ITCt type
 
-Type alias for grammY Context.
+Type alias for Context.
 
 **Signature:**
 

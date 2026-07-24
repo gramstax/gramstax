@@ -4,7 +4,7 @@
 
 ## Gramstax.botConfig property
 
-Optional grammY bot configuration.
+Optional bot configuration.
 
 **Signature:**
 
@@ -14,5 +14,5 @@ botConfig?: BotConfig<ITCt>;
 
 ## Remarks
 
-Configuration object for grammY `BotConfig` and `Context`<!-- -->.
+Configuration object for `BotConfig` and `Context`<!-- -->.
 

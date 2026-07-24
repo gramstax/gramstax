@@ -4,9 +4,7 @@ uid: gramstax!ITReplyAction:type
 package: gramstax!
 fullName: ITReplyAction
 summary: Type of chat action to send.
-remarks: >-
-  Extracted from grammY's `Context.replyWithChatAction()` method parameter. Used to show typing indicators, upload
-  status, etc.
+remarks: Extracted from `Context.replyWithChatAction()` method parameter. Used to show typing indicators, upload status, etc.
 example: []
 isPreview: false
 isDeprecated: false

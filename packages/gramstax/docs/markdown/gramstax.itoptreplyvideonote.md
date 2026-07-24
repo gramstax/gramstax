@@ -14,5 +14,5 @@ type ITOptReplyVideoNote = Parameters<Context[`replyWithVideoNote`]>[1];
 
 ## Remarks
 
-Extracted from grammY's `Context.replyWithVideoNote()` method options parameter.
+Extracted from `Context.replyWithVideoNote()` method options parameter.
 

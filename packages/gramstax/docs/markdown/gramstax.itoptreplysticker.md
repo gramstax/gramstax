@@ -14,5 +14,5 @@ type ITOptReplySticker = Parameters<Context[`replyWithSticker`]>[1];
 
 ## Remarks
 
-Extracted from grammY's `Context.replyWithSticker()` method options parameter.
+Extracted from `Context.replyWithSticker()` method options parameter.
 

@@ -1581,19 +1581,11 @@ methods:
     uid: gramstax!Ctx#handleChatMemberOutIn:member(1)
     package: gramstax!
     fullName: handleChatMemberOutIn()
-    summary: Handles a chat member status transition (`chatMemberFilter("out", "in")`<!-- -->).
+    summary: User joins the chat (kicked/left → member/admin/creator).
     remarks: >-
       Triggered when a user transitions from an "out" status (`kicked`<!-- -->, `left`<!-- -->, or `restricted` with
       `is_member=false`<!-- -->) to an "in" status (`member`<!-- -->, `administrator`<!-- -->, `creator`<!-- -->, or
-      `restricted` with `is_member=true`<!-- -->).
-
-
-      Define this method on a page class to react to users joining the chat. The bot must be an administrator in the
-      group to receive `chat_member` updates.
-
-
-      \*\*Naming convention:\*\* `handleChatMember{OldStatus}{NewStatus}` maps to `chatMemberFilter("old", "new")`<!--
-      -->. Any PascalCased status combination produces a valid route: e.g. `handleChatMemberInOut` for users leaving.
+      `restricted` with `is_member=true`<!-- -->). Uses `chatMemberFilter("out", "in")`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -2244,7 +2236,7 @@ methods:
     uid: gramstax!Ctx#handleMyChatMemberAdminRegular:member(1)
     package: gramstax!
     fullName: handleMyChatMemberAdminRegular()
-    summary: Handles the bot being demoted from administrator.
+    summary: Bot is demoted from administrator.
     remarks: >-
       Triggered when the bot's own membership changes from `administrator`<!-- -->/`creator` back to `member`<!-- -->.
       Uses `myChatMemberFilter("admin", "regular")`<!-- -->.
@@ -2262,7 +2254,7 @@ methods:
     uid: gramstax!Ctx#handleMyChatMemberOutAdmin:member(1)
     package: gramstax!
     fullName: handleMyChatMemberOutAdmin()
-    summary: Handles the bot being added to the chat as an administrator.
+    summary: Bot is added to the chat as an administrator.
     remarks: >-
       Triggered when the bot's own membership changes from an "out" status to `administrator`<!-- -->/`creator`<!-- -->.
       Uses `myChatMemberFilter("out", "admin")`<!-- -->.
@@ -2280,7 +2272,7 @@ methods:
     uid: gramstax!Ctx#handleMyChatMemberOutRegular:member(1)
     package: gramstax!
     fullName: handleMyChatMemberOutRegular()
-    summary: Handles the bot being added to the chat as a regular member.
+    summary: Bot is added to the chat as a regular member.
     remarks: >-
       Triggered when the bot's own membership changes from an "out" status to `member` (non-administrator). Uses
       `myChatMemberFilter("out", "regular")`<!-- -->.
@@ -2298,7 +2290,7 @@ methods:
     uid: gramstax!Ctx#handleMyChatMemberRegularAdmin:member(1)
     package: gramstax!
     fullName: handleMyChatMemberRegularAdmin()
-    summary: Handles the bot being promoted to administrator.
+    summary: Bot is promoted to administrator.
     remarks: >-
       Triggered when the bot's own membership changes from `member`<!-- -->/`regular` to `administrator`<!--
       -->/`creator`<!-- -->. Uses `myChatMemberFilter("regular", "admin")`<!-- -->.
@@ -4206,6 +4198,36 @@ methods:
       return:
         type: string
         description: ''
+  - name: methodSessionChatMemberOutIn(name)
+    uid: gramstax!Ctx#methodSessionChatMemberOutIn:member(1)
+    package: gramstax!
+    fullName: methodSessionChatMemberOutIn(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionChatMemberOutIn(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
   - name: methodSessionCommandArgsText(name)
     uid: gramstax!Ctx#methodSessionCommandArgsText:member(1)
     package: gramstax!
@@ -4956,6 +4978,126 @@ methods:
       return:
         type: string
         description: ''
+  - name: methodSessionMyChatMemberAdminRegular(name)
+    uid: gramstax!Ctx#methodSessionMyChatMemberAdminRegular:member(1)
+    package: gramstax!
+    fullName: methodSessionMyChatMemberAdminRegular(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionMyChatMemberAdminRegular(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionMyChatMemberOutAdmin(name)
+    uid: gramstax!Ctx#methodSessionMyChatMemberOutAdmin:member(1)
+    package: gramstax!
+    fullName: methodSessionMyChatMemberOutAdmin(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionMyChatMemberOutAdmin(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionMyChatMemberOutRegular(name)
+    uid: gramstax!Ctx#methodSessionMyChatMemberOutRegular:member(1)
+    package: gramstax!
+    fullName: methodSessionMyChatMemberOutRegular(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionMyChatMemberOutRegular(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
+  - name: methodSessionMyChatMemberRegularAdmin(name)
+    uid: gramstax!Ctx#methodSessionMyChatMemberRegularAdmin:member(1)
+    package: gramstax!
+    fullName: methodSessionMyChatMemberRegularAdmin(name)
+    summary: \[LOW-LEVEL\] Session method name builders.
+    remarks: >-
+      Low-level API. You rarely need to call these directly — the
+      [Ctx.setSessionFreeText()](xref:gramstax!Ctx%23setSessionFreeText:member(1)) (and siblings) already wire them
+      internally.
+
+
+      These methods generate unique session method identifiers used by
+      [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) and validation methods. Each `methodSession*` returns
+      a prefixed string like `"1-PageName"`<!-- -->.
+
+
+      When you DO need to call them (multi-session with `setSession(array, ...)`<!-- -->), always use the typed helpers
+      — never hardcode the prefix:
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'methodSessionMyChatMemberRegularAdmin(name?: string): string;'
+      parameters:
+        - id: name
+          description: ''
+          type: string
+      return:
+        type: string
+        description: ''
   - name: methodSessionText(name)
     uid: gramstax!Ctx#methodSessionText:member(1)
     package: gramstax!
@@ -5027,7 +5169,7 @@ methods:
           description: Optional template base ID position for block message (or null to use default).
           type: string | null
         - id: options
-          description: Optional grammY reply options (or null to omit).
+          description: Optional reply options (or null to omit).
           type: <xref uid="gramstax!ITOptReply:type" /> | null
       return:
         type: Promise&lt;<xref uid="@grammyjs/types!Message.TextMessage:type" />&gt;
@@ -5194,7 +5336,7 @@ methods:
           description: Optional template base ID position for block message (or null to use default).
           type: string | null
         - id: options
-          description: Optional grammY reply/edit options (or null to omit).
+          description: Optional reply/edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEdit:type" /> | <xref uid="gramstax!ITOptReply:type" /> | null
         - id: isEdit
           description: >-
@@ -5251,7 +5393,7 @@ methods:
           description: Optional `InputRichMessage` fields (or null to omit).
           type: <xref uid="gramstax!ITOptReplyRich:type" />[0] | null
         - id: options2
-          description: Optional grammY send/edit options (or null to omit).
+          description: Optional send/edit options (or null to omit).
           type: <xref uid="gramstax!ITOptReplyRich:type" />[1] | <xref uid="gramstax!ITOptEdit:type" /> | null
         - id: isEdit
           description: If true, edits existing message; if false, sends new. Defaults to `!!this.callbackQuery` (auto-detected).
@@ -5310,7 +5452,7 @@ methods:
           description: Optional template g-base ID position for block message (or null to use default).
           type: string | null
         - id: options
-          description: Optional grammY send options (or null to omit).
+          description: Optional send options (or null to omit).
           type: <xref uid="gramstax!ITOptReply:type" /> | null
         - id: throwError
           description: If true, throws errors instead of swallowing them (or null to use false).
@@ -5372,7 +5514,7 @@ methods:
           description: Optional template g-base ID position for block media (or null to use default).
           type: string | null
         - id: options
-          description: Optional grammY send options for the inferred media type (or null to omit).
+          description: Optional send options for the inferred media type (or null to omit).
           type: >-
             <xref uid="gramstax!ITOptReplyPhoto:type" /> | <xref uid="gramstax!ITOptReplyVideo:type" /> | <xref
             uid="gramstax!ITOptReplyAudio:type" /> | <xref uid="gramstax!ITOptReplyDocument:type" /> | <xref
@@ -5552,7 +5694,7 @@ methods:
           description: Optional template g-base ID position for block message (or null to use default).
           type: string | null
         - id: options
-          description: Optional grammY edit options (or null to omit).
+          description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEdit:type" /> | null
         - id: fallbackReply
           description: 'If true, sends a reply if edit fails. Default: false.'
@@ -6176,7 +6318,7 @@ methods:
           description: Optional `InputRichMessage` fields (`is_rtl`<!-- -->, `skip_entity_detection`<!-- -->) (or null to omit).
           type: <xref uid="gramstax!ITOptReplyRich:type" />[0] | null
         - id: options2
-          description: Optional grammY edit options (or null to omit).
+          description: Optional edit options (or null to omit).
           type: <xref uid="gramstax!ITOptEdit:type" /> | null
         - id: fallbackReply
           description: 'If true, sends a rich reply if edit fails. Default: false.'
@@ -6717,7 +6859,7 @@ methods:
           description: Optional `InputRichMessage` fields (`is_rtl`<!-- -->, `skip_entity_detection`<!-- -->) (or null to omit).
           type: <xref uid="gramstax!ITOptReplyRich:type" />[0] | null
         - id: options2
-          description: Optional grammY send options (or null to omit).
+          description: Optional send options (or null to omit).
           type: <xref uid="gramstax!ITOptReplyRich:type" />[1] | null
       return:
         type: Promise&lt;<xref uid="@grammyjs/types!Message.RichMessageMessage:type" />&gt;
@@ -7285,6 +7427,26 @@ methods:
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
+  - name: setSessionChatMemberOutIn(params)
+    uid: gramstax!Ctx#setSessionChatMemberOutIn:member(1)
+    package: gramstax!
+    fullName: setSessionChatMemberOutIn(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionChatMemberOutIn(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
   - name: setSessionCommandArgsText(params)
     uid: gramstax!Ctx#setSessionCommandArgsText:member(1)
     package: gramstax!
@@ -7778,6 +7940,86 @@ methods:
     isDeprecated: false
     syntax:
       content: 'setSessionFreeVoice(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionMyChatMemberAdminRegular(params)
+    uid: gramstax!Ctx#setSessionMyChatMemberAdminRegular:member(1)
+    package: gramstax!
+    fullName: setSessionMyChatMemberAdminRegular(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionMyChatMemberAdminRegular(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionMyChatMemberOutAdmin(params)
+    uid: gramstax!Ctx#setSessionMyChatMemberOutAdmin:member(1)
+    package: gramstax!
+    fullName: setSessionMyChatMemberOutAdmin(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionMyChatMemberOutAdmin(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionMyChatMemberOutRegular(params)
+    uid: gramstax!Ctx#setSessionMyChatMemberOutRegular:member(1)
+    package: gramstax!
+    fullName: setSessionMyChatMemberOutRegular(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionMyChatMemberOutRegular(params?: any): Promise<boolean | null>;'
+      parameters:
+        - id: params
+          description: ''
+          type: any
+      return:
+        type: Promise&lt;boolean | null&gt;
+        description: ''
+  - name: setSessionMyChatMemberRegularAdmin(params)
+    uid: gramstax!Ctx#setSessionMyChatMemberRegularAdmin:member(1)
+    package: gramstax!
+    fullName: setSessionMyChatMemberRegularAdmin(params)
+    summary: Session set helper methods.
+    remarks: >-
+      These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
+      names. Each `session*` method sets the session for the corresponding route handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'setSessionMyChatMemberRegularAdmin(params?: any): Promise<boolean | null>;'
       parameters:
         - id: params
           description: ''

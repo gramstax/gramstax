@@ -4,7 +4,7 @@
 
 ## Ctx.handleMyChatMemberAdminRegular() method
 
-Handles the bot being demoted from administrator.
+Bot is demoted from administrator.
 
 **Signature:**
 

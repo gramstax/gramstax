@@ -110,7 +110,7 @@ options2
 
 </td><td>
 
-_(Optional)_ Optional grammY send/edit options (or null to omit).
+_(Optional)_ Optional send/edit options (or null to omit).
 
 
 </td></tr>

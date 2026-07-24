@@ -83,7 +83,7 @@ constructors:
 
         export const handler = async (event: APIGatewayProxyEvent, _ctx: Context) => {
           // webhookCallback(bot.bot, "aws-lambda") wraps the raw event
-          // into a grammY-compatible format internally
+          // into a compatible format internally
           return await bot.handlerBotUpdate(event)
         }
         ```
@@ -122,8 +122,8 @@ properties:
     uid: gramstax!Gramstax#bot:member
     package: gramstax!
     fullName: bot
-    summary: The underlying grammY Bot instance.
-    remarks: Instance of the grammY `Bot`<!-- -->.
+    summary: The underlying Bot instance.
+    remarks: Instance of the `Bot`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -135,8 +135,8 @@ properties:
     uid: gramstax!Gramstax#botConfig:member
     package: gramstax!
     fullName: botConfig
-    summary: Optional grammY bot configuration.
-    remarks: Configuration object for grammY `BotConfig` and `Context`<!-- -->.
+    summary: Optional bot configuration.
+    remarks: Configuration object for `BotConfig` and `Context`<!-- -->.
     example: []
     isPreview: false
     isDeprecated: false
@@ -1254,7 +1254,7 @@ methods:
       content: '_runServerless(adapter: string): Promise<void>;'
       parameters:
         - id: adapter
-          description: The grammY adapter name (e.g., "std/http", "aws-lambda").
+          description: The adapter name (e.g., "std/http", "aws-lambda").
           type: string
       return:
         type: Promise&lt;void&gt;
@@ -1281,7 +1281,7 @@ methods:
     uid: gramstax!Gramstax#createBot:member(1)
     package: gramstax!
     fullName: createBot(token)
-    summary: Creates the grammY Bot instance.
+    summary: Creates the Bot instance.
     remarks: ''
     example: []
     isPreview: false
@@ -1308,7 +1308,7 @@ methods:
       content: 'createCtx(ct: ITCt): ICtx;'
       parameters:
         - id: ct
-          description: The grammY Context object.
+          description: The context object.
           type: <xref uid="gramstax!ITCt:type" />
       return:
         type: ICtx
@@ -1512,7 +1512,7 @@ methods:
       are initialized, and before polling/webhook/serverless actually begins receiving updates.
 
 
-      \*\*Do NOT register grammY middleware here.\*\* Middleware belongs in
+      \*\*Do NOT register middleware here.\*\* Middleware belongs in
       [Gramstax.registerLowPlugin()](xref:gramstax!Gramstax%23registerLowPlugin:member(1))<!-- -->, which is the
       dedicated channel for code that should run on every incoming update. `hookBeforeStart` runs once and is the wrong
       place for per-update logic.
@@ -1892,16 +1892,16 @@ methods:
     uid: gramstax!Gramstax#registerLowPlugin:member(1)
     package: gramstax!
     fullName: registerLowPlugin()
-    summary: Returns grammY middleware to register as low-level plugins on the bot.
+    summary: Returns middleware to register as low-level plugins on the bot.
     remarks: >-
       Override this method in a subclass to inject custom plugin middleware (sessions, i18n, rate limiting, logging,
-      authentication, etc.) into the underlying grammY bot instance.
+      authentication, etc.) into the underlying bot instance.
 
 
       Each element of the returned array is a [ITCtMiddleware](xref:gramstax!ITCtMiddleware:type) value (either a
-      `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that grammY will install via
-      `this.bot.use(...)`<!-- -->. The array is meant to be spread into `bot.use`<!-- -->, so the order of elements
-      determines the order in which middleware runs — earlier entries wrap later ones (outermost first).
+      `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that The array elements are passed to
+      `this.bot.use(...)`<!-- -->. It is meant to be spread into `bot.use`<!-- -->, so the order of elements determines
+      the order in which middleware runs — earlier entries wrap later ones (outermost first).
 
 
       Difference vs. the other lifecycle hooks:
@@ -1909,9 +1909,8 @@ methods:
 
       - `hookBeforeStart` — for one-off side effects before the bot starts. Anything you want to happen exactly once at
       boot goes there. - `registerLowPlugin` — for middleware that must run on \*\*every update\*\*. Use this when you
-      need grammY middleware semantics (filter queries, `next()` chaining, scope-aware registration). -
-      `hookBeforeRoute` / `hookAfterRoute` — for per-update hooks that run inside the router, after gramstax has already
-      routed to a page.
+      need middleware semantics (filter queries, `next()` chaining, scope-aware registration). - `hookBeforeRoute` /
+      `hookAfterRoute` — for per-update hooks that run inside the router, after gramstax has already routed to a page.
 
 
       The base implementation is not provided — subclasses override this to contribute their own plugins. Returning an
@@ -1945,7 +1944,7 @@ methods:
       return:
         type: Array&lt;<xref uid="gramstax!ITCtMiddleware:type" />&lt;<xref uid="gramstax!ITCt:type" />&gt;&gt;
         description: >-
-          Array of grammY [ITCtMiddleware](xref:gramstax!ITCtMiddleware:type) values, ready to be spread into
+          Array of [ITCtMiddleware](xref:gramstax!ITCtMiddleware:type) values, ready to be spread into
           `this.bot.use(...result)`<!-- -->.
   - name: stop()
     uid: gramstax!Gramstax#stop:member(1)

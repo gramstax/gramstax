@@ -4,7 +4,7 @@
 
 ## Ctx.handleMyChatMemberOutAdmin() method
 
-Handles the bot being added to the chat as an administrator.
+Bot is added to the chat as an administrator.
 
 **Signature:**
 

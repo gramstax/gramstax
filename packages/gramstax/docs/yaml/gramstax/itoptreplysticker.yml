@@ -4,7 +4,7 @@ uid: gramstax!ITOptReplySticker:type
 package: gramstax!
 fullName: ITOptReplySticker
 summary: Options for sending sticker messages.
-remarks: Extracted from grammY's `Context.replyWithSticker()` method options parameter.
+remarks: Extracted from `Context.replyWithSticker()` method options parameter.
 example: []
 isPreview: false
 isDeprecated: false

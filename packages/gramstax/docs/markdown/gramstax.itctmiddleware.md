@@ -4,7 +4,7 @@
 
 ## ITCtMiddleware type
 
-Type alias for grammY Middleware.
+Type alias for Middleware.
 
 **Signature:**
 
@@ -15,5 +15,5 @@ type ITCtMiddleware<C extends ITCt = ITCt> = Middleware<C>;
 
 ## Remarks
 
-Middleware from grammy.
+Middleware used to handle updates.
 

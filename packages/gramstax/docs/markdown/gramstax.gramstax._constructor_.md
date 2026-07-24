@@ -110,7 +110,7 @@ import type {APIGatewayProxyEvent, Context} from "aws-lambda"
 
 export const handler = async (event: APIGatewayProxyEvent, _ctx: Context) => {
   // webhookCallback(bot.bot, "aws-lambda") wraps the raw event
-  // into a grammY-compatible format internally
+  // into a compatible format internally
   return await bot.handlerBotUpdate(event)
 }
 ```

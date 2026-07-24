@@ -22,7 +22,7 @@ Override this method to run \*\*one-off initialization logic\*\* that must compl
 
 This hook fires exactly once, after `cacheSession`<!-- -->, `templateManager`<!-- -->, `bot`<!-- -->, and `pages` are initialized, and before polling/webhook/serverless actually begins receiving updates.
 
-\*\*Do NOT register grammY middleware here.\*\* Middleware belongs in [Gramstax.registerLowPlugin()](./gramstax.gramstax.registerlowplugin.md)<!-- -->, which is the dedicated channel for code that should run on every incoming update. `hookBeforeStart` runs once and is the wrong place for per-update logic.
+\*\*Do NOT register middleware here.\*\* Middleware belongs in [Gramstax.registerLowPlugin()](./gramstax.gramstax.registerlowplugin.md)<!-- -->, which is the dedicated channel for code that should run on every incoming update. `hookBeforeStart` runs once and is the wrong place for per-update logic.
 
 For background tasks that need the bot to be alive (cron jobs, periodic cleanup, queue processors), use [Gramstax.hookAfterStart()](./gramstax.gramstax.hookafterstart.md) instead.
 

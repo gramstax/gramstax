@@ -409,6 +409,10 @@ export class Ctx extends Context {
     // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
     //
     // (undocumented)
+    methodSessionChatMemberOutIn(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandArgsText(name?: string): string;
     // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
     //
@@ -506,6 +510,22 @@ export class Ctx extends Context {
     //
     // (undocumented)
     methodSessionFreeVoice(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
+    methodSessionMyChatMemberAdminRegular(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
+    methodSessionMyChatMemberOutAdmin(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
+    methodSessionMyChatMemberOutRegular(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
+    methodSessionMyChatMemberRegularAdmin(name?: string): string;
     // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
     //
     // (undocumented)
@@ -653,6 +673,10 @@ export class Ctx extends Context {
     // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
     //
     // (undocumented)
+    setSessionChatMemberOutIn(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandArgsText(params?: any): Promise<boolean | null>;
     // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
     //
@@ -750,6 +774,22 @@ export class Ctx extends Context {
     //
     // (undocumented)
     setSessionFreeVoice(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
+    setSessionMyChatMemberAdminRegular(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
+    setSessionMyChatMemberOutAdmin(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
+    setSessionMyChatMemberOutRegular(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
+    setSessionMyChatMemberRegularAdmin(params?: any): Promise<boolean | null>;
     // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
     //
     // (undocumented)
@@ -1761,7 +1801,6 @@ export type ITGramstaxParams = {
     templateManager?: TemplateManager;
     stream?: boolean;
     autoRetry?: boolean;
-    chatMember?: boolean;
     optionsPage?: {
         shortCallbackQueryData?: boolean;
     };
@@ -2392,7 +2431,7 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:9192:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:9188:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

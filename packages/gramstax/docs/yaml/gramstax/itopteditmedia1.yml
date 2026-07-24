@@ -4,7 +4,7 @@ uid: gramstax!ITOptEditMedia1:type
 package: gramstax!
 fullName: ITOptEditMedia1
 summary: Media parameter for editing message media.
-remarks: Extracted from grammY's `Context.editMessageMedia()` method first parameter.
+remarks: Extracted from `Context.editMessageMedia()` method first parameter.
 example: []
 isPreview: false
 isDeprecated: false

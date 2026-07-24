@@ -96,7 +96,7 @@ options
 
 </td><td>
 
-_(Optional)_ Optional grammY edit options (or null to omit).
+_(Optional)_ Optional edit options (or null to omit).
 
 
 </td></tr>

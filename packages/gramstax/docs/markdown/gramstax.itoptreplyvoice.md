@@ -14,5 +14,5 @@ type ITOptReplyVoice = Parameters<Context[`replyWithVoice`]>[1];
 
 ## Remarks
 
-Extracted from grammY's `Context.replyWithVoice()` method options parameter.
+Extracted from `Context.replyWithVoice()` method options parameter.
 

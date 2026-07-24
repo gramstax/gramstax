@@ -101,7 +101,7 @@ Bot&lt;[ITCt](./gramstax.itct.md)<!-- -->&gt;
 
 </td><td>
 
-The underlying grammY Bot instance.
+The underlying Bot instance.
 
 
 </td></tr>
@@ -120,7 +120,7 @@ BotConfig&lt;[ITCt](./gramstax.itct.md)<!-- -->&gt;
 
 </td><td>
 
-_(Optional)_ Optional grammY bot configuration.
+_(Optional)_ Optional bot configuration.
 
 
 </td></tr>
@@ -484,7 +484,7 @@ Starts the bot in webhook mode.
 
 </td><td>
 
-Creates the grammY Bot instance.
+Creates the Bot instance.
 
 
 </td></tr>
@@ -804,7 +804,7 @@ Registers an event handler for a bot event.
 
 </td><td>
 
-_(Optional)_ Returns grammY middleware to register as low-level plugins on the bot.
+_(Optional)_ Returns middleware to register as low-level plugins on the bot.
 
 
 </td></tr>

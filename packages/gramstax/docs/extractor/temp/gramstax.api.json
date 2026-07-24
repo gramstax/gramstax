@@ -2901,7 +2901,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleChatMemberOutIn:member(1)",
-              "docComment": "/**\n * Handles a chat member status transition (`chatMemberFilter(\"out\", \"in\")`).\n *\n * @remarks\n *\n * Triggered when a user transitions from an \"out\" status (`kicked`, `left`, or `restricted` with `is_member=false`) to an \"in\" status (`member`, `administrator`, `creator`, or `restricted` with `is_member=true`).\n *\n * Define this method on a page class to react to users joining the chat. The bot must be an administrator in the group to receive `chat_member` updates.\n *\n * **Naming convention:** `handleChatMember{OldStatus}{NewStatus}` maps to `chatMemberFilter(\"old\", \"new\")`. Any PascalCased status combination produces a valid route: e.g. `handleChatMemberInOut` for users leaving.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * User joins the chat (kicked/left → member/admin/creator).\n *\n * @remarks\n *\n * Triggered when a user transitions from an \"out\" status (`kicked`, `left`, or `restricted` with `is_member=false`) to an \"in\" status (`member`, `administrator`, `creator`, or `restricted` with `is_member=true`). Uses `chatMemberFilter(\"out\", \"in\")`.\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3873,7 +3873,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleMyChatMemberAdminRegular:member(1)",
-              "docComment": "/**\n * Handles the bot being demoted from administrator.\n *\n * @remarks\n *\n * Triggered when the bot's own membership changes from `administrator`/`creator` back to `member`. Uses `myChatMemberFilter(\"admin\", \"regular\")`.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Bot is demoted from administrator.\n *\n * @remarks\n *\n * Triggered when the bot's own membership changes from `administrator`/`creator` back to `member`. Uses `myChatMemberFilter(\"admin\", \"regular\")`.\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3909,7 +3909,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleMyChatMemberOutAdmin:member(1)",
-              "docComment": "/**\n * Handles the bot being added to the chat as an administrator.\n *\n * @remarks\n *\n * Triggered when the bot's own membership changes from an \"out\" status to `administrator`/`creator`. Uses `myChatMemberFilter(\"out\", \"admin\")`.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Bot is added to the chat as an administrator.\n *\n * @remarks\n *\n * Triggered when the bot's own membership changes from an \"out\" status to `administrator`/`creator`. Uses `myChatMemberFilter(\"out\", \"admin\")`.\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3945,7 +3945,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleMyChatMemberOutRegular:member(1)",
-              "docComment": "/**\n * Handles the bot being added to the chat as a regular member.\n *\n * @remarks\n *\n * Triggered when the bot's own membership changes from an \"out\" status to `member` (non-administrator). Uses `myChatMemberFilter(\"out\", \"regular\")`.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Bot is added to the chat as a regular member.\n *\n * @remarks\n *\n * Triggered when the bot's own membership changes from an \"out\" status to `member` (non-administrator). Uses `myChatMemberFilter(\"out\", \"regular\")`.\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3981,7 +3981,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleMyChatMemberRegularAdmin:member(1)",
-              "docComment": "/**\n * Handles the bot being promoted to administrator.\n *\n * @remarks\n *\n * Triggered when the bot's own membership changes from `member`/`regular` to `administrator`/`creator`. Uses `myChatMemberFilter(\"regular\", \"admin\")`.\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Bot is promoted to administrator.\n *\n * @remarks\n *\n * Triggered when the bot's own membership changes from `member`/`regular` to `administrator`/`creator`. Uses `myChatMemberFilter(\"regular\", \"admin\")`.\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6984,6 +6984,54 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#methodSessionChatMemberOutIn:member(1)",
+              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "methodSessionChatMemberOutIn(name?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "name",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "methodSessionChatMemberOutIn"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandArgsText:member(1)",
               "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
               "excerptTokens": [
@@ -8184,6 +8232,198 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#methodSessionMyChatMemberAdminRegular:member(1)",
+              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "methodSessionMyChatMemberAdminRegular(name?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "name",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "methodSessionMyChatMemberAdminRegular"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#methodSessionMyChatMemberOutAdmin:member(1)",
+              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "methodSessionMyChatMemberOutAdmin(name?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "name",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "methodSessionMyChatMemberOutAdmin"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#methodSessionMyChatMemberOutRegular:member(1)",
+              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "methodSessionMyChatMemberOutRegular(name?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "name",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "methodSessionMyChatMemberOutRegular"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#methodSessionMyChatMemberRegularAdmin:member(1)",
+              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "methodSessionMyChatMemberRegularAdmin(name?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "name",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "methodSessionMyChatMemberRegularAdmin"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionText:member(1)",
               "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
               "excerptTokens": [
@@ -8737,7 +8977,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#render:member(1)",
-              "docComment": "/**\n * Sends a text message reply using the page template.\n *\n * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options - Optional grammY reply options (or null to omit).\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Automatic reply with content from this.template\n *   await this.render()\n *\n *   // With keyboard builder and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.render(kb, {name: \"John\"})\n *\n *   // With keyboard short and custom AGBaseId between reply and keyboard\n *   const kb = this.inlineKeyboardT([StartPage], `1`, \"my-custom-id\")\n *   await this.render(kb, {name: \"John\"}, \"id-hello-world\")\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a text message reply using the page template.\n *\n * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options - Optional reply options (or null to omit).\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Automatic reply with content from this.template\n *   await this.render()\n *\n *   // With keyboard builder and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.render(kb, {name: \"John\"})\n *\n *   // With keyboard short and custom AGBaseId between reply and keyboard\n *   const kb = this.inlineKeyboardT([StartPage], `1`, \"my-custom-id\")\n *   await this.render(kb, {name: \"John\"}, \"id-hello-world\")\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9396,7 +9636,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderAuto:member(1)",
-              "docComment": "/**\n * Sends or edits a message using the page template, auto-selecting between {@link (Ctx:class).render} and {@link (Ctx:class).renderEdit} based on the `isEdit` flag.\n *\n * @remarks\n *\n * When `isEdit` is `true`, delegates to `renderEdit` (inline keyboard only). When `false`, delegates to `render` (inline or bottom keyboard).\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options - Optional grammY reply/edit options (or null to omit).\n *\n * @param isEdit - If `true`, edits the existing message; if `false`, sends a new one. Defaults to `!!this.callbackQuery` (auto-detected).\n *\n * @returns The sent or edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   // Auto-detect: callbackQuery exists → renderEdit\n *   await this.renderAuto(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends or edits a message using the page template, auto-selecting between {@link (Ctx:class).render} and {@link (Ctx:class).renderEdit} based on the `isEdit` flag.\n *\n * @remarks\n *\n * When `isEdit` is `true`, delegates to `renderEdit` (inline keyboard only). When `false`, delegates to `render` (inline or bottom keyboard).\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options - Optional reply/edit options (or null to omit).\n *\n * @param isEdit - If `true`, edits the existing message; if `false`, sends a new one. Defaults to `!!this.callbackQuery` (auto-detected).\n *\n * @returns The sent or edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   // Auto-detect: callbackQuery exists → renderEdit\n *   await this.renderAuto(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9573,7 +9813,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderAutoRich:member(1)",
-              "docComment": "/**\n * Sends or edits a rich message using the page template, auto-selecting between {@link (Ctx:class).renderRich} and {@link (Ctx:class).renderEditRich} based on the `isEdit` flag.\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID (or null to use default).\n *\n * @param options1 - Optional `InputRichMessage` fields (or null to omit).\n *\n * @param options2 - Optional grammY send/edit options (or null to omit).\n *\n * @param isEdit - If true, edits existing message; if false, sends new. Defaults to `!!this.callbackQuery` (auto-detected).\n *\n * @returns The sent or edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderAutoRich()\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends or edits a rich message using the page template, auto-selecting between {@link (Ctx:class).renderRich} and {@link (Ctx:class).renderEditRich} based on the `isEdit` flag.\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID (or null to use default).\n *\n * @param options1 - Optional `InputRichMessage` fields (or null to omit).\n *\n * @param options2 - Optional send/edit options (or null to omit).\n *\n * @param isEdit - If true, edits existing message; if false, sends new. Defaults to `!!this.callbackQuery` (auto-detected).\n *\n * @returns The sent or edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderAutoRich()\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9780,7 +10020,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderBroadcast:member(1)",
-              "docComment": "/**\n * Sends a message to multiple users in bulk.\n *\n * @remarks\n *\n * Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.\n *\n * @param ids - Array of user IDs to send the message to.\n *\n * @param languageCode - Array of language codes corresponding to each user.\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).\n *\n * @param options - Optional grammY send options (or null to omit).\n *\n * @param throwError - If true, throws errors instead of swallowing them (or null to use false).\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const userIds = [123456, 789012]\n *   const langs = [\"en\", \"id\"]\n *   await this.renderBroadcast(userIds, langs)\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a message to multiple users in bulk.\n *\n * @remarks\n *\n * Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.\n *\n * @param ids - Array of user IDs to send the message to.\n *\n * @param languageCode - Array of language codes corresponding to each user.\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).\n *\n * @param options - Optional send options (or null to omit).\n *\n * @param throwError - If true, throws errors instead of swallowing them (or null to use false).\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const userIds = [123456, 789012]\n *   const langs = [\"en\", \"id\"]\n *   await this.renderBroadcast(userIds, langs)\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9944,7 +10184,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderBroadcastMedia:member(1)",
-              "docComment": "/**\n * Sends a media message to multiple users in bulk.\n *\n * @remarks\n *\n * Media type and arg are inferred from the template `<g-media>` block. If a supported media type (`photo`, `video`, `audio`, `document`) uses a pipe-delimited `src`, it is sent as a Telegram media group. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media. Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.\n *\n * @param ids - Array of user IDs to send the media to.\n *\n * @param languageCode - Array of language codes corresponding to each user.\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).\n *\n * @param options - Optional grammY send options for the inferred media type (or null to omit).\n *\n * @param throwError - If true, throws errors instead of swallowing them (or null to use false).\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const userIds = [123456, 789012]\n *   const langs = [\"en\", \"id\"]\n *   await this.renderBroadcastMedia(userIds, langs)\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a media message to multiple users in bulk.\n *\n * @remarks\n *\n * Media type and arg are inferred from the template `<g-media>` block. If a supported media type (`photo`, `video`, `audio`, `document`) uses a pipe-delimited `src`, it is sent as a Telegram media group. Telegram media groups do not support reply markup, so keyboards are ignored for grouped media. Automatically throttles after 30 messages to respect Telegram rate limits. Uses each user's specified language code for template rendering.\n *\n * @param ids - Array of user IDs to send the media to.\n *\n * @param languageCode - Array of language codes corresponding to each user.\n *\n * @param keyboard - Optional keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).\n *\n * @param options - Optional send options for the inferred media type (or null to omit).\n *\n * @param throwError - If true, throws errors instead of swallowing them (or null to use false).\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const userIds = [123456, 789012]\n *   const langs = [\"en\", \"id\"]\n *   await this.renderBroadcastMedia(userIds, langs)\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10723,7 +10963,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEdit:member(1)",
-              "docComment": "/**\n * Edits an existing message text using the page template.\n *\n * @remarks\n *\n * If editing fails (e.g., message too old), falls back to sending a new reply unless `fallbackReply` is set to false.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).\n *\n * @param options - Optional grammY edit options (or null to omit).\n *\n * @param fallbackReply - If true, sends a reply if edit fails. Default: false.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderEdit(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message text using the page template.\n *\n * @remarks\n *\n * If editing fails (e.g., message too old), falls back to sending a new reply unless `fallbackReply` is set to false.\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).\n *\n * @param options - Optional edit options (or null to omit).\n *\n * @param fallbackReply - If true, sends a reply if edit fails. Default: false.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleArgsCallback() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderEdit(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -13567,7 +13807,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderEditRich:member(1)",
-              "docComment": "/**\n * Edits an existing message with rich content using the page template.\n *\n * @remarks\n *\n * Uses `editMessageText` with an `InputRichMessage` payload (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}). This method can edit both text and rich messages — pass a rich HTML template and it will be sent as structured rich content.\n *\n * If editing fails (e.g. message too old) and `fallbackReply` is true, a new rich message reply is sent instead.\n *\n * Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).\n *\n * @param options2 - Optional grammY edit options (or null to omit).\n *\n * @param fallbackReply - If true, sends a rich reply if edit fails. Default: false.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderEditRich(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Edits an existing message with rich content using the page template.\n *\n * @remarks\n *\n * Uses `editMessageText` with an `InputRichMessage` payload (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}). This method can edit both text and rich messages — pass a rich HTML template and it will be sent as structured rich content.\n *\n * If editing fails (e.g. message too old) and `fallbackReply` is true, a new rich message reply is sent instead.\n *\n * Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns\n *\n * @param keyboardInline - Optional inline keyboard markup (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).\n *\n * @param options2 - Optional edit options (or null to omit).\n *\n * @param fallbackReply - If true, sends a rich reply if edit fails. Default: false.\n *\n * @returns The edited message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderEditRich(kb, {status: \"updated\"})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16039,7 +16279,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderRich:member(1)",
-              "docComment": "/**\n * Sends a rich message reply using the page template.\n *\n * @remarks\n *\n * Uses `replyWithRichMessage` (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}) to send structured rich text with headings, lists, tables, media, block quotations, collapsible blocks, footnotes, and formulas.\n *\n * The page template's `<g-message>` HTML content is passed as the `html` field of `InputRichMessage`. Use the Bot API 10.1 Rich HTML tags in your template (e.g. `<h1>`, `<table>`, `<blockquote>`) — they are validated by {@link TemplateEngine.validateBlockGMessageRich}.\n *\n * Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns\n *\n * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).\n *\n * @param options2 - Optional grammY send options (or null to omit).\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Rich message with template content\n *   await this.renderRich()\n *\n *   // With keyboard and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderRich(kb, {name: \"John\"})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends a rich message reply using the page template.\n *\n * @remarks\n *\n * Uses `replyWithRichMessage` (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}) to send structured rich text with headings, lists, tables, media, block quotations, collapsible blocks, footnotes, and formulas.\n *\n * The page template's `<g-message>` HTML content is passed as the `html` field of `InputRichMessage`. Use the Bot API 10.1 Rich HTML tags in your template (e.g. `<h1>`, `<table>`, `<blockquote>`) — they are validated by {@link TemplateEngine.validateBlockGMessageRich}.\n *\n * Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns\n *\n * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).\n *\n * @param data - Optional template interpolation data (or null to omit).\n *\n * @param AGBaseId - Optional template base ID position for block message (or null to use default).\n *\n * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).\n *\n * @param options2 - Optional send options (or null to omit).\n *\n * @returns The sent message object.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Rich message with template content\n *   await this.renderRich()\n *\n *   // With keyboard and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderRich(kb, {name: \"John\"})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18041,6 +18281,59 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionChatMemberOutIn:member(1)",
+              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionChatMemberOutIn(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionChatMemberOutIn"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandArgsText:member(1)",
               "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
               "excerptTokens": [
@@ -19363,6 +19656,218 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "setSessionFreeVoice"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionMyChatMemberAdminRegular:member(1)",
+              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionMyChatMemberAdminRegular(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionMyChatMemberAdminRegular"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionMyChatMemberOutAdmin:member(1)",
+              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionMyChatMemberOutAdmin(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionMyChatMemberOutAdmin"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionMyChatMemberOutRegular:member(1)",
+              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionMyChatMemberOutRegular(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionMyChatMemberOutRegular"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#setSessionMyChatMemberRegularAdmin:member(1)",
+              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setSessionMyChatMemberRegularAdmin(params?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<boolean | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setSessionMyChatMemberRegularAdmin"
             },
             {
               "kind": "Method",
@@ -22986,7 +23491,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#_runServerless:member(1)",
-              "docComment": "/**\n * Starts the bot in serverless mode.\n *\n * @remarks\n *\n * Configures the handler for serverless adapters (e.g., AWS Lambda, Cloudflare Workers).\n *\n * @param adapter - The grammY adapter name (e.g., \"std/http\", \"aws-lambda\").\n *\n * @public\n */\n",
+              "docComment": "/**\n * Starts the bot in serverless mode.\n *\n * @remarks\n *\n * Configures the handler for serverless adapters (e.g., AWS Lambda, Cloudflare Workers).\n *\n * @param adapter - The adapter name (e.g., \"std/http\", \"aws-lambda\").\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23092,7 +23597,7 @@
             {
               "kind": "Constructor",
               "canonicalReference": "gramstax!Gramstax:constructor(1)",
-              "docComment": "/**\n * Creates a new Gramstax bot instance.\n *\n * @param params - Configuration options. See {@link ITGramstaxParams} for all available options.\n *\n * @example\n * ```typescript\n * // Polling mode (development, local testing)\n * new Gramstax({token: \"BOT_TOKEN\", deploy: \"polling\"})\n *\n * // Webhook mode with Bun's HTTP server\n * new Gramstax({token: \"BOT_TOKEN\", deploy: \"webhook:https://example.com/bot\"})\n * ```\n *\n * @example\n * ```typescript\n * // Serverless mode — Bun std/http adapter\n * //\n * // The bot does NOT self-host; instead it sets up handlerBotUpdate\n * // for your serverless runtime. Export the handler and let your\n * // platform invoke it per HTTP request.\n *\n * // bot.ts — instantiation\n * const bot = new Gramstax({\n *   token: process.env.BOT_TOKEN!,\n *   deploy: \"serverless:std/http\"\n * })\n *\n * // handler.ts — server entry point\n * import {bot} from \"./bot\"\n *\n * // Bun's built-in HTTP server\n * Bun.serve({\n *   port: 3000,\n *   async fetch(req) {\n *     const url = new URL(req.url)\n *     if (url.pathname === \"/webhook\") {\n *       // Forward the request to gramstax's handler\n *       return await bot.handlerBotUpdate(req)\n *     }\n *     return new Response(\"Not found\", {status: 404})\n *   }\n * })\n * ```\n *\n * @example\n * ```typescript\n * // Serverless mode — AWS Lambda\n * //\n * // bot.ts\n * const bot = new Gramstax({\n *   token: process.env.BOT_TOKEN!,\n *   deploy: \"serverless:aws-lambda\"\n * })\n *\n * // lambda.ts\n * import {bot} from \"./bot\"\n * import type {APIGatewayProxyEvent, Context} from \"aws-lambda\"\n *\n * export const handler = async (event: APIGatewayProxyEvent, _ctx: Context) => {\n *   // webhookCallback(bot.bot, \"aws-lambda\") wraps the raw event\n *   // into a grammY-compatible format internally\n *   return await bot.handlerBotUpdate(event)\n * }\n * ```\n *\n * @example\n * ```typescript\n * // Serverless mode — Cloudflare Workers\n * //\n * // bot.ts\n * const bot = new Gramstax({token: env.BOT_TOKEN, deploy: \"serverless:cloudflare-workers-mod\"})\n *\n * // worker.ts\n * import {bot} from \"./bot\"\n *\n * export default {\n *   async fetch(request: Request) {\n *     const url = new URL(request.url)\n *     if (url.pathname === \"/webhook\") {\n *       return await bot.handlerBotUpdate(request)\n *     }\n *     return new Response(\"OK\")\n *   }\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Creates a new Gramstax bot instance.\n *\n * @param params - Configuration options. See {@link ITGramstaxParams} for all available options.\n *\n * @example\n * ```typescript\n * // Polling mode (development, local testing)\n * new Gramstax({token: \"BOT_TOKEN\", deploy: \"polling\"})\n *\n * // Webhook mode with Bun's HTTP server\n * new Gramstax({token: \"BOT_TOKEN\", deploy: \"webhook:https://example.com/bot\"})\n * ```\n *\n * @example\n * ```typescript\n * // Serverless mode — Bun std/http adapter\n * //\n * // The bot does NOT self-host; instead it sets up handlerBotUpdate\n * // for your serverless runtime. Export the handler and let your\n * // platform invoke it per HTTP request.\n *\n * // bot.ts — instantiation\n * const bot = new Gramstax({\n *   token: process.env.BOT_TOKEN!,\n *   deploy: \"serverless:std/http\"\n * })\n *\n * // handler.ts — server entry point\n * import {bot} from \"./bot\"\n *\n * // Bun's built-in HTTP server\n * Bun.serve({\n *   port: 3000,\n *   async fetch(req) {\n *     const url = new URL(req.url)\n *     if (url.pathname === \"/webhook\") {\n *       // Forward the request to gramstax's handler\n *       return await bot.handlerBotUpdate(req)\n *     }\n *     return new Response(\"Not found\", {status: 404})\n *   }\n * })\n * ```\n *\n * @example\n * ```typescript\n * // Serverless mode — AWS Lambda\n * //\n * // bot.ts\n * const bot = new Gramstax({\n *   token: process.env.BOT_TOKEN!,\n *   deploy: \"serverless:aws-lambda\"\n * })\n *\n * // lambda.ts\n * import {bot} from \"./bot\"\n * import type {APIGatewayProxyEvent, Context} from \"aws-lambda\"\n *\n * export const handler = async (event: APIGatewayProxyEvent, _ctx: Context) => {\n *   // webhookCallback(bot.bot, \"aws-lambda\") wraps the raw event\n *   // into a compatible format internally\n *   return await bot.handlerBotUpdate(event)\n * }\n * ```\n *\n * @example\n * ```typescript\n * // Serverless mode — Cloudflare Workers\n * //\n * // bot.ts\n * const bot = new Gramstax({token: env.BOT_TOKEN, deploy: \"serverless:cloudflare-workers-mod\"})\n *\n * // worker.ts\n * import {bot} from \"./bot\"\n *\n * export default {\n *   async fetch(request: Request) {\n *     const url = new URL(request.url)\n *     if (url.pathname === \"/webhook\") {\n *       return await bot.handlerBotUpdate(request)\n *     }\n *     return new Response(\"OK\")\n *   }\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23125,7 +23630,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#bot:member",
-              "docComment": "/**\n * The underlying grammY Bot instance.\n *\n * @remarks\n *\n * Instance of the grammY `Bot`.\n */\n",
+              "docComment": "/**\n * The underlying Bot instance.\n *\n * @remarks\n *\n * Instance of the `Bot`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23169,7 +23674,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!Gramstax#botConfig:member",
-              "docComment": "/**\n * Optional grammY bot configuration.\n *\n * @remarks\n *\n * Configuration object for grammY `BotConfig` and `Context`.\n */\n",
+              "docComment": "/**\n * Optional bot configuration.\n *\n * @remarks\n *\n * Configuration object for `BotConfig` and `Context`.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23292,7 +23797,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#createBot:member(1)",
-              "docComment": "/**\n * Creates the grammY Bot instance.\n *\n * @param token - The Telegram Bot API token.\n *\n * @returns The Bot instance.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Creates the Bot instance.\n *\n * @param token - The Telegram Bot API token.\n *\n * @returns The Bot instance.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23354,7 +23859,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#createCtx:member(1)",
-              "docComment": "/**\n * Creates a context instance for handling an update.\n *\n * @param ct - The grammY Context object.\n *\n * @returns A new Ctx instance.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Creates a context instance for handling an update.\n *\n * @param ct - The context object.\n *\n * @returns A new Ctx instance.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -23757,7 +24262,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#hookBeforeStart:member(1)",
-              "docComment": "/**\n * Hook called before the bot starts.\n *\n * @remarks\n *\n * Override this method to run **one-off initialization logic** that must complete before the bot begins dispatching updates — for example, connecting to a database, warming a cache, validating external service credentials, or setting up shared singletons that pages will read from.\n *\n * This hook fires exactly once, after `cacheSession`, `templateManager`, `bot`, and `pages` are initialized, and before polling/webhook/serverless actually begins receiving updates.\n *\n * **Do NOT register grammY middleware here.** Middleware belongs in {@link Gramstax.registerLowPlugin}, which is the dedicated channel for code that should run on every incoming update. `hookBeforeStart` runs once and is the wrong place for per-update logic.\n *\n * For background tasks that need the bot to be alive (cron jobs, periodic cleanup, queue processors), use {@link Gramstax.hookAfterStart} instead.\n *\n * @example\n * ```typescript\n * class MyBot extends Gramstax {\n *   async hookBeforeStart() {\n *     // Validate external service credentials before the bot goes live\n *     if (!process.env.REDIS_URL) {\n *       throw new Error(`REDIS_URL is required`)\n *     }\n *     this.log?.info?.(`Verifying external service connection...`)\n *     await pingRedis(process.env.REDIS_URL)\n *     this.log?.success?.(`External services ready`)\n *   }\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Hook called before the bot starts.\n *\n * @remarks\n *\n * Override this method to run **one-off initialization logic** that must complete before the bot begins dispatching updates — for example, connecting to a database, warming a cache, validating external service credentials, or setting up shared singletons that pages will read from.\n *\n * This hook fires exactly once, after `cacheSession`, `templateManager`, `bot`, and `pages` are initialized, and before polling/webhook/serverless actually begins receiving updates.\n *\n * **Do NOT register middleware here.** Middleware belongs in {@link Gramstax.registerLowPlugin}, which is the dedicated channel for code that should run on every incoming update. `hookBeforeStart` runs once and is the wrong place for per-update logic.\n *\n * For background tasks that need the bot to be alive (cron jobs, periodic cleanup, queue processors), use {@link Gramstax.hookAfterStart} instead.\n *\n * @example\n * ```typescript\n * class MyBot extends Gramstax {\n *   async hookBeforeStart() {\n *     // Validate external service credentials before the bot goes live\n *     if (!process.env.REDIS_URL) {\n *       throw new Error(`REDIS_URL is required`)\n *     }\n *     this.log?.info?.(`Verifying external service connection...`)\n *     await pingRedis(process.env.REDIS_URL)\n *     this.log?.success?.(`External services ready`)\n *   }\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -24443,7 +24948,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#registerLowPlugin:member(1)",
-              "docComment": "/**\n * Returns grammY middleware to register as low-level plugins on the bot.\n *\n * @remarks\n *\n * Override this method in a subclass to inject custom plugin middleware (sessions, i18n, rate limiting, logging, authentication, etc.) into the underlying grammY bot instance.\n *\n * Each element of the returned array is a {@link ITCtMiddleware} value (either a `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that grammY will install via `this.bot.use(...)`. The array is meant to be spread into `bot.use`, so the order of elements determines the order in which middleware runs — earlier entries wrap later ones (outermost first).\n *\n * Difference vs. the other lifecycle hooks:\n *\n * - `hookBeforeStart` — for one-off side effects before the bot starts. Anything you want to happen exactly once at boot goes there. - `registerLowPlugin` — for middleware that must run on **every update**. Use this when you need grammY middleware semantics (filter queries, `next()` chaining, scope-aware registration). - `hookBeforeRoute` / `hookAfterRoute` — for per-update hooks that run inside the router, after gramstax has already routed to a page.\n *\n * The base implementation is not provided — subclasses override this to contribute their own plugins. Returning an empty array (or not overriding) installs no plugins, which is the default behavior.\n *\n * @returns Array of grammY {@link ITCtMiddleware} values, ready to be spread into `this.bot.use(...result)`.\n *\n * @example\n * ```typescript\n * class MyBot extends Gramstax {\n *   registerLowPlugin() {\n *     return [\n *       // 1. Logging middleware (outermost — runs first, exits last)\n *       async (ctx, next) => {\n *         this.log?.info?.(`update ${ctx.update.update_id} from ${ctx.from?.id}`)\n *         await next()\n *       },\n *       // 2. Per-chat rate limit (inner)\n *       async (ctx, next) => {\n *         // ... check + throttle ...\n *         await next()\n *       }\n *     ]\n *   }\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Returns middleware to register as low-level plugins on the bot.\n *\n * @remarks\n *\n * Override this method in a subclass to inject custom plugin middleware (sessions, i18n, rate limiting, logging, authentication, etc.) into the underlying bot instance.\n *\n * Each element of the returned array is a {@link ITCtMiddleware} value (either a `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that The array elements are passed to `this.bot.use(...)`. It is meant to be spread into `bot.use`, so the order of elements determines the order in which middleware runs — earlier entries wrap later ones (outermost first).\n *\n * Difference vs. the other lifecycle hooks:\n *\n * - `hookBeforeStart` — for one-off side effects before the bot starts. Anything you want to happen exactly once at boot goes there. - `registerLowPlugin` — for middleware that must run on **every update**. Use this when you need middleware semantics (filter queries, `next()` chaining, scope-aware registration). - `hookBeforeRoute` / `hookAfterRoute` — for per-update hooks that run inside the router, after gramstax has already routed to a page.\n *\n * The base implementation is not provided — subclasses override this to contribute their own plugins. Returning an empty array (or not overriding) installs no plugins, which is the default behavior.\n *\n * @returns Array of {@link ITCtMiddleware} values, ready to be spread into `this.bot.use(...result)`.\n *\n * @example\n * ```typescript\n * class MyBot extends Gramstax {\n *   registerLowPlugin() {\n *     return [\n *       // 1. Logging middleware (outermost — runs first, exits last)\n *       async (ctx, next) => {\n *         this.log?.info?.(`update ${ctx.update.update_id} from ${ctx.from?.id}`)\n *         await next()\n *       },\n *       // 2. Per-chat rate limit (inner)\n *       async (ctx, next) => {\n *         // ... check + throttle ...\n *         await next()\n *       }\n *     ]\n *   }\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -24598,7 +25103,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITBottomKb:type",
-          "docComment": "/**\n * Type alias for grammY Keyboard (reply keyboard).\n *\n * @remarks\n *\n * Used to create reply keyboards that replace the user's device keyboard.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Type alias for Keyboard (reply keyboard).\n *\n * @remarks\n *\n * Used to create reply keyboards that replace the user's device keyboard.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -24839,7 +25344,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITCt:type",
-          "docComment": "/**\n * Type alias for grammY Context.\n *\n * @remarks\n *\n * The main context object containing update information and bot methods.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Type alias for Context.\n *\n * @remarks\n *\n * The main context object containing update information and bot methods.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -24866,7 +25371,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITCtMiddleware:type",
-          "docComment": "/**\n * Type alias for grammY Middleware.\n *\n * @remarks\n *\n * Middleware from grammy.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Type alias for Middleware.\n *\n * @remarks\n *\n * Middleware used to handle updates.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -25409,7 +25914,7 @@
             },
             {
               "kind": "Content",
-              "text": ";\n    stream?: boolean;\n    autoRetry?: boolean;\n    chatMember?: boolean;\n    optionsPage?: {\n        shortCallbackQueryData?: boolean;\n    };\n}"
+              "text": ";\n    stream?: boolean;\n    autoRetry?: boolean;\n    optionsPage?: {\n        shortCallbackQueryData?: boolean;\n    };\n}"
             },
             {
               "kind": "Content",
@@ -25463,7 +25968,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITInlineKb:type",
-          "docComment": "/**\n * Type alias for grammY InlineKeyboard.\n *\n * @remarks\n *\n * Used to create inline keyboards that appear below messages with callback buttons.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Type alias for InlineKeyboard.\n *\n * @remarks\n *\n * Used to create inline keyboards that appear below messages with callback buttons.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26031,7 +26536,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptEdit:type",
-          "docComment": "/**\n * Options for editing text messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.editMessageText()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for editing text messages.\n *\n * @remarks\n *\n * Extracted from `Context.editMessageText()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26071,7 +26576,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptEditMedia1:type",
-          "docComment": "/**\n * Media parameter for editing message media.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.editMessageMedia()` method first parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Media parameter for editing message media.\n *\n * @remarks\n *\n * Extracted from `Context.editMessageMedia()` method first parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26111,7 +26616,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptEditMedia2:type",
-          "docComment": "/**\n * Options parameter for editing message media.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.editMessageMedia()` method second parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options parameter for editing message media.\n *\n * @remarks\n *\n * Extracted from `Context.editMessageMedia()` method second parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26151,7 +26656,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptReply:type",
-          "docComment": "/**\n * Options for sending text messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.reply()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for sending text messages.\n *\n * @remarks\n *\n * Extracted from `Context.reply()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26191,7 +26696,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptReplyAnimation:type",
-          "docComment": "/**\n * Options for sending animation (GIF) messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.replyWithAnimation()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for sending animation (GIF) messages.\n *\n * @remarks\n *\n * Extracted from `Context.replyWithAnimation()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26231,7 +26736,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptReplyAudio:type",
-          "docComment": "/**\n * Options for sending audio messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.replyWithAudio()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for sending audio messages.\n *\n * @remarks\n *\n * Extracted from `Context.replyWithAudio()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26271,7 +26776,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptReplyContact:type",
-          "docComment": "/**\n * Options for sending contact messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.replyWithContact()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for sending contact messages.\n *\n * @remarks\n *\n * Extracted from `Context.replyWithContact()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26311,7 +26816,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptReplyDocument:type",
-          "docComment": "/**\n * Options for sending document messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.replyWithDocument()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for sending document messages.\n *\n * @remarks\n *\n * Extracted from `Context.replyWithDocument()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26351,7 +26856,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptReplyLocation:type",
-          "docComment": "/**\n * Options for sending location messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.replyWithLocation()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for sending location messages.\n *\n * @remarks\n *\n * Extracted from `Context.replyWithLocation()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26391,7 +26896,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptReplyPhoto:type",
-          "docComment": "/**\n * Options for sending photo messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.replyWithPhoto()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for sending photo messages.\n *\n * @remarks\n *\n * Extracted from `Context.replyWithPhoto()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26431,7 +26936,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptReplyRich:type",
-          "docComment": "/**\n * Options for sending text rich messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.replyWithRichMessage()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for sending text rich messages.\n *\n * @remarks\n *\n * Extracted from `Context.replyWithRichMessage()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26471,7 +26976,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptReplySticker:type",
-          "docComment": "/**\n * Options for sending sticker messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.replyWithSticker()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for sending sticker messages.\n *\n * @remarks\n *\n * Extracted from `Context.replyWithSticker()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26511,7 +27016,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptReplyVideo:type",
-          "docComment": "/**\n * Options for sending video messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.replyWithVideo()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for sending video messages.\n *\n * @remarks\n *\n * Extracted from `Context.replyWithVideo()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26551,7 +27056,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptReplyVideoNote:type",
-          "docComment": "/**\n * Options for sending video note messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.replyWithVideoNote()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for sending video note messages.\n *\n * @remarks\n *\n * Extracted from `Context.replyWithVideoNote()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26591,7 +27096,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITOptReplyVoice:type",
-          "docComment": "/**\n * Options for sending voice messages.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.replyWithVoice()` method options parameter.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Options for sending voice messages.\n *\n * @remarks\n *\n * Extracted from `Context.replyWithVoice()` method options parameter.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26686,7 +27191,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITReplyAction:type",
-          "docComment": "/**\n * Type of chat action to send.\n *\n * @remarks\n *\n * Extracted from grammY's `Context.replyWithChatAction()` method parameter. Used to show typing indicators, upload status, etc.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Type of chat action to send.\n *\n * @remarks\n *\n * Extracted from `Context.replyWithChatAction()` method parameter. Used to show typing indicators, upload status, etc.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

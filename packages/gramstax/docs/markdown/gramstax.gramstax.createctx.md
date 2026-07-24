@@ -42,7 +42,7 @@ ct
 
 </td><td>
 
-The grammY Context object.
+The context object.
 
 
 </td></tr>

@@ -4,7 +4,7 @@
 
 ## Gramstax.registerLowPlugin() method
 
-Returns grammY middleware to register as low-level plugins on the bot.
+Returns middleware to register as low-level plugins on the bot.
 
 **Signature:**
 
@@ -16,17 +16,17 @@ registerLowPlugin?(): Array<ITCtMiddleware<ITCt>>;
 
 Array&lt;[ITCtMiddleware](./gramstax.itctmiddleware.md)<!-- -->&lt;[ITCt](./gramstax.itct.md)<!-- -->&gt;&gt;
 
-Array of grammY [ITCtMiddleware](./gramstax.itctmiddleware.md) values, ready to be spread into `this.bot.use(...result)`<!-- -->.
+Array of [ITCtMiddleware](./gramstax.itctmiddleware.md) values, ready to be spread into `this.bot.use(...result)`<!-- -->.
 
 ## Remarks
 
-Override this method in a subclass to inject custom plugin middleware (sessions, i18n, rate limiting, logging, authentication, etc.) into the underlying grammY bot instance.
+Override this method in a subclass to inject custom plugin middleware (sessions, i18n, rate limiting, logging, authentication, etc.) into the underlying bot instance.
 
-Each element of the returned array is a [ITCtMiddleware](./gramstax.itctmiddleware.md) value (either a `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that grammY will install via `this.bot.use(...)`<!-- -->. The array is meant to be spread into `bot.use`<!-- -->, so the order of elements determines the order in which middleware runs — earlier entries wrap later ones (outermost first).
+Each element of the returned array is a [ITCtMiddleware](./gramstax.itctmiddleware.md) value (either a `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that The array elements are passed to `this.bot.use(...)`<!-- -->. It is meant to be spread into `bot.use`<!-- -->, so the order of elements determines the order in which middleware runs — earlier entries wrap later ones (outermost first).
 
 Difference vs. the other lifecycle hooks:
 
-- `hookBeforeStart` — for one-off side effects before the bot starts. Anything you want to happen exactly once at boot goes there. - `registerLowPlugin` — for middleware that must run on \*\*every update\*\*. Use this when you need grammY middleware semantics (filter queries, `next()` chaining, scope-aware registration). - `hookBeforeRoute` / `hookAfterRoute` — for per-update hooks that run inside the router, after gramstax has already routed to a page.
+- `hookBeforeStart` — for one-off side effects before the bot starts. Anything you want to happen exactly once at boot goes there. - `registerLowPlugin` — for middleware that must run on \*\*every update\*\*. Use this when you need middleware semantics (filter queries, `next()` chaining, scope-aware registration). - `hookBeforeRoute` / `hookAfterRoute` — for per-update hooks that run inside the router, after gramstax has already routed to a page.
 
 The base implementation is not provided — subclasses override this to contribute their own plugins. Returning an empty array (or not overriding) installs no plugins, which is the default behavior.
 

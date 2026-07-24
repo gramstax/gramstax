@@ -3,7 +3,7 @@ name: ITInlineKb
 uid: gramstax!ITInlineKb:type
 package: gramstax!
 fullName: ITInlineKb
-summary: Type alias for grammY InlineKeyboard.
+summary: Type alias for InlineKeyboard.
 remarks: Used to create inline keyboards that appear below messages with callback buttons.
 example: []
 isPreview: false

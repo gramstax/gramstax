@@ -126,7 +126,7 @@ options
 
 </td><td>
 
-_(Optional)_ Optional grammY send options (or null to omit).
+_(Optional)_ Optional send options (or null to omit).
 
 
 </td></tr>

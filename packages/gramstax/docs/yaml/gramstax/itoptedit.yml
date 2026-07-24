@@ -4,7 +4,7 @@ uid: gramstax!ITOptEdit:type
 package: gramstax!
 fullName: ITOptEdit
 summary: Options for editing text messages.
-remarks: Extracted from grammY's `Context.editMessageText()` method options parameter.
+remarks: Extracted from `Context.editMessageText()` method options parameter.
 example: []
 isPreview: false
 isDeprecated: false

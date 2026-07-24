@@ -14,5 +14,5 @@ type ITOptReplyRich = Parameters<Context[`replyWithRichMessage`]>;
 
 ## Remarks
 
-Extracted from grammY's `Context.replyWithRichMessage()` method options parameter.
+Extracted from `Context.replyWithRichMessage()` method options parameter.
 

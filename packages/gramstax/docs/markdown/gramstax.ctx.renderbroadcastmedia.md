@@ -126,7 +126,7 @@ options
 
 </td><td>
 
-_(Optional)_ Optional grammY send options for the inferred media type (or null to omit).
+_(Optional)_ Optional send options for the inferred media type (or null to omit).
 
 
 </td></tr>

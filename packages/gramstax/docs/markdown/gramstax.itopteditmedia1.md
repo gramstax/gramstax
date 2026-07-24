@@ -14,5 +14,5 @@ type ITOptEditMedia1 = Parameters<Context[`editMessageMedia`]>[0];
 
 ## Remarks
 
-Extracted from grammY's `Context.editMessageMedia()` method first parameter.
+Extracted from `Context.editMessageMedia()` method first parameter.
 

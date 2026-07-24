@@ -14,5 +14,5 @@ type ITOptEdit = Parameters<Context[`editMessageText`]>[1];
 
 ## Remarks
 
-Extracted from grammY's `Context.editMessageText()` method options parameter.
+Extracted from `Context.editMessageText()` method options parameter.
 

@@ -4,7 +4,7 @@
 
 ## Ctx.handleChatMemberOutIn() method
 
-Handles a chat member status transition (`chatMemberFilter("out", "in")`<!-- -->).
+User joins the chat (kicked/left → member/admin/creator).
 
 **Signature:**
 
@@ -18,9 +18,5 @@ Promise&lt;void&gt;
 
 ## Remarks
 
-Triggered when a user transitions from an "out" status (`kicked`<!-- -->, `left`<!-- -->, or `restricted` with `is_member=false`<!-- -->) to an "in" status (`member`<!-- -->, `administrator`<!-- -->, `creator`<!-- -->, or `restricted` with `is_member=true`<!-- -->).
-
-Define this method on a page class to react to users joining the chat. The bot must be an administrator in the group to receive `chat_member` updates.
-
-\*\*Naming convention:\*\* `handleChatMember{OldStatus}{NewStatus}` maps to `chatMemberFilter("old", "new")`<!-- -->. Any PascalCased status combination produces a valid route: e.g. `handleChatMemberInOut` for users leaving.
+Triggered when a user transitions from an "out" status (`kicked`<!-- -->, `left`<!-- -->, or `restricted` with `is_member=false`<!-- -->) to an "in" status (`member`<!-- -->, `administrator`<!-- -->, `creator`<!-- -->, or `restricted` with `is_member=true`<!-- -->). Uses `chatMemberFilter("out", "in")`<!-- -->.
 

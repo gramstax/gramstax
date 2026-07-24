@@ -14,5 +14,5 @@ type ITReplyAction = Parameters<Context[`replyWithChatAction`]>[0];
 
 ## Remarks
 
-Extracted from grammY's `Context.replyWithChatAction()` method parameter. Used to show typing indicators, upload status, etc.
+Extracted from `Context.replyWithChatAction()` method parameter. Used to show typing indicators, upload status, etc.
 

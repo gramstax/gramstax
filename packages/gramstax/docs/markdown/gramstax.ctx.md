@@ -1502,7 +1502,7 @@ _(Optional)_ Route function for voiceCaption match intent `this.data.name`
 
 </td><td>
 
-_(Optional)_ Handles a chat member status transition (`chatMemberFilter("out", "in")`<!-- -->).
+_(Optional)_ User joins the chat (kicked/left → member/admin/creator).
 
 
 </td></tr>
@@ -1880,7 +1880,7 @@ _(Optional)_ Route handler for free-form voice input.
 
 </td><td>
 
-_(Optional)_ Handles the bot being demoted from administrator.
+_(Optional)_ Bot is demoted from administrator.
 
 
 </td></tr>
@@ -1894,7 +1894,7 @@ _(Optional)_ Handles the bot being demoted from administrator.
 
 </td><td>
 
-_(Optional)_ Handles the bot being added to the chat as an administrator.
+_(Optional)_ Bot is added to the chat as an administrator.
 
 
 </td></tr>
@@ -1908,7 +1908,7 @@ _(Optional)_ Handles the bot being added to the chat as an administrator.
 
 </td><td>
 
-_(Optional)_ Handles the bot being added to the chat as a regular member.
+_(Optional)_ Bot is added to the chat as a regular member.
 
 
 </td></tr>
@@ -1922,7 +1922,7 @@ _(Optional)_ Handles the bot being added to the chat as a regular member.
 
 </td><td>
 
-_(Optional)_ Handles the bot being promoted to administrator.
+_(Optional)_ Bot is promoted to administrator.
 
 
 </td></tr>
@@ -2838,6 +2838,20 @@ Helper method to arrange keyboard buttons in a grid layout.
 </td></tr>
 <tr><td>
 
+[methodSessionChatMemberOutIn(name)](./gramstax.ctx.methodsessionchatmemberoutin.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
 [methodSessionCommandArgsText(name)](./gramstax.ctx.methodsessioncommandargstext.md)
 
 
@@ -3175,6 +3189,62 @@ Helper method to arrange keyboard buttons in a grid layout.
 <tr><td>
 
 [methodSessionFreeVoice(name)](./gramstax.ctx.methodsessionfreevoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionMyChatMemberAdminRegular(name)](./gramstax.ctx.methodsessionmychatmemberadminregular.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionMyChatMemberOutAdmin(name)](./gramstax.ctx.methodsessionmychatmemberoutadmin.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionMyChatMemberOutRegular(name)](./gramstax.ctx.methodsessionmychatmemberoutregular.md)
+
+
+</td><td>
+
+
+</td><td>
+
+\[LOW-LEVEL\] Session method name builders.
+
+
+</td></tr>
+<tr><td>
+
+[methodSessionMyChatMemberRegularAdmin(name)](./gramstax.ctx.methodsessionmychatmemberregularadmin.md)
 
 
 </td><td>
@@ -3986,6 +4056,20 @@ Session set helper methods.
 </td></tr>
 <tr><td>
 
+[setSessionChatMemberOutIn(params)](./gramstax.ctx.setsessionchatmemberoutin.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
 [setSessionCommandArgsText(params)](./gramstax.ctx.setsessioncommandargstext.md)
 
 
@@ -4323,6 +4407,62 @@ Session set helper methods.
 <tr><td>
 
 [setSessionFreeVoice(params)](./gramstax.ctx.setsessionfreevoice.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionMyChatMemberAdminRegular(params)](./gramstax.ctx.setsessionmychatmemberadminregular.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionMyChatMemberOutAdmin(params)](./gramstax.ctx.setsessionmychatmemberoutadmin.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionMyChatMemberOutRegular(params)](./gramstax.ctx.setsessionmychatmemberoutregular.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Session set helper methods.
+
+
+</td></tr>
+<tr><td>
+
+[setSessionMyChatMemberRegularAdmin(params)](./gramstax.ctx.setsessionmychatmemberregularadmin.md)
 
 
 </td><td>

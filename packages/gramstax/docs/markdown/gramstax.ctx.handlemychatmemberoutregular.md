@@ -4,7 +4,7 @@
 
 ## Ctx.handleMyChatMemberOutRegular() method
 
-Handles the bot being added to the chat as a regular member.
+Bot is added to the chat as a regular member.
 
 **Signature:**
 

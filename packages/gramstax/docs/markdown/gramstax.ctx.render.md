@@ -90,7 +90,7 @@ options
 
 </td><td>
 
-_(Optional)_ Optional grammY reply options (or null to omit).
+_(Optional)_ Optional reply options (or null to omit).
 
 
 </td></tr>

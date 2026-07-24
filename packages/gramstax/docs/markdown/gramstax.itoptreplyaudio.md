@@ -14,5 +14,5 @@ type ITOptReplyAudio = Parameters<Context[`replyWithAudio`]>[1];
 
 ## Remarks
 
-Extracted from grammY's `Context.replyWithAudio()` method options parameter.
+Extracted from `Context.replyWithAudio()` method options parameter.
 

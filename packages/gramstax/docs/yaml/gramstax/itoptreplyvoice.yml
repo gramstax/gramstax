@@ -4,7 +4,7 @@ uid: gramstax!ITOptReplyVoice:type
 package: gramstax!
 fullName: ITOptReplyVoice
 summary: Options for sending voice messages.
-remarks: Extracted from grammY's `Context.replyWithVoice()` method options parameter.
+remarks: Extracted from `Context.replyWithVoice()` method options parameter.
 example: []
 isPreview: false
 isDeprecated: false
