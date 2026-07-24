@@ -944,7 +944,7 @@ export class Ctx extends Context {
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).
-   * @param options - Optional grammY send options (or null to omit).
+   * @param options - Optional send options (or null to omit).
    * @param throwError - If true, throws errors instead of swallowing them (or null to use false).
    *
    * @example
@@ -1003,7 +1003,7 @@ export class Ctx extends Context {
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
-   * @param options - Optional grammY send options for the inferred media type (or null to omit).
+   * @param options - Optional send options for the inferred media type (or null to omit).
    * @param throwError - If true, throws errors instead of swallowing them (or null to use false).
    *
    * @example
@@ -1089,7 +1089,7 @@ export class Ctx extends Context {
    * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template base ID position for block message (or null to use default).
-   * @param options - Optional grammY reply options (or null to omit).
+   * @param options - Optional reply options (or null to omit).
    * @returns The sent message object.
    *
    * @example
@@ -1142,7 +1142,7 @@ export class Ctx extends Context {
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template base ID position for block message (or null to use default).
    * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).
-   * @param options2 - Optional grammY send options (or null to omit).
+   * @param options2 - Optional send options (or null to omit).
    * @returns The sent message object.
    *
    * @example
@@ -1179,7 +1179,7 @@ export class Ctx extends Context {
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template base ID (or null to use default).
    * @param options1 - Optional `InputRichMessage` fields (or null to omit).
-   * @param options2 - Optional grammY send/edit options (or null to omit).
+   * @param options2 - Optional send/edit options (or null to omit).
    * @param isEdit - If true, edits existing message; if false, sends new.
    *                 Defaults to `!!this.callbackQuery` (auto-detected).
    * @returns The sent or edited message object.
@@ -1223,7 +1223,7 @@ export class Ctx extends Context {
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template base ID position for block message (or null to use default).
    * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).
-   * @param options2 - Optional grammY edit options (or null to omit).
+   * @param options2 - Optional edit options (or null to omit).
    * @param fallbackReply - If true, sends a rich reply if edit fails. Default: false.
    * @returns The edited message object.
    *
@@ -1618,7 +1618,7 @@ export class Ctx extends Context {
    * @param keyboard - Optional keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template base ID position for block message (or null to use default).
-   * @param options - Optional grammY reply/edit options (or null to omit).
+   * @param options - Optional reply/edit options (or null to omit).
    * @param isEdit - If `true`, edits the existing message; if `false`, sends a new one.
    *                 Defaults to `!!this.callbackQuery` (auto-detected).
    * @returns The sent or edited message object.
@@ -1652,7 +1652,7 @@ export class Ctx extends Context {
    * @param keyboardInline - Optional inline keyboard markup (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template g-base ID position for block message (or null to use default).
-   * @param options - Optional grammY edit options (or null to omit).
+   * @param options - Optional edit options (or null to omit).
    * @param fallbackReply - If true, sends a reply if edit fails. Default: false.
    * @returns The edited message object.
    *

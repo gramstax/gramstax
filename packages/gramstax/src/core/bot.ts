@@ -118,18 +118,18 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   log: LoggingHelper | undefined
 
   /**
-   * The underlying grammY Bot instance.
+   * The underlying Bot instance.
    *
    * @remarks
-   * Instance of the grammY `Bot`.
+   * Instance of the `Bot`.
    */
    bot: Bot<ITCt>
 
   /**
-   * Optional grammY bot configuration.
+   * Optional bot configuration.
    *
    * @remarks
-   * Configuration object for grammY `BotConfig` and `Context`.
+   * Configuration object for `BotConfig` and `Context`.
    */
   botConfig?: BotConfig<ITCt>
 
@@ -247,7 +247,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * export const handler = async (event: APIGatewayProxyEvent, _ctx: Context) => {
    *   // webhookCallback(bot.bot, "aws-lambda") wraps the raw event
-   *   // into a grammY-compatible format internally
+   *   // into a compatible format internally
    *   return await bot.handlerBotUpdate(event)
    * }
    * ```
@@ -310,9 +310,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     process.once(`SIGTERM`, () => this.stop())
 
     // ── RAW MODE ──────────────────────────────────────────────────────────
-    // Bare grammY bot: no TemplateManager, no page loading, no Gramstax
+    // Bare bot: no TemplateManager, no page loading, no Gramstax
     // routing listeners, no command sync, and NO auto-start. The caller owns
-    // the lifecycle and writes raw grammY handlers on `this.bot`.
+    // the lifecycle and writes raw handlers on `this.bot`.
     if (params.deploy === `raw`) {
       this.deployType = `raw`
       this.pages = this._buildEmptyPages()
@@ -441,7 +441,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * `bot`, and `pages` are initialized, and before polling/webhook/serverless
    * actually begins receiving updates.
    *
-   * **Do NOT register grammY middleware here.** Middleware belongs in
+   * **Do NOT register middleware here.** Middleware belongs in
    * {@link Gramstax.registerLowPlugin}, which is the dedicated channel for
    * code that should run on every incoming update. `hookBeforeStart` runs
    * once and is the wrong place for per-update logic.
@@ -623,7 +623,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   async hookErrorInputNotFoundPage?(ctx: ICtx, data?: {listenerName: string; isEdit: boolean}): Promise<void>
 
   /**
-   * Creates the grammY Bot instance.
+   * Creates the Bot instance.
    *
    * @param token - The Telegram Bot API token.
    * @returns The Bot instance.
@@ -637,7 +637,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   /**
    * Creates a context instance for handling an update.
    *
-   * @param ct - The grammY Context object.
+   * @param ct - The context object.
    * @returns A new Ctx instance.
    *
    * @public
@@ -896,7 +896,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Configures the handler for serverless adapters (e.g., AWS Lambda, Cloudflare Workers).
    *
-   * @param adapter - The grammY adapter name (e.g., "std/http", "aws-lambda").
+   * @param adapter - The adapter name (e.g., "std/http", "aws-lambda").
    *
    * @public
    */
@@ -1631,16 +1631,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   }
 
   /**
-   * Returns grammY middleware to register as low-level plugins on the bot.
+   * Returns middleware to register as low-level plugins on the bot.
    *
    * @remarks
    * Override this method in a subclass to inject custom plugin middleware
    * (sessions, i18n, rate limiting, logging, authentication, etc.) into the
-   * underlying grammY bot instance.
+   * underlying bot instance.
    *
    * Each element of the returned array is a {@link ITCtMiddleware} value (either a
    * `MiddlewareFn` `(ctx, next) => ...` or a `MiddlewareObj` container) that
-   * grammY will install via `this.bot.use(...)`. The array is meant to be
+   * The array elements are passed to `this.bot.use(...)`. It is meant to be
    * spread into `bot.use`, so the order of elements determines the order in
    * which middleware runs — earlier entries wrap later ones (outermost first).
    *
@@ -1649,7 +1649,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * - `hookBeforeStart` — for one-off side effects before the bot starts.
    *   Anything you want to happen exactly once at boot goes there.
    * - `registerLowPlugin` — for middleware that must run on **every update**.
-   *   Use this when you need grammY middleware semantics (filter queries,
+   *   Use this when you need middleware semantics (filter queries,
    *   `next()` chaining, scope-aware registration).
    * - `hookBeforeRoute` / `hookAfterRoute` — for per-update hooks that run
    *   inside the router, after gramstax has already routed to a page.
@@ -1658,7 +1658,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * contribute their own plugins. Returning an empty array (or not
    * overriding) installs no plugins, which is the default behavior.
    *
-   * @returns Array of grammY {@link ITCtMiddleware}
+   * @returns Array of {@link ITCtMiddleware}
    * values, ready to be spread into `this.bot.use(...result)`.
    *
    * @example

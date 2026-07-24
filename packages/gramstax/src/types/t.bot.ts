@@ -131,9 +131,9 @@ export type ITGramstaxParams = {
    * - `"webhook:<url>"` - Webhook mode with specified URL
    * - `"serverless:<adapter>"` - Serverless mode with specified adapter
    * - `"test"` - Test mode with E2eHelper
-   * - `"raw"` - Bare grammY bot: no pages, no templates, no Gramstax routing.
-   *   The constructor builds `this.bot` (grammY `Bot`) and returns without
-   *   auto-start. Write raw grammY handlers on `bot.bot` and call
+   * - `"raw"` - Bare bot: no pages, no templates, no Gramstax routing.
+   *   The constructor builds `this.bot` (`Bot`) and returns without
+   *   auto-start. Write raw handlers on `bot.bot` and call
    *   `bot.bot.start()` (or `bot.bot.startWebhook(...)`) yourself.
    *   `templateManager` is left undefined.
    *
@@ -161,7 +161,7 @@ export type ITGramstaxParams = {
   log?: LoggingHelper | boolean | null
 
   /**
-   * grammY Bot configuration options.
+   * Bot configuration options.
    *
    * @remarks
    * Use this to customize API client settings like apiRoot.

@@ -6,7 +6,7 @@ import type {Ctx} from "~/core/ctx"
 import type {TemplateManager} from "~/template/manager"
 
 /**
- * Type alias for grammY InlineKeyboard.
+ * Type alias for InlineKeyboard.
  *
  * @remarks
  * Used to create inline keyboards that appear below messages with callback buttons.
@@ -16,7 +16,7 @@ import type {TemplateManager} from "~/template/manager"
 export type ITInlineKb = InlineKeyboard
 
 /**
- * Type alias for grammY Keyboard (reply keyboard).
+ * Type alias for Keyboard (reply keyboard).
  *
  * @remarks
  * Used to create reply keyboards that replace the user's device keyboard.
@@ -36,7 +36,7 @@ export type ITBottomKb = Keyboard
 export type ITInBoKb = ITBottomKb | ITInlineKb
 
 /**
- * Type alias for grammY Context.
+ * Type alias for Context.
  *
  * @remarks
  * The main context object containing update information and bot methods.
@@ -46,10 +46,10 @@ export type ITInBoKb = ITBottomKb | ITInlineKb
 export type ITCt = Context
 
 /**
- * Type alias for grammY Middleware.
+ * Type alias for Middleware.
  *
  * @remarks
- * Middleware from the framework.
+ * Middleware used to handle updates.
  *
  * @public
  */
@@ -60,7 +60,7 @@ export type ITCtMiddleware<C extends ITCt = ITCt> = Middleware<C>
  * Options for sending text rich messages.
  *
  * @remarks
- * Extracted from grammY's `Context.replyWithRichMessage()` method options parameter.
+ * Extracted from `Context.replyWithRichMessage()` method options parameter.
  *
  * @public
  */
@@ -70,7 +70,7 @@ export type ITOptReplyRich = Parameters<Context[`replyWithRichMessage`]>
  * Options for sending text messages.
  *
  * @remarks
- * Extracted from grammY's `Context.reply()` method options parameter.
+ * Extracted from `Context.reply()` method options parameter.
  *
  * @public
  */
@@ -80,7 +80,7 @@ export type ITOptReply = Parameters<Context[`reply`]>[1]
  * Options for sending photo messages.
  *
  * @remarks
- * Extracted from grammY's `Context.replyWithPhoto()` method options parameter.
+ * Extracted from `Context.replyWithPhoto()` method options parameter.
  *
  * @public
  */
@@ -90,7 +90,7 @@ export type ITOptReplyPhoto = Parameters<Context[`replyWithPhoto`]>[1]
  * Options for sending video messages.
  *
  * @remarks
- * Extracted from grammY's `Context.replyWithVideo()` method options parameter.
+ * Extracted from `Context.replyWithVideo()` method options parameter.
  *
  * @public
  */
@@ -100,7 +100,7 @@ export type ITOptReplyVideo = Parameters<Context[`replyWithVideo`]>[1]
  * Options for sending audio messages.
  *
  * @remarks
- * Extracted from grammY's `Context.replyWithAudio()` method options parameter.
+ * Extracted from `Context.replyWithAudio()` method options parameter.
  *
  * @public
  */
@@ -110,7 +110,7 @@ export type ITOptReplyAudio = Parameters<Context[`replyWithAudio`]>[1]
  * Options for sending document messages.
  *
  * @remarks
- * Extracted from grammY's `Context.replyWithDocument()` method options parameter.
+ * Extracted from `Context.replyWithDocument()` method options parameter.
  *
  * @public
  */
@@ -120,7 +120,7 @@ export type ITOptReplyDocument = Parameters<Context[`replyWithDocument`]>[1]
  * Options for sending animation (GIF) messages.
  *
  * @remarks
- * Extracted from grammY's `Context.replyWithAnimation()` method options parameter.
+ * Extracted from `Context.replyWithAnimation()` method options parameter.
  *
  * @public
  */
@@ -130,7 +130,7 @@ export type ITOptReplyAnimation = Parameters<Context[`replyWithAnimation`]>[1]
  * Options for sending voice messages.
  *
  * @remarks
- * Extracted from grammY's `Context.replyWithVoice()` method options parameter.
+ * Extracted from `Context.replyWithVoice()` method options parameter.
  *
  * @public
  */
@@ -140,7 +140,7 @@ export type ITOptReplyVoice = Parameters<Context[`replyWithVoice`]>[1]
  * Options for sending video note messages.
  *
  * @remarks
- * Extracted from grammY's `Context.replyWithVideoNote()` method options parameter.
+ * Extracted from `Context.replyWithVideoNote()` method options parameter.
  *
  * @public
  */
@@ -150,7 +150,7 @@ export type ITOptReplyVideoNote = Parameters<Context[`replyWithVideoNote`]>[1]
  * Options for sending sticker messages.
  *
  * @remarks
- * Extracted from grammY's `Context.replyWithSticker()` method options parameter.
+ * Extracted from `Context.replyWithSticker()` method options parameter.
  *
  * @public
  */
@@ -160,7 +160,7 @@ export type ITOptReplySticker = Parameters<Context[`replyWithSticker`]>[1]
  * Options for sending location messages.
  *
  * @remarks
- * Extracted from grammY's `Context.replyWithLocation()` method options parameter.
+ * Extracted from `Context.replyWithLocation()` method options parameter.
  *
  * @public
  */
@@ -170,7 +170,7 @@ export type ITOptReplyLocation = Parameters<Context[`replyWithLocation`]>[2]
  * Options for sending contact messages.
  *
  * @remarks
- * Extracted from grammY's `Context.replyWithContact()` method options parameter.
+ * Extracted from `Context.replyWithContact()` method options parameter.
  *
  * @public
  */
@@ -180,7 +180,7 @@ export type ITOptReplyContact = Parameters<Context[`replyWithContact`]>[2]
  * Options for editing text messages.
  *
  * @remarks
- * Extracted from grammY's `Context.editMessageText()` method options parameter.
+ * Extracted from `Context.editMessageText()` method options parameter.
  *
  * @public
  */
@@ -190,7 +190,7 @@ export type ITOptEdit = Parameters<Context[`editMessageText`]>[1]
  * Media parameter for editing message media.
  *
  * @remarks
- * Extracted from grammY's `Context.editMessageMedia()` method first parameter.
+ * Extracted from `Context.editMessageMedia()` method first parameter.
  *
  * @public
  */
@@ -200,7 +200,7 @@ export type ITOptEditMedia1 = Parameters<Context[`editMessageMedia`]>[0]
  * Options parameter for editing message media.
  *
  * @remarks
- * Extracted from grammY's `Context.editMessageMedia()` method second parameter.
+ * Extracted from `Context.editMessageMedia()` method second parameter.
  *
  * @public
  */
@@ -210,7 +210,7 @@ export type ITOptEditMedia2 = Parameters<Context[`editMessageMedia`]>[1]
  * Type of chat action to send.
  *
  * @remarks
- * Extracted from grammY's `Context.replyWithChatAction()` method parameter.
+ * Extracted from `Context.replyWithChatAction()` method parameter.
  * Used to show typing indicators, upload status, etc.
  *
  * @public
@@ -480,7 +480,7 @@ export type ITTemp = {isAnswer: boolean; session: Partial<ITCacheRpc>; data: Par
  */
 export type ITCtxParams = {
   /**
-   * The grammY context object.
+   * The context object.
    *
    * @remarks
    * See {@link ITCt} for the context type definition.
