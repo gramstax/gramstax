@@ -9,13 +9,13 @@ import { BotConfig } from 'grammy';
 import { BotError } from 'grammy';
 import { Context } from 'grammy';
 import { FSWatcher } from 'chokidar';
-import * as grammy from 'grammy';
 import * as grammy_types from 'grammy/types';
 import { InlineKeyboard } from 'grammy';
 import { Keyboard } from 'grammy';
 import { Keyv } from 'keyv';
 import { LoggingPretty } from 'logging-pretty';
 import { Middleware } from 'grammy';
+import { StreamFlavor } from '@grammyjs/stream';
 import { UserFromGetMe } from 'grammy/types';
 
 // @public
@@ -34,6 +34,8 @@ export class CacheExternal<V = any> extends Keyv<V> {
     url: string;
 }
 
+// Warning: (ae-internal-mixed-release-tag) Mixed release tags are not allowed for "Ctx" because one of its declarations is marked as @internal
+//
 // @public
 export class Ctx extends Context {
     constructor(params: ITCtxParams);
@@ -153,48 +155,171 @@ export class Ctx extends Context {
     handleFreeVideoNote?(): Promise<any>;
     // @virtual
     handleFreeVoice?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionArgsCallbackQueryData?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionArgsText?(): Promise<any>;
     // @virtual
     handleSessionCallbackQueryData?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCaptionAnimation?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCaptionArgsAnimation?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCaptionArgsAudio?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCaptionArgsDocument?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCaptionArgsPhoto?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCaptionArgsVideo?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCaptionArgsVoice?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCaptionAudio?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCaptionDocument?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCaptionPhoto?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCaptionVideo?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCaptionVoice?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandArgsText?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandCaptionAnimation?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandCaptionArgsAnimation?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandCaptionArgsAudio?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandCaptionArgsDocument?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandCaptionArgsPhoto?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandCaptionArgsVideo?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandCaptionArgsVoice?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandCaptionAudio?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandCaptionDocument?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandCaptionPhoto?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandCaptionVideo?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandCaptionVoice?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionCommandText?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionFree?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionFreeAnimation?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionFreeAudio?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionFreeContact?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionFreeDocument?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionFreeLocation?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionFreePhoto?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionFreeSticker?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionFreeText?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionFreeVideo?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionFreeVideoNote?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionFreeVoice?(): Promise<any>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     handleSessionText?(): Promise<any>;
     // @virtual
     handleText?(): Promise<any>;
@@ -211,46 +336,169 @@ export class Ctx extends Context {
     get message(): NonNullable<Context[`message`]>;
     get messageReaction(): NonNullable<Context[`messageReaction`]>;
     methodSession(prefix: string, name: string | undefined): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionArgsCallbackQueryData(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionArgsText(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCallbackQueryData(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCaptionAnimation(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCaptionArgsAnimation(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCaptionArgsAudio(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCaptionArgsDocument(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCaptionArgsPhoto(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCaptionArgsVideo(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCaptionArgsVoice(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCaptionAudio(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCaptionDocument(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCaptionPhoto(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCaptionVideo(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCaptionVoice(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandArgsText(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandCaptionAnimation(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandCaptionArgsAnimation(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandCaptionArgsAudio(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandCaptionArgsDocument(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandCaptionArgsPhoto(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandCaptionArgsVideo(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandCaptionArgsVoice(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandCaptionAudio(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandCaptionDocument(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandCaptionPhoto(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandCaptionVideo(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandCaptionVoice(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionCommandText(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionFreeAnimation(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionFreeAudio(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionFreeContact(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionFreeDocument(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionFreeLocation(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionFreePhoto(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionFreeSticker(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionFreeText(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionFreeVideo(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionFreeVideoNote(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionFreeVoice(name?: string): string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     methodSessionText(name?: string): string;
     get msg(): NonNullable<Context[`msg`]>;
     get msgCaptionArg(): string;
@@ -335,51 +583,187 @@ export class Ctx extends Context {
     renderVoice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVoice | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     get senderChat(): NonNullable<Context[`senderChat`]>;
     setSession(method: string | string[], params: any, moreRoot?: Record<any, any>): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionArgsCallbackQueryData(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionArgsText(params?: any): Promise<boolean | null>;
     setSessionCallbackQueryData(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCaptionAnimation(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCaptionArgsAnimation(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCaptionArgsAudio(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCaptionArgsDocument(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCaptionArgsPhoto(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCaptionArgsVideo(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCaptionArgsVoice(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCaptionAudio(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCaptionDocument(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCaptionPhoto(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCaptionVideo(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCaptionVoice(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandArgsText(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandCaptionAnimation(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandCaptionArgsAnimation(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandCaptionArgsAudio(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandCaptionArgsDocument(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandCaptionArgsPhoto(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandCaptionArgsVideo(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandCaptionArgsVoice(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandCaptionAudio(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandCaptionDocument(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandCaptionPhoto(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandCaptionVideo(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandCaptionVoice(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionCommandText(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionFreeAnimation(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionFreeAudio(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionFreeContact(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionFreeDocument(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionFreeLocation(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionFreePhoto(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionFreeSticker(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionFreeText(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionFreeVideo(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionFreeVideoNote(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionFreeVoice(params?: any): Promise<boolean | null>;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
+    //
+    // (undocumented)
     setSessionText(params?: any): Promise<boolean | null>;
     temp: ITTemp;
     // @virtual
     static template?: string;
     templateManager: TemplateManager;
+}
+
+// @internal (undocumented)
+export interface Ctx {
+    // (undocumented)
+    replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>;
+    // (undocumented)
+    replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>;
+    // (undocumented)
+    replyWithStream(stream: Iterable<string | {
+        text: string;
+        entities?: any[];
+    }> | AsyncIterable<string | {
+        text: string;
+        entities?: any[];
+    }>, otherMessageDraft?: any, otherMessage?: any, signal?: AbortSignal): Promise<any>;
 }
 
 // @public
@@ -413,12 +797,14 @@ export class E2eHelper {
     sendVideo(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;
     sendVideoNote(options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
     sendVoice(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;
+    streamCalls(): ITE2eApiCall[];
+    streamChunks(): string[];
 }
 
 // @public
 export class Gramstax<ICtx extends Ctx = Ctx> {
     constructor(params: ITGramstaxParams);
-    bot: Bot;
+    bot: Bot<ITCt>;
     botConfig?: BotConfig<ITCt>;
     // @internal
     protected _buildEmptyPages(): {
@@ -771,7 +1157,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     };
     cacheKeyboard: Map<any, any>;
     cacheSession: CacheExternal<ITCacheRpc>;
-    createBot(token: string): Bot<grammy.Context, grammy.Api<grammy.RawApi>>;
+    createBot(token: string): Bot<ITCt>;
     createCtx(ct: ITCt): ICtx;
     deployType: `polling` | `webhook` | `serverless` | `test` | `raw`;
     e2e?: E2eHelper;
@@ -1335,6 +1721,8 @@ export type ITGramstaxParams = {
     cacheSession?: CacheExternal;
     cacheKeyboard?: Map<any, any>;
     templateManager?: TemplateManager;
+    stream?: boolean;
+    autoRetry?: boolean;
     optionsPage?: {
         shortCallbackQueryData?: boolean;
     };
@@ -1613,6 +2001,8 @@ export class PageManager {
     static getFilePath(): string;
     static getFileSync(path?: string, positionModule?: number): typeof Ctx;
 }
+
+export { StreamFlavor }
 
 // @public
 export class TemplateEngine {
@@ -1963,7 +2353,7 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:8966:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:9032:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

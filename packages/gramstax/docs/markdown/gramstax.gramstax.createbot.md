@@ -9,7 +9,7 @@ Creates the grammY Bot instance.
 **Signature:**
 
 ```typescript
-createBot(token: string): Bot<grammy.Context, grammy.Api<grammy.RawApi>>;
+createBot(token: string): Bot<ITCt>;
 ```
 
 ## Parameters
@@ -50,7 +50,7 @@ The Telegram Bot API token.
 
 **Returns:**
 
-Bot&lt;grammy.Context, grammy.Api&lt;grammy.RawApi&gt;&gt;
+Bot&lt;[ITCt](./gramstax.itct.md)<!-- -->&gt;
 
 The Bot instance.
 

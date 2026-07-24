@@ -128,9 +128,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'bot: Bot;'
+      content: 'bot: Bot<ITCt>;'
       return:
-        type: <xref uid="grammy!Bot:class" />
+        type: <xref uid="grammy!Bot:class" />&lt;<xref uid="gramstax!ITCt:type" />&gt;
   - name: botConfig
     uid: gramstax!Gramstax#botConfig:member
     package: gramstax!
@@ -1269,15 +1269,13 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'createBot(token: string): Bot<grammy.Context, grammy.Api<grammy.RawApi>>;'
+      content: 'createBot(token: string): Bot<ITCt>;'
       parameters:
         - id: token
           description: The Telegram Bot API token.
           type: string
       return:
-        type: >-
-          <xref uid="grammy!Bot:class" />&lt;<xref uid="grammy!Context:class" />, <xref uid="grammy!Api:class"
-          />&lt;<xref uid="grammy!RawApi:type" />&gt;&gt;
+        type: <xref uid="grammy!Bot:class" />&lt;<xref uid="gramstax!ITCt:type" />&gt;
         description: The Bot instance.
   - name: createCtx(ct)
     uid: gramstax!Gramstax#createCtx:member(1)

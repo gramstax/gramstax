@@ -590,3 +590,35 @@ methods:
       return:
         type: Promise&lt;<xref uid="gramstax!ITE2eApiCall:type" />[]&gt;
         description: API calls made while processing this update.
+  - name: streamCalls()
+    uid: gramstax!E2eHelper#streamCalls:member(1)
+    package: gramstax!
+    fullName: streamCalls()
+    summary: Get all captured stream-related API calls.
+    remarks: >-
+      Returns calls to `sendMessageDraft`<!-- -->, `sendRichMessageDraft`<!-- -->, `sendRichMessage`<!-- -->, and
+      `sendMessage` methods made during stream operations.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'streamCalls(): ITE2eApiCall[];'
+      return:
+        type: <xref uid="gramstax!ITE2eApiCall:type" />[]
+        description: Array of stream-related API calls.
+  - name: streamChunks()
+    uid: gramstax!E2eHelper#streamChunks:member(1)
+    package: gramstax!
+    fullName: streamChunks()
+    summary: Extract all text chunks from stream API calls.
+    remarks: >-
+      Collects the `text` field from `sendMessageDraft` calls and the HTML markup from `sendRichMessageDraft` and
+      `sendRichMessage` calls — useful for asserting that streamed content matches expected output.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'streamChunks(): string[];'
+      return:
+        type: string[]
+        description: Array of text chunks.

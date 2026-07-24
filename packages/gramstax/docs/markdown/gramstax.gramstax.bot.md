@@ -9,7 +9,7 @@ The underlying grammY Bot instance.
 **Signature:**
 
 ```typescript
-bot: Bot;
+bot: Bot<ITCt>;
 ```
 
 ## Remarks

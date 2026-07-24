@@ -490,5 +490,33 @@ Simulate a user sending a voice message.
 
 
 </td></tr>
+<tr><td>
+
+[streamCalls()](./gramstax.e2ehelper.streamcalls.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Get all captured stream-related API calls.
+
+
+</td></tr>
+<tr><td>
+
+[streamChunks()](./gramstax.e2ehelper.streamchunks.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Extract all text chunks from stream API calls.
+
+
+</td></tr>
 </tbody></table>
 

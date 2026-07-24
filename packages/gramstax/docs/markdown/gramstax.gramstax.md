@@ -96,7 +96,7 @@ Description
 
 </td><td>
 
-Bot
+Bot&lt;[ITCt](./gramstax.itct.md)<!-- -->&gt;
 
 
 </td><td>
