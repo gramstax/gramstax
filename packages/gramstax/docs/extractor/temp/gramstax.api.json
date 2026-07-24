@@ -2900,6 +2900,42 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#handleChatMemberOutIn:member(1)",
+              "docComment": "/**\n * Handles a chat member status transition (`chatMemberFilter(\"out\", \"in\")`).\n *\n * @remarks\n *\n * Triggered when a user transitions from an \"out\" status (`kicked`, `left`, or `restricted` with `is_member=false`) to an \"in\" status (`member`, `administrator`, `creator`, or `restricted` with `is_member=true`).\n *\n * Define this method on a page class to react to users joining the chat. The bot must be an administrator in the group to receive `chat_member` updates.\n *\n * **Naming convention:** `handleChatMember{OldStatus}{NewStatus}` maps to `chatMemberFilter(\"old\", \"new\")`. Any PascalCased status combination produces a valid route: e.g. `handleChatMemberInOut` for users leaving.\n *\n * @virtual @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "handleChatMemberOutIn?(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": true,
+              "isAbstract": false,
+              "name": "handleChatMemberOutIn"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleCommandArgsText:member(1)",
               "docComment": "/**\n * Route handler for command messages with args match intent `intentCommandText`.\n *\n * @remarks\n *\n * Triggered by text with commands slash with args.\n *\n * @example\n *\n * this.msgText = \"/start 123 aaa\"\n * ```typescript\n * async handleCommandTextArgs() {\n *    this.msgText // \"/start 123 aaa\"\n *    this.msgTextArg // \"123\"\n *    this.msgTextArg // [\"123\", \"aaa\"]\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
@@ -3833,6 +3869,150 @@
               "isOptional": true,
               "isAbstract": false,
               "name": "handleFreeVoice"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#handleMyChatMemberAdminRegular:member(1)",
+              "docComment": "/**\n * Handles the bot being demoted from administrator.\n *\n * @remarks\n *\n * Triggered when the bot's own membership changes from `administrator`/`creator` back to `member`. Uses `myChatMemberFilter(\"admin\", \"regular\")`.\n *\n * @virtual @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "handleMyChatMemberAdminRegular?(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": true,
+              "isAbstract": false,
+              "name": "handleMyChatMemberAdminRegular"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#handleMyChatMemberOutAdmin:member(1)",
+              "docComment": "/**\n * Handles the bot being added to the chat as an administrator.\n *\n * @remarks\n *\n * Triggered when the bot's own membership changes from an \"out\" status to `administrator`/`creator`. Uses `myChatMemberFilter(\"out\", \"admin\")`.\n *\n * @virtual @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "handleMyChatMemberOutAdmin?(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": true,
+              "isAbstract": false,
+              "name": "handleMyChatMemberOutAdmin"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#handleMyChatMemberOutRegular:member(1)",
+              "docComment": "/**\n * Handles the bot being added to the chat as a regular member.\n *\n * @remarks\n *\n * Triggered when the bot's own membership changes from an \"out\" status to `member` (non-administrator). Uses `myChatMemberFilter(\"out\", \"regular\")`.\n *\n * @virtual @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "handleMyChatMemberOutRegular?(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": true,
+              "isAbstract": false,
+              "name": "handleMyChatMemberOutRegular"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#handleMyChatMemberRegularAdmin:member(1)",
+              "docComment": "/**\n * Handles the bot being promoted to administrator.\n *\n * @remarks\n *\n * Triggered when the bot's own membership changes from `member`/`regular` to `administrator`/`creator`. Uses `myChatMemberFilter(\"regular\", \"admin\")`.\n *\n * @virtual @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "handleMyChatMemberRegularAdmin?(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": true,
+              "isAbstract": false,
+              "name": "handleMyChatMemberRegularAdmin"
             },
             {
               "kind": "Method",
@@ -20279,6 +20459,69 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!E2eHelper#sendChatMemberUpdate:member(1)",
+              "docComment": "/**\n * Simulate a chat member status transition (`chat_member` update).\n *\n * @remarks\n *\n * Fires `chatMemberFilter` handlers on pages that define corresponding `handleChatMember*` methods. The bot must be admin in the chat to normally receive these updates. In test mode the update is injected directly via {@link E2eHelper.handleUpdate}.\n *\n * @param options - Old/new statuses and user/chat configuration.\n *\n * @returns API calls made while processing this update.\n *\n * @example\n * ```typescript\n * // Simulate a user joining (kicked → member)\n * await e2e.sendChatMemberUpdate({oldStatus: \"kicked\", newStatus: \"member\", chat: {type: \"supergroup\"}})\n * ```\n *\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendChatMemberUpdate(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eChatMemberOptions",
+                  "canonicalReference": "gramstax!ITE2eChatMemberOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eApiCall",
+                  "canonicalReference": "gramstax!ITE2eApiCall:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendChatMemberUpdate"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!E2eHelper#sendChosenInlineResult:member(1)",
               "docComment": "/**\n * Simulate a user choosing a result from an inline query.\n *\n * @param resultId - The chosen result ID.\n *\n * @param query - The inline query text.\n *\n * @param options - User, chat, and response options.\n *\n * @returns API calls made while processing this update.\n */\n",
               "excerptTokens": [
@@ -20781,6 +21024,69 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "sendLocation"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!E2eHelper#sendMyChatMemberUpdate:member(1)",
+              "docComment": "/**\n * Simulate the bot's own chat member status transition (`my_chat_member` update).\n *\n * @remarks\n *\n * Fires `myChatMemberFilter` handlers on pages that define corresponding `handleMyChatMember*` methods. Use this to test bot promotion/demotion scenarios.\n *\n * @param options - Old/new statuses and chat configuration.\n *\n * @returns API calls made while processing this update.\n *\n * @example\n * ```typescript\n * // Simulate bot being promoted to admin\n * await e2e.sendMyChatMemberUpdate({oldStatus: \"member\", newStatus: \"administrator\"})\n * ```\n *\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sendMyChatMemberUpdate(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eChatMemberOptions",
+                  "canonicalReference": "gramstax!ITE2eChatMemberOptions:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITE2eApiCall",
+                  "canonicalReference": "gramstax!ITE2eApiCall:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "sendMyChatMemberUpdate"
             },
             {
               "kind": "Method",
@@ -22444,7 +22750,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n        };\n        listRouteStatic: readonly [\"handleCallbackQueryData\", \"handleText\", \"handleCommandText\", \"handleCaptionPhoto\", \"handleCommandCaptionPhoto\", \"handleCaptionVideo\", \"handleCommandCaptionVideo\", \"handleCaptionAudio\", \"handleCommandCaptionAudio\", \"handleCaptionDocument\", \"handleCommandCaptionDocument\", \"handleCaptionAnimation\", \"handleCommandCaptionAnimation\", \"handleCaptionVoice\", \"handleCommandCaptionVoice\"];\n        listRouteStaticIntent: readonly [\"handleArgsCallbackQueryData\", \"handleArgsText\", \"handleCommandArgsText\", \"handleCaptionArgsPhoto\", \"handleCommandCaptionArgsPhoto\", \"handleCaptionArgsVideo\", \"handleCommandCaptionArgsVideo\", \"handleCaptionArgsAudio\", \"handleCommandCaptionArgsAudio\", \"handleCaptionArgsDocument\", \"handleCommandCaptionArgsDocument\", \"handleCaptionArgsAnimation\", \"handleCommandCaptionArgsAnimation\", \"handleCaptionArgsVoice\", \"handleCommandCaptionArgsVoice\"];\n        listRouteStaticSession: readonly [...(\"handleSessionCallbackQueryData\" | \"handleSessionText\" | \"handleSessionCommandText\" | \"handleSessionCaptionPhoto\" | \"handleSessionCommandCaptionPhoto\" | \"handleSessionCaptionVideo\" | \"handleSessionCommandCaptionVideo\" | \"handleSessionCaptionAudio\" | \"handleSessionCommandCaptionAudio\" | \"handleSessionCaptionDocument\" | \"handleSessionCommandCaptionDocument\" | \"handleSessionCaptionAnimation\" | \"handleSessionCommandCaptionAnimation\" | \"handleSessionCaptionVoice\" | \"handleSessionCommandCaptionVoice\" | \"handleSessionArgsCallbackQueryData\" | \"handleSessionArgsText\" | \"handleSessionCommandArgsText\" | \"handleSessionCaptionArgsPhoto\" | \"handleSessionCommandCaptionArgsPhoto\" | \"handleSessionCaptionArgsVideo\" | \"handleSessionCommandCaptionArgsVideo\" | \"handleSessionCaptionArgsAudio\" | \"handleSessionCommandCaptionArgsAudio\" | \"handleSessionCaptionArgsDocument\" | \"handleSessionCommandCaptionArgsDocument\" | \"handleSessionCaptionArgsAnimation\" | \"handleSessionCommandCaptionArgsAnimation\" | \"handleSessionCaptionArgsVoice\" | \"handleSessionCommandCaptionArgsVoice\")[], \"handleSessionFreeText\", \"handleSessionFreePhoto\", \"handleSessionFreeVideo\", \"handleSessionFreeAudio\", \"handleSessionFreeDocument\", \"handleSessionFreeAnimation\", \"handleSessionFreeVoice\", \"handleSessionFreeVideoNote\", \"handleSessionFreeSticker\", \"handleSessionFreeLocation\", \"handleSessionFreeContact\"];\n        listRouteDynamicSpesific: readonly [\"handleFreeText\", \"handleFreePhoto\", \"handleFreeVideo\", \"handleFreeAudio\", \"handleFreeDocument\", \"handleFreeAnimation\", \"handleFreeVoice\", \"handleFreeVideoNote\", \"handleFreeSticker\", \"handleFreeLocation\", \"handleFreeContact\"];\n        lenListRouteStatic: 15;\n        lenListRouteStaticIntent: 15;\n        lenListRouteStaticSession: number;\n        lenListRouteDynamicSpesific: 11;\n    }"
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n        };\n        chatMemberRoutes: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            name: string;\n            routeName: string;\n            type: `chatMember` | `myChatMember`;\n            oldStatus: string;\n            newStatus: string;\n            filter: (ctx: any) => boolean;\n        }>;\n        listRouteStatic: readonly [\"handleCallbackQueryData\", \"handleText\", \"handleCommandText\", \"handleCaptionPhoto\", \"handleCommandCaptionPhoto\", \"handleCaptionVideo\", \"handleCommandCaptionVideo\", \"handleCaptionAudio\", \"handleCommandCaptionAudio\", \"handleCaptionDocument\", \"handleCommandCaptionDocument\", \"handleCaptionAnimation\", \"handleCommandCaptionAnimation\", \"handleCaptionVoice\", \"handleCommandCaptionVoice\"];\n        listRouteStaticIntent: readonly [\"handleArgsCallbackQueryData\", \"handleArgsText\", \"handleCommandArgsText\", \"handleCaptionArgsPhoto\", \"handleCommandCaptionArgsPhoto\", \"handleCaptionArgsVideo\", \"handleCommandCaptionArgsVideo\", \"handleCaptionArgsAudio\", \"handleCommandCaptionArgsAudio\", \"handleCaptionArgsDocument\", \"handleCommandCaptionArgsDocument\", \"handleCaptionArgsAnimation\", \"handleCommandCaptionArgsAnimation\", \"handleCaptionArgsVoice\", \"handleCommandCaptionArgsVoice\"];\n        listRouteStaticSession: readonly [...(\"handleSessionCallbackQueryData\" | \"handleSessionText\" | \"handleSessionCommandText\" | \"handleSessionCaptionPhoto\" | \"handleSessionCommandCaptionPhoto\" | \"handleSessionCaptionVideo\" | \"handleSessionCommandCaptionVideo\" | \"handleSessionCaptionAudio\" | \"handleSessionCommandCaptionAudio\" | \"handleSessionCaptionDocument\" | \"handleSessionCommandCaptionDocument\" | \"handleSessionCaptionAnimation\" | \"handleSessionCommandCaptionAnimation\" | \"handleSessionCaptionVoice\" | \"handleSessionCommandCaptionVoice\" | \"handleSessionArgsCallbackQueryData\" | \"handleSessionArgsText\" | \"handleSessionCommandArgsText\" | \"handleSessionCaptionArgsPhoto\" | \"handleSessionCommandCaptionArgsPhoto\" | \"handleSessionCaptionArgsVideo\" | \"handleSessionCommandCaptionArgsVideo\" | \"handleSessionCaptionArgsAudio\" | \"handleSessionCommandCaptionArgsAudio\" | \"handleSessionCaptionArgsDocument\" | \"handleSessionCommandCaptionArgsDocument\" | \"handleSessionCaptionArgsAnimation\" | \"handleSessionCommandCaptionArgsAnimation\" | \"handleSessionCaptionArgsVoice\" | \"handleSessionCommandCaptionArgsVoice\")[], \"handleSessionFreeText\", \"handleSessionFreePhoto\", \"handleSessionFreeVideo\", \"handleSessionFreeAudio\", \"handleSessionFreeDocument\", \"handleSessionFreeAnimation\", \"handleSessionFreeVoice\", \"handleSessionFreeVideoNote\", \"handleSessionFreeSticker\", \"handleSessionFreeLocation\", \"handleSessionFreeContact\"];\n        listRouteDynamicSpesific: readonly [\"handleFreeText\", \"handleFreePhoto\", \"handleFreeVideo\", \"handleFreeAudio\", \"handleFreeDocument\", \"handleFreeAnimation\", \"handleFreeVoice\", \"handleFreeVideoNote\", \"handleFreeSticker\", \"handleFreeLocation\", \"handleFreeContact\"];\n        lenListRouteStatic: 15;\n        lenListRouteStaticIntent: 15;\n        lenListRouteStaticSession: number;\n        lenListRouteDynamicSpesific: 11;\n    }"
                 },
                 {
                   "kind": "Content",
@@ -22454,7 +22769,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 3,
-                "endIndex": 150
+                "endIndex": 152
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -22492,7 +22807,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "`callbackquerydata` | keyof typeof "
+                  "text": "`callbackquerydata` | `chatmember` | `mychatmember` | keyof typeof "
                 },
                 {
                   "kind": "Reference",
@@ -23755,6 +24070,37 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Gramstax#registerLowOnChatMember:member(1)",
+              "docComment": "/**\n * Registers an event handler for a bot event.\n *\n * @remarks\n *\n * These registration methods (`registerLowOn*`) are designed to be overridable so subclasses can integrate with a different bot library, custom event system, or alternative routing approach. The default implementation delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how a specific event or message type is routed to its handler.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "registerLowOnChatMember(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "registerLowOnChatMember"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#registerLowOnMessageAnimation:member(1)",
               "docComment": "/**\n * Registers an event handler for a bot event.\n *\n * @remarks\n *\n * These registration methods (`registerLowOn*`) are designed to be overridable so subclasses can integrate with a different bot library, custom event system, or alternative routing approach. The default implementation delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how a specific event or message type is routed to its handler.\n */\n",
               "excerptTokens": [
@@ -24766,6 +25112,37 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITE2eChatMemberOptions:type",
+          "docComment": "/**\n * Options for simulating a chat member status transition update.\n *\n * @remarks\n *\n * Used with {@link E2eHelper.sendChatMemberUpdate} and {@link E2eHelper.sendMyChatMemberUpdate} to simulate membership changes.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITE2eChatMemberOptions = "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITE2eUpdateOptions",
+              "canonicalReference": "gramstax!ITE2eUpdateOptions:type"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    oldStatus?: string;\n    newStatus?: string;\n    oldIsMember?: boolean;\n    newIsMember?: boolean;\n    botId?: number;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITE2eChatMemberOptions",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 3
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITE2eContactOptions:type",
           "docComment": "/**\n * @public\n */\n",
           "excerptTokens": [
@@ -25032,7 +25409,7 @@
             },
             {
               "kind": "Content",
-              "text": ";\n    stream?: boolean;\n    autoRetry?: boolean;\n    optionsPage?: {\n        shortCallbackQueryData?: boolean;\n    };\n}"
+              "text": ";\n    stream?: boolean;\n    autoRetry?: boolean;\n    chatMember?: boolean;\n    optionsPage?: {\n        shortCallbackQueryData?: boolean;\n    };\n}"
             },
             {
               "kind": "Content",

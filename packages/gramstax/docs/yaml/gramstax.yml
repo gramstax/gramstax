@@ -29,6 +29,7 @@ typeAliases:
   - gramstax!ITE2eApiCall:type
   - gramstax!ITE2eCallbackQueryOptions:type
   - gramstax!ITE2eChat:type
+  - gramstax!ITE2eChatMemberOptions:type
   - gramstax!ITE2eContactOptions:type
   - gramstax!ITE2eDiceOptions:type
   - gramstax!ITE2eLocationOptions:type

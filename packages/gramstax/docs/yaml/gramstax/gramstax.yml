@@ -734,6 +734,14 @@ methods:
                         routeName: string;
                     }>;
                 };
+                chatMemberRoutes: Array<{
+                    name: string;
+                    routeName: string;
+                    type: `chatMember` | `myChatMember`;
+                    oldStatus: string;
+                    newStatus: string;
+                    filter: (ctx: any) => boolean;
+                }>;
                 listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
                 listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
                 listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
@@ -1091,6 +1099,14 @@ methods:
                           routeName: string;
                       }&gt;;
                   };
+                  chatMemberRoutes: Array&lt;{
+                      name: string;
+                      routeName: string;
+                      type: `chatMember` | `myChatMember`;
+                      oldStatus: string;
+                      newStatus: string;
+                      filter: (ctx: any) =&gt; boolean;
+                  }&gt;;
                   listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
                   listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
                   listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
@@ -1144,7 +1160,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        _pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | keyof typeof
+        _pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | `chatmember` | `mychatmember` | keyof typeof
         Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
                 state: `matched` | `no-match` | `no-handler` | `blocked`;
             }>;
@@ -1154,7 +1170,9 @@ methods:
           type: ICtx
         - id: fromListener
           description: The listener type that triggered the route.
-          type: '`callbackquerydata` | keyof typeof gramstax!~__type#<xref uid="routeDynamicSpesific:member" />'
+          type: >-
+            `callbackquerydata` | `chatmember` | `mychatmember` | keyof typeof gramstax!~__type#<xref
+            uid="routeDynamicSpesific:member" />
       return:
         type: |-
           Promise&lt;{
@@ -1651,6 +1669,24 @@ methods:
     isDeprecated: false
     syntax:
       content: 'registerLowOnCallbackQueryData(): void;'
+      return:
+        type: void
+        description: ''
+  - name: registerLowOnChatMember()
+    uid: gramstax!Gramstax#registerLowOnChatMember:member(1)
+    package: gramstax!
+    fullName: registerLowOnChatMember()
+    summary: Registers an event handler for a bot event.
+    remarks: >-
+      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
+      with a different bot library, custom event system, or alternative routing approach. The default implementation
+      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
+      a specific event or message type is routed to its handler.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'registerLowOnChatMember(): void;'
       return:
         type: void
         description: ''

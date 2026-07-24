@@ -104,6 +104,8 @@ export class Ctx extends Context {
     // @virtual
     handleCaptionVoice?(): Promise<any>;
     // @virtual
+    handleChatMemberOutIn?(): Promise<void>;
+    // @virtual
     handleCommandArgsText?(): Promise<any>;
     // @virtual
     handleCommandCaptionAnimation?(): Promise<any>;
@@ -155,6 +157,14 @@ export class Ctx extends Context {
     handleFreeVideoNote?(): Promise<any>;
     // @virtual
     handleFreeVoice?(): Promise<any>;
+    // @virtual
+    handleMyChatMemberAdminRegular?(): Promise<void>;
+    // @virtual
+    handleMyChatMemberOutAdmin?(): Promise<void>;
+    // @virtual
+    handleMyChatMemberOutRegular?(): Promise<void>;
+    // @virtual
+    handleMyChatMemberRegularAdmin?(): Promise<void>;
     // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The reference is ambiguous because "Ctx" has more than one declaration; you need to add a TSDoc member reference selector
     //
     // (undocumented)
@@ -782,6 +792,7 @@ export class E2eHelper {
     sendAudio(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;
     sendCallbackQuery(data: string, options?: ITE2eCallbackQueryOptions): Promise<ITE2eApiCall[]>;
     sendChannelPost(text: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
+    sendChatMemberUpdate(options?: ITE2eChatMemberOptions): Promise<ITE2eApiCall[]>;
     sendChosenInlineResult(resultId: string, query: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
     sendContact(options?: ITE2eContactOptions): Promise<ITE2eApiCall[]>;
     sendDice(options?: ITE2eDiceOptions): Promise<ITE2eApiCall[]>;
@@ -789,6 +800,7 @@ export class E2eHelper {
     sendEditedText(text: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
     sendInlineQuery(query: string, options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
     sendLocation(options?: ITE2eLocationOptions): Promise<ITE2eApiCall[]>;
+    sendMyChatMemberUpdate(options?: ITE2eChatMemberOptions): Promise<ITE2eApiCall[]>;
     sendNewChatMembers(options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
     sendPhoto(options?: ITE2eMediaOptions): Promise<ITE2eApiCall[]>;
     sendPollAnswer(pollId: string, optionIds: number[], options?: ITE2eUpdateOptions): Promise<ITE2eApiCall[]>;
@@ -1146,6 +1158,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
                 routeName: string;
             }>;
         };
+        chatMemberRoutes: Array<{
+            name: string;
+            routeName: string;
+            type: `chatMember` | `myChatMember`;
+            oldStatus: string;
+            newStatus: string;
+            filter: (ctx: any) => boolean;
+        }>;
         listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
         listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
         listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
@@ -1549,6 +1569,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
                 routeName: string;
             }>;
         };
+        chatMemberRoutes: Array<{
+            name: string;
+            routeName: string;
+            type: `chatMember` | `myChatMember`;
+            oldStatus: string;
+            newStatus: string;
+            filter: (ctx: any) => boolean;
+        }>;
         listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
         listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
         listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
@@ -1558,12 +1586,13 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         lenListRouteStaticSession: number;
         lenListRouteDynamicSpesific: 11;
     };
-    _pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
+    _pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | `chatmember` | `mychatmember` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
         state: `matched` | `no-match` | `no-handler` | `blocked`;
     }>;
     pages: ReturnType<typeof Gramstax._pageLoads>;
     _pageSorts(Page: typeof Ctx, pages: typeof Gramstax.prototype.pages, indexPage: number): void;
     registerLowOnCallbackQueryData(): void;
+    registerLowOnChatMember(): void;
     registerLowOnMessageAnimation(): void;
     registerLowOnMessageAudio(): void;
     registerLowOnMessageContact(): void;
@@ -1669,6 +1698,15 @@ export type ITE2eChat = {
     title?: string;
 };
 
+// @public
+export type ITE2eChatMemberOptions = ITE2eUpdateOptions & {
+    oldStatus?: string;
+    newStatus?: string;
+    oldIsMember?: boolean;
+    newIsMember?: boolean;
+    botId?: number;
+};
+
 // @public (undocumented)
 export type ITE2eContactOptions = ITE2eUpdateOptions & {
     phone_number?: string;
@@ -1723,6 +1761,7 @@ export type ITGramstaxParams = {
     templateManager?: TemplateManager;
     stream?: boolean;
     autoRetry?: boolean;
+    chatMember?: boolean;
     optionsPage?: {
         shortCallbackQueryData?: boolean;
     };
@@ -2353,7 +2392,7 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:9032:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:9192:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

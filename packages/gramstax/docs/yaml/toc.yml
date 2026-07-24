@@ -39,6 +39,8 @@ items:
             uid: gramstax!ITE2eCallbackQueryOptions:type
           - name: ITE2eChat
             uid: gramstax!ITE2eChat:type
+          - name: ITE2eChatMemberOptions
+            uid: gramstax!ITE2eChatMemberOptions:type
           - name: ITE2eContactOptions
             uid: gramstax!ITE2eContactOptions:type
           - name: ITE2eDiceOptions

@@ -1577,6 +1577,33 @@ methods:
       return:
         type: Promise&lt;any&gt;
         description: ''
+  - name: handleChatMemberOutIn()
+    uid: gramstax!Ctx#handleChatMemberOutIn:member(1)
+    package: gramstax!
+    fullName: handleChatMemberOutIn()
+    summary: Handles a chat member status transition (`chatMemberFilter("out", "in")`<!-- -->).
+    remarks: >-
+      Triggered when a user transitions from an "out" status (`kicked`<!-- -->, `left`<!-- -->, or `restricted` with
+      `is_member=false`<!-- -->) to an "in" status (`member`<!-- -->, `administrator`<!-- -->, `creator`<!-- -->, or
+      `restricted` with `is_member=true`<!-- -->).
+
+
+      Define this method on a page class to react to users joining the chat. The bot must be an administrator in the
+      group to receive `chat_member` updates.
+
+
+      \*\*Naming convention:\*\* `handleChatMember{OldStatus}{NewStatus}` maps to `chatMemberFilter("old", "new")`<!--
+      -->. Any PascalCased status combination produces a valid route: e.g. `handleChatMemberInOut` for users leaving.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        handleChatMemberOutIn?(): Promise<void>;
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
   - name: handleCommandArgsText()
     uid: gramstax!Ctx#handleCommandArgsText:member(1)
     package: gramstax!
@@ -2212,6 +2239,78 @@ methods:
         handleFreeVoice?(): Promise<any>;
       return:
         type: Promise&lt;any&gt;
+        description: ''
+  - name: handleMyChatMemberAdminRegular()
+    uid: gramstax!Ctx#handleMyChatMemberAdminRegular:member(1)
+    package: gramstax!
+    fullName: handleMyChatMemberAdminRegular()
+    summary: Handles the bot being demoted from administrator.
+    remarks: >-
+      Triggered when the bot's own membership changes from `administrator`<!-- -->/`creator` back to `member`<!-- -->.
+      Uses `myChatMemberFilter("admin", "regular")`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        handleMyChatMemberAdminRegular?(): Promise<void>;
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: handleMyChatMemberOutAdmin()
+    uid: gramstax!Ctx#handleMyChatMemberOutAdmin:member(1)
+    package: gramstax!
+    fullName: handleMyChatMemberOutAdmin()
+    summary: Handles the bot being added to the chat as an administrator.
+    remarks: >-
+      Triggered when the bot's own membership changes from an "out" status to `administrator`<!-- -->/`creator`<!-- -->.
+      Uses `myChatMemberFilter("out", "admin")`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        handleMyChatMemberOutAdmin?(): Promise<void>;
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: handleMyChatMemberOutRegular()
+    uid: gramstax!Ctx#handleMyChatMemberOutRegular:member(1)
+    package: gramstax!
+    fullName: handleMyChatMemberOutRegular()
+    summary: Handles the bot being added to the chat as a regular member.
+    remarks: >-
+      Triggered when the bot's own membership changes from an "out" status to `member` (non-administrator). Uses
+      `myChatMemberFilter("out", "regular")`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        handleMyChatMemberOutRegular?(): Promise<void>;
+      return:
+        type: Promise&lt;void&gt;
+        description: ''
+  - name: handleMyChatMemberRegularAdmin()
+    uid: gramstax!Ctx#handleMyChatMemberRegularAdmin:member(1)
+    package: gramstax!
+    fullName: handleMyChatMemberRegularAdmin()
+    summary: Handles the bot being promoted to administrator.
+    remarks: >-
+      Triggered when the bot's own membership changes from `member`<!-- -->/`regular` to `administrator`<!--
+      -->/`creator`<!-- -->. Uses `myChatMemberFilter("regular", "admin")`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        /** @virtual */
+        handleMyChatMemberRegularAdmin?(): Promise<void>;
+      return:
+        type: Promise&lt;void&gt;
         description: ''
   - name: handleSessionArgsCallbackQueryData()
     uid: gramstax!Ctx#handleSessionArgsCallbackQueryData:member(1)

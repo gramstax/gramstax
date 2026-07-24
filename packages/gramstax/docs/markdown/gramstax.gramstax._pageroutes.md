@@ -9,7 +9,7 @@ Routes an incoming update to the appropriate page handler.
 **Signature:**
 
 ```typescript
-_pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
+_pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | `chatmember` | `mychatmember` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
         state: `matched` | `no-match` | `no-handler` | `blocked`;
     }>;
 ```
@@ -55,7 +55,7 @@ fromListener
 
 </td><td>
 
-\`callbackquerydata\` \| keyof typeof Gramstax.prototype.pages.routeDynamicSpesific
+\`callbackquerydata\` \| \`chatmember\` \| \`mychatmember\` \| keyof typeof Gramstax.prototype.pages.routeDynamicSpesific
 
 
 </td><td>

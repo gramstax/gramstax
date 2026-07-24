@@ -628,6 +628,20 @@ Registers an event handler for a bot event.
 </td></tr>
 <tr><td>
 
+[registerLowOnChatMember()](./gramstax.gramstax.registerlowonchatmember.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Registers an event handler for a bot event.
+
+
+</td></tr>
+<tr><td>
+
 [registerLowOnMessageAnimation()](./gramstax.gramstax.registerlowonmessageanimation.md)
 
 

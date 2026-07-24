@@ -1,0 +1,21 @@
+### YamlMime:TSTypeAlias
+name: ITE2eChatMemberOptions
+uid: gramstax!ITE2eChatMemberOptions:type
+package: gramstax!
+fullName: ITE2eChatMemberOptions
+summary: Options for simulating a chat member status transition update.
+remarks: >-
+  Used with [E2eHelper.sendChatMemberUpdate()](xref:gramstax!E2eHelper%23sendChatMemberUpdate:member(1)) and
+  [E2eHelper.sendMyChatMemberUpdate()](xref:gramstax!E2eHelper%23sendMyChatMemberUpdate:member(1)) to simulate
+  membership changes.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITE2eChatMemberOptions = ITE2eUpdateOptions & {
+      oldStatus?: string;
+      newStatus?: string;
+      oldIsMember?: boolean;
+      newIsMember?: boolean;
+      botId?: number;
+  };

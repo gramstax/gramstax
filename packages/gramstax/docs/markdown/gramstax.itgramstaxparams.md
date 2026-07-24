@@ -20,6 +20,7 @@ type ITGramstaxParams = {
     templateManager?: TemplateManager;
     stream?: boolean;
     autoRetry?: boolean;
+    chatMember?: boolean;
     optionsPage?: {
         shortCallbackQueryData?: boolean;
     };

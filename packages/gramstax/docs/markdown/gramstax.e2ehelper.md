@@ -282,6 +282,20 @@ Simulate the bot receiving a channel post.
 </td></tr>
 <tr><td>
 
+[sendChatMemberUpdate(options)](./gramstax.e2ehelper.sendchatmemberupdate.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Simulate a chat member status transition (`chat_member` update).
+
+
+</td></tr>
+<tr><td>
+
 [sendChosenInlineResult(resultId, query, options)](./gramstax.e2ehelper.sendchoseninlineresult.md)
 
 
@@ -375,6 +389,20 @@ Simulate an inline query sent by a user.
 </td><td>
 
 Simulate a user sending a location message.
+
+
+</td></tr>
+<tr><td>
+
+[sendMyChatMemberUpdate(options)](./gramstax.e2ehelper.sendmychatmemberupdate.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Simulate the bot's own chat member status transition (`my_chat_member` update).
 
 
 </td></tr>

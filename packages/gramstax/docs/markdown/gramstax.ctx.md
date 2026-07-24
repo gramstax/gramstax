@@ -1494,6 +1494,20 @@ _(Optional)_ Route function for voiceCaption match intent `this.data.name`
 </td></tr>
 <tr><td>
 
+[handleChatMemberOutIn()?](./gramstax.ctx.handlechatmemberoutin.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Handles a chat member status transition (`chatMemberFilter("out", "in")`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
 [handleCommandArgsText()?](./gramstax.ctx.handlecommandargstext.md)
 
 
@@ -1853,6 +1867,62 @@ _(Optional)_ Route handler for free-form video note input.
 </td><td>
 
 _(Optional)_ Route handler for free-form voice input.
+
+
+</td></tr>
+<tr><td>
+
+[handleMyChatMemberAdminRegular()?](./gramstax.ctx.handlemychatmemberadminregular.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Handles the bot being demoted from administrator.
+
+
+</td></tr>
+<tr><td>
+
+[handleMyChatMemberOutAdmin()?](./gramstax.ctx.handlemychatmemberoutadmin.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Handles the bot being added to the chat as an administrator.
+
+
+</td></tr>
+<tr><td>
+
+[handleMyChatMemberOutRegular()?](./gramstax.ctx.handlemychatmemberoutregular.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Handles the bot being added to the chat as a regular member.
+
+
+</td></tr>
+<tr><td>
+
+[handleMyChatMemberRegularAdmin()?](./gramstax.ctx.handlemychatmemberregularadmin.md)
+
+
+</td><td>
+
+
+</td><td>
+
+_(Optional)_ Handles the bot being promoted to administrator.
 
 
 </td></tr>

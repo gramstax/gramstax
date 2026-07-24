@@ -322,6 +322,17 @@ Captured outbound Bot API call record.
 </td></tr>
 <tr><td>
 
+[ITE2eChatMemberOptions](./gramstax.ite2echatmemberoptions.md)
+
+
+</td><td>
+
+Options for simulating a chat member status transition update.
+
+
+</td></tr>
+<tr><td>
+
 [ITE2eContactOptions](./gramstax.ite2econtactoptions.md)
 
 
