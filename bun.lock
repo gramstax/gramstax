@@ -89,7 +89,7 @@
     },
     "packages/create-gramstax": {
       "name": "create-gramstax",
-      "version": "0.11.3",
+      "version": "0.12.0",
       "bin": {
         "create-gramstax": "dist/src/index.js",
       },
@@ -108,9 +108,10 @@
     },
     "packages/gramstax": {
       "name": "gramstax",
-      "version": "0.11.3",
+      "version": "0.12.0",
       "dependencies": {
         "@grammyjs/auto-retry": "^2.0.2",
+        "@grammyjs/chat-members": "^1.2.0",
         "@grammyjs/stream": "^1.1.0",
         "@keyv/redis": "^5.1.4",
         "chokidar": "^4.0.3",
@@ -128,7 +129,7 @@
     },
     "packages/lmdb": {
       "name": "@gramstax/lmdb",
-      "version": "0.11.3",
+      "version": "0.12.0",
       "dependencies": {
         "lmdb": "^3.5.6",
       },
@@ -142,7 +143,7 @@
     },
     "packages/worker-thread": {
       "name": "@gramstax/worker-thread",
-      "version": "0.11.3",
+      "version": "0.12.0",
       "dependencies": {
         "net-ipc": "^2.2.2",
       },
@@ -429,6 +430,8 @@
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.4.1", "", { "dependencies": { "@eslint/core": "^0.17.0", "levn": "^0.4.1" } }, "sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA=="],
 
     "@grammyjs/auto-retry": ["@grammyjs/auto-retry@2.0.2", "", { "dependencies": { "debug": "^4.3.4" }, "peerDependencies": { "grammy": "^1.10.0" } }, "sha512-b4A4p5jlYDiQtW0c0FXYe11WMkYoiW+5rvOaDMCOk1h7Pu2SDl7B7gmFF8cthWCx2+M2nWLOsBxAgbBG4kKWYg=="],
+
+    "@grammyjs/chat-members": ["@grammyjs/chat-members@1.2.0", "", { "peerDependencies": { "grammy": "^1.19.0" } }, "sha512-RNkBulRh09idm2PelTXt7ThHW98D+5N4PH55N3EE7vEnFbIx5ZP/JbkSlb7F/tDeH/rZ07gzpwaeCUFcUJhlcA=="],
 
     "@grammyjs/stream": ["@grammyjs/stream@1.1.0", "", { "dependencies": { "abort-controller": "^3.0.0" }, "peerDependencies": { "grammy": "^1.39.0" } }, "sha512-xaVjR5dg68Ef/my0O0gSB57OxZObdmfTd0WsjkVVP1NjW02RAkR7LNCA0QwZQSO++R5CHPdDcmOrG+JVkJguRQ=="],
 
