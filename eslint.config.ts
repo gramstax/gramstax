@@ -22,6 +22,8 @@ export default defineConfig([
     rules: {
       quotes: [`warn`, `backtick`], // ⬅️ Force use backtick
       "@typescript-eslint/no-explicit-any": `off`, // ⬅️ Accept any
+      "@typescript-eslint/no-unsafe-declaration-merging": `off`, // ⬅️ Accept class/interface merging (stream plugin)
+      "no-redeclare": `off`, // ⬅️ Accept redeclaration via interface merging
       "@typescript-eslint/no-unused-vars": [
         `error`,
         {argsIgnorePattern: `^_`, varsIgnorePattern: `^_`}

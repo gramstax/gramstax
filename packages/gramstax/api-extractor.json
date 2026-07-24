@@ -420,6 +420,11 @@
       "default": {
         "logLevel": "warning"
         // "addToApiReportFile": false
+      },
+
+      // Suppressed: Ctx has class @public + interface @internal for stream plugin
+      "ae-different-release-tags": {
+        "logLevel": "none"
       }
 
       // "ae-extra-release-tag": {

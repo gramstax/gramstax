@@ -45,7 +45,7 @@ const __PKG_VERSION__ = JSON.parse(readFileSync(join(__dirname, `../../package.j
  * It automatically loads page classes from the file system and routes incoming
  * messages and callbacks to the appropriate handlers.
  *
- * @typeParam ICtx - The context type extending {@link Ctx:class}.
+ * @typeParam ICtx - The context type extending {@link (Ctx:class)}.
  *
  * @example
  * ```typescript

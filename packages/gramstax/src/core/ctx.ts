@@ -141,7 +141,6 @@ class Helper {
  *
  * @public
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class Ctx extends Context {
   /**
    * HTML-like template string for the page.
@@ -284,7 +283,7 @@ export class Ctx extends Context {
   data = (this.constructor as Record<any, any>).data as ITPageData<any>
 
   /**
-   * The full {@link Ctx:class.message} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).message} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.message`.
    *
@@ -296,7 +295,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.msg} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).msg} object from Telegram (non-nullable).
    *
    * Shorthand for `this.message` with fallback across message-like update fields.
    *
@@ -308,7 +307,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.callbackQuery} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).callbackQuery} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.callback_query`.
    *
@@ -320,7 +319,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.from} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).from} object from Telegram (non-nullable).
    *
    * @readonly
    * @public
@@ -330,7 +329,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.businessConnection} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).businessConnection} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.business_connection`.
    *
@@ -342,7 +341,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.businessMessage} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).businessMessage} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.business_message`.
    *
@@ -354,7 +353,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.channelPost} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).channelPost} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.channel_post`.
    *
@@ -366,7 +365,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.chat} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).chat} object from Telegram (non-nullable).
    *
    * @readonly
    * @public
@@ -376,7 +375,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.chatBoost} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).chatBoost} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.chat_boost`.
    *
@@ -388,7 +387,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.chatJoinRequest} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).chatJoinRequest} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.chat_join_request`.
    *
@@ -400,7 +399,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.chatMember} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).chatMember} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.chat_member`.
    *
@@ -412,7 +411,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.chosenInlineResult} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).chosenInlineResult} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.chosen_inline_result`.
    *
@@ -424,7 +423,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.deletedBusinessMessages} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).deletedBusinessMessages} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.deleted_business_messages`.
    *
@@ -436,7 +435,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.editedBusinessMessage} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).editedBusinessMessage} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.edited_business_message`.
    *
@@ -448,7 +447,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.editedChannelPost} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).editedChannelPost} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.edited_channel_post`.
    *
@@ -460,7 +459,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.editedMessage} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).editedMessage} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.edited_message`.
    *
@@ -472,7 +471,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.guestMessage} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).guestMessage} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.guest_message`.
    *
@@ -484,7 +483,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.inlineQuery} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).inlineQuery} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.inline_query`.
    *
@@ -496,7 +495,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.managedBot} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).managedBot} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.managed_bot`.
    *
@@ -508,7 +507,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.messageReaction} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).messageReaction} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.message_reaction`.
    *
@@ -520,7 +519,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.poll} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).poll} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.poll`.
    *
@@ -532,7 +531,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.pollAnswer} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).pollAnswer} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.poll_answer`.
    *
@@ -544,7 +543,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.preCheckoutQuery} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).preCheckoutQuery} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.pre_checkout_query`.
    *
@@ -556,7 +555,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.purchasedPaidMedia} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).purchasedPaidMedia} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.purchased_paid_media`.
    *
@@ -568,7 +567,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.removedChatBoost} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).removedChatBoost} object from Telegram (non-nullable).
    *
    * Alias for `ctx.update.removed_chat_boost`.
    *
@@ -580,7 +579,7 @@ export class Ctx extends Context {
   }
 
   /**
-   * The full {@link Ctx:class.senderChat} object from Telegram (non-nullable).
+   * The full {@link (Ctx:class).senderChat} object from Telegram (non-nullable).
    *
    * @readonly
    * @public
@@ -1087,7 +1086,7 @@ export class Ctx extends Context {
   /**
    * Sends a text message reply using the page template.
    *
-   * @param keyboard - Optional keyboard markup from {@link Ctx:class.inlineKeyboard} or {@link Ctx:class.bottomKeyboard} (or null to omit).
+   * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template base ID position for block message (or null to use default).
    * @param options - Optional grammY reply options (or null to omit).
@@ -1139,7 +1138,7 @@ export class Ctx extends Context {
    * - Up to 16 nesting levels
    * - Up to 20 table columns
    *
-   * @param keyboard - Optional keyboard markup from {@link Ctx:class.inlineKeyboard} or {@link Ctx:class.bottomKeyboard} (or null to omit).
+   * @param keyboard - Optional keyboard markup from {@link (Ctx:class).inlineKeyboard} or {@link (Ctx:class).bottomKeyboard} (or null to omit).
    * @param data - Optional template interpolation data (or null to omit).
    * @param AGBaseId - Optional template base ID position for block message (or null to use default).
    * @param options1 - Optional `InputRichMessage` fields (`is_rtl`, `skip_entity_detection`) (or null to omit).
@@ -1173,7 +1172,7 @@ export class Ctx extends Context {
 
   /**
    * Sends or edits a rich message using the page template, auto-selecting
-   * between {@link Ctx:class.renderRich} and {@link Ctx:class.renderEditRich} based on
+   * between {@link (Ctx:class).renderRich} and {@link (Ctx:class).renderEditRich} based on
    * the `isEdit` flag.
    *
    * @param keyboard - Optional keyboard markup (or null to omit).
@@ -1262,7 +1261,7 @@ export class Ctx extends Context {
    *
    * @remarks
    * This is the base method for all media reply methods. Use specific methods
-   * like {@link Ctx:class.renderPhoto} or {@link Ctx:class.renderVideo} for simpler usage.
+   * like {@link (Ctx:class).renderPhoto} or {@link (Ctx:class).renderVideo} for simpler usage.
    *
    * @typeParam T - The media type to send.
    * @param type - The media type (photo, video, audio, document, animation, voice, video_note, sticker, location, contact).
@@ -1607,7 +1606,7 @@ export class Ctx extends Context {
 
   /**
    * Sends or edits a message using the page template, auto-selecting
-   * between {@link Ctx:class.render} and {@link Ctx:class.renderEdit} based on the
+   * between {@link (Ctx:class).render} and {@link (Ctx:class).renderEdit} based on the
    * `isEdit` flag.
    *
    * @remarks
@@ -2121,7 +2120,7 @@ export class Ctx extends Context {
    *
    * @remarks
    * Low-level API. In most cases use the shorthand `setSession*` methods instead
-   * (e.g. {@link Ctx:class.setSessionFreeText}, {@link Ctx:class.setSessionCallbackQueryData}).
+   * (e.g. {@link (Ctx:class).setSessionFreeText}, {@link (Ctx:class).setSessionCallbackQueryData}).
    *
    * This method is only needed when:
    * - **Multi-session** — binding the same params to multiple route handlers at once:
@@ -2362,7 +2361,7 @@ export class Ctx extends Context {
    * Creates a bottom keyboard with template-based text buttons.
    *
    * @remarks
-   * Shorthand for {@link Ctx:class.bottomKeyboard} with automatic text button creation.
+   * Shorthand for {@link (Ctx:class).bottomKeyboard} with automatic text button creation.
    *
    * @param layout - Layout format: "cols" or "cols-lastRow". Default: "1".
    * @param AGBaseId - Optional template base ID position for block keyboard. IMPORTANT: If a `<g-base id="...">` is defined in the template, you must set AGBaseId to the same value. Leaving AGBaseId as undefined in this case will cause errors (for example, keyboard bindings will not work). A common mistake is defining a g-base ID in the template but not reusing it in the keyboard configuration (or null to use default).
@@ -2392,7 +2391,7 @@ export class Ctx extends Context {
    * Creates an inline keyboard with template-based buttons linked to page destinations.
    *
    * @remarks
-   * Shorthand for {@link Ctx:class.inlineKeyboard} with automatic callback data from page destinations.
+   * Shorthand for {@link (Ctx:class).inlineKeyboard} with automatic callback data from page destinations.
    *
    * @param PageDest - Array of page classes or callback data strings.
    * @param layout - Layout format: "cols" or "cols-lastRow". Default: "1".
@@ -3438,87 +3437,87 @@ export class Ctx extends Context {
    * @public
    */
   async handleSessionCallbackQueryData?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionArgsCallbackQueryData?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionText?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionArgsText?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandText?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandArgsText?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeText?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionPhoto?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionArgsPhoto?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionPhoto?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionArgsPhoto?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreePhoto?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionVideo?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionArgsVideo?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionVideo?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionArgsVideo?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeVideo?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionAudio?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionArgsAudio?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionAudio?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionArgsAudio?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeAudio?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionDocument?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionArgsDocument?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionDocument?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionArgsDocument?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeDocument?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionAnimation?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionArgsAnimation?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionAnimation?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionArgsAnimation?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeAnimation?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionVoice?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCaptionArgsVoice?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionVoice?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionCommandCaptionArgsVoice?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeVoice?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeVideoNote?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeSticker?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeLocation?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFreeContact?(): Promise<any>
-  /** {@inheritDoc Ctx:class.handleSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
   async handleSessionFree?(): Promise<any>
 
   // callback
@@ -3526,7 +3525,7 @@ export class Ctx extends Context {
    * Session set helper methods.
    *
    * @remarks
-   * These methods are shortcuts for {@link Ctx:class.setSession} with pre-built method names.
+   * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names.
    * Each `session*` method sets the session for the corresponding route handler.
    *
    * @example
@@ -3543,174 +3542,174 @@ export class Ctx extends Context {
   setSessionCallbackQueryData(params?: any) {
     return this.setSession(this.methodSessionCallbackQueryData(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionArgsCallbackQueryData(params?: any) {
     return this.setSession(this.methodSessionArgsCallbackQueryData(), params)
   }
   // text
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionText(params?: any) {
     return this.setSession(this.methodSessionText(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionArgsText(params?: any) {
     return this.setSession(this.methodSessionArgsText(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandText(params?: any) {
     return this.setSession(this.methodSessionCommandText(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandArgsText(params?: any) {
     return this.setSession(this.methodSessionCommandArgsText(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeText(params?: any) {
     return this.setSession(this.methodSessionFreeText(), params)
   }
   // photo
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionPhoto(params?: any) {
     return this.setSession(this.methodSessionCaptionPhoto(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionArgsPhoto(params?: any) {
     return this.setSession(this.methodSessionCaptionArgsPhoto(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionPhoto(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionPhoto(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionArgsPhoto(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsPhoto(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreePhoto(params?: any) {
     return this.setSession(this.methodSessionFreePhoto(), params)
   }
   // video
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionVideo(params?: any) {
     return this.setSession(this.methodSessionCaptionVideo(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionArgsVideo(params?: any) {
     return this.setSession(this.methodSessionCaptionArgsVideo(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionVideo(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionVideo(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionArgsVideo(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsVideo(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeVideo(params?: any) {
     return this.setSession(this.methodSessionFreeVideo(), params)
   }
   // audio
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionAudio(params?: any) {
     return this.setSession(this.methodSessionCaptionAudio(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionArgsAudio(params?: any) {
     return this.setSession(this.methodSessionCaptionArgsAudio(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionAudio(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionAudio(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionArgsAudio(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsAudio(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeAudio(params?: any) {
     return this.setSession(this.methodSessionFreeAudio(), params)
   }
   // document
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionDocument(params?: any) {
     return this.setSession(this.methodSessionCaptionDocument(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionArgsDocument(params?: any) {
     return this.setSession(this.methodSessionCaptionArgsDocument(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionDocument(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionDocument(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionArgsDocument(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsDocument(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeDocument(params?: any) {
     return this.setSession(this.methodSessionFreeDocument(), params)
   }
   // animation
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionAnimation(params?: any) {
     return this.setSession(this.methodSessionCaptionAnimation(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionArgsAnimation(params?: any) {
     return this.setSession(this.methodSessionCaptionArgsAnimation(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionAnimation(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionAnimation(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionArgsAnimation(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsAnimation(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeAnimation(params?: any) {
     return this.setSession(this.methodSessionFreeAnimation(), params)
   }
   // voice
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionVoice(params?: any) {
     return this.setSession(this.methodSessionCaptionVoice(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCaptionArgsVoice(params?: any) {
     return this.setSession(this.methodSessionCaptionArgsVoice(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionVoice(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionVoice(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionCommandCaptionArgsVoice(params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsVoice(), params)
   }
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeVoice(params?: any) {
     return this.setSession(this.methodSessionFreeVoice(), params)
   }
   // video note
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeVideoNote(params?: any) {
     return this.setSession(this.methodSessionFreeVideoNote(), params)
   }
   // sticker
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeSticker(params?: any) {
     return this.setSession(this.methodSessionFreeSticker(), params)
   }
   // location
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeLocation(params?: any) {
     return this.setSession(this.methodSessionFreeLocation(), params)
   }
   // contact
-  /** {@inheritDoc Ctx:class.setSessionCallbackQueryData} */
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
   setSessionFreeContact(params?: any) {
     return this.setSession(this.methodSessionFreeContact(), params)
   }
@@ -3720,10 +3719,10 @@ export class Ctx extends Context {
    *
    * @remarks
    * Low-level API. You rarely need to call these directly — the
-   * {@link Ctx:class.setSessionFreeText} (and siblings) already wire them internally.
+   * {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.
    *
    * These methods generate unique session method identifiers used by
-   * {@link Ctx:class.setSession} and validation methods. Each `methodSession*`
+   * {@link (Ctx:class).setSession} and validation methods. Each `methodSession*`
    * returns a prefixed string like `"1-PageName"`.
    *
    * When you DO need to call them (multi-session with `setSession(array, ...)`),
@@ -3743,184 +3742,184 @@ export class Ctx extends Context {
   methodSession(prefix: string, name: string | undefined) {
     return `${prefix}-${name || this.data.name}`
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCallbackQueryData(name?: string) {
     return this.methodSession(`1`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionArgsCallbackQueryData(name?: string) {
     return this.methodSession(`2`, name)
   }
   // text method
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionText(name?: string) {
     return this.methodSession(`3`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionArgsText(name?: string) {
     return this.methodSession(`4`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandText(name?: string) {
     return this.methodSession(`5`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandArgsText(name?: string) {
     return this.methodSession(`6`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionFreeText(name?: string) {
     return this.methodSession(`7`, name)
   }
   // photo method
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCaptionPhoto(name?: string) {
     return this.methodSession(`8`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCaptionArgsPhoto(name?: string) {
     return this.methodSession(`9`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandCaptionPhoto(name?: string) {
     return this.methodSession(`10`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandCaptionArgsPhoto(name?: string) {
     return this.methodSession(`11`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionFreePhoto(name?: string) {
     return this.methodSession(`12`, name)
   }
   // video method
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCaptionVideo(name?: string) {
     return this.methodSession(`13`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCaptionArgsVideo(name?: string) {
     return this.methodSession(`14`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandCaptionVideo(name?: string) {
     return this.methodSession(`15`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandCaptionArgsVideo(name?: string) {
     return this.methodSession(`16`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionFreeVideo(name?: string) {
     return this.methodSession(`17`, name)
   }
   // audio method
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCaptionAudio(name?: string) {
     return this.methodSession(`18`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCaptionArgsAudio(name?: string) {
     return this.methodSession(`19`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandCaptionAudio(name?: string) {
     return this.methodSession(`20`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandCaptionArgsAudio(name?: string) {
     return this.methodSession(`21`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionFreeAudio(name?: string) {
     return this.methodSession(`22`, name)
   }
   // document method
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCaptionDocument(name?: string) {
     return this.methodSession(`23`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCaptionArgsDocument(name?: string) {
     return this.methodSession(`24`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandCaptionDocument(name?: string) {
     return this.methodSession(`25`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandCaptionArgsDocument(name?: string) {
     return this.methodSession(`26`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionFreeDocument(name?: string) {
     return this.methodSession(`27`, name)
   }
   // animation method
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCaptionAnimation(name?: string) {
     return this.methodSession(`28`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCaptionArgsAnimation(name?: string) {
     return this.methodSession(`29`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandCaptionAnimation(name?: string) {
     return this.methodSession(`30`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandCaptionArgsAnimation(name?: string) {
     return this.methodSession(`31`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionFreeAnimation(name?: string) {
     return this.methodSession(`32`, name)
   }
   // voice method
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCaptionVoice(name?: string) {
     return this.methodSession(`33`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCaptionArgsVoice(name?: string) {
     return this.methodSession(`34`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandCaptionVoice(name?: string) {
     return this.methodSession(`35`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionCommandCaptionArgsVoice(name?: string) {
     return this.methodSession(`36`, name)
   }
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionFreeVoice(name?: string) {
     return this.methodSession(`37`, name)
   }
   // video note method
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionFreeVideoNote(name?: string) {
     return this.methodSession(`38`, name)
   }
   // sticker method
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionFreeSticker(name?: string) {
     return this.methodSession(`39`, name)
   }
   // location method
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionFreeLocation(name?: string) {
     return this.methodSession(`40`, name)
   }
   // contact method
-  /** {@inheritDoc Ctx:class.methodSession} */
+  /** {@inheritDoc Ctx.methodSession} */
   methodSessionFreeContact(name?: string) {
     return this.methodSession(`41`, name)
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging, no-redeclare
+/** @internal */
 export interface Ctx {
   replyWithStream(stream: Iterable<string | {text: string; entities?: any[]}> | AsyncIterable<string | {text: string; entities?: any[]}>, otherMessageDraft?: any, otherMessage?: any, signal?: AbortSignal): Promise<any>
   replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>
