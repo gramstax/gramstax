@@ -933,6 +933,74 @@ export class Ctx extends Context {
   async hookAfterRoute?(): Promise<void>
 
   /**
+   * Handles a chat member status transition (`chatMemberFilter("out", "in")`).
+   *
+   * @remarks
+   * Triggered when a user transitions from an "out" status (`kicked`, `left`,
+   * or `restricted` with `is_member=false`) to an "in" status (`member`,
+   * `administrator`, `creator`, or `restricted` with `is_member=true`).
+   *
+   * Define this method on a page class to react to users joining the chat.
+   * The bot must be an administrator in the group to receive `chat_member` updates.
+   *
+   * **Naming convention:** `handleChatMember{OldStatus}{NewStatus}` maps to
+   * `chatMemberFilter("old", "new")`. Any PascalCased status combination
+   * produces a valid route: e.g. `handleChatMemberInOut` for users leaving.
+   *
+   * @virtual
+   * @public
+   */
+  async handleChatMemberOutIn?(): Promise<void>
+
+  /**
+   * Handles the bot being added to the chat as a regular member.
+   *
+   * @remarks
+   * Triggered when the bot's own membership changes from an "out" status to
+   * `member` (non-administrator). Uses `myChatMemberFilter("out", "regular")`.
+   *
+   * @virtual
+   * @public
+   */
+  async handleMyChatMemberOutRegular?(): Promise<void>
+
+  /**
+   * Handles the bot being added to the chat as an administrator.
+   *
+   * @remarks
+   * Triggered when the bot's own membership changes from an "out" status to
+   * `administrator`/`creator`. Uses `myChatMemberFilter("out", "admin")`.
+   *
+   * @virtual
+   * @public
+   */
+  async handleMyChatMemberOutAdmin?(): Promise<void>
+
+  /**
+   * Handles the bot being promoted to administrator.
+   *
+   * @remarks
+   * Triggered when the bot's own membership changes from `member`/`regular` to
+   * `administrator`/`creator`. Uses `myChatMemberFilter("regular", "admin")`.
+   *
+   * @virtual
+   * @public
+   */
+  async handleMyChatMemberRegularAdmin?(): Promise<void>
+
+  /**
+   * Handles the bot being demoted from administrator.
+   *
+   * @remarks
+   * Triggered when the bot's own membership changes from `administrator`/`creator`
+   * back to `member`. Uses `myChatMemberFilter("admin", "regular")`.
+   *
+   * @virtual
+   * @public
+   */
+  async handleMyChatMemberAdminRegular?(): Promise<void>
+
+  /**
    * Sends a message to multiple users in bulk.
    *
    * @remarks
@@ -3921,44 +3989,6 @@ export class Ctx extends Context {
   methodSessionFreeContact(name?: string) {
     return this.methodSession(`41`, name)
   }
-
-  // ═══════════════════════════════════════════════════════════════
-  //  Chat member route handlers
-  // ═══════════════════════════════════════════════════════════════
-  //
-  // Pages can override methods following the naming convention below
-  // to handle chat member status transitions. The bot must be an
-  // administrator in the group to receive `chat_member` updates.
-  //
-  // Convention:
-  //   handleChatMember{Old}{New}     — user membership changes
-  //   handleMyChatMember{Old}{New}   — bot's own membership changes
-  //
-  // Status values (PascalCase): Out, In, Kicked, Left, Member,
-  // Administrator, Creator, Restricted, Regular (myChatMember only).
-  //
-  // Example:
-  //   class WelcomePage extends PageBase {
-  //     async handleChatMemberOutIn() {
-  //       const {new_chat_member} = this.ctx.chatMember
-  //       await this.reply(`Welcome ${new_chat_member.user.first_name}!`)
-  //     }
-  //   }
-
-  /** User joins the chat (kicked/left → member/admin/creator). */
-  async handleChatMemberOutIn(): Promise<void> {}
-
-  /** Bot is added to the chat as a regular member. */
-  async handleMyChatMemberOutRegular(): Promise<void> {}
-
-  /** Bot is added to the chat as an administrator. */
-  async handleMyChatMemberOutAdmin(): Promise<void> {}
-
-  /** Bot is promoted from member/regular to administrator. */
-  async handleMyChatMemberRegularAdmin(): Promise<void> {}
-
-  /** Bot is demoted from administrator back to regular member. */
-  async handleMyChatMemberAdminRegular(): Promise<void> {}
 }
 
 /** @internal */

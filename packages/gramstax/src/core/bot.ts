@@ -17,7 +17,7 @@ import {fileURLToPath} from "node:url"
 import {dirname, join, parse} from "node:path"
 import {TemplateManager} from "~/template/manager"
 import {CacheExternal, ITCacheRpc} from "~/cache/external"
-import {Bot, webhookCallback, type BotConfig, type BotError} from "grammy"
+import {Bot, webhookCallback, type BotConfig, type BotError, API_CONSTANTS} from "grammy"
 import type {UserFromGetMe} from "grammy/types"
 import type {ITGramstaxParams, ITWebhookQueueConfig} from "~/types/t.bot"
 import {WebhookQueue} from "~/webhook/queue"
@@ -25,6 +25,7 @@ import {ITCt, ITCtMiddleware} from "~/types/t.ctx"
 import {E2eHelper} from "../e2e/helper"
 import {autoRetry} from "@grammyjs/auto-retry"
 import {stream} from "@grammyjs/stream"
+import {chatMemberFilter, myChatMemberFilter} from "@grammyjs/chat-members"
 
 const __dirname = dirname(
   (() => {
@@ -345,9 +346,20 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.registerLowOnMessageSticker() // Handle global sticker messages
     this.registerLowOnMessageLocation() // Handle global location messages
     this.registerLowOnMessageContact() // Handle global contact messages
+    if (params.chatMember !== false) {
+      this.registerLowOnChatMember() // Handle chat member updates
+    }
 
     // Load pages AFTER templateManager is initialized
     this.pages = this._pageLoads(this.templateManager._path?.[0])
+
+    // Pre-compute chat member filter functions
+    if ((this.pages as any)?.chatMemberRoutes?.length > 0) {
+      for (const route of this.pages.chatMemberRoutes!) {
+        const factory = route.type === `chatMember` ? chatMemberFilter : myChatMemberFilter
+        route.filter = factory(route.oldStatus as any, route.newStatus as any) as (ctx: any) => boolean
+      }
+    }
 
     if (params.deploy.startsWith(`polling`)) {
       this.deployType = `polling`
@@ -652,12 +664,16 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   _runPolling(): void {
-    this.bot.start({
+    const opts: Record<string, any> = {
       drop_pending_updates: true,
-      onStart: (botInfo) => {
+      onStart: (botInfo: UserFromGetMe) => {
         this._onStart(botInfo, `polling`, null)
       }
-    })
+    }
+    if ((this.pages as any)?.chatMemberRoutes?.length > 0) {
+      opts.allowed_updates = API_CONSTANTS.ALL_UPDATE_TYPES
+    }
+    this.bot.start(opts)
   }
 
   /**
@@ -1048,6 +1064,37 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
     }
 
+    // chatMember — scan handleChatMember* / handleMyChatMember* methods
+    for (const key of Object.getOwnPropertyNames(proto)) {
+      if (key.startsWith(`handleChatMember`) && key !== `handleChatMember`) {
+        const rest = key.slice(`handleChatMember`.length) // e.g., "OutIn"
+        const parts = rest.split(/(?=[A-Z])/).filter(Boolean)
+        if (parts.length === 2) {
+          pages.chatMemberRoutes.push({
+            name,
+            routeName: key,
+            type: `chatMember`,
+            oldStatus: parts[0]!.toLowerCase(),
+            newStatus: parts[1]!.toLowerCase(),
+            filter: () => false // placeholder, replaced in constructor
+          })
+        }
+      } else if (key.startsWith(`handleMyChatMember`) && key !== `handleMyChatMember`) {
+        const rest = key.slice(`handleMyChatMember`.length) // e.g., "OutRegular"
+        const parts = rest.split(/(?=[A-Z])/).filter(Boolean)
+        if (parts.length === 2) {
+          pages.chatMemberRoutes.push({
+            name,
+            routeName: key,
+            type: `myChatMember`,
+            oldStatus: parts[0]!.toLowerCase(),
+            newStatus: parts[1]!.toLowerCase(),
+            filter: () => false // placeholder, replaced in constructor
+          })
+        }
+      }
+    }
+
     // all
     if (proto.handleFree) {
       pd.push(name)
@@ -1230,6 +1277,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       routeStatic: makeObject(listRouteStatic, () => ({}) as Record<string, {name: string; routeName: string}>), // [page.data.name]: {name: Page.data.name, routeName: routeFunctionName}
       routeStaticIntent: makeObject(listRouteStaticIntent, () => ({}) as Record<string, {name: string; routeName: string}>), // [routeName]: {name: Page.data.name, routeName: routeFunctionName}
       routeStaticSession: makeObject(listRouteStaticSession, () => ({}) as Record<string, {name: string; routeName: string}>), // [session.method]: {name: Page.data.name, routeName: routeFunctionName}
+      chatMemberRoutes: [] as Array<{
+        name: string
+        routeName: string
+        type: `chatMember` | `myChatMember`
+        oldStatus: string
+        newStatus: string
+        filter: (ctx: any) => boolean
+      }>,
       listRouteStatic,
       listRouteStaticIntent,
       listRouteStaticSession,
@@ -1319,10 +1374,44 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  async _pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{state: `matched` | `no-match` | `no-handler` | `blocked`}> {
+  async _pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | `chatmember` | `mychatmember` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{state: `matched` | `no-match` | `no-handler` | `blocked`}> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: {name: string; routeName: string} | undefined
+
+    /**
+     * id = 0
+     * type = chatMember
+     * algoritme = O(n) iterasi all chatMemberRoutes, filter pre-computed
+     * example = handleChatMemberOutIn, handleMyChatMemberOutRegular
+     * description = Chat member status transition routing. Iterates all chat
+     *              member routes and dispatches to the first matching filter.
+     *              Only runs when `fromListener === "chatmember"`.
+     *              Short-circuits via early return on match.
+     */
+    if ((fromListener === `chatmember` || fromListener === `mychatmember`) && this.pages.chatMemberRoutes.length > 0) {
+      for (const route of this.pages.chatMemberRoutes) {
+        if (route.filter(ctx)) {
+          const ChatPage = this.pages.all[route.name]
+          if (ChatPage && typeof ChatPage.prototype[route.routeName as keyof typeof ChatPage.prototype] === `function`) {
+            const initPage = new (ChatPage as any)({
+              ct: ctx,
+              cacheSession: ctx.cacheSession,
+              cacheKeyboard: ctx.cacheKeyboard,
+              templateManager: this.templateManager,
+              temp: ctx.temp
+            })
+            if ((await initPage.hookBeforeRoute?.()) !== false) {
+              await initPage[route.routeName]()
+              await initPage.hookAfterRoute?.()
+              return {state: `matched`}
+            }
+            return {state: `blocked`}
+          }
+        }
+      }
+      return {state: `no-match`}
+    }
 
     /**
      * id = 1
@@ -1669,5 +1758,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessageContact() {
     this.bot.on(`message:contact`, (ctx) => this._onHandle(ctx, `contact`)) // Handle global contact messages
+  }
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
+  registerLowOnChatMember() {
+    this.bot.on(`chat_member`, (ctx) => this._onHandle(ctx, `chatmember`)) // Handle chat member updates
+    this.bot.on(`my_chat_member`, (ctx) => this._onHandle(ctx, `mychatmember`)) // Handle bot's own chat member updates
   }
 }

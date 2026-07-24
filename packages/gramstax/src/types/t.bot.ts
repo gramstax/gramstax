@@ -220,6 +220,25 @@ export type ITGramstaxParams = {
   autoRetry?: boolean
 
   /**
+   * Enable/disable the chat member plugin.
+   *
+   * @remarks
+   * When enabled (default), pages can define `handleChatMember*` and
+   * `handleMyChatMember*` methods to react to chat member status changes
+   * (user joins/leaves, bot is added/promoted/demoted, etc.).
+   *
+   * Each method name encodes the status transition:
+   * - `handleChatMember{Old}{New}` — uses `chatMemberFilter(old, new)`
+   * - `handleMyChatMember{Old}{New}` — uses `myChatMemberFilter(old, new)`
+   *
+   * Requires `chat_member` to be included in `allowed_updates`, which is
+   * handled automatically when at least one chat member route exists.
+   *
+   * @defaultValue `true`
+   */
+  chatMember?: boolean
+
+  /**
    * Page routing configuration options.
    */
   optionsPage?: {
