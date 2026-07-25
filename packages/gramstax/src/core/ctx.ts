@@ -13,6 +13,7 @@ import {setTimeout} from "node:timers/promises"
 import {TemplateManager} from "~/template/manager"
 import {Context, InlineKeyboard, InputMediaBuilder, Keyboard} from "grammy"
 import type {InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
+import type {MessageDraftPiece} from "@grammyjs/stream"
 import {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {ITMediaBlock} from "~/template/engine"
 import type {
@@ -294,6 +295,79 @@ export class Ctx extends Context {
    * @public
    */
   data = (this.constructor as Record<any, any>).data as ITPageData<any>
+
+  /**
+   * Streams an iterator of message pieces to the current chat, making
+   * text appear progressively as editing message drafts.
+   *
+   * @remarks
+   * Provided at runtime by the `\@grammyjs/stream` plugin middleware.
+   * The `stream()` plugin must be installed on the bot for this method
+   * to be available. Gramstax registers it by default.
+   *
+   * Each `MessageDraftPiece` is either a plain string or an object
+   * `{text, entities?, draft_id?}`. Chunks with the same `draft_id`
+   * belong to the same draft; the first chunk crossing 4096 chars is
+   * split into a new message. Entities offsets are relative to the
+   * entire stream, not per-chunk.
+   *
+   * @param stream - An iterable of text chunks that make up the message.
+   * @param otherMessageDraft - Optional remaining parameters forwarded to `sendMessageDraft`.
+   * @param otherMessage - Optional remaining parameters forwarded to `sendMessage`.
+   * @param signal - Optional `AbortSignal` to cancel streaming.
+   * @returns Array of sent text messages.
+   */
+  replyWithStream(stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>, otherMessageDraft?: Record<string, any>, otherMessage?: Record<string, any>, signal?: AbortSignal): Promise<any> {
+    return this._.replyWithStream(stream, otherMessageDraft, otherMessage, signal)
+  }
+
+  /**
+   * Streams an iterator of markdown strings to the current chat as
+   * a single rich message that updates progressively.
+   *
+   * @remarks
+   * Provided at runtime by the `\@grammyjs/stream` plugin middleware.
+   * The `stream()` plugin must be installed on the bot for this method
+   * to be available. Gramstax registers it by default.
+   *
+   * Uses `sendRichMessageDraft` for intermediate updates and
+   * `sendRichMessage` for the final message. The draft identifier is
+   * derived from the current `update_id`.
+   *
+   * @param stream - An iterable of markdown string chunks.
+   * @param otherRichMessageDraft - Optional remaining parameters for `sendRichMessageDraft`.
+   * @param otherRichMessage - Optional remaining parameters for `sendRichMessage`.
+   * @param baseInputRichMessage - Optional fields merged into the `rich_message` of every API call.
+   * @param signal - Optional `AbortSignal` to cancel streaming.
+   * @returns The sent rich message object.
+   */
+  replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Record<string, any>, otherRichMessage?: Record<string, any>, baseInputRichMessage?: Record<string, any>, signal?: AbortSignal): Promise<any> {
+    return this._.replyWithMarkdownStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
+  }
+
+  /**
+   * Streams an iterator of HTML strings to the current chat as
+   * a single rich message that updates progressively.
+   *
+   * @remarks
+   * Provided at runtime by the `\@grammyjs/stream` plugin middleware.
+   * The `stream()` plugin must be installed on the bot for this method
+   * to be available. Gramstax registers it by default.
+   *
+   * Uses `sendRichMessageDraft` for intermediate updates and
+   * `sendRichMessage` for the final message. The draft identifier is
+   * derived from the current `update_id`.
+   *
+   * @param stream - An iterable of HTML string chunks.
+   * @param otherRichMessageDraft - Optional remaining parameters for `sendRichMessageDraft`.
+   * @param otherRichMessage - Optional remaining parameters for `sendRichMessage`.
+   * @param baseInputRichMessage - Optional fields merged into the `rich_message` of every API call.
+   * @param signal - Optional `AbortSignal` to cancel streaming.
+   * @returns The sent rich message object.
+   */
+  replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Record<string, any>, otherRichMessage?: Record<string, any>, baseInputRichMessage?: Record<string, any>, signal?: AbortSignal): Promise<any> {
+    return this._.replyWithHtmlStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
+  }
 
   /**
    * The full {@link (Ctx:class).message} object from Telegram (non-nullable).
@@ -850,9 +924,16 @@ export class Ctx extends Context {
   /** Tracks per-request Api instances where the answer guard transformer has already been installed */
   private static readonly _answerApiGuard = new WeakSet<object>()
 
+  /**
+   * Original context from bot.ts
+   * @internal
+   */
+  private _: Context & {[key: string]: any}
+
   constructor(params: ITCtxParams) {
     const ct = params.ct ?? params
     super(ct.update, ct.api, ct.me)
+    this._ = ct
     if (this.api?.config?.use && !Ctx._answerApiGuard.has(this.api)) {
       Ctx._answerApiGuard.add(this.api)
       this.api.config.use((prev, method, payload, signal) => {
@@ -860,15 +941,6 @@ export class Ctx extends Context {
         return prev(method, payload, signal)
       })
     }
-    // Copy stream plugin instance methods from the original context.
-    // The @grammyjs/stream plugin assigns replyWithStream et al directly
-    // to the grammy Context instance (not the prototype). Since we create a
-    // new Context via super(ct.update, ct.api, ct.me), those instance
-    // properties are lost unless we copy them explicitly.
-    const src = ct as any
-    if (typeof src.replyWithStream === `function`) this.replyWithStream = src.replyWithStream
-    if (typeof src.replyWithMarkdownStream === `function`) this.replyWithMarkdownStream = src.replyWithMarkdownStream
-    if (typeof src.replyWithHtmlStream === `function`) this.replyWithHtmlStream = src.replyWithHtmlStream
     this.cacheSession = params.cacheSession
     this.cacheKeyboard = params.cacheKeyboard
     this.templateManager = params.templateManager
@@ -4064,29 +4136,4 @@ export class Ctx extends Context {
   methodSessionMyChatMemberAdminRegular(name?: string) {
     return this.methodSession(`46`, name)
   }
-}
-
-/** @internal */
-export interface Ctx {
-  /**
-   * Page routing data configuration.
-   *
-   * @remarks
-   * Access the static `data` property on the page class directly
-   * (`ClassName.data.callbackQueryData(...)`) for full parameter
-   * type inference. This instance reference is typed as the base
-   * `ITPageData` type — the specific callback parameter types are
-   * only available when accessing via the class constructor.
-   *
-   * @internal
-   */
-  data: ITPageData<any[]>
-
-  // ── stream plugin (typed via StreamFlavor ────────────────────
-  /** Stream a message to the current chat. Provided by stream plugin middleware. */
-  replyWithStream(stream: Iterable<string | {text: string; entities?: any[]}> | AsyncIterable<string | {text: string; entities?: any[]}>, otherMessageDraft?: any, otherMessage?: any, signal?: AbortSignal): Promise<any>
-  /** Stream a markdown message to the current chat. Provided by stream plugin middleware. */
-  replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>
-  /** Stream an HTML message to the current chat. Provided by stream plugin middleware. */
-  replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>
 }
