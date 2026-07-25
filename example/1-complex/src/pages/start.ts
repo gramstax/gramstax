@@ -21,6 +21,7 @@ import {TestAnimationPage} from "./test-animation"
 import {TestVideoNotePage} from "./test-video-note"
 import {KeyboardBottomPage} from "./keyboard-bottom"
 import {TestMediaGroupPage} from "./test-media-group"
+import {StreamPage} from "./stream"
 
 class Base {
   static index = `i`
@@ -66,7 +67,9 @@ class Helper {
           .text(l[20]!, BlockSwitchPage.data.callbackQueryData())
           .text(l[21]!, KeyboardBottomPage.data.callbackQueryData())
           .row()
-          .text(l[22]!, ctx.data.callbackQueryData())
+          .text(l[22]!, StreamPage.data.callbackQueryData())
+          .row()
+          .text(l[23]!, ctx.data.callbackQueryData())
       },
       {cache: true, AGBaseId: Base.index}
     )
@@ -147,14 +150,14 @@ export class StartPage extends PageBase {
       <g-description>Default description command /start (you can change this)</g-description>
       <g-description lang="en">[EN] Description command /start (you can change this)</g-description>
       <g-description lang="id">[ID] Deskripsi perintah /start (anda dapat merubah ini)</g-description>
-      <g-keyboard type="inline">🔢 Counter, 🧵 Counter Thread, ❓ Help, 🌐 Language, 🖼️ Test Photo, 🖼️ Test Media Group, 🎥 Test Video, 🎧 Test Audio, 📄 Test Document, 🎞️ Test Animation, 🎙️ Test Voice, 🎬 Test VideoN, 😀 Test Sticker, 📍 Test Location, 👤 Test Contact, 🧪 Test Error, 📝 Input Text2, ✍️ Input Text, 🧭 Block Map, 📦 Block Import, 🔀 Block Switch, ⌨️ KB Bottom, 🔄 Refresh</g-keyboard>
-      <g-keyboard type="inline" lang="id">🔢 Kounter, 🧵 Kounter Thread, ❓ Bantuan, 🌐 Bahasa, 🖼️ Test Foto, 🖼️ Test Media Grup, 🎥 Test Video, 🎧 Test Suara, 📄 Test Dokumen, 🎞️ Test Animasi, 🎙️ Test Suara, 🎬 Test VideoN, 😀 Test Stiker, 📍 Test Lokasi, 👤 Test Kontak, 🧪 Test Salah, 📝 Masukkan Teks2, ✍️ Masukkan Teks, 🧭 Blok Map, 📦 Blok Import, 🔀 Blok Switch, ⌨️ KB Bottom, 🔄 Segarkan</g-keyboard>
+      <g-keyboard type="inline">🔢 Counter, 🧵 Counter Thread, ❓ Help, 🌐 Language, 🖼️ Test Photo, 🖼️ Test Media Group, 🎥 Test Video, 🎧 Test Audio, 📄 Test Document, 🎞️ Test Animation, 🎙️ Test Voice, 🎬 Test VideoN, 😀 Test Sticker, 📍 Test Location, 👤 Test Contact, 🧪 Test Error, 📝 Input Text2, ✍️ Input Text, 🧭 Block Map, 📦 Block Import, 🔀 Block Switch, ⌨️ KB Bottom, ✨ Stream, 🔄 Refresh</g-keyboard>
+      <g-keyboard type="inline" lang="id">🔢 Kounter, 🧵 Kounter Thread, ❓ Bantuan, 🌐 Bahasa, 🖼️ Test Foto, 🖼️ Test Media Grup, 🎥 Test Video, 🎧 Test Suara, 📄 Test Dokumen, 🎞️ Test Animasi, 🎙️ Test Suara, 🎬 Test VideoN, 😀 Test Stiker, 📍 Test Lokasi, 👤 Test Kontak, 🧪 Test Salah, 📝 Masukkan Teks2, ✍️ Masukkan Teks, 🧭 Blok Map, 📦 Blok Import, 🔀 Blok Switch, ⌨️ KB Bottom, ✨ Stream, 🔄 Segarkan</g-keyboard>
       <g-message>
         {{time}}
 
         👋 Welcome, <b>{{firstName}}</b>! <tg-emoji emoji-id="{{thumbsEmojiId}}">👍</tg-emoji>
 
-        This complex example showcases <mark><i>templates</i>, <i>keyboards</i>, <i>media replies</i></mark> and <i>worker threads</i>. Choose a module below to explore a specific feature.
+        This complex example showcases <i>templates</i>, <i>keyboards</i>, <i>media replies</i> and <i>worker threads</i>. Choose a module below to explore a specific feature.
 
         <b>📚 Quick Links:</b>
         <a href="https://github.com/gramstax/gramstax">📖 Documentation</a> · <a href="https://core.telegram.org/bots/api">🤖 Bot API Reference</a>
@@ -179,7 +182,7 @@ export class StartPage extends PageBase {
 
         👋 Selamat datang, <b>{{firstName}}</b>! <tg-emoji emoji-id="{{thumbsEmojiId}}">👍</tg-emoji>
 
-        Contoh kompleks ini menampilkan <mark><i>template</i>, <i>keyboard</i>, <i>balasan media</i></mark> dan <i>worker thread</i>. Pilih modul di bawah untuk mengeksplorasi fitur tertentu.
+        Contoh kompleks ini menampilkan <i>template</i>, <i>keyboard</i>, <i>balasan media</i> dan <i>worker thread</i>. Pilih modul di bawah untuk mengeksplorasi fitur tertentu.
 
         <b>📚 Tautan Cepat:</b>
         <a href="https://github.com/gramstax/gramstax">📖 Dokumentasi</a> · <a href="https://core.telegram.org/bots/api">🤖 Bot API Reference</a>
