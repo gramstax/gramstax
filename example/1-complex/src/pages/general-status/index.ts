@@ -2,7 +2,7 @@ import {LogHe} from "~/helpers/log"
 import {PageBase} from "~/base/page"
 import {StartPage} from "~/pages/start"
 
-export class StartGeneralStatusPage extends PageBase {
+export class GeneralStatusPage extends PageBase {
   constructorName?: string
 
   constructor(p: any) {

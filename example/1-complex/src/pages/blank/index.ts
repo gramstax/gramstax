@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
 
-export class StartBlankPage extends PageBase {
+export class BlankPage extends PageBase {
   async handleCallbackQueryData() {
     await this.answerCallbackQuery()
   }

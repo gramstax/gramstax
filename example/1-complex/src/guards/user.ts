@@ -1,9 +1,9 @@
 import {GuardBase} from "~/base/guard"
-import {StartGeneralStatusPage} from "~/pages/start/general-status"
+import {GeneralStatusPage} from "~/pages/general-status"
 
 export class UserGuard extends GuardBase {
   async _catch(err: any, func: any) {
-    await new StartGeneralStatusPage(this).berror.show(func, err, true)
+    await new GeneralStatusPage(this).berror.show(func, err, true)
     return null
   }
 
