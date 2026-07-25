@@ -1,27 +1,27 @@
 import {StartHelpPage} from "./help"
 import {PageBase} from "~/base/page"
 import {StartCounterPage} from "./counter"
-import {LanguagePage} from "~/pages/language"
+import {StartLanguagePage} from "./language"
 import {StartBlockMapPage} from "./block/map"
-import {InputTextPage} from "~/pages/input-text"
-import {TestErrorPage} from "~/pages/test-error"
-import {TestVoicePage} from "~/pages/test-voice"
-import {TestPhotoPage} from "~/pages/test-photo"
-import {TestVideoPage} from "~/pages/test-video"
-import {TestAudioPage} from "~/pages/test-audio"
-import {InputText2Page} from "~/pages/input-text-2"
+import {StartInputTextPage} from "./input/text"
+import {StartTestErrorPage} from "./test/error"
+import {StartTestVoicePage} from "./test/voice"
+import {StartTestPhotoPage} from "./test/photo"
+import {StartTestVideoPage} from "./test/video"
+import {StartTestAudioPage} from "./test/audio"
+import {StartInputText2Page} from "./input/text-2"
 import {StartBlockSwitchPage} from "./block/switch"
 import {StartBlockImportPage} from "./block/import"
-import {TestContactPage} from "~/pages/test-contact"
-import {TestStickerPage} from "~/pages/test-sticker"
-import {TestLocationPage} from "~/pages/test-location"
-import {TestDocumentPage} from "~/pages/test-document"
+import {StartTestContactPage} from "./test/contact"
+import {StartTestStickerPage} from "./test/sticker"
+import {StartTestLocationPage} from "./test/location"
+import {StartTestDocumentPage} from "./test/document"
 import {StartCounterThreadPage} from "./counter/thread"
-import {TestAnimationPage} from "~/pages/test-animation"
-import {TestVideoNotePage} from "~/pages/test-video-note"
-import {KeyboardBottomPage} from "~/pages/keyboard-bottom"
-import {TestMediaGroupPage} from "~/pages/test-media-group"
-import {StreamPage} from "~/pages/stream"
+import {StartTestAnimationPage} from "./test/animation"
+import {StartTestVideoNotePage} from "./test/video-note"
+import {StartKeyboardBottomPage} from "./keyboard-bottom"
+import {StartTestMediaGroupPage} from "./test/media-group"
+import {StartStreamPage} from "./stream"
 
 class Base {
   static index = `i`
@@ -38,36 +38,36 @@ class Helper {
           .text(l[1]!, StartCounterThreadPage.data.callbackQueryData())
           .row()
           .text(l[2]!, StartHelpPage.data.callbackQueryData())
-          .text(l[3]!, LanguagePage.data.callbackQueryData())
+          .text(l[3]!, StartLanguagePage.data.callbackQueryData())
           .row()
-          .text(l[4]!, TestPhotoPage.data.callbackQueryData())
-          .text(l[5]!, TestMediaGroupPage.data.callbackQueryData())
+          .text(l[4]!, StartTestPhotoPage.data.callbackQueryData())
+          .text(l[5]!, StartTestMediaGroupPage.data.callbackQueryData())
           .row()
-          .text(l[6]!, TestVideoPage.data.callbackQueryData())
-          .text(l[7]!, TestAudioPage.data.callbackQueryData())
+          .text(l[6]!, StartTestVideoPage.data.callbackQueryData())
+          .text(l[7]!, StartTestAudioPage.data.callbackQueryData())
           .row()
-          .text(l[8]!, TestDocumentPage.data.callbackQueryData())
-          .text(l[9]!, TestAnimationPage.data.callbackQueryData())
+          .text(l[8]!, StartTestDocumentPage.data.callbackQueryData())
+          .text(l[9]!, StartTestAnimationPage.data.callbackQueryData())
           .row()
-          .text(l[10]!, TestVoicePage.data.callbackQueryData())
-          .text(l[11]!, TestVideoNotePage.data.callbackQueryData())
+          .text(l[10]!, StartTestVoicePage.data.callbackQueryData())
+          .text(l[11]!, StartTestVideoNotePage.data.callbackQueryData())
           .row()
-          .text(l[12]!, TestStickerPage.data.callbackQueryData())
-          .text(l[13]!, TestLocationPage.data.callbackQueryData())
+          .text(l[12]!, StartTestStickerPage.data.callbackQueryData())
+          .text(l[13]!, StartTestLocationPage.data.callbackQueryData())
           .row()
-          .text(l[14]!, TestContactPage.data.callbackQueryData())
-          .text(l[15]!, TestErrorPage.data.callbackQueryData())
+          .text(l[14]!, StartTestContactPage.data.callbackQueryData())
+          .text(l[15]!, StartTestErrorPage.data.callbackQueryData())
           .row()
-          .text(l[16]!, InputText2Page.data.callbackQueryData())
-          .text(l[17]!, InputTextPage.data.callbackQueryData())
+          .text(l[16]!, StartInputText2Page.data.callbackQueryData())
+          .text(l[17]!, StartInputTextPage.data.callbackQueryData())
           .row()
           .text(l[18]!, StartBlockMapPage.data.callbackQueryData())
           .text(l[19]!, StartBlockImportPage.data.callbackQueryData())
           .row()
           .text(l[20]!, StartBlockSwitchPage.data.callbackQueryData())
-          .text(l[21]!, KeyboardBottomPage.data.callbackQueryData())
+          .text(l[21]!, StartKeyboardBottomPage.data.callbackQueryData())
           .row()
-          .text(l[22]!, StreamPage.data.callbackQueryData())
+          .text(l[22]!, StartStreamPage.data.callbackQueryData())
           .row()
           .text(l[23]!, ctx.data.callbackQueryData())
       },
