@@ -1716,6 +1716,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.bot.on(`message:text`, (ctx) => this._onHandle(ctx, `text`)) // Handle global text messages
   }
   /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
+  registerLowOnChatMember() {
+    // Chat member updates are system events, not user actions.
+    // Pass shouldCheckNotFound=false to prevent hookErrorInputNotFoundPage
+    // from firing when no chatMemberRoutes are defined (or none match).
+    this.bot.on(`chat_member`, (ctx) => this._onHandle(ctx, `chatmember`, false)) // Handle chat member updates
+    this.bot.on(`my_chat_member`, (ctx) => this._onHandle(ctx, `mychatmember`, false)) // Handle bot's own chat member updates
+  }
+  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessagePhoto() {
     this.bot.on(`message:photo`, (ctx) => this._onHandle(ctx, `photo`)) // Handle global photo messages
   }
@@ -1754,11 +1762,6 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
   registerLowOnMessageContact() {
     this.bot.on(`message:contact`, (ctx) => this._onHandle(ctx, `contact`)) // Handle global contact messages
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnChatMember() {
-    this.bot.on(`chat_member`, (ctx) => this._onHandle(ctx, `chatmember`)) // Handle chat member updates
-    this.bot.on(`my_chat_member`, (ctx) => this._onHandle(ctx, `mychatmember`)) // Handle bot's own chat member updates
   }
 }
 
