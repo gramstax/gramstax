@@ -2265,7 +2265,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions | null): ITPageData<Parameters<C>>
+  static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions<C> | null): ITPageData<Parameters<C>>
 
   /**
    * Creates page routing data configuration with options (no type inference).
@@ -4046,6 +4046,19 @@ export class Ctx extends Context {
 
 /** @internal */
 export interface Ctx {
+  /**
+   * Page routing data configuration.
+   *
+   * @remarks
+   * Access the static `data` property on the page class directly
+   * (`ClassName.data.callbackQueryData(...)`) for full parameter
+   * type inference. This instance reference is typed as the base
+   * `ITPageData` type — the specific callback parameter types are
+   * only available when accessing via the class constructor.
+   *
+   * @internal
+   */
+  data: ITPageData<any[]>
   /** @internal */
   replyWithStream(stream: Iterable<string | {text: string; entities?: any[]}> | AsyncIterable<string | {text: string; entities?: any[]}>, otherMessageDraft?: any, otherMessage?: any, signal?: AbortSignal): Promise<any>
   /** @internal */

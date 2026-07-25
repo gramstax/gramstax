@@ -402,7 +402,7 @@ export type ITPageData<T extends any[] = any[]> = {
    * @param args - The args parameters passed to the callback.
    * @returns Route data string.
    */
-  callbackQueryData: (...args: T) => string
+  callbackQueryData(...args: T): string
 
   /**
    * `handle*Text` intent pattern for matching incoming text messages.

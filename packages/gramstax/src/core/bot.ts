@@ -123,7 +123,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Instance of the `Bot`.
    */
-   bot: Bot<ITCt>
+  bot: Bot<ITCt>
 
   /**
    * Optional bot configuration.
