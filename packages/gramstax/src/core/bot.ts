@@ -1314,8 +1314,49 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     const pages = this._buildEmptyPages()
 
+    const seenNames = new Set<string>()
+    const seenIntentText = new Set<string>()
+    const seenIntentCommandText = new Set<string>()
+    const seenIntentCallbackQueryData = new Set<string>()
+
     PageManager.getFileManySync(pagesPath).forEach(({path, page}, index) => {
-      this._pageBuildData(page, path) // create if not exist and set name (without ext) according filePath
+      this._pageBuildData(page, path)
+
+      if (seenNames.has(page.data.name)) {
+        throw new Error(
+          `Duplicate page name "${page.data.name}" in ${path} (${page.name}). ` +
+          `Each page must have a unique name set via buildData({name: ...}) or derived from the filename.`
+        )
+      }
+      seenNames.add(page.data.name)
+
+      if (page.data.intentText && seenIntentText.has(page.data.intentText)) {
+        throw new Error(
+          `Duplicate intentText "${page.data.intentText}" in ${path} (${page.name}). ` +
+          `Pages must have unique intentText values for handleText routing. ` +
+          `Override via buildData({intentText: ...}).`
+        )
+      }
+      if (page.data.intentText) seenIntentText.add(page.data.intentText)
+
+      if (page.data.intentCommandText && seenIntentCommandText.has(page.data.intentCommandText)) {
+        throw new Error(
+          `Duplicate intentCommandText "${page.data.intentCommandText}" in ${path} (${page.name}). ` +
+          `Pages must have unique intentCommandText values for handleCommandText routing. ` +
+          `Override via buildData({intentCommandText: ...}).`
+        )
+      }
+      if (page.data.intentCommandText) seenIntentCommandText.add(page.data.intentCommandText)
+
+      if (page.data.intentCallbackQueryData && seenIntentCallbackQueryData.has(page.data.intentCallbackQueryData)) {
+        throw new Error(
+          `Duplicate intentCallbackQueryData "${page.data.intentCallbackQueryData}" in ${path} (${page.name}). ` +
+          `Pages must have unique intentCallbackQueryData values for callback query routing. ` +
+          `Override via buildData({callbackQueryData: ...}).`
+        )
+      }
+      if (page.data.intentCallbackQueryData) seenIntentCallbackQueryData.add(page.data.intentCallbackQueryData)
+
       this._pageSorts(page, pages, index) // sort route method
       page.template = undefined // delete template for efficient memory
     })
