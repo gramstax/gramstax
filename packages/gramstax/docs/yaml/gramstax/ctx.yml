@@ -76,6 +76,19 @@ constructors:
           description: ''
           type: <xref uid="gramstax!ITCtxParams:type" />
 properties:
+  - name: ANSWER_API_METHODS
+    uid: gramstax!Ctx.ANSWER_API_METHODS:member
+    package: gramstax!
+    fullName: ANSWER_API_METHODS
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static readonly ANSWER_API_METHODS: Set<string>;'
+      return:
+        type: Set&lt;string&gt;
   - name: businessConnection
     uid: gramstax!Ctx#businessConnection:member
     package: gramstax!
@@ -7076,6 +7089,124 @@ methods:
           uid="@grammyjs/types!Message.VideoNoteMessage:type" /> | <xref
           uid="@grammyjs/types!Message.StickerMessage:type" /> | undefined&gt;
         description: The sent message object.
+  - name: replyWithHtmlStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
+    uid: gramstax!Ctx#replyWithHtmlStream:member(1)
+    package: gramstax!
+    fullName: replyWithHtmlStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
+    summary: Streams an iterator of HTML strings to the current chat as a single rich message that updates progressively.
+    remarks: >-
+      Provided at runtime by the `\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the
+      bot for this method to be available. Gramstax registers it by default.
+
+
+      Uses `sendRichMessageDraft` for intermediate updates and `sendRichMessage` for the final message. The draft
+      identifier is derived from the current `update_id`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Record<string,
+        any>, otherRichMessage?: Record<string, any>, baseInputRichMessage?: Record<string, any>, signal?: AbortSignal):
+        Promise<any>;
+      parameters:
+        - id: stream
+          description: An iterable of HTML string chunks.
+          type: Iterable&lt;string&gt; | AsyncIterable&lt;string&gt;
+        - id: otherRichMessageDraft
+          description: Optional remaining parameters for `sendRichMessageDraft`<!-- -->.
+          type: Record&lt;string, any&gt;
+        - id: otherRichMessage
+          description: Optional remaining parameters for `sendRichMessage`<!-- -->.
+          type: Record&lt;string, any&gt;
+        - id: baseInputRichMessage
+          description: Optional fields merged into the `rich_message` of every API call.
+          type: Record&lt;string, any&gt;
+        - id: signal
+          description: Optional `AbortSignal` to cancel streaming.
+          type: AbortSignal
+      return:
+        type: Promise&lt;any&gt;
+        description: The sent rich message object.
+  - name: replyWithMarkdownStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
+    uid: gramstax!Ctx#replyWithMarkdownStream:member(1)
+    package: gramstax!
+    fullName: replyWithMarkdownStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
+    summary: Streams an iterator of markdown strings to the current chat as a single rich message that updates progressively.
+    remarks: >-
+      Provided at runtime by the `\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the
+      bot for this method to be available. Gramstax registers it by default.
+
+
+      Uses `sendRichMessageDraft` for intermediate updates and `sendRichMessage` for the final message. The draft
+      identifier is derived from the current `update_id`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Record<string,
+        any>, otherRichMessage?: Record<string, any>, baseInputRichMessage?: Record<string, any>, signal?: AbortSignal):
+        Promise<any>;
+      parameters:
+        - id: stream
+          description: An iterable of markdown string chunks.
+          type: Iterable&lt;string&gt; | AsyncIterable&lt;string&gt;
+        - id: otherRichMessageDraft
+          description: Optional remaining parameters for `sendRichMessageDraft`<!-- -->.
+          type: Record&lt;string, any&gt;
+        - id: otherRichMessage
+          description: Optional remaining parameters for `sendRichMessage`<!-- -->.
+          type: Record&lt;string, any&gt;
+        - id: baseInputRichMessage
+          description: Optional fields merged into the `rich_message` of every API call.
+          type: Record&lt;string, any&gt;
+        - id: signal
+          description: Optional `AbortSignal` to cancel streaming.
+          type: AbortSignal
+      return:
+        type: Promise&lt;any&gt;
+        description: The sent rich message object.
+  - name: replyWithStream(stream, otherMessageDraft, otherMessage, signal)
+    uid: gramstax!Ctx#replyWithStream:member(1)
+    package: gramstax!
+    fullName: replyWithStream(stream, otherMessageDraft, otherMessage, signal)
+    summary: >-
+      Streams an iterator of message pieces to the current chat, making text appear progressively as editing message
+      drafts.
+    remarks: >-
+      Provided at runtime by the `\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the
+      bot for this method to be available. Gramstax registers it by default.
+
+
+      Each `MessageDraftPiece` is either a plain string or an object `{text, entities?, draft_id?}`<!-- -->. Chunks with
+      the same `draft_id` belong to the same draft; the first chunk crossing 4096 chars is split into a new message.
+      Entities offsets are relative to the entire stream, not per-chunk.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        replyWithStream(stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>, otherMessageDraft?:
+        Record<string, any>, otherMessage?: Record<string, any>, signal?: AbortSignal): Promise<any>;
+      parameters:
+        - id: stream
+          description: An iterable of text chunks that make up the message.
+          type: >-
+            Iterable&lt;<xref uid="@grammyjs/stream!MessageDraftPiece:type" />&gt; | AsyncIterable&lt;<xref
+            uid="@grammyjs/stream!MessageDraftPiece:type" />&gt;
+        - id: otherMessageDraft
+          description: Optional remaining parameters forwarded to `sendMessageDraft`<!-- -->.
+          type: Record&lt;string, any&gt;
+        - id: otherMessage
+          description: Optional remaining parameters forwarded to `sendMessage`<!-- -->.
+          type: Record&lt;string, any&gt;
+        - id: signal
+          description: Optional `AbortSignal` to cancel streaming.
+          type: AbortSignal
+      return:
+        type: Promise&lt;any&gt;
+        description: Array of sent text messages.
   - name: setSession(method, params, moreRoot)
     uid: gramstax!Ctx#setSession:member(1)
     package: gramstax!

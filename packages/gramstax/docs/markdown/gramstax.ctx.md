@@ -126,6 +126,27 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[ANSWER\_API\_METHODS](./gramstax.ctx.answer_api_methods.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+Set&lt;string&gt;
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [businessConnection](./gramstax.ctx.businessconnection.md)
 
 
@@ -3827,6 +3848,48 @@ Sends a video note (circular video) using the page template.
 </td><td>
 
 Sends a voice message using the page template.
+
+
+</td></tr>
+<tr><td>
+
+[replyWithHtmlStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)](./gramstax.ctx.replywithhtmlstream.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Streams an iterator of HTML strings to the current chat as a single rich message that updates progressively.
+
+
+</td></tr>
+<tr><td>
+
+[replyWithMarkdownStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)](./gramstax.ctx.replywithmarkdownstream.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Streams an iterator of markdown strings to the current chat as a single rich message that updates progressively.
+
+
+</td></tr>
+<tr><td>
+
+[replyWithStream(stream, otherMessageDraft, otherMessage, signal)](./gramstax.ctx.replywithstream.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Streams an iterator of message pieces to the current chat, making text appear progressively as editing message drafts.
 
 
 </td></tr>

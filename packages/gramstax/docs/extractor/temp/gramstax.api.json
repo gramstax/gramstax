@@ -707,6 +707,41 @@
               "name": "addArgs"
             },
             {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx.ANSWER_API_METHODS:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static readonly ANSWER_API_METHODS: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Set",
+                  "canonicalReference": "!Set:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "ANSWER_API_METHODS",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#bottomKeyboard:member(1)",
               "docComment": "/**\n * Creates a bottom (reply) keyboard using a builder callback.\n *\n * @remarks\n *\n * The callback receives the keyboard instance and an array of button labels from the template. Automatically applies `resized()` to the keyboard.\n *\n * @param callback - Builder function that receives keyboard and labels.\n *\n * @param params - Optional parameters (or null to omit). {@link ITBottomKbParams} for details.\n *\n * @returns The bottom keyboard instance.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const kb = this.bottomKeyboard((k, labels) => {\n *     labels.forEach(label => k.text(label))\n *     return k\n *   })\n *   await this.render(kb)\n * }\n * ```\n *\n * @public\n */\n",
@@ -4017,7 +4052,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionArgsCallbackQueryData:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4053,7 +4088,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionArgsText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4125,7 +4160,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4161,7 +4196,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4197,7 +4232,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4233,7 +4268,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4269,7 +4304,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4305,7 +4340,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4341,7 +4376,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4377,7 +4412,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4413,7 +4448,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4449,7 +4484,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionPhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4485,7 +4520,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4521,7 +4556,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCaptionVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4557,7 +4592,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandArgsText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4593,7 +4628,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4629,7 +4664,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4665,7 +4700,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4701,7 +4736,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4737,7 +4772,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4773,7 +4808,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4809,7 +4844,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4845,7 +4880,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4881,7 +4916,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4917,7 +4952,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionPhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4953,7 +4988,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4989,7 +5024,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandCaptionVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5025,7 +5060,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionCommandText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5061,7 +5096,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFree:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5097,7 +5132,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5133,7 +5168,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5169,7 +5204,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeContact:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5205,7 +5240,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5241,7 +5276,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeLocation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5277,7 +5312,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreePhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5313,7 +5348,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeSticker:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5349,7 +5384,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5385,7 +5420,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5421,7 +5456,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeVideoNote:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5457,7 +5492,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionFreeVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5493,7 +5528,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#handleSessionText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.handleSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session-aware route handler for callback queries without args.\n *\n * @remarks\n *\n * Mirrors the corresponding `handle*` method. Dispatched automatically by `_pageRoutes` id=1 (session routing) when: 1. The user has an active session (`session.method` is set) 2. `session.method` matches the method key registered for this route (computed by the corresponding `methodSession*()`) 3. The route name ends with `fromListener` — ensuring only the correct update type triggers it (callback queries match `*CallbackQueryData` only; text matches `*Text` only; etc.)\n *\n * Define `handleSession*` to handle session flows separately from normal flows. The regular `handle*` will only be called for non-session flows because id=1 dispatches before id=2 ever runs.\n *\n * Works with ALL route types: CallbackQueryData, ArgsCallbackQueryData, Text, CommandText, FreeText, CaptionPhoto, etc.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6265,7 +6300,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionArgsCallbackQueryData:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6313,7 +6348,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionArgsText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6361,7 +6396,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCallbackQueryData:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6409,7 +6444,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6457,7 +6492,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6505,7 +6540,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6553,7 +6588,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6601,7 +6636,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6649,7 +6684,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6697,7 +6732,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6745,7 +6780,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6793,7 +6828,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6841,7 +6876,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionPhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6889,7 +6924,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6937,7 +6972,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCaptionVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6985,7 +7020,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionChatMemberOutIn:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7033,7 +7068,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandArgsText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7081,7 +7116,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7129,7 +7164,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7177,7 +7212,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7225,7 +7260,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7273,7 +7308,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7321,7 +7356,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7369,7 +7404,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7417,7 +7452,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7465,7 +7500,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7513,7 +7548,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionPhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7561,7 +7596,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7609,7 +7644,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandCaptionVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7657,7 +7692,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionCommandText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7705,7 +7740,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7753,7 +7788,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7801,7 +7836,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeContact:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7849,7 +7884,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7897,7 +7932,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeLocation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7945,7 +7980,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreePhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -7993,7 +8028,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeSticker:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8041,7 +8076,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8089,7 +8124,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8137,7 +8172,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeVideoNote:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8185,7 +8220,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionFreeVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8233,7 +8268,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionMyChatMemberAdminRegular:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8281,7 +8316,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionMyChatMemberOutAdmin:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8329,7 +8364,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionMyChatMemberOutRegular:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8377,7 +8412,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionMyChatMemberRegularAdmin:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8425,7 +8460,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#methodSessionText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.methodSession}\n */\n",
+              "docComment": "/**\n * [LOW-LEVEL] Session method name builders.\n *\n * @remarks\n *\n * Low-level API. You rarely need to call these directly — the {@link (Ctx:class).setSessionFreeText} (and siblings) already wire them internally.\n *\n * These methods generate unique session method identifiers used by {@link (Ctx:class).setSession} and validation methods. Each `methodSession*` returns a prefixed string like `\"1-PageName\"`.\n *\n * When you DO need to call them (multi-session with `setSession(array, ...)`), always use the typed helpers — never hardcode the prefix:\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17351,6 +17386,444 @@
               "name": "renderVoice"
             },
             {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#replyWithHtmlStream:member(1)",
+              "docComment": "/**\n * Streams an iterator of HTML strings to the current chat as a single rich message that updates progressively.\n *\n * @remarks\n *\n * Provided at runtime by the `\\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the bot for this method to be available. Gramstax registers it by default.\n *\n * Uses `sendRichMessageDraft` for intermediate updates and `sendRichMessage` for the final message. The draft identifier is derived from the current `update_id`.\n *\n * @param stream - An iterable of HTML string chunks.\n *\n * @param otherRichMessageDraft - Optional remaining parameters for `sendRichMessageDraft`.\n *\n * @param otherRichMessage - Optional remaining parameters for `sendRichMessage`.\n *\n * @param baseInputRichMessage - Optional fields merged into the `rich_message` of every API call.\n *\n * @param signal - Optional `AbortSignal` to cancel streaming.\n *\n * @returns The sent rich message object.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "replyWithHtmlStream(stream: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Iterable",
+                  "canonicalReference": "!Iterable:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string> | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AsyncIterable",
+                  "canonicalReference": "!AsyncIterable:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", otherRichMessageDraft?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", otherRichMessage?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseInputRichMessage?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", signal?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AbortSignal",
+                  "canonicalReference": "!AbortSignal:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 17,
+                "endIndex": 19
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "stream",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 5
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "otherRichMessageDraft",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 6,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "otherRichMessage",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 9,
+                    "endIndex": 11
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseInputRichMessage",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 12,
+                    "endIndex": 14
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "signal",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 15,
+                    "endIndex": 16
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "replyWithHtmlStream"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#replyWithMarkdownStream:member(1)",
+              "docComment": "/**\n * Streams an iterator of markdown strings to the current chat as a single rich message that updates progressively.\n *\n * @remarks\n *\n * Provided at runtime by the `\\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the bot for this method to be available. Gramstax registers it by default.\n *\n * Uses `sendRichMessageDraft` for intermediate updates and `sendRichMessage` for the final message. The draft identifier is derived from the current `update_id`.\n *\n * @param stream - An iterable of markdown string chunks.\n *\n * @param otherRichMessageDraft - Optional remaining parameters for `sendRichMessageDraft`.\n *\n * @param otherRichMessage - Optional remaining parameters for `sendRichMessage`.\n *\n * @param baseInputRichMessage - Optional fields merged into the `rich_message` of every API call.\n *\n * @param signal - Optional `AbortSignal` to cancel streaming.\n *\n * @returns The sent rich message object.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "replyWithMarkdownStream(stream: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Iterable",
+                  "canonicalReference": "!Iterable:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string> | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AsyncIterable",
+                  "canonicalReference": "!AsyncIterable:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", otherRichMessageDraft?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", otherRichMessage?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseInputRichMessage?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", signal?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AbortSignal",
+                  "canonicalReference": "!AbortSignal:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 17,
+                "endIndex": 19
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "stream",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 5
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "otherRichMessageDraft",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 6,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "otherRichMessage",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 9,
+                    "endIndex": 11
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "baseInputRichMessage",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 12,
+                    "endIndex": 14
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "signal",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 15,
+                    "endIndex": 16
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "replyWithMarkdownStream"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#replyWithStream:member(1)",
+              "docComment": "/**\n * Streams an iterator of message pieces to the current chat, making text appear progressively as editing message drafts.\n *\n * @remarks\n *\n * Provided at runtime by the `\\@grammyjs/stream` plugin middleware. The `stream()` plugin must be installed on the bot for this method to be available. Gramstax registers it by default.\n *\n * Each `MessageDraftPiece` is either a plain string or an object `{text, entities?, draft_id?}`. Chunks with the same `draft_id` belong to the same draft; the first chunk crossing 4096 chars is split into a new message. Entities offsets are relative to the entire stream, not per-chunk.\n *\n * @param stream - An iterable of text chunks that make up the message.\n *\n * @param otherMessageDraft - Optional remaining parameters forwarded to `sendMessageDraft`.\n *\n * @param otherMessage - Optional remaining parameters forwarded to `sendMessage`.\n *\n * @param signal - Optional `AbortSignal` to cancel streaming.\n *\n * @returns Array of sent text messages.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "replyWithStream(stream: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Iterable",
+                  "canonicalReference": "!Iterable:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "MessageDraftPiece",
+                  "canonicalReference": "@grammyjs/stream!MessageDraftPiece:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "> | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AsyncIterable",
+                  "canonicalReference": "!AsyncIterable:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "MessageDraftPiece",
+                  "canonicalReference": "@grammyjs/stream!MessageDraftPiece:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", otherMessageDraft?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", otherMessage?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", signal?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AbortSignal",
+                  "canonicalReference": "!AbortSignal:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 18,
+                "endIndex": 20
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "stream",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 9
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "otherMessageDraft",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 10,
+                    "endIndex": 12
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "otherMessage",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 13,
+                    "endIndex": 15
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "signal",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 16,
+                    "endIndex": 17
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "replyWithStream"
+            },
+            {
               "kind": "Property",
               "canonicalReference": "gramstax!Ctx#senderChat:member",
               "docComment": "/**\n * The full {@link (Ctx:class).senderChat} object from Telegram (non-nullable).\n *\n * @readonly @public\n */\n",
@@ -17487,7 +17960,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionArgsCallbackQueryData:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17540,7 +18013,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionArgsText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17646,7 +18119,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCaptionAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17699,7 +18172,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17752,7 +18225,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17805,7 +18278,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17858,7 +18331,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17911,7 +18384,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17964,7 +18437,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18017,7 +18490,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCaptionAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18070,7 +18543,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCaptionDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18123,7 +18596,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCaptionPhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18176,7 +18649,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCaptionVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18229,7 +18702,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCaptionVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18282,7 +18755,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionChatMemberOutIn:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18335,7 +18808,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandArgsText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18388,7 +18861,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18441,7 +18914,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionArgsAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18494,7 +18967,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionArgsAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18547,7 +19020,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionArgsDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18600,7 +19073,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionArgsPhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18653,7 +19126,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionArgsVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18706,7 +19179,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionArgsVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18759,7 +19232,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18812,7 +19285,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18865,7 +19338,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionPhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18918,7 +19391,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18971,7 +19444,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandCaptionVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19024,7 +19497,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionCommandText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19077,7 +19550,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreeAnimation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19130,7 +19603,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreeAudio:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19183,7 +19656,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreeContact:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19236,7 +19709,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreeDocument:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19289,7 +19762,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreeLocation:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19342,7 +19815,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreePhoto:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19395,7 +19868,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreeSticker:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19448,7 +19921,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreeText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19501,7 +19974,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreeVideo:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19554,7 +20027,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreeVideoNote:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19607,7 +20080,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionFreeVoice:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19660,7 +20133,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionMyChatMemberAdminRegular:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19713,7 +20186,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionMyChatMemberOutAdmin:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19766,7 +20239,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionMyChatMemberOutRegular:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19819,7 +20292,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionMyChatMemberRegularAdmin:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19872,7 +20345,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#setSessionText:member(1)",
-              "docComment": "/**\n * {@inheritDoc Ctx.setSessionCallbackQueryData}\n */\n",
+              "docComment": "/**\n * Session set helper methods.\n *\n * @remarks\n *\n * These methods are shortcuts for {@link (Ctx:class).setSession} with pre-built method names. Each `session*` method sets the session for the corresponding route handler.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
