@@ -348,26 +348,35 @@ export class TemplateManager {
     // 1. Collect all raw templates (from all paths)
     for (let index = 0; index < this._path.length; index++) {
       const pt = this._path[index] as string
-      const files = readdirSync(pt, `utf8`)
-      const validFiles = files.filter((file) => this._isValidFile(file))
 
-      for (const fileName of validFiles) {
-        const path = join(pt, fileName)
-        const ext = this._getExtension(fileName)
-        const key = this._getKey(fileName)
+      const walkDir = (dir: string, parentKey: string) => {
+        const entries = readdirSync(dir, {withFileTypes: true})
+        for (const entry of entries) {
+          const fullPath = join(dir, entry.name)
 
-        if (ext === `.html`) {
-          rawTemplates.set(key, readFileSync(path, `utf8`))
-          rawFilenames.set(key, fileName)
-        } else if (ext === `.ts` || ext === `.js`) {
-          const Page = PageManager.getFileSync(path)
-          if (Page?.template !== undefined) {
-            rawTemplates.set(key, Page.template)
-            rawFilenames.set(key, fileName)
-            pagesToCleanup.push(Page)
+          if (entry.isDirectory()) {
+            walkDir(fullPath, parentKey ? `${parentKey}-${entry.name}` : entry.name)
+          } else if (entry.isFile() && this._isValidFile(entry.name)) {
+            const isIndex = /^index\.(ts|js|html)$/.test(entry.name)
+            const key = isIndex && parentKey ? parentKey : `${parentKey ? `${parentKey}-` : ``}${this._getKey(entry.name)}`
+            const ext = this._getExtension(entry.name)
+
+            if (ext === `.html`) {
+              rawTemplates.set(key, readFileSync(fullPath, `utf8`))
+              rawFilenames.set(key, entry.name)
+            } else if (ext === `.ts` || ext === `.js`) {
+              const Page = PageManager.getFileSync(fullPath)
+              if (Page?.template !== undefined) {
+                rawTemplates.set(key, Page.template)
+                rawFilenames.set(key, entry.name)
+                pagesToCleanup.push(Page)
+              }
+            }
           }
         }
       }
+
+      walkDir(pt, ``)
     }
 
     // 2. Shared cache for imports across all pages in this batch

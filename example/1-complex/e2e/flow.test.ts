@@ -13,45 +13,45 @@ describe(`E2E: Full exploration flow`, () => {
     e2e.clearCalls()
 
     // Counter page
-    const counterResponses = await e2e.sendCallbackQuery(`counter`)
+    const counterResponses = await e2e.sendCallbackQuery(`start-counter`)
     expect(counterResponses.length).toBeGreaterThan(0)
-    expect(counterResponses[0]!.body?.text).toBe(e2e.gmsg(`counter`, `s1`, {count: `0`}))
+    expect(counterResponses[0]!.body?.text).toBe(e2e.gmsg(`start-counter`, `s1`, {count: `0`}))
 
-    const counterIdResponses = await e2e.sendCallbackQuery(`counter`, {user: {language_code: `id`}})
+    const counterIdResponses = await e2e.sendCallbackQuery(`start-counter`, {user: {language_code: `id`}})
     expect(counterIdResponses.length).toBeGreaterThan(0)
-    expect(counterIdResponses[0]!.body?.text).toBe(e2e.gmsg(`counter`, `s1`, {count: `0`}, `id`))
+    expect(counterIdResponses[0]!.body?.text).toBe(e2e.gmsg(`start-counter`, `s1`, {count: `0`}, `id`))
 
     e2e.clearCalls()
 
     // Increase counter
-    const increaseResponses = await e2e.sendCallbackQuery(`counter:I`)
+    const increaseResponses = await e2e.sendCallbackQuery(`start-counter:I`)
     expect(increaseResponses.length).toBeGreaterThan(0)
-    expect(increaseResponses[0]!.body?.text).toBe(e2e.gmsg(`counter`, `s1`, {count: `1`}))
+    expect(increaseResponses[0]!.body?.text).toBe(e2e.gmsg(`start-counter`, `s1`, {count: `1`}))
 
     e2e.clearCalls()
 
     // Input text page — form
-    const inputPageResponses = await e2e.sendCallbackQuery(`input-text`)
+    const inputPageResponses = await e2e.sendCallbackQuery(`start-input-text`)
     expect(inputPageResponses.length).toBeGreaterThan(0)
-    expect(inputPageResponses[0]!.body?.text).toBe(e2e.gmsg(`input-text`, `s1`, {}))
+    expect(inputPageResponses[0]!.body?.text).toBe(e2e.gmsg(`start-input-text`, `s1`, {}))
 
     e2e.clearCalls()
 
     // Send text — get result
     const inputResultResponses = await e2e.sendText(`Hello Flow`)
     expect(inputResultResponses.length).toBeGreaterThan(0)
-    expect(inputResultResponses[0]!.body?.text).toBe(e2e.gmsg(`input-text`, `s`, {res: `Hello Flow`}))
+    expect(inputResultResponses[0]!.body?.text).toBe(e2e.gmsg(`start-input-text`, `s`, {res: `Hello Flow`}))
 
     e2e.clearCalls()
 
     // Photo page — returns editMessageMedia
-    const photoResponses = await e2e.sendCallbackQuery(`test-photo`)
+    const photoResponses = await e2e.sendCallbackQuery(`start-test-photo`)
     expect(photoResponses.length).toBeGreaterThan(0)
     const editMediaReq = e2e.lastCall(`editMessageMedia`)
     expect(editMediaReq).toBeDefined()
     expect(editMediaReq!.body?.media?.type).toBe(`photo`)
-    expect(editMediaReq!.body?.media?.media).toBe(e2e.gmedia(`test-photo`, `s1`, {}).src)
-    expect(editMediaReq!.body?.media?.caption).toBe(e2e.gmedia(`test-photo`, `s1`, {}).caption)
+    expect(editMediaReq!.body?.media?.media).toBe(e2e.gmedia(`start-test-photo`, `s1`, {}).src)
+    expect(editMediaReq!.body?.media?.caption).toBe(e2e.gmedia(`start-test-photo`, `s1`, {}).caption)
 
     e2e.clearCalls()
 
