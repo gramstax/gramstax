@@ -195,7 +195,7 @@ export class Ctx extends Context {
    */
   static template?: string
 
-  private static readonly ANSWER_API_METHODS = new Set([
+  static readonly ANSWER_API_METHODS = new Set([
     `sendMessage`,
     `sendPhoto`,
     `sendAudio`,
@@ -214,22 +214,34 @@ export class Ctx extends Context {
     `sendChatAction`,
     `sendInvoice`,
     `sendGame`,
+    `sendMessageDraft`,
     `sendRichMessage`,
+    `sendRichMessageDraft`,
+    `sendChatJoinRequestWebApp`,
+    `sendPaidMedia`,
+    `sendChecklist`,
     `answerCallbackQuery`,
     `answerInlineQuery`,
     `answerWebAppQuery`,
     `answerShippingQuery`,
     `answerPreCheckoutQuery`,
+    `answerChatJoinRequestQuery`,
     `editMessageText`,
     `editMessageCaption`,
     `editMessageMedia`,
     `editMessageReplyMarkup`,
+    `editMessageChecklist`,
     `editMessageLiveLocation`,
+    `editMessageLiveLocationInline`,
     `stopMessageLiveLocation`,
+    `stopMessageLiveLocationInline`,
+    `setMessageReaction`,
     `deleteMessage`,
     `deleteMessages`,
     `forwardMessage`,
+    `forwardMessages`,
     `copyMessage`,
+    `copyMessages`,
     `pinChatMessage`,
     `unpinChatMessage`,
     `unpinAllChatMessages`
@@ -4043,7 +4055,6 @@ export class Ctx extends Context {
   methodSessionMyChatMemberAdminRegular(name?: string) {
     return this.methodSession(`46`, name)
   }
-
 }
 
 /** @internal */
