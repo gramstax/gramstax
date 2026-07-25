@@ -296,9 +296,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (params.autoRetry !== false) {
       this.bot.api.config.use(autoRetry())
     }
-    if (params.stream !== false) {
-      this.bot.use(stream() as any)
-    }
+    this.bot.use(stream() as any)
     this.bot.catch(this._onCatch)
     this.registerLowPlugin?.()?.forEach((func) => this.bot.use(func)) // Handle middleware ct
 

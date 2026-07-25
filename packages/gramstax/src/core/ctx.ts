@@ -4042,6 +4042,50 @@ export class Ctx extends Context {
   methodSessionMyChatMemberAdminRegular(name?: string) {
     return this.methodSession(`46`, name)
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  Stream plugin methods
+  // ═══════════════════════════════════════════════════════════════
+
+  /**
+   * Sends a streamed text message.
+   *
+   * @remarks
+   * Streams a long message by splitting it into chunks and sending them
+   * as consecutive edits or new messages.
+   *
+   * @virtual
+   * @internal
+   */
+  replyWithStream(_stream: Iterable<string | {text: string; entities?: any[]}> | AsyncIterable<string | {text: string; entities?: any[]}>, _otherMessageDraft?: any, _otherMessage?: any, _signal?: AbortSignal): Promise<any> {
+    throw new Error(`Stream plugin required — ensure the stream plugin is registered`)
+  }
+
+  /**
+   * Sends a streamed markdown message.
+   *
+   * @remarks
+   * Like {@link (Ctx:class).replyWithStream} but for markdown-formatted content.
+   *
+   * @virtual
+   * @internal
+   */
+  replyWithMarkdownStream(_stream: Iterable<string> | AsyncIterable<string>, _otherRichMessageDraft?: any, _otherRichMessage?: any, _baseInputRichMessage?: any, _signal?: AbortSignal): Promise<any> {
+    throw new Error(`Stream plugin required — ensure the stream plugin is registered`)
+  }
+
+  /**
+   * Sends a streamed HTML message.
+   *
+   * @remarks
+   * Like {@link (Ctx:class).replyWithStream} but for HTML-formatted content.
+   *
+   * @virtual
+   * @internal
+   */
+  replyWithHtmlStream(_stream: Iterable<string> | AsyncIterable<string>, _otherRichMessageDraft?: any, _otherRichMessage?: any, _baseInputRichMessage?: any, _signal?: AbortSignal): Promise<any> {
+    throw new Error(`Stream plugin required — ensure the stream plugin is registered`)
+  }
 }
 
 /** @internal */
@@ -4059,10 +4103,4 @@ export interface Ctx {
    * @internal
    */
   data: ITPageData<any[]>
-  /** @internal */
-  replyWithStream(stream: Iterable<string | {text: string; entities?: any[]}> | AsyncIterable<string | {text: string; entities?: any[]}>, otherMessageDraft?: any, otherMessage?: any, signal?: AbortSignal): Promise<any>
-  /** @internal */
-  replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>
-  /** @internal */
-  replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>
 }
