@@ -130,16 +130,24 @@ export class PageManager {
   /**
    * Synchronously load all page modules from a directory.
    *
+   * Supports both flat `.ts`/`.js` files and subfolder `index.ts`/`index.js`
+   * entries.  In a subfolder **only** `index.ts`/`index.js` is recognised as a
+   * page file — all other names are ignored.  Nesting can be arbitrary deep.
+   *
    * @param path - Path to the pages directory. Uses default pages directory when omitted.
    * @param positionModule - Index of the exported class. Used when files have multiple exports. Defaults to `0`.
-   * @returns Array of page records containing `path` and `page` properties.
+   * @returns Array of page records containing `path`, `page` and `routeName` properties.
    *
    * @throws Error if directory does not exist.
    *
    * @example
    * ```typescript
    * const pages = PageManager.getFileManySync();
-   * // => [{ path: "/path/to/start.ts", page: StartPage }, ...]
+   * // => [
+   * //   { path: "/path/to/start.ts",      page: StartPage,      routeName: "start" },
+   * //   { path: "/path/to/start/index.ts", page: StartSubPage,   routeName: "start" },
+   * //   { path: "/path/to/start/help/index.ts", page: HelpPage, routeName: "start-help" },
+   * // ]
    * ```
    * @public
    */
@@ -151,14 +159,33 @@ export class PageManager {
       throw new Error(`Directory ${path} is not found, please make it manually`)
     }
 
-    const files = readdirSync(path)
-    return files.map((file) => {
-      const pathFile = join(path, file)
-      return {
-        path: pathFile,
-        page: this.getFileSync(pathFile, positionModule)
+    const results: Array<{path: string; page: typeof Ctx; routeName: string}> = []
+
+    const walk = (dir: string, parentRoute: string) => {
+      const entries = readdirSync(dir, {withFileTypes: true})
+      for (const entry of entries) {
+        const fullPath = join(dir, entry.name)
+
+        if (entry.isDirectory()) {
+          walk(fullPath, parentRoute ? `${parentRoute}-${entry.name}` : entry.name)
+        } else if (entry.isFile()) {
+          const isIndex = /^index\.(ts|js)$/.test(entry.name)
+          const isFlat = /\.(ts|js)$/.test(entry.name) && !parentRoute
+
+          if (isIndex || isFlat) {
+            const routeName = isIndex ? parentRoute : entry.name.replace(/\.(ts|js)$/, ``)
+            results.push({
+              path: fullPath,
+              page: this.getFileSync(fullPath, positionModule),
+              routeName
+            })
+          }
+        }
       }
-    })
+    }
+
+    walk(path, ``)
+    return results
   }
 
   /**
@@ -184,11 +211,19 @@ export class PageManager {
       throw new Error(`Directory ${path} is not found, please make it manually`)
     }
 
-    const files = readdirSync(path)
-    files.forEach((file) => {
-      const pathFile = join(path, file)
-      delete require.cache[require.resolve(pathFile)]
-    })
+    const clearDir = (dir: string) => {
+      const entries = readdirSync(dir, {withFileTypes: true})
+      for (const entry of entries) {
+        const fullPath = join(dir, entry.name)
+        if (entry.isDirectory()) {
+          clearDir(fullPath)
+        } else if (entry.isFile() && /\.(ts|js)$/.test(entry.name)) {
+          delete require.cache[require.resolve(fullPath)]
+        }
+      }
+    }
+
+    clearDir(path)
     return true
   }
 }

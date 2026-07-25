@@ -916,15 +916,22 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  _pageBuildData(Page: typeof Ctx, filePath: string): void {
+  _pageBuildData(Page: typeof Ctx, filePath: string, routeName?: string): void {
     if (Page?.data === undefined) {
       Page.data = Page.buildData() as any
     }
-    const {name} = parse(filePath)
-    if (!Page.data.name) Page.data.name = name
-    if (!Page.data.intentText) Page.data.intentText = Page.data.name
-    if (!Page.data.intentCommandText) Page.data.intentCommandText = Page.data.name
-    if (!Page.data.intentCallbackQueryData) Page.data.intentCallbackQueryData = Page.data.name
+    if (routeName !== undefined) {
+      Page.data.name ||= routeName
+      if (!Page.data.intentText) Page.data.intentText = Page.data.name
+      if (!Page.data.intentCommandText) Page.data.intentCommandText = Page.data.name
+      if (!Page.data.intentCallbackQueryData) Page.data.intentCallbackQueryData = Page.data.name
+    } else {
+      const {name} = parse(filePath)
+      if (!Page.data.name) Page.data.name = name
+      if (!Page.data.intentText) Page.data.intentText = Page.data.name
+      if (!Page.data.intentCommandText) Page.data.intentCommandText = Page.data.name
+      if (!Page.data.intentCallbackQueryData) Page.data.intentCallbackQueryData = Page.data.name
+    }
   }
 
   /**
@@ -1319,8 +1326,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const seenIntentCommandText = new Set<string>()
     const seenIntentCallbackQueryData = new Set<string>()
 
-    PageManager.getFileManySync(pagesPath).forEach(({path, page}, index) => {
-      this._pageBuildData(page, path)
+    PageManager.getFileManySync(pagesPath).forEach(({path, page, routeName}, index) => {
+      this._pageBuildData(page, path, routeName)
 
       if (seenNames.has(page.data.name)) {
         throw new Error(
