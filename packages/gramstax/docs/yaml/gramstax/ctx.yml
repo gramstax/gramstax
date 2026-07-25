@@ -1027,14 +1027,14 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions | null):
+        static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions<C> | null):
         ITPageData<Parameters<C>>;
       parameters:
         - id: options
           description: >-
             Configuration options (or null to use defaults). See
             [ITBuildDataOptions](xref:gramstax!ITBuildDataOptions:type) for details.
-          type: <xref uid="gramstax!ITBuildDataOptions:type" /> | null
+          type: <xref uid="gramstax!ITBuildDataOptions:type" />&lt;C&gt; | null
       return:
         type: <xref uid="gramstax!ITPageData:type" />&lt;Parameters&lt;C&gt;&gt;
         description: The page data configuration object.

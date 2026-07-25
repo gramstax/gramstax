@@ -9,7 +9,7 @@ Creates page routing data configuration with options.
 **Signature:**
 
 ```typescript
-static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions | null): ITPageData<Parameters<C>>;
+static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions<C> | null): ITPageData<Parameters<C>>;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-[ITBuildDataOptions](./gramstax.itbuilddataoptions.md) \| null
+[ITBuildDataOptions](./gramstax.itbuilddataoptions.md)<!-- -->&lt;C&gt; \| null
 
 
 </td><td>

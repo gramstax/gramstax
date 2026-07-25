@@ -18,7 +18,6 @@ type ITGramstaxParams = {
     cacheSession?: CacheExternal;
     cacheKeyboard?: Map<any, any>;
     templateManager?: TemplateManager;
-    stream?: boolean;
     autoRetry?: boolean;
     optionsPage?: {
         shortCallbackQueryData?: boolean;

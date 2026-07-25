@@ -43,7 +43,7 @@ export class Ctx extends Context {
     bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams | null): ITBottomKb;
     bottomKeyboardT(layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): Keyboard;
     static buildData<C extends (...args: any[]) => any>(callbackQueryData: C): ITPageData<Parameters<C>>;
-    static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions | null): ITPageData<Parameters<C>>;
+    static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions<C> | null): ITPageData<Parameters<C>>;
     static buildData(options: ITBuildDataOptions | null): ITPageData<[]>;
     static buildData(): ITPageData<[]>;
     get businessConnection(): NonNullable<Context[`businessConnection`]>;
@@ -802,11 +802,9 @@ export class Ctx extends Context {
 
 // @internal (undocumented)
 export interface Ctx {
-    // (undocumented)
+    data: ITPageData<any[]>;
     replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>;
-    // (undocumented)
     replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: any, otherRichMessage?: any, baseInputRichMessage?: any, signal?: AbortSignal): Promise<any>;
-    // (undocumented)
     replyWithStream(stream: Iterable<string | {
         text: string;
         entities?: any[];
@@ -1799,7 +1797,6 @@ export type ITGramstaxParams = {
     cacheSession?: CacheExternal;
     cacheKeyboard?: Map<any, any>;
     templateManager?: TemplateManager;
-    stream?: boolean;
     autoRetry?: boolean;
     optionsPage?: {
         shortCallbackQueryData?: boolean;
@@ -1976,7 +1973,7 @@ export type ITOptReplyVoice = Parameters<Context[`replyWithVoice`]>[1];
 // @public
 export type ITPageData<T extends any[] = any[]> = {
     name: string;
-    callbackQueryData: (...args: T) => string;
+    callbackQueryData(...args: T): string;
     intentText: string;
     intentCommandText: string;
     _positionArgText: number;
@@ -2431,7 +2428,7 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:9188:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:9190:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

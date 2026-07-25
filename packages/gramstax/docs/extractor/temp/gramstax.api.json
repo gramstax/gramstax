@@ -984,7 +984,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": " | null"
+                  "text": "<C> | null"
                 },
                 {
                   "kind": "Content",
@@ -25914,7 +25914,7 @@
             },
             {
               "kind": "Content",
-              "text": ";\n    stream?: boolean;\n    autoRetry?: boolean;\n    optionsPage?: {\n        shortCallbackQueryData?: boolean;\n    };\n}"
+              "text": ";\n    autoRetry?: boolean;\n    optionsPage?: {\n        shortCallbackQueryData?: boolean;\n    };\n}"
             },
             {
               "kind": "Content",
@@ -27160,7 +27160,7 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    name: string;\n    callbackQueryData: (...args: T) => string;\n    intentText: string;\n    intentCommandText: string;\n    _positionArgText: number;\n    intentCallbackQueryData: string;\n}"
+              "text": "{\n    name: string;\n    callbackQueryData(...args: T): string;\n    intentText: string;\n    intentCommandText: string;\n    _positionArgText: number;\n    intentCallbackQueryData: string;\n}"
             },
             {
               "kind": "Content",
