@@ -860,6 +860,15 @@ export class Ctx extends Context {
         return prev(method, payload, signal)
       })
     }
+    // Copy stream plugin instance methods from the original context.
+    // The @grammyjs/stream plugin assigns replyWithStream et al directly
+    // to the grammy Context instance (not the prototype). Since we create a
+    // new Context via super(ct.update, ct.api, ct.me), those instance
+    // properties are lost unless we copy them explicitly.
+    const src = ct as any
+    if (typeof src.replyWithStream === `function`) this.replyWithStream = src.replyWithStream
+    if (typeof src.replyWithMarkdownStream === `function`) this.replyWithMarkdownStream = src.replyWithMarkdownStream
+    if (typeof src.replyWithHtmlStream === `function`) this.replyWithHtmlStream = src.replyWithHtmlStream
     this.cacheSession = params.cacheSession
     this.cacheKeyboard = params.cacheKeyboard
     this.templateManager = params.templateManager
