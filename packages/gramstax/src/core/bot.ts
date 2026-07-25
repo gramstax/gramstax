@@ -1761,3 +1761,4 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.bot.on(`my_chat_member`, (ctx) => this._onHandle(ctx, `mychatmember`)) // Handle bot's own chat member updates
   }
 }
+
