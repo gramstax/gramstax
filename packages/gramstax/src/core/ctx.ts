@@ -214,7 +214,7 @@ export class Ctx extends Context {
     `sendChatAction`,
     `sendInvoice`,
     `sendGame`,
-    `replyWithRichMessage`,
+    `sendRichMessage`,
     `answerCallbackQuery`,
     `answerInlineQuery`,
     `answerWebAppQuery`,
