@@ -1,6 +1,6 @@
 import {Gramstax} from "gramstax"
 import {CtxCore} from "./ctx"
-import {GeneralStatusPage} from "~/pages/general-status"
+import {GeneralStatusPage} from "~/pages/status"
 
 // BotCore configures Gramstax hooks for this project.
 export class BotCore extends Gramstax {

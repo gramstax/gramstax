@@ -26,7 +26,7 @@ export class StartPage extends PageBase {
         Time now: {{time}}
       </g-message>
       <g-message lang="id">
-        Halo Dunia! 
+        Halo Dunia!
         Waktu: {{time}}
       </g-message>
     </g-base>
