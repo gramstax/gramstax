@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "../../../setup"
 
-const intent = `test-error`
+const intent = `start-test-error`
 beforeEach(() => {
   e2e.clearCalls()
 })
@@ -19,7 +19,7 @@ describe(`E2E: TestErrorPage`, () => {
     const replyId = responsesId[0]!
     expect(reply).toBeDefined()
     expect(replyId).toBeDefined()
-    expect(reply.body?.text).toBe(e2e.gmsg(`general-status`, `d`, {isNotFound: false}))
-    expect(replyId.body?.text).toBe(e2e.gmsg(`general-status`, `d`, {isNotFound: false}, `id`))
+    expect(reply.body?.text).toBe(e2e.gmsg(`general-status`, `default`, {isNotFound: false}))
+    expect(replyId.body?.text).toBe(e2e.gmsg(`general-status`, `default`, {isNotFound: false}, `id`))
   })
 })

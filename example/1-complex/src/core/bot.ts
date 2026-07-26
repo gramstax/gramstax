@@ -3,7 +3,7 @@ import {Gramstax} from "gramstax"
 import {UserGuard} from "~/guards/user"
 import {IncrementJob} from "~/jobs/increment"
 import {CacheExternal} from "gramstax"
-import {GeneralStatusPage} from "~/pages/general-status"
+import {StatusPage} from "~/pages/status"
 
 export class BotCore extends Gramstax {
   cacheData = new CacheExternal(`memory`)
@@ -36,10 +36,10 @@ export class BotCore extends Gramstax {
   }
 
   async hookErrorPage(ctx: CtxCore, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {
-    await new GeneralStatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
+    await new StatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
   }
 
   async hookErrorInputNotFoundPage(ctx: CtxCore) {
-    await new GeneralStatusPage(ctx).berrorInputNotFound.show()
+    await new StatusPage(ctx).berrorInputNotFound.show()
   }
 }

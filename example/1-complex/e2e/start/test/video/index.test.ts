@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "../../../setup"
 
-const intent = `test-video`
+const intent = `start-test-video`
 beforeEach(() => {
   e2e.clearCalls()
 })
@@ -15,13 +15,13 @@ describe(`E2E: TestVideoPage`, () => {
     const editMediaReq = e2e.lastCall(`editMessageMedia`)
     expect(editMediaReq).toBeDefined()
     expect(editMediaReq!.body?.media?.type).toBe(`video`)
-    expect(editMediaReq!.body?.media?.media).toBe(e2e.gmedia(intent, `s1`, {}).src)
-    expect(editMediaReq!.body?.media?.caption).toBe(e2e.gmedia(intent, `s1`, {}).caption)
+    expect(editMediaReq!.body?.media?.media).toBe(e2e.gmedia(intent, `default`, {}).src)
+    expect(editMediaReq!.body?.media?.caption).toBe(e2e.gmedia(intent, `default`, {}).caption)
 
     e2e.clearCalls()
     await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
     const editMediaIdReq = e2e.lastCall(`editMessageMedia`)
     expect(editMediaIdReq).toBeDefined()
-    expect(editMediaIdReq!.body?.media?.caption).toBe(e2e.gmedia(intent, `s1`, {}, `id`).caption)
+    expect(editMediaIdReq!.body?.media?.caption).toBe(e2e.gmedia(intent, `default`, {}, `id`).caption)
   })
 })

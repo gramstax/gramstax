@@ -1,15 +1,15 @@
-import {StartHelpPage} from "./help"
 import {PageBase} from "~/base/page"
+import {StartHelpPage} from "./help"
 import {StartCounterPage} from "./counter"
 import {StartLanguagePage} from "./language"
 import {StartBlockMapPage} from "./block/map"
-import {StartInputTextPage} from "./input/text"
 import {StartTestErrorPage} from "./test/error"
 import {StartTestVoicePage} from "./test/voice"
 import {StartTestPhotoPage} from "./test/photo"
 import {StartTestVideoPage} from "./test/video"
 import {StartTestAudioPage} from "./test/audio"
-import {StartInputText2Page} from "./input/text-2"
+import {StartInputTextPage} from "./input/text"
+import {StartInputText2Page} from "./input/text/2"
 import {StartBlockSwitchPage} from "./block/switch"
 import {StartBlockImportPage} from "./block/import"
 import {StartTestContactPage} from "./test/contact"
@@ -19,7 +19,7 @@ import {StartTestDocumentPage} from "./test/document"
 import {StartCounterThreadPage} from "./counter/thread"
 import {StartTestAnimationPage} from "./test/animation"
 import {StartTestVideoNotePage} from "./test/video-note"
-import {StartKeyboardBottomPage} from "./keyboard-bottom"
+import {StartKeyboardBottomPage} from "./keyboard/bottom"
 import {StartTestMediaGroupPage} from "./test/media-group"
 import {StartStreamPage} from "./stream"
 
@@ -117,10 +117,10 @@ export class StartPage extends PageBase {
       if (condition == 1) {
         await this.renderRich(kb, da, bi)
       } else if (condition == 2) {
-        await this.renderEdit(kb, da, bi)
+        await this.renderEditRich(kb, da, bi)
       } else if (condition == 3) {
         await this.deleteMessage()
-        await this.render(kb, da, bi)
+        await this.renderRich(kb, da, bi)
       }
     }
   }

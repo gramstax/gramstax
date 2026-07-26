@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "../../../setup"
 
-const intent = `block-import`
+const intent = `start-block-import`
 beforeEach(() => {
   e2e.clearCalls()
 })
@@ -16,7 +16,7 @@ describe(`E2E: BlockImportPage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {number: Math.random()}))
-    expect(responsesId[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {number: Math.random()}, `id`))
+    expect(responses[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, {number: Math.random()}))
+    expect(responsesId[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, {number: Math.random()}, `id`))
   })
 })

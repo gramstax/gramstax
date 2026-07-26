@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "../../../setup"
 
-const intent = `test-media-group`
+const intent = `start-test-media-group`
 beforeEach(() => {
   e2e.clearCalls()
 })
@@ -25,6 +25,6 @@ describe(`E2E: TestMediaGroupPage`, () => {
     await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
     const sendMediaGroupIdReq = e2e.lastCall(`sendMediaGroup`)
     expect(sendMediaGroupIdReq).toBeDefined()
-    expect(sendMediaGroupIdReq!.body?.media![0]?.caption).toBe(e2e.gmedia(intent, `s1`, {}, `id`).mediaGroup![0]?.caption)
+    expect(sendMediaGroupIdReq!.body?.media![0]?.caption).toBe(e2e.gmedia(intent, `default`, {}, `id`).mediaGroup![0]?.caption)
   })
 })

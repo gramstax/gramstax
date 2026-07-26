@@ -17,8 +17,8 @@ describe(`E2E: StartPage`, () => {
     const replyId = responsesId[0]!
     expect(e2e.extractText(reply)).toContain(`gramstax`)
     expect(e2e.extractText(replyId)).toContain(`gramstax`)
-    expect(e2e.extractButtonLabels(reply)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}))
-    expect(e2e.extractButtonLabels(replyId)).toEqual(e2e.gkb(intent, `s1`, `inline`, {}, `id`))
+    expect(e2e.extractButtonLabels(reply)).toEqual(e2e.gkb(intent, `i`, `inline`, {}))
+    expect(e2e.extractButtonLabels(replyId)).toEqual(e2e.gkb(intent, `i`, `inline`, {}, `id`))
   })
 
   it(`capture outbound requests in e2e.calls`, async () => {

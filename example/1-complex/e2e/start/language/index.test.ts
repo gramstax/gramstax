@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "../../setup"
 
-const intent = `language`
+const intent = `start-language`
 beforeEach(() => {
   e2e.clearCalls()
 })
@@ -15,7 +15,7 @@ describe(`E2E: LanguagePage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responses[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
-    expect(responsesId[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}, `id`))
+    expect(responses[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, {}))
+    expect(responsesId[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, {}, `id`))
   })
 })

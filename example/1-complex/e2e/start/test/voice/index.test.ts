@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "../../../setup"
 
-const intent = `test-voice`
+const intent = `start-test-voice`
 beforeEach(() => {
   e2e.clearCalls()
 })
@@ -14,12 +14,12 @@ describe(`E2E: TestVoicePage`, () => {
 
     const sendVoiceReq = e2e.lastCall(`sendVoice`)
     expect(sendVoiceReq).toBeDefined()
-    expect(sendVoiceReq!.body?.voice).toBe(e2e.gmedia(intent, `s1`, {}).src)
+    expect(sendVoiceReq!.body?.voice).toBe(e2e.gmedia(intent, `default`, {}).src)
 
     e2e.clearCalls()
     await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
     const sendVoiceIdReq = e2e.lastCall(`sendVoice`)
     expect(sendVoiceIdReq).toBeDefined()
-    expect(sendVoiceIdReq!.body?.voice).toBe(e2e.gmedia(intent, `s1`, {}, `id`).src)
+    expect(sendVoiceIdReq!.body?.voice).toBe(e2e.gmedia(intent, `default`, {}, `id`).src)
   })
 })

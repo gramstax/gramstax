@@ -41,6 +41,7 @@ export class StartInputTextPage extends PageBase {
       await this.bsuccess.show()
     }
   }
+
   bsuccess = {
     show: async () => {
       const bi = Base.success

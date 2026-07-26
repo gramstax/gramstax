@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "../../../setup"
 
-const intent = `test-sticker`
+const intent = `start-test-sticker`
 beforeEach(() => {
   e2e.clearCalls()
 })
@@ -14,12 +14,12 @@ describe(`E2E: TestStickerPage`, () => {
 
     const sendStickerReq = e2e.lastCall(`sendSticker`)
     expect(sendStickerReq).toBeDefined()
-    expect(sendStickerReq!.body?.sticker).toBe(e2e.gmedia(intent, `s1`, {}).src)
+    expect(sendStickerReq!.body?.sticker).toBe(e2e.gmedia(intent, `default`, {}).src)
 
     e2e.clearCalls()
     await e2e.sendCallbackQuery(intent, {user: {language_code: `id`}})
     const idReq = e2e.lastCall(`sendSticker`)
     expect(idReq).toBeDefined()
-    expect(idReq!.body?.sticker).toBe(e2e.gmedia(intent, `s1`, {}, `id`).src)
+    expect(idReq!.body?.sticker).toBe(e2e.gmedia(intent, `default`, {}, `id`).src)
   })
 })

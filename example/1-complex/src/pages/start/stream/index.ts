@@ -1,5 +1,5 @@
-import {setTimeout as sleep} from "node:timers/promises"
 import {PageBase} from "~/base/page"
+import {setTimeout as sleep} from "node:timers/promises"
 
 export class StartStreamPage extends PageBase {
   async handleCallbackQueryData() {
