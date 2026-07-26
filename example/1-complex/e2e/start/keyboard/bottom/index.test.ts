@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "../../../setup"
 
-const intent = `start-keyboard-bottom`
+const intent = `start/keyboard/bottom`
 const asUser = {user: {id: 2001}, chat: {id: 2001}}
 beforeEach(() => {
   e2e.clearCalls()

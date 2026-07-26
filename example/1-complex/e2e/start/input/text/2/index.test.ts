@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "../../../../setup"
 
-const intent = `start-input-text-2`
+const intent = `start/input/text/2`
 // Use unique user IDs to prevent session pollution from other tests
 const asUser = {user: {id: 8001}, chat: {id: 8001}}
 const asUserId = {user: {id: 8002, language_code: `id`}, chat: {id: 8002}}

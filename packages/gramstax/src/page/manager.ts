@@ -140,15 +140,15 @@ export class PageManager {
    *
    * @throws Error if directory does not exist.
    *
-   * @example
-   * ```typescript
-   * const pages = PageManager.getFileManySync();
-   * // => [
-   * //   { path: "/path/to/start.ts",      page: StartPage,      routeName: "start" },
-   * //   { path: "/path/to/start/index.ts", page: StartSubPage,   routeName: "start" },
-   * //   { path: "/path/to/start/help/index.ts", page: HelpPage, routeName: "start-help" },
-   * // ]
-   * ```
+    * @example
+    * ```typescript
+    * const pages = PageManager.getFileManySync();
+    * // => [
+    * //   { path: "/path/to/start.ts",         page: StartPage,        routeName: "start" },
+    * //   { path: "/path/to/start/index.ts",    page: StartSubPage,     routeName: "start" },
+    * //   { path: "/path/to/start/help/index.ts", page: HelpPage,      routeName: "start/help" },
+    * // ]
+    * ```
    * @public
    */
   static getFileManySync(path?: string, positionModule = 0) {
@@ -167,7 +167,7 @@ export class PageManager {
         const fullPath = join(dir, entry.name)
 
         if (entry.isDirectory()) {
-          walk(fullPath, parentRoute ? `${parentRoute}-${entry.name}` : entry.name)
+          walk(fullPath, parentRoute ? `${parentRoute}/${entry.name}` : entry.name)
         } else if (entry.isFile()) {
           const isIndex = /^index\.(ts|js)$/.test(entry.name)
           const isFlat = /\.(ts|js)$/.test(entry.name) && !parentRoute

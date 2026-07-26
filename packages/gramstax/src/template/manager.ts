@@ -355,10 +355,10 @@ export class TemplateManager {
           const fullPath = join(dir, entry.name)
 
           if (entry.isDirectory()) {
-            walkDir(fullPath, parentKey ? `${parentKey}-${entry.name}` : entry.name)
+            walkDir(fullPath, parentKey ? `${parentKey}/${entry.name}` : entry.name)
           } else if (entry.isFile() && this._isValidFile(entry.name)) {
             const isIndex = /^index\.(ts|js|html)$/.test(entry.name)
-            const key = isIndex && parentKey ? parentKey : `${parentKey ? `${parentKey}-` : ``}${this._getKey(entry.name)}`
+            const key = isIndex && parentKey ? parentKey : `${parentKey ? `${parentKey}/` : ``}${this._getKey(entry.name)}`
             const ext = this._getExtension(entry.name)
 
             if (ext === `.html`) {

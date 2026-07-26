@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "../../setup"
 
-const intent = `start-counter`
+const intent = `start/counter`
 beforeEach(() => {
   e2e.clearCalls()
 })
