@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
+import {StartPage} from "../start"
 
 // Help page lists available commands.
 export class HelpPage extends PageBase {
@@ -23,7 +23,7 @@ export class HelpPage extends PageBase {
       ${this.kbk.back()}
       <g-message>
         ❓ Help
-        
+
         Available commands:
         - /start: Welcome message
         - /help: Show this help
@@ -32,7 +32,7 @@ export class HelpPage extends PageBase {
       </g-message>
       <g-message lang="id">
         ❓ Bantuan
-        
+
         Perintah yang tersedia:
         - /start: Pesan selamat datang
         - /help: Tampilkan bantuan ini

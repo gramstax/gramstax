@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
+import {StartPage} from "../start"
 
 class Base {
   static index = `i`

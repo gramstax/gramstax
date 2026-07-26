@@ -1,6 +1,6 @@
 import {Gramstax} from "gramstax"
 import {CtxCore} from "./ctx"
-import {GeneralStatusPage} from "~/pages/general-status"
+import {GeneralStatusPage} from "~/pages/status"
 
 export class BotCore extends Gramstax {
   async hookErrorPage(ctx: CtxCore, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {

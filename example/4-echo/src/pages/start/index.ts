@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
-import {HelpPage} from "./help"
-import {EchoPage} from "./echo"
+import {HelpPage} from "../help"
+import {EchoPage} from "../echo"
 
 // Start page with welcome message and navigation.
 export class StartPage extends PageBase {

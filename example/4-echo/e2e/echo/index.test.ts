@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeEach} from "bun:test"
-import {e2e} from "./setup"
+import {e2e} from "../setup"
 
 beforeEach(() => {
   e2e.clearCalls()

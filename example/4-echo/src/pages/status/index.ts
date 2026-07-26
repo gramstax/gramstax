@@ -1,6 +1,6 @@
 import {LogHe} from "~/helpers/log"
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
+import {StartPage} from "../start"
 
 export class GeneralStatusPage extends PageBase {
   constructorName?: string
