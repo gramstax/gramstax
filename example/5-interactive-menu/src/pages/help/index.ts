@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
+import {StartPage} from "../start"
 
 // Help page describing navigation rules.
 export class HelpPage extends PageBase {

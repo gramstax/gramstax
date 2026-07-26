@@ -1,16 +1,16 @@
 import {LogHe} from "~/helpers/log"
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
+import {StartPage} from "../start"
 
 class Helper {
-  static async built(ctx: GeneralStatusPage, isNotFound: boolean, isEdit = true) {
+  static async built(ctx: StatusPage, isNotFound: boolean, isEdit = true) {
     const kb = ctx.inlineKeyboardT([StartPage])
     const da = {isNotFound}
     await ctx.renderAuto(kb, da, null, null, isEdit)
   }
 }
 
-export class GeneralStatusPage extends PageBase {
+export class StatusPage extends PageBase {
   constructorName?: string
 
   constructor(p: any) {

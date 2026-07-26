@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
 import {CatalogData} from "~/data/catalog"
-import {ItemListPage} from "./item-list"
+import {ItemListPage} from "../item-list"
 
 // Item detail page with context-aware back button.
 export class ItemDetailPage extends PageBase {

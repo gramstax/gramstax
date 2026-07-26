@@ -1,7 +1,7 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
+import {StartPage} from "../start"
 import {CatalogData} from "~/data/catalog"
-import {ItemListPage} from "./item-list"
+import {ItemListPage} from "../item-list"
 
 // Category list page with dynamic inline buttons.
 export class CategoryPage extends PageBase {

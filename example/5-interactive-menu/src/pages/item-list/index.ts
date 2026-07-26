@@ -1,7 +1,7 @@
 import {PageBase} from "~/base/page"
 import {CatalogData} from "~/data/catalog"
-import {CategoryPage} from "./category"
-import {ItemDetailPage} from "./item-detail"
+import {CategoryPage} from "../category"
+import {ItemDetailPage} from "../item-detail"
 
 class Helper {
   static kb(ctx: ItemListPage, categoryId: string, pageNo: number, category = CatalogData.getCategoryById(categoryId)) {

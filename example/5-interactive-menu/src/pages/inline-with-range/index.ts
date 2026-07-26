@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
-import {BlankPage} from "./blank"
+import {StartPage} from "../start"
+import {BlankPage} from "../blank"
 import {CatalogData} from "~/data/catalog"
 
 class Const {
