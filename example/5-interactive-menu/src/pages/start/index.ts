@@ -1,9 +1,9 @@
-import {HelpPage} from "../help"
+import {HelpPage} from "./help"
 import {PageBase} from "~/base/page"
-import {ResetPage} from "../reset"
-import {CategoryPage} from "../category"
-import {InlineWithRangePage} from "../inline-with-range"
-import {InlineWithoutRangePage} from "../inline-without-range"
+import {ResetPage} from "./reset"
+import {CategoryPage} from "./category"
+import {InlineWithRangePage} from "./inline-with-range"
+import {InlineWithoutRangePage} from "./inline-without-range"
 
 class Base {
   static index = `i`

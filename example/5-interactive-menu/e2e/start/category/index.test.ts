@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
-import {e2e} from "../setup"
+import {e2e} from "../../setup"
 
-const intent = `category`
+const intent = `start/category`
 beforeEach(() => {
   e2e.clearCalls()
 })

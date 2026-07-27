@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "../start"
+import {StartPage} from "~/pages/start"
 
 // Reset state and return to main menu.
 export class ResetPage extends PageBase {

@@ -1,5 +1,5 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "../start"
+import {StartPage} from "~/pages/start"
 import {CatalogData} from "~/data/catalog"
 import {ItemListPage} from "../item-list"
 
