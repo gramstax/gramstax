@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeEach} from "bun:test"
-import {e2e} from "./setup"
+import {e2e} from "../setup"
 
 const intent = `start`
 const asUser = {user: {id: 2001, username: `testuser`}, chat: {id: 2001}}
