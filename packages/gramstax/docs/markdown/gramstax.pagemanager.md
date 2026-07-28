@@ -110,6 +110,8 @@ Asynchronously load a single page module with cache busting.
 
 Synchronously load all page modules from a directory.
 
+Supports both flat `.ts`<!-- -->/`.js` files and subfolder `index.ts`<!-- -->/`index.js` entries. In a subfolder, \*\*any\*\* `.ts`<!-- -->/`.js` file (not just `index`<!-- -->) is recognised as a page — its route name becomes `parentDir/basename`<!-- -->. A file `help.ts` is equivalent to `help/index.ts`<!-- -->; using both simultaneously produces a duplicate error. Nesting can be arbitrary deep.
+
 
 </td></tr>
 <tr><td>

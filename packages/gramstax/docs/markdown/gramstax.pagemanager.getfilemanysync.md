@@ -6,12 +6,15 @@
 
 Synchronously load all page modules from a directory.
 
+Supports both flat `.ts`<!-- -->/`.js` files and subfolder `index.ts`<!-- -->/`index.js` entries. In a subfolder, \*\*any\*\* `.ts`<!-- -->/`.js` file (not just `index`<!-- -->) is recognised as a page — its route name becomes `parentDir/basename`<!-- -->. A file `help.ts` is equivalent to `help/index.ts`<!-- -->; using both simultaneously produces a duplicate error. Nesting can be arbitrary deep.
+
 **Signature:**
 
 ```typescript
 static getFileManySync(path?: string, positionModule?: number): {
         path: string;
         page: typeof Ctx;
+        routeName: string;
     }[];
 ```
 
@@ -69,19 +72,27 @@ _(Optional)_ Index of the exported class. Used when files have multiple exports.
 
 **Returns:**
 
-{ path: string; page: typeof [Ctx](./gramstax.ctx.md)<!-- -->; }\[\]
+{ path: string; page: typeof [Ctx](./gramstax.ctx.md)<!-- -->; routeName: string; }\[\]
 
-Array of page records containing `path` and `page` properties.
+Array of page records containing `path`<!-- -->, `page` and `routeName` properties.
 
 ## Exceptions
 
 Error if directory does not exist.
+
+Error if a file and a directory-index share the same route name.
 
 ## Example
 
 
 ```typescript
 const pages = PageManager.getFileManySync();
-// => [{ path: "/path/to/start.ts", page: StartPage }, ...]
+// => [
+//   { path: "/path/to/start.ts",          page: StartPage,   routeName: "start" },
+//   { path: "/path/to/settings.ts",       page: SettingsPage, routeName: "settings" },
+//   { path: "/path/to/start/help.ts",     page: HelpPage,    routeName: "start/help" },
+//   { path: "/path/to/start/help/index.ts", page: HelpPage,  routeName: "start/help" },
+//                                        ↑ identical route — duplicate error if both exist
+// ]
 ```
 

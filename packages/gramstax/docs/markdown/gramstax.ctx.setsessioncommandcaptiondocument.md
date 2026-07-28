@@ -9,7 +9,9 @@ Session set helper methods.
 **Signature:**
 
 ```typescript
-setSessionCommandCaptionDocument(params?: any): Promise<boolean | null>;
+setSessionCommandCaptionDocument(this: Ctx & {
+        handleSessionCommandCaptionDocument: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
 ```
 
 ## Parameters
@@ -31,6 +33,20 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+this
+
+
+</td><td>
+
+[Ctx](./gramstax.ctx.md) &amp; { handleSessionCommandCaptionDocument: (...args: any\[\]) =&gt; any; }
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
 
 params
 

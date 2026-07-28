@@ -14,5 +14,6 @@ syntax: |-
       cacheSession: CacheExternal;
       cacheKeyboard: Map<any, any>;
       templateManager: TemplateManager;
+      log?: LoggingHelper | null;
       temp: ITTemp;
   };

@@ -9,7 +9,9 @@ Session set helper methods.
 **Signature:**
 
 ```typescript
-setSessionFreePhoto(params?: any): Promise<boolean | null>;
+setSessionFreePhoto(this: Ctx & {
+        handleSessionFreePhoto: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
 ```
 
 ## Parameters
@@ -31,6 +33,20 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+this
+
+
+</td><td>
+
+[Ctx](./gramstax.ctx.md) &amp; { handleSessionFreePhoto: (...args: any\[\]) =&gt; any; }
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
 
 params
 

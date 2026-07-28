@@ -12,7 +12,7 @@ Options for building page routing data configuration.
 type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
     name?: string | null;
     callbackQueryData?: C | null;
-    intentText?: string | null;
-    intentTextCommand?: string | null;
+    intentText?: string | Record<string, string> | null;
+    intentCommandText?: string | Record<string, string> | null;
 };
 ```

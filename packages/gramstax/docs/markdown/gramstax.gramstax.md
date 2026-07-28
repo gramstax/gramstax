@@ -378,7 +378,7 @@ Called when the bot successfully starts.
 </td></tr>
 <tr><td>
 
-[\_pageBuildData(Page, filePath)](./gramstax.gramstax._pagebuilddata.md)
+[\_pageBuildData(Page, filePath, routeName)](./gramstax.gramstax._pagebuilddata.md)
 
 
 </td><td>

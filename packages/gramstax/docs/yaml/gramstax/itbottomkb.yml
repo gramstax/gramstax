@@ -3,9 +3,11 @@ name: ITBottomKb
 uid: gramstax!ITBottomKb:type
 package: gramstax!
 fullName: ITBottomKb
-summary: Type alias for Keyboard (reply keyboard).
-remarks: Used to create reply keyboards that replace the user's device keyboard.
+summary: >-
+  Reply keyboard whose `.text()` also accepts a page class/instance as the button text — resolves to
+  `page.data.intentText` automatically.
+remarks: ''
 example: []
 isPreview: false
 isDeprecated: false
-syntax: type ITBottomKb = Keyboard;
+syntax: type ITBottomKb = _BottomKbWithCtx;

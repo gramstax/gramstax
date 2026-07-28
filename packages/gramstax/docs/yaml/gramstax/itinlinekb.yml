@@ -3,9 +3,11 @@ name: ITInlineKb
 uid: gramstax!ITInlineKb:type
 package: gramstax!
 fullName: ITInlineKb
-summary: Type alias for InlineKeyboard.
-remarks: Used to create inline keyboards that appear below messages with callback buttons.
+summary: >-
+  Inline keyboard whose `.text()` also accepts a page class/instance as the callback data — resolves to
+  `page.data.callbackQueryData()` automatically.
+remarks: ''
 example: []
 isPreview: false
 isDeprecated: false
-syntax: type ITInlineKb = InlineKeyboard;
+syntax: type ITInlineKb = _InlineKbWithCtx;

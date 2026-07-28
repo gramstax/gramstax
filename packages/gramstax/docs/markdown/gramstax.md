@@ -151,6 +151,43 @@ In-memory bounded queue for webhook updates.
 </td></tr>
 </tbody></table>
 
+## Interfaces
+
+<table><thead><tr><th>
+
+Interface
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[\_BottomKbWithCtx](./gramstax._bottomkbwithctx.md)
+
+
+</td><td>
+
+Reply keyboard whose `.text()` also accepts a page class/instance as the button text — resolves to `page.data.intentText` automatically.
+
+
+</td></tr>
+<tr><td>
+
+[\_InlineKbWithCtx](./gramstax._inlinekbwithctx.md)
+
+
+</td><td>
+
+Inline keyboard whose `.text()` also accepts a page class/instance as callback data — calls `page.data.callbackQueryData()` automatically.
+
+
+</td></tr>
+</tbody></table>
+
 ## Variables
 
 <table><thead><tr><th>
@@ -197,7 +234,7 @@ Description
 
 </td><td>
 
-Type alias for Keyboard (reply keyboard).
+Reply keyboard whose `.text()` also accepts a page class/instance as the button text — resolves to `page.data.intentText` automatically.
 
 
 </td></tr>
@@ -420,7 +457,7 @@ Union type for both inline and reply keyboards.
 
 </td><td>
 
-Type alias for InlineKeyboard.
+Inline keyboard whose `.text()` also accepts a page class/instance as the callback data — resolves to `page.data.callbackQueryData()` automatically.
 
 
 </td></tr>
@@ -453,7 +490,7 @@ Keyboard column configuration.
 
 </td><td>
 
-Keyboard column configuration pattern.
+Destination for an inline keyboard button — a page (class or instance) that defines `handleCallbackQueryData`<!-- -->, or a literal callback data string.
 
 
 </td></tr>

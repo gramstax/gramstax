@@ -9,7 +9,9 @@ Session set helper methods.
 **Signature:**
 
 ```typescript
-setSessionFreeDocument(params?: any): Promise<boolean | null>;
+setSessionFreeDocument(this: Ctx & {
+        handleSessionFreeDocument: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
 ```
 
 ## Parameters
@@ -31,6 +33,20 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+this
+
+
+</td><td>
+
+[Ctx](./gramstax.ctx.md) &amp; { handleSessionFreeDocument: (...args: any\[\]) =&gt; any; }
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
 
 params
 

@@ -300,6 +300,33 @@ properties:
       content: 'get chosenInlineResult(): NonNullable<Context[`chosenInlineResult`]>;'
       return:
         type: NonNullable&lt;<xref uid="grammy!Context:class" />[`chosenInlineResult`]&gt;
+  - name: ct
+    uid: gramstax!Ctx#ct:member
+    package: gramstax!
+    fullName: ct
+    summary: >-
+      The underlying grammy context object. For new code this is the same as `this` (since
+      [Ctx](xref:gramstax!Ctx:class) extends `Context`<!-- -->), but it is exposed here so that a `Ctx` instance
+      structurally satisfies [ITCtxParams](xref:gramstax!ITCtxParams:type) — allowing `new SomePage(this)` to compile
+      without a type assertion.
+
+
+      The `& {[key: string]: any}` widening covers runtime-added methods (e.g. `\@grammyjs/stream` plugin) that
+      TypeScript cannot know statically.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        readonly ct: Context & {
+                [key: string]: any;
+            };
+      return:
+        type: |-
+          <xref uid="grammy!Context:class" /> & {
+                  [key: string]: any;
+              }
   - name: data
     uid: gramstax!Ctx#data:member
     package: gramstax!
@@ -487,6 +514,19 @@ properties:
       content: 'get inlineQuery(): NonNullable<Context[`inlineQuery`]>;'
       return:
         type: NonNullable&lt;<xref uid="grammy!Context:class" />[`inlineQuery`]&gt;
+  - name: log
+    uid: gramstax!Ctx#log:member
+    package: gramstax!
+    fullName: log
+    summary: Logger instance from Gramstax, for runtime warnings.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'log: LoggingHelper | null | undefined;'
+      return:
+        type: <xref uid="gramstax!LoggingHelper:class" /> | null | undefined
   - name: managedBot
     uid: gramstax!Ctx#managedBot:member
     package: gramstax!
@@ -973,7 +1013,7 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'bottomKeyboardT(layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): Keyboard;'
+      content: 'bottomKeyboardT(layout: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): ITBottomKb;'
       parameters:
         - id: layout
           description: 'Layout format: "cols" or "cols-lastRow". Default: "1".'
@@ -989,8 +1029,37 @@ methods:
           description: Optional template interpolation data (or null to omit).
           type: Record&lt;any, any&gt; | null
       return:
-        type: <xref uid="grammy!Keyboard:class" />
+        type: <xref uid="gramstax!ITBottomKb:type" />
         description: The bottom keyboard instance.
+  - name: bottomKeyboardT(PageDest, layout, AGBaseId, data)
+    uid: gramstax!Ctx#bottomKeyboardT:member(2)
+    package: gramstax!
+    fullName: bottomKeyboardT(PageDest, layout, AGBaseId, data)
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        bottomKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> |
+        null): ITBottomKb;
+      parameters:
+        - id: PageDest
+          description: ''
+          type: <xref uid="gramstax!ITKbDest:type" />[]
+        - id: layout
+          description: ''
+          type: <xref uid="gramstax!ITKbCols:type" />
+        - id: AGBaseId
+          description: ''
+          type: string | null
+        - id: data
+          description: ''
+          type: Record&lt;any, any&gt; | null
+      return:
+        type: <xref uid="gramstax!ITBottomKb:type" />
+        description: ''
   - name: buildData(callbackQueryData)
     uid: gramstax!Ctx.buildData:member(1)
     package: gramstax!
@@ -3666,7 +3735,7 @@ methods:
     syntax:
       content: >-
         inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData | null):
-        InlineKeyboard;
+        _InlineKbWithCtx;
       parameters:
         - id: PageDest
           description: Array of page classes or callback data strings.
@@ -3685,7 +3754,7 @@ methods:
           description: Optional template interpolation data (or null to omit).
           type: <xref uid="gramstax!ITData:type" /> | null
       return:
-        type: <xref uid="grammy!InlineKeyboard:class" />
+        type: <xref uid="gramstax!_InlineKbWithCtx:interface" />
         description: The inline keyboard instance.
   - name: keyboardCols(k, l, layout, cb)
     uid: gramstax!Ctx#keyboardCols:member(1)
@@ -7250,10 +7319,10 @@ methods:
       return:
         type: Promise&lt;boolean | null&gt;
         description: True if the session was set successfully, or null on error.
-  - name: setSessionArgsCallbackQueryData(params)
+  - name: setSessionArgsCallbackQueryData(this, params)
     uid: gramstax!Ctx#setSessionArgsCallbackQueryData:member(1)
     package: gramstax!
-    fullName: setSessionArgsCallbackQueryData(params)
+    fullName: setSessionArgsCallbackQueryData(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7262,18 +7331,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionArgsCallbackQueryData(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionArgsCallbackQueryData(this: Ctx & {
+                handleSessionArgsCallbackQueryData: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionArgsCallbackQueryData: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionArgsText(params)
+  - name: setSessionArgsText(this, params)
     uid: gramstax!Ctx#setSessionArgsText:member(1)
     package: gramstax!
-    fullName: setSessionArgsText(params)
+    fullName: setSessionArgsText(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7282,18 +7360,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionArgsText(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionArgsText(this: Ctx & {
+                handleSessionArgsText: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionArgsText: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCallbackQueryData(params)
+  - name: setSessionCallbackQueryData(this, params)
     uid: gramstax!Ctx#setSessionCallbackQueryData:member(1)
     package: gramstax!
-    fullName: setSessionCallbackQueryData(params)
+    fullName: setSessionCallbackQueryData(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7310,18 +7397,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCallbackQueryData(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCallbackQueryData(this: Ctx & {
+                handleSessionCallbackQueryData: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCallbackQueryData: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCaptionAnimation(params)
+  - name: setSessionCaptionAnimation(this, params)
     uid: gramstax!Ctx#setSessionCaptionAnimation:member(1)
     package: gramstax!
-    fullName: setSessionCaptionAnimation(params)
+    fullName: setSessionCaptionAnimation(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7330,18 +7426,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCaptionAnimation(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCaptionAnimation(this: Ctx & {
+                handleSessionCaptionAnimation: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCaptionAnimation: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCaptionArgsAnimation(params)
+  - name: setSessionCaptionArgsAnimation(this, params)
     uid: gramstax!Ctx#setSessionCaptionArgsAnimation:member(1)
     package: gramstax!
-    fullName: setSessionCaptionArgsAnimation(params)
+    fullName: setSessionCaptionArgsAnimation(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7350,18 +7455,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCaptionArgsAnimation(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCaptionArgsAnimation(this: Ctx & {
+                handleSessionCaptionArgsAnimation: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCaptionArgsAnimation: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCaptionArgsAudio(params)
+  - name: setSessionCaptionArgsAudio(this, params)
     uid: gramstax!Ctx#setSessionCaptionArgsAudio:member(1)
     package: gramstax!
-    fullName: setSessionCaptionArgsAudio(params)
+    fullName: setSessionCaptionArgsAudio(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7370,18 +7484,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCaptionArgsAudio(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCaptionArgsAudio(this: Ctx & {
+                handleSessionCaptionArgsAudio: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCaptionArgsAudio: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCaptionArgsDocument(params)
+  - name: setSessionCaptionArgsDocument(this, params)
     uid: gramstax!Ctx#setSessionCaptionArgsDocument:member(1)
     package: gramstax!
-    fullName: setSessionCaptionArgsDocument(params)
+    fullName: setSessionCaptionArgsDocument(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7390,18 +7513,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCaptionArgsDocument(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCaptionArgsDocument(this: Ctx & {
+                handleSessionCaptionArgsDocument: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCaptionArgsDocument: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCaptionArgsPhoto(params)
+  - name: setSessionCaptionArgsPhoto(this, params)
     uid: gramstax!Ctx#setSessionCaptionArgsPhoto:member(1)
     package: gramstax!
-    fullName: setSessionCaptionArgsPhoto(params)
+    fullName: setSessionCaptionArgsPhoto(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7410,18 +7542,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCaptionArgsPhoto(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCaptionArgsPhoto(this: Ctx & {
+                handleSessionCaptionArgsPhoto: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCaptionArgsPhoto: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCaptionArgsVideo(params)
+  - name: setSessionCaptionArgsVideo(this, params)
     uid: gramstax!Ctx#setSessionCaptionArgsVideo:member(1)
     package: gramstax!
-    fullName: setSessionCaptionArgsVideo(params)
+    fullName: setSessionCaptionArgsVideo(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7430,18 +7571,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCaptionArgsVideo(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCaptionArgsVideo(this: Ctx & {
+                handleSessionCaptionArgsVideo: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCaptionArgsVideo: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCaptionArgsVoice(params)
+  - name: setSessionCaptionArgsVoice(this, params)
     uid: gramstax!Ctx#setSessionCaptionArgsVoice:member(1)
     package: gramstax!
-    fullName: setSessionCaptionArgsVoice(params)
+    fullName: setSessionCaptionArgsVoice(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7450,18 +7600,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCaptionArgsVoice(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCaptionArgsVoice(this: Ctx & {
+                handleSessionCaptionArgsVoice: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCaptionArgsVoice: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCaptionAudio(params)
+  - name: setSessionCaptionAudio(this, params)
     uid: gramstax!Ctx#setSessionCaptionAudio:member(1)
     package: gramstax!
-    fullName: setSessionCaptionAudio(params)
+    fullName: setSessionCaptionAudio(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7470,18 +7629,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCaptionAudio(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCaptionAudio(this: Ctx & {
+                handleSessionCaptionAudio: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCaptionAudio: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCaptionDocument(params)
+  - name: setSessionCaptionDocument(this, params)
     uid: gramstax!Ctx#setSessionCaptionDocument:member(1)
     package: gramstax!
-    fullName: setSessionCaptionDocument(params)
+    fullName: setSessionCaptionDocument(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7490,18 +7658,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCaptionDocument(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCaptionDocument(this: Ctx & {
+                handleSessionCaptionDocument: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCaptionDocument: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCaptionPhoto(params)
+  - name: setSessionCaptionPhoto(this, params)
     uid: gramstax!Ctx#setSessionCaptionPhoto:member(1)
     package: gramstax!
-    fullName: setSessionCaptionPhoto(params)
+    fullName: setSessionCaptionPhoto(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7510,18 +7687,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCaptionPhoto(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCaptionPhoto(this: Ctx & {
+                handleSessionCaptionPhoto: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCaptionPhoto: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCaptionVideo(params)
+  - name: setSessionCaptionVideo(this, params)
     uid: gramstax!Ctx#setSessionCaptionVideo:member(1)
     package: gramstax!
-    fullName: setSessionCaptionVideo(params)
+    fullName: setSessionCaptionVideo(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7530,18 +7716,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCaptionVideo(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCaptionVideo(this: Ctx & {
+                handleSessionCaptionVideo: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCaptionVideo: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCaptionVoice(params)
+  - name: setSessionCaptionVoice(this, params)
     uid: gramstax!Ctx#setSessionCaptionVoice:member(1)
     package: gramstax!
-    fullName: setSessionCaptionVoice(params)
+    fullName: setSessionCaptionVoice(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7550,18 +7745,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCaptionVoice(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCaptionVoice(this: Ctx & {
+                handleSessionCaptionVoice: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCaptionVoice: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionChatMemberOutIn(params)
+  - name: setSessionChatMemberOutIn(this, params)
     uid: gramstax!Ctx#setSessionChatMemberOutIn:member(1)
     package: gramstax!
-    fullName: setSessionChatMemberOutIn(params)
+    fullName: setSessionChatMemberOutIn(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7570,18 +7774,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionChatMemberOutIn(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionChatMemberOutIn(this: Ctx & {
+                handleSessionChatMemberOutIn: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionChatMemberOutIn: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandArgsText(params)
+  - name: setSessionCommandArgsText(this, params)
     uid: gramstax!Ctx#setSessionCommandArgsText:member(1)
     package: gramstax!
-    fullName: setSessionCommandArgsText(params)
+    fullName: setSessionCommandArgsText(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7590,18 +7803,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandArgsText(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandArgsText(this: Ctx & {
+                handleSessionCommandArgsText: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandArgsText: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandCaptionAnimation(params)
+  - name: setSessionCommandCaptionAnimation(this, params)
     uid: gramstax!Ctx#setSessionCommandCaptionAnimation:member(1)
     package: gramstax!
-    fullName: setSessionCommandCaptionAnimation(params)
+    fullName: setSessionCommandCaptionAnimation(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7610,18 +7832,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandCaptionAnimation(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandCaptionAnimation(this: Ctx & {
+                handleSessionCommandCaptionAnimation: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandCaptionAnimation: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandCaptionArgsAnimation(params)
+  - name: setSessionCommandCaptionArgsAnimation(this, params)
     uid: gramstax!Ctx#setSessionCommandCaptionArgsAnimation:member(1)
     package: gramstax!
-    fullName: setSessionCommandCaptionArgsAnimation(params)
+    fullName: setSessionCommandCaptionArgsAnimation(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7630,18 +7861,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandCaptionArgsAnimation(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandCaptionArgsAnimation(this: Ctx & {
+                handleSessionCommandCaptionArgsAnimation: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandCaptionArgsAnimation: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandCaptionArgsAudio(params)
+  - name: setSessionCommandCaptionArgsAudio(this, params)
     uid: gramstax!Ctx#setSessionCommandCaptionArgsAudio:member(1)
     package: gramstax!
-    fullName: setSessionCommandCaptionArgsAudio(params)
+    fullName: setSessionCommandCaptionArgsAudio(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7650,18 +7890,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandCaptionArgsAudio(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandCaptionArgsAudio(this: Ctx & {
+                handleSessionCommandCaptionArgsAudio: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandCaptionArgsAudio: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandCaptionArgsDocument(params)
+  - name: setSessionCommandCaptionArgsDocument(this, params)
     uid: gramstax!Ctx#setSessionCommandCaptionArgsDocument:member(1)
     package: gramstax!
-    fullName: setSessionCommandCaptionArgsDocument(params)
+    fullName: setSessionCommandCaptionArgsDocument(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7670,18 +7919,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandCaptionArgsDocument(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandCaptionArgsDocument(this: Ctx & {
+                handleSessionCommandCaptionArgsDocument: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandCaptionArgsDocument: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandCaptionArgsPhoto(params)
+  - name: setSessionCommandCaptionArgsPhoto(this, params)
     uid: gramstax!Ctx#setSessionCommandCaptionArgsPhoto:member(1)
     package: gramstax!
-    fullName: setSessionCommandCaptionArgsPhoto(params)
+    fullName: setSessionCommandCaptionArgsPhoto(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7690,18 +7948,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandCaptionArgsPhoto(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandCaptionArgsPhoto(this: Ctx & {
+                handleSessionCommandCaptionArgsPhoto: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandCaptionArgsPhoto: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandCaptionArgsVideo(params)
+  - name: setSessionCommandCaptionArgsVideo(this, params)
     uid: gramstax!Ctx#setSessionCommandCaptionArgsVideo:member(1)
     package: gramstax!
-    fullName: setSessionCommandCaptionArgsVideo(params)
+    fullName: setSessionCommandCaptionArgsVideo(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7710,18 +7977,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandCaptionArgsVideo(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandCaptionArgsVideo(this: Ctx & {
+                handleSessionCommandCaptionArgsVideo: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandCaptionArgsVideo: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandCaptionArgsVoice(params)
+  - name: setSessionCommandCaptionArgsVoice(this, params)
     uid: gramstax!Ctx#setSessionCommandCaptionArgsVoice:member(1)
     package: gramstax!
-    fullName: setSessionCommandCaptionArgsVoice(params)
+    fullName: setSessionCommandCaptionArgsVoice(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7730,18 +8006,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandCaptionArgsVoice(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandCaptionArgsVoice(this: Ctx & {
+                handleSessionCommandCaptionArgsVoice: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandCaptionArgsVoice: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandCaptionAudio(params)
+  - name: setSessionCommandCaptionAudio(this, params)
     uid: gramstax!Ctx#setSessionCommandCaptionAudio:member(1)
     package: gramstax!
-    fullName: setSessionCommandCaptionAudio(params)
+    fullName: setSessionCommandCaptionAudio(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7750,18 +8035,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandCaptionAudio(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandCaptionAudio(this: Ctx & {
+                handleSessionCommandCaptionAudio: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandCaptionAudio: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandCaptionDocument(params)
+  - name: setSessionCommandCaptionDocument(this, params)
     uid: gramstax!Ctx#setSessionCommandCaptionDocument:member(1)
     package: gramstax!
-    fullName: setSessionCommandCaptionDocument(params)
+    fullName: setSessionCommandCaptionDocument(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7770,18 +8064,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandCaptionDocument(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandCaptionDocument(this: Ctx & {
+                handleSessionCommandCaptionDocument: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandCaptionDocument: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandCaptionPhoto(params)
+  - name: setSessionCommandCaptionPhoto(this, params)
     uid: gramstax!Ctx#setSessionCommandCaptionPhoto:member(1)
     package: gramstax!
-    fullName: setSessionCommandCaptionPhoto(params)
+    fullName: setSessionCommandCaptionPhoto(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7790,18 +8093,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandCaptionPhoto(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandCaptionPhoto(this: Ctx & {
+                handleSessionCommandCaptionPhoto: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandCaptionPhoto: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandCaptionVideo(params)
+  - name: setSessionCommandCaptionVideo(this, params)
     uid: gramstax!Ctx#setSessionCommandCaptionVideo:member(1)
     package: gramstax!
-    fullName: setSessionCommandCaptionVideo(params)
+    fullName: setSessionCommandCaptionVideo(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7810,18 +8122,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandCaptionVideo(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandCaptionVideo(this: Ctx & {
+                handleSessionCommandCaptionVideo: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandCaptionVideo: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandCaptionVoice(params)
+  - name: setSessionCommandCaptionVoice(this, params)
     uid: gramstax!Ctx#setSessionCommandCaptionVoice:member(1)
     package: gramstax!
-    fullName: setSessionCommandCaptionVoice(params)
+    fullName: setSessionCommandCaptionVoice(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7830,18 +8151,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandCaptionVoice(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandCaptionVoice(this: Ctx & {
+                handleSessionCommandCaptionVoice: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandCaptionVoice: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionCommandText(params)
+  - name: setSessionCommandText(this, params)
     uid: gramstax!Ctx#setSessionCommandText:member(1)
     package: gramstax!
-    fullName: setSessionCommandText(params)
+    fullName: setSessionCommandText(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7850,18 +8180,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionCommandText(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionCommandText(this: Ctx & {
+                handleSessionCommandText: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionCommandText: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionFreeAnimation(params)
+  - name: setSessionFreeAnimation(this, params)
     uid: gramstax!Ctx#setSessionFreeAnimation:member(1)
     package: gramstax!
-    fullName: setSessionFreeAnimation(params)
+    fullName: setSessionFreeAnimation(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7870,18 +8209,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionFreeAnimation(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionFreeAnimation(this: Ctx & {
+                handleSessionFreeAnimation: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeAnimation: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionFreeAudio(params)
+  - name: setSessionFreeAudio(this, params)
     uid: gramstax!Ctx#setSessionFreeAudio:member(1)
     package: gramstax!
-    fullName: setSessionFreeAudio(params)
+    fullName: setSessionFreeAudio(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7890,18 +8238,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionFreeAudio(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionFreeAudio(this: Ctx & {
+                handleSessionFreeAudio: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeAudio: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionFreeContact(params)
+  - name: setSessionFreeContact(this, params)
     uid: gramstax!Ctx#setSessionFreeContact:member(1)
     package: gramstax!
-    fullName: setSessionFreeContact(params)
+    fullName: setSessionFreeContact(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7910,18 +8267,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionFreeContact(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionFreeContact(this: Ctx & {
+                handleSessionFreeContact: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeContact: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionFreeDocument(params)
+  - name: setSessionFreeDocument(this, params)
     uid: gramstax!Ctx#setSessionFreeDocument:member(1)
     package: gramstax!
-    fullName: setSessionFreeDocument(params)
+    fullName: setSessionFreeDocument(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7930,18 +8296,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionFreeDocument(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionFreeDocument(this: Ctx & {
+                handleSessionFreeDocument: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeDocument: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionFreeLocation(params)
+  - name: setSessionFreeLocation(this, params)
     uid: gramstax!Ctx#setSessionFreeLocation:member(1)
     package: gramstax!
-    fullName: setSessionFreeLocation(params)
+    fullName: setSessionFreeLocation(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7950,18 +8325,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionFreeLocation(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionFreeLocation(this: Ctx & {
+                handleSessionFreeLocation: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeLocation: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionFreePhoto(params)
+  - name: setSessionFreePhoto(this, params)
     uid: gramstax!Ctx#setSessionFreePhoto:member(1)
     package: gramstax!
-    fullName: setSessionFreePhoto(params)
+    fullName: setSessionFreePhoto(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7970,18 +8354,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionFreePhoto(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionFreePhoto(this: Ctx & {
+                handleSessionFreePhoto: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreePhoto: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionFreeSticker(params)
+  - name: setSessionFreeSticker(this, params)
     uid: gramstax!Ctx#setSessionFreeSticker:member(1)
     package: gramstax!
-    fullName: setSessionFreeSticker(params)
+    fullName: setSessionFreeSticker(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -7990,18 +8383,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionFreeSticker(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionFreeSticker(this: Ctx & {
+                handleSessionFreeSticker: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeSticker: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionFreeText(params)
+  - name: setSessionFreeText(this, params)
     uid: gramstax!Ctx#setSessionFreeText:member(1)
     package: gramstax!
-    fullName: setSessionFreeText(params)
+    fullName: setSessionFreeText(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -8010,18 +8412,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionFreeText(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionFreeText(this: Ctx & {
+                handleSessionFreeText: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeText: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionFreeVideo(params)
+  - name: setSessionFreeVideo(this, params)
     uid: gramstax!Ctx#setSessionFreeVideo:member(1)
     package: gramstax!
-    fullName: setSessionFreeVideo(params)
+    fullName: setSessionFreeVideo(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -8030,18 +8441,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionFreeVideo(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionFreeVideo(this: Ctx & {
+                handleSessionFreeVideo: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeVideo: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionFreeVideoNote(params)
+  - name: setSessionFreeVideoNote(this, params)
     uid: gramstax!Ctx#setSessionFreeVideoNote:member(1)
     package: gramstax!
-    fullName: setSessionFreeVideoNote(params)
+    fullName: setSessionFreeVideoNote(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -8050,18 +8470,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionFreeVideoNote(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionFreeVideoNote(this: Ctx & {
+                handleSessionFreeVideoNote: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeVideoNote: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionFreeVoice(params)
+  - name: setSessionFreeVoice(this, params)
     uid: gramstax!Ctx#setSessionFreeVoice:member(1)
     package: gramstax!
-    fullName: setSessionFreeVoice(params)
+    fullName: setSessionFreeVoice(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -8070,18 +8499,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionFreeVoice(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionFreeVoice(this: Ctx & {
+                handleSessionFreeVoice: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionFreeVoice: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionMyChatMemberAdminRegular(params)
+  - name: setSessionMyChatMemberAdminRegular(this, params)
     uid: gramstax!Ctx#setSessionMyChatMemberAdminRegular:member(1)
     package: gramstax!
-    fullName: setSessionMyChatMemberAdminRegular(params)
+    fullName: setSessionMyChatMemberAdminRegular(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -8090,18 +8528,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionMyChatMemberAdminRegular(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionMyChatMemberAdminRegular(this: Ctx & {
+                handleSessionMyChatMemberAdminRegular: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionMyChatMemberAdminRegular: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionMyChatMemberOutAdmin(params)
+  - name: setSessionMyChatMemberOutAdmin(this, params)
     uid: gramstax!Ctx#setSessionMyChatMemberOutAdmin:member(1)
     package: gramstax!
-    fullName: setSessionMyChatMemberOutAdmin(params)
+    fullName: setSessionMyChatMemberOutAdmin(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -8110,18 +8557,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionMyChatMemberOutAdmin(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionMyChatMemberOutAdmin(this: Ctx & {
+                handleSessionMyChatMemberOutAdmin: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionMyChatMemberOutAdmin: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionMyChatMemberOutRegular(params)
+  - name: setSessionMyChatMemberOutRegular(this, params)
     uid: gramstax!Ctx#setSessionMyChatMemberOutRegular:member(1)
     package: gramstax!
-    fullName: setSessionMyChatMemberOutRegular(params)
+    fullName: setSessionMyChatMemberOutRegular(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -8130,18 +8586,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionMyChatMemberOutRegular(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionMyChatMemberOutRegular(this: Ctx & {
+                handleSessionMyChatMemberOutRegular: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionMyChatMemberOutRegular: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionMyChatMemberRegularAdmin(params)
+  - name: setSessionMyChatMemberRegularAdmin(this, params)
     uid: gramstax!Ctx#setSessionMyChatMemberRegularAdmin:member(1)
     package: gramstax!
-    fullName: setSessionMyChatMemberRegularAdmin(params)
+    fullName: setSessionMyChatMemberRegularAdmin(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -8150,18 +8615,27 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionMyChatMemberRegularAdmin(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionMyChatMemberRegularAdmin(this: Ctx & {
+                handleSessionMyChatMemberRegularAdmin: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionMyChatMemberRegularAdmin: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any
       return:
         type: Promise&lt;boolean | null&gt;
         description: ''
-  - name: setSessionText(params)
+  - name: setSessionText(this, params)
     uid: gramstax!Ctx#setSessionText:member(1)
     package: gramstax!
-    fullName: setSessionText(params)
+    fullName: setSessionText(this, params)
     summary: Session set helper methods.
     remarks: >-
       These methods are shortcuts for [Ctx.setSession()](xref:gramstax!Ctx%23setSession:member(1)) with pre-built method
@@ -8170,8 +8644,17 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'setSessionText(params?: any): Promise<boolean | null>;'
+      content: |-
+        setSessionText(this: Ctx & {
+                handleSessionText: (...args: any[]) => any;
+            }, params?: any): Promise<boolean | null>;
       parameters:
+        - id: this
+          description: ''
+          type: |-
+            <xref uid="gramstax!Ctx:class" /> & {
+                    handleSessionText: (...args: any[]) =&gt; any;
+                }
         - id: params
           description: ''
           type: any

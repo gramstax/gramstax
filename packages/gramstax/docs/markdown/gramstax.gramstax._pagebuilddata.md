@@ -9,7 +9,7 @@ Builds page data configuration for a page class.
 **Signature:**
 
 ```typescript
-_pageBuildData(Page: typeof Ctx, filePath: string): void;
+_pageBuildData(Page: typeof Ctx, filePath: string, routeName?: string): void;
 ```
 
 ## Parameters
@@ -59,6 +59,22 @@ string
 </td><td>
 
 The file path of the page.
+
+
+</td></tr>
+<tr><td>
+
+routeName
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_
 
 
 </td></tr>

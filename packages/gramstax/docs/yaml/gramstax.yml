@@ -3,6 +3,9 @@ uid: gramstax!
 name: gramstax
 type: package
 summary: ''
+interfaces:
+  - gramstax!_BottomKbWithCtx:interface
+  - gramstax!_InlineKbWithCtx:interface
 classes:
   - gramstax!BlockKeyboard:class
   - gramstax!CacheExternal:class

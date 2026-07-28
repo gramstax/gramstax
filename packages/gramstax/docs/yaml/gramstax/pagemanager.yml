@@ -106,13 +106,26 @@ methods:
     uid: gramstax!PageManager.getFileManySync:member(1)
     package: gramstax!
     fullName: getFileManySync(path, positionModule)
-    summary: Synchronously load all page modules from a directory.
+    summary: >-
+      Synchronously load all page modules from a directory.
+
+
+      Supports both flat `.ts`<!-- -->/`.js` files and subfolder `index.ts`<!-- -->/`index.js` entries. In a subfolder,
+      \*\*any\*\* `.ts`<!-- -->/`.js` file (not just `index`<!-- -->) is recognised as a page — its route name becomes
+      `parentDir/basename`<!-- -->. A file `help.ts` is equivalent to `help/index.ts`<!-- -->; using both simultaneously
+      produces a duplicate error. Nesting can be arbitrary deep.
     remarks: ''
     example:
       - |-
         ```typescript
         const pages = PageManager.getFileManySync();
-        // => [{ path: "/path/to/start.ts", page: StartPage }, ...]
+        // => [
+        //   { path: "/path/to/start.ts",          page: StartPage,   routeName: "start" },
+        //   { path: "/path/to/settings.ts",       page: SettingsPage, routeName: "settings" },
+        //   { path: "/path/to/start/help.ts",     page: HelpPage,    routeName: "start/help" },
+        //   { path: "/path/to/start/help/index.ts", page: HelpPage,  routeName: "start/help" },
+        //                                        ↑ identical route — duplicate error if both exist
+        // ]
         ```
     isPreview: false
     isDeprecated: false
@@ -121,6 +134,7 @@ methods:
         static getFileManySync(path?: string, positionModule?: number): {
                 path: string;
                 page: typeof Ctx;
+                routeName: string;
             }[];
       parameters:
         - id: path
@@ -134,8 +148,9 @@ methods:
           {
                   path: string;
                   page: typeof <xref uid="gramstax!Ctx:class" />;
+                  routeName: string;
               }[]
-        description: Array of page records containing `path` and `page` properties.
+        description: Array of page records containing `path`<!-- -->, `page` and `routeName` properties.
   - name: getFilePath()
     uid: gramstax!PageManager.getFilePath:member(1)
     package: gramstax!

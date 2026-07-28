@@ -5,6 +5,10 @@ items:
       - name: gramstax
         uid: gramstax!
         items:
+          - name: _BottomKbWithCtx
+            uid: gramstax!_BottomKbWithCtx:interface
+          - name: _InlineKbWithCtx
+            uid: gramstax!_InlineKbWithCtx:interface
           - name: BlockKeyboard
             uid: gramstax!BlockKeyboard:class
           - name: CacheExternal

@@ -16,10 +16,7 @@ type ITPageData<T extends any[] = any[]> = {
     intentCommandText: string;
     _positionArgText: number;
     intentCallbackQueryData: string;
+    intentTextMap?: Record<string, string>;
+    intentCommandTextMap?: Record<string, string>;
 };
 ```
-
-## Remarks
-
-Contains all routing metadata and handlers for a page in the Gramstax framework. This type defines the internal structure used by the routing system to match incoming updates to the appropriate page handlers.
-

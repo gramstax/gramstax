@@ -4,15 +4,12 @@
 
 ## ITInlineKb type
 
-Type alias for InlineKeyboard.
+Inline keyboard whose `.text()` also accepts a page class/instance as the callback data — resolves to `page.data.callbackQueryData()` automatically.
 
 **Signature:**
 
 ```typescript
-type ITInlineKb = InlineKeyboard;
+type ITInlineKb = _InlineKbWithCtx;
 ```
-
-## Remarks
-
-Used to create inline keyboards that appear below messages with callback buttons.
+**References:** [\_InlineKbWithCtx](./gramstax._inlinekbwithctx.md)
 

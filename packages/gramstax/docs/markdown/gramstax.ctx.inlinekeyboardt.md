@@ -9,7 +9,7 @@ Creates an inline keyboard with template-based buttons linked to page destinatio
 **Signature:**
 
 ```typescript
-inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData | null): InlineKeyboard;
+inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData | null): _InlineKbWithCtx;
 ```
 
 ## Parameters
@@ -98,7 +98,7 @@ _(Optional)_ Optional template interpolation data (or null to omit).
 
 **Returns:**
 
-InlineKeyboard
+[\_InlineKbWithCtx](./gramstax._inlinekbwithctx.md)
 
 The inline keyboard instance.
 

@@ -4,15 +4,12 @@
 
 ## ITBottomKb type
 
-Type alias for Keyboard (reply keyboard).
+Reply keyboard whose `.text()` also accepts a page class/instance as the button text — resolves to `page.data.intentText` automatically.
 
 **Signature:**
 
 ```typescript
-type ITBottomKb = Keyboard;
+type ITBottomKb = _BottomKbWithCtx;
 ```
-
-## Remarks
-
-Used to create reply keyboards that replace the user's device keyboard.
+**References:** [\_BottomKbWithCtx](./gramstax._bottomkbwithctx.md)
 

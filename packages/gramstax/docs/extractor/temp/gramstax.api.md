@@ -27,6 +27,11 @@ export class BlockKeyboard {
 }
 
 // @public
+export interface _BottomKbWithCtx extends Keyboard {
+    text(text: string | typeof Ctx | Ctx, options?: Parameters<Keyboard[`text`]>[1]): this;
+}
+
+// @public
 export class CacheExternal<V = any> extends Keyv<V> {
     // Warning: (ae-forgotten-export) The symbol "ITMore" needs to be exported by the entry point index.d.ts
     constructor(url?: string, ttl?: number, namespace?: string, more?: ITMore);
@@ -42,7 +47,9 @@ export class Ctx extends Context {
     // (undocumented)
     static readonly ANSWER_API_METHODS: Set<string>;
     bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams | null): ITBottomKb;
-    bottomKeyboardT(layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): Keyboard;
+    bottomKeyboardT(layout: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): ITBottomKb;
+    // (undocumented)
+    bottomKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): ITBottomKb;
     static buildData<C extends (...args: any[]) => any>(callbackQueryData: C): ITPageData<Parameters<C>>;
     static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions<C> | null): ITPageData<Parameters<C>>;
     static buildData(options: ITBuildDataOptions | null): ITPageData<[]>;
@@ -61,6 +68,9 @@ export class Ctx extends Context {
     get chatMember(): NonNullable<Context[`chatMember`]>;
     get chosenInlineResult(): NonNullable<Context[`chosenInlineResult`]>;
     clearSession(): Promise<boolean | null>;
+    readonly ct: Context & {
+        [key: string]: any;
+    };
     static data: ITPageData<any>;
     data: ITPageData<any>;
     get deletedBusinessMessages(): NonNullable<Context[`deletedBusinessMessages`]>;
@@ -217,9 +227,10 @@ export class Ctx extends Context {
     // @virtual
     hookBeforeRoute?(): Promise<boolean>;
     inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams | null): ITInlineKb;
-    inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData | null): InlineKeyboard;
+    inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData | null): _InlineKbWithCtx;
     get inlineQuery(): NonNullable<Context[`inlineQuery`]>;
     keyboardCols<T = any>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;
+    log: LoggingHelper | null | undefined;
     get managedBot(): NonNullable<Context[`managedBot`]>;
     get message(): NonNullable<Context[`message`]>;
     get messageReaction(): NonNullable<Context[`messageReaction`]>;
@@ -356,52 +367,144 @@ export class Ctx extends Context {
     replyWithStream(stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>, otherMessageDraft?: Record<string, any>, otherMessage?: Record<string, any>, signal?: AbortSignal): Promise<any>;
     get senderChat(): NonNullable<Context[`senderChat`]>;
     setSession(method: string | string[], params: any, moreRoot?: Record<any, any>): Promise<boolean | null>;
-    setSessionArgsCallbackQueryData(params?: any): Promise<boolean | null>;
-    setSessionArgsText(params?: any): Promise<boolean | null>;
-    setSessionCallbackQueryData(params?: any): Promise<boolean | null>;
-    setSessionCaptionAnimation(params?: any): Promise<boolean | null>;
-    setSessionCaptionArgsAnimation(params?: any): Promise<boolean | null>;
-    setSessionCaptionArgsAudio(params?: any): Promise<boolean | null>;
-    setSessionCaptionArgsDocument(params?: any): Promise<boolean | null>;
-    setSessionCaptionArgsPhoto(params?: any): Promise<boolean | null>;
-    setSessionCaptionArgsVideo(params?: any): Promise<boolean | null>;
-    setSessionCaptionArgsVoice(params?: any): Promise<boolean | null>;
-    setSessionCaptionAudio(params?: any): Promise<boolean | null>;
-    setSessionCaptionDocument(params?: any): Promise<boolean | null>;
-    setSessionCaptionPhoto(params?: any): Promise<boolean | null>;
-    setSessionCaptionVideo(params?: any): Promise<boolean | null>;
-    setSessionCaptionVoice(params?: any): Promise<boolean | null>;
-    setSessionChatMemberOutIn(params?: any): Promise<boolean | null>;
-    setSessionCommandArgsText(params?: any): Promise<boolean | null>;
-    setSessionCommandCaptionAnimation(params?: any): Promise<boolean | null>;
-    setSessionCommandCaptionArgsAnimation(params?: any): Promise<boolean | null>;
-    setSessionCommandCaptionArgsAudio(params?: any): Promise<boolean | null>;
-    setSessionCommandCaptionArgsDocument(params?: any): Promise<boolean | null>;
-    setSessionCommandCaptionArgsPhoto(params?: any): Promise<boolean | null>;
-    setSessionCommandCaptionArgsVideo(params?: any): Promise<boolean | null>;
-    setSessionCommandCaptionArgsVoice(params?: any): Promise<boolean | null>;
-    setSessionCommandCaptionAudio(params?: any): Promise<boolean | null>;
-    setSessionCommandCaptionDocument(params?: any): Promise<boolean | null>;
-    setSessionCommandCaptionPhoto(params?: any): Promise<boolean | null>;
-    setSessionCommandCaptionVideo(params?: any): Promise<boolean | null>;
-    setSessionCommandCaptionVoice(params?: any): Promise<boolean | null>;
-    setSessionCommandText(params?: any): Promise<boolean | null>;
-    setSessionFreeAnimation(params?: any): Promise<boolean | null>;
-    setSessionFreeAudio(params?: any): Promise<boolean | null>;
-    setSessionFreeContact(params?: any): Promise<boolean | null>;
-    setSessionFreeDocument(params?: any): Promise<boolean | null>;
-    setSessionFreeLocation(params?: any): Promise<boolean | null>;
-    setSessionFreePhoto(params?: any): Promise<boolean | null>;
-    setSessionFreeSticker(params?: any): Promise<boolean | null>;
-    setSessionFreeText(params?: any): Promise<boolean | null>;
-    setSessionFreeVideo(params?: any): Promise<boolean | null>;
-    setSessionFreeVideoNote(params?: any): Promise<boolean | null>;
-    setSessionFreeVoice(params?: any): Promise<boolean | null>;
-    setSessionMyChatMemberAdminRegular(params?: any): Promise<boolean | null>;
-    setSessionMyChatMemberOutAdmin(params?: any): Promise<boolean | null>;
-    setSessionMyChatMemberOutRegular(params?: any): Promise<boolean | null>;
-    setSessionMyChatMemberRegularAdmin(params?: any): Promise<boolean | null>;
-    setSessionText(params?: any): Promise<boolean | null>;
+    setSessionArgsCallbackQueryData(this: Ctx & {
+        handleSessionArgsCallbackQueryData: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionArgsText(this: Ctx & {
+        handleSessionArgsText: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCallbackQueryData(this: Ctx & {
+        handleSessionCallbackQueryData: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCaptionAnimation(this: Ctx & {
+        handleSessionCaptionAnimation: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCaptionArgsAnimation(this: Ctx & {
+        handleSessionCaptionArgsAnimation: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCaptionArgsAudio(this: Ctx & {
+        handleSessionCaptionArgsAudio: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCaptionArgsDocument(this: Ctx & {
+        handleSessionCaptionArgsDocument: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCaptionArgsPhoto(this: Ctx & {
+        handleSessionCaptionArgsPhoto: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCaptionArgsVideo(this: Ctx & {
+        handleSessionCaptionArgsVideo: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCaptionArgsVoice(this: Ctx & {
+        handleSessionCaptionArgsVoice: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCaptionAudio(this: Ctx & {
+        handleSessionCaptionAudio: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCaptionDocument(this: Ctx & {
+        handleSessionCaptionDocument: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCaptionPhoto(this: Ctx & {
+        handleSessionCaptionPhoto: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCaptionVideo(this: Ctx & {
+        handleSessionCaptionVideo: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCaptionVoice(this: Ctx & {
+        handleSessionCaptionVoice: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionChatMemberOutIn(this: Ctx & {
+        handleSessionChatMemberOutIn: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandArgsText(this: Ctx & {
+        handleSessionCommandArgsText: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionAnimation(this: Ctx & {
+        handleSessionCommandCaptionAnimation: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionArgsAnimation(this: Ctx & {
+        handleSessionCommandCaptionArgsAnimation: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionArgsAudio(this: Ctx & {
+        handleSessionCommandCaptionArgsAudio: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionArgsDocument(this: Ctx & {
+        handleSessionCommandCaptionArgsDocument: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionArgsPhoto(this: Ctx & {
+        handleSessionCommandCaptionArgsPhoto: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionArgsVideo(this: Ctx & {
+        handleSessionCommandCaptionArgsVideo: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionArgsVoice(this: Ctx & {
+        handleSessionCommandCaptionArgsVoice: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionAudio(this: Ctx & {
+        handleSessionCommandCaptionAudio: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionDocument(this: Ctx & {
+        handleSessionCommandCaptionDocument: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionPhoto(this: Ctx & {
+        handleSessionCommandCaptionPhoto: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionVideo(this: Ctx & {
+        handleSessionCommandCaptionVideo: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandCaptionVoice(this: Ctx & {
+        handleSessionCommandCaptionVoice: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionCommandText(this: Ctx & {
+        handleSessionCommandText: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionFreeAnimation(this: Ctx & {
+        handleSessionFreeAnimation: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionFreeAudio(this: Ctx & {
+        handleSessionFreeAudio: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionFreeContact(this: Ctx & {
+        handleSessionFreeContact: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionFreeDocument(this: Ctx & {
+        handleSessionFreeDocument: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionFreeLocation(this: Ctx & {
+        handleSessionFreeLocation: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionFreePhoto(this: Ctx & {
+        handleSessionFreePhoto: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionFreeSticker(this: Ctx & {
+        handleSessionFreeSticker: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionFreeText(this: Ctx & {
+        handleSessionFreeText: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionFreeVideo(this: Ctx & {
+        handleSessionFreeVideo: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionFreeVideoNote(this: Ctx & {
+        handleSessionFreeVideoNote: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionFreeVoice(this: Ctx & {
+        handleSessionFreeVoice: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionMyChatMemberAdminRegular(this: Ctx & {
+        handleSessionMyChatMemberAdminRegular: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionMyChatMemberOutAdmin(this: Ctx & {
+        handleSessionMyChatMemberOutAdmin: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionMyChatMemberOutRegular(this: Ctx & {
+        handleSessionMyChatMemberOutRegular: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionMyChatMemberRegularAdmin(this: Ctx & {
+        handleSessionMyChatMemberRegularAdmin: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
+    setSessionText(this: Ctx & {
+        handleSessionText: (...args: any[]) => any;
+    }, params?: any): Promise<boolean | null>;
     temp: ITTemp;
     // @virtual
     static template?: string;
@@ -861,7 +964,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     optionsPage: {
         shortCallbackQueryData: boolean;
     };
-    _pageBuildData(Page: typeof Ctx, filePath: string): void;
+    _pageBuildData(Page: typeof Ctx, filePath: string, routeName?: string): void;
     _pageLoads(pagesPath?: string): {
         all: Record<string, typeof Ctx>;
         routeDynamic: string[];
@@ -1257,7 +1360,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 }
 
 // @public
-export type ITBottomKb = Keyboard;
+export interface _InlineKbWithCtx extends InlineKeyboard {
+    text(text: Parameters<InlineKeyboard[`text`]>[0], data?: string | typeof Ctx): this;
+}
+
+// @public
+export type ITBottomKb = _BottomKbWithCtx;
 
 // @public
 export type ITBottomKbParams = {
@@ -1270,8 +1378,8 @@ export type ITBottomKbParams = {
 export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
     name?: string | null;
     callbackQueryData?: C | null;
-    intentText?: string | null;
-    intentTextCommand?: string | null;
+    intentText?: string | Record<string, string> | null;
+    intentCommandText?: string | Record<string, string> | null;
 };
 
 // @public
@@ -1301,6 +1409,7 @@ export type ITCtxParams = {
     cacheSession: CacheExternal;
     cacheKeyboard: Map<any, any>;
     templateManager: TemplateManager;
+    log?: LoggingHelper | null;
     temp: ITTemp;
 };
 
@@ -1401,7 +1510,7 @@ export type ITGramstaxParams = {
 export type ITInBoKb = ITBottomKb | ITInlineKb;
 
 // @public
-export type ITInlineKb = InlineKeyboard;
+export type ITInlineKb = _InlineKbWithCtx;
 
 // @public
 export type ITInlineKbParams = {
@@ -1413,8 +1522,10 @@ export type ITInlineKbParams = {
 // @public
 export type ITKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${1 | 2 | 3 | 4 | 5 | 6}`;
 
+// Warning: (ae-forgotten-export) The symbol "_KbDestHasCallback" needs to be exported by the entry point index.d.ts
+//
 // @public
-export type ITKbDest = typeof Ctx | Ctx | string;
+export type ITKbDest = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCallback[`prototype`]) | string;
 
 // @public
 export type ITMediaBlock = {
@@ -1572,6 +1683,8 @@ export type ITPageData<T extends any[] = any[]> = {
     intentCommandText: string;
     _positionArgText: number;
     intentCallbackQueryData: string;
+    intentTextMap?: Record<string, string>;
+    intentCommandTextMap?: Record<string, string>;
 };
 
 // @public
@@ -1666,6 +1779,7 @@ export class PageManager {
     static getFileManySync(path?: string, positionModule?: number): {
         path: string;
         page: typeof Ctx;
+        routeName: string;
     }[];
     static getFilePath(): string;
     static getFileSync(path?: string, positionModule?: number): typeof Ctx;
@@ -2022,7 +2136,7 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:9232:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:9483:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

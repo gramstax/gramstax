@@ -189,6 +189,239 @@
       "preserveMemberOrder": false,
       "members": [
         {
+          "kind": "Interface",
+          "canonicalReference": "gramstax!_BottomKbWithCtx:interface",
+          "docComment": "/**\n * Reply keyboard whose `.text()` also accepts a page class/instance as the button text — resolves to `page.data.intentText` automatically.\n *\n * @example\n * ```ts\n * k.text(BalancePage)\n * // equivalent to: k.text(BalancePage.data.intentText)\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "interface _BottomKbWithCtx extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "Keyboard",
+              "canonicalReference": "grammy!Keyboard:class"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "_BottomKbWithCtx",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "MethodSignature",
+              "canonicalReference": "gramstax!_BottomKbWithCtx#text:member(1)",
+              "docComment": "/**\n * Add a text button. `text` is a page (class/instance) or string.\n *\n * @param text - string or class Page\n *\n * @param options - for styling\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "text(text: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | typeof "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Parameters",
+                  "canonicalReference": "!Parameters:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Keyboard",
+                  "canonicalReference": "grammy!Keyboard:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[`text`]>[1]"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "this"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "returnTypeTokenRange": {
+                "startIndex": 11,
+                "endIndex": 12
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "text",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 5
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 6,
+                    "endIndex": 10
+                  },
+                  "isOptional": true
+                }
+              ],
+              "name": "text"
+            }
+          ],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 1,
+              "endIndex": 2
+            }
+          ]
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "gramstax!_InlineKbWithCtx:interface",
+          "docComment": "/**\n * Inline keyboard whose `.text()` also accepts a page class/instance as callback data — calls `page.data.callbackQueryData()` automatically.\n *\n * @example\n * ```ts\n * k.text(\"Settings\", SettingsPage)\n * // equivalent to: k.text(\"Settings\", SettingsPage.data.callbackQueryData())\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "interface _InlineKbWithCtx extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "InlineKeyboard",
+              "canonicalReference": "grammy!InlineKeyboard:class"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "_InlineKbWithCtx",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "MethodSignature",
+              "canonicalReference": "gramstax!_InlineKbWithCtx#text:member(1)",
+              "docComment": "/**\n * Add a callback button. `data` is a page (class/instance) or string.\n *\n * @param text - string or object text with styling\n *\n * @param data - string callback_data or class Page\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "text(text: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Parameters",
+                  "canonicalReference": "!Parameters:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "InlineKeyboard",
+                  "canonicalReference": "grammy!InlineKeyboard:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[`text`]>[0]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | typeof "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "this"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "returnTypeTokenRange": {
+                "startIndex": 9,
+                "endIndex": 10
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "text",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 5
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 6,
+                    "endIndex": 8
+                  },
+                  "isOptional": true
+                }
+              ],
+              "name": "text"
+            }
+          ],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 1,
+              "endIndex": 2
+            }
+          ]
+        },
+        {
           "kind": "Class",
           "canonicalReference": "gramstax!BlockKeyboard:class",
           "docComment": "/**\n * Provides static methods for generating keyboard template blocks from `LabelKeyboard` definitions.\n *\n * @remarks\n *\n * This class generates HTML-like `<g-keyboard>` blocks for the template engine. Requires `LabelKeyboard` to be set via {@link BlockKeyboard.label} before using {@link BlockKeyboard._build}.\n *\n * @example\n * ```typescript\n * // blocks/keyboard.ts\n * import { BlockKeyboard, LabelKeyboard } from \"gramstax\";\n *\n * class KeyboardBlock extends BlockKeyboard {\n *   static label = class extends LabelKeyboard {\n *     static backNext = {en: \"Back, Next\", id: \"Kembali, Lanjut\"}\n *   }\n *   static backNext = (lang?: string, type?: string) => this._build(`backNext`, lang, type)\n * }\n *\n * // base/page.ts\n * import {KeyboardBlock} from \"~/blocks/keyboard\"\n * export abstract class PageBase extends CtxCore {\n *   static kbk = KeyboardBlock\n *   static kbl = KeyboardBlock.label\n * }\n *\n * // pages/some.ts\n * import {PageBase} from \"~/base/page\"\n * export class SomePage extends PageBase {\n *   static template = `\n *     <g-base>\n *       ${this.kbk.backNext()}\n *       <g-message>Default message hello world</g-message>\n *     </g-base>\n *     <g-base id=\"others-id-1\">\n *       <g-message>Message from others id 1 with keyboard from base id default</g-message>\n *     </g-base>\n *     <g-base id=\"others-id-2\">\n *       <g-base>${this.kbk.backNext()}</g-base>\n *       <g-message>Message from others id 3 with keyboard in same base</g-message>\n *     </g-base>\n *   `\n * }\n *\n * // understanding example\n * this.kbk.backNext() // will show all language with block template\n * this.kbk.backNext(\"id\") // will show all language only (lang=\"id\") with block template\n * this.kbk.backNext(\"default\") // will show all language only (lang=\"default\" or without lang) with block template\n * ```\n *\n * @public\n */\n",
@@ -832,7 +1065,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "bottomKeyboardT(layout?: "
+                  "text": "bottomKeyboardT(layout: "
                 },
                 {
                   "kind": "Reference",
@@ -866,8 +1099,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "Keyboard",
-                  "canonicalReference": "grammy!Keyboard:class"
+                  "text": "ITBottomKb",
+                  "canonicalReference": "gramstax!ITBottomKb:type"
                 },
                 {
                   "kind": "Content",
@@ -889,7 +1122,7 @@
                     "startIndex": 1,
                     "endIndex": 2
                   },
-                  "isOptional": true
+                  "isOptional": false
                 },
                 {
                   "parameterName": "AGBaseId",
@@ -904,6 +1137,114 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 7
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "bottomKeyboardT"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#bottomKeyboardT:member(2)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "bottomKeyboardT(PageDest: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITKbDest",
+                  "canonicalReference": "gramstax!ITKbDest:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", layout?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITKbCols",
+                  "canonicalReference": "gramstax!ITKbCols:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", AGBaseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<any, any> | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITBottomKb",
+                  "canonicalReference": "gramstax!ITBottomKb:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 11,
+                "endIndex": 12
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 2,
+              "parameters": [
+                {
+                  "parameterName": "PageDest",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "layout",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "AGBaseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 6,
+                    "endIndex": 7
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 8,
+                    "endIndex": 10
                   },
                   "isOptional": true
                 }
@@ -1747,6 +2088,41 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "clearSession"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx#ct:member",
+              "docComment": "/**\n * The underlying grammy context object. For new code this is the same as `this` (since {@link Ctx} extends `Context`), but it is exposed here so that a `Ctx` instance structurally satisfies {@link ITCtxParams} — allowing `new SomePage(this)` to compile without a type assertion.\n *\n * The `& {[key: string]: any}` widening covers runtime-added methods (e.g. `\\@grammyjs/stream` plugin) that TypeScript cannot know statically.\n *\n * @readonly @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly ct: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Context",
+                  "canonicalReference": "grammy!Context:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        [key: string]: any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "ct",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
             },
             {
               "kind": "Property",
@@ -5885,8 +6261,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "InlineKeyboard",
-                  "canonicalReference": "grammy!InlineKeyboard:class"
+                  "text": "_InlineKbWithCtx",
+                  "canonicalReference": "gramstax!_InlineKbWithCtx:interface"
                 },
                 {
                   "kind": "Content",
@@ -6100,6 +6476,41 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "keyboardCols"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx#log:member",
+              "docComment": "/**\n * Logger instance from Gramstax, for runtime warnings.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "log: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "LoggingHelper",
+                  "canonicalReference": "gramstax!LoggingHelper:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "log",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
             },
             {
               "kind": "Property",
@@ -17964,7 +18375,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionArgsCallbackQueryData(params?: "
+                  "text": "setSessionArgsCallbackQueryData(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionArgsCallbackQueryData: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -17990,18 +18414,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18017,7 +18449,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionArgsText(params?: "
+                  "text": "setSessionArgsText(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionArgsText: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18043,18 +18488,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18070,7 +18523,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCallbackQueryData(params?: "
+                  "text": "setSessionCallbackQueryData(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCallbackQueryData: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18096,18 +18562,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18123,7 +18597,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCaptionAnimation(params?: "
+                  "text": "setSessionCaptionAnimation(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCaptionAnimation: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18149,18 +18636,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18176,7 +18671,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCaptionArgsAnimation(params?: "
+                  "text": "setSessionCaptionArgsAnimation(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCaptionArgsAnimation: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18202,18 +18710,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18229,7 +18745,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCaptionArgsAudio(params?: "
+                  "text": "setSessionCaptionArgsAudio(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCaptionArgsAudio: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18255,18 +18784,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18282,7 +18819,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCaptionArgsDocument(params?: "
+                  "text": "setSessionCaptionArgsDocument(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCaptionArgsDocument: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18308,18 +18858,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18335,7 +18893,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCaptionArgsPhoto(params?: "
+                  "text": "setSessionCaptionArgsPhoto(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCaptionArgsPhoto: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18361,18 +18932,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18388,7 +18967,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCaptionArgsVideo(params?: "
+                  "text": "setSessionCaptionArgsVideo(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCaptionArgsVideo: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18414,18 +19006,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18441,7 +19041,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCaptionArgsVoice(params?: "
+                  "text": "setSessionCaptionArgsVoice(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCaptionArgsVoice: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18467,18 +19080,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18494,7 +19115,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCaptionAudio(params?: "
+                  "text": "setSessionCaptionAudio(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCaptionAudio: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18520,18 +19154,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18547,7 +19189,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCaptionDocument(params?: "
+                  "text": "setSessionCaptionDocument(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCaptionDocument: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18573,18 +19228,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18600,7 +19263,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCaptionPhoto(params?: "
+                  "text": "setSessionCaptionPhoto(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCaptionPhoto: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18626,18 +19302,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18653,7 +19337,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCaptionVideo(params?: "
+                  "text": "setSessionCaptionVideo(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCaptionVideo: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18679,18 +19376,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18706,7 +19411,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCaptionVoice(params?: "
+                  "text": "setSessionCaptionVoice(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCaptionVoice: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18732,18 +19450,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18759,7 +19485,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionChatMemberOutIn(params?: "
+                  "text": "setSessionChatMemberOutIn(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionChatMemberOutIn: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18785,18 +19524,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18812,7 +19559,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandArgsText(params?: "
+                  "text": "setSessionCommandArgsText(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandArgsText: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18838,18 +19598,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18865,7 +19633,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandCaptionAnimation(params?: "
+                  "text": "setSessionCommandCaptionAnimation(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandCaptionAnimation: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18891,18 +19672,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18918,7 +19707,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandCaptionArgsAnimation(params?: "
+                  "text": "setSessionCommandCaptionArgsAnimation(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandCaptionArgsAnimation: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18944,18 +19746,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -18971,7 +19781,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandCaptionArgsAudio(params?: "
+                  "text": "setSessionCommandCaptionArgsAudio(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandCaptionArgsAudio: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -18997,18 +19820,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19024,7 +19855,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandCaptionArgsDocument(params?: "
+                  "text": "setSessionCommandCaptionArgsDocument(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandCaptionArgsDocument: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19050,18 +19894,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19077,7 +19929,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandCaptionArgsPhoto(params?: "
+                  "text": "setSessionCommandCaptionArgsPhoto(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandCaptionArgsPhoto: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19103,18 +19968,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19130,7 +20003,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandCaptionArgsVideo(params?: "
+                  "text": "setSessionCommandCaptionArgsVideo(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandCaptionArgsVideo: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19156,18 +20042,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19183,7 +20077,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandCaptionArgsVoice(params?: "
+                  "text": "setSessionCommandCaptionArgsVoice(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandCaptionArgsVoice: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19209,18 +20116,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19236,7 +20151,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandCaptionAudio(params?: "
+                  "text": "setSessionCommandCaptionAudio(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandCaptionAudio: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19262,18 +20190,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19289,7 +20225,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandCaptionDocument(params?: "
+                  "text": "setSessionCommandCaptionDocument(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandCaptionDocument: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19315,18 +20264,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19342,7 +20299,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandCaptionPhoto(params?: "
+                  "text": "setSessionCommandCaptionPhoto(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandCaptionPhoto: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19368,18 +20338,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19395,7 +20373,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandCaptionVideo(params?: "
+                  "text": "setSessionCommandCaptionVideo(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandCaptionVideo: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19421,18 +20412,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19448,7 +20447,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandCaptionVoice(params?: "
+                  "text": "setSessionCommandCaptionVoice(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandCaptionVoice: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19474,18 +20486,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19501,7 +20521,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionCommandText(params?: "
+                  "text": "setSessionCommandText(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionCommandText: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19527,18 +20560,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19554,7 +20595,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionFreeAnimation(params?: "
+                  "text": "setSessionFreeAnimation(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreeAnimation: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19580,18 +20634,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19607,7 +20669,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionFreeAudio(params?: "
+                  "text": "setSessionFreeAudio(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreeAudio: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19633,18 +20708,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19660,7 +20743,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionFreeContact(params?: "
+                  "text": "setSessionFreeContact(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreeContact: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19686,18 +20782,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19713,7 +20817,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionFreeDocument(params?: "
+                  "text": "setSessionFreeDocument(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreeDocument: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19739,18 +20856,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19766,7 +20891,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionFreeLocation(params?: "
+                  "text": "setSessionFreeLocation(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreeLocation: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19792,18 +20930,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19819,7 +20965,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionFreePhoto(params?: "
+                  "text": "setSessionFreePhoto(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreePhoto: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19845,18 +21004,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19872,7 +21039,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionFreeSticker(params?: "
+                  "text": "setSessionFreeSticker(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreeSticker: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19898,18 +21078,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19925,7 +21113,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionFreeText(params?: "
+                  "text": "setSessionFreeText(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreeText: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -19951,18 +21152,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -19978,7 +21187,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionFreeVideo(params?: "
+                  "text": "setSessionFreeVideo(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreeVideo: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -20004,18 +21226,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -20031,7 +21261,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionFreeVideoNote(params?: "
+                  "text": "setSessionFreeVideoNote(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreeVideoNote: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -20057,18 +21300,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -20084,7 +21335,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionFreeVoice(params?: "
+                  "text": "setSessionFreeVoice(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionFreeVoice: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -20110,18 +21374,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -20137,7 +21409,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionMyChatMemberAdminRegular(params?: "
+                  "text": "setSessionMyChatMemberAdminRegular(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionMyChatMemberAdminRegular: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -20163,18 +21448,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -20190,7 +21483,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionMyChatMemberOutAdmin(params?: "
+                  "text": "setSessionMyChatMemberOutAdmin(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionMyChatMemberOutAdmin: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -20216,18 +21522,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -20243,7 +21557,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionMyChatMemberOutRegular(params?: "
+                  "text": "setSessionMyChatMemberOutRegular(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionMyChatMemberOutRegular: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -20269,18 +21596,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -20296,7 +21631,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionMyChatMemberRegularAdmin(params?: "
+                  "text": "setSessionMyChatMemberRegularAdmin(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionMyChatMemberRegularAdmin: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -20322,18 +21670,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -20349,7 +21705,20 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "setSessionText(params?: "
+                  "text": "setSessionText(this: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & {\n        handleSessionText: (...args: any[]) => any;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
                 },
                 {
                   "kind": "Content",
@@ -20375,18 +21744,26 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 6,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "params",
+                  "parameterName": "this",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 2
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
                   },
                   "isOptional": true
                 }
@@ -23011,6 +24388,14 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", routeName?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -23024,8 +24409,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 6,
-                "endIndex": 7
+                "startIndex": 8,
+                "endIndex": 9
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -23046,6 +24431,14 @@
                     "endIndex": 5
                   },
                   "isOptional": false
+                },
+                {
+                  "parameterName": "routeName",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 6,
+                    "endIndex": 7
+                  },
+                  "isOptional": true
                 }
               ],
               "isOptional": false,
@@ -24771,7 +26164,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#hookErrorInputNotFoundPage:member(1)",
-              "docComment": "/**\n * Hook called when no page handler matches the input.\n *\n * @remarks\n *\n * Override this method to send a \"command not found\" message or redirect to a help page.\n *\n * @param ctx - The context instance.\n *\n * @example\n *\n * Simple\n * ```typescript\n * async hookErrorInputNotFoundPage(ctx: Ctx) {\n *   await new GeneralStatusPage(ctx).showErrorInputNotFound()\n * }\n * ```\n *\n * @example\n *\n * Advanced\n * ```typescript\n * async hookErrorInputNotFoundPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorInputNotFoundPage`]>>[1]>) {\n *   await new GeneralStatusPage(ctx).showErrorInputNotFound()\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Hook called when no page handler matches the input.\n *\n * @remarks\n *\n * Override this method to send a \"command not found\" message or redirect to a help page.\n *\n * @param ctx - The context instance.\n *\n * @example\n *\n * Simple\n * ```typescript\n * async hookErrorInputNotFoundPage(ctx: Ctx) {\n *   await new StatusPage(ctx).binputNotFound.show()\n * }\n * ```\n *\n * @example\n *\n * Advanced\n * ```typescript\n * async hookErrorInputNotFoundPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorInputNotFoundPage`]>>[1]>) {\n *   await new StatusPage(ctx).binputNotFound.show()\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -24840,7 +26233,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Gramstax#hookErrorPage:member(1)",
-              "docComment": "/**\n * Hook called when a page handler throws an error.\n *\n * @remarks\n *\n * Override this method to handle errors gracefully, e.g., sending an error message to the user or logging to an external service.\n *\n * @param ctx - The context instance.\n *\n * @param listenerName - The name of the listener handling this update.\n *\n * @param error - The caught error.\n *\n * @param isEdit - Whether the handler was editing a message.\n *\n * @example\n *\n * Simple\n * ```typescript\n * async hookErrorPage(ctx: Ctx) {\n *   ...\n * }\n * ```\n *\n * @example\n *\n * Advanced\n * ```typescript\n * async hookErrorPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {\n *   await new GeneralStatusPage(ctx).showError(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)\n * }\n * ```\n *\n * @virtual @public\n */\n",
+              "docComment": "/**\n * Hook called when a page handler throws an error.\n *\n * @remarks\n *\n * Override this method to handle errors gracefully, e.g., sending an error message to the user or logging to an external service.\n *\n * @param ctx - The context instance.\n *\n * @param listenerName - The name of the listener handling this update.\n *\n * @param error - The caught error.\n *\n * @param isEdit - Whether the handler was editing a message.\n *\n * @example\n *\n * Simple\n * ```typescript\n * async hookErrorPage(ctx: Ctx) {\n *   ...\n * }\n * ```\n *\n * @example\n *\n * Advanced\n * ```typescript\n * async hookErrorPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {\n *   await new StatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)\n * }\n * ```\n *\n * @virtual @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -25576,7 +26969,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITBottomKb:type",
-          "docComment": "/**\n * Type alias for Keyboard (reply keyboard).\n *\n * @remarks\n *\n * Used to create reply keyboards that replace the user's device keyboard.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Reply keyboard whose `.text()` also accepts a page class/instance as the button text — resolves to `page.data.intentText` automatically.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -25584,8 +26977,8 @@
             },
             {
               "kind": "Reference",
-              "text": "Keyboard",
-              "canonicalReference": "grammy!Keyboard:class"
+              "text": "_BottomKbWithCtx",
+              "canonicalReference": "gramstax!_BottomKbWithCtx:interface"
             },
             {
               "kind": "Content",
@@ -25662,7 +27055,25 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    name?: string | null;\n    callbackQueryData?: C | null;\n    intentText?: string | null;\n    intentTextCommand?: string | null;\n}"
+              "text": "{\n    name?: string | null;\n    callbackQueryData?: C | null;\n    intentText?: string | "
+            },
+            {
+              "kind": "Reference",
+              "text": "Record",
+              "canonicalReference": "!Record:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<string, string> | null;\n    intentCommandText?: string | "
+            },
+            {
+              "kind": "Reference",
+              "text": "Record",
+              "canonicalReference": "!Record:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<string, string> | null;\n}"
             },
             {
               "kind": "Content",
@@ -25687,7 +27098,7 @@
           ],
           "typeTokenRange": {
             "startIndex": 5,
-            "endIndex": 6
+            "endIndex": 10
           }
         },
         {
@@ -25950,7 +27361,16 @@
             },
             {
               "kind": "Content",
-              "text": ";\n    temp: "
+              "text": ";\n    log?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "LoggingHelper",
+              "canonicalReference": "gramstax!LoggingHelper:class"
+            },
+            {
+              "kind": "Content",
+              "text": " | null;\n    temp: "
             },
             {
               "kind": "Reference",
@@ -25971,7 +27391,7 @@
           "name": "ITCtxParams",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 12
+            "endIndex": 14
           }
         },
         {
@@ -26441,7 +27861,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITInlineKb:type",
-          "docComment": "/**\n * Type alias for InlineKeyboard.\n *\n * @remarks\n *\n * Used to create inline keyboards that appear below messages with callback buttons.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Inline keyboard whose `.text()` also accepts a page class/instance as the callback data — resolves to `page.data.callbackQueryData()` automatically.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26449,8 +27869,8 @@
             },
             {
               "kind": "Reference",
-              "text": "InlineKeyboard",
-              "canonicalReference": "grammy!InlineKeyboard:class"
+              "text": "_InlineKbWithCtx",
+              "canonicalReference": "gramstax!_InlineKbWithCtx:interface"
             },
             {
               "kind": "Content",
@@ -26529,7 +27949,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITKbDest:type",
-          "docComment": "/**\n * Keyboard column configuration pattern.\n *\n * @remarks\n *\n * Defines the button distribution pattern per row in the keyboard layout. Can be: - Single number: `\"1\"` to `\"6\"` - All rows have this many buttons (e.g., `\"3\"` = 3 buttons per row) - Pattern format: `\"x-y\"` - First rows have x buttons, last row has y buttons\n *\n * @example\n * ```typescript\n * // All rows with 3 buttons each\n * const cols1: IKbCols = \"3\"\n *\n * // First rows with 1 button, last row with 2 buttons\n * const cols2: IKbCols = \"1-2\"\n *\n * // First rows with 2 buttons, last row with 4 buttons\n * const cols3: IKbCols = \"2-4\"\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Destination for an inline keyboard button — a page (class or instance) that defines `handleCallbackQueryData`, or a literal callback data string.\n *\n * @remarks\n *\n * Pages that don't override `handleCallbackQueryData` will cause a compile error when referenced here.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -26537,7 +27957,7 @@
             },
             {
               "kind": "Content",
-              "text": "typeof "
+              "text": "(typeof "
             },
             {
               "kind": "Reference",
@@ -26546,7 +27966,16 @@
             },
             {
               "kind": "Content",
-              "text": " | "
+              "text": " & "
+            },
+            {
+              "kind": "Reference",
+              "text": "_KbDestHasCallback",
+              "canonicalReference": "gramstax!~_KbDestHasCallback:type"
+            },
+            {
+              "kind": "Content",
+              "text": ") | ("
             },
             {
               "kind": "Reference",
@@ -26555,7 +27984,16 @@
             },
             {
               "kind": "Content",
-              "text": " | string"
+              "text": " & "
+            },
+            {
+              "kind": "Reference",
+              "text": "_KbDestHasCallback",
+              "canonicalReference": "gramstax!~_KbDestHasCallback:type"
+            },
+            {
+              "kind": "Content",
+              "text": "[`prototype`]) | string"
             },
             {
               "kind": "Content",
@@ -26567,7 +28005,7 @@
           "name": "ITKbDest",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 6
+            "endIndex": 10
           }
         },
         {
@@ -27609,7 +29047,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITPageData:type",
-          "docComment": "/**\n * Page routing data configuration.\n *\n * @remarks\n *\n * Contains all routing metadata and handlers for a page in the Gramstax framework. This type defines the internal structure used by the routing system to match incoming updates to the appropriate page handlers.\n *\n * @typeParam T - Tuple type representing the callback arg parameters.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Page routing data configuration.\n *\n * @typeParam T - Tuple of callback arg parameters.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -27633,7 +29071,25 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    name: string;\n    callbackQueryData(...args: T): string;\n    intentText: string;\n    intentCommandText: string;\n    _positionArgText: number;\n    intentCallbackQueryData: string;\n}"
+              "text": "{\n    name: string;\n    callbackQueryData(...args: T): string;\n    intentText: string;\n    intentCommandText: string;\n    _positionArgText: number;\n    intentCallbackQueryData: string;\n    intentTextMap?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Record",
+              "canonicalReference": "!Record:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<string, string>;\n    intentCommandTextMap?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Record",
+              "canonicalReference": "!Record:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<string, string>;\n}"
             },
             {
               "kind": "Content",
@@ -27658,7 +29114,7 @@
           ],
           "typeTokenRange": {
             "startIndex": 5,
-            "endIndex": 6
+            "endIndex": 10
           }
         },
         {
@@ -30059,7 +31515,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!PageManager.getFileManySync:member(1)",
-              "docComment": "/**\n * Synchronously load all page modules from a directory.\n *\n * @param path - Path to the pages directory. Uses default pages directory when omitted.\n *\n * @param positionModule - Index of the exported class. Used when files have multiple exports. Defaults to `0`.\n *\n * @returns Array of page records containing `path` and `page` properties.\n *\n * @throws\n *\n * Error if directory does not exist.\n *\n * @example\n * ```typescript\n * const pages = PageManager.getFileManySync();\n * // => [{ path: \"/path/to/start.ts\", page: StartPage }, ...]\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Synchronously load all page modules from a directory.\n *\n * Supports both flat `.ts`/`.js` files and subfolder `index.ts`/`index.js` entries. In a subfolder, **any** `.ts`/`.js` file (not just `index`) is recognised as a page — its route name becomes `parentDir/basename`. A file `help.ts` is equivalent to `help/index.ts`; using both simultaneously produces a duplicate error. Nesting can be arbitrary deep.\n *\n * @param path - Path to the pages directory. Uses default pages directory when omitted.\n *\n * @param positionModule - Index of the exported class. Used when files have multiple exports. Defaults to `0`.\n *\n * @returns Array of page records containing `path`, `page` and `routeName` properties.\n *\n * @throws\n *\n * Error if directory does not exist.\n *\n * @throws\n *\n * Error if a file and a directory-index share the same route name.\n *\n * @example\n * ```typescript\n * const pages = PageManager.getFileManySync();\n * // => [\n * //   { path: \"/path/to/start.ts\",          page: StartPage,   routeName: \"start\" },\n * //   { path: \"/path/to/settings.ts\",       page: SettingsPage, routeName: \"settings\" },\n * //   { path: \"/path/to/start/help.ts\",     page: HelpPage,    routeName: \"start/help\" },\n * //   { path: \"/path/to/start/help/index.ts\", page: HelpPage,  routeName: \"start/help\" },\n * //                                        ↑ identical route — duplicate error if both exist\n * // ]\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -30092,7 +31548,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n    }[]"
+                  "text": ";\n        routeName: string;\n    }[]"
                 },
                 {
                   "kind": "Content",

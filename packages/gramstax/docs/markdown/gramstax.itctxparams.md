@@ -14,8 +14,9 @@ type ITCtxParams = {
     cacheSession: CacheExternal;
     cacheKeyboard: Map<any, any>;
     templateManager: TemplateManager;
+    log?: LoggingHelper | null;
     temp: ITTemp;
 };
 ```
-**References:** [ITCt](./gramstax.itct.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)<!-- -->, [ITTemp](./gramstax.ittemp.md)
+**References:** [ITCt](./gramstax.itct.md)<!-- -->, [CacheExternal](./gramstax.cacheexternal.md)<!-- -->, [TemplateManager](./gramstax.templatemanager.md)<!-- -->, [LoggingHelper](./gramstax.logginghelper.md)<!-- -->, [ITTemp](./gramstax.ittemp.md)
 

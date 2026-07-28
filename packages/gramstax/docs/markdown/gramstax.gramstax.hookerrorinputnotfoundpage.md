@@ -82,7 +82,7 @@ Simple
 
 ```typescript
 async hookErrorInputNotFoundPage(ctx: Ctx) {
-  await new GeneralStatusPage(ctx).showErrorInputNotFound()
+  await new StatusPage(ctx).binputNotFound.show()
 }
 ```
 
@@ -92,7 +92,7 @@ Advanced
 
 ```typescript
 async hookErrorInputNotFoundPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorInputNotFoundPage`]>>[1]>) {
-  await new GeneralStatusPage(ctx).showErrorInputNotFound()
+  await new StatusPage(ctx).binputNotFound.show()
 }
 ```
 

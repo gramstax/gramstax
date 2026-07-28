@@ -4,30 +4,16 @@
 
 ## ITKbDest type
 
-Keyboard column configuration pattern.
+Destination for an inline keyboard button — a page (class or instance) that defines `handleCallbackQueryData`<!-- -->, or a literal callback data string.
 
 **Signature:**
 
 ```typescript
-type ITKbDest = typeof Ctx | Ctx | string;
+type ITKbDest = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCallback[`prototype`]) | string;
 ```
 **References:** [Ctx](./gramstax.ctx.md)
 
 ## Remarks
 
-Defines the button distribution pattern per row in the keyboard layout. Can be: - Single number: `"1"` to `"6"` - All rows have this many buttons (e.g., `"3"` = 3 buttons per row) - Pattern format: `"x-y"` - First rows have x buttons, last row has y buttons
-
-## Example
-
-
-```typescript
-// All rows with 3 buttons each
-const cols1: IKbCols = "3"
-
-// First rows with 1 button, last row with 2 buttons
-const cols2: IKbCols = "1-2"
-
-// First rows with 2 buttons, last row with 4 buttons
-const cols3: IKbCols = "2-4"
-```
+Pages that don't override `handleCallbackQueryData` will cause a compile error when referenced here.
 
