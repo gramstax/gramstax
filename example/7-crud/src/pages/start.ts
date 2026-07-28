@@ -8,6 +8,7 @@ import {DeletePage} from "./delete"
 
 // Main menu page for CRUD example.
 export class StartPage extends PageBase {
+  static data = this.buildData()
   async handleCommandText() {
     await this.gdefault.show(false)
   }

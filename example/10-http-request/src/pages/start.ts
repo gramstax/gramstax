@@ -4,6 +4,7 @@ import {HelpPage} from "./help"
 
 // Main menu page for HTTP Request example.
 export class StartPage extends PageBase {
+  static data = this.buildData()
   async handleCommandText() {
     await this.bdefault.show(false)
   }

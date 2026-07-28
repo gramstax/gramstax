@@ -3,6 +3,7 @@ import {StartPage} from "."
 
 // Shows the current user balance.
 export class StartBalancePage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.bdefault.show()
   }

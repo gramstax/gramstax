@@ -24,6 +24,7 @@ class Helper {
 
 // Creates a new item in cache.
 export class CreatePage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.btitle.show()
   }

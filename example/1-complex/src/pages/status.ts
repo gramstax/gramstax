@@ -3,6 +3,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "~/pages/start"
 
 export class StatusPage extends PageBase {
+  static data = this.buildData()
   constructorName?: string
 
   constructor(p: any) {

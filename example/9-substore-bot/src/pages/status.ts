@@ -7,6 +7,7 @@ class Base {
 }
 
 export class StatusPage extends PageBase {
+  static data = this.buildData()
   constructorName?: string
 
   constructor(p: any) {

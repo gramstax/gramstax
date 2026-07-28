@@ -16,6 +16,7 @@ class Helper {
 
 // Withdraw funds from the user's balance.
 export class StartWithdrawPage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.bindex.show()
   }

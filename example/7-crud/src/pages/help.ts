@@ -3,6 +3,7 @@ import {StartPage} from "./start"
 
 // Help page for CRUD usage.
 export class HelpPage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.gdefault.show()
   }

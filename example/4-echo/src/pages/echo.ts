@@ -24,6 +24,7 @@ class Helper {
 
 // Echo page responds to any free text input.
 export class EchoPage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.bindex.show()
   }

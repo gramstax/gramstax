@@ -32,6 +32,7 @@ class Helper {
 
 // Transfer funds to another user.
 export class StartTransferPage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.bdefault.show()
   }

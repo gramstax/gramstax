@@ -1,6 +1,7 @@
 import {PageBase} from "~/base/page"
 
 export class StartTestMediaGroupPage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.bdefault.show()
   }

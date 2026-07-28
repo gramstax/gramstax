@@ -4,6 +4,7 @@ import {CatalogPage} from "./catalog"
 import {type OrderRecord, OrderHistoryStore} from "~/data/store"
 
 export class HistoryPage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }

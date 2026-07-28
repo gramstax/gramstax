@@ -1,6 +1,7 @@
 import {PageBase} from "~/base/page"
 
 export class StartPage extends PageBase {
+  static data = this.buildData()
   async handleCommandText() {
     await this.bdefault.show(false)
   }

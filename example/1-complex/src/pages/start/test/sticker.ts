@@ -2,6 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartPage} from "~/pages/start"
 
 export class StartTestStickerPage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.bdefault.show()
   }

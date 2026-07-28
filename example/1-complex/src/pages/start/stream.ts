@@ -2,6 +2,7 @@ import {PageBase} from "~/base/page"
 import {setTimeout as sleep} from "node:timers/promises"
 
 export class StartStreamPage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     async function* simulateAI() {
       yield `🤖 *Generating response...*\n\n`
