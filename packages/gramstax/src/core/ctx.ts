@@ -1376,6 +1376,8 @@ export class Ctx extends Context {
    * @param options2 - Optional send/edit options (or null to omit).
    * @param isEdit - If true, edits existing message; if false, sends new.
    *                 Defaults to `!!this.callbackQuery` (auto-detected).
+   * @param fallbackReply - If true, sends a new reply when edit fails (only when `isEdit` is true).
+   *                        Defaults to `null` (no fallback).
    * @returns The sent or edited message object.
    *
    * @example
@@ -1387,10 +1389,10 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, isEdit?: boolean | null) {
+  async renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, isEdit?: boolean | null, fallbackReply?: boolean | null) {
     const edit = isEdit ?? !!this.callbackQuery
     if (edit) {
-      return await this.renderEditRich(keyboard as ITInlineKb, data, AGBaseId, options1, options2 as unknown as ITOptEdit)
+      return await this.renderEditRich(keyboard as ITInlineKb, data, AGBaseId, options1, options2 as unknown as ITOptEdit, fallbackReply ?? false)
     }
     return await this.renderRich(keyboard, data, AGBaseId, options1, options2 as ITOptReplyRich[1])
   }
@@ -1815,6 +1817,8 @@ export class Ctx extends Context {
    * @param options - Optional reply/edit options (or null to omit).
    * @param isEdit - If `true`, edits the existing message; if `false`, sends a new one.
    *                 Defaults to `!!this.callbackQuery` (auto-detected).
+   * @param fallbackReply - If true, sends a new reply when edit fails (only when `isEdit` is true).
+   *                        Defaults to `null` (no fallback).
    * @returns The sent or edited message object.
    *
    * @example
@@ -1828,12 +1832,94 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, isEdit?: boolean | null) {
+  async renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, isEdit?: boolean | null, fallbackReply?: boolean | null) {
     const edit = isEdit ?? !!this.callbackQuery
     if (edit) {
-      return await this.renderEdit(keyboard as ITInlineKb, data, AGBaseId, options as ITOptEdit)
+      return await this.renderEdit(keyboard as ITInlineKb, data, AGBaseId, options as ITOptEdit, fallbackReply ?? false)
     }
     return await this.render(keyboard, data, AGBaseId, options as ITOptReply)
+  }
+
+  /**
+   * Sends or edits a media message using the page template, auto-selecting
+   * between {@link (Ctx:class).renderMedia} and {@link (Ctx:class).renderEditMedia} based on
+   * the `isEdit` flag.
+   *
+   * @typeParam T - The media type (photo, video, audio, etc.)
+   * @param type - The media type.
+   * @param keyboard - Optional keyboard markup (or null to omit).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
+   * @param options1 - Type-specific media options (or null to omit).
+   * @param options2 - Additional edit options (or null to omit, send-only).
+   * @param isEdit - If true, edits existing message; if false, sends new.
+   *                 Defaults to `!!this.callbackQuery` (auto-detected).
+   * @param fallbackReply - If true, sends a new reply when edit fails (only when `isEdit` is true).
+   *                        Defaults to `null` (no fallback).
+   * @returns The sent or edited message object.
+   *
+   * @public
+   */
+  async renderAutoMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(
+    type: T,
+    keyboard?: ITInBoKb | null,
+    data?: ITData | null,
+    AGBaseId?: string | null,
+    options1?:
+      | (T extends `photo`
+          ? ITOptReplyPhoto
+          : T extends `video`
+            ? ITOptReplyVideo
+            : T extends `audio`
+              ? ITOptReplyAudio
+              : T extends `document`
+                ? ITOptReplyDocument
+                : T extends `animation`
+                  ? ITOptReplyAnimation
+                  : T extends `voice`
+                    ? ITOptReplyVoice
+                    : T extends `video_note`
+                      ? ITOptReplyVideoNote
+                      : T extends `sticker`
+                        ? ITOptReplySticker
+                        : T extends `location`
+                          ? ITOptReplyLocation
+                          : T extends `contact`
+                            ? ITOptReplyContact
+                            : undefined)
+      | null,
+    options2?: ITOptEditMedia2 | null,
+    isEdit?: boolean | null,
+    fallbackReply?: boolean | null
+  ) {
+    const edit = isEdit ?? !!this.callbackQuery
+    if (edit) {
+      return await this.renderEditMedia(type, keyboard as ITInlineKb, data, AGBaseId, options1 as any, options2, fallbackReply ?? false)
+    }
+    return await this.renderMedia(type, keyboard, data, AGBaseId, options1)
+  }
+
+  /**
+   * Sends or edits a media group message using the page template, auto-selecting
+   * between {@link (Ctx:class).renderMediaGroup} and {@link (Ctx:class).renderEditMediaGroup} based on
+   * the `isEdit` flag.
+   *
+   * @param type - Optional media group type (or null for all items in `<g-media-group>`).
+   * @param data - Optional template interpolation data (or null to omit).
+   * @param AGBaseId - Optional template g-base ID position for block media (or null to use default).
+   * @param options - Optional media-group send options (or null to omit).
+   * @param isEdit - If true, deletes existing message and sends new group; if false, sends new.
+   *                 Defaults to `!!this.callbackQuery` (auto-detected).
+   * @returns The sent media group messages.
+   *
+   * @public
+   */
+  async renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null, isEdit?: boolean | null, _fallbackReply?: boolean | null) {
+    const edit = isEdit ?? !!this.callbackQuery
+    if (edit) {
+      return await this.renderEditMediaGroup(type, data, AGBaseId, options)
+    }
+    return await this.renderMediaGroup(type, data, AGBaseId, options)
   }
 
   /**
