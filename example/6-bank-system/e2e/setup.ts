@@ -1,13 +1,13 @@
 import {join} from "node:path"
 import {BotCore} from "../src/core/bot"
-import {TransferPage} from "../src/pages/transfer"
+import {StartTransferPage} from "../src/pages/start/transfer"
 import {TemplateManager} from "gramstax"
 export type {ITE2eApiCall, ITE2eUpdateOptions} from "gramstax"
 
 // Monkey-patch TransferPage to call setSessionFreeText on callback,
 // matching the existing test setup.
-const originalTransferHandleCallbackQueryData = TransferPage.prototype.handleCallbackQueryData
-TransferPage.prototype.handleCallbackQueryData = async function () {
+const originalTransferHandleCallbackQueryData = StartTransferPage.prototype.handleCallbackQueryData
+StartTransferPage.prototype.handleCallbackQueryData = async function () {
   await this.setSessionFreeText()
   await originalTransferHandleCallbackQueryData.call(this)
 }

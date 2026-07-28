@@ -1,10 +1,10 @@
 import {GuardBase} from "~/base/guard"
-import {GeneralStatusPage} from "~/pages/general-status"
+import {StatusPage} from "~/pages/status"
 import {UserNameNotFoundPage} from "~/pages/username-notfound"
 
 export class UserGuard extends GuardBase {
   async _catch(err: any, func: any, isEdit: boolean) {
-    await new GeneralStatusPage(this).berror.show(func, err, isEdit)
+    await new StatusPage(this).berror.show(func, err, isEdit)
     return null
   }
 

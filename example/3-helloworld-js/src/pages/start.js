@@ -13,11 +13,7 @@ export class StartPage extends PageBase {
     show: async (isEdit = true) => {
       const kb = this.inlineKeyboardT([this])
       const da = {time: new Date().toString()}
-      if (isEdit) {
-        await this.renderEdit(kb, da)
-      } else {
-        await this.render(kb, da)
-      }
+      await this.renderAuto(kb, da, null, null, isEdit)
     }
   }
 

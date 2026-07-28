@@ -2,7 +2,7 @@ import {Gramstax} from "gramstax"
 import {CtxCore} from "./ctx"
 import {BankStore} from "./store"
 import {BankGuard} from "~/guards/bank"
-import {GeneralStatusPage} from "~/pages/general-status"
+import {StatusPage} from "~/pages/status"
 
 // BotCore wires hooks and shared stores.
 export class BotCore extends Gramstax {
@@ -29,10 +29,10 @@ export class BotCore extends Gramstax {
   }
 
   async hookErrorPage(ctx: CtxCore, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {
-    await new GeneralStatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
+    await new StatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
   }
 
   async hookErrorInputNotFoundPage(ctx: CtxCore) {
-    await new GeneralStatusPage(ctx).berrorInputNotFound.show()
+    await new StatusPage(ctx).berrorInputNotFound.show()
   }
 }

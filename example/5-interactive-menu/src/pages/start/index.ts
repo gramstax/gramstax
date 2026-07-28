@@ -1,9 +1,9 @@
-import {HelpPage} from "./help"
+import {StartHelpPage} from "./help"
 import {PageBase} from "~/base/page"
-import {ResetPage} from "./reset"
-import {CategoryPage} from "./category"
-import {InlineWithRangePage} from "./inline-with-range"
-import {InlineWithoutRangePage} from "./inline-without-range"
+import {StartResetPage} from "./reset"
+import {StartCategoryPage} from "./category"
+import {StartInlineWithRangePage} from "./inline/with-range"
+import {StartInlineWithoutRangePage} from "./inline/without-range"
 
 class Base {
   static index = `i`
@@ -29,7 +29,7 @@ export class StartPage extends PageBase {
   bindex = {
     show: async (isEdit = false) => {
       const bi = Base.index
-      const ikb = this.inlineKeyboardT([CategoryPage, InlineWithRangePage, InlineWithoutRangePage, HelpPage, ResetPage], `2`)
+      const ikb = this.inlineKeyboardT([StartCategoryPage, StartInlineWithRangePage, StartInlineWithoutRangePage, StartHelpPage, StartResetPage], `2`)
       await this.renderAuto(ikb, {}, bi, null, isEdit)
       if (!isEdit) {
         {
