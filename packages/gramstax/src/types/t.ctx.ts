@@ -1,8 +1,9 @@
-import type {Keyboard, Context, InlineKeyboard, Middleware} from "grammy"
+import {Keyboard, Context, InlineKeyboard, Middleware} from "grammy"
 import type {StreamFlavor} from "@grammyjs/stream"
 export type {StreamFlavor}
 import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {Ctx} from "~/core/ctx"
+import type {LoggingHelper} from "~/helpers/log"
 import type {TemplateManager} from "~/template/manager"
 
 /**
@@ -13,17 +14,64 @@ import type {TemplateManager} from "~/template/manager"
  *
  * @public
  */
-export type ITInlineKb = InlineKeyboard
-
 /**
- * Type alias for Keyboard (reply keyboard).
+ * Inline keyboard whose `.text()` also accepts a page class/instance as
+ * callback data — calls `page.data.callbackQueryData()` automatically.
  *
- * @remarks
- * Used to create reply keyboards that replace the user's device keyboard.
+ * @example
+ * ```ts
+ * k.text("Settings", SettingsPage)
+ * // equivalent to: k.text("Settings", SettingsPage.data.callbackQueryData())
+ * ```
  *
  * @public
  */
-export type ITBottomKb = Keyboard
+export interface _InlineKbWithCtx extends InlineKeyboard {
+  /**
+   * Add a callback button. `data` is a page (class/instance) or string.
+   * @param text - string or object text with styling
+   * @param data - string callback_data or class Page
+   */
+  text(text: Parameters<InlineKeyboard[`text`]>[0], data?: string | typeof Ctx): this
+}
+
+/**
+ * Reply keyboard whose `.text()` also accepts a page class/instance as the
+ * button text — resolves to `page.data.intentText` automatically.
+ *
+ * @example
+ * ```ts
+ * k.text(BalancePage)
+ * // equivalent to: k.text(BalancePage.data.intentText)
+ * ```
+ *
+ * @public
+ */
+export interface _BottomKbWithCtx extends Keyboard {
+  /**
+   * Add a text button. `text` is a page (class/instance) or string.
+   *
+   * @param text - string or class Page
+   * @param options - for styling
+   */
+  text(text: string | typeof Ctx | Ctx, options?: Parameters<Keyboard[`text`]>[1]): this
+}
+
+/**
+ * Inline keyboard whose `.text()` also accepts a page class/instance as the
+ * callback data — resolves to `page.data.callbackQueryData()` automatically.
+ *
+ * @public
+ */
+export type ITInlineKb = _InlineKbWithCtx
+
+/**
+ * Reply keyboard whose `.text()` also accepts a page class/instance as the
+ * button text — resolves to `page.data.intentText` automatically.
+ *
+ * @public
+ */
+export type ITBottomKb = _BottomKbWithCtx
 
 /**
  * Union type for both inline and reply keyboards.
@@ -291,10 +339,29 @@ export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
   name?: string | null
 
   /**
-   * Optional callback function for args.
+   * Definitions of how callback args are processed.
    *
    * @remarks
-   * Used to define the callback handler for this page route.
+   * **This is the DEFINITION side** — pass this to `Ctx.buildData()` to tell the
+   * system how to encode positional args into the callback query data string.
+   *
+   * When the consumer calls {@link ITPageData.callbackQueryData}  with arguments at runtime,
+   * this function is invoked. The returned array is joined with the intent using
+   * colon separators.
+   *
+   * **Example — definition side (in buildData):**
+   * ```typescript
+   * static data = this.buildData({
+   *   callbackQueryData: (id: string) => [id]
+   * })
+   * ```
+   *
+   * **Result — consumption side (ITPageData.callbackQueryData):**
+   * ```typescript
+   * MyPage.data.callbackQueryData("42")  // → "myPageName:42"
+   * ```
+   *
+   * @see {@link ITPageData.callbackQueryData} for the consumption side.
    */
   callbackQueryData?: C | null
 
@@ -302,17 +369,20 @@ export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
    * Optional. override intent trigger for `handle*Text`.
    *
    * @remarks
-   * Overrides the default `handle*Text` intent matching for this page.
+   * Single string: `"Balance"` — exact match.
+   * Record: `{default: "Balance", id: "Saldo", ja: "Baranse"}` — multi-language.
+   *   Uses `default` as fallback when user language not found.
    */
-  intentText?: string | null
+  intentText?: string | Record<string, string> | null
 
   /**
    * Optional. override intent trigger for `handleCommand*Text`.
    *
    * @remarks
-   * Overrides the default `handleCommand*Text` intent matching for this page.
+   * Single string: `"balance"` → command `/balance`.
+   * Record: `{default: "balance", id: "saldo"}` → commands `/balance` & `/saldo`.
    */
-  intentTextCommand?: string | null
+  intentCommandText?: string | Record<string, string> | null
 }
 
 /**
@@ -338,7 +408,26 @@ export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
  *
  * @public
  */
-export type ITKbDest = typeof Ctx | Ctx | string
+/**
+ * Destination for an inline keyboard button — a page class, instance,
+ * or a literal callback data string.
+ *
+ * @public
+ */
+/** Page class/instance that defines handleCallbackQueryData. */
+type _KbDestHasCallback = {prototype: {handleCallbackQueryData: (...args: any[]) => any}}
+
+/**
+ * Destination for an inline keyboard button — a page (class or instance)
+ * that defines `handleCallbackQueryData`, or a literal callback data string.
+ *
+ * @remarks
+ * Pages that don't override `handleCallbackQueryData` will cause a
+ * compile error when referenced here.
+ *
+ * @public
+ */
+export type ITKbDest = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCallback[`prototype`]) | string
 
 /**
  * Keyboard column configuration.
@@ -374,6 +463,13 @@ export type ITKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${
  *
  * @public
  */
+/**
+ * Page routing data configuration.
+ *
+ * @typeParam T - Tuple of callback arg parameters.
+ *
+ * @public
+ */
 export type ITPageData<T extends any[] = any[]> = {
   /**
    * The unique name identifier for this page route.
@@ -386,21 +482,30 @@ export type ITPageData<T extends any[] = any[]> = {
   name: string
 
   /**
-   * Callback function that processes args and returns route data.
+   * **Consumption.** Generate the callback query data string for inline keyboard buttons.
    *
    * @remarks
-   * Add args to `intentCallbackQueryData`, will trigger only to route function "handle*Callback*" (besides the "handleFree*").
-   * This is usually used when you want to insert a arg into it.
+   * Call this method to produce the actual callback data string that Telegram sends
+   * when a user taps an inline keyboard button.  This is the **consumption** side —
+   * you call it at runtime, typically when building a keyboard:
    *
-   * **Note:** Return value should use ARRAY only if there is a arg so that the background
-   * system can process it into a string.
+   * ```typescript
+   * keyboard.text("Detail", DetailPage.data.callbackQueryData("42"))
+   * ```
    *
-   * **Default:** `this.data.name`
+   * **No args** → returns `intentCallbackQueryData` as-is (e.g. `"settings"`).
+   * **With args** → returns `intentCallbackQueryData:arg1:arg2:…` (e.g. `"detail:42"`)
    *
-   * **IMPORTANT:** Leave this unset unless explicitly needed.
+   * How args are encoded is defined at build time via
+   * {@link ITBuildDataOptions.callbackQueryData}  (the **definition** side).
    *
-   * @param args - The args parameters passed to the callback.
-   * @returns Route data string.
+   * ---
+   * **Default:** returns `this.data.intentCallbackQueryData` (which defaults to `this.data.name`).
+   *
+   * @param args - Positional args to append to the intent string.
+   * @returns A callback query data string ready for use in `InlineKeyboard.text()`.
+   *
+   * @see {@link ITBuildDataOptions.callbackQueryData} for the definition side.
    */
   callbackQueryData(...args: T): string
 
@@ -464,6 +569,27 @@ export type ITPageData<T extends any[] = any[]> = {
    * **IMPORTANT:** Do not set this manually. Let the system handle it.
    */
   intentCallbackQueryData: string
+
+  /**
+   * Multi-language intents for `handle*Text`.
+   *
+   * @remarks
+   * Present only when `buildData({intentText: {default: "...", id: "..."}})` is used.
+   * Keys are language codes, values are the text intents.
+   *
+   * @internal
+   */
+  intentTextMap?: Record<string, string>
+
+  /**
+   * Multi-language intents for `handleCommand*Text`.
+   *
+   * @remarks
+   * Present only when `buildData({intentCommandText: {default: "...", id: "..."}})` is used.
+   *
+   * @internal
+   */
+  intentCommandTextMap?: Record<string, string>
 }
 
 /**
@@ -510,6 +636,11 @@ export type ITCtxParams = {
    * See {@link ITGramstaxParams.templateManager} for details.
    */
   templateManager: TemplateManager
+
+  /**
+   * Logger instance from Gramstax, for emitting runtime warnings.
+   */
+  log?: LoggingHelper | null
 
   /**
    * Temporary state object.

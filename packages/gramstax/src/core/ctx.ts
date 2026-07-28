@@ -1,4 +1,87 @@
 /**
+ * Extended `InlineKeyboard` — overrides `.text()` so the `data` parameter
+ * accepts a page class or instance directly (besides a plain string).
+ *
+ * @example
+ * ```ts
+ * const kb = new GramstaxInlineKeyboard()
+ *   .text("Open Settings", SettingsPage)                // callback from SettingsPage.data.callbackQueryData()
+ *   .text("Help", HelpPage.data.callbackQueryData())    // string works too
+ * ```
+ */
+class GramstaxInlineKeyboard extends InlineKeyboard {
+  /**
+   * Add a callback button.
+   *
+   * @param text - Button label.
+   * @param data - Callback data. Pass a **page class/instance** to
+   *   automatically use `page.data.callbackQueryData()`, or pass a
+   *   plain `string` for the default behavior.
+   * @returns `this` for chaining.
+   */
+  override text(text: string, data?: string | typeof Ctx): this {
+    if (data !== undefined && typeof data !== `string`) {
+      return super.text(text, data.data.callbackQueryData())
+    }
+    return super.text(text, data as string | undefined)
+  }
+}
+
+/**
+ * Extended `Keyboard` (reply keyboard) — overrides `.text()` so the `text`
+ * parameter accepts a page class/instance (besides a plain string). When a
+ * page is passed the button label resolves to the page's `intentText`.
+ *
+ * @example
+ * ```ts
+ * const kb = new GramstaxKeyboard()
+ *   .text(BalancePage)          // label → BalancePage.data.intentText
+ *   .row()
+ *   .text("Manual Label")       // string works too
+ * ```
+ */
+class GramstaxKeyboard extends Keyboard {
+  /**
+   * Add a text button for the reply keyboard.
+   *
+   * @param text - Button label. Pass a **page class/instance** to
+   *   automatically resolve `page.data.intentText` as the label
+   *   (or a plain `string` for the default behavior).
+   * @param options - Optional styling (see grammY `Keyboard.text`).
+   * @returns `this` for chaining.
+   */
+  override text(text: string | typeof Ctx | Ctx, options?: any): this {
+    if (typeof text !== `string`) {
+      const PageClass = (typeof text === `function` ? text : text.constructor) as typeof Ctx
+      text = PageClass.data?.intentText ?? ``
+    }
+    return super.text(text, options)
+  }
+}
+
+/**
+ * Resolve a page class/instance to its default intent text (no language).
+ */
+function _resolvePageText(page: typeof Ctx | Ctx): string {
+  const PageClass = (typeof page === `function` ? page : page.constructor) as typeof Ctx
+  return PageClass.data?.intentText ?? PageClass.data?.name ?? ``
+}
+
+/**
+ * Resolve a page class/instance to its language-specific intent text.
+ */
+function _resolvePageTextLang(page: typeof Ctx | Ctx, lang?: string): string {
+  const PageClass = (typeof page === `function` ? page : page.constructor) as typeof Ctx
+  const map = PageClass.data?.intentTextMap
+  if (map) {
+    if (lang && map[lang]) return map[lang]
+    if (map.default) return map.default
+  }
+  // Fallback to intentText (already set from map.default or plain string)
+  return PageClass.data?.intentText ?? PageClass.data?.name ?? ``
+}
+
+/**
  * Extended context — adds Gramstax features to the base bot context.
  *
  * @remarks
@@ -15,6 +98,7 @@ import {Context, InlineKeyboard, InputMediaBuilder, Keyboard} from "grammy"
 import type {InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
 import type {MessageDraftPiece} from "@grammyjs/stream"
 import {CacheExternal, ITCacheRpc} from "~/cache/external"
+import type {LoggingHelper} from "~/helpers/log"
 import type {ITMediaBlock} from "~/template/engine"
 import type {
   ITInBoKb,
@@ -44,7 +128,7 @@ import type {
   ITKbDest,
   ITCtxParams,
   ITOptReplyRich
-} from "~/types/t.ctx"
+} from "../types/t.ctx"
 
 type ITMediaGroupType = Extract<ITMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
 type ITMediaGroupInput = InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
@@ -318,7 +402,7 @@ export class Ctx extends Context {
    * @returns Array of sent text messages.
    */
   replyWithStream(stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>, otherMessageDraft?: Record<string, any>, otherMessage?: Record<string, any>, signal?: AbortSignal): Promise<any> {
-    return this._.replyWithStream(stream, otherMessageDraft, otherMessage, signal)
+    return this.ct.replyWithStream(stream, otherMessageDraft, otherMessage, signal)
   }
 
   /**
@@ -342,7 +426,7 @@ export class Ctx extends Context {
    * @returns The sent rich message object.
    */
   replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Record<string, any>, otherRichMessage?: Record<string, any>, baseInputRichMessage?: Record<string, any>, signal?: AbortSignal): Promise<any> {
-    return this._.replyWithMarkdownStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
+    return this.ct.replyWithMarkdownStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
   }
 
   /**
@@ -366,7 +450,7 @@ export class Ctx extends Context {
    * @returns The sent rich message object.
    */
   replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Record<string, any>, otherRichMessage?: Record<string, any>, baseInputRichMessage?: Record<string, any>, signal?: AbortSignal): Promise<any> {
-    return this._.replyWithHtmlStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
+    return this.ct.replyWithHtmlStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
   }
 
   /**
@@ -905,6 +989,13 @@ export class Ctx extends Context {
   templateManager: TemplateManager
 
   /**
+   * Logger instance from Gramstax, for runtime warnings.
+   *
+   * @public
+   */
+  log: LoggingHelper | null | undefined
+
+  /**
    * Temporary state storage for the current request.
    *
    * @public
@@ -925,15 +1016,23 @@ export class Ctx extends Context {
   private static readonly _answerApiGuard = new WeakSet<object>()
 
   /**
-   * Original context from bot.ts
-   * @internal
+   * The underlying grammy context object.  For new code this is the same as
+   * `this` (since {@link Ctx} extends `Context`), but it is exposed here so
+   * that a `Ctx` instance structurally satisfies {@link ITCtxParams} — allowing
+   * `new SomePage(this)` to compile without a type assertion.
+   *
+   * The `& {[key: string]: any}` widening covers runtime-added methods
+   * (e.g. `\@grammyjs/stream` plugin) that TypeScript cannot know statically.
+   *
+   * @readonly
+   * @public
    */
-  private _: Context & {[key: string]: any}
+  readonly ct: Context & {[key: string]: any}
 
   constructor(params: ITCtxParams) {
     const ct = params.ct ?? params
     super(ct.update, ct.api, ct.me)
-    this._ = ct
+    this.ct = ct
     if (this.api?.config?.use && !Ctx._answerApiGuard.has(this.api)) {
       Ctx._answerApiGuard.add(this.api)
       this.api.config.use((prev, method, payload, signal) => {
@@ -944,6 +1043,7 @@ export class Ctx extends Context {
     this.cacheSession = params.cacheSession
     this.cacheKeyboard = params.cacheKeyboard
     this.templateManager = params.templateManager
+    this.log = params.log
     this.temp = params.temp
   }
 
@@ -2383,10 +2483,23 @@ export class Ctx extends Context {
     const addPld = this.prototype.addArgs.bind(this.prototype)
 
     const name = options.name ?? ``
+
+    // Normalize intentText — string or Record<string, string>
+    const rawText = options.intentText ?? name
+    const textIsObj = typeof rawText === `object`
+    const intentText = textIsObj ? (rawText.default ?? name) : rawText
+    const intentTextMap = textIsObj ? rawText : undefined
+
+    // Normalize intentCommandText
+    const rawCmdText = options.intentCommandText ?? name
+    const cmdTextIsObj = typeof rawCmdText === `object`
+    const intentCommandText = cmdTextIsObj ? (rawCmdText.default ?? name) : rawCmdText
+    const intentCommandTextMap = cmdTextIsObj ? rawCmdText : undefined
+
     const data: ITPageData<any> = {
       name,
-      intentText: options.intentText ?? name,
-      intentCommandText: options.intentCommandText ?? name,
+      intentText,
+      intentCommandText,
       intentCallbackQueryData: name,
       callbackQueryData: cbd
         ? function (this: {intentCallbackQueryData: string}, ...args: any[]): string {
@@ -2395,8 +2508,10 @@ export class Ctx extends Context {
         : function (this: {intentCallbackQueryData: string}): string {
             return this?.intentCallbackQueryData
           },
-      _positionArgText: options.intentText ? options.intentText.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any)
+      _positionArgText: intentText ? intentText.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any)
     }
+    if (intentTextMap) data.intentTextMap = intentTextMap
+    if (intentCommandTextMap) data.intentCommandTextMap = intentCommandTextMap
     return data
   }
 
@@ -2476,10 +2591,33 @@ export class Ctx extends Context {
    *
    * @public
    */
-  bottomKeyboardT(layout: ITKbCols = `1`, AGBaseId?: string | null, data?: Record<any, any> | null) {
+  bottomKeyboardT(layout: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): ITBottomKb
+  bottomKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): ITBottomKb
+  bottomKeyboardT(PageDestOrLayout?: any, layout?: any, AGBaseId?: any, data?: any): ITBottomKb {
+    // PageDest-based overload
+    if (Array.isArray(PageDestOrLayout)) {
+      const PageDest = PageDestOrLayout as ITKbDest[]
+      const ly = (layout ?? `1`) as ITKbCols
+      return this.bottomKeyboard(
+        (k, a) => {
+          return this.keyboardCols(k, a, ly, (e, i) => {
+            const page = PageDest[i]!
+            const lang = this.from?.language_code
+            if (typeof page !== `string`) {
+              k.text(_resolvePageTextLang(page, lang))
+            } else {
+              k.text(page)
+            }
+          })
+        },
+        {AGBaseId: AGBaseId ?? undefined, data: data ?? undefined}
+      )
+    }
+    // Template-based overload (existing)
+    const ly = (PageDestOrLayout ?? `1`) as ITKbCols
     return this.bottomKeyboard(
       (k, a) => {
-        return this.keyboardCols(k, a, layout, (e) => k.text(e))
+        return this.keyboardCols(k, a, ly, (e) => k.text(e))
       },
       {AGBaseId: AGBaseId ?? undefined, data: data ?? undefined}
     )
@@ -2519,6 +2657,16 @@ export class Ctx extends Context {
       (k, a) => {
         return this.keyboardCols(k, a, layout, (e, i) => {
           const page = PageDest[i]!
+          // Warn at runtime when a page reference lacks both handle*CallbackQueryData
+          if (typeof page !== `string`) {
+            const PageClass = typeof page === `function` ? page : (page.constructor as typeof Ctx)
+            const hasCallback = typeof (PageClass.prototype as any).handleCallbackQueryData === `function`
+            const hasArgsCallback = typeof (PageClass.prototype as any).handleArgsCallbackQueryData === `function`
+            if (!hasCallback && !hasArgsCallback) {
+              const pageName = (PageClass.data as any)?.name ?? (PageClass as any).name ?? `unknown`
+              this.log?.warn?.(`[gramstax] Page "${pageName}" referenced in inlineKeyboardT ` + `does not define handleCallbackQueryData or handleArgsCallbackQueryData. The button will have no registered handler.`)
+            }
+          }
           const data = typeof page == `string` ? page : page.data.callbackQueryData()
           k.text(e, data)
         })
@@ -2557,7 +2705,7 @@ export class Ctx extends Context {
       const key = `${tkey}:${this.from?.language_code}:i`
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
-        const ikb = new InlineKeyboard()
+        const ikb = new GramstaxInlineKeyboard()
         const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `inline`, params?.data ?? undefined)
         const rkb = callback(ikb, arr)
         this.cacheKeyboard.set(key, rkb)
@@ -2565,7 +2713,7 @@ export class Ctx extends Context {
       }
       return ckb
     }
-    const ikb = new InlineKeyboard()
+    const ikb = new GramstaxInlineKeyboard()
     const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `inline`, params?.data ?? undefined)
     const rkb = callback(ikb, arr)
     return rkb
@@ -2601,7 +2749,7 @@ export class Ctx extends Context {
       const key = `${tkey}:${this.from?.language_code}:b`
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
-        const kb = new Keyboard()
+        const kb = new GramstaxKeyboard()
         const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `bottom`, params?.data ?? undefined)
         const rkb = callback(kb, arr)
         rkb.resized(true)
@@ -2610,7 +2758,7 @@ export class Ctx extends Context {
       }
       return ckb
     }
-    const kb = new Keyboard()
+    const kb = new GramstaxKeyboard()
     const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `bottom`, params?.data ?? undefined)
     const rkb = callback(kb, arr)
     rkb.resized()
@@ -3714,200 +3862,200 @@ export class Ctx extends Context {
    *
    * @public
    */
-  setSessionCallbackQueryData(params?: any) {
+  setSessionCallbackQueryData(this: Ctx & {handleSessionCallbackQueryData: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCallbackQueryData(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionArgsCallbackQueryData(params?: any) {
+  setSessionArgsCallbackQueryData(this: Ctx & {handleSessionArgsCallbackQueryData: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionArgsCallbackQueryData(), params)
   }
   // text
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionText(params?: any) {
+  setSessionText(this: Ctx & {handleSessionText: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionText(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionArgsText(params?: any) {
+  setSessionArgsText(this: Ctx & {handleSessionArgsText: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionArgsText(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandText(params?: any) {
+  setSessionCommandText(this: Ctx & {handleSessionCommandText: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandText(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandArgsText(params?: any) {
+  setSessionCommandArgsText(this: Ctx & {handleSessionCommandArgsText: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandArgsText(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeText(params?: any) {
+  setSessionFreeText(this: Ctx & {handleSessionFreeText: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionFreeText(), params)
   }
   // photo
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionPhoto(params?: any) {
+  setSessionCaptionPhoto(this: Ctx & {handleSessionCaptionPhoto: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCaptionPhoto(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionArgsPhoto(params?: any) {
+  setSessionCaptionArgsPhoto(this: Ctx & {handleSessionCaptionArgsPhoto: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCaptionArgsPhoto(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionPhoto(params?: any) {
+  setSessionCommandCaptionPhoto(this: Ctx & {handleSessionCommandCaptionPhoto: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandCaptionPhoto(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionArgsPhoto(params?: any) {
+  setSessionCommandCaptionArgsPhoto(this: Ctx & {handleSessionCommandCaptionArgsPhoto: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsPhoto(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreePhoto(params?: any) {
+  setSessionFreePhoto(this: Ctx & {handleSessionFreePhoto: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionFreePhoto(), params)
   }
   // video
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionVideo(params?: any) {
+  setSessionCaptionVideo(this: Ctx & {handleSessionCaptionVideo: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCaptionVideo(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionArgsVideo(params?: any) {
+  setSessionCaptionArgsVideo(this: Ctx & {handleSessionCaptionArgsVideo: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCaptionArgsVideo(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionVideo(params?: any) {
+  setSessionCommandCaptionVideo(this: Ctx & {handleSessionCommandCaptionVideo: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandCaptionVideo(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionArgsVideo(params?: any) {
+  setSessionCommandCaptionArgsVideo(this: Ctx & {handleSessionCommandCaptionArgsVideo: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsVideo(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeVideo(params?: any) {
+  setSessionFreeVideo(this: Ctx & {handleSessionFreeVideo: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionFreeVideo(), params)
   }
   // audio
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionAudio(params?: any) {
+  setSessionCaptionAudio(this: Ctx & {handleSessionCaptionAudio: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCaptionAudio(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionArgsAudio(params?: any) {
+  setSessionCaptionArgsAudio(this: Ctx & {handleSessionCaptionArgsAudio: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCaptionArgsAudio(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionAudio(params?: any) {
+  setSessionCommandCaptionAudio(this: Ctx & {handleSessionCommandCaptionAudio: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandCaptionAudio(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionArgsAudio(params?: any) {
+  setSessionCommandCaptionArgsAudio(this: Ctx & {handleSessionCommandCaptionArgsAudio: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsAudio(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeAudio(params?: any) {
+  setSessionFreeAudio(this: Ctx & {handleSessionFreeAudio: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionFreeAudio(), params)
   }
   // document
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionDocument(params?: any) {
+  setSessionCaptionDocument(this: Ctx & {handleSessionCaptionDocument: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCaptionDocument(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionArgsDocument(params?: any) {
+  setSessionCaptionArgsDocument(this: Ctx & {handleSessionCaptionArgsDocument: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCaptionArgsDocument(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionDocument(params?: any) {
+  setSessionCommandCaptionDocument(this: Ctx & {handleSessionCommandCaptionDocument: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandCaptionDocument(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionArgsDocument(params?: any) {
+  setSessionCommandCaptionArgsDocument(this: Ctx & {handleSessionCommandCaptionArgsDocument: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsDocument(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeDocument(params?: any) {
+  setSessionFreeDocument(this: Ctx & {handleSessionFreeDocument: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionFreeDocument(), params)
   }
   // animation
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionAnimation(params?: any) {
+  setSessionCaptionAnimation(this: Ctx & {handleSessionCaptionAnimation: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCaptionAnimation(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionArgsAnimation(params?: any) {
+  setSessionCaptionArgsAnimation(this: Ctx & {handleSessionCaptionArgsAnimation: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCaptionArgsAnimation(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionAnimation(params?: any) {
+  setSessionCommandCaptionAnimation(this: Ctx & {handleSessionCommandCaptionAnimation: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandCaptionAnimation(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionArgsAnimation(params?: any) {
+  setSessionCommandCaptionArgsAnimation(this: Ctx & {handleSessionCommandCaptionArgsAnimation: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsAnimation(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeAnimation(params?: any) {
+  setSessionFreeAnimation(this: Ctx & {handleSessionFreeAnimation: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionFreeAnimation(), params)
   }
   // voice
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionVoice(params?: any) {
+  setSessionCaptionVoice(this: Ctx & {handleSessionCaptionVoice: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCaptionVoice(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionArgsVoice(params?: any) {
+  setSessionCaptionArgsVoice(this: Ctx & {handleSessionCaptionArgsVoice: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCaptionArgsVoice(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionVoice(params?: any) {
+  setSessionCommandCaptionVoice(this: Ctx & {handleSessionCommandCaptionVoice: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandCaptionVoice(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionArgsVoice(params?: any) {
+  setSessionCommandCaptionArgsVoice(this: Ctx & {handleSessionCommandCaptionArgsVoice: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionCommandCaptionArgsVoice(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeVoice(params?: any) {
+  setSessionFreeVoice(this: Ctx & {handleSessionFreeVoice: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionFreeVoice(), params)
   }
   // video note
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeVideoNote(params?: any) {
+  setSessionFreeVideoNote(this: Ctx & {handleSessionFreeVideoNote: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionFreeVideoNote(), params)
   }
   // sticker
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeSticker(params?: any) {
+  setSessionFreeSticker(this: Ctx & {handleSessionFreeSticker: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionFreeSticker(), params)
   }
   // location
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeLocation(params?: any) {
+  setSessionFreeLocation(this: Ctx & {handleSessionFreeLocation: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionFreeLocation(), params)
   }
   // contact
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeContact(params?: any) {
+  setSessionFreeContact(this: Ctx & {handleSessionFreeContact: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionFreeContact(), params)
   }
 
   // chat member
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionChatMemberOutIn(params?: any) {
+  setSessionChatMemberOutIn(this: Ctx & {handleSessionChatMemberOutIn: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionChatMemberOutIn(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionMyChatMemberOutRegular(params?: any) {
+  setSessionMyChatMemberOutRegular(this: Ctx & {handleSessionMyChatMemberOutRegular: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionMyChatMemberOutRegular(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionMyChatMemberOutAdmin(params?: any) {
+  setSessionMyChatMemberOutAdmin(this: Ctx & {handleSessionMyChatMemberOutAdmin: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionMyChatMemberOutAdmin(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionMyChatMemberRegularAdmin(params?: any) {
+  setSessionMyChatMemberRegularAdmin(this: Ctx & {handleSessionMyChatMemberRegularAdmin: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionMyChatMemberRegularAdmin(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionMyChatMemberAdminRegular(params?: any) {
+  setSessionMyChatMemberAdminRegular(this: Ctx & {handleSessionMyChatMemberAdminRegular: (...args: any[]) => any}, params?: any) {
     return this.setSession(this.methodSessionMyChatMemberAdminRegular(), params)
   }
 
