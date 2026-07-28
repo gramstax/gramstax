@@ -142,7 +142,7 @@ describe(`Ctx.renderAuto`, () => {
     await ctx.renderAuto(kb, da, null, null, true)
 
     expect(renderEditSpy).toHaveBeenCalledTimes(1)
-    expect(renderEditSpy).toHaveBeenCalledWith(kb, da, null, null)
+    expect(renderEditSpy).toHaveBeenCalledWith(kb, da, null, null, false)
   })
 
   // ── Direct page pattern: new TestPage(this).bdefault.show() ────
