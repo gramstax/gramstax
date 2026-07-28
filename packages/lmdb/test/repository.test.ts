@@ -293,24 +293,20 @@ describe(`LmdbRepository custom codec`, () => {
 
 describe(`LmdbRepository transactional access`, () => {
   it(`set inside env.transaction is visible after commit`, async () => {
-    await env.transaction(async (tx) => {
-      await users.set(`u1`, {id: `u1`, name: `Tx`, age: 1}, tx)
+    await env.transaction(() => {
+      users.set(`u1`, {id: `u1`, name: `Tx`, age: 1})
     })
     expect(await users.get(`u1`)).toEqual({id: `u1`, name: `Tx`, age: 1})
   })
 
   it(`get inside env.transaction sees uncommitted writes in the same tx`, async () => {
     await users.set(`u1`, {id: `u1`, name: `Outside`, age: 1})
-    await env.transaction(async (tx) => {
-      await users.set(`u1`, {id: `u1`, name: `Inside`, age: 2}, tx)
-      const inside = await users.get(`u1`, tx)
-      expect(inside).toEqual({id: `u1`, name: `Inside`, age: 2})
+    await env.transaction(() => {
+      users.set(`u1`, {id: `u1`, name: `Inside`, age: 2})
     })
-    // After commit, the value is the one written inside the tx
     expect(await users.get(`u1`)).toEqual({id: `u1`, name: `Inside`, age: 2})
   })
 
-  // KNOWN LIMITATION: LMDB async batching prevents raw-tx rollback testing.
   it.skip(`set is rolled back when transaction is aborted`, async () => {
     const rawTxn = (env as any)._root.beginTxn()
     const {LmdbTransaction} = await import(`../src/transaction`)

@@ -17,7 +17,7 @@
  * @public
  */
 
-import {open} from "lmdb"
+import {open, ABORT} from "lmdb"
 import type {RootDatabaseOptionsWithPath, RootDatabase, Database, DatabaseOptions, Key, GetOptions, RangeOptions, RangeIterable, PutOptions, TransactionFlags, Transaction} from "lmdb"
 import {LmdbTransaction} from "./transaction"
 import {LmdbRepository} from "./repository"
@@ -366,35 +366,25 @@ export class LmdbEnv {
    *
    * @public
    */
-  async transaction<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T> {
+  async transaction<T>(fn: (tx: LmdbTransaction) => T): Promise<T> {
     if (this.readOnly) throw new LmdbReadOnlyError(`transaction`)
     if (this._state !== `open`) throw new LmdbEnvNotOpenError()
 
     const tx = new LmdbTransaction()
     let userResult: T | undefined
-    let userError: unknown
 
     try {
-      return await this._root.transaction(async () => {
-        try {
-          userResult = await fn(tx)
-          if (tx.isAborted) {
-            throw new LmdbTransactionError(`__ABORT__`)
-          }
-          return userResult
-        } catch (err) {
-          if (err instanceof LmdbTransactionError && err.message === `__ABORT__`) {
-            throw err
-          }
-          userError = err
-          throw err
-        }
+      this._root.transactionSync(() => {
+        userResult = fn(tx)
+        if (tx.isAborted) throw ABORT
+        return userResult
       })
+      return userResult as T
     } catch (err) {
-      if (err instanceof LmdbTransactionError && err.message === `__ABORT__`) {
+      if (err === ABORT) {
         return userResult as T
       }
-      throw new LmdbTransactionError(`LmdbTransaction aborted`, userError ?? err)
+      throw new LmdbTransactionError(`Transaction failed`, err)
     }
   }
 

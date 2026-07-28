@@ -153,6 +153,10 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
     return undefined
   }
 
+  private _rangeOpts(options: IRangeOptions | undefined, tx?: LmdbTransaction): any {
+    return tx?.raw ? {...options, transaction: tx.raw} : options
+  }
+
   private _decodeValue(raw: unknown): T {
     return this._codec ? this._codec.deserialize(raw) : (raw as T)
   }
@@ -363,8 +367,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * @public
    */
-  keys(options?: IRangeOptions, _tx?: LmdbTransaction): Promise<K[]> {
-    return Promise.resolve(this.env.getKeys(options).asArray) as Promise<K[]>
+  keys(options?: IRangeOptions, tx?: LmdbTransaction): Promise<K[]> {
+    return Promise.resolve(this.env.getKeys(this._rangeOpts(options, tx)).asArray) as Promise<K[]>
   }
 
   /**
@@ -381,8 +385,10 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * @public
    */
-  values(options?: IRangeOptions, _tx?: LmdbTransaction): Promise<T[]> {
-    return Promise.resolve(this.env.getRange(options).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => this._decodeValue(e.value)))
+  values(options?: IRangeOptions, tx?: LmdbTransaction): Promise<T[]> {
+    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then(
+      (arr) => (arr as Array<{key: K; value: unknown}>).map((e) => this._decodeValue(e.value))
+    )
   }
 
   /**
@@ -399,8 +405,10 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * @public
    */
-  entries(options?: IRangeOptions, _tx?: LmdbTransaction): Promise<Array<[K, T]>> {
-    return Promise.resolve(this.env.getRange(options).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)]))
+  entries(options?: IRangeOptions, tx?: LmdbTransaction): Promise<Array<[K, T]>> {
+    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then(
+      (arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)])
+    )
   }
 
   /**
@@ -424,8 +432,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * @public
    */
-  async *iterate(options?: IRangeOptions, _tx?: LmdbTransaction): AsyncIterableIterator<[K, T]> {
-    const iter = this.env.getRange(options) as Iterable<{key: K; value: unknown}>
+  async *iterate(options?: IRangeOptions, tx?: LmdbTransaction): AsyncIterableIterator<[K, T]> {
+    const iter = this.env.getRange(this._rangeOpts(options, tx)) as Iterable<{key: K; value: unknown}>
     for (const entry of iter) {
       yield [entry.key as K, this._decodeValue(entry.value)]
     }

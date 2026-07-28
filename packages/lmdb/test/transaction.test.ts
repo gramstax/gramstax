@@ -56,10 +56,9 @@ afterEach(async () => {
 
 describe(`LmdbTransaction lifecycle (write via env.transaction)`, () => {
   it(`commits writes to both repositories atomically`, async () => {
-    await env.transaction(async (tx) => {
-      await userRepo.set(`u1`, {id: `u1`, name: `Alice`}, tx)
-      await sessionRepo.set(`s1`, {id: `s1`, userId: `u1`}, tx)
-      tx.commit()
+    await env.transaction(() => {
+      userRepo.set(`u1`, {id: `u1`, name: `Alice`})
+      sessionRepo.set(`s1`, {id: `s1`, userId: `u1`})
     })
 
     expect(await userRepo.get(`u1`)).toEqual({id: `u1`, name: `Alice`})
@@ -67,8 +66,8 @@ describe(`LmdbTransaction lifecycle (write via env.transaction)`, () => {
   })
 
   it(`marks the wrapper as committed after tx.commit()`, async () => {
-    const tx = await env.transaction(async (tx) => {
-      await userRepo.set(`u1`, {id: `u1`, name: `Bob`}, tx)
+    const tx = await env.transaction((tx) => {
+      userRepo.set(`u1`, {id: `u1`, name: `Bob`})
       tx.commit()
       return tx
     })
@@ -79,8 +78,8 @@ describe(`LmdbTransaction lifecycle (write via env.transaction)`, () => {
   })
 
   it(`throws when commit is called twice`, async () => {
-    const tx = await env.transaction(async (tx) => {
-      await userRepo.set(`u1`, {id: `u1`, name: `X`}, tx)
+    const tx = await env.transaction((tx) => {
+      userRepo.set(`u1`, {id: `u1`, name: `X`})
       tx.commit()
       return tx
     })
@@ -88,7 +87,7 @@ describe(`LmdbTransaction lifecycle (write via env.transaction)`, () => {
   })
 
   it(`commit on already-done tx throws LmdbTransactionDoneError`, async () => {
-    const tx = await env.transaction(async (tx) => {
+    const tx = await env.transaction((tx) => {
       tx.abort()
       return tx
     })
@@ -97,12 +96,10 @@ describe(`LmdbTransaction lifecycle (write via env.transaction)`, () => {
 })
 
 describe(`LmdbTransaction abort (write via env.transaction)`, () => {
-  // KNOWN LIMITATION: LMDB auto-batches awaited puts in a separate transaction,
-  // so tx.abort() cannot roll back writes issued before the abort signal.
-  it.skip(`rolls back writes when tx.abort() is called inside the callback`, async () => {
-    await env.transaction(async (tx) => {
-      await userRepo.set(`u1`, {id: `u1`, name: `Rolled`}, tx)
-      await sessionRepo.set(`s1`, {id: `s1`, userId: `u1`}, tx)
+  it(`rolls back writes when tx.abort() is called inside the callback`, async () => {
+    await env.transaction((tx) => {
+      userRepo.set(`u1`, {id: `u1`, name: `Rolled`})
+      sessionRepo.set(`s1`, {id: `s1`, userId: `u1`})
       tx.abort()
     })
 
@@ -111,7 +108,7 @@ describe(`LmdbTransaction abort (write via env.transaction)`, () => {
   })
 
   it(`marks the wrapper as aborted after tx.abort()`, async () => {
-    const tx = await env.transaction(async (tx) => {
+    const tx = await env.transaction((tx) => {
       tx.abort()
       return tx
     })
@@ -122,7 +119,7 @@ describe(`LmdbTransaction abort (write via env.transaction)`, () => {
   })
 
   it(`abort is idempotent — second call is a no-op`, async () => {
-    const tx = await env.transaction(async (tx) => {
+    const tx = await env.transaction((tx) => {
       tx.abort()
       return tx
     })
@@ -132,8 +129,8 @@ describe(`LmdbTransaction abort (write via env.transaction)`, () => {
 
   it(`env.transaction wraps user throws in LmdbTransactionError`, async () => {
     try {
-      await env.transaction(async (tx) => {
-        await userRepo.set(`u1`, {id: `u1`, name: `Ghost`}, tx)
+      await env.transaction(() => {
+        userRepo.set(`u1`, {id: `u1`, name: `Ghost`})
         throw new Error(`intentional`)
       })
       expect.unreachable()
@@ -142,18 +139,15 @@ describe(`LmdbTransaction abort (write via env.transaction)`, () => {
       expect((e as LmdbTransactionError).cause).toBeInstanceOf(Error)
       expect(((e as LmdbTransactionError).cause as Error).message).toBe(`intentional`)
     }
-
-    // KNOWN LIMITATION: throw cannot roll back already-batched writes
   })
 
-  // KNOWN LIMITATION: same auto-batching issue as the abort test above
-  it.skip(`rollback on throw is atomic — neither repo's writes survive`, async () => {
+  it(`rollback on throw is atomic — neither repo's writes survive`, async () => {
     await userRepo.set(`existing`, {id: `existing`, name: `Pre`})
 
     try {
-      await env.transaction(async (tx) => {
-        await userRepo.set(`existing`, {id: `existing`, name: `Should rollback`}, tx)
-        await sessionRepo.set(`new-session`, {id: `new-session`, userId: `existing`}, tx)
+      await env.transaction(() => {
+        userRepo.set(`existing`, {id: `existing`, name: `Should rollback`})
+        sessionRepo.set(`new-session`, {id: `new-session`, userId: `existing`})
         throw new Error(`fail`)
       })
     } catch {
@@ -194,9 +188,7 @@ describe(`env.readTransaction`, () => {
     expect(tx.isAborted).toBe(true)
   })
 
-  // KNOWN LIMITATION: getRange inside useReadTransaction context returns
-  // a non-iterable shape in LMDB v3.5.6; investigation pending.
-  it.skip(`read transaction sees writes committed before env.readTransaction started`, async () => {
+  it(`read transaction sees writes committed before env.readTransaction started`, async () => {
     await userRepo.set(`u1`, {id: `u1`, name: `Before`})
 
     const entries = await env.readTransaction(async (tx) => {
