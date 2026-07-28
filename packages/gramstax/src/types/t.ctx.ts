@@ -452,62 +452,19 @@ export type ITKbDest = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCall
 export type ITKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${1 | 2 | 3 | 4 | 5 | 6}`
 
 /**
- * Page routing data configuration.
+ * Base page routing data — static-only properties without callback arg generics.
  *
  * @remarks
- * Contains all routing metadata and handlers for a page in the Gramstax framework.
- * This type defines the internal structure used by the routing system to match
- * incoming updates to the appropriate page handlers.
- *
- * @typeParam T - Tuple type representing the callback arg parameters.
- *
- * @public
- */
-/**
- * Page routing data configuration.
- *
- * @typeParam T - Tuple of callback arg parameters.
+ * Used as the static type for `Ctx.data` to ensure pages that do NOT define
+ * `buildData` see `callbackQueryData()` with 0 args (no `...args`).
+ * Pages that define `buildData(...)` via {@link ITPageData} get overloaded
+ * signatures that accept the configured args.
  *
  * @public
  */
-export type ITPageData<T extends any[] = any[]> = {
-  /**
-   * The unique name identifier for this page route.
-   *
-   * @remarks
-   * Internal value derived from the file name. This value is used as the default intent.
-   *
-   * **IMPORTANT:** Do not set this manually. Let the system handle it.
-   */
+export type ITPageDataStatic = {
+  /** @internal */
   name: string
-
-  /**
-   * **Consumption.** Generate the callback query data string for inline keyboard buttons.
-   *
-   * @remarks
-   * Call this method to produce the actual callback data string that Telegram sends
-   * when a user taps an inline keyboard button.  This is the **consumption** side —
-   * you call it at runtime, typically when building a keyboard:
-   *
-   * ```typescript
-   * keyboard.text("Detail", DetailPage.data.callbackQueryData("42"))
-   * ```
-   *
-   * **No args** → returns `intentCallbackQueryData` as-is (e.g. `"settings"`).
-   * **With args** → returns `intentCallbackQueryData:arg1:arg2:…` (e.g. `"detail:42"`)
-   *
-   * How args are encoded is defined at build time via
-   * {@link ITBuildDataOptions.callbackQueryData}  (the **definition** side).
-   *
-   * ---
-   * **Default:** returns `this.data.intentCallbackQueryData` (which defaults to `this.data.name`).
-   *
-   * @param args - Positional args to append to the intent string.
-   * @returns A callback query data string ready for use in `InlineKeyboard.text()`.
-   *
-   * @see {@link ITBuildDataOptions.callbackQueryData} for the definition side.
-   */
-  callbackQueryData(...args: T): string
 
   /**
    * `handle*Text` intent pattern for matching incoming text messages.
@@ -590,6 +547,66 @@ export type ITPageData<T extends any[] = any[]> = {
    * @internal
    */
   intentCommandTextMap?: Record<string, string>
+
+  /**
+   * **Consumption.** Generate the callback query data string for inline keyboard buttons.
+   *
+   * @remarks
+   * Call this method to produce the actual callback data string that Telegram sends
+   * when a user taps an inline keyboard button.
+   *
+   * **Static access (no `...args`):** Returns `intentCallbackQueryData` as-is.
+   * Pages that define `buildData(...)` provide an overloaded version that
+   * accepts the configured args.
+   *
+   * @returns A callback query data string ready for use in `InlineKeyboard.text()`.
+   */
+  callbackQueryData(): string
+}
+
+/**
+ * Page routing data configuration.
+ *
+ * @remarks
+ * Contains all routing metadata and handlers for a page in the Gramstax framework.
+ * This type defines the internal structure used by the routing system to match
+ * incoming updates to the appropriate page handlers.
+ *
+ * Extends {@link ITPageDataStatic} and adds generic `callbackQueryData` with
+ * the exact arg types configured via `buildData`.
+ *
+ * @typeParam T - Tuple type representing the callback arg parameters.
+ *
+ * @public
+ */
+export type ITPageData<T extends any[] = any[]> = ITPageDataStatic & {
+  /**
+   * **Consumption.** Generate the callback query data string for inline keyboard buttons.
+   *
+   * @remarks
+   * Call this method to produce the actual callback data string that Telegram sends
+   * when a user taps an inline keyboard button.  This is the **consumption** side —
+   * you call it at runtime, typically when building a keyboard:
+   *
+   * ```typescript
+   * keyboard.text("Detail", DetailPage.data.callbackQueryData("42"))
+   * ```
+   *
+   * **No args** → returns `intentCallbackQueryData` as-is (e.g. `"settings"`).
+   * **With args** → returns `intentCallbackQueryData:arg1:arg2:…` (e.g. `"detail:42"`)
+   *
+   * How args are encoded is defined at build time via
+   * {@link ITBuildDataOptions.callbackQueryData}  (the **definition** side).
+   *
+   * ---
+   * **Default:** returns `this.data.intentCallbackQueryData` (which defaults to `this.data.name`).
+   *
+   * @param args - Positional args to append to the intent string.
+   * @returns A callback query data string ready for use in `InlineKeyboard.text()`.
+   *
+   * @see {@link ITBuildDataOptions.callbackQueryData} for the definition side.
+   */
+  callbackQueryData(...args: T): string
 }
 
 /**
