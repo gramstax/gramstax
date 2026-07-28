@@ -109,6 +109,10 @@ export class HttpRequestPage extends PageBase {
     }
   }
 
+  async handleSessionFreeText() {
+    return this.handleFreeText()
+  }
+
   bmethod = {
     show: async () => {
       await this.clearSession()
