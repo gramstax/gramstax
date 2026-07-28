@@ -1,37 +1,48 @@
 /**
  * generate-e2e-structure.ts
  *
- * AUTO-CREATE: Membuat file e2e test untuk setiap page file yang belum
- * memiliki e2e test yang sesuai. Struktur e2e akan identik dengan pages.
+ * Auto-create e2e test files untuk setiap page file yang belum memiliki
+ * e2e test yang sesuai. Struktur e2e akan identik dengan pages.
+ * Bisa digunakan untuk project mana pun, tidak terbatas pada example/.
  *
  * Konvensi:
  *   pages/foo.ts       → e2e/foo.ts        (sama persis path & filename)
  *   pages/foo/bar.ts   → e2e/foo/bar.ts    (sama persis)
  *   pages/foo/index.ts → e2e/foo/index.ts  (sama persis)
  *
- * Setiap e2e test yang dibuat otomatis berisi:
+ * Setiap e2e test berisi:
  *   - Import setup dengan relative path yang benar
  *   - Test dasar "load as a registered page in the bot"
  *   - Nama class diambil dari nama file (PascalCase)
  *
  * Penggunaan:
- *   bun run scripts/generate-e2e-structure.ts                        # semua project
- *   bun run scripts/generate-e2e-structure.ts 7-crud                 # satu project
- *   bun run scripts/generate-e2e-structure.ts 1-complex 5-interactive-menu  # beberapa project
+ *   bun run scripts/generate-e2e-structure.ts
+ *       → Generate untuk semua project di example/
  *
- * --dry-run: tampilkan apa yang akan dibuat tanpa menulis file
- * --force:   overwrite e2e test yang sudah ada
- * --check:   hanya check, tidak membuat apapun (alias dari check-e2e-mirror.ts)
+ *   bun run scripts/generate-e2e-structure.ts --path ./my-app
+ *       → Generate untuk project my-app
+ *
+ *   bun run scripts/generate-e2e-structure.ts --path ./my-app --dry-run
+ *       → Lihat apa yang akan dibuat tanpa menulis file
+ *
+ *   bun run scripts/generate-e2e-structure.ts --path ./my-app --force
+ *       → Overwrite e2e test yang sudah ada
+ *
+ *   bun run scripts/generate-e2e-structure.ts --path ./my-app --check
+ *       → Cek saja tanpa membuat apapun
+ *
+ *   bun run scripts/generate-e2e-structure.ts 7-crud 10-http-request
+ *       → Generate untuk subset project di example/
  *
  * Exit code: 0 jika semua OK, 1 jika ada masalah.
  */
 
-import {existsSync, readdirSync, mkdirSync, writeFileSync, readFileSync} from "node:fs"
+import {existsSync, readdirSync, mkdirSync, writeFileSync} from "node:fs"
 import {join, dirname} from "node:path"
 
-// ── Konfigurasi ───────────────────────────────────────────────────────
+// ── Static list untuk mode default (tanpa --path) ─────────────────────
 
-const ALL_PROJECTS = [
+const DEFAULT_PROJECTS = [
   `1-complex`,
   `2-helloworld`,
   `3-helloworld-js`,
@@ -44,9 +55,24 @@ const ALL_PROJECTS = [
   `10-http-request`
 ]
 
-// ── Helper ─────────────────────────────────────────────────────────────
+// ── Parse CLI ─────────────────────────────────────────────────────────
 
-/** Walk directory recursively, return relative file paths */
+const args = process.argv.slice(2)
+
+const DRY_RUN = args.includes(`--dry-run`)
+const FORCE = args.includes(`--force`)
+const CHECK_ONLY = args.includes(`--check`)
+
+const pathIndex = args.indexOf(`--path`)
+const customPath = pathIndex !== -1 && pathIndex + 1 < args.length ? args[pathIndex + 1]! : null
+
+const projectNames = customPath
+  ? []
+  : args.filter((a) => !a.startsWith(`--`) && a !== args[pathIndex + 1])
+
+// ── Helpers ───────────────────────────────────────────────────────────
+
+/** Walk directory recursively, return relative file paths of all pages */
 function walkFiles(dir: string, prefix = ``): string[] {
   const results: string[] = []
   for (const entry of readdirSync(dir, {withFileTypes: true})) {
@@ -65,7 +91,7 @@ function testExt(rel: string): string {
   return rel.endsWith(`.js`) ? `.test.js` : `.test.ts`
 }
 
-/** Build the correct relative import path from a test file to setup */
+/** Build correct relative import path from a test file to setup */
 function setupImport(rel: string): string {
   const depth = rel.split(`/`).length - 1
   if (depth === 0) return `./`
@@ -74,7 +100,7 @@ function setupImport(rel: string): string {
   return prefix
 }
 
-/** Convert a filename to a PascalCase class name */
+/** Convert a filename segment to PascalCase */
 function toClassName(name: string): string {
   return name
     .split(/[-_/]/)
@@ -106,44 +132,36 @@ function generateTestContent(pageRel: string): string {
   ].join(`\n`)
 }
 
-// ── Parse CLI arguments ────────────────────────────────────────────────
+// ── Process one project ───────────────────────────────────────────────
 
-const args = process.argv.slice(2)
-const DRY_RUN = args.includes(`--dry-run`)
-const FORCE = args.includes(`--force`)
-const CHECK_ONLY = args.includes(`--check`)
-
-// Filter out flags to get project names
-const projectFilter = args.filter((a) => !a.startsWith(`--`))
-const selectedProjects = projectFilter.length > 0 ? projectFilter : ALL_PROJECTS
-
-// ── Main ────────────────────────────────────────────────────────────────
-
-let hasMissing = false
-let created = 0
-let skipped = 0
-let errors = 0
-
-for (const proj of selectedProjects) {
-  const pagesDir = `example/${proj}/src/pages`
-  const e2eDir = `example/${proj}/e2e`
+function processProject(
+  label: string,
+  pagesDir: string,
+  e2eDir: string
+): {created: number; skipped: number; errors: number} {
+  const result = {created: 0, skipped: 0, errors: 0}
 
   if (!existsSync(pagesDir)) {
-    console.log(`  ⏭️  ${proj}: pages directory not found at ${pagesDir}`)
-    errors++
-    continue
+    console.log(`  ⏭️  ${label}: pages directory not found at ${pagesDir}`)
+    result.errors++
+    return result
   }
+
   if (!existsSync(e2eDir)) {
+    if (CHECK_ONLY) {
+      console.log(`  ⏭️  ${label}: e2e directory not found at ${e2eDir}`)
+      result.errors++
+      return result
+    }
     if (!DRY_RUN) {
       mkdirSync(e2eDir, {recursive: true})
-      if (!CHECK_ONLY) console.log(`  📁 ${proj}: created e2e directory`)
+      console.log(`  📁 ${label}: created e2e directory`)
     } else {
-      console.log(`  📁 ${proj}: would create e2e directory`)
+      console.log(`  📁 ${label}: would create e2e directory`)
     }
   }
 
   const pageFiles = walkFiles(pagesDir)
-  let projMissing = 0
 
   for (const pageRel of pageFiles) {
     const ext = testExt(pageRel)
@@ -151,61 +169,75 @@ for (const proj of selectedProjects) {
     const e2ePath = join(e2eDir, expectedE2E)
 
     if (existsSync(e2ePath) && !FORCE) {
-      skipped++
+      result.skipped++
       continue
     }
 
-    projMissing++
-
     if (CHECK_ONLY) {
-      console.log(`  ❌ ${proj}: e2e/${expectedE2E} (for pages/${pageRel})`)
-      hasMissing = true
+      console.log(`  ❌ ${label}: e2e/${expectedE2E} (for pages/${pageRel})`)
       continue
     }
 
     const content = generateTestContent(pageRel)
 
     if (DRY_RUN) {
-      console.log(`  📝 ${proj}: would create e2e/${expectedE2E}`)
+      console.log(`  📝 ${label}: would create e2e/${expectedE2E}`)
       console.log(content.split(`\n`).map((l) => `     | ${l}`).join(`\n`))
       console.log(``)
-      created++
+      result.created++
       continue
     }
 
-    // Write the file
     try {
       mkdirSync(dirname(e2ePath), {recursive: true})
       writeFileSync(e2ePath, content)
-      console.log(`  ✅ ${proj}: created e2e/${expectedE2E}`)
-      created++
+      console.log(`  ✅ ${label}: created e2e/${expectedE2E}`)
+      result.created++
     } catch (err) {
-      console.log(`  ❌ ${proj}: failed to create e2e/${expectedE2E}: ${err}`)
-      errors++
+      console.log(`  ❌ ${label}: failed to create e2e/${expectedE2E}: ${err}`)
+      result.errors++
     }
   }
 
-  if (projMissing === 0 && !CHECK_ONLY) {
-    console.log(`  ✅ ${proj}: all ${pageFiles.length} pages already have matching e2e tests`)
+  if (result.created === 0 && result.errors === 0 && !CHECK_ONLY) {
+    console.log(`  ✅ ${label}: all ${pageFiles.length} pages already have matching e2e tests`)
+  }
+
+  return result
+}
+
+// ── Main ──────────────────────────────────────────────────────────────
+
+let totalCreated = 0
+let totalSkipped = 0
+let totalErrors = 0
+
+if (customPath) {
+  const label = customPath.replace(/\\/g, `/`).replace(/\/+$/, ``)
+  const pagesDir = join(customPath, `src`, `pages`)
+  const e2eDir = join(customPath, `e2e`)
+  const r = processProject(label, pagesDir, e2eDir)
+  totalCreated += r.created
+  totalSkipped += r.skipped
+  totalErrors += r.errors
+} else {
+  const selected = projectNames.length > 0 ? projectNames : DEFAULT_PROJECTS
+  for (const proj of selected) {
+    const r = processProject(proj, `example/${proj}/src/pages`, `example/${proj}/e2e`)
+    totalCreated += r.created
+    totalSkipped += r.skipped
+    totalErrors += r.errors
   }
 }
 
-// ── Summary ────────────────────────────────────────────────────────────
+// ── Summary ───────────────────────────────────────────────────────────
 
 console.log(``)
 console.log(`Summary:`)
-console.log(`  Created: ${created}`)
-console.log(`  Skipped (already exists): ${skipped}`)
-console.log(`  Errors: ${errors}`)
-console.log(`  Missing (--check mode): ${hasMissing ? `YES` : `NONE`}`)
+console.log(`  Created: ${totalCreated}`)
+console.log(`  Skipped (already exists): ${totalSkipped}`)
+console.log(`  Errors: ${totalErrors}`)
 
-if (hasMissing) {
-  console.log(`\nRun without --check to auto-create missing files.`)
+if (totalErrors > 0) {
   process.exit(1)
 }
-
-if (errors > 0) {
-  process.exit(1)
-}
-
-process.exit(0)

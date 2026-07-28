@@ -1,8 +1,8 @@
 /**
  * check-e2e-mirror.ts
  *
- * VERIFIKASI: Memastikan setiap example project memiliki struktur e2e yang
- * identik dengan struktur pages-nya.
+ * Memastikan struktur e2e identik dengan struktur pages di suatu project.
+ * Bisa digunakan untuk project mana pun, tidak terbatas pada example/.
  *
  * Konvensi:
  *   pages/foo.ts       → e2e/foo.ts        (sama persis path & filename)
@@ -11,15 +11,26 @@
  *
  * Penggunaan:
  *   bun run scripts/check-e2e-mirror.ts
- *   bun run scripts/check-e2e-mirror.ts --fix   (auto-create missing e2e files)
+ *       → Cek semua project di example/
  *
- * Exit code: 0 jika semua OK, 1 jika ada yang mismatch.
+ *   bun run scripts/check-e2e-mirror.ts --path ./my-app
+ *       → Cek project my-app (pages: ./my-app/src/pages, e2e: ./my-app/e2e)
+ *
+ *   bun run scripts/check-e2e-mirror.ts --path ./my-app --fix
+ *       → Cek + auto-create e2e test yang missing
+ *
+ *   bun run scripts/check-e2e-mirror.ts 7-crud 10-http-request
+ *       → Cek subset project di example/
+ *
+ * Exit code: 0 jika semua OK, 1 jika ada mismatch.
  */
 
-import {existsSync, readdirSync, mkdirSync, writeFileSync, readFileSync} from "node:fs"
+import {existsSync, readdirSync, mkdirSync, writeFileSync} from "node:fs"
 import {join, dirname} from "node:path"
 
-const PROJECTS = [
+// ── Static list untuk mode default (tanpa --path) ─────────────────────
+
+const DEFAULT_PROJECTS = [
   `1-complex`,
   `2-helloworld`,
   `3-helloworld-js`,
@@ -32,8 +43,22 @@ const PROJECTS = [
   `10-http-request`
 ]
 
+// ── Parse CLI ─────────────────────────────────────────────────────────
+
 const args = process.argv.slice(2)
+
 const FIX_MODE = args.includes(`--fix`)
+
+// Extract --path value
+const pathIndex = args.indexOf(`--path`)
+const customPath = pathIndex !== -1 && pathIndex + 1 < args.length ? args[pathIndex + 1]! : null
+
+// Project names (for default mode, without --path)
+const projectNames = customPath
+  ? [] // --path mode doesn't use project names
+  : args.filter((a) => !a.startsWith(`--`) && a !== args[pathIndex + 1])
+
+// ── Helpers ───────────────────────────────────────────────────────────
 
 function walkPages(dir: string, prefix = ``): Array<{rel: string}> {
   const results: Array<{rel: string}> = []
@@ -50,6 +75,14 @@ function walkPages(dir: string, prefix = ``): Array<{rel: string}> {
 
 function getTestExt(rel: string): string {
   return rel.endsWith(`.js`) ? `.test.js` : `.test.ts`
+}
+
+function getSetupImportPrefix(rel: string): string {
+  const depth = rel.split(`/`).length - 1
+  if (depth === 0) return `./`
+  let prefix = ``
+  for (let i = 0; i < depth; i++) prefix += `../`
+  return prefix
 }
 
 function generateTestContent(pageRel: string): string {
@@ -75,31 +108,18 @@ function generateTestContent(pageRel: string): string {
   ].join(`\n`)
 }
 
-function getSetupImportPrefix(rel: string): string {
-  const depth = rel.split(`/`).length - 1
-  if (depth === 0) return `./`
-  let prefix = ``
-  for (let i = 0; i < depth; i++) prefix += `../`
-  return prefix
-}
-
-let allOk = true
-
-for (const proj of PROJECTS) {
-  const pagesDir = `example/${proj}/src/pages`
-  const e2eDir = `example/${proj}/e2e`
-
+function checkProject(label: string, pagesDir: string, e2eDir: string): boolean {
   if (!existsSync(pagesDir)) {
-    console.log(`  ⏭️  ${proj}: pages directory not found`)
-    continue
+    console.log(`  ⏭️  ${label}: pages directory not found at ${pagesDir}`)
+    return true // skip, not an error
   }
   if (!existsSync(e2eDir)) {
-    console.log(`  ⏭️  ${proj}: e2e directory not found`)
-    continue
+    console.log(`  ⏭️  ${label}: e2e directory not found at ${e2eDir}`)
+    return true
   }
 
   const pages = walkPages(pagesDir)
-  let projOk = true
+  let ok = true
 
   for (const page of pages) {
     const ext = getTestExt(page.rel)
@@ -107,9 +127,8 @@ for (const proj of PROJECTS) {
     const e2ePath = join(e2eDir, expectedE2E)
 
     if (!existsSync(e2ePath)) {
-      console.log(`  ❌ ${proj}: pages/${page.rel} -> e2e/${expectedE2E} MISSING`)
-      projOk = false
-      allOk = false
+      console.log(`  ❌ ${label}: pages/${page.rel} -> e2e/${expectedE2E} MISSING`)
+      ok = false
 
       if (FIX_MODE) {
         const content = generateTestContent(page.rel)
@@ -121,15 +140,38 @@ for (const proj of PROJECTS) {
     }
   }
 
-  if (projOk) {
-    console.log(`  ✅ ${proj}: ${pages.length} pages, all mirrored`)
+  if (ok) {
+    console.log(`  ✅ ${label}: ${pages.length} pages, all mirrored`)
+  }
+  return ok
+}
+
+// ── Main ──────────────────────────────────────────────────────────────
+
+let allOk = true
+
+if (customPath) {
+  // Single-project mode (--path)
+  const label = customPath.replace(/\\/g, `/`).replace(/\/+$/, ``)
+  const pagesDir = join(customPath, `src`, `pages`)
+  const e2eDir = join(customPath, `e2e`)
+  const ok = checkProject(label, pagesDir, e2eDir)
+  if (!ok) allOk = false
+} else {
+  // Default mode — check all example projects (or subset)
+  const selected = projectNames.length > 0 ? projectNames : DEFAULT_PROJECTS
+  for (const proj of selected) {
+    const ok = checkProject(proj, `example/${proj}/src/pages`, `example/${proj}/e2e`)
+    if (!ok) allOk = false
   }
 }
+
+// ── Exit ──────────────────────────────────────────────────────────────
 
 if (!allOk && !FIX_MODE) {
   console.log(`\nSome e2e tests are missing. Run with --fix to auto-create them.`)
   process.exit(1)
 } else if (allOk) {
-  console.log(`\nAll 10 projects OK!`)
+  console.log(`\nAll OK!`)
   process.exit(0)
 }
