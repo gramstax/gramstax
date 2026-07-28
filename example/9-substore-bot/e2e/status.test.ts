@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "./setup"
 beforeEach(() => e2e.clearCalls())
-describe(`E2E: GeneralStatusPage`, () => {
+describe(`E2E: StatusPage`, () => {
   it(`show not-found for unrecognized callback`, async () => {
     const res = await e2e.sendCallbackQuery(`bad-data`)
     expect(res.length).toBeGreaterThan(0)

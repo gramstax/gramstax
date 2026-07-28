@@ -55,7 +55,7 @@ describe(`E2E: StartPage`, () => {
     e2e.clearCalls()
 
     const res3 = await e2e.sendText(`gibberish`)
-    expect(res3[0]?.body?.text).toBe(e2e.gmsg(`general-status`, `d`, {isNotFound: true}))
+    expect(res3[0]?.body?.text).toBe(e2e.gmsg(`status`, `default`, {isNotFound: true}))
   })
 
   it(`support custom user and chat options`, async () => {
