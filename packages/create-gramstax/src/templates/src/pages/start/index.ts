@@ -1,7 +1,7 @@
-import {HelpPage} from "./help"
+import {HelpPage} from "../help"
 import {PageBase} from "~/base/page"
-import {RandomNumberPage} from "./random-number"
-import {SumNumberPage} from "./sum-number"
+import {SumNumberPage} from "../sum-number"
+import {StartRandomPage} from "./random"
 
 export class StartPage extends PageBase {
   async handleCallbackQueryData() {
@@ -15,7 +15,7 @@ export class StartPage extends PageBase {
   bdefault = {
     show: async (isEdit = true) => {
       await this.clearSession()
-      const kb = this.inlineKeyboardT([RandomNumberPage, SumNumberPage, HelpPage], `2`)
+      const kb = this.inlineKeyboardT([StartRandomPage, SumNumberPage, HelpPage], `2`)
       const da = {userName: this.from?.username}
       await this.renderAutoRich(kb, da, null, null, null, isEdit)
     }
@@ -23,14 +23,14 @@ export class StartPage extends PageBase {
 
   static template = `
     <g-base>
-      <g-keyboard type="inline">🎰 Random Number, ➕ Sum Number, 🆘 Help</g-keyboard>
-      <g-keyboard type="inline" lang="id">🎰 Angka Acak, ➕ Jumlah Angka, 🆘 Bantuan</g-keyboard>
+      <g-keyboard type="inline">🎲 Random, ➕ Sum Number, 🆘 Help</g-keyboard>
+      <g-keyboard type="inline" lang="id">🎲 Acak, ➕ Jumlah Angka, 🆘 Bantuan</g-keyboard>
       <g-message>
         <b>👋 Welcome to the bot {{userName}}</b>
 
         This bot was initially generated using Gramstax as the base setup and starting structure. It provides a clean foundation that can be extended with custom features, commands, and integrations as needed.
 
-        <b>🎰 Random Number</b> - Generate a random number
+        <b>🎲 Random</b> - Generate random numbers or text
         <b>➕ Sum Number</b> - Add two numbers together
         <b>❓ Help</b> - View help and available commands
 
@@ -43,7 +43,7 @@ export class StartPage extends PageBase {
 
         Bot ini dibuat menggunakan Gramstax sebagai generator awal dan struktur dasar. Dari sini, bot dapat dikembangkan lebih lanjut dengan fitur, perintah, dan integrasi sesuai kebutuhan.
 
-        <b>🎰 Angka Acak</b> - Menghasilkan angka secara acak
+        <b>🎲 Acak</b> - Hasilkan angka atau teks acak
         <b>➕ Jumlah Angka</b> - Menjumlahkan dua angka
         <b>❓ Bantuan</b> - Lihat bantuan dan daftar perintah
 

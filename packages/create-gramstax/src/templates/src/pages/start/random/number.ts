@@ -1,18 +1,14 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
+import {StartRandomPage} from "."
 
-export class RandomNumberPage extends PageBase {
+export class StartRandomNumberPage extends PageBase {
   async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
 
-  async handleCommandText() {
-    await this.bdefault.show(false)
-  }
-
   bdefault = {
     show: async (isEdit = true) => {
-      const kb = this.inlineKeyboardT([this, StartPage])
+      const kb = this.inlineKeyboardT([this, StartRandomPage], `2`)
       const da = {result: Math.random() * 10 ** 18}
       await this.renderAuto(kb, da, null, null, isEdit)
     }
