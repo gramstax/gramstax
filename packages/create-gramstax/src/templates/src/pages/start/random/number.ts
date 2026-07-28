@@ -2,6 +2,7 @@ import {PageBase} from "~/base/page"
 import {StartRandomPage} from "."
 
 export class StartRandomNumberPage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }

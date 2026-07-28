@@ -4,6 +4,7 @@ import {StartRandomNumberPage} from "./number"
 import {StartRandomTextPage} from "./text"
 
 export class StartRandomPage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }

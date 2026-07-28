@@ -4,6 +4,7 @@ import {SumNumberPage} from "../sum-number"
 import {StartRandomPage} from "./random"
 
 export class StartPage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }

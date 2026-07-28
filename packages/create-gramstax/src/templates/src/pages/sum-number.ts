@@ -18,6 +18,7 @@ class Helper {
 }
 
 export class SumNumberPage extends PageBase {
+  static data = this.buildData()
   async handleCallbackQueryData() {
     await this.bleft.show(true)
   }

@@ -2,6 +2,7 @@ import {HelpPage} from "./help"
 import {PageBase} from "~/base/page"
 
 export class UserNameNotFoundPage extends PageBase {
+  static data = this.buildData()
   bdefault = {
     show: async (isEdit = true) => {
       const kb = this.inlineKeyboardT([HelpPage])
