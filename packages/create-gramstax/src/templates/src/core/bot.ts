@@ -17,6 +17,6 @@ export class BotCore extends Gramstax {
   }
 
   async hookErrorInputNotFoundPage(ctx: CtxCore) {
-    await new StatusPage(ctx).berrorNotFound.show()
+    await new StatusPage(ctx).bnotFound.show()
   }
 }

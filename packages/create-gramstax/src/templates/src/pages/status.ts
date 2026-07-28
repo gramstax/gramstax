@@ -21,7 +21,7 @@ export class StatusPage extends PageBase {
     }
   }
 
-  berrorNotFound = {
+  bnotFound = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage])
       const da = {isNotFound: true}

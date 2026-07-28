@@ -242,7 +242,7 @@ it(\`clear session on start\`, async () => {
 
 ### General Status Fallback (Route Not Found)
 
-Gramstax has `StatusPage` as the default fallback when a route/page is not found. Unknown updates are automatically routed to `berrorNotFound` — **MUST** be validated:
+Gramstax has `StatusPage` as the default fallback when a route/page is not found. Unknown updates are automatically routed to `bnotFound` — **MUST** be validated:
 
 ```typescript
 it(\`fallback to general-status for unknown callback data\`, async () => {
