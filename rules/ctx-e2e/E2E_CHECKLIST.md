@@ -70,9 +70,9 @@
 
 ## Fallback / Error Validation (REQUIRED)
 
-- [ ] **Unknown callback data** — Gramstax falls back to `GeneralStatusPage`, validate "Route Not Found" message
-- [ ] **Unknown command** — falls back to `GeneralStatusPage`, validate response
-- [ ] **Unknown free text** — falls back to `GeneralStatusPage`, validate response
+- [ ] **Unknown callback data** — Gramstax falls back to `StatusPage`, validate "Route Not Found" message
+- [ ] **Unknown command** — falls back to `StatusPage`, validate response
+- [ ] **Unknown free text** — falls back to `StatusPage`, validate response
 - [ ] **Invalid input** — page with validation: show appropriate error/warning page
 - [ ] **Empty state** — page with list: show empty message
 

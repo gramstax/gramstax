@@ -177,6 +177,7 @@ it(\`full flow\`, async () => {
 ```
 
 **Flow test rules:**
+
 - Each step must call `e2e.clearCalls()` before the next action.
 - Each step must validate **message** + **keyboard**.
 - Use `toContain` for dynamic data.
@@ -241,12 +242,12 @@ it(\`clear session on start\`, async () => {
 
 ### General Status Fallback (Route Not Found)
 
-Gramstax has `GeneralStatusPage` as the default fallback when a route/page is not found. Unknown updates are automatically routed to `berrorNotFound` — **MUST** be validated:
+Gramstax has `StatusPage` as the default fallback when a route/page is not found. Unknown updates are automatically routed to `berrorNotFound` — **MUST** be validated:
 
 ```typescript
 it(\`fallback to general-status for unknown callback data\`, async () => {
   const responses = await e2e.sendCallbackQuery(\`unknown-data-12345\`, asUser)
-  // Gramstax falls back to GeneralStatusPage — response must exist
+  // Gramstax falls back to StatusPage — response must exist
   expect(responses.length).toBeGreaterThan(0)
   expect(responses[0]!.body?.text).toContain(\`Route Not Found\`)
   // Keyboard should navigate to StartPage (home)
@@ -268,7 +269,7 @@ it(\`fallback to general-status for unknown text\`, async () => {
 })
 ```
 
-**Note**: If the project has a custom `GeneralStatusPage` template, adjust the expected text (`Route Not Found`) to match that template.
+**Note**: If the project has a custom `StatusPage` template, adjust the expected text (`Route Not Found`) to match that template.
 
 ---
 

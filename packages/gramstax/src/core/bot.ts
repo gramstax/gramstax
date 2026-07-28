@@ -583,7 +583,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @example Advanced
    * ```typescript
    * async hookErrorPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {
-   *   await new GeneralStatusPage(ctx).showError(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
+   *   await new StatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
    * }
    * ```
    *
@@ -604,14 +604,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @example Simple
    * ```typescript
    * async hookErrorInputNotFoundPage(ctx: Ctx) {
-   *   await new GeneralStatusPage(ctx).showErrorInputNotFound()
+   *   await new StatusPage(ctx).binputNotFound.show()
    * }
    * ```
    *
    * @example Advanced
    * ```typescript
    * async hookErrorInputNotFoundPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorInputNotFoundPage`]>>[1]>) {
-   *   await new GeneralStatusPage(ctx).showErrorInputNotFound()
+   *   await new StatusPage(ctx).binputNotFound.show()
    * }
    * ```
    *
@@ -646,6 +646,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       cacheSession: this.cacheSession,
       cacheKeyboard: this.cacheKeyboard,
       templateManager: this.templateManager,
+      log: this.log,
       temp: {
         isAnswer: false,
         session: {},
@@ -1007,25 +1008,39 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           const _isCallbackQueryData = routeName.endsWith(`CallbackQueryData`)
           const _isText = routeName.endsWith(`Text`)
 
-          let key: string | undefined
-          if (_isCommand) {
-            const _key = Page.data.intentCommandText
-            key = _key ? `/${_key}` : undefined
-          } else if (_isCallbackQueryData) {
-            let _key = Page.data.intentCallbackQueryData
-            if (this.optionsPage.shortCallbackQueryData === true) {
-              _key = String(indexPage)
-              Page.data.intentCallbackQueryData = _key
+          if (_isText && Page.data.intentTextMap) {
+            // Multi-language text intent — register all variants
+            for (const [lang, intent] of Object.entries(Page.data.intentTextMap)) {
+              const langKey = `${lang}:${intent}`
+              p[langKey] = value
             }
-            key = _key
-          } else if (_isText) {
-            key = Page.data.intentText
+          } else if (_isCommand && Page.data.intentCommandTextMap) {
+            // Multi-language command intent — register all variants
+            for (const [, intent] of Object.entries(Page.data.intentCommandTextMap)) {
+              if (intent) p[`/${intent}`] = value
+            }
           } else {
-            key = Page.data.name
-          }
+            // Single intent (legacy) — existing behavior
+            let key: string | undefined
+            if (_isCommand) {
+              const _key = Page.data.intentCommandText
+              key = _key ? `/${_key}` : undefined
+            } else if (_isCallbackQueryData) {
+              let _key = Page.data.intentCallbackQueryData
+              if (this.optionsPage.shortCallbackQueryData === true) {
+                _key = String(indexPage)
+                Page.data.intentCallbackQueryData = _key
+              }
+              key = _key
+            } else if (_isText) {
+              key = Page.data.intentText
+            } else {
+              key = Page.data.name
+            }
 
-          if (key) {
-            p[key] = value
+            if (key) {
+              p[key] = value
+            }
           }
         }
       }
@@ -1330,37 +1345,34 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       this._pageBuildData(page, path, routeName)
 
       if (seenNames.has(page.data.name)) {
-        throw new Error(
-          `Duplicate page name "${page.data.name}" in ${path} (${page.name}). ` +
-          `Each page must have a unique name set via buildData({name: ...}) or derived from the filename.`
-        )
+        throw new Error(`Duplicate page name "${page.data.name}" in ${path} (${page.name}). ` + `Each page must have a unique name set via buildData({name: ...}) or derived from the filename.`)
       }
       seenNames.add(page.data.name)
 
-      if (page.data.intentText && seenIntentText.has(page.data.intentText)) {
-        throw new Error(
-          `Duplicate intentText "${page.data.intentText}" in ${path} (${page.name}). ` +
-          `Pages must have unique intentText values for handleText routing. ` +
-          `Override via buildData({intentText: ...}).`
-        )
+      // Check uniqueness of all language variants for intentText
+      const _checkIntentVariants = (variant: string, seen: Set<string>, label: string) => {
+        if (seen.has(variant)) {
+          throw new Error(`Duplicate ${label} "${variant}" in ${path} (${page.name}). ` + `Each intentText/intentCommandText variant must be unique across all pages.`)
+        }
+        seen.add(variant)
       }
-      if (page.data.intentText) seenIntentText.add(page.data.intentText)
-
-      if (page.data.intentCommandText && seenIntentCommandText.has(page.data.intentCommandText)) {
-        throw new Error(
-          `Duplicate intentCommandText "${page.data.intentCommandText}" in ${path} (${page.name}). ` +
-          `Pages must have unique intentCommandText values for handleCommandText routing. ` +
-          `Override via buildData({intentCommandText: ...}).`
-        )
+      if (page.data.intentTextMap) {
+        for (const [, intent] of Object.entries(page.data.intentTextMap)) {
+          _checkIntentVariants(intent, seenIntentText, `intentText variant`)
+        }
+      } else if (page.data.intentText) {
+        _checkIntentVariants(page.data.intentText, seenIntentText, `intentText`)
       }
-      if (page.data.intentCommandText) seenIntentCommandText.add(page.data.intentCommandText)
+      if (page.data.intentCommandTextMap) {
+        for (const [, intent] of Object.entries(page.data.intentCommandTextMap)) {
+          _checkIntentVariants(intent, seenIntentCommandText, `intentCommandText variant`)
+        }
+      } else if (page.data.intentCommandText) {
+        _checkIntentVariants(page.data.intentCommandText, seenIntentCommandText, `intentCommandText`)
+      }
 
       if (page.data.intentCallbackQueryData && seenIntentCallbackQueryData.has(page.data.intentCallbackQueryData)) {
-        throw new Error(
-          `Duplicate intentCallbackQueryData "${page.data.intentCallbackQueryData}" in ${path} (${page.name}). ` +
-          `Pages must have unique intentCallbackQueryData values for callback query routing. ` +
-          `Override via buildData({callbackQueryData: ...}).`
-        )
+        throw new Error(`Duplicate intentCallbackQueryData "${page.data.intentCallbackQueryData}" in ${path} (${page.name}). ` + `Pages must have unique intentCallbackQueryData values for callback query routing. ` + `Override via buildData({callbackQueryData: ...}).`)
       }
       if (page.data.intentCallbackQueryData) seenIntentCallbackQueryData.add(page.data.intentCallbackQueryData)
 
@@ -1503,12 +1515,24 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const cd = ctx.callbackQuery?.data
       const mt = ctx.msg?.text
       const mc = ctx.msg?.caption
+      const rawText = cd || mt || mc || ``
       const pStatic = this.pages.routeStatic
 
       for (let index = 0; index < this.pages.lenListRouteStatic; index++) {
         const routeName = this.pages.listRouteStatic[index] as `handleCaptionAnimation`
         if (routeName.toLowerCase().endsWith(fromListener)) {
-          res = pStatic[routeName][cd || mt || mc || ``]
+          // Try exact match first (for callback data, command names)
+          res = pStatic[routeName][rawText]
+
+          // For text intents, try language-prefixed lookup
+          const rn = routeName as string
+          if (!res && (rn === `handleText` || rn === `handleArgsText`)) {
+            const lang = ctx.from?.language_code ?? `default`
+            res = pStatic[routeName][`${lang}:${rawText}`]
+            if (!res && lang !== `default`) {
+              res = pStatic[routeName][`default:${rawText}`]
+            }
+          }
         }
 
         if (res) break
@@ -1542,12 +1566,34 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           }
 
           const bucket = pStaticIntent[routeName]
+          const rn = routeName as string
+          const isTextIntent = rn === `handleArgsText` || rn === `handleCommandArgsText`
+
           // check intent length 1
-          res = bucket[ctx.getIntent(data, seperatorMethod, 1)]
+          const intent1 = ctx.getIntent(data, seperatorMethod, 1)
+          res = bucket[intent1]
+
+          // For text intents, try language-prefixed lookup
+          if (!res && isTextIntent && seperatorMethod === `space`) {
+            const lang = ctx.from?.language_code ?? `default`
+            res = bucket[`${lang}:${intent1}`]
+            if (!res && lang !== `default`) {
+              res = bucket[`default:${intent1}`]
+            }
+          }
 
           // check intent length 2 (for space overrides)
           if (!res && !isCallback) {
-            res = bucket[ctx.getIntent(data, `space`, 2)]
+            const intent2 = ctx.getIntent(data, `space`, 2)
+            res = bucket[intent2]
+            // lang-prefixed for length 2
+            if (!res && isTextIntent) {
+              const lang = ctx.from?.language_code ?? `default`
+              res = bucket[`${lang}:${intent2}`]
+              if (!res && lang !== `default`) {
+                res = bucket[`default:${intent2}`]
+              }
+            }
           }
           if (res) break
         }
@@ -1812,4 +1858,3 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.bot.on(`message:contact`, (ctx) => this._onHandle(ctx, `contact`)) // Handle global contact messages
   }
 }
-

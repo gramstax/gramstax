@@ -5,20 +5,20 @@
 Every test **MUST** validate that a response exists before accessing its properties:
 
 ```typescript
-expect(responses.length).toBeGreaterThan(0)   // response exists
-expect(responses[0]).toBeDefined()            // response is not undefined
+expect(responses.length).toBeGreaterThan(0); // response exists
+expect(responses[0]).toBeDefined(); // response is not undefined
 ```
 
 ## 2. Message Validation
 
 Every response message **MUST** validate:
 
-| Field              | Required? | Description                                            |
-| :----------------- | :-------- | :----------------------------------------------------- |
-| `body?.text`       | ✅ YES    | Use `e2e.gmsg()` for exact match                       |
-| `body?.parse_mode` | ✅ YES    | If template uses HTML/Markdown, validate `HTML`         |
-| `body?.caption`    | ✅ YES    | For media messages, validate caption                   |
-| `body?.entities`   | ⚠️        | If there are special entities (bold, url)              |
+| Field              | Required? | Description                                     |
+| :----------------- | :-------- | :---------------------------------------------- |
+| `body?.text`       | ✅ YES    | Use `e2e.gmsg()` for exact match                |
+| `body?.parse_mode` | ✅ YES    | If template uses HTML/Markdown, validate `HTML` |
+| `body?.caption`    | ✅ YES    | For media messages, validate caption            |
+| `body?.entities`   | ⚠️        | If there are special entities (bold, url)       |
 
 **Dynamic content**: If the message contains dynamic data (timestamp, random number, user input), use `toContain` or `toStartWith` — not `toBe`.
 
@@ -37,12 +37,12 @@ expect(msg.body?.text).toStartWith(\`✅\`)
 
 Every inline keyboard **MUST** validate:
 
-| Field                               | Required? | Description                                        |
-| :---------------------------------- | :-------- | :------------------------------------------------- |
-| Button **text** (label)             | ✅ YES    | `e2e.extractButtonLabels()` + `e2e.gkb()` match   |
-| Button **callback_data**            | ✅ YES    | `e2e.extractCallbackData()` — each button valid    |
-| Count callback_data == count labels | ✅ YES    | Ensure no button is missing callback_data           |
-| callback_data must not be empty     | ✅ YES    | `expect(data).toBeDefined()` + `.length > 0`       |
+| Field                               | Required? | Description                                     |
+| :---------------------------------- | :-------- | :---------------------------------------------- |
+| Button **text** (label)             | ✅ YES    | `e2e.extractButtonLabels()` + `e2e.gkb()` match |
+| Button **callback_data**            | ✅ YES    | `e2e.extractCallbackData()` — each button valid |
+| Count callback_data == count labels | ✅ YES    | Ensure no button is missing callback_data       |
+| callback_data must not be empty     | ✅ YES    | `expect(data).toBeDefined()` + `.length > 0`    |
 
 ```typescript
 const labels = e2e.extractButtonLabels(msg)
@@ -64,11 +64,11 @@ cbData.forEach((data, i) => {
 
 Every bottom keyboard **MUST** validate:
 
-| Field                                | Required? | Description                                           |
-| :----------------------------------- | :-------- | :---------------------------------------------------- |
-| Button **text** (label)              | ✅ YES    | `e2e.extractBottomLabels()` + `e2e.gkb()` match      |
-| `reply_markup.keyboard` exists       | ✅ YES    | Ensure keyboard structure is correct                   |
-| `reply_markup.resize_keyboard`       | ✅ YES    | Must be `true` for UX                                 |
+| Field                          | Required? | Description                                     |
+| :----------------------------- | :-------- | :---------------------------------------------- |
+| Button **text** (label)        | ✅ YES    | `e2e.extractBottomLabels()` + `e2e.gkb()` match |
+| `reply_markup.keyboard` exists | ✅ YES    | Ensure keyboard structure is correct            |
+| `reply_markup.resize_keyboard` | ✅ YES    | Must be `true` for UX                           |
 
 ```typescript
 const bottomLabels = e2e.extractBottomLabels(msg)
@@ -81,26 +81,26 @@ expect(msg.body?.reply_markup?.resize_keyboard).toBe(true)
 
 Every media action **MUST** validate:
 
-| API Call            | Required validation                                |
-| :------------------ | :------------------------------------------------- |
-| `sendPhoto`         | `photo`, `caption`                                 |
-| `sendVideo`         | `video`, `caption`                                 |
-| `sendAudio`         | `audio`, `caption`                                 |
-| `sendDocument`      | `document`, `caption`                              |
-| `sendAnimation`     | `animation`, `caption`                             |
-| `sendVoice`         | `voice`, `caption`                                 |
-| `sendVideoNote`     | `video_note`                                       |
-| `sendSticker`       | `sticker`                                          |
-| `sendMediaGroup`    | `media[]` — each item: `type`, `media`, `caption`  |
-| `editMessageMedia`  | `media.type`, `media.media`, `media.caption`       |
-| `sendLocation`      | `latitude`, `longitude`                            |
-| `sendContact`       | `phone_number`, `first_name`                       |
+| API Call           | Required validation                               |
+| :----------------- | :------------------------------------------------ |
+| `sendPhoto`        | `photo`, `caption`                                |
+| `sendVideo`        | `video`, `caption`                                |
+| `sendAudio`        | `audio`, `caption`                                |
+| `sendDocument`     | `document`, `caption`                             |
+| `sendAnimation`    | `animation`, `caption`                            |
+| `sendVoice`        | `voice`, `caption`                                |
+| `sendVideoNote`    | `video_note`                                      |
+| `sendSticker`      | `sticker`                                         |
+| `sendMediaGroup`   | `media[]` — each item: `type`, `media`, `caption` |
+| `editMessageMedia` | `media.type`, `media.media`, `media.caption`      |
+| `sendLocation`     | `latitude`, `longitude`                           |
+| `sendContact`      | `phone_number`, `first_name`                      |
 
 Use `e2e.gmedia()` to get the expected values:
 
 ```typescript
-expect(req.body?.photo).toBe(e2e.gmedia(intent, agBaseId, {}).src)
-expect(req.body?.caption).toBe(e2e.gmedia(intent, agBaseId, {}).caption)
+expect(req.body?.photo).toBe(e2e.gmedia(intent, agBaseId, {}).src);
+expect(req.body?.caption).toBe(e2e.gmedia(intent, agBaseId, {}).caption);
 ```
 
 ## 5. API Method Validation
@@ -152,11 +152,11 @@ Some pages have no keyboard at all (text only). **MUST** validate that `reply_ma
 
 ```typescript
 // Page without keyboard
-expect(msg.body?.reply_markup).toBeUndefined()
+expect(msg.body?.reply_markup).toBeUndefined();
 
 // Or if the page has an empty inline keyboard
 if (msg.body?.reply_markup?.inline_keyboard) {
-  expect(msg.body.reply_markup.inline_keyboard).toHaveLength(0)
+  expect(msg.body.reply_markup.inline_keyboard).toHaveLength(0);
 }
 ```
 
@@ -298,11 +298,11 @@ if (sendContactReq!.body?.last_name) {
 
 The grammY stream plugin uses three custom API methods — **not** `sendMessage`:
 
-| Method | Body shape | Description |
-|--------|-----------|-------------|
-| `sendMessageDraft` | `{ text }` | Plain text chunk |
-| `sendRichMessageDraft` | `{ rich_message: { html \| markdown } }` | Rich text chunk (HTML / Markdown) |
-| `sendRichMessage` | `{ rich_message: { html \| markdown } }` | Final complete message after flush |
+| Method                 | Body shape                               | Description                        |
+| ---------------------- | ---------------------------------------- | ---------------------------------- |
+| `sendMessageDraft`     | `{ text }`                               | Plain text chunk                   |
+| `sendRichMessageDraft` | `{ rich_message: { html \| markdown } }` | Rich text chunk (HTML / Markdown)  |
+| `sendRichMessage`      | `{ rich_message: { html \| markdown } }` | Final complete message after flush |
 
 The E2eHelper provides dedicated helpers for stream inspection:
 
@@ -375,6 +375,7 @@ expect(e2e.extractButtonLabels(responsesLang[0])).toEqual(
 ```
 
 Template pattern:
+
 ```
 <g-keyboard type="inline">Button1, Button2</g-keyboard>
 <g-keyboard type="inline" lang="<other-lang>">Button1, Button2</g-keyboard>
@@ -387,23 +388,23 @@ Template pattern:
 
 ## Assertion Rules Summary
 
-| Category              | Req?   | Validation Method                                               |
-| :-------------------- | :----- | :-------------------------------------------------------------- |
-| Response existence    | ✅     | `responses.length > 0`, `responses[0].toBeDefined()`            |
-| Message text          | ✅     | `toBe(e2e.gmsg(...))` or `toContain` for dynamic                |
-| Message parse_mode    | ✅     | `toBe(\`HTML\`)` if template uses HTML                          |
-| Keyboard labels       | ✅     | `toEqual(e2e.gkb(...))`                                         |
-| Keyboard callback_data| ✅     | `e2e.extractCallbackData()`, length match, each entry valid     |
-| Bottom keyboard       | ✅     | `e2e.extractBottomLabels()`, check `reply_markup.keyboard`      |
-| No keyboard           | ✅     | `reply_markup` must be `toBeUndefined()` if page has none       |
-| answerCallbackQuery   | ✅     | `e2e.calls[0].method === \`answerCallbackQuery\``               |
-| Method call order     | ✅     | `expect(methods).toEqual([...])` ensures correct order          |
-| Multi-call validation | ✅     | All calls validated, not just `lastCall()`                      |
-| sendChatAction        | ⚠️     | If sending large media, validate `sendChatAction` exists        |
-| Media src/caption     | ✅     | `toBe(e2e.gmedia(...).src)` / `.caption`                        |
-| Edit message          | ✅     | Get from `e2e.lastCall(\`editMessageText\`)`, not responses     |
-| Stream reply          | ✅     | Final output is `sendRichMessage` (`body.rich_message.html`); validate via `e2e.streamCalls()` / `e2e.streamChunks()` / `e2e.extractText()` |
-| Fallback (general)    | ✅     | Route Not Found → validate `GeneralStatusPage` response         |
-| Dice/Poll/Invoice     | ✅     | Validate specific fields per media type                         |
-| Location              | ✅     | Validate lat range (-90..90) and lng (-180..180)                |
-| Contact               | ✅     | Validate `phone_number` format, `first_name`                    |
+| Category               | Req? | Validation Method                                                                                                                           |
+| :--------------------- | :--- | :------------------------------------------------------------------------------------------------------------------------------------------ |
+| Response existence     | ✅   | `responses.length > 0`, `responses[0].toBeDefined()`                                                                                        |
+| Message text           | ✅   | `toBe(e2e.gmsg(...))` or `toContain` for dynamic                                                                                            |
+| Message parse_mode     | ✅   | `toBe(\`HTML\`)` if template uses HTML                                                                                                      |
+| Keyboard labels        | ✅   | `toEqual(e2e.gkb(...))`                                                                                                                     |
+| Keyboard callback_data | ✅   | `e2e.extractCallbackData()`, length match, each entry valid                                                                                 |
+| Bottom keyboard        | ✅   | `e2e.extractBottomLabels()`, check `reply_markup.keyboard`                                                                                  |
+| No keyboard            | ✅   | `reply_markup` must be `toBeUndefined()` if page has none                                                                                   |
+| answerCallbackQuery    | ✅   | `e2e.calls[0].method === \`answerCallbackQuery\``                                                                                           |
+| Method call order      | ✅   | `expect(methods).toEqual([...])` ensures correct order                                                                                      |
+| Multi-call validation  | ✅   | All calls validated, not just `lastCall()`                                                                                                  |
+| sendChatAction         | ⚠️   | If sending large media, validate `sendChatAction` exists                                                                                    |
+| Media src/caption      | ✅   | `toBe(e2e.gmedia(...).src)` / `.caption`                                                                                                    |
+| Edit message           | ✅   | Get from `e2e.lastCall(\`editMessageText\`)`, not responses                                                                                 |
+| Stream reply           | ✅   | Final output is `sendRichMessage` (`body.rich_message.html`); validate via `e2e.streamCalls()` / `e2e.streamChunks()` / `e2e.extractText()` |
+| Fallback (general)     | ✅   | Route Not Found → validate `StatusPage` response                                                                                            |
+| Dice/Poll/Invoice      | ✅   | Validate specific fields per media type                                                                                                     |
+| Location               | ✅   | Validate lat range (-90..90) and lng (-180..180)                                                                                            |
+| Contact                | ✅   | Validate `phone_number` format, `first_name`                                                                                                |
