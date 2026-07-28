@@ -131,22 +131,27 @@ export class PageManager {
    * Synchronously load all page modules from a directory.
    *
    * Supports both flat `.ts`/`.js` files and subfolder `index.ts`/`index.js`
-   * entries.  In a subfolder **only** `index.ts`/`index.js` is recognised as a
-   * page file — all other names are ignored.  Nesting can be arbitrary deep.
+   * entries.  In a subfolder, **any** `.ts`/`.js` file (not just `index`) is
+   * recognised as a page — its route name becomes `parentDir/basename`.  A
+   * file `help.ts` is equivalent to `help/index.ts`; using both simultaneously
+   * produces a duplicate error.  Nesting can be arbitrary deep.
    *
    * @param path - Path to the pages directory. Uses default pages directory when omitted.
    * @param positionModule - Index of the exported class. Used when files have multiple exports. Defaults to `0`.
    * @returns Array of page records containing `path`, `page` and `routeName` properties.
    *
    * @throws Error if directory does not exist.
+   * @throws Error if a file and a directory-index share the same route name.
    *
     * @example
     * ```typescript
     * const pages = PageManager.getFileManySync();
     * // => [
-    * //   { path: "/path/to/start.ts",         page: StartPage,        routeName: "start" },
-    * //   { path: "/path/to/start/index.ts",    page: StartSubPage,     routeName: "start" },
-    * //   { path: "/path/to/start/help/index.ts", page: HelpPage,      routeName: "start/help" },
+    * //   { path: "/path/to/start.ts",          page: StartPage,   routeName: "start" },
+    * //   { path: "/path/to/settings.ts",       page: SettingsPage, routeName: "settings" },
+    * //   { path: "/path/to/start/help.ts",     page: HelpPage,    routeName: "start/help" },
+    * //   { path: "/path/to/start/help/index.ts", page: HelpPage,  routeName: "start/help" },
+    * //                                        ↑ identical route — duplicate error if both exist
     * // ]
     * ```
    * @public
@@ -163,24 +168,52 @@ export class PageManager {
 
     const walk = (dir: string, parentRoute: string) => {
       const entries = readdirSync(dir, {withFileTypes: true})
+      const dirNames: string[] = []
+      const fileNames: string[] = []
+
       for (const entry of entries) {
-        const fullPath = join(dir, entry.name)
-
         if (entry.isDirectory()) {
-          walk(fullPath, parentRoute ? `${parentRoute}/${entry.name}` : entry.name)
+          dirNames.push(entry.name)
         } else if (entry.isFile()) {
-          const isIndex = /^index\.(ts|js)$/.test(entry.name)
-          const isFlat = /\.(ts|js)$/.test(entry.name) && !parentRoute
+          fileNames.push(entry.name)
+        }
+      }
 
-          if (isIndex || isFlat) {
-            const routeName = isIndex ? parentRoute : entry.name.replace(/\.(ts|js)$/, ``)
-            results.push({
-              path: fullPath,
-              page: this.getFileSync(fullPath, positionModule),
-              routeName
-            })
+      const dirSet = new Set(dirNames)
+      for (const fileName of fileNames) {
+        const baseName = fileName.replace(/\.(ts|js)$/, ``)
+        if (baseName !== fileName && dirSet.has(baseName)) {
+          const indexTsPath = join(dir, baseName, `index.ts`)
+          const indexJsPath = join(dir, baseName, `index.js`)
+          if (existsSync(indexTsPath) || existsSync(indexJsPath)) {
+            const conflictPath = existsSync(indexTsPath) ? indexTsPath : indexJsPath
+            throw new Error(
+              `Duplicate page: "${join(dir, fileName)}" and "${conflictPath}" both define the route "${parentRoute ? `${parentRoute}/` : ``}${baseName}". ` +
+              `Use either a flat file ("${fileName}") or a directory with an index file ("${baseName}/index.ts"), not both.`
+            )
           }
         }
+      }
+
+      for (const dirName of dirNames) {
+        walk(join(dir, dirName), parentRoute ? `${parentRoute}/${dirName}` : dirName)
+      }
+
+      for (const fileName of fileNames) {
+        if (!/\.(ts|js)$/.test(fileName)) continue
+
+        const isIndex = /^index\.(ts|js)$/.test(fileName)
+        const routeName = isIndex
+          ? parentRoute
+          : parentRoute
+            ? `${parentRoute}/${fileName.replace(/\.(ts|js)$/, ``)}`
+            : fileName.replace(/\.(ts|js)$/, ``)
+
+        results.push({
+          path: join(dir, fileName),
+          page: this.getFileSync(join(dir, fileName), positionModule),
+          routeName
+        })
       }
     }
 
