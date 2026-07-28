@@ -36,6 +36,8 @@ Each `<g-base>` block gets a corresponding `b<name>` object field on the exporte
 
 ```typescript
 export class StartPage extends PageBase {
+  static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.bdefault.show(true);
   }
@@ -71,6 +73,8 @@ class Helper {
 }
 
 export class DepositPage extends PageBase {
+  static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.bamount.show(true)
   }
@@ -102,6 +106,18 @@ export class DepositPage extends PageBase {
 }
 ```
 
+## `static data` — Required (Type Safety)
+
+Every page class **MUST** define `static data = this.buildData(...)`. This enables strict TypeScript checking on `callbackQueryData` calls:
+
+| `buildData` signature | `callbackQueryData` behavior |
+| --------------------- | ---------------------------- |
+| `buildData()` | `callbackQueryData(): string` — calling with args = TypeScript error |
+| `buildData((a: string, b: string) => [a, b])` | `callbackQueryData(a: string, b: string): string` — required args |
+| `buildData((a?: string) => [a])` | `callbackQueryData(a?: string): string` — optional args |
+
+Pages without `static data` will **not** have `callbackQueryData` available at all — TypeScript errors on access.
+
 ## File Ordering (STRICT)
 
 Members within the file **MUST** be declared in this exact order:
@@ -111,9 +127,10 @@ Members within the file **MUST** be declared in this exact order:
 3. **UPPER consts** — reusable literals as top-level `const` declarations (if needed) — do **not** wrap these in a class
 4. **Helper** — internal class for utility methods (if needed)
 5. **Page** — exported class extending PageBase
-   a. Handler methods (`handleCallbackQueryData`, `handleCommandText`, `handleSessionFreeText`)
-   b. `b<*>` object fields
-   c. `static template`
+   a. `static data = this.buildData(...)` — always first (type safety)
+   b. Handler methods (`handleCallbackQueryData`, `handleCommandText`, `handleSessionFreeText`)
+   c. `b<*>` object fields
+   d. `static template`
 
 ## Feedback in b\* Objects
 
