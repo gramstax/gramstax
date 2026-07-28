@@ -1,13 +1,13 @@
 import {describe, it, expect, beforeEach} from "bun:test"
-import {e2e} from "../../setup"
+import {e2e} from "../setup"
 
-const intent = `start/withdraw`
-const asUser = {user: {id: 631}, chat: {id: 631}}
+const intent = `start/deposit`
+const asUser = {user: {id: 621}, chat: {id: 621}}
 beforeEach(() => {
   e2e.clearCalls()
 })
-describe(`E2E: StartWithdrawPage`, () => {
-  it(`shows withdraw form`, async () => {
+describe(`E2E: StartDepositPage`, () => {
+  it(`shows deposit form`, async () => {
     await e2e.sendText(`/start`, asUser)
     e2e.clearCalls()
     const res = await e2e.sendCallbackQuery(intent, asUser)
