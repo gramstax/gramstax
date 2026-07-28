@@ -22,7 +22,7 @@ function makePage(name: string, overrides?: Record<string, any>): typeof Ctx {
 describe(`GramstaxInlineKeyboard.text() — page class as data`, () => {
   it(`should resolve callbackQueryData when page class is passed`, () => {
     const Page = makePage(`settings`)
-    expect(Page.data!.callbackQueryData()).toBe(`settings`)
+    expect((Page.data as any)!.callbackQueryData()).toBe(`settings`)
   })
 
   it(`should accept page with handleArgsCallbackQueryData`, () => {

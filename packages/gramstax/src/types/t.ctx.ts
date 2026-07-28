@@ -452,17 +452,18 @@ export type ITKbDest = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCall
 export type ITKbCols = `${1 | 2 | 3 | 4 | 5 | 6}` | `${1 | 2 | 3 | 4 | 5 | 6}-${1 | 2 | 3 | 4 | 5 | 6}`
 
 /**
- * Base page routing data — static-only properties without callback arg generics.
+ * Base page routing data — core properties only, no callbackQueryData.
  *
  * @remarks
- * Used as the static type for `Ctx.data` to ensure pages that do NOT define
- * `buildData` see `callbackQueryData()` with 0 args (no `...args`).
- * Pages that define `buildData(...)` via {@link ITPageData} get overloaded
- * signatures that accept the configured args.
+ * Used as the static type for `Ctx.data`. Pages that do NOT define
+ * `static data = this.buildData(...)` will NOT have `callbackQueryData`
+ * available, preventing accidental usage without proper setup.
+ * Pages that define `buildData(...)` via {@link ITPageData} get fully
+ * typed `callbackQueryData` with the configured args (no extra overloads).
  *
  * @public
  */
-export type ITPageDataStatic = {
+export type ITPageDataBase = {
   /** @internal */
   name: string
 
@@ -547,39 +548,25 @@ export type ITPageDataStatic = {
    * @internal
    */
   intentCommandTextMap?: Record<string, string>
-
-  /**
-   * **Consumption.** Generate the callback query data string for inline keyboard buttons.
-   *
-   * @remarks
-   * Call this method to produce the actual callback data string that Telegram sends
-   * when a user taps an inline keyboard button.
-   *
-   * **Static access (no `...args`):** Returns `intentCallbackQueryData` as-is.
-   * Pages that define `buildData(...)` provide an overloaded version that
-   * accepts the configured args.
-   *
-   * @returns A callback query data string ready for use in `InlineKeyboard.text()`.
-   */
-  callbackQueryData(): string
 }
 
 /**
  * Page routing data configuration.
  *
  * @remarks
- * Contains all routing metadata and handlers for a page in the Gramstax framework.
- * This type defines the internal structure used by the routing system to match
- * incoming updates to the appropriate page handlers.
+ * Full page data with typed `callbackQueryData` according to the args
+ * configured via `buildData`. Every page SHOULD define `static data`
+ * via `buildData(...)` to enable callback query routing.
  *
- * Extends {@link ITPageDataStatic} and adds generic `callbackQueryData` with
- * the exact arg types configured via `buildData`.
+ * - `buildData()` (no args) → `callbackQueryData(): string` — 0 args only
+ * - `buildData((a: string, b: string) => ...)` → `callbackQueryData(a, b): string`
+ * - `buildData((a?: string) => ...)` → `callbackQueryData(a?): string`
  *
  * @typeParam T - Tuple type representing the callback arg parameters.
  *
  * @public
  */
-export type ITPageData<T extends any[] = any[]> = ITPageDataStatic & {
+export type ITPageData<T extends any[] = any[]> = ITPageDataBase & {
   /**
    * **Consumption.** Generate the callback query data string for inline keyboard buttons.
    *
@@ -597,9 +584,6 @@ export type ITPageData<T extends any[] = any[]> = ITPageDataStatic & {
    *
    * How args are encoded is defined at build time via
    * {@link ITBuildDataOptions.callbackQueryData}  (the **definition** side).
-   *
-   * ---
-   * **Default:** returns `this.data.intentCallbackQueryData` (which defaults to `this.data.name`).
    *
    * @param args - Positional args to append to the intent string.
    * @returns A callback query data string ready for use in `InlineKeyboard.text()`.

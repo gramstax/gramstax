@@ -21,7 +21,7 @@ class GramstaxInlineKeyboard extends InlineKeyboard {
    */
   override text(text: string, data?: string | typeof Ctx): this {
     if (data !== undefined && typeof data !== `string`) {
-      return super.text(text, data.data!.callbackQueryData())
+      return super.text(text, (data.data as any)!.callbackQueryData())
     }
     return super.text(text, data as string | undefined)
   }
@@ -124,7 +124,7 @@ import type {
   ITBuildDataOptions,
   ITTemp,
   ITPageData,
-  ITPageDataStatic,
+  ITPageDataBase,
   ITKbCols,
   ITKbDest,
   ITCtxParams,
@@ -364,7 +364,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  static data?: ITPageDataStatic
+  static data?: ITPageDataBase
 
   /**
    * Instance-level access to the page routing data.
@@ -2759,7 +2759,7 @@ export class Ctx extends Context {
               this.log?.warn?.(`[gramstax] Page "${pageName}" referenced in inlineKeyboardT ` + `does not define handleCallbackQueryData or handleArgsCallbackQueryData. The button will have no registered handler.`)
             }
           }
-          const data = typeof page == `string` ? page : page.data!.callbackQueryData()
+          const data = typeof page == `string` ? page : (page.data as any)!.callbackQueryData()
           k.text(e, data)
         })
       },
