@@ -151,7 +151,7 @@ function createBot(
   // Build mock pages structure
   const pages = bot.exposeBuildEmptyPages()
   for (const {name, page} of pagesList) {
-    page.data = page.data || {name}
+    page.data = page.data || {name, intentText: name, intentCommandText: name, intentCallbackQueryData: name, _positionArgText: 1, callbackQueryData: () => name} as any
     pages.all[name] = page
     bot.exposePageSorts(page, pages, 0)
   }

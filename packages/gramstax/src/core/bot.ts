@@ -921,17 +921,18 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (Page?.data === undefined) {
       Page.data = Page.buildData() as any
     }
+    const d = Page.data!
     if (routeName !== undefined) {
-      Page.data.name ||= routeName
-      if (!Page.data.intentText) Page.data.intentText = Page.data.name
-      if (!Page.data.intentCommandText) Page.data.intentCommandText = Page.data.name
-      if (!Page.data.intentCallbackQueryData) Page.data.intentCallbackQueryData = Page.data.name
+      d.name ||= routeName
+      if (!d.intentText) d.intentText = d.name
+      if (!d.intentCommandText) d.intentCommandText = d.name
+      if (!d.intentCallbackQueryData) d.intentCallbackQueryData = d.name
     } else {
       const {name} = parse(filePath)
-      if (!Page.data.name) Page.data.name = name
-      if (!Page.data.intentText) Page.data.intentText = Page.data.name
-      if (!Page.data.intentCommandText) Page.data.intentCommandText = Page.data.name
-      if (!Page.data.intentCallbackQueryData) Page.data.intentCallbackQueryData = Page.data.name
+      if (!d.name) d.name = name
+      if (!d.intentText) d.intentText = d.name
+      if (!d.intentCommandText) d.intentCommandText = d.name
+      if (!d.intentCallbackQueryData) d.intentCallbackQueryData = d.name
     }
   }
 
@@ -972,7 +973,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   _pageSorts(Page: typeof Ctx, pages: typeof Gramstax.prototype.pages, indexPage: number): void {
-    const name = Page.data.name
+    const d = Page.data!
+    const name = d.name
     const proto = Page.prototype
 
     const partHandle = `handle`
@@ -1008,34 +1010,34 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           const _isCallbackQueryData = routeName.endsWith(`CallbackQueryData`)
           const _isText = routeName.endsWith(`Text`)
 
-          if (_isText && Page.data.intentTextMap) {
+          if (_isText && d.intentTextMap) {
             // Multi-language text intent — register all variants
-            for (const [lang, intent] of Object.entries(Page.data.intentTextMap)) {
+            for (const [lang, intent] of Object.entries(d.intentTextMap)) {
               const langKey = `${lang}:${intent}`
               p[langKey] = value
             }
-          } else if (_isCommand && Page.data.intentCommandTextMap) {
+          } else if (_isCommand && d.intentCommandTextMap) {
             // Multi-language command intent — register all variants
-            for (const [, intent] of Object.entries(Page.data.intentCommandTextMap)) {
+            for (const [, intent] of Object.entries(d.intentCommandTextMap)) {
               if (intent) p[`/${intent}`] = value
             }
           } else {
             // Single intent (legacy) — existing behavior
             let key: string | undefined
             if (_isCommand) {
-              const _key = Page.data.intentCommandText
+              const _key = d.intentCommandText
               key = _key ? `/${_key}` : undefined
             } else if (_isCallbackQueryData) {
-              let _key = Page.data.intentCallbackQueryData
+              let _key = d.intentCallbackQueryData
               if (this.optionsPage.shortCallbackQueryData === true) {
                 _key = String(indexPage)
-                Page.data.intentCallbackQueryData = _key
+                d.intentCallbackQueryData = _key
               }
               key = _key
             } else if (_isText) {
-              key = Page.data.intentText
+              key = d.intentText
             } else {
-              key = Page.data.name
+              key = d.name
             }
 
             if (key) {
@@ -1344,10 +1346,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     PageManager.getFileManySync(pagesPath).forEach(({path, page, routeName}, index) => {
       this._pageBuildData(page, path, routeName)
 
-      if (seenNames.has(page.data.name)) {
-        throw new Error(`Duplicate page name "${page.data.name}" in ${path} (${page.name}). ` + `Each page must have a unique name set via buildData({name: ...}) or derived from the filename.`)
+      const pd = page.data!
+      if (seenNames.has(pd.name)) {
+        throw new Error(`Duplicate page name "${pd.name}" in ${path} (${page.name}). ` + `Each page must have a unique name set via buildData({name: ...}) or derived from the filename.`)
       }
-      seenNames.add(page.data.name)
+      seenNames.add(pd.name)
 
       // Check uniqueness of all language variants for intentText
       const _checkIntentVariants = (variant: string, seen: Set<string>, label: string) => {
@@ -1356,25 +1359,25 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         }
         seen.add(variant)
       }
-      if (page.data.intentTextMap) {
-        for (const [, intent] of Object.entries(page.data.intentTextMap)) {
+      if (pd.intentTextMap) {
+        for (const [, intent] of Object.entries(pd.intentTextMap)) {
           _checkIntentVariants(intent, seenIntentText, `intentText variant`)
         }
-      } else if (page.data.intentText) {
-        _checkIntentVariants(page.data.intentText, seenIntentText, `intentText`)
+      } else if (pd.intentText) {
+        _checkIntentVariants(pd.intentText, seenIntentText, `intentText`)
       }
-      if (page.data.intentCommandTextMap) {
-        for (const [, intent] of Object.entries(page.data.intentCommandTextMap)) {
+      if (pd.intentCommandTextMap) {
+        for (const [, intent] of Object.entries(pd.intentCommandTextMap)) {
           _checkIntentVariants(intent, seenIntentCommandText, `intentCommandText variant`)
         }
-      } else if (page.data.intentCommandText) {
-        _checkIntentVariants(page.data.intentCommandText, seenIntentCommandText, `intentCommandText`)
+      } else if (pd.intentCommandText) {
+        _checkIntentVariants(pd.intentCommandText, seenIntentCommandText, `intentCommandText`)
       }
 
-      if (page.data.intentCallbackQueryData && seenIntentCallbackQueryData.has(page.data.intentCallbackQueryData)) {
-        throw new Error(`Duplicate intentCallbackQueryData "${page.data.intentCallbackQueryData}" in ${path} (${page.name}). ` + `Pages must have unique intentCallbackQueryData values for callback query routing. ` + `Override via buildData({callbackQueryData: ...}).`)
+      if (pd.intentCallbackQueryData && seenIntentCallbackQueryData.has(pd.intentCallbackQueryData)) {
+        throw new Error(`Duplicate intentCallbackQueryData "${pd.intentCallbackQueryData}" in ${path} (${page.name}). ` + `Pages must have unique intentCallbackQueryData values for callback query routing. ` + `Override via buildData({callbackQueryData: ...}).`)
       }
-      if (page.data.intentCallbackQueryData) seenIntentCallbackQueryData.add(page.data.intentCallbackQueryData)
+      if (pd.intentCallbackQueryData) seenIntentCallbackQueryData.add(pd.intentCallbackQueryData)
 
       this._pageSorts(page, pages, index) // sort route method
       page.template = undefined // delete template for efficient memory

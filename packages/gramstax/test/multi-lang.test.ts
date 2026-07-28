@@ -2,8 +2,8 @@ import {describe, it, expect} from "bun:test"
 import {Ctx} from "~/core/ctx"
 import type {ITPageData} from "~/types/t.ctx"
 
-function makePage(name: string, overrides?: Partial<ITPageData<any>>): typeof Ctx {
-  const data: ITPageData<any> = {
+function makePage(name: string, overrides?: Record<string, any>): typeof Ctx {
+  const data = {
     name,
     intentText: name,
     intentCommandText: name,
@@ -11,9 +11,9 @@ function makePage(name: string, overrides?: Partial<ITPageData<any>>): typeof Ct
     callbackQueryData() {return name},
     _positionArgText: 1,
     ...overrides
-  }
+  } as ITPageData<any>
   const page = class extends Ctx {
-    static data = data
+    static data = data as any
     static template = ``
   }
   return page as unknown as typeof Ctx
@@ -22,22 +22,22 @@ function makePage(name: string, overrides?: Partial<ITPageData<any>>): typeof Ct
 describe(`GramstaxInlineKeyboard.text() — page class as data`, () => {
   it(`should resolve callbackQueryData when page class is passed`, () => {
     const Page = makePage(`settings`)
-    expect(Page.data.callbackQueryData()).toBe(`settings`)
+    expect(Page.data!.callbackQueryData()).toBe(`settings`)
   })
 
   it(`should accept page with handleArgsCallbackQueryData`, () => {
     const Page = makePage(`detail`, {
-      callbackQueryData(id: string) {return `detail:${id}`}
-    })
-    expect(Page.data.callbackQueryData(`42`)).toBe(`detail:42`)
+      callbackQueryData(id: string) {return `detail:${id}` as any}
+    }) as unknown as {data: ITPageData<any>}
+    expect(Page.data!.callbackQueryData(`42`)).toBe(`detail:42`)
   })
 })
 
 describe(`Multi-language intentText`, () => {
   it(`should resolve default language intent for string intentText`, () => {
     const Page = makePage(`balance`)
-    expect(Page.data.intentText).toBe(`balance`)
-    expect(Page.data.intentTextMap).toBeUndefined()
+    expect(Page.data!.intentText).toBe(`balance`)
+    expect(Page.data!.intentTextMap).toBeUndefined()
   })
 
   it(`should store intentTextMap when Record is passed`, () => {
@@ -85,7 +85,7 @@ describe(`Multi-language intentText`, () => {
 describe(`GramstaxKeyboard.text() — page class as label`, () => {
   it(`should resolve intentText when page class is passed`, () => {
     const Page = makePage(`start`)
-    expect(Page.data.intentText).toBe(`start`)
+    expect(Page.data!.intentText).toBe(`start`)
   })
 
   it(`should resolve language-specific intentText`, () => {
