@@ -1,14 +1,14 @@
 import {describe, it, expect, beforeEach} from "bun:test"
 import {e2e} from "./setup"
 
-const intent = `general-status`
+const intent = `status`
 const asUser = {user: {id: 8001, username: `testuser`}, chat: {id: 8001}}
 
 beforeEach(() => {
   e2e.clearCalls()
 })
 
-describe(`E2E: GeneralStatusPage`, () => {
+describe(`E2E: StatusPage`, () => {
   it(`show 'Route not found' for unrecognized callback query`, async () => {
     await e2e.sendText(`/start`, asUser)
     e2e.clearCalls()
