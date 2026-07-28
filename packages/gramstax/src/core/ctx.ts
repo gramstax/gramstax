@@ -358,7 +358,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  static data: ITPageData<any>
+  static data: ITPageData<[]>
 
   /**
    * Instance-level access to the page routing data.
