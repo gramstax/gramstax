@@ -1,5 +1,36 @@
 # E2E Validation Rules
 
+## 0. Structure Mirroring — `e2e/` vs `src/pages/`
+
+The `e2e/` directory structure **MUST** mirror `src/pages/` exactly:
+
+```
+src/pages/                   e2e/
+├── start.ts      ──────▶    ├── start.test.ts
+├── start/                   ├── start/
+│   ├── random/              │   ├── random/
+│   │   ├── index.ts  ──▶    │   │   ├── index.test.ts
+│   │   ├── number.ts  ──▶   │   │   ├── number.test.ts
+│   │   └── text.ts  ──▶     │   │   └── text.test.ts
+├── help.ts        ──────▶   ├── help.test.ts
+├── sum-number.ts  ──────▶   ├── sum-number.test.ts
+```
+
+**Rules:**
+- Every `.ts`/`.js` file in `src/pages/` **MUST** have a corresponding `.test.ts`/`.test.js` file in `e2e/` at the same relative path
+- `index.ts` → `index.test.ts` (not `index.test.ts` at parent level)
+- File naming: `foo.ts` → `foo.test.ts` (pages root), `foo/bar.ts` → `foo/bar.test.ts` (subdirectory)
+- `setup.ts` is excluded (test harness, not a page test)
+
+**Verification tools** (available in generated projects):
+```bash
+bun run scripts/check-e2e-mirror.ts          # Check mirror integrity
+bun run scripts/check-e2e-mirror.ts --fix    # Auto-create missing test stubs
+bun run scripts/generate-e2e-structure.ts    # Generate test stubs in bulk
+```
+
+**Rationale:** Mirror structure ensures every page has at minimum a registration test, preventing orphaned pages from going unnoticed.
+
 ## 1. Response Existence
 
 Every test **MUST** validate that a response exists before accessing its properties:
