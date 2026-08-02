@@ -25,15 +25,11 @@ Use this `_INDEX.md` as the module index for page-related rules. It currently co
 - `./ctx-pages/VARIABLE_NAMING.md`: standardized shorthands and naming rules
 - `./ctx-pages/EXAMPLES.md`: reference implementations and code snippets
 
-### `ctx-helpers/`
-
-Use this `_INDEX.md` as the module index for helper-related rules. This rule set is currently a stub and should be expanded as helper conventions are documented.
-
 ### `ctx-e2e/`
 
 Use this `_INDEX.md` as the module index for E2E test rules. It currently covers:
 
-- `./ctx-e2e/E2E_STRUCTURE.md`: file layout, `setup.ts` template with `gmsg`/`gkb`/`gmedia` helpers, test file templates, assertion rules, session isolation, and Language variants.
+- `./ctx-e2e/E2E_SETUP.md`: file layout, `setup.ts` template with `gmsg`/`gkb`/`gmedia` helpers, test file templates, assertion rules, session isolation, and Language variants.
 
 ### `ctx-db/`
 

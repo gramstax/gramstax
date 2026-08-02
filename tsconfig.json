@@ -82,6 +82,9 @@
     },
     {
       "path": "./example/9-substore-bot"
+    },
+    {
+      "path": "./example/10-http-request"
     }
   ],
 }
