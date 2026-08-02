@@ -26,7 +26,7 @@ const safeTemplate = `
 `
 
 console.log(`Compiling template...`)
-const messages = TemplateEngine.compileBlockMessage(safeTemplate)
+const messages = TemplateEngine.compileBlockGMessage(safeTemplate)
 
 // Input from a malicious user attempting to inject code through their name
 const maliciousUserInput = `\` + console.log("I am trying to hack you") + \`\${process.exit()}`

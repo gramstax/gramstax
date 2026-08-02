@@ -26,7 +26,7 @@ const maliciousTemplate = `
 `
 
 console.log(`Compiling template...`)
-const messages = TemplateEngine.compileBlockMessage(maliciousTemplate)
+const messages = TemplateEngine.compileBlockGMessage(maliciousTemplate)
 
 console.log(`Executing compiled function...`)
 const result = messages.default.default({})

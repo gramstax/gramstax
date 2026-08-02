@@ -30,7 +30,7 @@ const maliciousTemplate = `
 
 console.log(`Compiling malicious template...`)
 // The engine will see the <g-script> tag and process it as a real instruction.
-const messages = TemplateEngine.compileBlockMessage(maliciousTemplate)
+const messages = TemplateEngine.compileBlockGMessage(maliciousTemplate)
 
 console.log(`Executing compiled function...`)
 messages.default.default({})
