@@ -154,9 +154,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'cacheKeyboard: Map<any, any>;'
+      content: 'cacheKeyboard: Map<string, unknown>;'
       return:
-        type: Map&lt;any, any&gt;
+        type: Map&lt;string, unknown&gt;
   - name: cacheSession
     uid: gramstax!Gramstax#cacheSession:member
     package: gramstax!
@@ -218,9 +218,9 @@ properties:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'handlerBotUpdate: any;'
+      content: 'handlerBotUpdate: (...args: unknown[]) => Promise<unknown>;'
       return:
-        type: any
+        type: '(...args: unknown[]) =&gt; Promise&lt;unknown&gt;'
   - name: log
     uid: gramstax!Gramstax#log:member
     package: gramstax!
@@ -443,6 +443,58 @@ methods:
                         routeName: string;
                     }[];
                     contact: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    channelpost: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    editchannelpost: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    edit: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    reaction: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    inlinequery: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    choseninlineresult: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    precheckoutquery: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    shippingquery: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    chatjoinrequest: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    poll: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    pollanswer: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    newchatmembers: {
+                        name: string;
+                        routeName: string;
+                    }[];
+                    leftchatmember: {
                         name: string;
                         routeName: string;
                     }[];
@@ -736,23 +788,80 @@ methods:
                         name: string;
                         routeName: string;
                     }>;
+                    handleSessionFreeChannelPost: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeEditChannelPost: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeEdit: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeReaction: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeInlineQuery: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeChosenInlineResult: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreePreCheckoutQuery: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeShippingQuery: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeChatJoinRequest: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreePoll: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreePollAnswer: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeNewChatMembers: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
+                    handleSessionFreeLeftChatMember: Record<string, {
+                        name: string;
+                        routeName: string;
+                    }>;
                 };
-                chatMemberRoutes: Array<{
+                routeChatMember: Array<{
                     name: string;
                     routeName: string;
                     type: `chatMember` | `myChatMember`;
                     oldStatus: string;
                     newStatus: string;
-                    filter: (ctx: any) => boolean;
+                    filter: (ctx: Ctx) => boolean;
                 }>;
+                customRoutes: ITCustomRouteEntry[];
+                routeCustom: ITCustomRouteEntry[];
                 listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
                 listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
-                listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
-                listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
+                listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact", "handleSessionFreeChannelPost", "handleSessionFreeEditChannelPost", "handleSessionFreeEdit", "handleSessionFreeReaction", "handleSessionFreeInlineQuery", "handleSessionFreeChosenInlineResult", "handleSessionFreePreCheckoutQuery", "handleSessionFreeShippingQuery", "handleSessionFreeChatJoinRequest", "handleSessionFreePoll", "handleSessionFreePollAnswer", "handleSessionFreeNewChatMembers", "handleSessionFreeLeftChatMember"];
+                listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact", "handleFreeChannelPost", "handleFreeEditChannelPost", "handleFreeEdit", "handleFreeReaction", "handleFreeInlineQuery", "handleFreeChosenInlineResult", "handleFreePreCheckoutQuery", "handleFreeShippingQuery", "handleFreeChatJoinRequest", "handleFreePoll", "handleFreePollAnswer", "handleFreeNewChatMembers", "handleFreeLeftChatMember"];
+                listRouteStaticLC: string[];
+                listRouteStaticIntentLC: string[];
+                listRouteStaticSessionLC: string[];
                 lenListRouteStatic: 15;
                 lenListRouteStaticIntent: 15;
                 lenListRouteStaticSession: number;
-                lenListRouteDynamicSpesific: 11;
+                lenListRouteDynamicSpesific: 24;
             };
       parameters:
         - id: pagesPath
@@ -808,6 +917,58 @@ methods:
                           routeName: string;
                       }[];
                       contact: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      channelpost: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      editchannelpost: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      edit: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      reaction: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      inlinequery: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      choseninlineresult: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      precheckoutquery: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      shippingquery: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      chatjoinrequest: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      poll: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      pollanswer: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      newchatmembers: {
+                          name: string;
+                          routeName: string;
+                      }[];
+                      leftchatmember: {
                           name: string;
                           routeName: string;
                       }[];
@@ -1101,23 +1262,80 @@ methods:
                           name: string;
                           routeName: string;
                       }&gt;;
+                      handleSessionFreeChannelPost: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeEditChannelPost: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeEdit: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeReaction: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeInlineQuery: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeChosenInlineResult: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreePreCheckoutQuery: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeShippingQuery: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeChatJoinRequest: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreePoll: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreePollAnswer: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeNewChatMembers: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
+                      handleSessionFreeLeftChatMember: Record&lt;string, {
+                          name: string;
+                          routeName: string;
+                      }&gt;;
                   };
-                  chatMemberRoutes: Array&lt;{
+                  routeChatMember: Array&lt;{
                       name: string;
                       routeName: string;
                       type: `chatMember` | `myChatMember`;
                       oldStatus: string;
                       newStatus: string;
-                      filter: (ctx: any) =&gt; boolean;
+                      filter: (ctx: <xref uid="gramstax!Ctx:class" />) =&gt; boolean;
                   }&gt;;
+                  customRoutes: <xref uid="gramstax!~ITCustomRouteEntry_2:type" />[];
+                  routeCustom: <xref uid="gramstax!~ITCustomRouteEntry_2:type" />[];
                   listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
                   listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
-                  listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
-                  listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
+                  listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact", "handleSessionFreeChannelPost", "handleSessionFreeEditChannelPost", "handleSessionFreeEdit", "handleSessionFreeReaction", "handleSessionFreeInlineQuery", "handleSessionFreeChosenInlineResult", "handleSessionFreePreCheckoutQuery", "handleSessionFreeShippingQuery", "handleSessionFreeChatJoinRequest", "handleSessionFreePoll", "handleSessionFreePollAnswer", "handleSessionFreeNewChatMembers", "handleSessionFreeLeftChatMember"];
+                  listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact", "handleFreeChannelPost", "handleFreeEditChannelPost", "handleFreeEdit", "handleFreeReaction", "handleFreeInlineQuery", "handleFreeChosenInlineResult", "handleFreePreCheckoutQuery", "handleFreeShippingQuery", "handleFreeChatJoinRequest", "handleFreePoll", "handleFreePollAnswer", "handleFreeNewChatMembers", "handleFreeLeftChatMember"];
+                  listRouteStaticLC: string[];
+                  listRouteStaticIntentLC: string[];
+                  listRouteStaticSessionLC: string[];
                   lenListRouteStatic: 15;
                   lenListRouteStaticIntent: 15;
                   lenListRouteStaticSession: number;
-                  lenListRouteDynamicSpesific: 11;
+                  lenListRouteDynamicSpesific: 24;
               }
         description: The pages routing structure.
   - name: _pageRoutes(ctx, fromListener)
@@ -1162,9 +1380,8 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: >-
-        _pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | `chatmember` | `mychatmember` | keyof typeof
-        Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
+      content: |-
+        _pageRoutes(ctx: ICtx, fromListener: string): Promise<{
                 state: `matched` | `no-match` | `no-handler` | `blocked`;
             }>;
       parameters:
@@ -1173,9 +1390,7 @@ methods:
           type: ICtx
         - id: fromListener
           description: The listener type that triggered the route.
-          type: >-
-            `callbackquerydata` | `chatmember` | `mychatmember` | keyof typeof gramstax!~__type#<xref
-            uid="routeDynamicSpesific:member" />
+          type: string
       return:
         type: |-
           Promise&lt;{
@@ -1446,9 +1661,9 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookAfterStart?(): Promise<any>;
+        hookAfterStart?(): Promise<void>;
       return:
-        type: Promise&lt;any&gt;
+        type: Promise&lt;void&gt;
         description: ''
   - name: hookBeforeRoute(ctx, data)
     uid: gramstax!Gramstax#hookBeforeRoute:member(1)
@@ -1543,57 +1758,7 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        hookBeforeStart?(): Promise<any>;
-      return:
-        type: Promise&lt;any&gt;
-        description: ''
-  - name: hookErrorInputNotFoundPage(ctx, data)
-    uid: gramstax!Gramstax#hookErrorInputNotFoundPage:member(1)
-    package: gramstax!
-    fullName: hookErrorInputNotFoundPage(ctx, data)
-    summary: Hook called when no page handler matches the input.
-    remarks: Override this method to send a "command not found" message or redirect to a help page.
-    example:
-      - |-
-        Simple
-
-        ```typescript
-        async hookErrorInputNotFoundPage(ctx: Ctx) {
-          await new StatusPage(ctx).binputNotFound.show()
-        }
-        ```
-      - >-
-        Advanced
-
-
-        ```typescript
-
-        async hookErrorInputNotFoundPage(ctx: Ctx, data:
-        NonNullable<Parameters<NonNullable<Gramstax[`hookErrorInputNotFoundPage`]>>[1]>) {
-          await new StatusPage(ctx).binputNotFound.show()
-        }
-
-        ```
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: |-
-        /** @virtual */
-        hookErrorInputNotFoundPage?(ctx: ICtx, data?: {
-                listenerName: string;
-                isEdit: boolean;
-            }): Promise<void>;
-      parameters:
-        - id: ctx
-          description: The context instance.
-          type: ICtx
-        - id: data
-          description: ''
-          type: |-
-            {
-                    listenerName: string;
-                    isEdit: boolean;
-                }
+        hookBeforeStart?(): Promise<void>;
       return:
         type: Promise&lt;void&gt;
         description: ''
@@ -1629,7 +1794,7 @@ methods:
         /** @virtual */
         hookErrorPage?(ctx: ICtx, data?: {
                 listenerName: string;
-                error: any;
+                error: unknown;
                 isEdit: boolean;
             }): Promise<void>;
       parameters:
@@ -1641,253 +1806,80 @@ methods:
           type: |-
             {
                     listenerName: string;
-                    error: any;
+                    error: unknown;
                     isEdit: boolean;
                 }
       return:
         type: Promise&lt;void&gt;
         description: ''
-  - name: registerLowOnCallbackQueryData()
-    uid: gramstax!Gramstax#registerLowOnCallbackQueryData:member(1)
+  - name: hookNotFoundPage(ctx, data)
+    uid: gramstax!Gramstax#hookNotFoundPage:member(1)
     package: gramstax!
-    fullName: registerLowOnCallbackQueryData()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
+    fullName: hookNotFoundPage(ctx, data)
+    summary: Hook called when no page handler matches the input.
+    remarks: Override this method to send a "command not found" message or redirect to a help page.
     example:
       - |-
+        Simple
+
         ```typescript
-        class MyBot extends Gramstax {
-          // Override if need to route via a custom event bus instead of the default bot
-          registerLowOnCallbackQueryData() {
-            // default is `callback_query:data`
-            this.bot.on(`cb_data`, (ctx) => this._onHandle(ctx, `callbackquerydata`))
-          }
+        async hookNotFoundPage(ctx: Ctx) {
+          await new StatusPage(ctx).bnotFound.show()
+        }
+        ```
+      - |-
+        Advanced
+
+        ```typescript
+        async hookNotFoundPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookNotFoundPage`]>>[1]>) {
+          await new StatusPage(ctx).bnotFound.show()
         }
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'registerLowOnCallbackQueryData(): void;'
+      content: |-
+        /** @virtual */
+        hookNotFoundPage?(ctx: ICtx, data?: {
+                listenerName: string;
+                isEdit: boolean;
+            }): Promise<void>;
+      parameters:
+        - id: ctx
+          description: The context instance.
+          type: ICtx
+        - id: data
+          description: ''
+          type: |-
+            {
+                    listenerName: string;
+                    isEdit: boolean;
+                }
       return:
-        type: void
+        type: Promise&lt;void&gt;
         description: ''
-  - name: registerLowOnChatMember()
-    uid: gramstax!Gramstax#registerLowOnChatMember:member(1)
+  - name: registerCustomRoute(entry)
+    uid: gramstax!Gramstax#registerCustomRoute:member(1)
     package: gramstax!
-    fullName: registerLowOnChatMember()
-    summary: Registers an event handler for a bot event.
+    fullName: registerCustomRoute(entry)
+    summary: Registers a custom filter-based route entry with automatic listener subscription.
     remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
+      Adds a route entry to `this.pages.routeCustom` for dispatch at stage id=6 in \_pageRoutes. The route fires when:
+      1. listenerName matches entry.listenerName, AND 2. entry.filter(ctx) returns true
+
+
+      Automatically calls this.bot.on(entry.event, ...) to subscribe the grammY listener.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'registerLowOnChatMember(): void;'
-      return:
-        type: void
-        description: ''
-  - name: registerLowOnMessageAnimation()
-    uid: gramstax!Gramstax#registerLowOnMessageAnimation:member(1)
-    package: gramstax!
-    fullName: registerLowOnMessageAnimation()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'registerLowOnMessageAnimation(): void;'
-      return:
-        type: void
-        description: ''
-  - name: registerLowOnMessageAudio()
-    uid: gramstax!Gramstax#registerLowOnMessageAudio:member(1)
-    package: gramstax!
-    fullName: registerLowOnMessageAudio()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'registerLowOnMessageAudio(): void;'
-      return:
-        type: void
-        description: ''
-  - name: registerLowOnMessageContact()
-    uid: gramstax!Gramstax#registerLowOnMessageContact:member(1)
-    package: gramstax!
-    fullName: registerLowOnMessageContact()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'registerLowOnMessageContact(): void;'
-      return:
-        type: void
-        description: ''
-  - name: registerLowOnMessageDocument()
-    uid: gramstax!Gramstax#registerLowOnMessageDocument:member(1)
-    package: gramstax!
-    fullName: registerLowOnMessageDocument()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'registerLowOnMessageDocument(): void;'
-      return:
-        type: void
-        description: ''
-  - name: registerLowOnMessageLocation()
-    uid: gramstax!Gramstax#registerLowOnMessageLocation:member(1)
-    package: gramstax!
-    fullName: registerLowOnMessageLocation()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'registerLowOnMessageLocation(): void;'
-      return:
-        type: void
-        description: ''
-  - name: registerLowOnMessagePhoto()
-    uid: gramstax!Gramstax#registerLowOnMessagePhoto:member(1)
-    package: gramstax!
-    fullName: registerLowOnMessagePhoto()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'registerLowOnMessagePhoto(): void;'
-      return:
-        type: void
-        description: ''
-  - name: registerLowOnMessageSticker()
-    uid: gramstax!Gramstax#registerLowOnMessageSticker:member(1)
-    package: gramstax!
-    fullName: registerLowOnMessageSticker()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'registerLowOnMessageSticker(): void;'
-      return:
-        type: void
-        description: ''
-  - name: registerLowOnMessageText()
-    uid: gramstax!Gramstax#registerLowOnMessageText:member(1)
-    package: gramstax!
-    fullName: registerLowOnMessageText()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'registerLowOnMessageText(): void;'
-      return:
-        type: void
-        description: ''
-  - name: registerLowOnMessageVideo()
-    uid: gramstax!Gramstax#registerLowOnMessageVideo:member(1)
-    package: gramstax!
-    fullName: registerLowOnMessageVideo()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'registerLowOnMessageVideo(): void;'
-      return:
-        type: void
-        description: ''
-  - name: registerLowOnMessageVideoNote()
-    uid: gramstax!Gramstax#registerLowOnMessageVideoNote:member(1)
-    package: gramstax!
-    fullName: registerLowOnMessageVideoNote()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'registerLowOnMessageVideoNote(): void;'
-      return:
-        type: void
-        description: ''
-  - name: registerLowOnMessageVoice()
-    uid: gramstax!Gramstax#registerLowOnMessageVoice:member(1)
-    package: gramstax!
-    fullName: registerLowOnMessageVoice()
-    summary: Registers an event handler for a bot event.
-    remarks: >-
-      These registration methods (`registerLowOn*`<!-- -->) are designed to be overridable so subclasses can integrate
-      with a different bot library, custom event system, or alternative routing approach. The default implementation
-      delegates to `this.bot` to subscribe to the relevant event. Override any `registerLowOn*` method to customize how
-      a specific event or message type is routed to its handler.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'registerLowOnMessageVoice(): void;'
+      content: |-
+        /** @virtual */
+        registerCustomRoute(entry: ITCustomRouteEntry): void;
+      parameters:
+        - id: entry
+          description: The custom route entry. See ITCustomRouteEntry.
+          type: <xref uid="gramstax!~ITCustomRouteEntry_2:type" />
       return:
         type: void
         description: ''

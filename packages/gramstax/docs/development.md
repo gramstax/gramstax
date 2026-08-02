@@ -49,7 +49,7 @@ packages/gramstax/
 1. Branch from `main`. The repo uses **conventional commits** (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, `test:`, `build:`, `ci:`, `perf:`, `style:`, `revert:`, `asset:`) — see `nx.json` `conventionalCommits` for the semver mapping.
 2. Edit source under `src/`. Add/Adjust tests under `test/`.
 3. Keep changes **surgical** in the complexity hotspots: `core/ctx.ts` (4006 lines), `template/engine.ts` (3386), `core/bot.ts` (1612), `template/manager.ts` (1012). Per `AGENTS.md`, do not add `@ts-ignore`/`@ts-expect-error` to hide errors — fix them.
-4. Open a PR; the only CI gate (`.github/workflows/release.yml`, on push to `main`) runs `ci:test:packages` + `build:all` and then releases.
+4. Open a PR; the only CI gate (`.github/workflows/release.yml`, on push to `main`) runs `ci:test:packages` + `build` and then releases.
 
 ### Code Style
 
@@ -99,7 +99,7 @@ The in-process E2E harness (`E2eHelper`, active with `deploy:"test"`) lets tests
 bun run build:gramstax        # nx build gramstax
 
 # Build all packages
-bun run build:all             # nx run-many -t build --parallel=1
+bun run build             # nx run-many -t build --parallel=1
 ```
 
 `tsup.config.ts` outputs to `./dist/src` with `format: ["cjs","esm"]`, `dts: true`, `minify: true`, `platform: node`, `target: esnext`, and keeps `bun` external. `package.json` points `main`/`module`/`types` at `dist/src/index.{js,mjs,d.ts}`.
@@ -118,7 +118,7 @@ bun run build:docs   # tsup dts-only → api-extractor → api-documenter (markd
 
 | Stage             | Trigger                                            | What It Does                                                                                                                                                                                                                     |
 | ----------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Release           | `push` to `main` (`.github/workflows/release.yml`) | checkout → setup Node (LTS) + Bun → `bun install` → `bun run ci:test:packages && bun run build:all` → `bun run dry-run` → `bun run release` (Nx release, conventional-commits versioning, git tag `v{version}`, GitHub release). |
+| Release           | `push` to `main` (`.github/workflows/release.yml`) | checkout → setup Node (LTS) + Bun → `bun install` → `bun run ci:test:packages && bun run build` → `bun run dry-run` → `bun run release` (Nx release, conventional-commits versioning, git tag `v{version}`, GitHub release). |
 | Revert on failure | `if: failure()`                                    | If the npm publish succeeded but a later step failed, it **skips** rollback (avoids an orphaned npm package); otherwise it deletes the GitHub release + tag and force-resets `main` to the prior commit.                         |
 
 `nx.json` defines `release.projects: ["packages/*"]`, semver bumps from conventional commits, and a GitHub changelog. Release runs `nx release publish` per package.

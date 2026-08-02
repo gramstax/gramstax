@@ -9,7 +9,7 @@ Log a formatted error message with optional class and function context.
 **Signature:**
 
 ```typescript
-errorMake(pureError: any, constructorName?: any, funcName?: string): void;
+errorMake(pureError: Error | unknown, constructorName?: string, funcName?: string): void;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ pureError
 
 </td><td>
 
-any
+Error \| unknown
 
 
 </td><td>
@@ -53,7 +53,7 @@ constructorName
 
 </td><td>
 
-any
+string
 
 
 </td><td>

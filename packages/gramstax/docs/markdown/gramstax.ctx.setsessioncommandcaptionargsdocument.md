@@ -10,8 +10,8 @@ Session set helper methods.
 
 ```typescript
 setSessionCommandCaptionArgsDocument(this: Ctx & {
-        handleSessionCommandCaptionArgsDocument: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionArgsDocument: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
 ```
 
 ## Parameters
@@ -39,7 +39,7 @@ this
 
 </td><td>
 
-[Ctx](./gramstax.ctx.md) &amp; { handleSessionCommandCaptionArgsDocument: (...args: any\[\]) =&gt; any; }
+[Ctx](./gramstax.ctx.md) &amp; { handleSessionCommandCaptionArgsDocument: (...args: unknown\[\]) =&gt; unknown; }
 
 
 </td><td>
@@ -53,7 +53,7 @@ params
 
 </td><td>
 
-any
+Record&lt;string, unknown&gt;
 
 
 </td><td>

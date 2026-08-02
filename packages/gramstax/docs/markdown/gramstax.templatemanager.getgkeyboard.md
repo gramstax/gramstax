@@ -9,7 +9,7 @@ Gets compiled from block <g-keyboard>.
 **Signature:**
 
 ```typescript
-getGKeyboard(key: string, AGBaseId?: string, ALang?: string, AType?: `inline` | `bottom`, data?: Record<string, any>): string[];
+getGKeyboard(key: string, AGBaseId?: string, ALang?: string, AType?: `inline` | `bottom`, data?: Record<string, unknown>): string[];
 ```
 
 ## Parameters
@@ -101,7 +101,7 @@ data
 
 </td><td>
 
-Record&lt;string, any&gt;
+Record&lt;string, unknown&gt;
 
 
 </td><td>

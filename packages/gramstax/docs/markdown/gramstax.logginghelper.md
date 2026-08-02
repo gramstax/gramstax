@@ -37,40 +37,6 @@ const logger = new LoggingHelper();
 logger.errorMake(new Error("Oops"), "Worker", "init");
 ```
 
-## Constructors
-
-<table><thead><tr><th>
-
-Constructor
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[(constructor)(options)](./gramstax.logginghelper._constructor_.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Creates a new LoggingHelper instance.
-
-
-</td></tr>
-</tbody></table>
-
 ## Methods
 
 <table><thead><tr><th>

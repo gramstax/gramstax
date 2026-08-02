@@ -8,4 +8,4 @@ remarks: Used throughout Gramstax for passing dynamic data to templates and meth
 example: []
 isPreview: false
 isDeprecated: false
-syntax: type ITData = Record<string, any>;
+syntax: type ITData = Record<string, unknown>;

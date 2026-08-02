@@ -10,11 +10,11 @@ Route function for `handleCommandCaptionArgsAnimation` with slash command and ar
 
 ```typescript
 /** @virtual */
-handleCommandCaptionArgsAnimation?(): Promise<any>;
+handleCommandCaptionArgsAnimation?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

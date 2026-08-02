@@ -10,11 +10,11 @@ Route handler for free-form animation input.
 
 ```typescript
 /** @virtual */
-handleFreeAnimation?(): Promise<any>;
+handleFreeAnimation?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

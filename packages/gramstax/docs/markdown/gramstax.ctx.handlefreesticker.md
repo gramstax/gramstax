@@ -10,11 +10,11 @@ Route handler for free-form sticker input.
 
 ```typescript
 /** @virtual */
-handleFreeSticker?(): Promise<any>;
+handleFreeSticker?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

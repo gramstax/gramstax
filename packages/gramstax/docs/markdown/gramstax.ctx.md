@@ -201,7 +201,7 @@ Alias for `ctx.update.business_message`<!-- -->.
 
 </td><td>
 
-Map&lt;any, any&gt;
+Map&lt;string, unknown&gt;
 
 
 </td><td>
@@ -442,7 +442,7 @@ Alias for `ctx.update.chosen_inline_result`<!-- -->.
 
 </td><td>
 
-Context &amp; { \[key: string\]: any; }
+Context &amp; StreamContextExtension &amp; { \[key: string\]: unknown; }
 
 
 </td><td>
@@ -465,7 +465,7 @@ The `& {[key: string]: any}` widening covers runtime-added methods (e.g. `\@gram
 
 </td><td>
 
-[ITPageData](./gramstax.itpagedata.md)<!-- -->&lt;any&gt;
+[ITPageData](./gramstax.itpagedata.md)
 
 
 </td><td>
@@ -476,7 +476,7 @@ Instance-level access to the page routing data.
 </td></tr>
 <tr><td>
 
-[data](./gramstax.ctx.data.md)
+[data?](./gramstax.ctx.data.md)
 
 
 </td><td>
@@ -486,12 +486,12 @@ Instance-level access to the page routing data.
 
 </td><td>
 
-[ITPageData](./gramstax.itpagedata.md)<!-- -->&lt;any&gt;
+[ITPageDataBase](./gramstax.itpagedatabase.md)
 
 
 </td><td>
 
-/\*\* Page routing data created by `Ctx.buildData`<!-- -->.
+_(Optional)_ /\*\* Page routing data created by `Ctx.buildData`<!-- -->.
 
 
 </td></tr>
@@ -3403,7 +3403,7 @@ Sends an audio media group using pipe-delimited `src` values from the page templ
 </td></tr>
 <tr><td>
 
-[renderAuto(keyboard, data, AGBaseId, options, isEdit)](./gramstax.ctx.renderauto.md)
+[renderAuto(keyboard, data, AGBaseId, options, isEdit, fallbackReply)](./gramstax.ctx.renderauto.md)
 
 
 </td><td>
@@ -3417,7 +3417,35 @@ Sends or edits a message using the page template, auto-selecting between [Ctx.re
 </td></tr>
 <tr><td>
 
-[renderAutoRich(keyboard, data, AGBaseId, options1, options2, isEdit)](./gramstax.ctx.renderautorich.md)
+[renderAutoMedia(type, keyboard, data, AGBaseId, options1, options2, isEdit, fallbackReply)](./gramstax.ctx.renderautomedia.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits a media message using the page template, auto-selecting between [Ctx.renderMedia()](./gramstax.ctx.rendermedia.md) and [Ctx.renderEditMedia()](./gramstax.ctx.rendereditmedia.md) based on the `isEdit` flag.
+
+
+</td></tr>
+<tr><td>
+
+[renderAutoMediaGroup(type, data, AGBaseId, options, isEdit, \_fallbackReply)](./gramstax.ctx.renderautomediagroup.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends or edits a media group message using the page template, auto-selecting between [Ctx.renderMediaGroup()](./gramstax.ctx.rendermediagroup.md) and [Ctx.renderEditMediaGroup()](./gramstax.ctx.rendereditmediagroup.md) based on the `isEdit` flag.
+
+
+</td></tr>
+<tr><td>
+
+[renderAutoRich(keyboard, data, AGBaseId, options1, options2, isEdit, fallbackReply)](./gramstax.ctx.renderautorich.md)
 
 
 </td><td>

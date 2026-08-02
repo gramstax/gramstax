@@ -9,7 +9,7 @@ Creates page routing data configuration with options.
 **Signature:**
 
 ```typescript
-static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions<C> | null): ITPageData<Parameters<C>>;
+static buildData<C extends (...args: string[]) => Array<string | undefined>>(options: ITBuildDataOptions<C> | null): ITPageData<Parameters<C>>;
 ```
 
 ## Parameters

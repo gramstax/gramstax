@@ -9,7 +9,7 @@ Options for building page routing data configuration.
 **Signature:**
 
 ```typescript
-type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
+type ITBuildDataOptions<C extends (...args: string[]) => Array<string | undefined> = (...args: string[]) => Array<string | undefined>> = {
     name?: string | null;
     callbackQueryData?: C | null;
     intentText?: string | Record<string, string> | null;

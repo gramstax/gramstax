@@ -9,7 +9,7 @@ Extends [Keyv](https://github.com/jaredwray/keyv) to provide a unified caching i
 **Signature:**
 
 ```typescript
-declare class CacheExternal<V = any> extends Keyv<V> 
+declare class CacheExternal<V = unknown> extends Keyv<V> 
 ```
 **Extends:** Keyv&lt;V&gt;
 

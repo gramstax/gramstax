@@ -10,11 +10,11 @@ Route function for `handleCommandCaptionAudio` with slash command match intent `
 
 ```typescript
 /** @virtual */
-handleCommandCaptionAudio?(): Promise<any>;
+handleCommandCaptionAudio?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

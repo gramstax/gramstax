@@ -10,11 +10,11 @@ Route function for `handleCommandCaptionArgsDocument` with slash command and arg
 
 ```typescript
 /** @virtual */
-handleCommandCaptionArgsDocument?(): Promise<any>;
+handleCommandCaptionArgsDocument?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

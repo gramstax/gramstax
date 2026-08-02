@@ -4,12 +4,12 @@
 
 ## \_InlineKbWithCtx.text() method
 
-Add a callback button. `data` is a page (class/instance) or string.
+Add a callback button. `text` and/or `data` can be a page (class/instance) or string. A page passed as `text` resolves to its `intentText` label; a page passed as `data` resolves to its `callbackQueryData()`<!-- -->.
 
 **Signature:**
 
 ```typescript
-text(text: Parameters<InlineKeyboard[`text`]>[0], data?: string | typeof Ctx): this;
+text(text: Parameters<InlineKeyboard[`text`]>[0] | _KbPageLike | _KbButtonWithPageText, data?: Parameters<InlineKeyboard[`text`]>[1] | _KbPageLike): this;
 ```
 
 ## Parameters
@@ -37,12 +37,12 @@ text
 
 </td><td>
 
-Parameters&lt;InlineKeyboard\[\`text\`\]&gt;\[0\]
+Parameters&lt;InlineKeyboard\[\`text\`\]&gt;\[0\] \| [\_KbPageLike](./gramstax._kbpagelike.md) \| [\_KbButtonWithPageText](./gramstax._kbbuttonwithpagetext.md)
 
 
 </td><td>
 
-string or object text with styling
+string, grammY button object (or with page text), or class Page (resolves to intentText)
 
 
 </td></tr>
@@ -53,12 +53,12 @@ data
 
 </td><td>
 
-string \| typeof [Ctx](./gramstax.ctx.md)
+Parameters&lt;InlineKeyboard\[\`text\`\]&gt;\[1\] \| [\_KbPageLike](./gramstax._kbpagelike.md)
 
 
 </td><td>
 
-_(Optional)_ string callback\_data or class Page
+_(Optional)_ string callback\_data, grammY button object, or class Page
 
 
 </td></tr>

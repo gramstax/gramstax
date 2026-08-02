@@ -12,6 +12,6 @@ syntax: |-
   type ITTemp = {
       isAnswer: boolean;
       session: Partial<ITCacheRpc>;
-      data: Partial<ITPageData<any>>;
-      [key: string]: any;
+      data: Partial<ITPageData>;
+      [key: string]: unknown;
   };

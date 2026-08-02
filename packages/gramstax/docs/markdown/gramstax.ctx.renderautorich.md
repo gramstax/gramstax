@@ -9,7 +9,7 @@ Sends or edits a rich message using the page template, auto-selecting between [C
 **Signature:**
 
 ```typescript
-renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, isEdit?: boolean | null): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, isEdit?: boolean | null, fallbackReply?: boolean | null): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         text: string;
     } & Partial<{
         entities: grammy_types.MessageEntity[];
@@ -127,6 +127,22 @@ boolean \| null
 </td><td>
 
 _(Optional)_ If true, edits existing message; if false, sends new. Defaults to `!!this.callbackQuery` (auto-detected).
+
+
+</td></tr>
+<tr><td>
+
+fallbackReply
+
+
+</td><td>
+
+boolean \| null
+
+
+</td><td>
+
+_(Optional)_ If true, sends a new reply when edit fails (only when `isEdit` is true). Defaults to `null` (no fallback).
 
 
 </td></tr>

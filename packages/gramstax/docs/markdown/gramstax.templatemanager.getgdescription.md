@@ -9,7 +9,7 @@ Gets a command description for Telegram menu.
 **Signature:**
 
 ```typescript
-getGDescription(key: string, AGBaseId?: string, ALang?: string, AScope?: string, data?: Record<string, any>): string;
+getGDescription(key: string, AGBaseId?: string, ALang?: string, AScope?: string, data?: Record<string, unknown>): string;
 ```
 
 ## Parameters
@@ -101,7 +101,7 @@ data
 
 </td><td>
 
-Record&lt;string, any&gt;
+Record&lt;string, unknown&gt;
 
 
 </td><td>

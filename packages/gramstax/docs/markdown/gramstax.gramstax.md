@@ -134,7 +134,7 @@ _(Optional)_ Optional bot configuration.
 
 </td><td>
 
-Map&lt;any, any&gt;
+Map&lt;string, unknown&gt;
 
 
 </td><td>
@@ -210,7 +210,7 @@ _(Optional)_ In-process E2E testing helper.
 
 </td><td>
 
-any
+(...args: unknown\[\]) =&gt; Promise&lt;unknown&gt;
 
 
 </td><td>
@@ -586,20 +586,6 @@ _(Optional)_ Hook called before the bot starts.
 </td></tr>
 <tr><td>
 
-[hookErrorInputNotFoundPage(ctx, data)?](./gramstax.gramstax.hookerrorinputnotfoundpage.md)
-
-
-</td><td>
-
-
-</td><td>
-
-_(Optional)_ Hook called when no page handler matches the input.
-
-
-</td></tr>
-<tr><td>
-
 [hookErrorPage(ctx, data)?](./gramstax.gramstax.hookerrorpage.md)
 
 
@@ -614,7 +600,7 @@ _(Optional)_ Hook called when a page handler throws an error.
 </td></tr>
 <tr><td>
 
-[registerLowOnCallbackQueryData()](./gramstax.gramstax.registerlowoncallbackquerydata.md)
+[hookNotFoundPage(ctx, data)?](./gramstax.gramstax.hooknotfoundpage.md)
 
 
 </td><td>
@@ -622,13 +608,13 @@ _(Optional)_ Hook called when a page handler throws an error.
 
 </td><td>
 
-Registers an event handler for a bot event.
+_(Optional)_ Hook called when no page handler matches the input.
 
 
 </td></tr>
 <tr><td>
 
-[registerLowOnChatMember()](./gramstax.gramstax.registerlowonchatmember.md)
+[registerCustomRoute(entry)](./gramstax.gramstax.registercustomroute.md)
 
 
 </td><td>
@@ -636,161 +622,7 @@ Registers an event handler for a bot event.
 
 </td><td>
 
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[registerLowOnMessageAnimation()](./gramstax.gramstax.registerlowonmessageanimation.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[registerLowOnMessageAudio()](./gramstax.gramstax.registerlowonmessageaudio.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[registerLowOnMessageContact()](./gramstax.gramstax.registerlowonmessagecontact.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[registerLowOnMessageDocument()](./gramstax.gramstax.registerlowonmessagedocument.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[registerLowOnMessageLocation()](./gramstax.gramstax.registerlowonmessagelocation.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[registerLowOnMessagePhoto()](./gramstax.gramstax.registerlowonmessagephoto.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[registerLowOnMessageSticker()](./gramstax.gramstax.registerlowonmessagesticker.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[registerLowOnMessageText()](./gramstax.gramstax.registerlowonmessagetext.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[registerLowOnMessageVideo()](./gramstax.gramstax.registerlowonmessagevideo.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[registerLowOnMessageVideoNote()](./gramstax.gramstax.registerlowonmessagevideonote.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
-
-
-</td></tr>
-<tr><td>
-
-[registerLowOnMessageVoice()](./gramstax.gramstax.registerlowonmessagevoice.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Registers an event handler for a bot event.
+Registers a custom filter-based route entry with automatic listener subscription.
 
 
 </td></tr>

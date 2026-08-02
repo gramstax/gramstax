@@ -9,7 +9,7 @@ Extract a page class from a module's exports.
 **Signature:**
 
 ```typescript
-static _getFile(mod: Record<any, any>, path: string, positionModule?: number): typeof Ctx;
+static _getFile(mod: Record<string, unknown>, path: string, positionModule?: number): typeof Ctx;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ mod
 
 </td><td>
 
-Record&lt;any, any&gt;
+Record&lt;string, unknown&gt;
 
 
 </td><td>

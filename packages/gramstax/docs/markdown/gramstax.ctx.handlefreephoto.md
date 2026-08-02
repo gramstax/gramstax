@@ -10,11 +10,11 @@ Route handler for free-form photo input.
 
 ```typescript
 /** @virtual */
-handleFreePhoto?(): Promise<any>;
+handleFreePhoto?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

@@ -10,7 +10,7 @@ Handles watcher errors.
 
 ```typescript
 /** @virtual */
-_handleWatchError(error: any): void;
+_handleWatchError(error: unknown): void;
 ```
 
 ## Parameters
@@ -38,7 +38,7 @@ error
 
 </td><td>
 
-any
+unknown
 
 
 </td><td>

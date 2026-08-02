@@ -12,7 +12,7 @@ Configuration options for TemplateManager initialization.
 type ITTemplateOptions = {
     path: string[];
     enableWatch?: boolean;
-    watchOptions?: any;
+    watchOptions?: ChokidarOptions;
 };
 ```
 

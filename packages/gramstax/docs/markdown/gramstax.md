@@ -229,6 +229,28 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[\_KbButtonWithPageText](./gramstax._kbbuttonwithpagetext.md)
+
+
+</td><td>
+
+grammY button object whose `text` may also be a page class/instance.
+
+
+</td></tr>
+<tr><td>
+
+[\_KbPageLike](./gramstax._kbpagelike.md)
+
+
+</td><td>
+
+Page class/instance that defines `handleCallbackQueryData`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [ITBottomKb](./gramstax.itbottomkb.md)
 
 
@@ -312,6 +334,17 @@ Type alias for Middleware.
 </td><td>
 
 Parameters for Ctx instance initialization.
+
+
+</td></tr>
+<tr><td>
+
+[ITCustomRouteEntry](./gramstax.itcustomrouteentry.md)
+
+
+</td><td>
+
+A custom filter-based route entry, registered via [Gramstax.registerCustomRoute()](./gramstax.gramstax.registercustomroute.md)<!-- -->.
 
 
 </td></tr>
@@ -799,6 +832,17 @@ Options for sending voice messages.
 </td><td>
 
 Page routing data configuration.
+
+
+</td></tr>
+<tr><td>
+
+[ITPageDataBase](./gramstax.itpagedatabase.md)
+
+
+</td><td>
+
+Base page routing data — core properties only, no callbackQueryData.
 
 
 </td></tr>

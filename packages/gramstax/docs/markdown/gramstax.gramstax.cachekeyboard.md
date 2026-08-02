@@ -9,7 +9,7 @@ In-memory cache for keyboard instances by language.
 **Signature:**
 
 ```typescript
-cacheKeyboard: Map<any, any>;
+cacheKeyboard: Map<string, unknown>;
 ```
 
 ## Remarks

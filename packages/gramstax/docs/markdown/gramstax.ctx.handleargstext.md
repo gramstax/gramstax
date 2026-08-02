@@ -10,11 +10,11 @@ Route handler for text messages with args match intent `intentText`<!-- -->.
 
 ```typescript
 /** @virtual */
-handleArgsText?(): Promise<any>;
+handleArgsText?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

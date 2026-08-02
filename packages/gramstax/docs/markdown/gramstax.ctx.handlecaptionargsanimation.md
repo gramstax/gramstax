@@ -10,11 +10,11 @@ Route function for `handleCaptionArgsAnimation` with arg match intent `this.data
 
 ```typescript
 /** @virtual */
-handleCaptionArgsAnimation?(): Promise<any>;
+handleCaptionArgsAnimation?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

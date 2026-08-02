@@ -10,11 +10,11 @@ Route handler for callback queries with args matching `intentCallbackQueryData`<
 
 ```typescript
 /** @virtual */
-handleArgsCallbackQueryData?(): Promise<any>;
+handleArgsCallbackQueryData?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

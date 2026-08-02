@@ -10,11 +10,11 @@ Route function for videoCaption match intent `this.data.name`
 
 ```typescript
 /** @virtual */
-handleCaptionVideo?(): Promise<any>;
+handleCaptionVideo?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

@@ -88,7 +88,7 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static _reverseObj<T extends Record<any, any>>(input: T): T;'
+      content: 'static _reverseObj<T extends Record<string, string>>(input: T): T;'
       parameters:
         - id: input
           description: >-

@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-setSession(method: string | string[], params: any, moreRoot?: Record<any, any>): Promise<boolean | null>;
+setSession(method: string | string[], params?: Record<string, unknown>, moreRoot?: Record<string, unknown>): Promise<boolean | null>;
 ```
 
 ## Parameters
@@ -53,12 +53,12 @@ params
 
 </td><td>
 
-any
+Record&lt;string, unknown&gt;
 
 
 </td><td>
 
-The session parameters to store.
+_(Optional)_ The session parameters to store.
 
 
 </td></tr>
@@ -69,7 +69,7 @@ moreRoot
 
 </td><td>
 
-Record&lt;any, any&gt;
+Record&lt;string, unknown&gt;
 
 
 </td><td>

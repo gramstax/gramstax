@@ -10,11 +10,11 @@ Route function for `handleCaptionArgsDocument` with arg match intent `this.data.
 
 ```typescript
 /** @virtual */
-handleCaptionArgsDocument?(): Promise<any>;
+handleCaptionArgsDocument?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

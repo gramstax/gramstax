@@ -9,7 +9,7 @@ Reverse button order for all languages in an object.
 **Signature:**
 
 ```typescript
-static _reverseObj<T extends Record<any, any>>(input: T): T;
+static _reverseObj<T extends Record<string, string>>(input: T): T;
 ```
 
 ## Parameters

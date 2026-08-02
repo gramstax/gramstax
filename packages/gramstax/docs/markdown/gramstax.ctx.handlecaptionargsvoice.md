@@ -10,11 +10,11 @@ Route function for `handleCaptionArgsVoice` with arg match intent `this.data.nam
 
 ```typescript
 /** @virtual */
-handleCaptionArgsVoice?(): Promise<any>;
+handleCaptionArgsVoice?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

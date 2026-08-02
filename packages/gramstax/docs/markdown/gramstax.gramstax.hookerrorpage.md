@@ -12,7 +12,7 @@ Hook called when a page handler throws an error.
 /** @virtual */
 hookErrorPage?(ctx: ICtx, data?: {
         listenerName: string;
-        error: any;
+        error: unknown;
         isEdit: boolean;
     }): Promise<void>;
 ```
@@ -58,7 +58,7 @@ data
 
 </td><td>
 
-{ listenerName: string; error: any; isEdit: boolean; }
+{ listenerName: string; error: unknown; isEdit: boolean; }
 
 
 </td><td>

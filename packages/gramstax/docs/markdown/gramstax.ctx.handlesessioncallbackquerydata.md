@@ -10,11 +10,11 @@ Session-aware route handler for callback queries without args.
 
 ```typescript
 /** @virtual */
-handleSessionCallbackQueryData?(): Promise<any>;
+handleSessionCallbackQueryData?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

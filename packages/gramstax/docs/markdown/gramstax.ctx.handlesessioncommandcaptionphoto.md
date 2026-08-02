@@ -9,11 +9,11 @@ Session-aware route handler for callback queries without args.
 **Signature:**
 
 ```typescript
-handleSessionCommandCaptionPhoto?(): Promise<any>;
+handleSessionCommandCaptionPhoto?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

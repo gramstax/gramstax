@@ -12,7 +12,7 @@ Parameters for Ctx instance initialization.
 type ITCtxParams = {
     ct: ITCt;
     cacheSession: CacheExternal;
-    cacheKeyboard: Map<any, any>;
+    cacheKeyboard: Map<string, unknown>;
     templateManager: TemplateManager;
     log?: LoggingHelper | null;
     temp: ITTemp;

@@ -9,7 +9,7 @@ Gets compiled from block <g-media>.
 **Signature:**
 
 ```typescript
-getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, any>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]>;
+getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]>;
 ```
 
 ## Parameters
@@ -85,7 +85,7 @@ data
 
 </td><td>
 
-Record&lt;string, any&gt;
+Record&lt;string, unknown&gt;
 
 
 </td><td>

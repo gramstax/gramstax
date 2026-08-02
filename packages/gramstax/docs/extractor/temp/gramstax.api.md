@@ -7,7 +7,9 @@
 import { Bot } from 'grammy';
 import { BotConfig } from 'grammy';
 import { BotError } from 'grammy';
+import { ChokidarOptions } from 'chokidar';
 import { Context } from 'grammy';
+import { FilterQuery } from 'grammy';
 import { FSWatcher } from 'chokidar';
 import * as grammy_types from 'grammy/types';
 import { InlineKeyboard } from 'grammy';
@@ -16,8 +18,11 @@ import { Keyv } from 'keyv';
 import { LoggingPretty } from 'logging-pretty';
 import { MessageDraftPiece } from '@grammyjs/stream';
 import { Middleware } from 'grammy';
+import { StreamContextExtension } from '@grammyjs/stream';
 import { StreamFlavor } from '@grammyjs/stream';
+import { Update } from 'grammy/types';
 import { UserFromGetMe } from 'grammy/types';
+import { watch } from 'chokidar';
 
 // @public
 export class BlockKeyboard {
@@ -32,7 +37,7 @@ export interface _BottomKbWithCtx extends Keyboard {
 }
 
 // @public
-export class CacheExternal<V = any> extends Keyv<V> {
+export class CacheExternal<V = unknown> extends Keyv<V> {
     // Warning: (ae-forgotten-export) The symbol "ITMore" needs to be exported by the entry point index.d.ts
     constructor(url?: string, ttl?: number, namespace?: string, more?: ITMore);
     refreshLruCache(maxLength?: number): void;
@@ -43,20 +48,20 @@ export class CacheExternal<V = any> extends Keyv<V> {
 // @public
 export class Ctx extends Context {
     constructor(params: ITCtxParams);
-    addArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], pld: (string | undefined)[]): string;
+    addArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0], pld: Array<string | undefined>): string;
     // (undocumented)
     static readonly ANSWER_API_METHODS: Set<string>;
     bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams | null): ITBottomKb;
-    bottomKeyboardT(layout: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): ITBottomKb;
+    bottomKeyboardT(layout: ITKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): ITBottomKb;
     // (undocumented)
-    bottomKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): ITBottomKb;
-    static buildData<C extends (...args: any[]) => any>(callbackQueryData: C): ITPageData<Parameters<C>>;
-    static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions<C> | null): ITPageData<Parameters<C>>;
+    bottomKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): ITBottomKb;
+    static buildData<C extends (...args: string[]) => Array<string | undefined>>(callbackQueryData: C): ITPageData<Parameters<C>>;
+    static buildData<C extends (...args: string[]) => Array<string | undefined>>(options: ITBuildDataOptions<C> | null): ITPageData<Parameters<C>>;
     static buildData(options: ITBuildDataOptions | null): ITPageData<[]>;
     static buildData(): ITPageData<[]>;
     get businessConnection(): NonNullable<Context[`businessConnection`]>;
     get businessMessage(): NonNullable<Context[`businessMessage`]>;
-    cacheKeyboard: Map<any, any>;
+    cacheKeyboard: Map<string, unknown>;
     cacheSession: CacheExternal<ITCacheRpc>;
     get callbackQuery(): NonNullable<Context[`callbackQuery`]>;
     get callbackQueryDataArg(): string;
@@ -68,11 +73,11 @@ export class Ctx extends Context {
     get chatMember(): NonNullable<Context[`chatMember`]>;
     get chosenInlineResult(): NonNullable<Context[`chosenInlineResult`]>;
     clearSession(): Promise<boolean | null>;
-    readonly ct: Context & {
-        [key: string]: any;
+    readonly ct: Context & StreamContextExtension & {
+        [key: string]: unknown;
     };
-    static data: ITPageData<any>;
-    data: ITPageData<any>;
+    static data?: ITPageDataBase;
+    data: ITPageData;
     get deletedBusinessMessages(): NonNullable<Context[`deletedBusinessMessages`]>;
     get editedBusinessMessage(): NonNullable<Context[`editedBusinessMessage`]>;
     get editedChannelPost(): NonNullable<Context[`editedChannelPost`]>;
@@ -85,89 +90,89 @@ export class Ctx extends Context {
     getSession(): Promise<ITCacheRpc | null>;
     get guestMessage(): NonNullable<Context[`guestMessage`]>;
     // @virtual
-    handleArgsCallbackQueryData?(): Promise<any>;
+    handleArgsCallbackQueryData?(): Promise<unknown>;
     // @virtual
-    handleArgsText?(): Promise<any>;
+    handleArgsText?(): Promise<unknown>;
     // @virtual
-    handleCallbackQueryData?(): Promise<any>;
+    handleCallbackQueryData?(): Promise<unknown>;
     // @virtual
-    handleCaptionAnimation?(): Promise<any>;
+    handleCaptionAnimation?(): Promise<unknown>;
     // @virtual
-    handleCaptionArgsAnimation?(): Promise<any>;
+    handleCaptionArgsAnimation?(): Promise<unknown>;
     // @virtual
-    handleCaptionArgsAudio?(): Promise<any>;
+    handleCaptionArgsAudio?(): Promise<unknown>;
     // @virtual
-    handleCaptionArgsDocument?(): Promise<any>;
+    handleCaptionArgsDocument?(): Promise<unknown>;
     // @virtual
-    handleCaptionArgsPhoto?(): Promise<any>;
+    handleCaptionArgsPhoto?(): Promise<unknown>;
     // @virtual
-    handleCaptionArgsVideo?(): Promise<any>;
+    handleCaptionArgsVideo?(): Promise<unknown>;
     // @virtual
-    handleCaptionArgsVoice?(): Promise<any>;
+    handleCaptionArgsVoice?(): Promise<unknown>;
     // @virtual
-    handleCaptionAudio?(): Promise<any>;
+    handleCaptionAudio?(): Promise<unknown>;
     // @virtual
-    handleCaptionDocument?(): Promise<any>;
+    handleCaptionDocument?(): Promise<unknown>;
     // @virtual
-    handleCaptionPhoto?(): Promise<any>;
+    handleCaptionPhoto?(): Promise<unknown>;
     // @virtual
-    handleCaptionVideo?(): Promise<any>;
+    handleCaptionVideo?(): Promise<unknown>;
     // @virtual
-    handleCaptionVoice?(): Promise<any>;
+    handleCaptionVoice?(): Promise<unknown>;
     // @virtual
     handleChatMemberOutIn?(): Promise<void>;
     // @virtual
-    handleCommandArgsText?(): Promise<any>;
+    handleCommandArgsText?(): Promise<unknown>;
     // @virtual
-    handleCommandCaptionAnimation?(): Promise<any>;
+    handleCommandCaptionAnimation?(): Promise<unknown>;
     // @virtual
-    handleCommandCaptionArgsAnimation?(): Promise<any>;
+    handleCommandCaptionArgsAnimation?(): Promise<unknown>;
     // @virtual
-    handleCommandCaptionArgsAudio?(): Promise<any>;
+    handleCommandCaptionArgsAudio?(): Promise<unknown>;
     // @virtual
-    handleCommandCaptionArgsDocument?(): Promise<any>;
+    handleCommandCaptionArgsDocument?(): Promise<unknown>;
     // @virtual
-    handleCommandCaptionArgsPhoto?(): Promise<any>;
+    handleCommandCaptionArgsPhoto?(): Promise<unknown>;
     // @virtual
-    handleCommandCaptionArgsVideo?(): Promise<any>;
+    handleCommandCaptionArgsVideo?(): Promise<unknown>;
     // @virtual
-    handleCommandCaptionArgsVoice?(): Promise<any>;
+    handleCommandCaptionArgsVoice?(): Promise<unknown>;
     // @virtual
-    handleCommandCaptionAudio?(): Promise<any>;
+    handleCommandCaptionAudio?(): Promise<unknown>;
     // @virtual
-    handleCommandCaptionDocument?(): Promise<any>;
+    handleCommandCaptionDocument?(): Promise<unknown>;
     // @virtual
-    handleCommandCaptionPhoto?(): Promise<any>;
+    handleCommandCaptionPhoto?(): Promise<unknown>;
     // @virtual
-    handleCommandCaptionVideo?(): Promise<any>;
+    handleCommandCaptionVideo?(): Promise<unknown>;
     // @virtual
-    handleCommandCaptionVoice?(): Promise<any>;
+    handleCommandCaptionVoice?(): Promise<unknown>;
     // @virtual
-    handleCommandText?(): Promise<any>;
+    handleCommandText?(): Promise<unknown>;
     // @virtual
-    handleFree?(): Promise<any>;
+    handleFree?(): Promise<unknown>;
     // @virtual
-    handleFreeAnimation?(): Promise<any>;
+    handleFreeAnimation?(): Promise<unknown>;
     // @virtual
-    handleFreeAudio?(): Promise<any>;
+    handleFreeAudio?(): Promise<unknown>;
     // @virtual
-    handleFreeContact?(): Promise<any>;
+    handleFreeContact?(): Promise<unknown>;
     // @virtual
-    handleFreeDocument?(): Promise<any>;
+    handleFreeDocument?(): Promise<unknown>;
     // @virtual
-    handleFreeLocation?(): Promise<any>;
+    handleFreeLocation?(): Promise<unknown>;
     // @virtual
-    handleFreePhoto?(): Promise<any>;
+    handleFreePhoto?(): Promise<unknown>;
     // @virtual
-    handleFreeSticker?(): Promise<any>;
+    handleFreeSticker?(): Promise<unknown>;
     // @virtual
-    handleFreeText?(): Promise<any>;
+    handleFreeText?(): Promise<unknown>;
     // @virtual
-    handleFreeVideo?(): Promise<any>;
+    handleFreeVideo?(): Promise<unknown>;
     // @virtual
-    handleFreeVideoNote?(): Promise<any>;
+    handleFreeVideoNote?(): Promise<unknown>;
     // @virtual
-    handleFreeVoice?(): Promise<any>;
+    handleFreeVoice?(): Promise<unknown>;
     // @virtual
     handleMyChatMemberAdminRegular?(): Promise<void>;
     // @virtual
@@ -176,51 +181,51 @@ export class Ctx extends Context {
     handleMyChatMemberOutRegular?(): Promise<void>;
     // @virtual
     handleMyChatMemberRegularAdmin?(): Promise<void>;
-    handleSessionArgsCallbackQueryData?(): Promise<any>;
-    handleSessionArgsText?(): Promise<any>;
+    handleSessionArgsCallbackQueryData?(): Promise<unknown>;
+    handleSessionArgsText?(): Promise<unknown>;
     // @virtual
-    handleSessionCallbackQueryData?(): Promise<any>;
-    handleSessionCaptionAnimation?(): Promise<any>;
-    handleSessionCaptionArgsAnimation?(): Promise<any>;
-    handleSessionCaptionArgsAudio?(): Promise<any>;
-    handleSessionCaptionArgsDocument?(): Promise<any>;
-    handleSessionCaptionArgsPhoto?(): Promise<any>;
-    handleSessionCaptionArgsVideo?(): Promise<any>;
-    handleSessionCaptionArgsVoice?(): Promise<any>;
-    handleSessionCaptionAudio?(): Promise<any>;
-    handleSessionCaptionDocument?(): Promise<any>;
-    handleSessionCaptionPhoto?(): Promise<any>;
-    handleSessionCaptionVideo?(): Promise<any>;
-    handleSessionCaptionVoice?(): Promise<any>;
-    handleSessionCommandArgsText?(): Promise<any>;
-    handleSessionCommandCaptionAnimation?(): Promise<any>;
-    handleSessionCommandCaptionArgsAnimation?(): Promise<any>;
-    handleSessionCommandCaptionArgsAudio?(): Promise<any>;
-    handleSessionCommandCaptionArgsDocument?(): Promise<any>;
-    handleSessionCommandCaptionArgsPhoto?(): Promise<any>;
-    handleSessionCommandCaptionArgsVideo?(): Promise<any>;
-    handleSessionCommandCaptionArgsVoice?(): Promise<any>;
-    handleSessionCommandCaptionAudio?(): Promise<any>;
-    handleSessionCommandCaptionDocument?(): Promise<any>;
-    handleSessionCommandCaptionPhoto?(): Promise<any>;
-    handleSessionCommandCaptionVideo?(): Promise<any>;
-    handleSessionCommandCaptionVoice?(): Promise<any>;
-    handleSessionCommandText?(): Promise<any>;
-    handleSessionFree?(): Promise<any>;
-    handleSessionFreeAnimation?(): Promise<any>;
-    handleSessionFreeAudio?(): Promise<any>;
-    handleSessionFreeContact?(): Promise<any>;
-    handleSessionFreeDocument?(): Promise<any>;
-    handleSessionFreeLocation?(): Promise<any>;
-    handleSessionFreePhoto?(): Promise<any>;
-    handleSessionFreeSticker?(): Promise<any>;
-    handleSessionFreeText?(): Promise<any>;
-    handleSessionFreeVideo?(): Promise<any>;
-    handleSessionFreeVideoNote?(): Promise<any>;
-    handleSessionFreeVoice?(): Promise<any>;
-    handleSessionText?(): Promise<any>;
+    handleSessionCallbackQueryData?(): Promise<unknown>;
+    handleSessionCaptionAnimation?(): Promise<unknown>;
+    handleSessionCaptionArgsAnimation?(): Promise<unknown>;
+    handleSessionCaptionArgsAudio?(): Promise<unknown>;
+    handleSessionCaptionArgsDocument?(): Promise<unknown>;
+    handleSessionCaptionArgsPhoto?(): Promise<unknown>;
+    handleSessionCaptionArgsVideo?(): Promise<unknown>;
+    handleSessionCaptionArgsVoice?(): Promise<unknown>;
+    handleSessionCaptionAudio?(): Promise<unknown>;
+    handleSessionCaptionDocument?(): Promise<unknown>;
+    handleSessionCaptionPhoto?(): Promise<unknown>;
+    handleSessionCaptionVideo?(): Promise<unknown>;
+    handleSessionCaptionVoice?(): Promise<unknown>;
+    handleSessionCommandArgsText?(): Promise<unknown>;
+    handleSessionCommandCaptionAnimation?(): Promise<unknown>;
+    handleSessionCommandCaptionArgsAnimation?(): Promise<unknown>;
+    handleSessionCommandCaptionArgsAudio?(): Promise<unknown>;
+    handleSessionCommandCaptionArgsDocument?(): Promise<unknown>;
+    handleSessionCommandCaptionArgsPhoto?(): Promise<unknown>;
+    handleSessionCommandCaptionArgsVideo?(): Promise<unknown>;
+    handleSessionCommandCaptionArgsVoice?(): Promise<unknown>;
+    handleSessionCommandCaptionAudio?(): Promise<unknown>;
+    handleSessionCommandCaptionDocument?(): Promise<unknown>;
+    handleSessionCommandCaptionPhoto?(): Promise<unknown>;
+    handleSessionCommandCaptionVideo?(): Promise<unknown>;
+    handleSessionCommandCaptionVoice?(): Promise<unknown>;
+    handleSessionCommandText?(): Promise<unknown>;
+    handleSessionFree?(): Promise<unknown>;
+    handleSessionFreeAnimation?(): Promise<unknown>;
+    handleSessionFreeAudio?(): Promise<unknown>;
+    handleSessionFreeContact?(): Promise<unknown>;
+    handleSessionFreeDocument?(): Promise<unknown>;
+    handleSessionFreeLocation?(): Promise<unknown>;
+    handleSessionFreePhoto?(): Promise<unknown>;
+    handleSessionFreeSticker?(): Promise<unknown>;
+    handleSessionFreeText?(): Promise<unknown>;
+    handleSessionFreeVideo?(): Promise<unknown>;
+    handleSessionFreeVideoNote?(): Promise<unknown>;
+    handleSessionFreeVoice?(): Promise<unknown>;
+    handleSessionText?(): Promise<unknown>;
     // @virtual
-    handleText?(): Promise<any>;
+    handleText?(): Promise<unknown>;
     haveArgs(str: string | undefined, mtd: Parameters<typeof Ctx.getSeperatorTag>[0]): boolean;
     // @virtual
     hookAfterRoute?(): Promise<void>;
@@ -229,7 +234,7 @@ export class Ctx extends Context {
     inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams | null): ITInlineKb;
     inlineKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: ITData | null): _InlineKbWithCtx;
     get inlineQuery(): NonNullable<Context[`inlineQuery`]>;
-    keyboardCols<T = any>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T;
+    keyboardCols<T = unknown>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => unknown): T;
     log: LoggingHelper | null | undefined;
     get managedBot(): NonNullable<Context[`managedBot`]>;
     get message(): NonNullable<Context[`message`]>;
@@ -299,10 +304,12 @@ export class Ctx extends Context {
     renderAnimation(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAnimation | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     renderAudio(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     renderAudioGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyAudio | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
-    renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, isEdit?: boolean | null): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+    renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, isEdit?: boolean | null, fallbackReply?: boolean | null): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         rich_message: grammy_types.RichMessage;
     }) | undefined>;
-    renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, isEdit?: boolean | null): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+    renderAutoMedia<T extends Exclude<ITMediaBlock[`type`], `group`>>(type: T, keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: (T extends `photo` ? ITOptReplyPhoto : T extends `video` ? ITOptReplyVideo : T extends `audio` ? ITOptReplyAudio : T extends `document` ? ITOptReplyDocument : T extends `animation` ? ITOptReplyAnimation : T extends `voice` ? ITOptReplyVoice : T extends `video_note` ? ITOptReplyVideoNote : T extends `sticker` ? ITOptReplySticker : T extends `location` ? ITOptReplyLocation : T extends `contact` ? ITOptReplyContact : undefined) | null, options2?: ITOptEditMedia2 | null, isEdit?: boolean | null, fallbackReply?: boolean | null): Promise<true | grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | (grammy_types.Update.Edited & grammy_types.Message) | (grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[] | undefined>;
+    renderAutoMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null, isEdit?: boolean | null, _fallbackReply?: boolean | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
+    renderAutoRich(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options1?: ITOptReplyRich[0] | null, options2?: ITOptReplyRich[1] | ITOptEdit | null, isEdit?: boolean | null, fallbackReply?: boolean | null): Promise<true | grammy_types.Message.RichMessageMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         text: string;
     } & Partial<{
         entities: grammy_types.MessageEntity[];
@@ -362,149 +369,149 @@ export class Ctx extends Context {
     renderVideoGroup(data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideo | null): Promise<(grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.LivePhotoMessage)[]>;
     renderVideoNote(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVideoNote | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
     renderVoice(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyVoice | null): Promise<grammy_types.Message.LocationMessage | grammy_types.Message.ContactMessage | grammy_types.Message.PhotoMessage | grammy_types.Message.VideoMessage | grammy_types.Message.AudioMessage | grammy_types.Message.DocumentMessage | grammy_types.Message.VoiceMessage | grammy_types.Message.VideoNoteMessage | grammy_types.Message.StickerMessage | undefined>;
-    replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Record<string, any>, otherRichMessage?: Record<string, any>, baseInputRichMessage?: Record<string, any>, signal?: AbortSignal): Promise<any>;
-    replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Record<string, any>, otherRichMessage?: Record<string, any>, baseInputRichMessage?: Record<string, any>, signal?: AbortSignal): Promise<any>;
-    replyWithStream(stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>, otherMessageDraft?: Record<string, any>, otherMessage?: Record<string, any>, signal?: AbortSignal): Promise<any>;
+    replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[1], otherRichMessage?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[2], baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[3], signal?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[4]): Promise<unknown>;
+    replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[1], otherRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[2], baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[3], signal?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[4]): Promise<unknown>;
+    replyWithStream(stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>, otherMessageDraft?: Parameters<StreamContextExtension[`replyWithStream`]>[1], otherMessage?: Parameters<StreamContextExtension[`replyWithStream`]>[2], signal?: Parameters<StreamContextExtension[`replyWithStream`]>[3]): Promise<unknown>;
     get senderChat(): NonNullable<Context[`senderChat`]>;
-    setSession(method: string | string[], params: any, moreRoot?: Record<any, any>): Promise<boolean | null>;
+    setSession(method: string | string[], params?: Record<string, unknown>, moreRoot?: Record<string, unknown>): Promise<boolean | null>;
     setSessionArgsCallbackQueryData(this: Ctx & {
-        handleSessionArgsCallbackQueryData: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionArgsCallbackQueryData: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionArgsText(this: Ctx & {
-        handleSessionArgsText: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionArgsText: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCallbackQueryData(this: Ctx & {
-        handleSessionCallbackQueryData: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCallbackQueryData: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCaptionAnimation(this: Ctx & {
-        handleSessionCaptionAnimation: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionAnimation: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCaptionArgsAnimation(this: Ctx & {
-        handleSessionCaptionArgsAnimation: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionArgsAnimation: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCaptionArgsAudio(this: Ctx & {
-        handleSessionCaptionArgsAudio: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionArgsAudio: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCaptionArgsDocument(this: Ctx & {
-        handleSessionCaptionArgsDocument: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionArgsDocument: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCaptionArgsPhoto(this: Ctx & {
-        handleSessionCaptionArgsPhoto: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionArgsPhoto: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCaptionArgsVideo(this: Ctx & {
-        handleSessionCaptionArgsVideo: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionArgsVideo: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCaptionArgsVoice(this: Ctx & {
-        handleSessionCaptionArgsVoice: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionArgsVoice: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCaptionAudio(this: Ctx & {
-        handleSessionCaptionAudio: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionAudio: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCaptionDocument(this: Ctx & {
-        handleSessionCaptionDocument: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionDocument: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCaptionPhoto(this: Ctx & {
-        handleSessionCaptionPhoto: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionPhoto: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCaptionVideo(this: Ctx & {
-        handleSessionCaptionVideo: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionVideo: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCaptionVoice(this: Ctx & {
-        handleSessionCaptionVoice: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionVoice: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionChatMemberOutIn(this: Ctx & {
-        handleSessionChatMemberOutIn: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionChatMemberOutIn: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandArgsText(this: Ctx & {
-        handleSessionCommandArgsText: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandArgsText: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandCaptionAnimation(this: Ctx & {
-        handleSessionCommandCaptionAnimation: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionAnimation: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandCaptionArgsAnimation(this: Ctx & {
-        handleSessionCommandCaptionArgsAnimation: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionArgsAnimation: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandCaptionArgsAudio(this: Ctx & {
-        handleSessionCommandCaptionArgsAudio: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionArgsAudio: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandCaptionArgsDocument(this: Ctx & {
-        handleSessionCommandCaptionArgsDocument: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionArgsDocument: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandCaptionArgsPhoto(this: Ctx & {
-        handleSessionCommandCaptionArgsPhoto: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionArgsPhoto: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandCaptionArgsVideo(this: Ctx & {
-        handleSessionCommandCaptionArgsVideo: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionArgsVideo: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandCaptionArgsVoice(this: Ctx & {
-        handleSessionCommandCaptionArgsVoice: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionArgsVoice: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandCaptionAudio(this: Ctx & {
-        handleSessionCommandCaptionAudio: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionAudio: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandCaptionDocument(this: Ctx & {
-        handleSessionCommandCaptionDocument: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionDocument: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandCaptionPhoto(this: Ctx & {
-        handleSessionCommandCaptionPhoto: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionPhoto: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandCaptionVideo(this: Ctx & {
-        handleSessionCommandCaptionVideo: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionVideo: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandCaptionVoice(this: Ctx & {
-        handleSessionCommandCaptionVoice: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandCaptionVoice: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionCommandText(this: Ctx & {
-        handleSessionCommandText: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCommandText: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreeAnimation(this: Ctx & {
-        handleSessionFreeAnimation: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionFreeAnimation: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreeAudio(this: Ctx & {
-        handleSessionFreeAudio: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionFreeAudio: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreeContact(this: Ctx & {
-        handleSessionFreeContact: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionFreeContact: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreeDocument(this: Ctx & {
-        handleSessionFreeDocument: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionFreeDocument: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreeLocation(this: Ctx & {
-        handleSessionFreeLocation: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionFreeLocation: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreePhoto(this: Ctx & {
-        handleSessionFreePhoto: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionFreePhoto: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreeSticker(this: Ctx & {
-        handleSessionFreeSticker: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionFreeSticker: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreeText(this: Ctx & {
-        handleSessionFreeText: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionFreeText: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreeVideo(this: Ctx & {
-        handleSessionFreeVideo: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionFreeVideo: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreeVideoNote(this: Ctx & {
-        handleSessionFreeVideoNote: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionFreeVideoNote: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionFreeVoice(this: Ctx & {
-        handleSessionFreeVoice: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionFreeVoice: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionMyChatMemberAdminRegular(this: Ctx & {
-        handleSessionMyChatMemberAdminRegular: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionMyChatMemberAdminRegular: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionMyChatMemberOutAdmin(this: Ctx & {
-        handleSessionMyChatMemberOutAdmin: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionMyChatMemberOutAdmin: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionMyChatMemberOutRegular(this: Ctx & {
-        handleSessionMyChatMemberOutRegular: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionMyChatMemberOutRegular: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionMyChatMemberRegularAdmin(this: Ctx & {
-        handleSessionMyChatMemberRegularAdmin: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionMyChatMemberRegularAdmin: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     setSessionText(this: Ctx & {
-        handleSessionText: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionText: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
     temp: ITTemp;
     // @virtual
     static template?: string;
@@ -602,6 +609,58 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
                 name: string;
                 routeName: string;
             }[];
+            channelpost: {
+                name: string;
+                routeName: string;
+            }[];
+            editchannelpost: {
+                name: string;
+                routeName: string;
+            }[];
+            edit: {
+                name: string;
+                routeName: string;
+            }[];
+            reaction: {
+                name: string;
+                routeName: string;
+            }[];
+            inlinequery: {
+                name: string;
+                routeName: string;
+            }[];
+            choseninlineresult: {
+                name: string;
+                routeName: string;
+            }[];
+            precheckoutquery: {
+                name: string;
+                routeName: string;
+            }[];
+            shippingquery: {
+                name: string;
+                routeName: string;
+            }[];
+            chatjoinrequest: {
+                name: string;
+                routeName: string;
+            }[];
+            poll: {
+                name: string;
+                routeName: string;
+            }[];
+            pollanswer: {
+                name: string;
+                routeName: string;
+            }[];
+            newchatmembers: {
+                name: string;
+                routeName: string;
+            }[];
+            leftchatmember: {
+                name: string;
+                routeName: string;
+            }[];
         };
         routeStatic: {
             handleCallbackQueryData: Record<string, {
@@ -892,25 +951,82 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
                 name: string;
                 routeName: string;
             }>;
+            handleSessionFreeChannelPost: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeEditChannelPost: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeEdit: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeReaction: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeInlineQuery: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeChosenInlineResult: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreePreCheckoutQuery: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeShippingQuery: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeChatJoinRequest: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreePoll: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreePollAnswer: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeNewChatMembers: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeLeftChatMember: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
         };
-        chatMemberRoutes: Array<{
+        routeChatMember: Array<{
             name: string;
             routeName: string;
             type: `chatMember` | `myChatMember`;
             oldStatus: string;
             newStatus: string;
-            filter: (ctx: any) => boolean;
+            filter: (ctx: Ctx) => boolean;
         }>;
+        customRoutes: ITCustomRouteEntry_2[];
+        routeCustom: ITCustomRouteEntry_2[];
         listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
         listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
-        listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
-        listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
+        listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact", "handleSessionFreeChannelPost", "handleSessionFreeEditChannelPost", "handleSessionFreeEdit", "handleSessionFreeReaction", "handleSessionFreeInlineQuery", "handleSessionFreeChosenInlineResult", "handleSessionFreePreCheckoutQuery", "handleSessionFreeShippingQuery", "handleSessionFreeChatJoinRequest", "handleSessionFreePoll", "handleSessionFreePollAnswer", "handleSessionFreeNewChatMembers", "handleSessionFreeLeftChatMember"];
+        listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact", "handleFreeChannelPost", "handleFreeEditChannelPost", "handleFreeEdit", "handleFreeReaction", "handleFreeInlineQuery", "handleFreeChosenInlineResult", "handleFreePreCheckoutQuery", "handleFreeShippingQuery", "handleFreeChatJoinRequest", "handleFreePoll", "handleFreePollAnswer", "handleFreeNewChatMembers", "handleFreeLeftChatMember"];
+        listRouteStaticLC: string[];
+        listRouteStaticIntentLC: string[];
+        listRouteStaticSessionLC: string[];
         lenListRouteStatic: 15;
         lenListRouteStaticIntent: 15;
         lenListRouteStaticSession: number;
-        lenListRouteDynamicSpesific: 11;
+        lenListRouteDynamicSpesific: 24;
     };
-    cacheKeyboard: Map<any, any>;
+    cacheKeyboard: Map<string, unknown>;
     cacheSession: CacheExternal<ITCacheRpc>;
     createBot(token: string): Bot<ITCt>;
     createCtx(ct: ITCt): ICtx;
@@ -929,7 +1045,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         perChatConcurrency: number;
         blockWhenFull: boolean;
     } | null;
-    handlerBotUpdate: any;
+    handlerBotUpdate: (...args: unknown[]) => Promise<unknown>;
     // @virtual
     hookAfterRoute?(ctx: ICtx, data?: {
         listenerName: string;
@@ -937,23 +1053,23 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         isEdit: boolean;
     }): Promise<void>;
     // @virtual
-    hookAfterStart?(): Promise<any>;
+    hookAfterStart?(): Promise<void>;
     // @virtual
     hookBeforeRoute?(ctx: ICtx, data?: {
         listenerName: string;
         isEdit: boolean;
     }): Promise<boolean>;
     // @virtual
-    hookBeforeStart?(): Promise<any>;
-    // @virtual
-    hookErrorInputNotFoundPage?(ctx: ICtx, data?: {
-        listenerName: string;
-        isEdit: boolean;
-    }): Promise<void>;
+    hookBeforeStart?(): Promise<void>;
     // @virtual
     hookErrorPage?(ctx: ICtx, data?: {
         listenerName: string;
-        error: any;
+        error: unknown;
+        isEdit: boolean;
+    }): Promise<void>;
+    // @virtual
+    hookNotFoundPage?(ctx: ICtx, data?: {
+        listenerName: string;
         isEdit: boolean;
     }): Promise<void>;
     log: LoggingHelper | undefined;
@@ -1013,6 +1129,58 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
                 name: string;
                 routeName: string;
             }[];
+            channelpost: {
+                name: string;
+                routeName: string;
+            }[];
+            editchannelpost: {
+                name: string;
+                routeName: string;
+            }[];
+            edit: {
+                name: string;
+                routeName: string;
+            }[];
+            reaction: {
+                name: string;
+                routeName: string;
+            }[];
+            inlinequery: {
+                name: string;
+                routeName: string;
+            }[];
+            choseninlineresult: {
+                name: string;
+                routeName: string;
+            }[];
+            precheckoutquery: {
+                name: string;
+                routeName: string;
+            }[];
+            shippingquery: {
+                name: string;
+                routeName: string;
+            }[];
+            chatjoinrequest: {
+                name: string;
+                routeName: string;
+            }[];
+            poll: {
+                name: string;
+                routeName: string;
+            }[];
+            pollanswer: {
+                name: string;
+                routeName: string;
+            }[];
+            newchatmembers: {
+                name: string;
+                routeName: string;
+            }[];
+            leftchatmember: {
+                name: string;
+                routeName: string;
+            }[];
         };
         routeStatic: {
             handleCallbackQueryData: Record<string, {
@@ -1303,42 +1471,88 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
                 name: string;
                 routeName: string;
             }>;
+            handleSessionFreeChannelPost: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeEditChannelPost: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeEdit: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeReaction: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeInlineQuery: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeChosenInlineResult: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreePreCheckoutQuery: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeShippingQuery: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeChatJoinRequest: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreePoll: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreePollAnswer: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeNewChatMembers: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
+            handleSessionFreeLeftChatMember: Record<string, {
+                name: string;
+                routeName: string;
+            }>;
         };
-        chatMemberRoutes: Array<{
+        routeChatMember: Array<{
             name: string;
             routeName: string;
             type: `chatMember` | `myChatMember`;
             oldStatus: string;
             newStatus: string;
-            filter: (ctx: any) => boolean;
+            filter: (ctx: Ctx) => boolean;
         }>;
+        customRoutes: ITCustomRouteEntry_2[];
+        routeCustom: ITCustomRouteEntry_2[];
         listRouteStatic: readonly ["handleCallbackQueryData", "handleText", "handleCommandText", "handleCaptionPhoto", "handleCommandCaptionPhoto", "handleCaptionVideo", "handleCommandCaptionVideo", "handleCaptionAudio", "handleCommandCaptionAudio", "handleCaptionDocument", "handleCommandCaptionDocument", "handleCaptionAnimation", "handleCommandCaptionAnimation", "handleCaptionVoice", "handleCommandCaptionVoice"];
         listRouteStaticIntent: readonly ["handleArgsCallbackQueryData", "handleArgsText", "handleCommandArgsText", "handleCaptionArgsPhoto", "handleCommandCaptionArgsPhoto", "handleCaptionArgsVideo", "handleCommandCaptionArgsVideo", "handleCaptionArgsAudio", "handleCommandCaptionArgsAudio", "handleCaptionArgsDocument", "handleCommandCaptionArgsDocument", "handleCaptionArgsAnimation", "handleCommandCaptionArgsAnimation", "handleCaptionArgsVoice", "handleCommandCaptionArgsVoice"];
-        listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact"];
-        listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact"];
+        listRouteStaticSession: readonly [...("handleSessionCallbackQueryData" | "handleSessionText" | "handleSessionCommandText" | "handleSessionCaptionPhoto" | "handleSessionCommandCaptionPhoto" | "handleSessionCaptionVideo" | "handleSessionCommandCaptionVideo" | "handleSessionCaptionAudio" | "handleSessionCommandCaptionAudio" | "handleSessionCaptionDocument" | "handleSessionCommandCaptionDocument" | "handleSessionCaptionAnimation" | "handleSessionCommandCaptionAnimation" | "handleSessionCaptionVoice" | "handleSessionCommandCaptionVoice" | "handleSessionArgsCallbackQueryData" | "handleSessionArgsText" | "handleSessionCommandArgsText" | "handleSessionCaptionArgsPhoto" | "handleSessionCommandCaptionArgsPhoto" | "handleSessionCaptionArgsVideo" | "handleSessionCommandCaptionArgsVideo" | "handleSessionCaptionArgsAudio" | "handleSessionCommandCaptionArgsAudio" | "handleSessionCaptionArgsDocument" | "handleSessionCommandCaptionArgsDocument" | "handleSessionCaptionArgsAnimation" | "handleSessionCommandCaptionArgsAnimation" | "handleSessionCaptionArgsVoice" | "handleSessionCommandCaptionArgsVoice")[], "handleSessionFreeText", "handleSessionFreePhoto", "handleSessionFreeVideo", "handleSessionFreeAudio", "handleSessionFreeDocument", "handleSessionFreeAnimation", "handleSessionFreeVoice", "handleSessionFreeVideoNote", "handleSessionFreeSticker", "handleSessionFreeLocation", "handleSessionFreeContact", "handleSessionFreeChannelPost", "handleSessionFreeEditChannelPost", "handleSessionFreeEdit", "handleSessionFreeReaction", "handleSessionFreeInlineQuery", "handleSessionFreeChosenInlineResult", "handleSessionFreePreCheckoutQuery", "handleSessionFreeShippingQuery", "handleSessionFreeChatJoinRequest", "handleSessionFreePoll", "handleSessionFreePollAnswer", "handleSessionFreeNewChatMembers", "handleSessionFreeLeftChatMember"];
+        listRouteDynamicSpesific: readonly ["handleFreeText", "handleFreePhoto", "handleFreeVideo", "handleFreeAudio", "handleFreeDocument", "handleFreeAnimation", "handleFreeVoice", "handleFreeVideoNote", "handleFreeSticker", "handleFreeLocation", "handleFreeContact", "handleFreeChannelPost", "handleFreeEditChannelPost", "handleFreeEdit", "handleFreeReaction", "handleFreeInlineQuery", "handleFreeChosenInlineResult", "handleFreePreCheckoutQuery", "handleFreeShippingQuery", "handleFreeChatJoinRequest", "handleFreePoll", "handleFreePollAnswer", "handleFreeNewChatMembers", "handleFreeLeftChatMember"];
+        listRouteStaticLC: string[];
+        listRouteStaticIntentLC: string[];
+        listRouteStaticSessionLC: string[];
         lenListRouteStatic: 15;
         lenListRouteStaticIntent: 15;
         lenListRouteStaticSession: number;
-        lenListRouteDynamicSpesific: 11;
+        lenListRouteDynamicSpesific: 24;
     };
-    _pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | `chatmember` | `mychatmember` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{
+    _pageRoutes(ctx: ICtx, fromListener: string): Promise<{
         state: `matched` | `no-match` | `no-handler` | `blocked`;
     }>;
     pages: ReturnType<typeof Gramstax._pageLoads>;
     _pageSorts(Page: typeof Ctx, pages: typeof Gramstax.prototype.pages, indexPage: number): void;
-    registerLowOnCallbackQueryData(): void;
-    registerLowOnChatMember(): void;
-    registerLowOnMessageAnimation(): void;
-    registerLowOnMessageAudio(): void;
-    registerLowOnMessageContact(): void;
-    registerLowOnMessageDocument(): void;
-    registerLowOnMessageLocation(): void;
-    registerLowOnMessagePhoto(): void;
-    registerLowOnMessageSticker(): void;
-    registerLowOnMessageText(): void;
-    registerLowOnMessageVideo(): void;
-    registerLowOnMessageVideoNote(): void;
-    registerLowOnMessageVoice(): void;
+    // @virtual
+    registerCustomRoute(entry: ITCustomRouteEntry_2): void;
     // @virtual
     registerLowPlugin?(): Array<ITCtMiddleware<ITCt>>;
     // @internal
@@ -1347,12 +1561,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     _runServerless(adapter: string): Promise<void>;
     _runWebhook(fullUrl: string): Promise<void>;
     // @internal
-    _startWebhookWorker(queue: WebhookQueue<any>, acquireChat: (chatId: any) => Promise<() => void>, getChatId: (update: any) => any): void;
+    _startWebhookWorker(queue: WebhookQueue<Update>, acquireChat: (chatId: unknown) => Promise<() => void>, getChatId: (update: Update) => unknown): void;
     stop(): Promise<void>;
     templateManager: TemplateManager;
     webhookQueue?: ITWebhookQueueConfig;
     // @internal
-    protected webhookQueueInstance?: WebhookQueue<any>;
+    protected webhookQueueInstance?: WebhookQueue<Update>;
     // @internal
     protected webhookServer?: {
         stop: () => void;
@@ -1361,7 +1575,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
 // @public
 export interface _InlineKbWithCtx extends InlineKeyboard {
-    text(text: Parameters<InlineKeyboard[`text`]>[0], data?: string | typeof Ctx): this;
+    text(text: Parameters<InlineKeyboard[`text`]>[0] | _KbPageLike | _KbButtonWithPageText, data?: Parameters<InlineKeyboard[`text`]>[1] | _KbPageLike): this;
 }
 
 // @public
@@ -1375,7 +1589,7 @@ export type ITBottomKbParams = {
 };
 
 // @public
-export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
+export type ITBuildDataOptions<C extends (...args: string[]) => Array<string | undefined> = (...args: string[]) => Array<string | undefined>> = {
     name?: string | null;
     callbackQueryData?: C | null;
     intentText?: string | Record<string, string> | null;
@@ -1385,8 +1599,8 @@ export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
 // @public
 export type ITCacheRpc = {
     method: string | string[];
-    params: any;
-    [moreRoot: string]: any;
+    params: Record<string, unknown>;
+    [moreRoot: string]: unknown | string;
 };
 
 // @public
@@ -1407,14 +1621,24 @@ export type ITCtMiddleware<C extends ITCt = ITCt> = Middleware<C>;
 export type ITCtxParams = {
     ct: ITCt;
     cacheSession: CacheExternal;
-    cacheKeyboard: Map<any, any>;
+    cacheKeyboard: Map<string, unknown>;
     templateManager: TemplateManager;
     log?: LoggingHelper | null;
     temp: ITTemp;
 };
 
 // @public
-export type ITData = Record<string, any>;
+export type ITCustomRouteEntry = {
+    name: string;
+    routeName: string;
+    listenerName: string;
+    event: FilterQuery;
+    filter: (ctx: Ctx) => boolean;
+    shouldCheckNotFound?: boolean;
+};
+
+// @public
+export type ITData = Record<string, unknown>;
 
 // @public
 export type ITE2eApiCall = {
@@ -1498,7 +1722,7 @@ export type ITGramstaxParams = {
     botConfig?: BotConfig<Context>;
     webhookQueue?: ITWebhookQueueConfig;
     cacheSession?: CacheExternal;
-    cacheKeyboard?: Map<any, any>;
+    cacheKeyboard?: Map<string, unknown>;
     templateManager?: TemplateManager;
     autoRetry?: boolean;
     optionsPage?: {
@@ -1676,9 +1900,13 @@ export type ITOptReplyVideoNote = Parameters<Context[`replyWithVideoNote`]>[1];
 export type ITOptReplyVoice = Parameters<Context[`replyWithVoice`]>[1];
 
 // @public
-export type ITPageData<T extends any[] = any[]> = {
-    name: string;
+export type ITPageData<T extends Array<string | undefined> = string[]> = ITPageDataBase & {
     callbackQueryData(...args: T): string;
+};
+
+// @public
+export type ITPageDataBase = {
+    name: string;
     intentText: string;
     intentCommandText: string;
     _positionArgText: number;
@@ -1694,15 +1922,15 @@ export type ITReplyAction = Parameters<Context[`replyWithChatAction`]>[0];
 export type ITTemp = {
     isAnswer: boolean;
     session: Partial<ITCacheRpc>;
-    data: Partial<ITPageData<any>>;
-    [key: string]: any;
+    data: Partial<ITPageData>;
+    [key: string]: unknown;
 };
 
 // @public
 export type ITTemplateOptions = {
     path: string[];
     enableWatch?: boolean;
-    watchOptions?: any;
+    watchOptions?: ChokidarOptions;
 };
 
 // @public
@@ -1715,9 +1943,17 @@ export type ITWebhookQueueConfig = {
 };
 
 // @public
+export type _KbButtonWithPageText = Omit<Extract<Parameters<InlineKeyboard[`text`]>[0], object>, `text`> & {
+    text: string | _KbPageLike;
+};
+
+// @public
+export type _KbPageLike = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCallback[`prototype`]);
+
+// @public
 export class LabelKeyboard {
     static _reverse(input: string): string;
-    static _reverseObj<T extends Record<any, any>>(input: T): T;
+    static _reverseObj<T extends Record<string, string>>(input: T): T;
 }
 
 // @public
@@ -1725,9 +1961,8 @@ export const log: LoggingHelper;
 
 // @public
 export class LoggingHelper extends LoggingPretty {
-    constructor(options?: ConstructorParameters<typeof LoggingPretty>[0]);
-    errorMake(pureError: any, constructorName?: any, funcName?: string): void;
-    _formatErrorObj(pureError: any): string;
+    errorMake(pureError: Error | unknown, constructorName?: string, funcName?: string): void;
+    _formatErrorObj(pureError: Error | unknown): string;
     time(label: string): void;
     timeActive(): string[];
     timeCheck(label: string): string | undefined;
@@ -1775,7 +2010,7 @@ export class MockTelegramServer {
 export class PageManager {
     static clearCacheRequire(path?: string): boolean;
     static getFile(path?: string, positionModule?: number): Promise<typeof Ctx>;
-    static _getFile(mod: Record<any, any>, path: string, positionModule?: number): typeof Ctx;
+    static _getFile(mod: Record<string, unknown>, path: string, positionModule?: number): typeof Ctx;
     static getFileManySync(path?: string, positionModule?: number): {
         path: string;
         page: typeof Ctx;
@@ -1803,29 +2038,30 @@ export class TemplateEngine {
     static compileBlockGDescription(template: string, gBaseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
             [AScope: string]: {
-                [ALang: string]: (data?: Record<string, any>) => string;
+                [ALang: string]: (data?: ITTemplateData) => string;
             };
         };
     };
     static compileBlockGKeyboards(template: string, gBaseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
             [ALang: string]: {
-                inline?: (data?: Record<string, any>) => string[];
-                bottom?: (data?: Record<string, any>) => string[];
+                inline?: (data?: ITTemplateData) => string[];
+                bottom?: (data?: ITTemplateData) => string[];
             };
         };
     };
     static compileBlockGMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
-            [ALang: string]: (data?: Record<string, any>) => ITMediaBlock;
+            [ALang: string]: (data?: ITTemplateData) => ITMediaBlock;
         };
     };
     static compileBlockGMessage(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
-            [ALang: string]: (data?: Record<string, any>) => string;
+            [ALang: string]: (data?: ITTemplateData) => string;
         };
     };
-    static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): T extends true ? (data?: Record<string, any>) => string[] : (data?: Record<string, any>) => string;
+    // Warning: (ae-forgotten-export) The symbol "ITTemplateRenderer" needs to be exported by the entry point index.d.ts
+    static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITTemplateRenderer<T>;
     static _escape(str: string): string;
     static _extractBlock(content: string, blocks?: string | string[], AGBaseId?: string, section?: `all` | `value`, lang?: string): string;
     static _extractBlockNames(blocks: string[]): Set<string>;
@@ -2093,18 +2329,18 @@ export class TemplateManager {
         AGBaseId: string | null;
         hasId: boolean;
     } | null;
-    getGDescription(key: string, AGBaseId?: string, ALang?: string, AScope?: string, data?: Record<string, any>): string;
-    getGKeyboard(key: string, AGBaseId?: string, ALang?: string, AType?: `inline` | `bottom`, data?: Record<string, any>): string[];
-    getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, any>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]>;
-    getGMessage(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, any>): string;
+    getGDescription(key: string, AGBaseId?: string, ALang?: string, AScope?: string, data?: Record<string, unknown>): string;
+    getGKeyboard(key: string, AGBaseId?: string, ALang?: string, AType?: `inline` | `bottom`, data?: Record<string, unknown>): string[];
+    getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]>;
+    getGMessage(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
     _getKey(filename: string): string;
     _handleFileAdd(filepath: string): void;
     _handleFileChange(filepath: string): void;
     _handleFileDelete(filepath: string): void;
     // @virtual
-    _handleWatchError(error: any): void;
+    _handleWatchError(error: unknown): void;
     has(key: string): boolean;
-    _initializeWatcher(options?: any): void;
+    _initializeWatcher(options?: Parameters<typeof watch>[1]): void;
     _isValidFile(filename: string): boolean;
     readonly _isWatchEnabled: ITTemplateOptions[`enableWatch`];
     _loadAllFiles(): void;
@@ -2136,7 +2372,9 @@ export class WebhookQueue<T = unknown> {
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:9483:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:1283:13 - (ae-forgotten-export) The symbol "ITTemplateData" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:8940:9 - (ae-forgotten-export) The symbol "ITCustomRouteEntry_2" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:9788:5 - (ae-forgotten-export) The symbol "ITMockTelegramLog" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

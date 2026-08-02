@@ -9,7 +9,7 @@ Streams an iterator of markdown strings to the current chat as a single rich mes
 **Signature:**
 
 ```typescript
-replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Record<string, any>, otherRichMessage?: Record<string, any>, baseInputRichMessage?: Record<string, any>, signal?: AbortSignal): Promise<any>;
+replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[1], otherRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[2], baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[3], signal?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[4]): Promise<unknown>;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ otherRichMessageDraft
 
 </td><td>
 
-Record&lt;string, any&gt;
+Parameters&lt;StreamContextExtension\[\`replyWithMarkdownStream\`\]&gt;\[1\]
 
 
 </td><td>
@@ -69,7 +69,7 @@ otherRichMessage
 
 </td><td>
 
-Record&lt;string, any&gt;
+Parameters&lt;StreamContextExtension\[\`replyWithMarkdownStream\`\]&gt;\[2\]
 
 
 </td><td>
@@ -85,7 +85,7 @@ baseInputRichMessage
 
 </td><td>
 
-Record&lt;string, any&gt;
+Parameters&lt;StreamContextExtension\[\`replyWithMarkdownStream\`\]&gt;\[3\]
 
 
 </td><td>
@@ -101,7 +101,7 @@ signal
 
 </td><td>
 
-AbortSignal
+Parameters&lt;StreamContextExtension\[\`replyWithMarkdownStream\`\]&gt;\[4\]
 
 
 </td><td>
@@ -114,7 +114,7 @@ _(Optional)_ Optional `AbortSignal` to cancel streaming.
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 The sent rich message object.
 

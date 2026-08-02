@@ -9,12 +9,12 @@
 **Signature:**
 
 ```typescript
-static data: ITPageData<any>;
+static data?: ITPageDataBase;
 ```
 
 ## Remarks
 
-Only define when you want to override the intent and have a callback arg. If nothing is needed, let the system handle it automatically.
+Optional by default — pages that do NOT define `static data` inherit `ITPageDataStatic | undefined`<!-- -->. Pages that override via `buildData(...)` get fully typed `callbackQueryData` with the configured args.
 
 ## Example
 

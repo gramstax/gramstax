@@ -10,11 +10,11 @@ Route handler for free-form video note input.
 
 ```typescript
 /** @virtual */
-handleFreeVideoNote?(): Promise<any>;
+handleFreeVideoNote?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

@@ -9,7 +9,7 @@ Sends or edits a message using the page template, auto-selecting between [Ctx.re
 **Signature:**
 
 ```typescript
-renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, isEdit?: boolean | null): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
+renderAuto(keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptEdit | ITOptReply | null, isEdit?: boolean | null, fallbackReply?: boolean | null): Promise<true | grammy_types.Message.TextMessage | (grammy_types.Update.Edited & grammy_types.Message.CommonMessage & {
         rich_message: grammy_types.RichMessage;
     }) | undefined>;
 ```
@@ -109,6 +109,22 @@ boolean \| null
 </td><td>
 
 _(Optional)_ If `true`<!-- -->, edits the existing message; if `false`<!-- -->, sends a new one. Defaults to `!!this.callbackQuery` (auto-detected).
+
+
+</td></tr>
+<tr><td>
+
+fallbackReply
+
+
+</td><td>
+
+boolean \| null
+
+
+</td><td>
+
+_(Optional)_ If true, sends a new reply when edit fails (only when `isEdit` is true). Defaults to `null` (no fallback).
 
 
 </td></tr>

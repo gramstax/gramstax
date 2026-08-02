@@ -9,7 +9,7 @@ Compiles a processed template string into an executable function.
 **Signature:**
 
 ```typescript
-static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): T extends true ? (data?: Record<string, any>) => string[] : (data?: Record<string, any>) => string;
+static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITTemplateRenderer<T>;
 ```
 
 ## Parameters
@@ -66,7 +66,7 @@ Whether the template parameter is an array
 
 **Returns:**
 
-T extends true ? (data?: Record&lt;string, any&gt;) =&gt; string\[\] : (data?: Record&lt;string, any&gt;) =&gt; string
+ITTemplateRenderer&lt;T&gt;
 
 A function that accepts optional data and returns the rendered string or string array
 

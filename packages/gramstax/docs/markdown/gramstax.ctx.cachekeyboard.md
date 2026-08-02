@@ -9,5 +9,5 @@ Cache for keyboard instances.
 **Signature:**
 
 ```typescript
-cacheKeyboard: Map<any, any>;
+cacheKeyboard: Map<string, unknown>;
 ```

@@ -11,7 +11,7 @@ The `& {[key: string]: any}` widening covers runtime-added methods (e.g. `\@gram
 **Signature:**
 
 ```typescript
-readonly ct: Context & {
-        [key: string]: any;
+readonly ct: Context & StreamContextExtension & {
+        [key: string]: unknown;
     };
 ```

@@ -11,7 +11,7 @@ Compiles message blocks from a template into executable functions.
 ```typescript
 static compileBlockGMessage(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
-            [ALang: string]: (data?: Record<string, any>) => string;
+            [ALang: string]: (data?: ITTemplateData) => string;
         };
     };
 ```
@@ -70,7 +70,7 @@ _(Optional)_ Optional pre-parsed base blocks for reuse
 
 **Returns:**
 
-{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: Record&lt;string, any&gt;) =&gt; string; }; }
+{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITTemplateData) =&gt; string; }; }
 
 Compiled message functions organized by base ID and language
 
@@ -80,7 +80,7 @@ This method parses `<g-message>` blocks from the template and compiles them into
 
 Processing pipeline (in order, per message): 1. `_processGScriptBlocks` - converts `<g-script>` blocks into executable expressions 2. `_processGMapBlocks` - converts `<g-map>` blocks into array map expressions 3. `_processGSwitchBlocks` - converts `<g-switch>` blocks into switch expressions 4. `_processScopeExec` - evaluates scope execution blocks (implementation-defined) 5. `_processScopeVariables` - resolves scope variables (implementation-defined) 6. `_compileToFunction(processed, false)` - produces the final render function
 
-Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second level key: `ALang` (from `<g-message lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?: Record<string, any>) => string`
+Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second level key: `ALang` (from `<g-message lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?: Record<string, unknown>) => string`
 
 ## Example
 

@@ -38,11 +38,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'static _getFile(mod: Record<any, any>, path: string, positionModule?: number): typeof Ctx;'
+      content: 'static _getFile(mod: Record<string, unknown>, path: string, positionModule?: number): typeof Ctx;'
       parameters:
         - id: mod
           description: The module object containing exports.
-          type: Record&lt;any, any&gt;
+          type: Record&lt;string, unknown&gt;
         - id: path
           description: Path to the file (used in error messages).
           type: string

@@ -10,8 +10,8 @@ Session set helper methods.
 
 ```typescript
 setSessionCaptionArgsVideo(this: Ctx & {
-        handleSessionCaptionArgsVideo: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionCaptionArgsVideo: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
 ```
 
 ## Parameters
@@ -39,7 +39,7 @@ this
 
 </td><td>
 
-[Ctx](./gramstax.ctx.md) &amp; { handleSessionCaptionArgsVideo: (...args: any\[\]) =&gt; any; }
+[Ctx](./gramstax.ctx.md) &amp; { handleSessionCaptionArgsVideo: (...args: unknown\[\]) =&gt; unknown; }
 
 
 </td><td>
@@ -53,7 +53,7 @@ params
 
 </td><td>
 
-any
+Record&lt;string, unknown&gt;
 
 
 </td><td>

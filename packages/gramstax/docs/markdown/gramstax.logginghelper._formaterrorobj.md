@@ -9,7 +9,7 @@ Format an error object to a JSON string.
 **Signature:**
 
 ```typescript
-_formatErrorObj(pureError: any): string;
+_formatErrorObj(pureError: Error | unknown): string;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ pureError
 
 </td><td>
 
-any
+Error \| unknown
 
 
 </td><td>

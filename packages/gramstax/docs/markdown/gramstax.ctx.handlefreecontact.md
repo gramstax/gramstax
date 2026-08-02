@@ -10,11 +10,11 @@ Route handler for free-form contact input.
 
 ```typescript
 /** @virtual */
-handleFreeContact?(): Promise<any>;
+handleFreeContact?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

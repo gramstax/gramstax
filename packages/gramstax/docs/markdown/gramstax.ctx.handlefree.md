@@ -10,11 +10,11 @@ Fallback route handler for any unmatched update.
 
 ```typescript
 /** @virtual */
-handleFree?(): Promise<any>;
+handleFree?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

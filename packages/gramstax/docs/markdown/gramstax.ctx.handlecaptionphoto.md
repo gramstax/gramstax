@@ -10,11 +10,11 @@ Route function for photoCaptio match intent `this.data.name`
 
 ```typescript
 /** @virtual */
-handleCaptionPhoto?(): Promise<any>;
+handleCaptionPhoto?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

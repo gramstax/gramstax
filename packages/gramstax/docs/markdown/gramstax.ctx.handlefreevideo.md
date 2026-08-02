@@ -10,11 +10,11 @@ Route handler for free-form video input.
 
 ```typescript
 /** @virtual */
-handleFreeVideo?(): Promise<any>;
+handleFreeVideo?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

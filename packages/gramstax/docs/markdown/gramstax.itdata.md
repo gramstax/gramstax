@@ -9,7 +9,7 @@ Generic data object for template interpolation.
 **Signature:**
 
 ```typescript
-type ITData = Record<string, any>;
+type ITData = Record<string, unknown>;
 ```
 
 ## Remarks

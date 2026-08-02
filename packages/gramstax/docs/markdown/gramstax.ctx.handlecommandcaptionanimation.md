@@ -10,11 +10,11 @@ Route function for animationCaption with slash command match intent `this.data.n
 
 ```typescript
 /** @virtual */
-handleCommandCaptionAnimation?(): Promise<any>;
+handleCommandCaptionAnimation?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

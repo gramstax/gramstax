@@ -9,7 +9,7 @@ Gets compiled from block <g-message>.
 **Signature:**
 
 ```typescript
-getGMessage(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, any>): string;
+getGMessage(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;
 ```
 
 ## Parameters
@@ -85,7 +85,7 @@ data
 
 </td><td>
 
-Record&lt;string, any&gt;
+Record&lt;string, unknown&gt;
 
 
 </td><td>

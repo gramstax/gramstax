@@ -9,7 +9,7 @@ Appends arg values to a string using the specified separator.
 **Signature:**
 
 ```typescript
-addArgs(str: string | undefined, mtd: Parameters<typeof this.getSeperatorTag>[0], pld: (string | undefined)[]): string;
+addArgs(str: string | undefined, mtd: Parameters<typeof this.getSeperatorTag>[0], pld: Array<string | undefined>): string;
 ```
 
 ## Parameters
@@ -69,7 +69,7 @@ pld
 
 </td><td>
 
-(string \| undefined)\[\]
+Array&lt;string \| undefined&gt;
 
 
 </td><td>

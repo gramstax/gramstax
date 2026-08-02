@@ -20,5 +20,5 @@ syntax: |-
   type ITTemplateOptions = {
       path: string[];
       enableWatch?: boolean;
-      watchOptions?: any;
+      watchOptions?: ChokidarOptions;
   };

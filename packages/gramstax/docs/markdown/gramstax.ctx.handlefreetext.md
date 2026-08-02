@@ -10,11 +10,11 @@ Route handler for free-form text input.
 
 ```typescript
 /** @virtual */
-handleFreeText?(): Promise<any>;
+handleFreeText?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

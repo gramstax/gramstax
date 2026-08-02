@@ -10,8 +10,8 @@ Session set helper methods.
 
 ```typescript
 setSessionMyChatMemberOutAdmin(this: Ctx & {
-        handleSessionMyChatMemberOutAdmin: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionMyChatMemberOutAdmin: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
 ```
 
 ## Parameters
@@ -39,7 +39,7 @@ this
 
 </td><td>
 
-[Ctx](./gramstax.ctx.md) &amp; { handleSessionMyChatMemberOutAdmin: (...args: any\[\]) =&gt; any; }
+[Ctx](./gramstax.ctx.md) &amp; { handleSessionMyChatMemberOutAdmin: (...args: unknown\[\]) =&gt; unknown; }
 
 
 </td><td>
@@ -53,7 +53,7 @@ params
 
 </td><td>
 
-any
+Record&lt;string, unknown&gt;
 
 
 </td><td>

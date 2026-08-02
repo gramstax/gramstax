@@ -11,7 +11,7 @@ Compiles media blocks from a template into executable functions.
 ```typescript
 static compileBlockGMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
         [AGBaseId: string]: {
-            [ALang: string]: (data?: Record<string, any>) => ITMediaBlock;
+            [ALang: string]: (data?: ITTemplateData) => ITMediaBlock;
         };
     };
 ```
@@ -70,7 +70,7 @@ _(Optional)_ Optional pre-parsed base blocks for reuse
 
 **Returns:**
 
-{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: Record&lt;string, any&gt;) =&gt; [ITMediaBlock](./gramstax.itmediablock.md)<!-- -->; }; }
+{ \[AGBaseId: string\]: { \[ALang: string\]: (data?: ITTemplateData) =&gt; [ITMediaBlock](./gramstax.itmediablock.md)<!-- -->; }; }
 
 Compiled media functions organized by base ID and language
 

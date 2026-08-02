@@ -10,8 +10,8 @@ Session set helper methods.
 
 ```typescript
 setSessionFreeLocation(this: Ctx & {
-        handleSessionFreeLocation: (...args: any[]) => any;
-    }, params?: any): Promise<boolean | null>;
+        handleSessionFreeLocation: (...args: unknown[]) => unknown;
+    }, params?: Record<string, unknown>): Promise<boolean | null>;
 ```
 
 ## Parameters
@@ -39,7 +39,7 @@ this
 
 </td><td>
 
-[Ctx](./gramstax.ctx.md) &amp; { handleSessionFreeLocation: (...args: any\[\]) =&gt; any; }
+[Ctx](./gramstax.ctx.md) &amp; { handleSessionFreeLocation: (...args: unknown\[\]) =&gt; unknown; }
 
 
 </td><td>
@@ -53,7 +53,7 @@ params
 
 </td><td>
 
-any
+Record&lt;string, unknown&gt;
 
 
 </td><td>

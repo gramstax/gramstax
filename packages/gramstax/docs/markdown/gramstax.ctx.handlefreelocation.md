@@ -10,11 +10,11 @@ Route handler for free-form location input.
 
 ```typescript
 /** @virtual */
-handleFreeLocation?(): Promise<any>;
+handleFreeLocation?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

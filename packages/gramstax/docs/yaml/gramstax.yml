@@ -6,20 +6,9 @@ summary: ''
 interfaces:
   - gramstax!_BottomKbWithCtx:interface
   - gramstax!_InlineKbWithCtx:interface
-classes:
-  - gramstax!BlockKeyboard:class
-  - gramstax!CacheExternal:class
-  - gramstax!Ctx:class
-  - gramstax!E2eHelper:class
-  - gramstax!Gramstax:class
-  - gramstax!LabelKeyboard:class
-  - gramstax!LoggingHelper:class
-  - gramstax!MockTelegramServer:class
-  - gramstax!PageManager:class
-  - gramstax!TemplateEngine:class
-  - gramstax!TemplateManager:class
-  - gramstax!WebhookQueue:class
 typeAliases:
+  - gramstax!_KbButtonWithPageText:type
+  - gramstax!_KbPageLike:type
   - gramstax!ITBottomKb:type
   - gramstax!ITBottomKbParams:type
   - gramstax!ITBuildDataOptions:type
@@ -28,6 +17,7 @@ typeAliases:
   - gramstax!ITCt:type
   - gramstax!ITCtMiddleware:type
   - gramstax!ITCtxParams:type
+  - gramstax!ITCustomRouteEntry:type
   - gramstax!ITData:type
   - gramstax!ITE2eApiCall:type
   - gramstax!ITE2eCallbackQueryOptions:type
@@ -73,7 +63,21 @@ typeAliases:
   - gramstax!ITOptReplyVideoNote:type
   - gramstax!ITOptReplyVoice:type
   - gramstax!ITPageData:type
+  - gramstax!ITPageDataBase:type
   - gramstax!ITReplyAction:type
   - gramstax!ITTemp:type
   - gramstax!ITTemplateOptions:type
   - gramstax!ITWebhookQueueConfig:type
+classes:
+  - gramstax!BlockKeyboard:class
+  - gramstax!CacheExternal:class
+  - gramstax!Ctx:class
+  - gramstax!E2eHelper:class
+  - gramstax!Gramstax:class
+  - gramstax!LabelKeyboard:class
+  - gramstax!LoggingHelper:class
+  - gramstax!MockTelegramServer:class
+  - gramstax!PageManager:class
+  - gramstax!TemplateEngine:class
+  - gramstax!TemplateManager:class
+  - gramstax!WebhookQueue:class

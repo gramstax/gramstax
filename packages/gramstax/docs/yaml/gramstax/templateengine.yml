@@ -319,8 +319,8 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): T
-        extends true ? (data?: Record<string, any>) => string[] : (data?: Record<string, any>) => string;
+        static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T):
+        ITTemplateRenderer<T>;
       parameters:
         - id: template
           description: The processed template string or array of strings
@@ -329,9 +329,7 @@ methods:
           description: Whether the template parameter is an array
           type: T
       return:
-        type: >-
-          T extends true ? (data?: Record&lt;string, any&gt;) =&gt; string[] : (data?: Record&lt;string, any&gt;) =&gt;
-          string
+        type: <xref uid="gramstax!~ITTemplateRenderer:type" />&lt;T&gt;
         description: A function that accepts optional data and returns the rendered string or string array
   - name: _escape(str)
     uid: gramstax!TemplateEngine._escape:member(1)
@@ -1200,7 +1198,7 @@ methods:
       Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
       level key: `AScope` (from `<g-description scope="...">`<!-- -->, or `"default"` if omitted) - Third level key:
       `ALang` (from `<g-description lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?: Record<string,
-      any>) => string`
+      unknown>) => string`
     example:
       - |-
         ```typescript
@@ -1222,7 +1220,7 @@ methods:
         TemplateEngine._processGBaseBlocks>): {
                 [AGBaseId: string]: {
                     [AScope: string]: {
-                        [ALang: string]: (data?: Record<string, any>) => string;
+                        [ALang: string]: (data?: ITTemplateData) => string;
                     };
                 };
             };
@@ -1238,7 +1236,7 @@ methods:
           {
                   [AGBaseId: string]: {
                       [AScope: string]: {
-                          [ALang: string]: (data?: Record&lt;string, any&gt;) =&gt; string;
+                          [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; string;
                       };
                   };
               }
@@ -1260,8 +1258,8 @@ methods:
         TemplateEngine._processGBaseBlocks>): {
                 [AGBaseId: string]: {
                     [ALang: string]: {
-                        inline?: (data?: Record<string, any>) => string[];
-                        bottom?: (data?: Record<string, any>) => string[];
+                        inline?: (data?: ITTemplateData) => string[];
+                        bottom?: (data?: ITTemplateData) => string[];
                     };
                 };
             };
@@ -1277,8 +1275,8 @@ methods:
           {
                   [AGBaseId: string]: {
                       [ALang: string]: {
-                          inline?: (data?: Record&lt;string, any&gt;) =&gt; string[];
-                          bottom?: (data?: Record&lt;string, any&gt;) =&gt; string[];
+                          inline?: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; string[];
+                          bottom?: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; string[];
                       };
                   };
               }
@@ -1311,7 +1309,7 @@ methods:
         static compileBlockGMedia(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>):
         {
                 [AGBaseId: string]: {
-                    [ALang: string]: (data?: Record<string, any>) => ITMediaBlock;
+                    [ALang: string]: (data?: ITTemplateData) => ITMediaBlock;
                 };
             };
       parameters:
@@ -1325,7 +1323,7 @@ methods:
         type: |-
           {
                   [AGBaseId: string]: {
-                      [ALang: string]: (data?: Record&lt;string, any&gt;) =&gt; <xref uid="gramstax!ITMediaBlock:type" />;
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; <xref uid="gramstax!ITMediaBlock:type" />;
                   };
               }
         description: Compiled media functions organized by base ID and language
@@ -1349,7 +1347,7 @@ methods:
 
       Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
       level key: `ALang` (from `<g-message lang="...">`<!-- -->, or `"default"` if omitted) - Value: `(data?:
-      Record<string, any>) => string`
+      Record<string, unknown>) => string`
     example:
       - |-
         ```typescript
@@ -1370,7 +1368,7 @@ methods:
         static compileBlockGMessage(template: string, baseBlocks?: ReturnType<typeof
         TemplateEngine._processGBaseBlocks>): {
                 [AGBaseId: string]: {
-                    [ALang: string]: (data?: Record<string, any>) => string;
+                    [ALang: string]: (data?: ITTemplateData) => string;
                 };
             };
       parameters:
@@ -1384,7 +1382,7 @@ methods:
         type: |-
           {
                   [AGBaseId: string]: {
-                      [ALang: string]: (data?: Record&lt;string, any&gt;) =&gt; string;
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITTemplateData:type" />) =&gt; string;
                   };
               }
         description: Compiled message functions organized by base ID and language

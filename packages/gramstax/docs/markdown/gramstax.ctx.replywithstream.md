@@ -9,7 +9,7 @@ Streams an iterator of message pieces to the current chat, making text appear pr
 **Signature:**
 
 ```typescript
-replyWithStream(stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>, otherMessageDraft?: Record<string, any>, otherMessage?: Record<string, any>, signal?: AbortSignal): Promise<any>;
+replyWithStream(stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>, otherMessageDraft?: Parameters<StreamContextExtension[`replyWithStream`]>[1], otherMessage?: Parameters<StreamContextExtension[`replyWithStream`]>[2], signal?: Parameters<StreamContextExtension[`replyWithStream`]>[3]): Promise<unknown>;
 ```
 
 ## Parameters
@@ -53,7 +53,7 @@ otherMessageDraft
 
 </td><td>
 
-Record&lt;string, any&gt;
+Parameters&lt;StreamContextExtension\[\`replyWithStream\`\]&gt;\[1\]
 
 
 </td><td>
@@ -69,7 +69,7 @@ otherMessage
 
 </td><td>
 
-Record&lt;string, any&gt;
+Parameters&lt;StreamContextExtension\[\`replyWithStream\`\]&gt;\[2\]
 
 
 </td><td>
@@ -85,7 +85,7 @@ signal
 
 </td><td>
 
-AbortSignal
+Parameters&lt;StreamContextExtension\[\`replyWithStream\`\]&gt;\[3\]
 
 
 </td><td>
@@ -98,7 +98,7 @@ _(Optional)_ Optional `AbortSignal` to cancel streaming.
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 Array of sent text messages.
 

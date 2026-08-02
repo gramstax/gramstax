@@ -41,7 +41,7 @@ Description
 
 </td><td>
 
-Add a callback button. `data` is a page (class/instance) or string.
+Add a callback button. `text` and/or `data` can be a page (class/instance) or string. A page passed as `text` resolves to its `intentText` label; a page passed as `data` resolves to its `callbackQueryData()`<!-- -->.
 
 
 </td></tr>

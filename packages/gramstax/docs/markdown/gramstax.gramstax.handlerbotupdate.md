@@ -9,7 +9,7 @@ Handler function for processing bot updates.
 **Signature:**
 
 ```typescript
-handlerBotUpdate: any;
+handlerBotUpdate: (...args: unknown[]) => Promise<unknown>;
 ```
 
 ## Remarks

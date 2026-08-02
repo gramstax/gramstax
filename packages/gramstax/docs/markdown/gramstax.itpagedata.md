@@ -9,14 +9,15 @@ Page routing data configuration.
 **Signature:**
 
 ```typescript
-type ITPageData<T extends any[] = any[]> = {
-    name: string;
+type ITPageData<T extends Array<string | undefined> = string[]> = ITPageDataBase & {
     callbackQueryData(...args: T): string;
-    intentText: string;
-    intentCommandText: string;
-    _positionArgText: number;
-    intentCallbackQueryData: string;
-    intentTextMap?: Record<string, string>;
-    intentCommandTextMap?: Record<string, string>;
 };
 ```
+**References:** [ITPageDataBase](./gramstax.itpagedatabase.md)
+
+## Remarks
+
+Full page data with typed `callbackQueryData` according to the args configured via `buildData`<!-- -->. Every page SHOULD define `static data` via `buildData(...)` to enable callback query routing.
+
+- `buildData()` (no args) → `callbackQueryData(): string` — 0 args only - `buildData((a: string, b: string) => ...)` → `callbackQueryData(a, b): string` - `buildData((a?: string) => ...)` → `callbackQueryData(a?): string`
+

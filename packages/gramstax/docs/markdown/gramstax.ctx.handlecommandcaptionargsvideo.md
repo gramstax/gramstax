@@ -10,11 +10,11 @@ Route function for `handleCommandCaptionArgsVideo` with slash command and arg ma
 
 ```typescript
 /** @virtual */
-handleCommandCaptionArgsVideo?(): Promise<any>;
+handleCommandCaptionArgsVideo?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

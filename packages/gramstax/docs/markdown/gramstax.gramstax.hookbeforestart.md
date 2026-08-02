@@ -10,11 +10,11 @@ Hook called before the bot starts.
 
 ```typescript
 /** @virtual */
-hookBeforeStart?(): Promise<any>;
+hookBeforeStart?(): Promise<void>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;void&gt;
 
 ## Remarks
 

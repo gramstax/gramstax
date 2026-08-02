@@ -10,11 +10,11 @@ Route handler for free-form audio input.
 
 ```typescript
 /** @virtual */
-handleFreeAudio?(): Promise<any>;
+handleFreeAudio?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

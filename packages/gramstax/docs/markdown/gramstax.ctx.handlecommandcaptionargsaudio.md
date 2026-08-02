@@ -10,11 +10,11 @@ Route function for `handleCommandCaptionArgsAudio` with slash command and arg ma
 
 ```typescript
 /** @virtual */
-handleCommandCaptionArgsAudio?(): Promise<any>;
+handleCommandCaptionArgsAudio?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

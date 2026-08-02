@@ -16,7 +16,7 @@ type ITGramstaxParams = {
     botConfig?: BotConfig<Context>;
     webhookQueue?: ITWebhookQueueConfig;
     cacheSession?: CacheExternal;
-    cacheKeyboard?: Map<any, any>;
+    cacheKeyboard?: Map<string, unknown>;
     templateManager?: TemplateManager;
     autoRetry?: boolean;
     optionsPage?: {

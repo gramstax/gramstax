@@ -12,8 +12,8 @@ Temporary state for flow page
 type ITTemp = {
     isAnswer: boolean;
     session: Partial<ITCacheRpc>;
-    data: Partial<ITPageData<any>>;
-    [key: string]: any;
+    data: Partial<ITPageData>;
+    [key: string]: unknown;
 };
 ```
 **References:** [ITCacheRpc](./gramstax.itcacherpc.md)<!-- -->, [ITPageData](./gramstax.itpagedata.md)

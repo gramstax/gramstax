@@ -9,6 +9,10 @@ items:
             uid: gramstax!_BottomKbWithCtx:interface
           - name: _InlineKbWithCtx
             uid: gramstax!_InlineKbWithCtx:interface
+          - name: _KbButtonWithPageText
+            uid: gramstax!_KbButtonWithPageText:type
+          - name: _KbPageLike
+            uid: gramstax!_KbPageLike:type
           - name: BlockKeyboard
             uid: gramstax!BlockKeyboard:class
           - name: CacheExternal
@@ -35,6 +39,8 @@ items:
             uid: gramstax!ITCtMiddleware:type
           - name: ITCtxParams
             uid: gramstax!ITCtxParams:type
+          - name: ITCustomRouteEntry
+            uid: gramstax!ITCustomRouteEntry:type
           - name: ITData
             uid: gramstax!ITData:type
           - name: ITE2eApiCall
@@ -125,6 +131,8 @@ items:
             uid: gramstax!ITOptReplyVoice:type
           - name: ITPageData
             uid: gramstax!ITPageData:type
+          - name: ITPageDataBase
+            uid: gramstax!ITPageDataBase:type
           - name: ITReplyAction
             uid: gramstax!ITReplyAction:type
           - name: ITTemp

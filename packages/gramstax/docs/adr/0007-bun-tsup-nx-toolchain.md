@@ -45,8 +45,8 @@ Standardize on the **Bun + tsup + Nx + API-Extractor** stack:
 | Config | `project.json` — `"build": {"executor":"nx:run-commands","command":"tsup"}` |
 | Config | `nx.json` — `targetDefaults` (build/lint/test), `release` (conventional-commits, tag `v{version}`) |
 | Config | `api-extractor.json`, `tsconfig.build.docs.json` — API doc generation |
-| Scripts | `package.json` (root) — `build:all`, `build:gramstax`, `ci:test:*`, `release:*`, `dry-run` |
-| CI | `.github/workflows/release.yml` — install→`ci:test:packages`+`build:all`→`dry-run`→`release` |
+| Scripts | `package.json` (root) — `build`, `build:gramstax`, `ci:test:*`, `release:*`, `dry-run` |
+| CI | `.github/workflows/release.yml` — install→`ci:test:packages`+`build`→`dry-run`→`release` |
 
 ## Related
 

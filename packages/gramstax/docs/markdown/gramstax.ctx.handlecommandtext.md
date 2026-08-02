@@ -10,11 +10,11 @@ Route handler for command messages match intent `intentCommandText`<!-- -->.
 
 ```typescript
 /** @virtual */
-handleCommandText?(): Promise<any>;
+handleCommandText?(): Promise<unknown>;
 ```
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;unknown&gt;
 
 ## Remarks
 

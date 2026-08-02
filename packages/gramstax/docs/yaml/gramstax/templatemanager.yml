@@ -368,11 +368,11 @@ methods:
     syntax:
       content: |-
         /** @virtual */
-        _handleWatchError(error: any): void;
+        _handleWatchError(error: unknown): void;
       parameters:
         - id: error
           description: The error object from the watcher
-          type: any
+          type: unknown
       return:
         type: void
         description: ''
@@ -396,11 +396,11 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: '_initializeWatcher(options?: any): void;'
+      content: '_initializeWatcher(options?: Parameters<typeof watch>[1]): void;'
       parameters:
         - id: options
           description: Optional Chokidar watch options to customize watcher behavior
-          type: any
+          type: Parameters&lt;typeof <xref uid="chokidar!watch:function" />&gt;[1]
       return:
         type: void
         description: ''
@@ -654,8 +654,8 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        getGDescription(key: string, AGBaseId?: string, ALang?: string, AScope?: string, data?: Record<string, any>):
-        string;
+        getGDescription(key: string, AGBaseId?: string, ALang?: string, AScope?: string, data?: Record<string,
+        unknown>): string;
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -671,7 +671,7 @@ methods:
           type: string
         - id: data
           description: Template variables for interpolation
-          type: Record&lt;string, any&gt;
+          type: Record&lt;string, unknown&gt;
       return:
         type: string
         description: Rendered description string, or empty string if not found
@@ -694,7 +694,7 @@ methods:
     syntax:
       content: >-
         getGKeyboard(key: string, AGBaseId?: string, ALang?: string, AType?: `inline` | `bottom`, data?: Record<string,
-        any>): string[];
+        unknown>): string[];
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -710,7 +710,7 @@ methods:
           type: '`inline` | `bottom`'
         - id: data
           description: Template variables for interpolation
-          type: Record&lt;string, any&gt;
+          type: Record&lt;string, unknown&gt;
       return:
         type: string[]
         description: Array of rendered button labels, or empty array if not found
@@ -732,7 +732,7 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, any>):
+        getGMedia(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
         ReturnType<ITCompiledTemplate[`media`][`default`][`default`]>;
       parameters:
         - id: key
@@ -746,7 +746,7 @@ methods:
           type: string
         - id: data
           description: Template variables for interpolation
-          type: Record&lt;string, any&gt;
+          type: Record&lt;string, unknown&gt;
       return:
         type: ReturnType&lt;<xref uid="gramstax!ITCompiledTemplate:type" />[`media`][`default`][`default`]&gt;
         description: Media object containing type, src, and caption
@@ -767,7 +767,7 @@ methods:
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'getGMessage(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, any>): string;'
+      content: 'getGMessage(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): string;'
       parameters:
         - id: key
           description: Template identifier (filename without extension)
@@ -780,7 +780,7 @@ methods:
           type: string
         - id: data
           description: Template variables for interpolation
-          type: Record&lt;string, any&gt;
+          type: Record&lt;string, unknown&gt;
       return:
         type: string
         description: Rendered message string, or empty string if not found

@@ -1,0 +1,39 @@
+### YamlMime:TSTypeAlias
+name: ITCustomRouteEntry
+uid: gramstax!ITCustomRouteEntry:type
+package: gramstax!
+fullName: ITCustomRouteEntry
+summary: >-
+  A custom filter-based route entry, registered via
+  [Gramstax.registerCustomRoute()](xref:gramstax!Gramstax%23registerCustomRoute:member(1))<!-- -->.
+remarks: >-
+  Similar to chat member routes but for any `listenerName`<!-- -->. The route fires at dispatch stage id=6 in
+  [Gramstax.\_pageRoutes()](xref:gramstax!Gramstax%23_pageRoutes:member(1)) when: 1. `fromListener === listenerName`<!--
+  -->, AND 2. `filter(ctx)` returns `true`
+
+
+  `registerCustomRoute` automatically calls `this.bot.on(entry.event, ...)` to subscribe the listener — no separate
+  `registerLowOn*` override needed.
+example:
+  - |-
+    ```typescript
+    const entry: ITCustomRouteEntry = {
+      name: `search`,
+      routeName: `handleInlineQuery`,
+      listenerName: `inlinequery`,
+      event: `inline_query`,
+      filter: (ctx) => !!ctx.inlineQuery,
+      shouldCheckNotFound: false
+    }
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type ITCustomRouteEntry$1 = {
+      name: string;
+      routeName: string;
+      listenerName: string;
+      event: FilterQuery;
+      filter: (ctx: Ctx) => boolean;
+      shouldCheckNotFound?: boolean;
+  };

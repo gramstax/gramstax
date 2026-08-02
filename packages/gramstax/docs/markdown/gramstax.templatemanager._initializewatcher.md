@@ -9,7 +9,7 @@ Initializes file system watchers for hot reloading.
 **Signature:**
 
 ```typescript
-_initializeWatcher(options?: any): void;
+_initializeWatcher(options?: Parameters<typeof watch>[1]): void;
 ```
 
 ## Parameters
@@ -37,7 +37,7 @@ options
 
 </td><td>
 
-any
+Parameters&lt;typeof watch&gt;\[1\]
 
 
 </td><td>

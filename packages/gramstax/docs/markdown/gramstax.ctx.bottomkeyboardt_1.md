@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-bottomKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): ITBottomKb;
+bottomKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): ITBottomKb;
 ```
 
 ## Parameters
@@ -81,7 +81,7 @@ data
 
 </td><td>
 
-Record&lt;any, any&gt; \| null
+Record&lt;string, unknown&gt; \| null
 
 
 </td><td>
