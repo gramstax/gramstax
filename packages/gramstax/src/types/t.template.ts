@@ -1,3 +1,4 @@
+import type {ChokidarOptions} from "chokidar"
 import type {TemplateEngine} from "~/template/engine"
 
 /**
@@ -44,5 +45,5 @@ export type ITTemplateOptions = {
   /** Enable file watching for hot-reloading during development */
   enableWatch?: boolean
   /** {@link https://github.com/paulmillr/chokidar#persistence | Chokidar WatchOptions} passed to the file watcher */
-  watchOptions?: any
+  watchOptions?: ChokidarOptions
 }

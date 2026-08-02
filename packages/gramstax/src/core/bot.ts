@@ -9,23 +9,32 @@
  * @public
  */
 
-import {Ctx} from "./ctx"
-import {log, type LoggingHelper} from "~/helpers/log"
-import {PageManager} from "~/page/manager"
 import {readFileSync} from "node:fs"
-import {fileURLToPath} from "node:url"
 import {dirname, join, parse} from "node:path"
-import {TemplateManager} from "~/template/manager"
-import {CacheExternal, ITCacheRpc} from "~/cache/external"
-import {Bot, webhookCallback, type BotConfig, type BotError, API_CONSTANTS} from "grammy"
-import type {UserFromGetMe} from "grammy/types"
-import type {ITGramstaxParams, ITWebhookQueueConfig} from "~/types/t.bot"
-import {WebhookQueue} from "~/webhook/queue"
-import {ITCt, ITCtMiddleware} from "~/types/t.ctx"
-import {E2eHelper} from "../e2e/helper"
+import {fileURLToPath} from "node:url"
 import {autoRetry} from "@grammyjs/auto-retry"
-import {stream} from "@grammyjs/stream"
 import {chatMemberFilter, myChatMemberFilter} from "@grammyjs/chat-members"
+import {stream} from "@grammyjs/stream"
+import {API_CONSTANTS, Bot, type BotConfig, type BotError, type Context, type Middleware, webhookCallback} from "grammy"
+import type {BotCommandScope, LanguageCode, Update, UserFromGetMe} from "grammy/types"
+import {CacheExternal, type ITCacheRpc} from "~/cache/external"
+import {type LoggingHelper, log} from "~/helpers/log"
+import {PageManager} from "~/page/manager"
+import {TemplateManager} from "~/template/manager"
+import type {ITGramstaxParams, ITWebhookQueueConfig} from "~/types/t.bot"
+import type {ITCt, ITCtMiddleware} from "~/types/t.ctx"
+import {WebhookQueue} from "~/webhook/queue"
+import {E2eHelper} from "../e2e/helper"
+import {Ctx} from "./ctx"
+
+type ITCustomRouteEntry = {
+  name: string
+  routeName: string
+  listenerName: string
+  event: Parameters<Bot<ITCt>[`on`]>[0]
+  filter: (ctx: Ctx) => boolean
+  shouldCheckNotFound?: boolean
+}
 
 const __dirname = dirname(
   (() => {
@@ -76,7 +85,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Cached values are built from {@link BlockKeyboard} and reused per language.
    */
-  cacheKeyboard: Map<any, any>
+  cacheKeyboard: Map<string, unknown>
 
   /**
    * External cache for user session data.
@@ -145,7 +154,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * Active webhook queue instance.
    * @internal
    */
-  protected webhookQueueInstance?: WebhookQueue<any>
+  protected webhookQueueInstance?: WebhookQueue<Update>
 
   /**
    * Active webhook server instance.
@@ -158,7 +167,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @remarks
    * Can be customized for serverless or webhook deployments.
    */
-  handlerBotUpdate: any
+  handlerBotUpdate: (...args: unknown[]) => Promise<unknown>
 
   /**
    * Deploy type
@@ -276,11 +285,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   constructor(params: ITGramstaxParams) {
-    if (!params?.token || params?.token?.length == 0) {
+    if (!params?.token || params?.token?.length === 0) {
       throw new Error(`Token is not valid or empty`)
     }
 
-    if (typeof params.optionsPage?.shortCallbackQueryData == `boolean`) {
+    if (typeof params.optionsPage?.shortCallbackQueryData === `boolean`) {
       this.optionsPage.shortCallbackQueryData = params.optionsPage.shortCallbackQueryData
     }
 
@@ -296,12 +305,12 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     if (params.autoRetry !== false) {
       this.bot.api.config.use(autoRetry())
     }
-    this.bot.use(stream() as any)
+    this.bot.use(stream() as Middleware<Context>)
     this.bot.catch(this._onCatch)
-    this.registerLowPlugin?.()?.forEach((func) => this.bot.use(func)) // Handle middleware ct
+    this.registerLowPlugin?.()?.forEach((func) => void this.bot.use(func)) // Handle middleware ct
 
     // Default for customize (very rarely used)
-    this.handlerBotUpdate = this.bot.handleUpdate
+    this.handlerBotUpdate = this.bot.handleUpdate as unknown as (...args: unknown[]) => Promise<unknown>
 
     // Graceful shutdown (all modes)
     process.once(`SIGINT`, () => this.stop())
@@ -332,28 +341,45 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         path: [join(process.cwd(), `src`, `pages`)]
       })
 
-    this.registerLowOnCallbackQueryData() // Handle callback queries from inline keyboards
-    this.registerLowOnMessageText() // Handle global text messages
-    this.registerLowOnMessagePhoto() // Handle global photo messages
-    this.registerLowOnMessageVideo() // Handle global video messages
-    this.registerLowOnMessageAudio() // Handle global audio messages
-    this.registerLowOnMessageDocument() // Handle global document messages
-    this.registerLowOnMessageAnimation() // Handle global animation messages
-    this.registerLowOnMessageVoice() // Handle global voice messages
-    this.registerLowOnMessageVideoNote() // Handle global video note messages
-    this.registerLowOnMessageSticker() // Handle global sticker messages
-    this.registerLowOnMessageLocation() // Handle global location messages
-    this.registerLowOnMessageContact() // Handle global contact messages
-    this.registerLowOnChatMember() // Handle chat member updates
+    // Register built-in event listeners (inline — no separate overridable methods)
+    this.bot.on(`callback_query:data`, (ctx) => this._onHandle(ctx, `callbackquerydata`))
+    this.bot.on(`message:text`, (ctx) => this._onHandle(ctx, `text`))
+    this.bot.on(`message:photo`, (ctx) => this._onHandle(ctx, `photo`))
+    this.bot.on(`message:video`, (ctx) => this._onHandle(ctx, `video`))
+    this.bot.on(`message:audio`, (ctx) => this._onHandle(ctx, `audio`))
+    this.bot.on(`message:document`, (ctx) => this._onHandle(ctx, `document`))
+    this.bot.on(`message:animation`, (ctx) => this._onHandle(ctx, `animation`))
+    this.bot.on(`message:voice`, (ctx) => this._onHandle(ctx, `voice`))
+    this.bot.on(`message:video_note`, (ctx) => this._onHandle(ctx, `videonote`))
+    this.bot.on(`message:sticker`, (ctx) => this._onHandle(ctx, `sticker`))
+    this.bot.on(`message:location`, (ctx) => this._onHandle(ctx, `location`))
+    this.bot.on(`message:contact`, (ctx) => this._onHandle(ctx, `contact`))
+    this.bot.on(`chat_member`, (ctx) => this._onHandle(ctx, `chatmember`, false))
+    this.bot.on(`my_chat_member`, (ctx) => this._onHandle(ctx, `mychatmember`, false))
+
+    // Channel, inline, and other non-message event listeners
+    this.bot.on(`channel_post`, (ctx) => this._onHandle(ctx, `channelpost`, false))
+    this.bot.on(`edited_channel_post`, (ctx) => this._onHandle(ctx, `editchannelpost`, false))
+    this.bot.on(`edited_message`, (ctx) => this._onHandle(ctx, `edit`, false))
+    this.bot.on(`message_reaction`, (ctx) => this._onHandle(ctx, `reaction`, false))
+    this.bot.on(`inline_query`, (ctx) => this._onHandle(ctx, `inlinequery`, false))
+    this.bot.on(`chosen_inline_result`, (ctx) => this._onHandle(ctx, `choseninlineresult`, false))
+    this.bot.on(`pre_checkout_query`, (ctx) => this._onHandle(ctx, `precheckoutquery`, false))
+    this.bot.on(`shipping_query`, (ctx) => this._onHandle(ctx, `shippingquery`, false))
+    this.bot.on(`chat_join_request`, (ctx) => this._onHandle(ctx, `chatjoinrequest`, false))
+    this.bot.on(`poll`, (ctx) => this._onHandle(ctx, `poll`, false))
+    this.bot.on(`poll_answer`, (ctx) => this._onHandle(ctx, `pollanswer`, false))
+    this.bot.on(`message:new_chat_members`, (ctx) => this._onHandle(ctx, `newchatmembers`, false))
+    this.bot.on(`message:left_chat_member`, (ctx) => this._onHandle(ctx, `leftchatmember`, false))
 
     // Load pages AFTER templateManager is initialized
     this.pages = this._pageLoads(this.templateManager._path?.[0])
 
     // Pre-compute chat member filter functions
-    if ((this.pages as any)?.chatMemberRoutes?.length > 0) {
-      for (const route of this.pages.chatMemberRoutes!) {
+    if (this.pages.routeChatMember?.length > 0) {
+      for (const route of this.pages.routeChatMember!) {
         const factory = route.type === `chatMember` ? chatMemberFilter : myChatMemberFilter
-        route.filter = factory(route.oldStatus as any, route.newStatus as any) as (ctx: any) => boolean
+        route.filter = factory(route.oldStatus as unknown as Parameters<typeof chatMemberFilter>[0], route.newStatus as unknown as Parameters<typeof chatMemberFilter>[1]) as (ctx: Ctx) => boolean
       }
     }
 
@@ -401,8 +427,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   _onCatch(error: BotError<ITCt>) {
-    if ((this.log as any)?.errorMake) {
-      ;(this.log as any)?.errorMake(error, `Bot`, `catch`)
+    if (this.log?.errorMake) {
+      this.log.errorMake(error, `Bot`, `catch`)
     } else {
       const err = JSON.stringify(error, null, 2)
       this.log?.error?.(`[Bot.catch]: ${err}`)
@@ -422,7 +448,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     await this.executeSyncBlocksDescription(this.pages)
 
     const {username} = botInfo
-    this.log?.success?.(`Telegram bot deploy ${method} started: ${username} ${method == `webhook` || method == `serverless` ? `(${data})` : ``}`)
+    this.log?.success?.(`Telegram bot deploy ${method} started: ${username} ${method === `webhook` || method === `serverless` ? `(${data})` : ``}`)
     this.hookAfterStart?.()
   }
 
@@ -465,7 +491,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  async hookBeforeStart?(): Promise<any>
+  async hookBeforeStart?(): Promise<void>
 
   /**
    * Hook called after the bot has started.
@@ -492,7 +518,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  async hookAfterStart?(): Promise<any>
+  async hookAfterStart?(): Promise<void>
 
   /**
    * Hook called before routing an update.
@@ -538,7 +564,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param ctx - The context instance.
    * @param listenerName - The name of the listener that handled this update.
    * @param state - Outcome of the routing: `matched` (handler ran successfully),
-   * `no-match` (nothing handled the input — triggers `hookErrorInputNotFoundPage`),
+   * `no-match` (nothing handled the input — triggers `hookNotFoundPage`),
    * `no-handler` (page matched but has no handler for the route),
    * `blocked` (route matched but `hookBeforeRoute` returned false), or `error`.
    *
@@ -590,7 +616,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @virtual
    * @public
    */
-  async hookErrorPage?(ctx: ICtx, data?: {listenerName: string; error: any; isEdit: boolean}): Promise<void>
+  async hookErrorPage?(ctx: ICtx, data?: {listenerName: string; error: unknown; isEdit: boolean}): Promise<void>
 
   /**
    * Hook called when no page handler matches the input.
@@ -603,22 +629,22 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @example Simple
    * ```typescript
-   * async hookErrorInputNotFoundPage(ctx: Ctx) {
-   *   await new StatusPage(ctx).binputNotFound.show()
+   * async hookNotFoundPage(ctx: Ctx) {
+   *   await new StatusPage(ctx).bnotFound.show()
    * }
    * ```
    *
    * @example Advanced
    * ```typescript
-   * async hookErrorInputNotFoundPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorInputNotFoundPage`]>>[1]>) {
-   *   await new StatusPage(ctx).binputNotFound.show()
+   * async hookNotFoundPage(ctx: Ctx, data: NonNullable<Parameters<NonNullable<Gramstax[`hookNotFoundPage`]>>[1]>) {
+   *   await new StatusPage(ctx).bnotFound.show()
    * }
    * ```
    *
    * @virtual
    * @public
    */
-  async hookErrorInputNotFoundPage?(ctx: ICtx, data?: {listenerName: string; isEdit: boolean}): Promise<void>
+  async hookNotFoundPage?(ctx: ICtx, data?: {listenerName: string; isEdit: boolean}): Promise<void>
 
   /**
    * Creates the Bot instance.
@@ -652,7 +678,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         session: {},
         data: {}
       }
-    }) as any
+    }) as unknown as ICtx
   }
 
   /**
@@ -661,15 +687,15 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   _runPolling(): void {
-    const opts: Record<string, any> = {
+    const opts: Record<string, unknown> = {
       drop_pending_updates: true,
       onStart: (botInfo: UserFromGetMe) => {
         this._onStart(botInfo, `polling`, null)
       }
     }
-    if ((this.pages as any)?.chatMemberRoutes?.length > 0) {
-      opts.allowed_updates = API_CONSTANTS.ALL_UPDATE_TYPES
-    }
+    // Request all update types to receive channel posts, inline queries,
+    // reactions, poll updates, join requests, etc.
+    opts.allowed_updates = API_CONSTANTS.ALL_UPDATE_TYPES
     this.bot.start(opts)
   }
 
@@ -688,9 +714,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     const handleUpdate = webhookCallback(this.bot, `bun`)
     const queueConfig = this.webhookQueue
     const queueEnabled = queueConfig?.enabled === true
-    this.handlerBotUpdate = queueEnabled ? this.bot.handleUpdate.bind(this.bot) : handleUpdate
+    this.handlerBotUpdate = (queueEnabled ? this.bot.handleUpdate.bind(this.bot) : handleUpdate) as unknown as (...args: unknown[]) => Promise<unknown>
 
-    const queue = queueEnabled ? new WebhookQueue<any>(queueConfig?.maxQueueSize ?? 5000) : undefined
+    const queue = queueEnabled ? new WebhookQueue<Update>(queueConfig?.maxQueueSize ?? 5000) : undefined
     const workerCount = queueConfig?.workerCount ?? 8
     const perChatConcurrency = queueConfig?.perChatConcurrency ?? 1
     const blockWhenFull = queueConfig?.blockWhenFull !== false
@@ -699,7 +725,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
     this.webhookQueueInstance = queue
 
-    const getChatId = (update: any) => {
+    const getChatId = (update: Update) => {
       return (
         update?.message?.chat?.id ??
         update?.edited_message?.chat?.id ??
@@ -712,7 +738,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       )
     }
 
-    const acquireChat = async (chatId: any) => {
+    const acquireChat = async (chatId: unknown) => {
       if (!queueEnabled || perChatConcurrency <= 0 || chatId === undefined || chatId === null) {
         return () => {}
       }
@@ -752,7 +778,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       port,
       async fetch(req) {
         const {pathname} = new URL(req.url)
-        if (req.method == `POST` && pathname == pathUrl) {
+        if (req.method === `POST` && pathname === pathUrl) {
           if (!queueEnabled || !queue) {
             return handleUpdate(req)
           }
@@ -763,7 +789,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
           try {
             const update = await req.json()
-            await queue.enqueue(update)
+            await queue.enqueue(update as Update)
             return new Response(`OK`, {status: 200})
           } catch (error) {
             logger?.error?.(`Webhook queue error: ${String(error)}`)
@@ -771,7 +797,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           }
         }
 
-        if (req.method == `GET` && pathname == statsPath) {
+        if (req.method === `GET` && pathname === statsPath) {
           const stats = queue?.getStats() || {length: 0, maxSize: queueConfig?.maxQueueSize ?? 5000, waitingEnqueue: 0, waitingDequeue: 0}
           return new Response(
             JSON.stringify({
@@ -788,7 +814,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
             {status: 200, headers: {"Content-Type": `application/json`}}
           )
         }
-        if (req.method == `GET` && pathname == `/`) {
+        if (req.method === `GET` && pathname === `/`) {
           const timestamp = new Date().toISOString()
           return new Response(JSON.stringify({status: `OK`, timestamp}), {
             status: 200,
@@ -801,7 +827,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.webhookServer = server
 
     const data = await this.bot.api.getWebhookInfo()
-    if (data.url != fullUrl) {
+    if (data.url !== fullUrl) {
       await this.bot.api.setWebhook(fullUrl)
     }
 
@@ -817,7 +843,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @param getChatId - Extracts chat ID from update.
    * @internal
    */
-  _startWebhookWorker(queue: WebhookQueue<any>, acquireChat: (chatId: any) => Promise<() => void>, getChatId: (update: any) => any) {
+  _startWebhookWorker(queue: WebhookQueue<Update>, acquireChat: (chatId: unknown) => Promise<() => void>, getChatId: (update: Update) => unknown) {
     const run = async () => {
       while (true) {
         const update = await queue.dequeue()
@@ -900,7 +926,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    * @public
    */
   async _runServerless(adapter: string): Promise<void> {
-    this.handlerBotUpdate = webhookCallback(this.bot, adapter as any)
+    this.handlerBotUpdate = webhookCallback(this.bot, adapter as string as Parameters<typeof webhookCallback>[1])
     const botInfo = await this.bot.api.getMe()
     await this._onStart(botInfo, `serverless`, adapter)
   }
@@ -919,7 +945,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    */
   _pageBuildData(Page: typeof Ctx, filePath: string, routeName?: string): void {
     if (Page?.data === undefined) {
-      Page.data = Page.buildData() as any
+      Page.data = Page.buildData()
     }
     const d = Page.data!
     if (routeName !== undefined) {
@@ -996,7 +1022,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const routeName = pages[listName][index] as string
 
         // Check if the method exists on the page
-        if (typeof (proto as any)[routeName] !== `function`) {
+        if (typeof (proto as unknown as Record<string, unknown>)[routeName] !== `function`) {
           continue
         }
 
@@ -1053,7 +1079,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const routeName = pages.listRouteStaticSession[index] as string
 
       // Check if the method exists on the page
-      if (typeof (proto as any)[routeName] !== `function`) {
+      if (typeof (proto as unknown as Record<string, unknown>)[routeName] !== `function`) {
         continue
       }
 
@@ -1066,7 +1092,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const hidePartReplace = routeName.replace(`handle`, ``)
         const normalized = hidePartReplace.startsWith(`Session`) ? hidePartReplace.slice(7) : hidePartReplace
         const methodName = `methodSession${normalized}`
-        const methodKey = (proto as any as Record<any, (...args: any) => string>)[methodName]?.(name)
+        const methodKey = (proto as unknown as Record<string, (name: string) => string>)[methodName]?.(name)
         pss[methodKey!] = value
       }
     }
@@ -1075,7 +1101,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     // (handleSessionFree* variants are dispatched exclusively via session routing id=1,
     //  NOT via dynamicSpesific — dynamic dispatch doesn't check for sessions)
     for (const routeName of pages.listRouteDynamicSpesific) {
-      if (Object.hasOwn(proto, routeName) && typeof (proto as any)[routeName] === `function`) {
+      if (Object.hasOwn(proto, routeName) && typeof (proto as unknown as Record<string, unknown>)[routeName] === `function`) {
         const pureName = routeName.replace(partHandle, ``).replace(partArgs, ``).replace(partCommand, ``).replace(partCaption, ``).replace(partFree, ``).toLowerCase()
         const alreadyExists = pds[pureName as keyof typeof pds]?.some((item) => item.name === name)
         if (!alreadyExists) {
@@ -1090,7 +1116,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const rest = key.slice(`handleChatMember`.length) // e.g., "OutIn"
         const parts = rest.split(/(?=[A-Z])/).filter(Boolean)
         if (parts.length === 2) {
-          pages.chatMemberRoutes.push({
+          pages.routeChatMember.push({
             name,
             routeName: key,
             type: `chatMember`,
@@ -1103,7 +1129,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const rest = key.slice(`handleMyChatMember`.length) // e.g., "OutRegular"
         const parts = rest.split(/(?=[A-Z])/).filter(Boolean)
         if (parts.length === 2) {
-          pages.chatMemberRoutes.push({
+          pages.routeChatMember.push({
             name,
             routeName: key,
             type: `myChatMember`,
@@ -1163,15 +1189,15 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         }
 
         // 3. Sync with Telegram
-        const scopeObj = {type: scope} as any
-        const langCode = lang === `default` ? undefined : lang
+        const scopeObj = {type: scope} as unknown as BotCommandScope
+        const langCode = lang === `default` ? undefined : (lang as LanguageCode)
         try {
-          const current = await this.bot.api.getMyCommands({scope: scopeObj, language_code: langCode as any})
+          const current = await this.bot.api.getMyCommands({scope: scopeObj, language_code: langCode})
           const currentJSON = JSON.stringify(current.map((c) => ({command: c.command, description: c.description})).sort((a, b) => a.command.localeCompare(b.command)))
           const desiredJSON = JSON.stringify(commands.sort((a, b) => a.command.localeCompare(b.command)))
 
           if (currentJSON !== desiredJSON) {
-            await this.bot.api.setMyCommands(commands, {scope: scopeObj, language_code: langCode as any})
+            await this.bot.api.setMyCommands(commands, {scope: scopeObj, language_code: langCode})
             this.log?.info?.(`Synced descriptions for scope: ${scope},${langCode ? ` lang: ${langCode},` : ``} total (${commands.length})`)
           }
         } catch (error) {
@@ -1194,7 +1220,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   protected _buildEmptyPages() {
     // Helper to keep map result as literal types (prevents widening to string[])
     const toSession = <T extends string>(route: T): `handleSession${T extends `handle${infer R}` ? R : T}` => {
-      return `handleSession${route.startsWith(`handle`) ? route.slice(6) : route}` as any
+      return `handleSession${route.startsWith(`handle`) ? route.slice(6) : route}` as unknown as `handleSession${T extends `handle${infer R}` ? R : T}`
     }
     const listRouteStatic = [
       // callback
@@ -1270,12 +1296,51 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       // location
       `handleSessionFreeLocation`,
       // contact
-      `handleSessionFreeContact`
+      `handleSessionFreeContact`,
+      `handleSessionFreeChannelPost`,
+      `handleSessionFreeEditChannelPost`,
+      `handleSessionFreeEdit`,
+      `handleSessionFreeReaction`,
+      `handleSessionFreeInlineQuery`,
+      `handleSessionFreeChosenInlineResult`,
+      `handleSessionFreePreCheckoutQuery`,
+      `handleSessionFreeShippingQuery`,
+      `handleSessionFreeChatJoinRequest`,
+      `handleSessionFreePoll`,
+      `handleSessionFreePollAnswer`,
+      `handleSessionFreeNewChatMembers`,
+      `handleSessionFreeLeftChatMember`
     ] as const
-    const listRouteDynamicSpesific = [`handleFreeText`, `handleFreePhoto`, `handleFreeVideo`, `handleFreeAudio`, `handleFreeDocument`, `handleFreeAnimation`, `handleFreeVoice`, `handleFreeVideoNote`, `handleFreeSticker`, `handleFreeLocation`, `handleFreeContact`] as const
+    const listRouteDynamicSpesific = [
+      `handleFreeText`,
+      `handleFreePhoto`,
+      `handleFreeVideo`,
+      `handleFreeAudio`,
+      `handleFreeDocument`,
+      `handleFreeAnimation`,
+      `handleFreeVoice`,
+      `handleFreeVideoNote`,
+      `handleFreeSticker`,
+      `handleFreeLocation`,
+      `handleFreeContact`,
+      `handleFreeChannelPost`,
+      `handleFreeEditChannelPost`,
+      `handleFreeEdit`,
+      `handleFreeReaction`,
+      `handleFreeInlineQuery`,
+      `handleFreeChosenInlineResult`,
+      `handleFreePreCheckoutQuery`,
+      `handleFreeShippingQuery`,
+      `handleFreeChatJoinRequest`,
+      `handleFreePoll`,
+      `handleFreePollAnswer`,
+      `handleFreeNewChatMembers`,
+      `handleFreeLeftChatMember`
+    ] as const
 
-    const makeObject = <const T extends readonly string[], V extends () => any>(keys: T, val: V): {[K in T[number]]: ReturnType<V>} => Object.fromEntries(keys.map((k) => [k, val()])) as {[K in T[number]]: ReturnType<V>}
+    const makeObject = <const T extends readonly string[], V extends () => unknown>(keys: T, val: V): {[K in T[number]]: ReturnType<V>} => Object.fromEntries(keys.map((k) => [k, val()])) as {[K in T[number]]: ReturnType<V>}
     const initDynamicSpesific = () => [] as {name: string; routeName: string}[] // [0]{name: Page.data.name, routeName: routeFunctionName}
+    const customRoutes = [] as ITCustomRouteEntry[]
 
     return {
       all: {} as Record<string, typeof Ctx>, // [page.data.name]: Classes Page
@@ -1292,23 +1357,41 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         videonote: initDynamicSpesific(),
         sticker: initDynamicSpesific(),
         location: initDynamicSpesific(),
-        contact: initDynamicSpesific()
+        contact: initDynamicSpesific(),
+        channelpost: initDynamicSpesific(),
+        editchannelpost: initDynamicSpesific(),
+        edit: initDynamicSpesific(),
+        reaction: initDynamicSpesific(),
+        inlinequery: initDynamicSpesific(),
+        choseninlineresult: initDynamicSpesific(),
+        precheckoutquery: initDynamicSpesific(),
+        shippingquery: initDynamicSpesific(),
+        chatjoinrequest: initDynamicSpesific(),
+        poll: initDynamicSpesific(),
+        pollanswer: initDynamicSpesific(),
+        newchatmembers: initDynamicSpesific(),
+        leftchatmember: initDynamicSpesific()
       },
       routeStatic: makeObject(listRouteStatic, () => ({}) as Record<string, {name: string; routeName: string}>), // [page.data.name]: {name: Page.data.name, routeName: routeFunctionName}
       routeStaticIntent: makeObject(listRouteStaticIntent, () => ({}) as Record<string, {name: string; routeName: string}>), // [routeName]: {name: Page.data.name, routeName: routeFunctionName}
       routeStaticSession: makeObject(listRouteStaticSession, () => ({}) as Record<string, {name: string; routeName: string}>), // [session.method]: {name: Page.data.name, routeName: routeFunctionName}
-      chatMemberRoutes: [] as Array<{
+      routeChatMember: [] as Array<{
         name: string
         routeName: string
         type: `chatMember` | `myChatMember`
         oldStatus: string
         newStatus: string
-        filter: (ctx: any) => boolean
+        filter: (ctx: Ctx) => boolean
       }>,
+      customRoutes,
+      routeCustom: customRoutes,
       listRouteStatic,
       listRouteStaticIntent,
       listRouteStaticSession,
       listRouteDynamicSpesific,
+      listRouteStaticLC: listRouteStatic.map((r) => r.toLowerCase()),
+      listRouteStaticIntentLC: listRouteStaticIntent.map((r) => r.toLowerCase()),
+      listRouteStaticSessionLC: listRouteStaticSession.map((r) => r.toLowerCase()),
       lenListRouteStatic: listRouteStatic.length,
       lenListRouteStaticIntent: listRouteStaticIntent.length,
       lenListRouteStaticSession: listRouteStaticSession.length,
@@ -1348,14 +1431,14 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
       const pd = page.data!
       if (seenNames.has(pd.name)) {
-        throw new Error(`Duplicate page name "${pd.name}" in ${path} (${page.name}). ` + `Each page must have a unique name set via buildData({name: ...}) or derived from the filename.`)
+        throw new Error(`Duplicate page name "${pd.name}" in ${path} (${page.name}). Each page must have a unique name set via buildData({name: ...}) or derived from the filename.`)
       }
       seenNames.add(pd.name)
 
       // Check uniqueness of all language variants for intentText
       const _checkIntentVariants = (variant: string, seen: Set<string>, label: string) => {
         if (seen.has(variant)) {
-          throw new Error(`Duplicate ${label} "${variant}" in ${path} (${page.name}). ` + `Each intentText/intentCommandText variant must be unique across all pages.`)
+          throw new Error(`Duplicate ${label} "${variant}" in ${path} (${page.name}). Each intentText/intentCommandText variant must be unique across all pages.`)
         }
         seen.add(variant)
       }
@@ -1375,7 +1458,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       if (pd.intentCallbackQueryData && seenIntentCallbackQueryData.has(pd.intentCallbackQueryData)) {
-        throw new Error(`Duplicate intentCallbackQueryData "${pd.intentCallbackQueryData}" in ${path} (${page.name}). ` + `Pages must have unique intentCallbackQueryData values for callback query routing. ` + `Override via buildData({callbackQueryData: ...}).`)
+        throw new Error(`Duplicate intentCallbackQueryData "${pd.intentCallbackQueryData}" in ${path} (${page.name}). Pages must have unique intentCallbackQueryData values for callback query routing. Override via buildData({callbackQueryData: ...}).`)
       }
       if (pd.intentCallbackQueryData) seenIntentCallbackQueryData.add(pd.intentCallbackQueryData)
 
@@ -1433,7 +1516,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @public
    */
-  async _pageRoutes(ctx: ICtx, fromListener: `callbackquerydata` | `chatmember` | `mychatmember` | keyof typeof Gramstax.prototype.pages.routeDynamicSpesific): Promise<{state: `matched` | `no-match` | `no-handler` | `blocked`}> {
+  async _pageRoutes(ctx: ICtx, fromListener: string): Promise<{state: `matched` | `no-match` | `no-handler` | `blocked`}> {
     // to be reassigned
     let Page: typeof Ctx | undefined
     let res: {name: string; routeName: string} | undefined
@@ -1441,27 +1524,28 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     /**
      * id = 0
      * type = chatMember
-     * algoritme = O(n) iterasi all chatMemberRoutes, filter pre-computed
+     * algoritme = O(n) iterasi all routeChatMember, filter pre-computed
      * example = handleChatMemberOutIn, handleMyChatMemberOutRegular
      * description = Chat member status transition routing. Iterates all chat
      *              member routes and dispatches to the first matching filter.
      *              Only runs when `fromListener === "chatmember"`.
      *              Short-circuits via early return on match.
      */
-    if ((fromListener === `chatmember` || fromListener === `mychatmember`) && this.pages.chatMemberRoutes.length > 0) {
-      for (const route of this.pages.chatMemberRoutes) {
+    if ((fromListener === `chatmember` || fromListener === `mychatmember`) && this.pages.routeChatMember.length > 0) {
+      for (const route of this.pages.routeChatMember) {
         if (route.filter(ctx)) {
           const ChatPage = this.pages.all[route.name]
           if (ChatPage && typeof ChatPage.prototype[route.routeName as keyof typeof ChatPage.prototype] === `function`) {
-            const initPage = new (ChatPage as any)({
-              ct: ctx,
+            const initPage = new ChatPage({
+              ...ctx,
+              ct: ctx as unknown as ITCt,
               cacheSession: ctx.cacheSession,
               cacheKeyboard: ctx.cacheKeyboard,
               templateManager: this.templateManager,
               temp: ctx.temp
             })
             if ((await initPage.hookBeforeRoute?.()) !== false) {
-              await initPage[route.routeName]()
+              await (initPage as unknown as Record<string, () => unknown>)[route.routeName]!()
               await initPage.hookAfterRoute?.()
               return {state: `matched`}
             }
@@ -1489,10 +1573,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         const mtd = session.method
         const pStaticSession = this.pages.routeStaticSession
         const methods = Array.isArray(mtd) ? mtd : [mtd]
+        const lcList = this.pages.listRouteStaticSessionLC
 
         for (let index = 0; index < this.pages.lenListRouteStaticSession; index++) {
           const routeName = this.pages.listRouteStaticSession[index] as `handleSessionCaptionAnimation`
-          if (routeName.toLowerCase().endsWith(fromListener)) {
+          if (lcList[index]!.endsWith(fromListener)) {
             for (const m of methods) {
               res = pStaticSession[routeName][m]
               if (res) break
@@ -1520,10 +1605,11 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const mc = ctx.msg?.caption
       const rawText = cd || mt || mc || ``
       const pStatic = this.pages.routeStatic
+      const lcList = this.pages.listRouteStaticLC
 
       for (let index = 0; index < this.pages.lenListRouteStatic; index++) {
         const routeName = this.pages.listRouteStatic[index] as `handleCaptionAnimation`
-        if (routeName.toLowerCase().endsWith(fromListener)) {
+        if (lcList[index]!.endsWith(fromListener)) {
           // Try exact match first (for callback data, command names)
           res = pStatic[routeName][rawText]
 
@@ -1558,13 +1644,18 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       const pStaticIntent = this.pages.routeStaticIntent
       const isCallback = fromListener === `callbackquerydata`
       const seperatorMethod = isCallback ? `colon` : `space`
-      const data = isCallback ? ctx.callbackQuery!.data! : ctx.msg!.text! || ctx.msg!.caption!
+      const data = isCallback ? (ctx.callbackQuery?.data ?? ``) : ctx.msg?.text || ctx.msg?.caption || ``
       const haveArgs = ctx.haveArgs(data, seperatorMethod)
 
       if (data && haveArgs) {
+        const intent1 = ctx.getIntent(data, seperatorMethod, 1)
+        const intent2 = !isCallback ? ctx.getIntent(data, `space`, 2) : ``
+        const lang = ctx.from?.language_code ?? `default`
+        const lcList = this.pages.listRouteStaticIntentLC
+
         for (let index = 0; index < this.pages.lenListRouteStaticIntent; index++) {
           const routeName = this.pages.listRouteStaticIntent[index] as `handleArgsText`
-          if (!routeName.toLowerCase().endsWith(fromListener)) {
+          if (!lcList[index]!.endsWith(fromListener)) {
             continue
           }
 
@@ -1573,12 +1664,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
           const isTextIntent = rn === `handleArgsText` || rn === `handleCommandArgsText`
 
           // check intent length 1
-          const intent1 = ctx.getIntent(data, seperatorMethod, 1)
           res = bucket[intent1]
 
           // For text intents, try language-prefixed lookup
           if (!res && isTextIntent && seperatorMethod === `space`) {
-            const lang = ctx.from?.language_code ?? `default`
             res = bucket[`${lang}:${intent1}`]
             if (!res && lang !== `default`) {
               res = bucket[`default:${intent1}`]
@@ -1587,11 +1676,9 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
 
           // check intent length 2 (for space overrides)
           if (!res && !isCallback) {
-            const intent2 = ctx.getIntent(data, `space`, 2)
             res = bucket[intent2]
             // lang-prefixed for length 2
             if (!res && isTextIntent) {
-              const lang = ctx.from?.language_code ?? `default`
               res = bucket[`${lang}:${intent2}`]
               if (!res && lang !== `default`) {
                 res = bucket[`default:${intent2}`]
@@ -1614,14 +1701,15 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
 
       const initPage = new Page({
-        ct: ctx,
+        ...ctx,
+        ct: ctx as unknown as ITCt,
         cacheSession: ctx.cacheSession,
         cacheKeyboard: ctx.cacheKeyboard,
         templateManager: this.templateManager,
         temp: ctx.temp
-      }) as any
+      }) as unknown as Ctx
       if ((await initPage.hookBeforeRoute?.()) !== false) {
-        await initPage[res.routeName]?.()
+        await (initPage as unknown as Record<string, () => unknown>)[res.routeName]?.()
         await initPage.hookAfterRoute?.()
         return {state: ctx.temp.isAnswer ? `matched` : `no-match`}
       }
@@ -1650,16 +1738,17 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         continue
       }
 
-      if (typeof Page.prototype[value.routeName as keyof typeof Page.prototype] == `function`) {
+      if (typeof Page.prototype[value.routeName as keyof typeof Page.prototype] === `function`) {
         const initPage = new Page({
-          ct: ctx,
+          ...ctx,
+          ct: ctx as unknown as ITCt,
           cacheSession: ctx.cacheSession,
           cacheKeyboard: ctx.cacheKeyboard,
           templateManager: this.templateManager,
           temp: ctx.temp
-        }) as any
+        }) as unknown as ICtx
         if ((await initPage.hookBeforeRoute?.()) !== false) {
-          await initPage[value.routeName]()
+          await (initPage as unknown as Record<string, () => unknown>)[value.routeName]!()
           await initPage.hookAfterRoute?.()
         }
       }
@@ -1683,9 +1772,10 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         continue
       }
 
-      if (typeof Page.prototype.handleFree == `function`) {
+      if (typeof Page.prototype.handleFree === `function`) {
         const initPage = new Page({
-          ct: ctx,
+          ...ctx,
+          ct: ctx as unknown as ITCt,
           cacheSession: ctx.cacheSession,
           cacheKeyboard: ctx.cacheKeyboard,
           templateManager: this.templateManager,
@@ -1698,11 +1788,53 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       }
     }
 
+    /**
+     * id = 6
+     * type = custom (filter-based)
+     * algoritme = O(n) iterasi this.pages.customRoutes
+     * example = inline_query, chosen_inline_result, message_reaction
+     * description = User-registered custom filter-based routes.
+     *              Fires when listenerName matches AND filter(ctx) returns true.
+     *              Same lifecycle pattern as chatMemberRoutes (id=0).
+     *              Register entries via Gramstax.registerCustomRoute.
+     */
+    for (const route of this.pages.customRoutes) {
+      if (route.listenerName !== fromListener) {
+        continue
+      }
+      if (!route.filter(ctx)) {
+        continue
+      }
+
+      const Page = this.pages.all[route.name]
+      if (Page === undefined) {
+        continue
+      }
+      if (typeof Page.prototype[route.routeName as keyof typeof Page.prototype] !== `function`) {
+        continue
+      }
+
+      const initPage = new Page({
+        ...ctx,
+        ct: ctx as unknown as ITCt,
+        cacheSession: ctx.cacheSession,
+        cacheKeyboard: ctx.cacheKeyboard,
+        templateManager: this.templateManager,
+        temp: ctx.temp
+      }) as unknown as Ctx
+      if ((await initPage.hookBeforeRoute?.()) !== false) {
+        await (initPage as unknown as Record<string, () => unknown>)[route.routeName]!()
+        await initPage.hookAfterRoute?.()
+        return {state: `matched`}
+      }
+      return {state: `blocked`}
+    }
+
     return {state: ctx.temp.isAnswer ? `matched` : `no-match`}
   }
 
   async _onHandle(ct: ITCt, listenerName: Parameters<Gramstax[`_pageRoutes`]>[1], shouldCheckNotFound: boolean = true): Promise<void> {
-    let state: any
+    let state: `matched` | `no-match` | `no-handler` | `blocked` | `error`
     const ctx = this.createCtx(ct)
     const isEdit = listenerName === `callbackquerydata`
     const before = await this.hookBeforeRoute?.(ctx, {listenerName, isEdit})
@@ -1715,7 +1847,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       state = routeResult.state
       if (routeResult.state === `no-match`) {
         if (shouldCheckNotFound) {
-          await this.hookErrorInputNotFoundPage?.(ctx, {listenerName, isEdit})
+          await this.hookNotFoundPage?.(ctx, {listenerName, isEdit})
         }
       }
     } catch (error) {
@@ -1782,82 +1914,45 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
   registerLowPlugin?(): Array<ITCtMiddleware<ITCt>>
 
   /**
-   * Registers an event handler for a bot event.
+   * Registers a custom filter-based route entry with automatic listener subscription.
    *
    * @remarks
-   * These registration methods (`registerLowOn*`) are designed to be overridable
-   * so subclasses can integrate with a different bot library, custom event
-   * system, or alternative routing approach. The default implementation
-   * delegates to `this.bot` to subscribe to the relevant event. Override any
-   * `registerLowOn*` method to customize how a specific event or message type
-   * is routed to its handler.
+   * Adds a route entry to `this.pages.routeCustom` for dispatch at stage id=6
+   * in _pageRoutes. The route fires when:
+   * 1. listenerName matches entry.listenerName, AND
+   * 2. entry.filter(ctx) returns true
    *
-   * @example
-   * ```typescript
-   * class MyBot extends Gramstax {
-   *   // Override if need to route via a custom event bus instead of the default bot
-   *   registerLowOnCallbackQueryData() {
-   *     // default is `callback_query:data`
-   *     this.bot.on(`cb_data`, (ctx) => this._onHandle(ctx, `callbackquerydata`))
-   *   }
-   * }
-   * ```
+   * Automatically calls this.bot.on(entry.event, ...) to subscribe
+   * the grammY listener.
    *
+   * @param entry - The custom route entry. See ITCustomRouteEntry.
+   *
+   * @virtual
    * @public
    */
-  registerLowOnCallbackQueryData() {
-    this.bot.on(`callback_query:data`, (ctx) => this._onHandle(ctx, `callbackquerydata`)) // Handle callback queries from inline keyboards
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnMessageText() {
-    this.bot.on(`message:text`, (ctx) => this._onHandle(ctx, `text`)) // Handle global text messages
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnChatMember() {
-    // Chat member updates are system events, not user actions.
-    // Pass shouldCheckNotFound=false to prevent hookErrorInputNotFoundPage
-    // from firing when no chatMemberRoutes are defined (or none match).
-    this.bot.on(`chat_member`, (ctx) => this._onHandle(ctx, `chatmember`, false)) // Handle chat member updates
-    this.bot.on(`my_chat_member`, (ctx) => this._onHandle(ctx, `mychatmember`, false)) // Handle bot's own chat member updates
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnMessagePhoto() {
-    this.bot.on(`message:photo`, (ctx) => this._onHandle(ctx, `photo`)) // Handle global photo messages
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnMessageVideo() {
-    this.bot.on(`message:video`, (ctx) => this._onHandle(ctx, `video`)) // Handle global video messages
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnMessageAudio() {
-    this.bot.on(`message:audio`, (ctx) => this._onHandle(ctx, `audio`)) // Handle global audio messages
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnMessageDocument() {
-    this.bot.on(`message:document`, (ctx) => this._onHandle(ctx, `document`)) // Handle global document messages
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnMessageAnimation() {
-    this.bot.on(`message:animation`, (ctx) => this._onHandle(ctx, `animation`)) // Handle global animation messages
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnMessageVoice() {
-    this.bot.on(`message:voice`, (ctx) => this._onHandle(ctx, `voice`)) // Handle global voice messages
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnMessageVideoNote() {
-    this.bot.on(`message:video_note`, (ctx) => this._onHandle(ctx, `videonote`)) // Handle global video note messages
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnMessageSticker() {
-    this.bot.on(`message:sticker`, (ctx) => this._onHandle(ctx, `sticker`)) // Handle global sticker messages
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnMessageLocation() {
-    this.bot.on(`message:location`, (ctx) => this._onHandle(ctx, `location`)) // Handle global location messages
-  }
-  /** {@inheritDoc Gramstax.registerLowOnCallbackQueryData} */
-  registerLowOnMessageContact() {
-    this.bot.on(`message:contact`, (ctx) => this._onHandle(ctx, `contact`)) // Handle global contact messages
+  registerCustomRoute(entry: ITCustomRouteEntry): void {
+    if (entry.routeName.startsWith(`handle`) === false) {
+      throw new Error(`routeName must be start with 'handle'`)
+    }
+
+    this.pages.routeCustom.push(entry)
+    this.pages.all[entry.name] ??= undefined as unknown as typeof Ctx
+    this.bot.on(entry.event, (ctx) => this._onHandle(ctx, entry.listenerName, entry.shouldCheckNotFound ?? true))
+
+    // Also populate routeDynamicSpesific so free handlers can match
+    const dyn = (this.pages.routeDynamicSpesific as Record<string, {name: string; routeName: string}[]>)[entry.listenerName]
+    if (dyn) {
+      dyn.push({name: entry.name, routeName: entry.routeName})
+    }
+
+    // Populate routeStaticSession so session-based routing (id=1) can match
+    const sessionRouteName = `handleSessionFree${entry.listenerName.charAt(0).toUpperCase() + entry.listenerName.slice(1)}`
+    const pss = (this.pages.routeStaticSession as Record<string, Record<string, {name: string; routeName: string}>>)[sessionRouteName]
+    if (pss) {
+      pss[entry.listenerName] = {name: entry.name, routeName: entry.routeName}
+    }
+    ;(this.pages as unknown as {listRouteStaticSession: string[]}).listRouteStaticSession.push(sessionRouteName)
+    ;(this.pages as unknown as {listRouteStaticSessionLC: string[]}).listRouteStaticSessionLC.push(sessionRouteName.toLowerCase())
+    this.pages.lenListRouteStaticSession++
   }
 }

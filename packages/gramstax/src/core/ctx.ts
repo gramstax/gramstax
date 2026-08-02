@@ -13,17 +13,34 @@ class GramstaxInlineKeyboard extends InlineKeyboard {
   /**
    * Add a callback button.
    *
-   * @param text - Button label.
+   * @param text - Button label. Pass a **page class/instance** to
+   *   automatically resolve `page.data.intentText` as the label, or a
+   *   plain `string`/grammY button object for the default behavior.
    * @param data - Callback data. Pass a **page class/instance** to
    *   automatically use `page.data.callbackQueryData()`, or pass a
    *   plain `string` for the default behavior.
    * @returns `this` for chaining.
    */
-  override text(text: string, data?: string | typeof Ctx): this {
-    if (data !== undefined && typeof data !== `string`) {
-      return super.text(text, (data.data as any)!.callbackQueryData())
+  override text(text: Parameters<InlineKeyboard[`text`]>[0] | _KbPageLike | _KbButtonWithPageText, data?: Parameters<InlineKeyboard[`text`]>[1] | _KbPageLike): this {
+    let label: Parameters<InlineKeyboard[`text`]>[0] = text as Parameters<InlineKeyboard[`text`]>[0]
+    if (typeof label === `function` || label instanceof Ctx) {
+      const PageClass = (typeof label === `function` ? label : label.constructor) as typeof Ctx
+      _ensurePageHasCallback(PageClass)
+      label = _resolvePageText(PageClass)
+    } else if (typeof label === `object` && label !== null) {
+      const btn = label as {text?: unknown}
+      if (typeof btn.text === `function` || btn.text instanceof Ctx) {
+        const PageClass = (typeof btn.text === `function` ? btn.text : btn.text.constructor) as typeof Ctx
+        _ensurePageHasCallback(PageClass)
+        label = {...btn, text: _resolvePageText(PageClass)} as Parameters<InlineKeyboard[`text`]>[0]
+      }
     }
-    return super.text(text, data as string | undefined)
+    if (data !== undefined && typeof data !== `string`) {
+      const PageClass = (typeof data === `function` ? data : data.constructor) as typeof Ctx
+      _ensurePageHasCallback(PageClass)
+      return super.text(label, (PageClass.data as unknown as {callbackQueryData: () => string}).callbackQueryData())
+    }
+    return super.text(label, data as Parameters<InlineKeyboard[`text`]>[1])
   }
 }
 
@@ -50,7 +67,7 @@ class GramstaxKeyboard extends Keyboard {
    * @param options - Optional styling (see grammY `Keyboard.text`).
    * @returns `this` for chaining.
    */
-  override text(text: string | typeof Ctx | Ctx, options?: any): this {
+  override text(text: string | typeof Ctx | Ctx, options?: Parameters<Keyboard[`text`]>[1]): this {
     if (typeof text !== `string`) {
       const PageClass = (typeof text === `function` ? text : text.constructor) as typeof Ctx
       text = PageClass.data?.intentText ?? ``
@@ -65,6 +82,20 @@ class GramstaxKeyboard extends Keyboard {
 function _resolvePageText(page: typeof Ctx | Ctx): string {
   const PageClass = (typeof page === `function` ? page : page.constructor) as typeof Ctx
   return PageClass.data?.intentText ?? PageClass.data?.name ?? ``
+}
+
+/**
+ * Ensure a page class defines the `handleCallbackQueryData` route.
+ */
+function _ensurePageHasCallback(PageClass: typeof Ctx) {
+  const hasCallback = typeof (PageClass.prototype as unknown as Record<string, unknown>).handleCallbackQueryData === `function`
+  if (!hasCallback) {
+    const pageName = (PageClass.data as {name?: string} | undefined)?.name ?? (PageClass as unknown as {name?: string}).name ?? `unknown`
+    throw new Error(
+      `[gramstax] Page "${pageName}" referenced in inline keyboard does not define handleCallbackQueryData. ` +
+        `The button would have no registered handler. Add "async handleCallbackQueryData()" to the page class.`
+    )
+  }
 }
 
 /**
@@ -93,42 +124,44 @@ function _resolvePageTextLang(page: typeof Ctx | Ctx, lang?: string): string {
  */
 
 import {setTimeout} from "node:timers/promises"
-import {TemplateManager} from "~/template/manager"
+import type {MessageDraftPiece, StreamContextExtension} from "@grammyjs/stream"
 import {Context, InlineKeyboard, InputMediaBuilder, Keyboard} from "grammy"
 import type {InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo} from "grammy/types"
-import type {MessageDraftPiece} from "@grammyjs/stream"
-import {CacheExternal, ITCacheRpc} from "~/cache/external"
+import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {LoggingHelper} from "~/helpers/log"
 import type {ITMediaBlock} from "~/template/engine"
+import type {TemplateManager} from "~/template/manager"
 import type {
-  ITInBoKb,
-  ITData,
-  ITOptEdit,
   ITBottomKb,
-  ITInlineKb,
-  ITOptReply,
-  ITOptReplyVoice,
-  ITOptReplyVideo,
-  ITOptEditMedia1,
-  ITOptEditMedia2,
-  ITOptReplyAudio,
-  ITOptReplyPhoto,
-  ITOptReplyContact,
-  ITOptReplySticker,
-  ITOptReplyDocument,
-  ITOptReplyLocation,
-  ITOptReplyAnimation,
-  ITOptReplyVideoNote,
   ITBottomKbParams,
-  ITInlineKbParams,
   ITBuildDataOptions,
-  ITTemp,
-  ITPageData,
-  ITPageDataBase,
+  ITCtxParams,
+  ITData,
+  ITInBoKb,
+  ITInlineKb,
+  ITInlineKbParams,
   ITKbCols,
   ITKbDest,
-  ITCtxParams,
-  ITOptReplyRich
+  ITOptEdit,
+  ITOptEditMedia1,
+  ITOptEditMedia2,
+  ITOptReply,
+  ITOptReplyAnimation,
+  ITOptReplyAudio,
+  ITOptReplyContact,
+  ITOptReplyDocument,
+  ITOptReplyLocation,
+  ITOptReplyPhoto,
+  ITOptReplyRich,
+  ITOptReplySticker,
+  ITOptReplyVideo,
+  ITOptReplyVideoNote,
+  ITOptReplyVoice,
+  ITPageData,
+  ITPageDataBase,
+  ITTemp,
+  _KbButtonWithPageText,
+  _KbPageLike
 } from "../types/t.ctx"
 
 type ITMediaGroupType = Extract<ITMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
@@ -384,7 +417,7 @@ export class Ctx extends Context {
    * @readonly
    * @public
    */
-  data = (this.constructor as Record<any, any>).data as ITPageData<any>
+  data = (this.constructor as unknown as {data: ITPageData}).data
 
   /**
    * Streams an iterator of message pieces to the current chat, making
@@ -407,7 +440,12 @@ export class Ctx extends Context {
    * @param signal - Optional `AbortSignal` to cancel streaming.
    * @returns Array of sent text messages.
    */
-  replyWithStream(stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>, otherMessageDraft?: Record<string, any>, otherMessage?: Record<string, any>, signal?: AbortSignal): Promise<any> {
+  replyWithStream(
+    stream: Iterable<MessageDraftPiece> | AsyncIterable<MessageDraftPiece>,
+    otherMessageDraft?: Parameters<StreamContextExtension[`replyWithStream`]>[1],
+    otherMessage?: Parameters<StreamContextExtension[`replyWithStream`]>[2],
+    signal?: Parameters<StreamContextExtension[`replyWithStream`]>[3]
+  ): Promise<unknown> {
     return this.ct.replyWithStream(stream, otherMessageDraft, otherMessage, signal)
   }
 
@@ -431,7 +469,13 @@ export class Ctx extends Context {
    * @param signal - Optional `AbortSignal` to cancel streaming.
    * @returns The sent rich message object.
    */
-  replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Record<string, any>, otherRichMessage?: Record<string, any>, baseInputRichMessage?: Record<string, any>, signal?: AbortSignal): Promise<any> {
+  replyWithMarkdownStream(
+    stream: Iterable<string> | AsyncIterable<string>,
+    otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[1],
+    otherRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[2],
+    baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[3],
+    signal?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[4]
+  ): Promise<unknown> {
     return this.ct.replyWithMarkdownStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
   }
 
@@ -455,7 +499,13 @@ export class Ctx extends Context {
    * @param signal - Optional `AbortSignal` to cancel streaming.
    * @returns The sent rich message object.
    */
-  replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Record<string, any>, otherRichMessage?: Record<string, any>, baseInputRichMessage?: Record<string, any>, signal?: AbortSignal): Promise<any> {
+  replyWithHtmlStream(
+    stream: Iterable<string> | AsyncIterable<string>,
+    otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[1],
+    otherRichMessage?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[2],
+    baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[3],
+    signal?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[4]
+  ): Promise<unknown> {
     return this.ct.replyWithHtmlStream(stream, otherRichMessageDraft, otherRichMessage, baseInputRichMessage, signal)
   }
 
@@ -985,7 +1035,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  cacheKeyboard: Map<any, any>
+  cacheKeyboard: Map<string, unknown>
 
   /**
    * Template manager for message rendering.
@@ -1033,12 +1083,12 @@ export class Ctx extends Context {
    * @readonly
    * @public
    */
-  readonly ct: Context & {[key: string]: any}
+  readonly ct: Context & StreamContextExtension & {[key: string]: unknown}
 
   constructor(params: ITCtxParams) {
     const ct = params.ct ?? params
     super(ct.update, ct.api, ct.me)
-    this.ct = ct
+    this.ct = ct as Context & StreamContextExtension & {[key: string]: unknown}
     if (this.api?.config?.use && !Ctx._answerApiGuard.has(this.api)) {
       Ctx._answerApiGuard.add(this.api)
       this.api.config.use((prev, method, payload, signal) => {
@@ -1174,7 +1224,7 @@ export class Ctx extends Context {
         })
 
         res.successCount += 1
-        if (index + 1 == limitFree) {
+        if (index + 1 === limitFree) {
           await setTimeout(1200)
         }
       }
@@ -1238,12 +1288,12 @@ export class Ctx extends Context {
         if (!med) {
           continue
         }
-        const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<any, any>
+        const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<string, unknown>
 
         if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
           await this.api.sendMediaGroup(id!, Helper.buildMediaGroupFromItems(med.mediaGroup, med.caption), Helper.buildMediaGroupOptions(opt))
           res.successCount += 1
-          if (index + 1 == limitFree) {
+          if (index + 1 === limitFree) {
             await setTimeout(1200)
           }
           continue
@@ -1252,25 +1302,25 @@ export class Ctx extends Context {
         if (Helper.isMediaGroupType(med.type) && med.srcList && med.srcList.length > 1) {
           await this.api.sendMediaGroup(id!, Helper.buildMediaGroup(med.type, med.srcList, med.caption), Helper.buildMediaGroupOptions(opt))
           res.successCount += 1
-          if (index + 1 == limitFree) {
+          if (index + 1 === limitFree) {
             await setTimeout(1200)
           }
           continue
         }
 
-        if (med.type == `photo`) await this.api.sendPhoto(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type == `video`) await this.api.sendVideo(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type == `audio`) await this.api.sendAudio(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type == `document`) await this.api.sendDocument(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type == `animation`) await this.api.sendAnimation(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type == `voice`) await this.api.sendVoice(id!, med.src!, opt)
-        if (med.type == `video_note`) await this.api.sendVideoNote(id!, med.src!, opt)
-        if (med.type == `sticker`) await this.api.sendSticker(id!, med.src!, opt)
-        if (med.type == `location`) await this.api.sendLocation(id!, parseInt(med.latitude!), parseInt(med.longitude!), opt)
-        if (med.type == `contact`) await this.api.sendContact(id!, med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
+        if (med.type === `photo`) await this.api.sendPhoto(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type === `video`) await this.api.sendVideo(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type === `audio`) await this.api.sendAudio(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type === `document`) await this.api.sendDocument(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type === `animation`) await this.api.sendAnimation(id!, med.src!, {caption: med.caption!, ...opt})
+        if (med.type === `voice`) await this.api.sendVoice(id!, med.src!, opt)
+        if (med.type === `video_note`) await this.api.sendVideoNote(id!, med.src!, opt)
+        if (med.type === `sticker`) await this.api.sendSticker(id!, med.src!, opt)
+        if (med.type === `location`) await this.api.sendLocation(id!, parseInt(med.latitude!), parseInt(med.longitude!), opt)
+        if (med.type === `contact`) await this.api.sendContact(id!, med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
 
         res.successCount += 1
-        if (index + 1 == limitFree) {
+        if (index + 1 === limitFree) {
           await setTimeout(1200)
         }
       }
@@ -1512,18 +1562,18 @@ export class Ctx extends Context {
       | null
   ) {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
-    const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<any, any>
+    const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<string, unknown>
 
-    if (type == `photo`) return await this.replyWithPhoto(med.src!, {caption: med.caption!, ...opt})
-    if (type == `video`) return await this.replyWithVideo(med.src!, {caption: med.caption!, ...opt})
-    if (type == `audio`) return await this.replyWithAudio(med.src!, {caption: med.caption!, ...opt})
-    if (type == `document`) return await this.replyWithDocument(med.src!, {caption: med.caption!, ...opt})
-    if (type == `animation`) return await this.replyWithAnimation(med.src!, {caption: med.caption!, ...opt})
-    if (type == `voice`) return await this.replyWithVoice(med.src!, opt)
-    if (type == `video_note`) return await this.replyWithVideoNote(med.src!, opt)
-    if (type == `sticker`) return await this.replyWithSticker(med.src!, opt)
-    if (type == `location`) return await this.replyWithLocation(parseInt(med.latitude!), parseInt(med.longitude!), opt)
-    if (type == `contact`) return await this.replyWithContact(med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
+    if (type === `photo`) return await this.replyWithPhoto(med.src!, {caption: med.caption!, ...opt})
+    if (type === `video`) return await this.replyWithVideo(med.src!, {caption: med.caption!, ...opt})
+    if (type === `audio`) return await this.replyWithAudio(med.src!, {caption: med.caption!, ...opt})
+    if (type === `document`) return await this.replyWithDocument(med.src!, {caption: med.caption!, ...opt})
+    if (type === `animation`) return await this.replyWithAnimation(med.src!, {caption: med.caption!, ...opt})
+    if (type === `voice`) return await this.replyWithVoice(med.src!, opt)
+    if (type === `video_note`) return await this.replyWithVideoNote(med.src!, opt)
+    if (type === `sticker`) return await this.replyWithSticker(med.src!, opt)
+    if (type === `location`) return await this.replyWithLocation(parseInt(med.latitude!), parseInt(med.longitude!), opt)
+    if (type === `contact`) return await this.replyWithContact(med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
   }
 
   /**
@@ -1553,7 +1603,7 @@ export class Ctx extends Context {
    */
   async renderMediaGroup(type?: ITMediaGroupType | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | null) {
     const med = this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
-    const opt = {parse_mode: `HTML`, ...(options ?? {})} as Record<any, any>
+    const opt = {parse_mode: `HTML`, ...(options ?? {})} as Record<string, unknown>
     if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
       const items = type ? med.mediaGroup.filter((item) => item.type === type) : med.mediaGroup
       if (items.length === 0) {
@@ -1900,7 +1950,7 @@ export class Ctx extends Context {
   ) {
     const edit = isEdit ?? !!this.callbackQuery
     if (edit) {
-      return await this.renderEditMedia(type, keyboard as ITInlineKb, data, AGBaseId, options1 as any, options2, fallbackReply ?? false)
+      return await this.renderEditMedia(type, keyboard as ITInlineKb, data, AGBaseId, options1 as never, options2, fallbackReply ?? false)
     }
     return await this.renderMedia(type, keyboard, data, AGBaseId, options1)
   }
@@ -2026,25 +2076,25 @@ export class Ctx extends Context {
         await this.deleteMessage()
         return await this.renderMediaGroup(type, data, AGBaseId)
       }
-      if (type == `voice`) {
+      if (type === `voice`) {
         await this.deleteMessage()
         return await this.renderVoice(keyboardInline, data, AGBaseId, options1)
       }
-      if (type == `video_note`) {
+      if (type === `video_note`) {
         await this.deleteMessage()
         return await this.renderVoice(keyboardInline, data, AGBaseId, options1)
       }
-      if (type == `sticker`) {
+      if (type === `sticker`) {
         await this.deleteMessage()
-        return await this.renderSticker(keyboardInline, data, AGBaseId, options1 as Record<any, any>)
+        return await this.renderSticker(keyboardInline, data, AGBaseId, options1 as Record<string, unknown>)
       }
-      if (type == `location`) {
+      if (type === `location`) {
         await this.deleteMessage()
-        return await this.renderLocation(keyboardInline, data, AGBaseId, options1 as Record<any, any>)
+        return await this.renderLocation(keyboardInline, data, AGBaseId, options1 as Record<string, unknown>)
       }
-      if (type == `contact`) {
+      if (type === `contact`) {
         await this.deleteMessage()
-        return await this.renderContact(keyboardInline, data, AGBaseId, options1 as Record<any, any>)
+        return await this.renderContact(keyboardInline, data, AGBaseId, options1 as Record<string, unknown>)
       }
 
       return await this.editMessageMedia(
@@ -2438,7 +2488,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async setSession(method: string | string[], params: any, moreRoot?: Record<any, any>) {
+  async setSession(method: string | string[], params?: Record<string, unknown>, moreRoot?: Record<string, unknown>) {
     try {
       const value = {method, params, ...moreRoot}
       const result = await this.cacheSession.set(`${this.from?.id}`, value)
@@ -2541,7 +2591,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  static buildData<C extends (...args: any[]) => any>(callbackQueryData: C): ITPageData<Parameters<C>>
+  static buildData<C extends (...args: string[]) => Array<string | undefined>>(callbackQueryData: C): ITPageData<Parameters<C>>
 
   /**
    * Creates page routing data configuration with options.
@@ -2551,7 +2601,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  static buildData<C extends (...args: any[]) => any>(options: ITBuildDataOptions<C> | null): ITPageData<Parameters<C>>
+  static buildData<C extends (...args: string[]) => Array<string | undefined>>(options: ITBuildDataOptions<C> | null): ITPageData<Parameters<C>>
 
   /**
    * Creates page routing data configuration with options (no type inference).
@@ -2568,10 +2618,10 @@ export class Ctx extends Context {
    * @public
    */
   static buildData(): ITPageData<[]>
-  static buildData(params?: any | null): ITPageData<any> {
+  static buildData(params?: unknown | null): ITPageData {
     const isFunc = typeof params === `function`
-    const options = isFunc ? {callbackQueryData: params} : (params ?? {})
-    const cbd = options.callbackQueryData
+    const options = (isFunc ? {callbackQueryData: params} : (params ?? {})) as ITBuildDataOptions
+    const cbd = options.callbackQueryData //as ((...args: string[]) => string) | null | undefined
     const addPld = this.prototype.addArgs.bind(this.prototype)
 
     const name = options.name ?? ``
@@ -2588,19 +2638,19 @@ export class Ctx extends Context {
     const intentCommandText = cmdTextIsObj ? (rawCmdText.default ?? name) : rawCmdText
     const intentCommandTextMap = cmdTextIsObj ? rawCmdText : undefined
 
-    const data: ITPageData<any> = {
+    const data: ITPageData = {
       name,
       intentText,
       intentCommandText,
       intentCallbackQueryData: name,
       callbackQueryData: cbd
-        ? function (this: {intentCallbackQueryData: string}, ...args: any[]): string {
+        ? function (this: {intentCallbackQueryData: string}, ...args: string[]): string {
             return addPld(this.intentCallbackQueryData, `colon`, cbd(...args))
           }
         : function (this: {intentCallbackQueryData: string}): string {
             return this?.intentCallbackQueryData
           },
-      _positionArgText: intentText ? intentText.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as any)
+      _positionArgText: intentText ? intentText.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as unknown as number)
     }
     if (intentTextMap) data.intentTextMap = intentTextMap
     if (intentCommandTextMap) data.intentCommandTextMap = intentCommandTextMap
@@ -2630,12 +2680,12 @@ export class Ctx extends Context {
    *
    * @public
    */
-  keyboardCols<T = any>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => any): T {
+  keyboardCols<T = unknown>(k: T, l: string[], layout: ITKbCols, cb: (e: string, i: number) => unknown): T {
     const [colsStr, lastRowStr] = layout.split(`-`)
     const cols = parseInt(colsStr!)
     const lastRow = lastRowStr ? parseInt(lastRowStr) : null
     const total = l.length
-    const kb = k as any
+    const kb = k as unknown as {row: () => void}
     for (let index = 0; index < total; index++) {
       const e = l[index]!
       cb(e, index)
@@ -2683,16 +2733,16 @@ export class Ctx extends Context {
    *
    * @public
    */
-  bottomKeyboardT(layout: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): ITBottomKb
-  bottomKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: Record<any, any> | null): ITBottomKb
-  bottomKeyboardT(PageDestOrLayout?: any, layout?: any, AGBaseId?: any, data?: any): ITBottomKb {
+  bottomKeyboardT(layout: ITKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): ITBottomKb
+  bottomKeyboardT(PageDest: ITKbDest[], layout?: ITKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): ITBottomKb
+  bottomKeyboardT(PageDestOrLayout?: unknown, layout?: unknown, AGBaseId?: unknown, data?: unknown): ITBottomKb {
     // PageDest-based overload
     if (Array.isArray(PageDestOrLayout)) {
       const PageDest = PageDestOrLayout as ITKbDest[]
       const ly = (layout ?? `1`) as ITKbCols
       return this.bottomKeyboard(
         (k, a) => {
-          return this.keyboardCols(k, a, ly, (e, i) => {
+          return this.keyboardCols(k, a, ly, (_e, i) => {
             const page = PageDest[i]!
             const lang = this.from?.language_code
             if (typeof page !== `string`) {
@@ -2702,7 +2752,7 @@ export class Ctx extends Context {
             }
           })
         },
-        {AGBaseId: AGBaseId ?? undefined, data: data ?? undefined}
+        {AGBaseId: (AGBaseId ?? undefined) as string | undefined, data: (data ?? undefined) as ITData | undefined}
       )
     }
     // Template-based overload (existing)
@@ -2711,7 +2761,7 @@ export class Ctx extends Context {
       (k, a) => {
         return this.keyboardCols(k, a, ly, (e) => k.text(e))
       },
-      {AGBaseId: AGBaseId ?? undefined, data: data ?? undefined}
+      {AGBaseId: (AGBaseId ?? undefined) as string | undefined, data: (data ?? undefined) as ITData | undefined}
     )
   }
 
@@ -2749,17 +2799,19 @@ export class Ctx extends Context {
       (k, a) => {
         return this.keyboardCols(k, a, layout, (e, i) => {
           const page = PageDest[i]!
-          // Warn at runtime when a page reference lacks both handle*CallbackQueryData
+          // inlineKeyboardT encodes 0-arg callback data, so only handleCallbackQueryData (not handleArgsCallbackQueryData) will fire.
           if (typeof page !== `string`) {
             const PageClass = typeof page === `function` ? page : (page.constructor as typeof Ctx)
-            const hasCallback = typeof (PageClass.prototype as any).handleCallbackQueryData === `function`
-            const hasArgsCallback = typeof (PageClass.prototype as any).handleArgsCallbackQueryData === `function`
-            if (!hasCallback && !hasArgsCallback) {
-              const pageName = (PageClass.data as any)?.name ?? (PageClass as any).name ?? `unknown`
-              this.log?.warn?.(`[gramstax] Page "${pageName}" referenced in inlineKeyboardT ` + `does not define handleCallbackQueryData or handleArgsCallbackQueryData. The button will have no registered handler.`)
+            const hasCallback = typeof (PageClass.prototype as unknown as Record<string, unknown>).handleCallbackQueryData === `function`
+            if (!hasCallback) {
+              const pageName = (PageClass.data as {name?: string} | undefined)?.name ?? (PageClass as unknown as {name?: string}).name ?? `unknown`
+              throw new Error(
+                `[gramstax] Page "${pageName}" referenced in inlineKeyboardT does not define handleCallbackQueryData. ` +
+                  `The button would have no registered handler. Add "async handleCallbackQueryData()" to the page class.`
+              )
             }
           }
-          const data = typeof page == `string` ? page : (page.data as any)!.callbackQueryData()
+          const data = typeof page === `string` ? page : (page.data as {callbackQueryData: () => string}).callbackQueryData()
           k.text(e, data)
         })
       },
@@ -2803,7 +2855,7 @@ export class Ctx extends Context {
         this.cacheKeyboard.set(key, rkb)
         return rkb
       }
-      return ckb
+      return ckb as ITInlineKb
     }
     const ikb = new GramstaxInlineKeyboard()
     const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `inline`, params?.data ?? undefined)
@@ -2848,7 +2900,7 @@ export class Ctx extends Context {
         this.cacheKeyboard.set(key, rkb)
         return rkb
       }
-      return ckb
+      return ckb as ITBottomKb
     }
     const kb = new GramstaxKeyboard()
     const arr = this.templateManager.getGKeyboard(tkey, params?.AGBaseId ?? undefined, this.from?.language_code, `bottom`, params?.data ?? undefined)
@@ -2867,7 +2919,7 @@ export class Ctx extends Context {
    * @public
    */
   getSeperatorTag(mtd: `space` | `colon` = `space`) {
-    return mtd == `space` ? ` ` : `:`
+    return mtd === `space` ? ` ` : `:`
   }
 
   /**
@@ -2893,7 +2945,7 @@ export class Ctx extends Context {
    *
    * @public
    */
-  addArgs(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], pld: (string | undefined)[]) {
+  addArgs(str = ``, mtd: Parameters<typeof this.getSeperatorTag>[0], pld: Array<string | undefined>) {
     const sep = this.getSeperatorTag(mtd)
     let out = ``
     for (let i = 0; i < pld.length; i++) {
@@ -2941,7 +2993,7 @@ export class Ctx extends Context {
     if (!str) return ``
     const tag = this.getSeperatorTag(mtd)
     const spl = str.split(tag)
-    return positionEnd == 1 ? (spl[0] as string) : spl.slice(0, positionEnd).join(tag)
+    return positionEnd === 1 ? (spl[0] as string) : spl.slice(0, positionEnd).join(tag)
   }
 
   // =============== route function
@@ -2960,7 +3012,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCallbackQueryData?(): Promise<any>
+  async handleCallbackQueryData?(): Promise<unknown>
 
   /**
    * Route handler for callback queries with args matching `intentCallbackQueryData`.
@@ -2979,7 +3031,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleArgsCallbackQueryData?(): Promise<any>
+  async handleArgsCallbackQueryData?(): Promise<unknown>
 
   /**
    * Route handler for text messages matching `intentText`.
@@ -2996,7 +3048,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleText?(): Promise<any>
+  async handleText?(): Promise<unknown>
 
   /**
    * Route handler for text messages with args match intent `intentText`.
@@ -3015,7 +3067,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleArgsText?(): Promise<any>
+  async handleArgsText?(): Promise<unknown>
 
   /**
    * Route handler for command messages match intent `intentCommandText`.
@@ -3032,7 +3084,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCommandText?(): Promise<any>
+  async handleCommandText?(): Promise<unknown>
 
   /**
    * Route handler for command messages with args match intent `intentCommandText`.
@@ -3051,7 +3103,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCommandArgsText?(): Promise<any>
+  async handleCommandArgsText?(): Promise<unknown>
 
   /**
    * Route handler for free-form text input.
@@ -3068,7 +3120,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleFreeText?(): Promise<any>
+  async handleFreeText?(): Promise<unknown>
 
   // photo
   /**
@@ -3087,7 +3139,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCaptionPhoto?(): Promise<any>
+  async handleCaptionPhoto?(): Promise<unknown>
 
   /**
    * Route function for photoCaption with arg match intent `this.data.name`
@@ -3107,7 +3159,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCaptionArgsPhoto?(): Promise<any>
+  async handleCaptionArgsPhoto?(): Promise<unknown>
 
   /**
    * Route function for photoCaption with slash command match intent `this.data.name`
@@ -3126,7 +3178,7 @@ export class Ctx extends Context {
    * @public
    *
    */
-  async handleCommandCaptionPhoto?(): Promise<any>
+  async handleCommandCaptionPhoto?(): Promise<unknown>
 
   /**
    * Route function for `handleCommandCaptionArgsPhoto` with slash command and arg match intent `this.data.name`
@@ -3145,7 +3197,7 @@ export class Ctx extends Context {
    *
    * @virtual
    * @public */
-  async handleCommandCaptionArgsPhoto?(): Promise<any>
+  async handleCommandCaptionArgsPhoto?(): Promise<unknown>
 
   /**
    * Route handler for free-form photo input.
@@ -3162,7 +3214,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleFreePhoto?(): Promise<any>
+  async handleFreePhoto?(): Promise<unknown>
 
   // video
   /**
@@ -3181,7 +3233,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCaptionVideo?(): Promise<any>
+  async handleCaptionVideo?(): Promise<unknown>
 
   /**
    * Route function for `handleCaptionArgsVideo` with arg match intent `this.data.name`
@@ -3201,7 +3253,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCaptionArgsVideo?(): Promise<any>
+  async handleCaptionArgsVideo?(): Promise<unknown>
 
   /**
    * Route function for videoCaption with slash command match intent `this.data.name`
@@ -3220,7 +3272,7 @@ export class Ctx extends Context {
    * @public
    *
    */
-  async handleCommandCaptionVideo?(): Promise<any>
+  async handleCommandCaptionVideo?(): Promise<unknown>
 
   /**
    * Route function for `handleCommandCaptionArgsVideo` with slash command and arg match intent `this.data.name`
@@ -3239,7 +3291,7 @@ export class Ctx extends Context {
    *
    * @virtual
    * @public */
-  async handleCommandCaptionArgsVideo?(): Promise<any>
+  async handleCommandCaptionArgsVideo?(): Promise<unknown>
 
   /**
    * Route handler for free-form video input.
@@ -3256,7 +3308,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleFreeVideo?(): Promise<any>
+  async handleFreeVideo?(): Promise<unknown>
 
   // audio
   /**
@@ -3275,7 +3327,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCaptionAudio?(): Promise<any>
+  async handleCaptionAudio?(): Promise<unknown>
 
   /**
    * Route function for `handleCaptionArgsAudio` with arg match intent `this.data.name`
@@ -3295,7 +3347,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCaptionArgsAudio?(): Promise<any>
+  async handleCaptionArgsAudio?(): Promise<unknown>
 
   /**
    * Route function for `handleCommandCaptionAudio` with slash command match intent `this.data.name`
@@ -3313,7 +3365,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCommandCaptionAudio?(): Promise<any>
+  async handleCommandCaptionAudio?(): Promise<unknown>
 
   /**
    * Route function for `handleCommandCaptionArgsAudio` with slash command and arg match intent `this.data.name`
@@ -3333,7 +3385,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCommandCaptionArgsAudio?(): Promise<any>
+  async handleCommandCaptionArgsAudio?(): Promise<unknown>
 
   /**
    * Route handler for free-form audio input.
@@ -3350,7 +3402,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleFreeAudio?(): Promise<any>
+  async handleFreeAudio?(): Promise<unknown>
 
   // document
   /**
@@ -3369,7 +3421,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCaptionDocument?(): Promise<any>
+  async handleCaptionDocument?(): Promise<unknown>
 
   /**
    * Route function for `handleCaptionArgsDocument` with arg match intent `this.data.name`
@@ -3389,7 +3441,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCaptionArgsDocument?(): Promise<any>
+  async handleCaptionArgsDocument?(): Promise<unknown>
 
   /**
    * Route function for `handleCommandCaptionDocument` with slash command match intent `this.data.name`
@@ -3408,7 +3460,7 @@ export class Ctx extends Context {
    * @public
    *
    */
-  async handleCommandCaptionDocument?(): Promise<any>
+  async handleCommandCaptionDocument?(): Promise<unknown>
 
   /**
    * Route function for `handleCommandCaptionArgsDocument` with slash command and arg match intent `this.data.name`
@@ -3427,7 +3479,7 @@ export class Ctx extends Context {
    *
    * @virtual
    * @public */
-  async handleCommandCaptionArgsDocument?(): Promise<any>
+  async handleCommandCaptionArgsDocument?(): Promise<unknown>
 
   /**
    * Route handler for free-form document input.
@@ -3444,7 +3496,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleFreeDocument?(): Promise<any>
+  async handleFreeDocument?(): Promise<unknown>
 
   // animation
   /**
@@ -3463,7 +3515,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCaptionAnimation?(): Promise<any>
+  async handleCaptionAnimation?(): Promise<unknown>
 
   /**
    * Route function for `handleCaptionArgsAnimation` with arg match intent `this.data.name`
@@ -3483,7 +3535,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCaptionArgsAnimation?(): Promise<any>
+  async handleCaptionArgsAnimation?(): Promise<unknown>
 
   /**
    * Route function for animationCaption with slash command match intent `this.data.name`
@@ -3502,7 +3554,7 @@ export class Ctx extends Context {
    * @public
    *
    */
-  async handleCommandCaptionAnimation?(): Promise<any>
+  async handleCommandCaptionAnimation?(): Promise<unknown>
 
   /**
    * Route function for `handleCommandCaptionArgsAnimation` with slash command and arg match intent `this.data.name`
@@ -3521,7 +3573,7 @@ export class Ctx extends Context {
    *
    * @virtual
    * @public */
-  async handleCommandCaptionArgsAnimation?(): Promise<any>
+  async handleCommandCaptionArgsAnimation?(): Promise<unknown>
 
   /**
    * Route handler for free-form animation input.
@@ -3538,7 +3590,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleFreeAnimation?(): Promise<any>
+  async handleFreeAnimation?(): Promise<unknown>
 
   // voice
   /**
@@ -3557,7 +3609,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCaptionVoice?(): Promise<any>
+  async handleCaptionVoice?(): Promise<unknown>
 
   /**
    * Route function for `handleCaptionArgsVoice` with arg match intent `this.data.name`
@@ -3577,7 +3629,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCaptionArgsVoice?(): Promise<any>
+  async handleCaptionArgsVoice?(): Promise<unknown>
 
   /**
    * Route function for voiceCaption with slash command match intent `this.data.name`
@@ -3596,7 +3648,7 @@ export class Ctx extends Context {
    * @public
    *
    */
-  async handleCommandCaptionVoice?(): Promise<any>
+  async handleCommandCaptionVoice?(): Promise<unknown>
 
   /**
    * Route function for `handleCommandCaptionArgsVoice` with slash command and arg match intent `this.data.name`
@@ -3616,7 +3668,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleCommandCaptionArgsVoice?(): Promise<any>
+  async handleCommandCaptionArgsVoice?(): Promise<unknown>
 
   /**
    * Route handler for free-form voice input.
@@ -3633,7 +3685,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleFreeVoice?(): Promise<any>
+  async handleFreeVoice?(): Promise<unknown>
 
   // video_note
   /**
@@ -3649,7 +3701,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleFreeVideoNote?(): Promise<any>
+  async handleFreeVideoNote?(): Promise<unknown>
 
   // sticker
   /**
@@ -3667,7 +3719,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleFreeSticker?(): Promise<any>
+  async handleFreeSticker?(): Promise<unknown>
 
   // location
   /**
@@ -3685,7 +3737,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleFreeLocation?(): Promise<any>
+  async handleFreeLocation?(): Promise<unknown>
 
   // contact
   /**
@@ -3703,7 +3755,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleFreeContact?(): Promise<any>
+  async handleFreeContact?(): Promise<unknown>
 
   // all
   /**
@@ -3723,7 +3775,7 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleFree?(): Promise<any>
+  async handleFree?(): Promise<unknown>
 
   // ═══════════════════════════════════════════════════════════════
   //  Chat member route handlers
@@ -3851,89 +3903,89 @@ export class Ctx extends Context {
    * @virtual
    * @public
    */
-  async handleSessionCallbackQueryData?(): Promise<any>
+  async handleSessionCallbackQueryData?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionArgsCallbackQueryData?(): Promise<any>
+  async handleSessionArgsCallbackQueryData?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionText?(): Promise<any>
+  async handleSessionText?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionArgsText?(): Promise<any>
+  async handleSessionArgsText?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandText?(): Promise<any>
+  async handleSessionCommandText?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandArgsText?(): Promise<any>
+  async handleSessionCommandArgsText?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionFreeText?(): Promise<any>
+  async handleSessionFreeText?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCaptionPhoto?(): Promise<any>
+  async handleSessionCaptionPhoto?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCaptionArgsPhoto?(): Promise<any>
+  async handleSessionCaptionArgsPhoto?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandCaptionPhoto?(): Promise<any>
+  async handleSessionCommandCaptionPhoto?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandCaptionArgsPhoto?(): Promise<any>
+  async handleSessionCommandCaptionArgsPhoto?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionFreePhoto?(): Promise<any>
+  async handleSessionFreePhoto?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCaptionVideo?(): Promise<any>
+  async handleSessionCaptionVideo?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCaptionArgsVideo?(): Promise<any>
+  async handleSessionCaptionArgsVideo?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandCaptionVideo?(): Promise<any>
+  async handleSessionCommandCaptionVideo?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandCaptionArgsVideo?(): Promise<any>
+  async handleSessionCommandCaptionArgsVideo?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionFreeVideo?(): Promise<any>
+  async handleSessionFreeVideo?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCaptionAudio?(): Promise<any>
+  async handleSessionCaptionAudio?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCaptionArgsAudio?(): Promise<any>
+  async handleSessionCaptionArgsAudio?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandCaptionAudio?(): Promise<any>
+  async handleSessionCommandCaptionAudio?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandCaptionArgsAudio?(): Promise<any>
+  async handleSessionCommandCaptionArgsAudio?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionFreeAudio?(): Promise<any>
+  async handleSessionFreeAudio?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCaptionDocument?(): Promise<any>
+  async handleSessionCaptionDocument?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCaptionArgsDocument?(): Promise<any>
+  async handleSessionCaptionArgsDocument?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandCaptionDocument?(): Promise<any>
+  async handleSessionCommandCaptionDocument?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandCaptionArgsDocument?(): Promise<any>
+  async handleSessionCommandCaptionArgsDocument?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionFreeDocument?(): Promise<any>
+  async handleSessionFreeDocument?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCaptionAnimation?(): Promise<any>
+  async handleSessionCaptionAnimation?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCaptionArgsAnimation?(): Promise<any>
+  async handleSessionCaptionArgsAnimation?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandCaptionAnimation?(): Promise<any>
+  async handleSessionCommandCaptionAnimation?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandCaptionArgsAnimation?(): Promise<any>
+  async handleSessionCommandCaptionArgsAnimation?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionFreeAnimation?(): Promise<any>
+  async handleSessionFreeAnimation?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCaptionVoice?(): Promise<any>
+  async handleSessionCaptionVoice?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCaptionArgsVoice?(): Promise<any>
+  async handleSessionCaptionArgsVoice?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandCaptionVoice?(): Promise<any>
+  async handleSessionCommandCaptionVoice?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionCommandCaptionArgsVoice?(): Promise<any>
+  async handleSessionCommandCaptionArgsVoice?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionFreeVoice?(): Promise<any>
+  async handleSessionFreeVoice?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionFreeVideoNote?(): Promise<any>
+  async handleSessionFreeVideoNote?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionFreeSticker?(): Promise<any>
+  async handleSessionFreeSticker?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionFreeLocation?(): Promise<any>
+  async handleSessionFreeLocation?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionFreeContact?(): Promise<any>
+  async handleSessionFreeContact?(): Promise<unknown>
   /** {@inheritDoc Ctx.handleSessionCallbackQueryData} */
-  async handleSessionFree?(): Promise<any>
+  async handleSessionFree?(): Promise<unknown>
 
   // callback
   /**
@@ -3954,200 +4006,200 @@ export class Ctx extends Context {
    *
    * @public
    */
-  setSessionCallbackQueryData(this: Ctx & {handleSessionCallbackQueryData: (...args: any[]) => any}, params?: any) {
+  setSessionCallbackQueryData(this: Ctx & {handleSessionCallbackQueryData: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCallbackQueryData(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionArgsCallbackQueryData(this: Ctx & {handleSessionArgsCallbackQueryData: (...args: any[]) => any}, params?: any) {
+  setSessionArgsCallbackQueryData(this: Ctx & {handleSessionArgsCallbackQueryData: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionArgsCallbackQueryData(), params)
   }
   // text
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionText(this: Ctx & {handleSessionText: (...args: any[]) => any}, params?: any) {
+  setSessionText(this: Ctx & {handleSessionText: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionText(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionArgsText(this: Ctx & {handleSessionArgsText: (...args: any[]) => any}, params?: any) {
+  setSessionArgsText(this: Ctx & {handleSessionArgsText: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionArgsText(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandText(this: Ctx & {handleSessionCommandText: (...args: any[]) => any}, params?: any) {
+  setSessionCommandText(this: Ctx & {handleSessionCommandText: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandText(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandArgsText(this: Ctx & {handleSessionCommandArgsText: (...args: any[]) => any}, params?: any) {
+  setSessionCommandArgsText(this: Ctx & {handleSessionCommandArgsText: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandArgsText(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeText(this: Ctx & {handleSessionFreeText: (...args: any[]) => any}, params?: any) {
+  setSessionFreeText(this: Ctx & {handleSessionFreeText: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeText(), params)
   }
   // photo
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionPhoto(this: Ctx & {handleSessionCaptionPhoto: (...args: any[]) => any}, params?: any) {
+  setSessionCaptionPhoto(this: Ctx & {handleSessionCaptionPhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionPhoto(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionArgsPhoto(this: Ctx & {handleSessionCaptionArgsPhoto: (...args: any[]) => any}, params?: any) {
+  setSessionCaptionArgsPhoto(this: Ctx & {handleSessionCaptionArgsPhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionArgsPhoto(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionPhoto(this: Ctx & {handleSessionCommandCaptionPhoto: (...args: any[]) => any}, params?: any) {
+  setSessionCommandCaptionPhoto(this: Ctx & {handleSessionCommandCaptionPhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionPhoto(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionArgsPhoto(this: Ctx & {handleSessionCommandCaptionArgsPhoto: (...args: any[]) => any}, params?: any) {
+  setSessionCommandCaptionArgsPhoto(this: Ctx & {handleSessionCommandCaptionArgsPhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionArgsPhoto(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreePhoto(this: Ctx & {handleSessionFreePhoto: (...args: any[]) => any}, params?: any) {
+  setSessionFreePhoto(this: Ctx & {handleSessionFreePhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreePhoto(), params)
   }
   // video
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionVideo(this: Ctx & {handleSessionCaptionVideo: (...args: any[]) => any}, params?: any) {
+  setSessionCaptionVideo(this: Ctx & {handleSessionCaptionVideo: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionVideo(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionArgsVideo(this: Ctx & {handleSessionCaptionArgsVideo: (...args: any[]) => any}, params?: any) {
+  setSessionCaptionArgsVideo(this: Ctx & {handleSessionCaptionArgsVideo: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionArgsVideo(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionVideo(this: Ctx & {handleSessionCommandCaptionVideo: (...args: any[]) => any}, params?: any) {
+  setSessionCommandCaptionVideo(this: Ctx & {handleSessionCommandCaptionVideo: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionVideo(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionArgsVideo(this: Ctx & {handleSessionCommandCaptionArgsVideo: (...args: any[]) => any}, params?: any) {
+  setSessionCommandCaptionArgsVideo(this: Ctx & {handleSessionCommandCaptionArgsVideo: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionArgsVideo(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeVideo(this: Ctx & {handleSessionFreeVideo: (...args: any[]) => any}, params?: any) {
+  setSessionFreeVideo(this: Ctx & {handleSessionFreeVideo: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeVideo(), params)
   }
   // audio
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionAudio(this: Ctx & {handleSessionCaptionAudio: (...args: any[]) => any}, params?: any) {
+  setSessionCaptionAudio(this: Ctx & {handleSessionCaptionAudio: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionAudio(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionArgsAudio(this: Ctx & {handleSessionCaptionArgsAudio: (...args: any[]) => any}, params?: any) {
+  setSessionCaptionArgsAudio(this: Ctx & {handleSessionCaptionArgsAudio: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionArgsAudio(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionAudio(this: Ctx & {handleSessionCommandCaptionAudio: (...args: any[]) => any}, params?: any) {
+  setSessionCommandCaptionAudio(this: Ctx & {handleSessionCommandCaptionAudio: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionAudio(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionArgsAudio(this: Ctx & {handleSessionCommandCaptionArgsAudio: (...args: any[]) => any}, params?: any) {
+  setSessionCommandCaptionArgsAudio(this: Ctx & {handleSessionCommandCaptionArgsAudio: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionArgsAudio(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeAudio(this: Ctx & {handleSessionFreeAudio: (...args: any[]) => any}, params?: any) {
+  setSessionFreeAudio(this: Ctx & {handleSessionFreeAudio: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeAudio(), params)
   }
   // document
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionDocument(this: Ctx & {handleSessionCaptionDocument: (...args: any[]) => any}, params?: any) {
+  setSessionCaptionDocument(this: Ctx & {handleSessionCaptionDocument: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionDocument(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionArgsDocument(this: Ctx & {handleSessionCaptionArgsDocument: (...args: any[]) => any}, params?: any) {
+  setSessionCaptionArgsDocument(this: Ctx & {handleSessionCaptionArgsDocument: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionArgsDocument(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionDocument(this: Ctx & {handleSessionCommandCaptionDocument: (...args: any[]) => any}, params?: any) {
+  setSessionCommandCaptionDocument(this: Ctx & {handleSessionCommandCaptionDocument: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionDocument(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionArgsDocument(this: Ctx & {handleSessionCommandCaptionArgsDocument: (...args: any[]) => any}, params?: any) {
+  setSessionCommandCaptionArgsDocument(this: Ctx & {handleSessionCommandCaptionArgsDocument: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionArgsDocument(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeDocument(this: Ctx & {handleSessionFreeDocument: (...args: any[]) => any}, params?: any) {
+  setSessionFreeDocument(this: Ctx & {handleSessionFreeDocument: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeDocument(), params)
   }
   // animation
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionAnimation(this: Ctx & {handleSessionCaptionAnimation: (...args: any[]) => any}, params?: any) {
+  setSessionCaptionAnimation(this: Ctx & {handleSessionCaptionAnimation: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionAnimation(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionArgsAnimation(this: Ctx & {handleSessionCaptionArgsAnimation: (...args: any[]) => any}, params?: any) {
+  setSessionCaptionArgsAnimation(this: Ctx & {handleSessionCaptionArgsAnimation: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionArgsAnimation(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionAnimation(this: Ctx & {handleSessionCommandCaptionAnimation: (...args: any[]) => any}, params?: any) {
+  setSessionCommandCaptionAnimation(this: Ctx & {handleSessionCommandCaptionAnimation: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionAnimation(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionArgsAnimation(this: Ctx & {handleSessionCommandCaptionArgsAnimation: (...args: any[]) => any}, params?: any) {
+  setSessionCommandCaptionArgsAnimation(this: Ctx & {handleSessionCommandCaptionArgsAnimation: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionArgsAnimation(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeAnimation(this: Ctx & {handleSessionFreeAnimation: (...args: any[]) => any}, params?: any) {
+  setSessionFreeAnimation(this: Ctx & {handleSessionFreeAnimation: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeAnimation(), params)
   }
   // voice
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionVoice(this: Ctx & {handleSessionCaptionVoice: (...args: any[]) => any}, params?: any) {
+  setSessionCaptionVoice(this: Ctx & {handleSessionCaptionVoice: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionVoice(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCaptionArgsVoice(this: Ctx & {handleSessionCaptionArgsVoice: (...args: any[]) => any}, params?: any) {
+  setSessionCaptionArgsVoice(this: Ctx & {handleSessionCaptionArgsVoice: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCaptionArgsVoice(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionVoice(this: Ctx & {handleSessionCommandCaptionVoice: (...args: any[]) => any}, params?: any) {
+  setSessionCommandCaptionVoice(this: Ctx & {handleSessionCommandCaptionVoice: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionVoice(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionCommandCaptionArgsVoice(this: Ctx & {handleSessionCommandCaptionArgsVoice: (...args: any[]) => any}, params?: any) {
+  setSessionCommandCaptionArgsVoice(this: Ctx & {handleSessionCommandCaptionArgsVoice: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionCommandCaptionArgsVoice(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeVoice(this: Ctx & {handleSessionFreeVoice: (...args: any[]) => any}, params?: any) {
+  setSessionFreeVoice(this: Ctx & {handleSessionFreeVoice: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeVoice(), params)
   }
   // video note
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeVideoNote(this: Ctx & {handleSessionFreeVideoNote: (...args: any[]) => any}, params?: any) {
+  setSessionFreeVideoNote(this: Ctx & {handleSessionFreeVideoNote: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeVideoNote(), params)
   }
   // sticker
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeSticker(this: Ctx & {handleSessionFreeSticker: (...args: any[]) => any}, params?: any) {
+  setSessionFreeSticker(this: Ctx & {handleSessionFreeSticker: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeSticker(), params)
   }
   // location
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeLocation(this: Ctx & {handleSessionFreeLocation: (...args: any[]) => any}, params?: any) {
+  setSessionFreeLocation(this: Ctx & {handleSessionFreeLocation: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeLocation(), params)
   }
   // contact
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionFreeContact(this: Ctx & {handleSessionFreeContact: (...args: any[]) => any}, params?: any) {
+  setSessionFreeContact(this: Ctx & {handleSessionFreeContact: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionFreeContact(), params)
   }
 
   // chat member
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionChatMemberOutIn(this: Ctx & {handleSessionChatMemberOutIn: (...args: any[]) => any}, params?: any) {
+  setSessionChatMemberOutIn(this: Ctx & {handleSessionChatMemberOutIn: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionChatMemberOutIn(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionMyChatMemberOutRegular(this: Ctx & {handleSessionMyChatMemberOutRegular: (...args: any[]) => any}, params?: any) {
+  setSessionMyChatMemberOutRegular(this: Ctx & {handleSessionMyChatMemberOutRegular: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionMyChatMemberOutRegular(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionMyChatMemberOutAdmin(this: Ctx & {handleSessionMyChatMemberOutAdmin: (...args: any[]) => any}, params?: any) {
+  setSessionMyChatMemberOutAdmin(this: Ctx & {handleSessionMyChatMemberOutAdmin: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionMyChatMemberOutAdmin(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionMyChatMemberRegularAdmin(this: Ctx & {handleSessionMyChatMemberRegularAdmin: (...args: any[]) => any}, params?: any) {
+  setSessionMyChatMemberRegularAdmin(this: Ctx & {handleSessionMyChatMemberRegularAdmin: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionMyChatMemberRegularAdmin(), params)
   }
   /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
-  setSessionMyChatMemberAdminRegular(this: Ctx & {handleSessionMyChatMemberAdminRegular: (...args: any[]) => any}, params?: any) {
+  setSessionMyChatMemberAdminRegular(this: Ctx & {handleSessionMyChatMemberAdminRegular: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
     return this.setSession(this.methodSessionMyChatMemberAdminRegular(), params)
   }
 
@@ -4377,5 +4429,3 @@ export class Ctx extends Context {
     return this.methodSession(`46`, name)
   }
 }
-
-

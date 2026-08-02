@@ -9,7 +9,7 @@
  * @public
  */
 
-import {log, type LoggingHelper} from "~/helpers/log"
+import {type LoggingHelper, log} from "~/helpers/log"
 
 /**
  * Telegram JSON response shape for mock server responses.

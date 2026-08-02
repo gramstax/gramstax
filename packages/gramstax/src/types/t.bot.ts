@@ -1,7 +1,52 @@
-import type {BotConfig, Context} from "grammy"
+import type {BotConfig, Context, FilterQuery} from "grammy"
 import type {CacheExternal} from "~/cache/external"
-import type {TemplateManager} from "~/template/manager"
+import type {Ctx} from "~/core/ctx"
 import type {LoggingHelper} from "~/helpers/log"
+import type {TemplateManager} from "~/template/manager"
+
+/**
+ * A custom filter-based route entry, registered via {@link Gramstax.registerCustomRoute}.
+ *
+ * @remarks
+ * Similar to chat member routes but for any `listenerName`. The route fires at
+ * dispatch stage id=6 in {@link Gramstax._pageRoutes} when:
+ * 1. `fromListener === listenerName`, AND
+ * 2. `filter(ctx)` returns `true`
+ *
+ * `registerCustomRoute` automatically calls `this.bot.on(entry.event, ...)` to
+ * subscribe the listener — no separate `registerLowOn*` override needed.
+ *
+ * @example
+ * ```typescript
+ * const entry: ITCustomRouteEntry = {
+ *   name: `search`,
+ *   routeName: `handleInlineQuery`,
+ *   listenerName: `inlinequery`,
+ *   event: `inline_query`,
+ *   filter: (ctx) => !!ctx.inlineQuery,
+ *   shouldCheckNotFound: false
+ * }
+ * ```
+ *
+ * @public
+ */
+export type ITCustomRouteEntry = {
+  /** Page name key in `this.pages.all`. */
+  name: string
+  /** Method name to call on the page instance (e.g., `"handleInlineQuery"`). */
+  routeName: string
+  /** Must match the `listenerName` passed to `_onHandle()`. */
+  listenerName: string
+  /** GrammY event filter string (e.g., `"inline_query"`, `"message:forward_date"`). */
+  event: FilterQuery
+  /** Predicate: return `true` to dispatch this route for the current update. */
+  filter: (ctx: Ctx) => boolean
+  /**
+   * Pass `false` to skip `hookNotFoundPage` when no route matches
+   * (analogous to chat member routes). Defaults to `true`.
+   */
+  shouldCheckNotFound?: boolean
+}
 
 /**
  * Webhook queue configuration for backpressure and worker pooling.
@@ -185,7 +230,7 @@ export type ITGramstaxParams = {
    * @remarks
    * Used to cache inline/bottom keyboard configurations for super large keyboard.
    */
-  cacheKeyboard?: Map<any, any>
+  cacheKeyboard?: Map<string, unknown>
 
   /**
    * Custom template manager instance.

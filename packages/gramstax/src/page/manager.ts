@@ -9,10 +9,10 @@
  * @public
  */
 
-import {join} from "node:path"
 import {existsSync, readdirSync} from "node:fs"
-import type {Ctx} from "~/core/ctx"
 import {createRequire} from "node:module"
+import {join} from "node:path"
+import type {Ctx} from "~/core/ctx"
 
 /**
  * Provides static utilities for loading and managing page modules dynamically.
@@ -53,7 +53,7 @@ export class PageManager {
    * ```
    * @public
    */
-  static _getFile(mod: Record<any, any>, path: string, positionModule = 0) {
+  static _getFile(mod: Record<string, unknown>, path: string, positionModule = 0) {
     const exp = Object.values(mod)
     const Page = exp[positionModule] as typeof Ctx // like StartPage. not have default export
     if (Page === undefined) {
@@ -99,7 +99,7 @@ export class PageManager {
     if (!path) {
       path = this.getFilePath()
     }
-    const mod = createRequire(path) as any
+    const mod = createRequire(path)
     const def = mod(path)
     return this._getFile(def, path, positionModule)
   }
@@ -123,7 +123,7 @@ export class PageManager {
     if (!path) {
       path = this.getFilePath()
     }
-    const mod = (await import(`${path}?t=${Date.now()}`)) as Record<any, any>
+    const mod = (await import(`${path}?t=${Date.now()}`)) as Record<string, unknown>
     return this._getFile(mod, path, positionModule)
   }
 

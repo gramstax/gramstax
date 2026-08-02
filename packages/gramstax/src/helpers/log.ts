@@ -46,15 +46,6 @@ export class LoggingHelper extends LoggingPretty {
   private timers: Map<string, bigint> = new Map()
 
   /**
-   * Creates a new LoggingHelper instance.
-   *
-   * @param options - LoggingPretty constructor options. Passed through to parent `LoggingPretty`.
-   */
-  constructor(options?: ConstructorParameters<typeof LoggingPretty>[0]) {
-    super(options)
-  }
-
-  /**
    * Log a formatted error message with optional class and function context.
    *
    * @param pureError - The error to log. Can be an `Error` object or any value.
@@ -74,7 +65,7 @@ export class LoggingHelper extends LoggingPretty {
    * ```
    * @public
    */
-  errorMake(pureError: any, constructorName?: any, funcName?: string) {
+  errorMake(pureError: Error | unknown, constructorName?: string, funcName?: string) {
     this.error(`[${constructorName ? `${constructorName}:${funcName}` : funcName}] ${this._formatErrorObj(pureError)}`)
   }
 
@@ -92,7 +83,7 @@ export class LoggingHelper extends LoggingPretty {
    * ```
    * @public
    */
-  _formatErrorObj(pureError: any) {
+  _formatErrorObj(pureError: Error | unknown) {
     const error = JSON.stringify(pureError instanceof Error ? {message: pureError.message, stack: pureError.stack, name: pureError.name} : pureError, null, 2)
     return error
   }

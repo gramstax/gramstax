@@ -68,6 +68,10 @@ export type ITMediaBlock = {
   vcard?: string
 }
 
+type ITTemplateData = Record<string, unknown>
+
+type ITTemplateRenderer<T extends boolean> = T extends true ? (data?: ITTemplateData) => string[] : (data?: ITTemplateData) => string
+
 /**
  * Static utility class for parsing and compiling HTML-like templates.
  *
@@ -315,11 +319,11 @@ export class TemplateEngine {
     "tg-map": {
       lat: (v) => {
         const n = Number(v)
-        return !isNaN(n) && n >= -90 && n <= 90 ? null : `lat must be a number between -90 and 90 (got "${v}")`
+        return !Number.isNaN(n) && n >= -90 && n <= 90 ? null : `lat must be a number between -90 and 90 (got "${v}")`
       },
       long: (v) => {
         const n = Number(v)
-        return !isNaN(n) && n >= -180 && n <= 180 ? null : `long must be a number between -180 and 180 (got "${v}")`
+        return !Number.isNaN(n) && n >= -180 && n <= 180 ? null : `long must be a number between -180 and 180 (got "${v}")`
       },
       zoom: (v) => (/^\d+$/.test(v) && Number(v) <= 24 ? null : `zoom must be a non-negative integer ≤ 24 (got "${v}")`)
     },
@@ -698,7 +702,7 @@ export class TemplateEngine {
       const caseRegex = /<g-case\b(?:\s+is="([^"]+)")?>([\s\S]*?)<\/g-case>/gi
       const defaultRegex = /<g-default>([\s\S]*?)<\/g-default>/gi
 
-      let match
+      let match: RegExpExecArray | null
       while ((match = caseRegex.exec(innerContent)) !== null) {
         const values = (match[1] || ``).split(`,`).map((v) => v.trim())
         const content = (match[2] || ``)
@@ -768,7 +772,7 @@ export class TemplateEngine {
 
     while (/<g-map\b/i.test(result)) {
       if (++_loopGuard > 50) break
-      result = result.replace(innerRegex, (fullMatch: string, attrsStr: string | undefined, content: string, offset: number) => {
+      result = result.replace(innerRegex, (_fullMatch: string, attrsStr: string | undefined, content: string, offset: number) => {
         // Compute nesting depth: open g-map tags before this match + 1.
         // The current block adds another level, so its depth is one more
         // than the number of open outer tags.
@@ -912,7 +916,7 @@ export class TemplateEngine {
         .trim()
 
       // Build media block based on type
-      const mediaBlock = {type} as Record<any, any>
+      const mediaBlock: ITMediaBlock = {type: type as ITMediaBlock[`type`]}
 
       // Media with file src (photo, video, audio, document, animation, voice, video_note, sticker)
       if (attrs.src) {
@@ -944,7 +948,7 @@ export class TemplateEngine {
         if (caption) mediaBlock.caption = caption // Contact can gave caption for additional text
       }
 
-      result[lang] = mediaBlock as any
+      result[lang] = mediaBlock
     }
 
     return result
@@ -1265,7 +1269,7 @@ export class TemplateEngine {
    *
    * @public
    */
-  static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): T extends true ? (data?: Record<string, any>) => string[] : (data?: Record<string, any>) => string {
+  static _compileToFunction<T extends boolean>(template: T extends true ? string[] : string, isArray: T): ITTemplateRenderer<T> {
     let singleOrCombined: string
     if (isArray) {
       const multiTemplate = template as string[]
@@ -1279,10 +1283,10 @@ export class TemplateEngine {
 
     if (isArray) {
       const functionBody = `return [${processed}]`
-      return new Function(`data`, functionBody) as any
+      return new Function(`data`, functionBody) as unknown as ITTemplateRenderer<T>
     } else {
       const functionBody = `return ${processed}`
-      return new Function(`data`, functionBody) as any
+      return new Function(`data`, functionBody) as unknown as ITTemplateRenderer<T>
     }
   }
 
@@ -1316,7 +1320,7 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: Record<string, any>) => ITMediaBlock
+        [ALang: string]: (data?: ITTemplateData) => ITMediaBlock
       }
     } = {}
 
@@ -1325,7 +1329,7 @@ export class TemplateEngine {
       result[AGBaseId] = {}
 
       for (const [ALang, mediaBlock] of Object.entries(mediaBlocks)) {
-        const compiledProps: Record<string, (data?: Record<string, any>) => string> = {}
+        const compiledProps: Record<string, (data?: ITTemplateData) => string> = {}
         const compiledMediaGroup = mediaBlock.mediaGroup?.map((item) => ({
           type: item.type,
           src: this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGScriptBlocks(item.src))))), false),
@@ -1339,8 +1343,8 @@ export class TemplateEngine {
           compiledProps[key] = this._compileToFunction(processed, false)
         }
 
-        result[AGBaseId][ALang] = (data?: Record<string, any>) => {
-          const resolvedBlock = {...mediaBlock} as any
+        result[AGBaseId][ALang] = (data?: ITTemplateData) => {
+          const resolvedBlock = {...mediaBlock} as ITMediaBlock & Record<string, unknown>
           for (const [key, fn] of Object.entries(compiledProps)) {
             resolvedBlock[key] = fn(data)
           }
@@ -1384,7 +1388,7 @@ export class TemplateEngine {
    * Output shape:
    * - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted)
    * - Second level key: `ALang` (from `<g-message lang="...">`, or `"default"` if omitted)
-   * - Value: `(data?: Record<string, any>) => string`
+   * - Value: `(data?: Record<string, unknown>) => string`
    *
    * @param template - Raw template string containing `<g-base>` and `<g-message>` blocks
    * @param baseBlocks - Optional pre-parsed base blocks for reuse
@@ -1409,7 +1413,7 @@ export class TemplateEngine {
     const bases = baseBlocks || this._processGBaseBlocks(template)
     const result: {
       [AGBaseId: string]: {
-        [ALang: string]: (data?: Record<string, any>) => string
+        [ALang: string]: (data?: ITTemplateData) => string
       }
     } = {}
 
@@ -1446,7 +1450,7 @@ export class TemplateEngine {
    * - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted)
    * - Second level key: `AScope` (from `<g-description scope="...">`, or `"default"` if omitted)
    * - Third level key: `ALang` (from `<g-description lang="...">`, or `"default"` if omitted)
-   * - Value: `(data?: Record<string, any>) => string`
+   * - Value: `(data?: Record<string, unknown>) => string`
    *
    * @param template - Raw template string containing `<g-base>` and `<g-description>` blocks
    * @param gBaseBlocks - Optional pre-parsed base blocks for reuse
@@ -1472,7 +1476,7 @@ export class TemplateEngine {
     const result: {
       [AGBaseId: string]: {
         [AScope: string]: {
-          [ALang: string]: (data?: Record<string, any>) => string
+          [ALang: string]: (data?: ITTemplateData) => string
         }
       }
     } = {}
@@ -1523,7 +1527,7 @@ export class TemplateEngine {
    * - Third level key: `mode`:
    *   - `inline` (default)
    *   - `bottom`
-   * - Value: `(data?: Record<string, any>) => string[]`
+   * - Value: `(data?: Record<string, unknown>) => string[]`
    *
    * @param template - Raw template string containing `<g-base>` and `<g-keyboard>` blocks
    * @param gBaseBlocks - Optional pre-parsed base blocks for reuse
@@ -1614,8 +1618,8 @@ export class TemplateEngine {
     const result: {
       [AGBaseId: string]: {
         [ALang: string]: {
-          inline?: (data?: Record<string, any>) => string[]
-          bottom?: (data?: Record<string, any>) => string[]
+          inline?: (data?: ITTemplateData) => string[]
+          bottom?: (data?: ITTemplateData) => string[]
         }
       }
     } = {}

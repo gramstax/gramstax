@@ -9,16 +9,16 @@
  * @public
  */
 
-import {Keyv} from "keyv"
 import KeyvRedis from "@keyv/redis"
+import {Keyv} from "keyv"
 
-type ITMore = Omit<Required<ConstructorParameters<typeof Keyv>>[0], `store` | `namespace` | `ttl`> & {forceStore?: any}
+type ITMore = Omit<Required<ConstructorParameters<typeof Keyv>>[0], `store` | `namespace` | `ttl`> & {forceStore?: unknown | Record<string, unknown>}
 
 /**
  * RPC cache request structure.
  * @public
  */
-export type ITCacheRpc = {method: string | string[]; params: any; [moreRoot: string]: any}
+export type ITCacheRpc = {method: string | string[]; params: Record<string, unknown>; [moreRoot: string]: unknown | string}
 
 /**
  * Extends {@link https://github.com/jaredwray/keyv | Keyv} to provide a unified caching interface
@@ -52,7 +52,7 @@ export type ITCacheRpc = {method: string | string[]; params: any; [moreRoot: str
  *
  * @public
  */
-export class CacheExternal<V = any> extends Keyv<V> {
+export class CacheExternal<V = unknown> extends Keyv<V> {
   /**
    * Creates a new CacheExternal instance.
    *
@@ -67,7 +67,7 @@ export class CacheExternal<V = any> extends Keyv<V> {
     namespace?: string,
     more?: ITMore
   ) {
-    let store: any
+    let store: Map<unknown, unknown> | KeyvRedis<unknown> | unknown = {}
     if (url.startsWith(`redis`)) store = new KeyvRedis(url)
     if (url === `memory`) store = new Map()
     if (more?.forceStore) store = more.forceStore
@@ -97,12 +97,12 @@ export class CacheExternal<V = any> extends Keyv<V> {
    * @public
    */
   refreshLruCache(maxLength?: number) {
-    const store = this.store as Map<any, any>
+    const store = this.store as Map<unknown, unknown>
     const nsLen = this.opts.namespace ? this.opts.namespace?.length + 1 : null
     const keys = store.keys().toArray()
     for (let i = 0; i < keys.length; i++) {
-      const k = keys[i]
-      if (i == maxLength) {
+      const k = keys[i] as string
+      if (i === maxLength) {
         return
       }
       this.get(nsLen ? k.slice(nsLen) : k)

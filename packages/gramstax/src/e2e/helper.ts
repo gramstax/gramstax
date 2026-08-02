@@ -23,7 +23,7 @@
  */
 
 import type {Gramstax} from "~/core/bot"
-import type {ITE2eUpdateOptions, ITE2eMediaOptions, ITE2eLocationOptions, ITE2eContactOptions, ITE2eCallbackQueryOptions, ITE2eDiceOptions, ITE2eChatMemberOptions, ITE2eUser, ITE2eChat} from "~/types/t.e2e"
+import type {ITE2eCallbackQueryOptions, ITE2eChat, ITE2eChatMemberOptions, ITE2eContactOptions, ITE2eDiceOptions, ITE2eLocationOptions, ITE2eMediaOptions, ITE2eUpdateOptions, ITE2eUser} from "~/types/t.e2e"
 
 /**
  * Captured outbound Bot API call record.
@@ -82,22 +82,22 @@ export class E2eHelper {
         timestamp: Date.now()
       })
       if (method === `getMe`) {
-        return {ok: true, result: {id: 123456789, is_bot: true, first_name: `GramstaxMock`, username: `gramstax_mock_bot`}} as any
+        return {ok: true, result: {id: 123456789, is_bot: true, first_name: `GramstaxMock`, username: `gramstax_mock_bot`}}
       }
       if (method === `getWebhookInfo`) {
-        return {ok: true, result: {url: ``}} as any
+        return {ok: true, result: {url: ``}}
       }
       if (method === `setWebhook`) {
-        return {ok: true, result: true} as any
+        return {ok: true, result: true}
       }
       if (method === `getMyCommands`) {
-        return {ok: true, result: []} as any
+        return {ok: true, result: []}
       }
       if (method === `setMyCommands`) {
-        return {ok: true, result: true} as any
+        return {ok: true, result: true}
       }
       if (method === `getUpdates`) {
-        return {ok: true, result: []} as any
+        return {ok: true, result: []}
       }
       // Stream plugin API methods
       if (method === `sendMessageDraft`) {
@@ -304,9 +304,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendPhoto(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(
-      this._buildMessageUpdate({photo: [{file_id: `mock-photo-file-id`, file_unique_id: `mock-photo-unique-id`, width: 1, height: 1}], ...(options?.caption ? {caption: options.caption} : {})}, options)
-    )
+    return await this.handleUpdate(this._buildMessageUpdate({photo: [{file_id: `mock-photo-file-id`, file_unique_id: `mock-photo-unique-id`, width: 1, height: 1}], ...(options?.caption ? {caption: options.caption} : {})}, options))
   }
 
   /**
@@ -316,9 +314,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendVideo(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(
-      this._buildMessageUpdate({video: {file_id: `mock-video-file-id`, file_unique_id: `mock-video-unique-id`, width: 1, height: 1, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options)
-    )
+    return await this.handleUpdate(this._buildMessageUpdate({video: {file_id: `mock-video-file-id`, file_unique_id: `mock-video-unique-id`, width: 1, height: 1, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options))
   }
 
   /**
@@ -328,9 +324,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendAudio(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(
-      this._buildMessageUpdate({audio: {file_id: `mock-audio-file-id`, file_unique_id: `mock-audio-unique-id`, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options)
-    )
+    return await this.handleUpdate(this._buildMessageUpdate({audio: {file_id: `mock-audio-file-id`, file_unique_id: `mock-audio-unique-id`, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options))
   }
 
   /**
@@ -340,9 +334,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendDocument(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(
-      this._buildMessageUpdate({document: {file_id: `mock-document-file-id`, file_unique_id: `mock-document-unique-id`, file_name: `mock.txt`}, ...(options?.caption ? {caption: options.caption} : {})}, options)
-    )
+    return await this.handleUpdate(this._buildMessageUpdate({document: {file_id: `mock-document-file-id`, file_unique_id: `mock-document-unique-id`, file_name: `mock.txt`}, ...(options?.caption ? {caption: options.caption} : {})}, options))
   }
 
   /**
@@ -352,9 +344,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendAnimation(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(
-      this._buildMessageUpdate({animation: {file_id: `mock-animation-file-id`, file_unique_id: `mock-animation-unique-id`, width: 1, height: 1, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options)
-    )
+    return await this.handleUpdate(this._buildMessageUpdate({animation: {file_id: `mock-animation-file-id`, file_unique_id: `mock-animation-unique-id`, width: 1, height: 1, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options))
   }
 
   /**
@@ -364,9 +354,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendVoice(options?: ITE2eMediaOptions) {
-    return await this.handleUpdate(
-      this._buildMessageUpdate({voice: {file_id: `mock-voice-file-id`, file_unique_id: `mock-voice-unique-id`, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options)
-    )
+    return await this.handleUpdate(this._buildMessageUpdate({voice: {file_id: `mock-voice-file-id`, file_unique_id: `mock-voice-unique-id`, duration: 1}, ...(options?.caption ? {caption: options.caption} : {})}, options))
   }
 
   /**
@@ -386,9 +374,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendSticker(options?: ITE2eUpdateOptions) {
-    return await this.handleUpdate(
-      this._buildMessageUpdate({sticker: {file_id: `mock-sticker-file-id`, file_unique_id: `mock-sticker-unique-id`, type: `regular`, width: 1, height: 1, is_animated: false, is_video: false}}, options)
-    )
+    return await this.handleUpdate(this._buildMessageUpdate({sticker: {file_id: `mock-sticker-file-id`, file_unique_id: `mock-sticker-unique-id`, type: `regular`, width: 1, height: 1, is_animated: false, is_video: false}}, options))
   }
 
   /**
@@ -456,9 +442,7 @@ export class E2eHelper {
    * @returns API calls made while processing this update.
    */
   async sendDice(options?: ITE2eDiceOptions) {
-    return await this.handleUpdate(
-      this._buildMessageUpdate({dice: {emoji: options?.emoji ?? `🎲`, value: 1}}, options)
-    )
+    return await this.handleUpdate(this._buildMessageUpdate({dice: {emoji: options?.emoji ?? `🎲`, value: 1}}, options))
   }
 
   /**
@@ -491,9 +475,7 @@ export class E2eHelper {
    */
   async sendNewChatMembers(options?: ITE2eUpdateOptions) {
     const user = this._defaultUser(options?.user)
-    return await this.handleUpdate(
-      this._buildMessageUpdate({new_chat_members: [user]}, options)
-    )
+    return await this.handleUpdate(this._buildMessageUpdate({new_chat_members: [user]}, options))
   }
 
   /**
@@ -675,9 +657,7 @@ export class E2eHelper {
    * @returns Array of stream-related API calls.
    */
   streamCalls(): ITE2eApiCall[] {
-    return this.calls.filter(
-      (c) => c.method === `sendMessageDraft` || c.method === `sendRichMessageDraft` || c.method === `sendRichMessage` || c.method === `sendMessage`
-    )
+    return this.calls.filter((c) => c.method === `sendMessageDraft` || c.method === `sendRichMessageDraft` || c.method === `sendRichMessage` || c.method === `sendMessage`)
   }
 
   /**

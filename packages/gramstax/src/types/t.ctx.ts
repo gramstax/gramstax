@@ -1,6 +1,8 @@
-import {Keyboard, Context, InlineKeyboard, Middleware} from "grammy"
 import type {StreamFlavor} from "@grammyjs/stream"
+import type {Context, InlineKeyboard, Keyboard, Middleware} from "grammy"
+
 export type {StreamFlavor}
+
 import type {CacheExternal, ITCacheRpc} from "~/cache/external"
 import type {Ctx} from "~/core/ctx"
 import type {LoggingHelper} from "~/helpers/log"
@@ -15,6 +17,28 @@ import type {TemplateManager} from "~/template/manager"
  * @public
  */
 /**
+ * Page class/instance that defines `handleCallbackQueryData`.
+ *
+ * @remarks
+ * Same constraint as {@link ITKbDest}: pages that don't override
+ * `handleCallbackQueryData` cause a compile error when used here.
+ *
+ * @public
+ */
+export type _KbPageLike = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCallback[`prototype`])
+
+/**
+ * grammY button object whose `text` may also be a page class/instance.
+ *
+ * @remarks
+ * `{text: SomePage, style: "danger"}` — the page resolves to its
+ * `intentText` label; the page must define `handleCallbackQueryData`.
+ *
+ * @public
+ */
+export type _KbButtonWithPageText = Omit<Extract<Parameters<InlineKeyboard[`text`]>[0], object>, `text`> & {text: string | _KbPageLike}
+
+/**
  * Inline keyboard whose `.text()` also accepts a page class/instance as
  * callback data — calls `page.data.callbackQueryData()` automatically.
  *
@@ -28,11 +52,13 @@ import type {TemplateManager} from "~/template/manager"
  */
 export interface _InlineKbWithCtx extends InlineKeyboard {
   /**
-   * Add a callback button. `data` is a page (class/instance) or string.
-   * @param text - string or object text with styling
-   * @param data - string callback_data or class Page
+   * Add a callback button. `text` and/or `data` can be a page (class/instance)
+   * or string. A page passed as `text` resolves to its `intentText` label; a
+   * page passed as `data` resolves to its `callbackQueryData()`.
+   * @param text - string, grammY button object (or with page text), or class Page (resolves to intentText)
+   * @param data - string callback_data, grammY button object, or class Page
    */
-  text(text: Parameters<InlineKeyboard[`text`]>[0], data?: string | typeof Ctx): this
+  text(text: Parameters<InlineKeyboard[`text`]>[0] | _KbPageLike | _KbButtonWithPageText, data?: Parameters<InlineKeyboard[`text`]>[1] | _KbPageLike): this
 }
 
 /**
@@ -274,7 +300,7 @@ export type ITReplyAction = Parameters<Context[`replyWithChatAction`]>[0]
  *
  * @public
  */
-export type ITData = Record<string, any>
+export type ITData = Record<string, unknown>
 
 /**
  * Parameters for bottom keyboard configuration.
@@ -329,7 +355,7 @@ export type ITInlineKbParams = {
  *
  * @public
  */
-export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
+export type ITBuildDataOptions<C extends (...args: string[]) => Array<string | undefined> = (...args: string[]) => Array<string | undefined>> = {
   /**
    * Optional page name override.
    *
@@ -415,7 +441,7 @@ export type ITBuildDataOptions<C extends (...args: any[]) => any = any> = {
  * @public
  */
 /** Page class/instance that defines handleCallbackQueryData. */
-type _KbDestHasCallback = {prototype: {handleCallbackQueryData: (...args: any[]) => any}}
+type _KbDestHasCallback = {prototype: {handleCallbackQueryData: (...args: never[]) => unknown}}
 
 /**
  * Destination for an inline keyboard button — a page (class or instance)
@@ -566,7 +592,7 @@ export type ITPageDataBase = {
  *
  * @public
  */
-export type ITPageData<T extends any[] = any[]> = ITPageDataBase & {
+export type ITPageData<T extends Array<string | undefined> = string[]> = ITPageDataBase & {
   /**
    * **Consumption.** Generate the callback query data string for inline keyboard buttons.
    *
@@ -598,7 +624,7 @@ export type ITPageData<T extends any[] = any[]> = ITPageDataBase & {
  *
  * @public
  */
-export type ITTemp = {isAnswer: boolean; session: Partial<ITCacheRpc>; data: Partial<ITPageData<any>>; [key: string]: any}
+export type ITTemp = {isAnswer: boolean; session: Partial<ITCacheRpc>; data: Partial<ITPageData>; [key: string]: unknown}
 
 /**
  * Parameters for Ctx instance initialization.
@@ -628,7 +654,7 @@ export type ITCtxParams = {
    * @remarks
    * See {@link ITGramstaxParams.cacheKeyboard} for details.
    */
-  cacheKeyboard: Map<any, any>
+  cacheKeyboard: Map<string, unknown>
 
   /**
    * Template manager instance.
