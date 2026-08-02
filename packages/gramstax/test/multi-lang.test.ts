@@ -8,10 +8,10 @@ function makePage(name: string, overrides?: Record<string, any>): typeof Ctx {
     intentText: name,
     intentCommandText: name,
     intentCallbackQueryData: name,
-    callbackQueryData() {return name},
+    callbackQueryData() {return {result: name, page: undefined as any, args: []} as any},
     _positionArgText: 1,
     ...overrides
-  } as ITPageData<any>
+  } as unknown as ITPageData<any>
   const page = class extends Ctx {
     static data = data as any
     static template = ``
@@ -22,14 +22,15 @@ function makePage(name: string, overrides?: Record<string, any>): typeof Ctx {
 describe(`GramstaxInlineKeyboard.text() — page class as data`, () => {
   it(`should resolve callbackQueryData when page class is passed`, () => {
     const Page = makePage(`settings`)
-    expect((Page.data as any)!.callbackQueryData()).toBe(`settings`)
+    expect((Page.data as any)!.callbackQueryData().result).toBe(`settings`)
   })
 
   it(`should accept page with handleArgsCallbackQueryData`, () => {
     const Page = makePage(`detail`, {
-      callbackQueryData(id: string) {return `detail:${id}` as any}
+      callbackQueryData(id: string) {return {result: `detail:${id}`, page: this, args: [id]} as any}
     }) as unknown as {data: ITPageData<any>}
-    expect(Page.data!.callbackQueryData(`42`)).toBe(`detail:42`)
+    expect(Page.data!.callbackQueryData(`42`).result).toBe(`detail:42`)
+    expect(Page.data!.callbackQueryData(`42`).args).toEqual([`42`])
   })
 })
 
@@ -46,7 +47,7 @@ describe(`Multi-language intentText`, () => {
       intentText: `Balance`,
       intentCommandText: `balance`,
       intentCallbackQueryData: `balance`,
-      callbackQueryData() {return `balance`},
+      callbackQueryData() {return {result: `balance`, page: undefined as any, args: []} as any},
       _positionArgText: 1,
       intentTextMap: {default: `Balance`, id: `Saldo`}
     }
@@ -61,7 +62,7 @@ describe(`Multi-language intentText`, () => {
       intentText: `Balance`,
       intentCommandText: `balance`,
       intentCallbackQueryData: `balance`,
-      callbackQueryData() {return `balance`},
+      callbackQueryData() {return {result: `balance`, page: undefined as any, args: []} as any},
       _positionArgText: 1,
       intentTextMap: {default: `Balance`, id: `Saldo`}
     }
@@ -74,7 +75,7 @@ describe(`Multi-language intentText`, () => {
       intentText: `Balance`,
       intentCommandText: `balance`,
       intentCallbackQueryData: `balance`,
-      callbackQueryData() {return `balance`},
+      callbackQueryData() {return {result: `balance`, page: undefined as any, args: []} as any},
       _positionArgText: 1,
       intentCommandTextMap: {default: `balance`, id: `saldo`}
     }
@@ -94,7 +95,7 @@ describe(`GramstaxKeyboard.text() — page class as label`, () => {
       intentText: `Start`,
       intentCommandText: `start`,
       intentCallbackQueryData: `start`,
-      callbackQueryData() {return `start`},
+      callbackQueryData() {return {result: `start`, page: undefined as any, args: []} as any},
       _positionArgText: 1,
       intentTextMap: {default: `Start`, id: `Mulai`}
     }

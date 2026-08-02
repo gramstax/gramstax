@@ -23,7 +23,7 @@ export class StatusPage extends PageBase {
       const bi = Base.error
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
       await this.clearSession()
-      await this.renderAuto(kb, null, bi, null, isEdit)
+      await this.renderAuto(kb, {}, bi, null, isEdit)
     }
   }
 
@@ -31,7 +31,7 @@ export class StatusPage extends PageBase {
     show: async () => {
       const bi = Base.notFound
       const kb = this.inlineKeyboardT([StartPage], `1`, bi)
-      await this.render(kb, null, bi)
+      await this.render(kb, {}, bi)
     }
   }
 

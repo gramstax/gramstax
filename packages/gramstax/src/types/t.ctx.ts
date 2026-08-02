@@ -55,9 +55,15 @@ export interface _InlineKbWithCtx extends InlineKeyboard {
    * Add a callback button. `text` and/or `data` can be a page (class/instance)
    * or string. A page passed as `text` resolves to its `intentText` label; a
    * page passed as `data` resolves to its `callbackQueryData()`.
+   *
+   * When `data` is a callback data object (`Page.data.callbackQueryData(...)`),
+   * the destination page must define `handleCallbackQueryData` (no args) or
+   * `handleArgsCallbackQueryData` (with args) — enforced at compile time.
+   *
    * @param text - string, grammY button object (or with page text), or class Page (resolves to intentText)
-   * @param data - string callback_data, grammY button object, or class Page
+   * @param data - string callback_data, grammY button object, class Page, or callback data object from `page.data.callbackQueryData(...)`
    */
+  text<D extends _KbCallbackData<typeof Ctx, Array<string | undefined>>>(text: Parameters<InlineKeyboard[`text`]>[0] | _KbPageLike | _KbButtonWithPageText, data: D & _KbCallbackDataCheck<D>): this
   text(text: Parameters<InlineKeyboard[`text`]>[0] | _KbPageLike | _KbButtonWithPageText, data?: Parameters<InlineKeyboard[`text`]>[1] | _KbPageLike): this
 }
 
@@ -435,6 +441,58 @@ export type ITBuildDataOptions<C extends (...args: string[]) => Array<string | u
  * @public
  */
 /**
+ * Constructor type of a page instance type (`typeof Ctx` statics + the
+ * instance's prototype), used to carry the page class in `_KbCallbackData`.
+ *
+ * @internal
+ */
+export type _CtorOf<P extends Ctx> = typeof Ctx & {prototype: P}
+
+/**
+ * Callback data produced by `Page.data.callbackQueryData(...)`.
+ *
+ * @remarks
+ * Object format `{result, page, args}`: `result` is the string sent to Telegram,
+ * `page` is the destination page class, `args` is the arg tuple passed at call time.
+ *
+ * @public
+ */
+export type _KbCallbackData<P extends typeof Ctx = typeof Ctx, A extends Array<string | undefined> = []> = {
+  result: string
+  page: P
+  args: A
+}
+
+/**
+ * Validates a callback data object against the destination page's routes.
+ *
+ * @remarks
+ * Resolves to `D` when the page defines the route required by the configured
+ * args: empty tuple → `handleCallbackQueryData`; non-empty with a required
+ * first arg → `handleArgsCallbackQueryData` (or session/free variants);
+ * optional/unbounded args are ambiguous → always allowed.
+ * Pages typed as bare `typeof Ctx` (no explicit page) are allowed through —
+ * their route is verified at runtime instead.
+ *
+ * @internal
+ */
+export type _KbCallbackDataCheck<D extends _KbCallbackData<typeof Ctx, Array<string | undefined>>> = D[`args`] extends readonly []
+  ? D[`page`] extends typeof Ctx & _KbDestHasCallback
+    ? D
+    : typeof Ctx extends D[`page`]
+      ? D
+      : never
+  : D[`args`] extends readonly [infer A, ...unknown[]]
+    ? undefined extends A
+      ? D
+      : D[`page`] extends typeof Ctx & _KbDestHasArgsCallback
+        ? D
+        : typeof Ctx extends D[`page`]
+          ? D
+          : never
+    : D
+
+/**
  * Destination for an inline keyboard button — a page class, instance,
  * or a literal callback data string.
  *
@@ -442,6 +500,11 @@ export type ITBuildDataOptions<C extends (...args: string[]) => Array<string | u
  */
 /** Page class/instance that defines handleCallbackQueryData. */
 type _KbDestHasCallback = {prototype: {handleCallbackQueryData: (...args: never[]) => unknown}}
+
+/** Page class that defines a route handling callback query data with args. */
+type _KbDestHasArgsCallback = {
+  prototype: {handleArgsCallbackQueryData: (...args: never[]) => unknown} | {handleSessionArgsCallbackQueryData: (...args: never[]) => unknown} | {handleFreeCallbackQueryData: (...args: never[]) => unknown}
+}
 
 /**
  * Destination for an inline keyboard button — a page (class or instance)
@@ -453,7 +516,7 @@ type _KbDestHasCallback = {prototype: {handleCallbackQueryData: (...args: never[
  *
  * @public
  */
-export type ITKbDest = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCallback[`prototype`]) | string
+export type ITKbDest = (typeof Ctx & _KbDestHasCallback) | (Ctx & _KbDestHasCallback[`prototype`]) | string | _KbCallbackData<typeof Ctx, Array<string | undefined>>
 
 /**
  * Keyboard column configuration.
@@ -584,9 +647,15 @@ export type ITPageDataBase = {
  * configured via `buildData`. Every page SHOULD define `static data`
  * via `buildData(...)` to enable callback query routing.
  *
- * - `buildData()` (no args) → `callbackQueryData(): string` — 0 args only
- * - `buildData((a: string, b: string) => ...)` → `callbackQueryData(a, b): string`
- * - `buildData((a?: string) => ...)` → `callbackQueryData(a?): string`
+ * - `buildData()` (no args) → `callbackQueryData(): {result, page, args: []}` — 0 args only
+ * - `buildData((a: string, b: string) => ...)` → `callbackQueryData(a, b): {result, page, args: [a, b]}`
+ * - `buildData((a?: string) => ...)` → `callbackQueryData(a?): {result, page, args}` (optional still supported)
+ *
+ * The page class is NOT carried by `static data` (TS cannot infer it without
+ * a circular annotation) — pass it explicitly when you want route validation:
+ * `Page.data.callbackQueryData<Page>("42")` is compile-error checked
+ * against `handleArgsCallbackQueryData`; without the type argument the object
+ * is accepted as-is and the route is only resolved at runtime.
  *
  * @typeParam T - Tuple type representing the callback arg parameters.
  *
@@ -594,29 +663,37 @@ export type ITPageDataBase = {
  */
 export type ITPageData<T extends Array<string | undefined> = string[]> = ITPageDataBase & {
   /**
-   * **Consumption.** Generate the callback query data string for inline keyboard buttons.
+   * **Consumption.** Generate the callback query data object for inline keyboard buttons.
    *
    * @remarks
-   * Call this method to produce the actual callback data string that Telegram sends
-   * when a user taps an inline keyboard button.  This is the **consumption** side —
+   * Call this method to produce the actual callback data that Telegram sends
+   * when a user taps an inline keyboard button. This is the **consumption** side —
    * you call it at runtime, typically when building a keyboard:
    *
    * ```typescript
    * keyboard.text("Detail", DetailPage.data.callbackQueryData("42"))
    * ```
    *
-   * **No args** → returns `intentCallbackQueryData` as-is (e.g. `"settings"`).
-   * **With args** → returns `intentCallbackQueryData:arg1:arg2:…` (e.g. `"detail:42"`)
+   * Returns an object `{result, page, args}`:
+   * - `result` — the callback data string (`intentCallbackQueryData:arg1:arg2:…`, or the
+   *   bare intent when no args are passed).
+   * - `page` — the page class this data routes to (used for route validation).
+   * - `args` — the actual args tuple passed at call time (empty `[]` when none).
    *
    * How args are encoded is defined at build time via
    * {@link ITBuildDataOptions.callbackQueryData}  (the **definition** side).
    *
+   * @typeParam P - The page class (pass `Page`, not `typeof Page`). Omit for
+   *   no route validation, or pass the class to make `InlineKeyboard.text()`/
+   *   `inlineKeyboardT` verify the page defines the matching route
+   *   (`handleCallbackQueryData` without args,
+   *   `handleArgsCallbackQueryData`/`handleSessionArgsCallbackQueryData`/`handleFreeCallbackQueryData` with args).
    * @param args - Positional args to append to the intent string.
-   * @returns A callback query data string ready for use in `InlineKeyboard.text()`.
+   * @returns A callback data object ready for use in `InlineKeyboard.text()`.
    *
    * @see {@link ITBuildDataOptions.callbackQueryData} for the definition side.
    */
-  callbackQueryData(...args: T): string
+  callbackQueryData<P extends Ctx = Ctx>(...args: T): _KbCallbackData<_CtorOf<P>, T>
 }
 
 /**

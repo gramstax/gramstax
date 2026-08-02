@@ -83,7 +83,7 @@ function makePageData(overrides?: Partial<ITPageData<any>>): ITPageData<any> {
     intentText: `test`,
     intentCommandText: `test`,
     intentCallbackQueryData: `test`,
-    callbackQueryData() {return `test`},
+    callbackQueryData() {return {result: `test`, page: undefined as any, args: []} as any},
     _positionArgText: 1,
     ...overrides
   } as ITPageData<any>

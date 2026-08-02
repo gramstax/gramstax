@@ -6,7 +6,7 @@
  * ```ts
  * const kb = new GramstaxInlineKeyboard()
  *   .text("Open Settings", SettingsPage)                // callback from SettingsPage.data.callbackQueryData()
- *   .text("Help", HelpPage.data.callbackQueryData())    // string works too
+ *   .text("Help", HelpPage.data.callbackQueryData())    // [not recomended for types check] string works too
  * ```
  */
 class GramstaxInlineKeyboard extends InlineKeyboard {
@@ -36,9 +36,14 @@ class GramstaxInlineKeyboard extends InlineKeyboard {
       }
     }
     if (data !== undefined && typeof data !== `string`) {
+      if (`result` in data && `page` in data && `args` in data) {
+        const cb = data as unknown as _KbCallbackData
+        return super.text(label, cb.result)
+      }
       const PageClass = (typeof data === `function` ? data : data.constructor) as typeof Ctx
       _ensurePageHasCallback(PageClass)
-      return super.text(label, (PageClass.data as unknown as {callbackQueryData: () => string}).callbackQueryData())
+      const cb = (PageClass.data as unknown as {callbackQueryData: () => _KbCallbackData<typeof Ctx, []>}).callbackQueryData()
+      return super.text(label, cb.result)
     }
     return super.text(label, data as Parameters<InlineKeyboard[`text`]>[1])
   }
@@ -91,10 +96,7 @@ function _ensurePageHasCallback(PageClass: typeof Ctx) {
   const hasCallback = typeof (PageClass.prototype as unknown as Record<string, unknown>).handleCallbackQueryData === `function`
   if (!hasCallback) {
     const pageName = (PageClass.data as {name?: string} | undefined)?.name ?? (PageClass as unknown as {name?: string}).name ?? `unknown`
-    throw new Error(
-      `[gramstax] Page "${pageName}" referenced in inline keyboard does not define handleCallbackQueryData. ` +
-        `The button would have no registered handler. Add "async handleCallbackQueryData()" to the page class.`
-    )
+    throw new Error(`Page "${pageName}" referenced in inline keyboard does not define handleCallbackQueryData. The button would have no registered handler. Add "async handleCallbackQueryData()" to the page class.`)
   }
 }
 
@@ -132,6 +134,9 @@ import type {LoggingHelper} from "~/helpers/log"
 import type {ITMediaBlock} from "~/template/engine"
 import type {TemplateManager} from "~/template/manager"
 import type {
+  _KbButtonWithPageText,
+  _KbCallbackData,
+  _KbPageLike,
   ITBottomKb,
   ITBottomKbParams,
   ITBuildDataOptions,
@@ -159,9 +164,7 @@ import type {
   ITOptReplyVoice,
   ITPageData,
   ITPageDataBase,
-  ITTemp,
-  _KbButtonWithPageText,
-  _KbPageLike
+  ITTemp
 } from "../types/t.ctx"
 
 type ITMediaGroupType = Extract<ITMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
@@ -2591,6 +2594,14 @@ export class Ctx extends Context {
    *
    * @public
    */
+  /**
+   * Creates page routing data configuration with a callback function.
+   *
+   * @param callbackQueryData - A function that returns arg values as an array.
+   * @returns The page data configuration object.
+   *
+   * @public
+   */
   static buildData<C extends (...args: string[]) => Array<string | undefined>>(callbackQueryData: C): ITPageData<Parameters<C>>
 
   /**
@@ -2604,9 +2615,9 @@ export class Ctx extends Context {
   static buildData<C extends (...args: string[]) => Array<string | undefined>>(options: ITBuildDataOptions<C> | null): ITPageData<Parameters<C>>
 
   /**
-   * Creates page routing data configuration with options (no type inference).
+   * Creates page routing data configuration without a callback arg.
    *
-   * @param options - Configuration options (or null to use defaults). See {@link ITBuildDataOptions} for details.
+   * @param options - Configuration options without `callbackQueryData` (or null to use defaults). See {@link ITBuildDataOptions} for details.
    * @returns The page data configuration object.
    *
    * @public
@@ -2623,6 +2634,7 @@ export class Ctx extends Context {
     const options = (isFunc ? {callbackQueryData: params} : (params ?? {})) as ITBuildDataOptions
     const cbd = options.callbackQueryData //as ((...args: string[]) => string) | null | undefined
     const addPld = this.prototype.addArgs.bind(this.prototype)
+    const PageClass = this
 
     const name = options.name ?? ``
 
@@ -2643,13 +2655,13 @@ export class Ctx extends Context {
       intentText,
       intentCommandText,
       intentCallbackQueryData: name,
-      callbackQueryData: cbd
-        ? function (this: {intentCallbackQueryData: string}, ...args: string[]): string {
-            return addPld(this.intentCallbackQueryData, `colon`, cbd(...args))
+      callbackQueryData: (cbd
+        ? function (this: ITPageData, ...args: string[]): _KbCallbackData<typeof Ctx, string[]> {
+            return {result: addPld(this.intentCallbackQueryData, `colon`, cbd(...args)), page: PageClass, args}
           }
-        : function (this: {intentCallbackQueryData: string}): string {
-            return this?.intentCallbackQueryData
-          },
+        : function (this: ITPageData): _KbCallbackData<typeof Ctx, []> {
+            return {result: this.intentCallbackQueryData, page: PageClass, args: []}
+          }) as ITPageData[`callbackQueryData`],
       _positionArgText: intentText ? intentText.split(this.prototype.getSeperatorTag(`space`)).length : (undefined as unknown as number)
     }
     if (intentTextMap) data.intentTextMap = intentTextMap
@@ -2746,7 +2758,12 @@ export class Ctx extends Context {
             const page = PageDest[i]!
             const lang = this.from?.language_code
             if (typeof page !== `string`) {
-              k.text(_resolvePageTextLang(page, lang))
+              if (`result` in page && `page` in page && `args` in page) {
+                const cb = page as unknown as _KbCallbackData
+                k.text(cb.result)
+              } else {
+                k.text(_resolvePageTextLang(page, lang))
+              }
             } else {
               k.text(page)
             }
@@ -2799,20 +2816,19 @@ export class Ctx extends Context {
       (k, a) => {
         return this.keyboardCols(k, a, layout, (e, i) => {
           const page = PageDest[i]!
-          // inlineKeyboardT encodes 0-arg callback data, so only handleCallbackQueryData (not handleArgsCallbackQueryData) will fire.
           if (typeof page !== `string`) {
-            const PageClass = typeof page === `function` ? page : (page.constructor as typeof Ctx)
-            const hasCallback = typeof (PageClass.prototype as unknown as Record<string, unknown>).handleCallbackQueryData === `function`
-            if (!hasCallback) {
-              const pageName = (PageClass.data as {name?: string} | undefined)?.name ?? (PageClass as unknown as {name?: string}).name ?? `unknown`
-              throw new Error(
-                `[gramstax] Page "${pageName}" referenced in inlineKeyboardT does not define handleCallbackQueryData. ` +
-                  `The button would have no registered handler. Add "async handleCallbackQueryData()" to the page class.`
-              )
+            if (`result` in page && `page` in page && `args` in page) {
+              const cb = page as unknown as _KbCallbackData
+              k.text(e, cb.result)
+              return
             }
+            const PageClass = typeof page === `function` ? page : (page.constructor as typeof Ctx)
+            _ensurePageHasCallback(PageClass)
+            const cb = (PageClass.data as unknown as {callbackQueryData: () => _KbCallbackData<typeof Ctx, []>}).callbackQueryData()
+            k.text(e, cb.result)
+            return
           }
-          const data = typeof page === `string` ? page : (page.data as {callbackQueryData: () => string}).callbackQueryData()
-          k.text(e, data)
+          k.text(e, page)
         })
       },
       {AGBaseId: AGBaseId ?? undefined, data: data ?? undefined}

@@ -66,6 +66,7 @@ class Helper {
 
 export class StartRandomTextPage extends PageBase {
   static data = this.buildData()
+  
   async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }
