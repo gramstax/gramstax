@@ -1,4 +1,4 @@
-import {afterEach, describe, it, expect} from "bun:test"
+import {afterEach, describe, expect, it } from "bun:test"
 import {MockTelegramServer} from "~/mock/telegram-server"
 
 describe(`MockTelegramServer`, () => {

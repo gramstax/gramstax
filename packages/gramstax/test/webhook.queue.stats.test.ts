@@ -1,10 +1,10 @@
-import {describe, it, expect, beforeEach, afterEach} from "bun:test"
-import {mkdir, rm} from "node:fs/promises"
+import {afterEach, beforeEach, describe, expect, it } from "bun:test"
 import {existsSync} from "node:fs"
+import {mkdir, rm} from "node:fs/promises"
 import {join} from "node:path"
+import {Gramstax} from "~/core/bot"
 import {TemplateManager} from "~/template/manager"
 import {WebhookQueue} from "~/webhook/queue"
-import {Gramstax} from "~/core/bot"
 
 const TEST_DIR = join(import.meta.dir, `bot_views_stats`)
 

@@ -1,10 +1,10 @@
-import {describe, it, expect, mock} from "bun:test"
-import {Ctx} from "~/core/ctx"
-import {Gramstax} from "~/core/bot"
-import {TemplateManager} from "~/template/manager"
+import {describe, expect, it, mock} from "bun:test"
 import {mkdtempSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
+import {Gramstax} from "~/core/bot"
+import {Ctx} from "~/core/ctx"
+import {TemplateManager} from "~/template/manager"
 import type {ITPageData} from "~/types/t.ctx"
 
 
@@ -65,7 +65,7 @@ function makePages() {
     routeStatic: makeObject(listRouteStatic, () => ({}) as Record<string, {name: string; routeName: string}>),
     routeStaticIntent: makeObject(listRouteStaticIntent, () => ({}) as Record<string, {name: string; routeName: string}>),
     routeStaticSession: {},
-    chatMemberRoutes: [] as Array<any>,
+    routeChatMember: [] as Array<any>,
     listRouteStatic,
     listRouteStaticIntent,
     listRouteStaticSession: [],
@@ -139,7 +139,7 @@ describe(`_pageSorts multi-language`, () => {
     expect(ht[`en:Balance`]).toEqual({name: `balance`, routeName: `handleText`})
     expect(ht[`id:Saldo`]).toEqual({name: `balance`, routeName: `handleText`})
     // Plain key should NOT be set when intentTextMap is present
-    expect(ht[`Balance`]).toBeUndefined()
+    expect(ht.Balance).toBeUndefined()
   })
 
   it(`registers command variants in routeStatic.handleCommandText when intentCommandTextMap is set`, () => {
@@ -174,7 +174,7 @@ describe(`_pageSorts multi-language`, () => {
     bot.callPageSorts(Page, pages as any, 0)
 
     const ht = pages.routeStatic.handleText
-    expect(ht[`Balance`]).toEqual({name: `balance`, routeName: `handleText`})
+    expect(ht.Balance).toEqual({name: `balance`, routeName: `handleText`})
     // No language-prefixed keys
     expect(ht[`en:Balance`]).toBeUndefined()
     expect(ht[`id:Balance`]).toBeUndefined()
@@ -232,7 +232,7 @@ describe(`_pageSorts callback query data`, () => {
     bot.callPageSorts(Page, pages as any, 0)
 
     const hcqd = pages.routeStatic.handleCallbackQueryData
-    expect(hcqd[`settings`]).toEqual({name: `settings`, routeName: `handleCallbackQueryData`})
+    expect(hcqd.settings).toEqual({name: `settings`, routeName: `handleCallbackQueryData`})
   })
 })
 

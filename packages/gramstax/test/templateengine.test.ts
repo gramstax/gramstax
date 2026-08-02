@@ -1,4 +1,4 @@
-import {describe, it, expect} from "bun:test"
+import {describe, expect, it } from "bun:test"
 import {TemplateEngine} from "~/template/engine"
 
 describe(`TemplateEngine`, () => {
@@ -851,7 +851,7 @@ describe(`TemplateEngine`, () => {
         </g-base>
       `
       const compiled = TemplateEngine.compileBlockGMessage(template)
-      const fn = compiled[`list`]![`default`]
+      const fn = compiled.list!.default
 
       const data = {users: [{name: `X`}, {name: `Y`}]}
       expect(fn!(data).trim()).toBe(`1. X, 2. Y`)

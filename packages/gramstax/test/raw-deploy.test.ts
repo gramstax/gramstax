@@ -1,9 +1,9 @@
-import {describe, it, expect, beforeEach, afterEach, spyOn} from "bun:test"
+import {afterEach, beforeEach, describe, expect, it, spyOn} from "bun:test"
+import {existsSync} from "node:fs"
+import {mkdir, rm} from "node:fs/promises"
+import {join} from "node:path"
 import {Gramstax} from "~/core/bot"
 import {TemplateManager} from "~/template/manager"
-import {mkdir, rm} from "node:fs/promises"
-import {existsSync} from "node:fs"
-import {join} from "node:path"
 
 const TEST_DIR = join(import.meta.dir, `__tmp_raw`)
 

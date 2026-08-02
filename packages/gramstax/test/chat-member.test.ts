@@ -1,11 +1,11 @@
-import {describe, it, expect, mock, beforeAll, afterAll, beforeEach} from "bun:test"
+import {afterAll, beforeAll, beforeEach, describe, expect, it } from "bun:test"
+import {existsSync} from "node:fs"
+import {mkdir, rm} from "node:fs/promises"
+import {join} from "node:path"
+import {chatMemberFilter, myChatMemberFilter} from "@grammyjs/chat-members"
 import {Gramstax} from "~/core/bot"
 import {Ctx} from "~/core/ctx"
 import {TemplateManager} from "~/template/manager"
-import {chatMemberFilter, myChatMemberFilter} from "@grammyjs/chat-members"
-import {mkdir, rm} from "node:fs/promises"
-import {existsSync} from "node:fs"
-import {join} from "node:path"
 
 const TEST_PAGES_DIR = join(import.meta.dir, `chat-member-test-pages`)
 
@@ -157,15 +157,16 @@ function createBot(
   }
 
   // Pre-compute chat member filters
-  if (pages.chatMemberRoutes.length > 0) {
-    for (const route of pages.chatMemberRoutes) {
+  if (pages.routeChatMember.length > 0) {
+    for (const route of pages.routeChatMember) {
       const factory = route.type === `chatMember` ? chatMemberFilter : myChatMemberFilter
       route.filter = factory(route.oldStatus as any, route.newStatus as any) as (ctx: any) => boolean
     }
   }
 
   bot.pages = pages as any
-  bot.registerLowOnChatMember()
+  bot.bot.on(`chat_member`, (ctx) => bot._onHandle(ctx, `chatmember`, false))
+  bot.bot.on(`my_chat_member`, (ctx) => bot._onHandle(ctx, `mychatmember`, false))
   return bot
 }
 
@@ -174,7 +175,7 @@ function createBot(
 describe(`chat member routing`, () => {
   it(`should parse handleChatMemberOutIn route`, () => {
     const bot = createBot([{name: `welcome`, page: WelcomePage}])
-    const route = bot.pages.chatMemberRoutes[0]
+    const route = bot.pages.routeChatMember[0]
     expect(route).toBeDefined()
     expect(route!.name).toBe(`welcome`)
     expect(route!.routeName).toBe(`handleChatMemberOutIn`)
@@ -185,7 +186,7 @@ describe(`chat member routing`, () => {
 
   it(`should parse handleMyChatMemberRegularAdmin route`, () => {
     const bot = createBot([{name: `admin`, page: AdminPage}])
-    const cmRoutes = bot.pages.chatMemberRoutes
+    const cmRoutes = bot.pages.routeChatMember
     const promotedRoute = cmRoutes.find((r: any) => r.routeName === `handleMyChatMemberRegularAdmin`)
     expect(promotedRoute).toBeDefined()
     expect(promotedRoute!.type).toBe(`myChatMember`)
@@ -282,16 +283,15 @@ describe(`chat member routing`, () => {
       static data = {name: `empty`} as any
     }
     const bot = createBot([{name: `empty`, page: EmptyPage}])
-    expect(bot.pages.chatMemberRoutes.length).toBe(0)
+    expect(bot.pages.routeChatMember.length).toBe(0)
   })
 
-  it(`should register chat_member listener by default`, () => {
-    const onSpy = mock(() => {})
+  it(`should register chat_member listeners via constructor`, async () => {
     const bot = createBot([{name: `welcome`, page: WelcomePage}])
-    bot.bot.on = onSpy as any
-    bot.registerLowOnChatMember()
-    expect(onSpy).toHaveBeenCalledWith(`chat_member`, expect.any(Function))
-    expect(onSpy).toHaveBeenCalledWith(`my_chat_member`, expect.any(Function))
+    const update = buildChatMemberUpdate(`kicked`, `member`)
+    welcomeCalled = false
+    await bot.bot.handleUpdate(update as any)
+    expect(welcomeCalled).toBe(true)
   })
 
   it(`should support handleChatMember with array-like status transitions`, async () => {

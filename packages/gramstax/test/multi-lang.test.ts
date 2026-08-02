@@ -1,4 +1,4 @@
-import {describe, it, expect} from "bun:test"
+import {describe, expect, it } from "bun:test"
 import {Ctx} from "~/core/ctx"
 import type {ITPageData} from "~/types/t.ctx"
 

@@ -1,9 +1,9 @@
-import {describe, it, expect, mock, beforeEach, afterEach} from "bun:test"
-import {mkdir, rm, writeFile} from "node:fs/promises"
-import {TemplateManager} from "~/template/manager"
+import {afterEach, beforeEach, describe, expect, it, mock } from "bun:test"
 import {existsSync} from "node:fs"
-import {Gramstax} from "~/core/bot"
+import {mkdir, rm, writeFile} from "node:fs/promises"
 import {join} from "node:path"
+import {Gramstax} from "~/core/bot"
+import {TemplateManager} from "~/template/manager"
 
 const TEST_DIR = join(import.meta.dir, `bot_views`)
 
