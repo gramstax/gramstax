@@ -1,27 +1,6 @@
 # @gramstax/worker-thread
 
-Multi-runtime worker thread utilities with RPC and Unix socket gateway. Works in **Bun** and **Node.js** (>=18).
-
-## Features
-
-- Worker thread lifecycle management (`WorkerThreadInit`, `WorkerThreadLaunch`)
-- Type-safe RPC via proxy (`WorkerThreadExport.init`)
-- Inter-worker gateway over Unix domain sockets (`WorkerThreadGatewayServer/Client`)
-- Worker pool with broadcast (`WorkerThreadPool`)
-- JSON-RPC over `node:worker_threads` `parentPort`
-
-## Runtime Support
-
-| Runtime | Status       | Notes               |
-| ------- | ------------ | ------------------- |
-| Bun     | ✅ Supported | `>= 1.0.0` — native |
-| Node.js | ✅ Supported | `>= 18` — native    |
-
-**Transport**: In-worker IPC uses `node:worker_threads`. Inter-worker gateway uses Unix domain sockets via the `net-ipc` library, which works on both Bun and Node.js.
-
-**Dependencies**: One runtime dep — [`net-ipc`](https://www.npmjs.com/package/net-ipc) — for the Unix-socket gateway transport.
-
-## Install
+Multi-runtime **worker threads** for Bun and Node.js (>= 18) with **type-safe RPC** and a **direct inter-worker gateway** over Unix sockets (named pipes on Windows).
 
 ```bash
 bun add @gramstax/worker-thread
@@ -29,327 +8,295 @@ bun add @gramstax/worker-thread
 npm install @gramstax/worker-thread
 ```
 
-## The Problem: Default `node:worker_threads` Has No Direct Worker-to-Worker Channel
+## What it gives you
 
-`node:worker_threads` workers are isolated. Each worker has exactly one channel — its `parentPort` back to the thread that spawned it. There is no built-in way for two sibling workers to talk to each other; every message has to be relayed through the main thread.
+| Capability | What it means |
+| --- | --- |
+| Worker lifecycle | Spawn workers from the main thread, wait until ready, terminate or shut down gracefully |
+| Type-safe RPC | Call worker methods like local `async` functions — `await worker.mtdFoo(args)` |
+| Inter-worker gateway | Workers talk to each other **directly** over a socket — the main thread is never in the hot path |
+| Worker pool | Register many workers, dispatch round-robin (`execute`) or fan out to all (`broadcastRequest`) |
+| Reliability | RPC timeouts, crash detection (pending calls reject automatically), lifecycle events, graceful shutdown with a drain hook |
+| Security | Gateway auth tokens and per-method allow-lists |
+| Cross-platform | Unix sockets on POSIX, named pipes on Windows — paths normalized automatically |
 
-```mermaid
-flowchart TB
-    subgraph vanilla["Vanilla node:worker_threads"]
-        MT[Main Thread]
-        W1[Worker A]
-        W2[Worker B]
-        W3[Worker C]
-    end
+---
 
-    MT <-->|parentPort<br/>JSON-RPC| W1
-    MT <-->|parentPort<br/>JSON-RPC| W2
-    MT <-->|parentPort<br/>JSON-RPC| W3
+## Core concepts
 
-    W1 -.->|❌ no direct channel| W2
-    W2 -.->|❌ no direct channel| W3
-    W1 -.->|❌ no direct channel| W3
-```
+There are three pieces to understand:
 
-**Consequences:**
+### 1. `WorkerThreadInit` — the worker side
 
-- Main thread becomes a **forced message broker** for all inter-worker traffic
-- Every cross-worker call costs **two hops** (sender → main → receiver) and **two serializations**
-- Main-thread event loop becomes a **bottleneck** — if it stalls, all worker-to-worker traffic stalls too
-- Adds **latency** and **back-pressure** on the central thread
-
-## The Solution: Unix-Socket Gateway Side-Channels
-
-`@gramstax/worker-thread` adds a **peer-to-peer transport** on top of `node:worker_threads`. The transport is **client–server** under the hood (via `net-ipc`): one side calls `createGatewayServer()` to bind a socket, the other side calls `createGatewayClient(path)` to connect. The main thread is no longer required to relay messages between siblings.
-
-**Hub topology (most common):** one worker runs the gateway server and exposes its methods; every other worker (and the main thread) connects to it as a client. No main-thread relay on the hot path.
-
-```mermaid
-flowchart TB
-    subgraph solved["With @gramstax/worker-thread — hub topology"]
-        MT[Main Thread<br/>WorkerThreadLaunch + Pool]
-        W1[Worker A<br/>Init + GatewayClient]
-        W2["Worker B<br/>Init + GatewayServer<br/>exposes mtdHello, mtdGetData, ..."]
-        W3[Worker C<br/>Init + GatewayClient]
-    end
-
-    MT <-->|parentPort<br/>JSON-RPC| W1
-    MT <-->|parentPort<br/>JSON-RPC| W2
-    MT <-->|parentPort<br/>JSON-RPC| W3
-
-    W1 -->|"Unix socket<br/>net-ipc<br/>(client → server)"| W2
-    W3 -->|"Unix socket<br/>net-ipc<br/>(client → server)"| W2
-```
-
-**Mesh topology (advanced):** any worker can be **both** a server and a client at the same time — just call `createGatewayServer()` and `createGatewayClient(peerPath)` on the same instance. That gives you a full peer-to-peer mesh where every worker can expose methods to its peers and call into them.
-
-```mermaid
-flowchart TB
-    subgraph mesh["With @gramstax/worker-thread — mesh topology"]
-        W1["Worker A<br/>Init + Gateway(Server + Client)<br/>binds /tmp/A.sock<br/>connects to B and C"]
-        W2["Worker B<br/>Init + Gateway(Server + Client)<br/>binds /tmp/B.sock<br/>connects to A and C"]
-        W3["Worker C<br/>Init + Gateway(Server + Client)<br/>binds /tmp/C.sock<br/>connects to A and B"]
-    end
-
-    W1 <-->|Unix socket| W2
-    W2 <-->|Unix socket| W3
-    W1 <-->|Unix socket| W3
-```
-
-**Important:** a `GatewayClient` cannot talk directly to another `GatewayClient` — there is no discovery, no peer-to-peer mode in the transport. The socket is a named pipe with exactly one bind side and one or more connect sides. The "peer-to-peer" property of the package is that **the main thread is not involved** — not that any two endpoints can speak without a server somewhere.
-
-**Result:**
-
-- Inter-worker calls are **one hop, one serialization** (no main-thread relay on the data path)
-- Main-thread is **freed** from relaying — it only orchestrates lifecycle (`ready`, `kill`)
-- Each worker can **discover and connect** to peers at runtime (via the peer's socket path)
-- Back-pressure on one channel **does not** block unrelated worker-to-worker traffic
-
-## Architecture Overview
-
-```mermaid
-flowchart LR
-    subgraph Main["Main Thread"]
-        Launch["WorkerThreadLaunch<br/>new Worker path, argv"]
-        Pool["WorkerThreadPool<br/>thread: Map threadId → Launch"]
-        Export["WorkerThreadExport.init<br/>Proxy + launchWorker + methods"]
-    end
-
-    subgraph WT1["Worker A"]
-        Init1["WorkerThreadInit<br/>subclass with mtdFoo..."]
-        GW1["WorkerThreadGatewayClient"]
-    end
-
-    subgraph WT2["Worker B"]
-        Init2["WorkerThreadInit"]
-        GW2["WorkerThreadGatewayServer"]
-    end
-
-    Export -->|launchWorker| Launch
-    Pool -->|add/broadcastRequest| Launch
-    Launch -->|new Worker| Init1
-    Launch -->|new Worker| Init2
-
-    Init1 <-->|parentPort| Launch
-    Init2 <-->|parentPort| Launch
-
-    Init1 -.->|createGatewayClient| GW1
-    Init2 -.->|createGatewayServer| GW2
-    GW1 <-->|Unix socket| GW2
-```
-
-**Key components:**
-
-| Component                   | Lives in      | Role                                                                          |
-| --------------------------- | ------------- | ----------------------------------------------------------------------------- |
-| `WorkerThreadLaunch`        | main thread   | spawns a worker, holds `parentPort` link, exposes `request()`                 |
-| `WorkerThreadInit`          | worker thread | base class for worker code; holds `parentPort` link, exposes `request()`      |
-| `WorkerThreadRpc`           | both          | JSON-RPC dispatcher (request/result/error envelopes)                          |
-| `WorkerThreadGatewayServer` | worker thread | binds a Unix socket, routes incoming RPC calls to registered methods          |
-| `WorkerThreadGatewayClient` | worker thread | connects to a peer's gateway socket, sends RPC requests                       |
-| `WorkerThreadPool`          | main thread   | manages many `WorkerThreadLaunch` instances, supports broadcast               |
-| `WorkerThreadExport.init`   | both          | factory that returns a typed proxy whose methods auto-RPC across `parentPort` |
-
-## Lifecycle: Spawn → Ready → RPC → Kill
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant M as Main Thread
-    participant L as WorkerThreadLaunch
-    participant W as Worker (WTInit subclass)
-    participant N as node:worker_threads
-
-    M->>L: new WorkerThreadLaunch(path, argv)
-    L->>N: new Worker(path, {argv})
-    N->>W: spawn worker process
-    W->>W: super() → init() → this.send({method: 'readyResolve'})
-    W->>N: parentPort.postMessage({method: 'readyResolve'})
-    N->>L: 'message' event
-    L->>L: rpc.make({method: 'readyResolve'})<br/>→ register.readyResolve()
-    L-->>M: _readyPromise resolves
-    M->>M: await worker.ready() ✓
-
-    M->>L: worker.request('mtdFoo', [arg1, arg2])
-    L->>L: rpc.makeRequest → {id, method, params}
-    L->>N: parentPort.postMessage(payload)
-    N->>W: 'message' event
-    W->>W: rpc.make({id, method, params})<br/>→ this['mtdFoo'](arg1, arg2)
-    W-->>N: parentPort.postMessage({id, result})
-    N-->>L: 'message' event
-    L->>L: rpc.make({id, result}) → resolve promise
-    L-->>M: returns the result
-
-    M->>L: worker.kill()
-    L->>N: thread.terminate()
-    N-->>L: 'exit' event
-```
-
-## Inter-Worker Communication (Direct, Bypassing Main Thread)
-
-This is the headline feature. Once a worker has `createGatewayServer()` running, any other worker (or even the main thread) can reach its methods directly over a Unix socket — no relay, no main-thread bottleneck.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant WA as Worker A
-    participant GC as GatewayClient (in A)
-    participant SOCK as Unix Socket
-    participant GS as GatewayServer (in B)
-    participant WB as Worker B
-    participant M as Main Thread<br/>(only orchestrates)
-
-    Note over WB,M: Phase 1: Server worker brings up gateway
-    WB->>WB: this.createGatewayServer()<br/>(or in init/launchGatewayClient)
-    WB->>GS: new WorkerThreadGatewayServer()
-    GS->>SOCK: net-ipc.Server.start(path)<br/>bind + listen
-
-    Note over WA,M: Phase 2: Client worker connects
-    WA->>GC: new ServerBGateway(this).mtdBar(...)
-    GC->>SOCK: net-ipc.Client.connect(path)
-    SOCK-->>GS: 'connect' event
-    GC->>GC: ensure client ready (lazily)
-    GC->>SOCK: send {id, method: 'mtdBar', params: [...]}
-    SOCK-->>GS: 'message' event
-    GS->>WB: rpc.make({id, method, params})<br/>→ this.register['mtdBar'](...)
-    WB-->>GS: returns result
-    GS->>SOCK: send {id, result}
-    SOCK-->>GC: 'message' event
-    GC->>GC: rpc.make({id, result}) → resolve promise
-    GC-->>WA: returns the result
-
-    Note over M: Main thread was never on the path<br/>between WA and WB
-```
-
-**Key points:**
-
-- The **main thread is completely off the inter-worker hot path** — it only spawns/kills workers
-- The connection is **lazily created on first call** (`owner.createGatewayClient(path)` only runs if the gateway isn't already in `owner.gatewayClients`)
-- The `register` object can be **`this`** (expose the worker itself) **or any plain object** with callable methods
-- Multiple workers can **share one gateway** (server side fans out to all connected clients)
-- A worker can run **both** a server and clients — it can serve peers **and** call out to others
-
-## Pool Broadcast
-
-`WorkerThreadPool.broadcastRequest` is the only "many-to-many" call that still uses the main-thread path — and that is by design: the main thread owns the worker registry, so fanning out from there is the natural place.
-
-```mermaid
-flowchart LR
-    Pool[WorkerThreadPool<br/>broadcastRequest 'getStatus']
-    L1[WorkerThreadLaunch 1]
-    L2[WorkerThreadLaunch 2]
-    L3[WorkerThreadLaunch 3]
-    W1[Worker 1]
-    W2[Worker 2]
-    W3[Worker 3]
-
-    Pool -->|request 'getStatus'| L1
-    Pool -->|request 'getStatus'| L2
-    Pool -->|request 'getStatus'| L3
-    L1 -->|parentPort| W1
-    L2 -->|parentPort| W2
-    L3 -->|parentPort| W3
-    W1 -.->|result| L1
-    W2 -.->|result| L2
-    W3 -.->|result| L3
-    L1 -.-> Pool
-    L2 -.-> Pool
-    L3 -.-> Pool
-```
-
-If you need **worker-to-worker broadcast** (e.g. all workers need to ask every other worker the same question), wire it through a gateway — that path bypasses the pool and main thread entirely.
-
-## Quick Start
+Extend it in the **worker file**. Any method is callable from the main thread via RPC:
 
 ```typescript
-import { WorkerThreadExport, WorkerThreadInit } from "@gramstax/worker-thread";
+// jobs/processor.ts
+import { WorkerThreadInit } from "@gramstax/worker-thread";
 
-class CounterWorker extends WorkerThreadInit {
-  count = 0;
-  mtdAutoIncrement(ms: string) {
-    setInterval(() => {
-      this.count += 1;
-    }, ms);
-  }
-
-  mtdGetNumber() {
-    return this.count;
+export class ProcessorWorker extends WorkerThreadInit {
+  mtdAdd(a: number, b: number) {
+    return a + b;
   }
 }
-
-export const CounterJob = WorkerThreadExport.init({
-  path: __filename,
-  WTInit: CounterWorker,
-});
-
-// main.ts
-await CounterJob.launchWorker();
-console.log(await CounterJob.mtdGetNumber()); // 0
-await CounterJob.mtdAutoIncrement(`1000`); // 1 seconds
-setTimeout(() => {
-  console.log(await CounterJob.mtdIncrement()); // >1
-}, 2000);
 ```
 
-## Inter-worker gateway example
+### 2. `WorkerThreadExport.init()` — the glue
+
+A factory that detects which process it runs in and returns a **typed proxy**:
+
+- In the worker process → instantiates your `WorkerThreadInit` class.
+- In the main process → returns a proxy whose methods call into the worker.
+
+```typescript
+// jobs/processor.ts (same file, bottom)
+import { WorkerThreadExport } from "@gramstax/worker-thread";
+
+export const ProcessorJob = WorkerThreadExport.init({
+  path: __filename,   // the worker file is this file
+  WTInit: ProcessorWorker,
+});
+```
+
+### 3. `WorkerThreadLaunch` — the main-thread handle
+
+`launchWorker()` returns a `WorkerThreadLaunch` instance that manages the spawned thread: `ready()`, `request()`, `shutdown()`, lifecycle events.
+
+---
+
+## Quick start
+
+```typescript
+// main.ts
+import { ProcessorJob } from "./jobs/processor";
+
+const worker = await ProcessorJob.launchWorker();      // spawn + wait until ready
+console.log(await ProcessorJob.mtdAdd(2, 3));          // 5 — RPC to the worker
+
+await worker.shutdown();                               // graceful shutdown
+```
+
+That's the whole pattern: **launch → call methods → shutdown**.
+
+---
+
+## Lifecycle
+
+```
+main thread:  new WorkerThreadLaunch → spawn → ready() resolves → request()... → shutdown()
+worker:       WorkerThreadInit ctor → signals ready → handles RPC → onBeforeExit() → terminated
+```
+
+| Phase | How | Notes |
+| --- | --- | --- |
+| **Spawn** | `launchWorker(argv?)` | Extra `argv` items are readable as `this.argv[3]...` inside the worker |
+| **Ready** | `await worker.ready()` | Rejects if the worker crashes before signaling ready |
+| **RPC** | `worker.request(method, params, wait?, others?, timeoutMs?)` | Or use the typed proxy: `Job.mtdFoo(...)` |
+| **Kill** | `worker.kill()` | Immediate `terminate()` — no cleanup |
+| **Graceful shutdown** | `worker.shutdown(timeoutMs?)` | Sends a `shutdown` RPC → worker runs `onBeforeExit()` → terminated; force-terminates after `timeoutMs` (default 5s) |
+
+The worker can also call **back into the main thread** by extending `WorkerThreadLaunch` with methods:
+
+```typescript
+export class MainThread extends WorkerThreadLaunch {
+  mtdGetConfig() {
+    return { feature: true };
+  }
+}
+// inside the worker: await this.request("mtdGetConfig", []);
+```
+
+---
+
+## Inter-worker gateway
+
+`node:worker_threads` gives every worker exactly one channel: its `parentPort` back to the main thread. Two sibling workers cannot talk to each other without the main thread relaying every message.
+
+`@gramstax/worker-thread` adds a **peer-to-peer socket channel**: one worker binds a gateway server (`createGatewayServer`), other workers connect as clients (`createGatewayClient` / `launchGatewayClient`). Inter-worker calls are **one hop, one serialization** — the main thread only orchestrates lifecycle.
+
+```
+Worker A ──parentPort──▶ Main Thread ◀──parentPort── Worker B
+Worker A ──▶ Unix socket ◀── Worker B        (gateway, no relay)
+```
+
+**Hub topology** (most common): one worker runs the server and exposes methods; every other worker connects as a client.
 
 ```typescript
 // server-worker.ts
-import { WorkerThreadExport, WorkerThreadInit } from "@gramstax/worker-thread";
-
 class ServerWorker extends WorkerThreadInit {
-  static gatewayServerPath = "/tmp/server.sock";
   mtdHello(from: string) {
     return `Hello ${from}!`;
   }
 
   async mtdStart() {
-    return await this.createGatewayServer();
+    return await this.createGatewayServer(
+      "/tmp/server.sock",
+      undefined,                                  // expose `this` (the worker instance)
+      { token: "shared-secret", allowedMethods: ["mtdHello"] }  // auth + allow-list
+    );
   }
 }
 
-export const Server = WorkerThreadExport.init({
-  path: __filename,
-  WTInit: ServerWorker,
-});
-export const ServerGateway = Server.launchGatewayClient();
-
-// client-worker.ts
-import { ServerGateway } from "./server-worker";
-import { WorkerThreadExport, WorkerThreadInit } from "@gramstax/worker-thread";
-
-class ClientWorker extends WorkerThreadInit {
-  async mtdCallServer() {
-    // pass `this` as first arg — the gateway client needs an owner with a gatewayClients map
-    return await ServerGateway.mtdHello(this, "ClientWorker");
-  }
-}
-
-export const Client = WorkerThreadExport.init({
-  path: __filename,
-  WTInit: ClientWorker,
-});
-
-// main.ts
-await Server.launchWorker();
-await Client.launchWorker();
-await Server.mtdStart();
-console.log(await Client.mtdCallServer()); // "Hello ClientWorker!"
+export const Server = WorkerThreadExport.init({ path: __filename, WTInit: ServerWorker });
+export const ServerGateway = Server.launchGatewayClient("/tmp/server.sock", { token: "shared-secret" });
 ```
 
-## API
+```typescript
+// client-worker.ts
+class ClientWorker extends WorkerThreadInit {
+  async mtdCallServer() {
+    return await ServerGateway.mtdHello(this, "ClientWorker");   // socket RPC, no main-thread relay
+  }
+}
 
-| Export                      | Description                                  |
-| --------------------------- | -------------------------------------------- |
-| `WorkerThreadInit`          | Base class for worker thread implementations |
-| `WorkerThreadLaunch`        | Main-thread side to spawn workers            |
-| `WorkerThreadExport`        | `init()` factory creating typed proxy        |
-| `WorkerThreadPool`          | Manage multiple workers + broadcast          |
-| `WorkerThreadRpc`           | JSON-RPC dispatcher                          |
-| `WorkerThreadGatewayServer` | Unix-socket server for inter-worker comms    |
-| `WorkerThreadGatewayClient` | Unix-socket client for inter-worker comms    |
+export const Client = WorkerThreadExport.init({ path: __filename, WTInit: ClientWorker });
+```
 
-See [JSDoc](./src/) in source for full API.
+```typescript
+// main.ts
+const server = await Server.launchWorker();
+await Server.mtdStart();                    // bind the gateway socket
+await Client.launchWorker();
+console.log(await Client.mtdCallServer());  // "Hello ClientWorker!"
+```
+
+### Gateway security
+
+- **`token`** — the server closes any connection that does not present the matching token (`connect(path, { token })` / `launchGatewayClient(path, { token })`).
+- **`allowedMethods`** — only the listed methods are remotely callable; anything else is rejected with a clear error.
+
+### Reconnect & resilience
+
+Gateway clients reconnect **automatically** with exponential backoff when the connection drops (e.g. the server worker restarts). In-flight requests are retried transparently:
+
+```typescript
+await client.connect("/tmp/server.sock", {
+  reconnect: true,      // default
+  retries: 50,
+  maxRetryTime: 500,    // backoff cap in ms
+});
+```
+
+### Structured payloads
+
+By default the gateway uses JSON. Switch to **msgpackr** encoding to preserve `Date`, `BigInt`, `undefined` and typed arrays across the wire:
+
+```typescript
+await client.connect("/tmp/server.sock", { messagepack: true });
+```
+
+---
+
+## Worker pool
+
+`WorkerThreadPool` registers many workers and dispatches work:
+
+```typescript
+import { WorkerThreadPool } from "@gramstax/worker-thread";
+
+const workers = await Promise.all([1, 2, 3].map(() => Job.launchWorker()));
+const pool = new WorkerThreadPool(workers);
+
+// Round-robin dispatch — each call goes to the next worker
+const results = await Promise.all([1, 2, 3, 4].map((n) => pool.execute("mtdCompute", [n])));
+
+// Fan out to every worker
+const statuses = await pool.broadcastRequest("getStatus", []);
+
+// Workers that exit are removed from the pool automatically
+pool.threadCount; // reflects live workers only
+```
+
+---
+
+## Reliability features
+
+### RPC timeouts
+
+Any `request()` can take a `timeoutMs` — the call rejects with a timeout error instead of hanging forever, and the pending entry is cleaned up:
+
+```typescript
+await worker.request("mtdSlowTask", [2000], true, undefined, 500);  // rejects after 500ms
+```
+
+### Crash detection
+
+When a worker exits, **all pending RPC requests are rejected automatically** (`Worker ... exited unexpectedly`), and `ready()` rejects if the worker crashes at boot. No more hanging callers.
+
+### Lifecycle events
+
+`WorkerThreadLaunch` extends `EventEmitter`:
+
+```typescript
+const worker = await Job.launchWorker();
+worker.on("ready", () => console.log(`thread ${worker.threadId} ready`));
+worker.on("exit", (code) => console.log(`worker exited with code ${code}`));
+worker.on("error", (err) => console.error(err));
+```
+
+Errors are never written to the console by the library — without an `error`
+listener they are routed to the package-wide handler (silent by default):
+
+```typescript
+import { setDefaultErrorHandler } from "@gramstax/worker-thread";
+
+setDefaultErrorHandler((err) => logger.error(err)); // one call, all instances
+```
+
+### Graceful shutdown
+
+```typescript
+// worker-side: override the drain hook
+class MyWorker extends WorkerThreadInit {
+  async onBeforeExit() {
+    await this.flushState();   // close connections, persist data, ...
+  }
+}
+
+// main-side: worker drains, then terminates (force after 10s)
+await worker.shutdown(10_000);
+```
+
+---
+
+## Advanced: RPC middleware & context
+
+`WorkerThreadRpc` supports a middleware chain for incoming requests (logging, metrics, guards) and a shared context merged into every outgoing request (correlation IDs):
+
+```typescript
+worker.rpc.use(async (ctx, next) => {
+  console.log(`calling ${ctx.method} with ${JSON.stringify(ctx.params)}`);
+  await next();                       // or: ctx.result = "short-circuit"; // skip dispatch
+});
+
+worker.rpc.context = { traceId: "abc-123" };  // included in all outgoing payloads
+```
+
+---
+
+## API reference
+
+| Export | Description |
+| --- | --- |
+| `WorkerThreadInit` | Base class for worker implementations — RPC register, gateway server/client, `onBeforeExit()` / `onError()` hooks, `shutdown()` |
+| `WorkerThreadLaunch` | Main-thread handle — spawn, `ready()`, `request(..., timeoutMs?)`, `kill()`, `shutdown()`, `ready`/`exit`/`error` events |
+| `WorkerThreadExport.init()` | Typed proxy factory — returns `launchWorker`, `launchGatewayClient` and worker methods |
+| `WorkerThreadPool` | Worker registry — `execute()` round-robin, `broadcastRequest()`, auto-removal of dead workers |
+| `WorkerThreadRpc` | JSON-RPC dispatcher — `makeRequest(..., timeoutMs?)`, `rejectAllPending()`, `use()` middleware, `context` |
+| `WorkerThreadGatewayServer` | Socket server — `start(path, register?, { token, allowedMethods, maxConnections })`, `close()` |
+| `WorkerThreadGatewayClient` | Socket client — `connect(path, { token, reconnect, retries, maxRetryTime, messagepack })`, `close()` |
+| `normalizeGatewayPath` | Normalize socket paths for Windows named pipes |
+| `setDefaultErrorHandler` | Package-wide error handler for errors without instance listeners (silent by default — the library never logs to the console) |
+
+## Run the examples
+
+The `example/` folder contains runnable clusters showcasing the features:
+
+```bash
+bun packages/worker-thread/example/worker-main.ts
+```
+
+This starts an authenticated gateway server worker, three client workers in a pool, runs round-robin compute tasks, demonstrates an RPC timeout, and shuts everything down gracefully.
 
 ## License
 

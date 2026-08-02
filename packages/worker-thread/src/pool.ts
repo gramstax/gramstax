@@ -52,9 +52,12 @@ export class WorkerThreadPool {
    * Current number of workers in the pool.
    *
    * @remarks
-   * Incremented on add and decremented on kill.
+   * Incremented on add and decremented on kill or worker exit.
    */
   threadCount = 0
+
+  /** Round-robin cursor for {@link WorkerThreadPool.execute}. */
+  private _cursor = 0
 
   /**
    * Creates a new WorkerThreadPool instance.
@@ -81,6 +84,7 @@ export class WorkerThreadPool {
   add(instance: WorkerThreadLaunch) {
     this.thread.set(instance.threadId, instance)
     this.threadCount += 1
+    instance.on?.(`exit`, () => this._onWorkerExit(instance))
   }
 
   /**
@@ -95,7 +99,9 @@ export class WorkerThreadPool {
    * @public
    */
   addMany(instance: WorkerThreadLaunch[]) {
-    instance.forEach((it) => this.add(it))
+    instance.forEach((it) => {
+      this.add(it)
+    })
   }
 
   /**
@@ -140,6 +146,18 @@ export class WorkerThreadPool {
   }
 
   /**
+   * Remove a worker from the pool when it exits.
+   *
+   * @param instance - The worker that exited.
+   */
+  private _onWorkerExit(instance: WorkerThreadLaunch) {
+    if (this.thread.get(instance.threadId) === instance) {
+      this.thread.delete(instance.threadId)
+      this.threadCount -= 1
+    }
+  }
+
+  /**
    * Kill and remove all workers from the pool.
    *
    * @example
@@ -150,7 +168,9 @@ export class WorkerThreadPool {
    * @public
    */
   killAll() {
-    this.thread.values().forEach(({threadId}) => this.kill(threadId))
+    this.thread.values().forEach(({threadId}) => {
+      this.kill(threadId)
+    })
   }
 
   /**
@@ -167,12 +187,45 @@ export class WorkerThreadPool {
    * ```
    * @public
    */
-  async broadcastRequest(method: string, params: any) {
+  async broadcastRequest(method: string, params: unknown[], timeoutMs?: number) {
     return await Promise.all(
       Array.from(this.thread.values()).map((ins) => {
-        return ins.request(method, params, true)
+        return ins.request(method, params, true, undefined, timeoutMs)
       })
     )
+  }
+
+  /**
+   * Dispatch a request to the next worker using round-robin selection.
+   *
+   * @remarks
+   * The cursor advances on every call and wraps around. Workers that have
+   * exited are removed from the pool automatically. Throws when the pool is
+   * empty.
+   *
+   * @param method - Method name to call. Invoked on the selected worker.
+   * @param params - Method parameters. Sent as positional array.
+   * @param timeoutMs - Optional per-request timeout in milliseconds.
+   * @returns Promise resolving with the selected worker's response.
+   *
+   * @example
+   * ```typescript
+   * // distributes process calls across all workers evenly
+   * const results = await Promise.all([1, 2, 3].map((n) => pool.execute("process", [n])));
+   * ```
+   * @public
+   */
+  execute(method: string, params: unknown[], timeoutMs?: number) {
+    const workers = Array.from(this.thread.values())
+    if (workers.length === 0) {
+      throw new Error(`WorkerThreadPool is empty — add workers before calling execute()`)
+    }
+    if (this._cursor >= workers.length) {
+      this._cursor = 0
+    }
+    const worker = workers[this._cursor]!
+    this._cursor = (this._cursor + 1) % workers.length
+    return worker.request(method, params, true, undefined, timeoutMs)
   }
 
   /**
@@ -191,7 +244,7 @@ export class WorkerThreadPool {
    * ```
    * @public
    */
-  async request(threadId: number, method: string, params: any, _wait = true, _others?: any) {
-    return await this.thread.get(threadId)?.request(method, params, _wait, _others)
+  async request(threadId: number, method: string, params: unknown[], _wait = true, _others?: Record<string, unknown>, timeoutMs?: number) {
+    return await this.thread.get(threadId)?.request(method, params, _wait, _others, timeoutMs)
   }
 }

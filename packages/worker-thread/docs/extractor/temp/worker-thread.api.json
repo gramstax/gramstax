@@ -288,7 +288,7 @@
         {
           "kind": "Class",
           "canonicalReference": "@gramstax/worker-thread!WorkerThreadExport:class",
-          "docComment": "/**\n * Provides a unified interface for creating and managing worker threads with automatic RPC proxying.\n *\n * @remarks\n *\n * Automatically detects if running in main thread or worker thread. Provides type-safe method calls to worker thread via RPC proxy.\n *\n * @example\n *\n * Basic Usage\n * ```typescript\n * import { WorkerThreadExport, WorkerThreadInit } from \"gramstax\";\n *\n * class MyWorker extends WorkerThreadInit {\n *   count = 0;\n *\n *   mtdIncrement() {\n *     return ++this.count;\n *   }\n *\n *   mtdGetCount() {\n *     return this.count;\n *   }\n * }\n *\n * export const CounterJob = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: MyWorker,\n * });\n *\n * // In main thread:\n * await CounterJob.launchWorker();\n * await CounterJob.mtdIncrement(); // 1\n * await CounterJob.mtdGetCount(); // 1\n * ```\n *\n * @example\n *\n * Inter-Worker Communication with launchGatewayClient\n * ```typescript\n * // ./worker/server.ts\n * class ServerWorker extends WorkerThreadInit {\n *   static gatewayServerPath = \"/tmp/server.sock\";\n *\n *   mtdHello(from: string) {\n *     return `Hello ${from}!`;\n *   }\n *\n *   async mtdStartServer() {\n *     return await this.createGatewayServer();\n *   }\n * }\n *\n * export const WorkerServer = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: ServerWorker,\n * });\n * export const WorkerServerGateway = WorkerServer.launchGatewayClient();\n *\n * // ./worker/client.ts\n * import { WorkerServerGateway } from \"./server\";\n *\n * class ClientWorker extends WorkerThreadInit {\n *   async mtdCallServer() {\n *     // Static usage: pass `this` as first argument\n *     return await WorkerServerGateway.mtdHello(this, \"ClientWorker\");\n *   }\n * }\n *\n * // ./main.ts\n * await WorkerServer.launchWorker();\n * await WorkerClient.launchWorker();\n * await WorkerServer.mtdStartServer();\n * const result = await WorkerClient.mtdCallServer(); // \"Hello ClientWorker!\"\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Provides a unified interface for creating and managing worker threads with automatic RPC proxying.\n *\n * @remarks\n *\n * Automatically detects if running in main thread or worker thread. Provides type-safe method calls to worker thread via RPC proxy.\n *\n * @example\n *\n * Basic Usage\n * ```typescript\n * import { WorkerThreadExport, WorkerThreadInit } from \"gramstax\";\n *\n * class MyWorker extends WorkerThreadInit {\n *   count = 0;\n *\n *   mtdIncrement() {\n *     return ++this.count;\n *   }\n *\n *   mtdGetCount() {\n *     return this.count;\n *   }\n * }\n *\n * export const CounterJob = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: MyWorker,\n * });\n *\n * // In main thread:\n * await CounterJob.launchWorker();\n * await CounterJob.mtdIncrement(); // 1\n * await CounterJob.mtdGetCount(); // 1\n * ```\n *\n * @example\n *\n * Inter-Worker Communication with launchGatewayClient\n * ```typescript\n * // ./worker/server.ts\n * class ServerWorker extends WorkerThreadInit {\n *   mtdHello(from: string) {\n *     return `Hello ${from}!`;\n *   }\n *\n *   async mtdStartServer() {\n *     return await this.createGatewayServer(\"/tmp/server.sock\");\n *   }\n * }\n *\n * export const WorkerServer = WorkerThreadExport.init({\n *   path: __filename,\n *   WTInit: ServerWorker,\n * });\n * export const WorkerServerGateway = WorkerServer.launchGatewayClient(\"/tmp/server.sock\");\n *\n * // ./worker/client.ts\n * import { WorkerServerGateway } from \"./server\";\n *\n * class ClientWorker extends WorkerThreadInit {\n *   async mtdCallServer() {\n *     // Static usage: pass `this` as first argument\n *     return await WorkerServerGateway.mtdHello(this, \"ClientWorker\");\n *   }\n * }\n *\n * // ./main.ts\n * await WorkerServer.launchWorker();\n * await WorkerClient.launchWorker();\n * await WorkerServer.mtdStartServer();\n * const result = await WorkerClient.mtdCallServer(); // \"Hello ClientWorker!\"\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -1299,23 +1299,23 @@
             {
               "kind": "Method",
               "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#createGatewayServer:member(1)",
-              "docComment": "/**\n * Create a gateway server for inter-worker communication.\n *\n * @param register - Object with value function to expose. Called by gateway clients. Defaults to `this`.\n *\n * @param path - Unix socket path. Gateway identifier. Defaults to `this.constructor.gatewayServerPath`.\n *\n * @returns Promise that resolves to `true` when gateway is ready.\n *\n * @example\n * ```typescript\n * // Recommended - uses default `this` and static gatewayServerPath\n * await this.createGatewayServer();\n *\n * // Custom object and path\n * await this.createGatewayServer(\n *   { ping: () => \"pong\" },\n *   \"/tmp/my-worker.sock\"\n * );\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Create a gateway server for inter-worker communication.\n *\n * @param path - Unix socket path. Gateway identifier. Must be unique per server worker.\n *\n * @param register - Object with value function to expose. Called by gateway clients. Defaults to `this`.\n *\n * @returns Promise that resolves to `true` when gateway is ready.\n *\n * @example\n * ```typescript\n * // Custom object and path\n * await this.createGatewayServer(\n *   \"/tmp/my-worker.sock\",\n *   { ping: () => \"pong\" }\n * );\n *\n * // Expose `this` at the given path\n * await this.createGatewayServer(\"/tmp/my-worker.sock\");\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "createGatewayServer(register?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", path?: "
+                  "text": "createGatewayServer(path: "
                 },
                 {
                   "kind": "Content",
                   "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", register?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
                 },
                 {
                   "kind": "Content",
@@ -1345,15 +1345,15 @@
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "register",
+                  "parameterName": "path",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
                   },
-                  "isOptional": true
+                  "isOptional": false
                 },
                 {
-                  "parameterName": "path",
+                  "parameterName": "register",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -1503,66 +1503,6 @@
                 "endIndex": 2
               },
               "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit#gatewayServerPath:member",
-              "docComment": "/**\n * Instance accessor for gateway server path from static property.\n *\n * @remarks\n *\n * Reads from `this.constructor.gatewayServerPath`.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "gatewayServerPath: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "gatewayServerPath",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false,
-              "isProtected": false,
-              "isAbstract": false
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "@gramstax/worker-thread!WorkerThreadInit.gatewayServerPath:member",
-              "docComment": "/**\n * Path for gateway server. Override in subclass if needed.\n *\n * @remarks\n *\n * Used by {@link WorkerThreadGatewayServer} when binding.\n *\n * @virtual\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "static gatewayServerPath?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "gatewayServerPath",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": true,
               "isProtected": false,
               "isAbstract": false
             },

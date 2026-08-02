@@ -195,46 +195,6 @@ _(Optional)_ Gateway server instance if created.
 </td></tr>
 <tr><td>
 
-[gatewayServerPath](./worker-thread.workerthreadinit.gatewayserverpath.md)
-
-
-</td><td>
-
-
-</td><td>
-
-any
-
-
-</td><td>
-
-Instance accessor for gateway server path from static property.
-
-
-</td></tr>
-<tr><td>
-
-[gatewayServerPath?](./worker-thread.workerthreadinit.gatewayserverpath.md)
-
-
-</td><td>
-
-`static`
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_ Path for gateway server. Override in subclass if needed.
-
-
-</td></tr>
-<tr><td>
-
 [id](./worker-thread.workerthreadinit.id.md)
 
 
@@ -366,7 +326,7 @@ Description
 </td></tr>
 <tr><td>
 
-[createGatewayServer(register, path)](./worker-thread.workerthreadinit.creategatewayserver.md)
+[createGatewayServer(path, register)](./worker-thread.workerthreadinit.creategatewayserver.md)
 
 
 </td><td>

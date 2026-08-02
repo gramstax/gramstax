@@ -1,26 +1,25 @@
-import {WorkerThreadInit} from "../src/init"
 import {WorkerThreadExport} from "../src/export"
+import {WorkerThreadInit} from "../src/init"
 
+/**
+ * Final-example gateway server worker.
+ *
+ * Clients must present `final-token` to call `mtdHello` over the gateway.
+ */
 class Worker extends WorkerThreadInit {
-  static gatewayServerPath = `gateway-final`
-  constructor() {
-    super()
-  }
-
   mtdHello(from: string) {
     console.log(`[Server-Main] Received greeting from: ${from}`)
     return `Hello ${from}, I am Server-Main!`
   }
 
   async mtdStart() {
-    const res = await this.createGatewayServer()
-    if (res) {
-      console.log(`[Server-Main] Gateway '${this.gatewayServerPath}' is active.`)
-      return res
-    }
-    return false
+    return await this.createGatewayServer(`gateway-final`, undefined, {token: `final-token`})
+  }
+
+  async onBeforeExit() {
+    console.log(`[Server-Main] Draining before shutdown...`)
   }
 }
 
 export const ServerMain = WorkerThreadExport.init({path: __filename, WTInit: Worker})
-export const ServerMainGateway = ServerMain.launchGatewayClient()
+export const ServerMainGateway = ServerMain.launchGatewayClient(`gateway-final`, {token: `final-token`})

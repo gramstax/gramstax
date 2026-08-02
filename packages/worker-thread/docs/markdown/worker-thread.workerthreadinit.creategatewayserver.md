@@ -9,7 +9,7 @@ Create a gateway server for inter-worker communication.
 **Signature:**
 
 ```typescript
-createGatewayServer(register?: any, path?: string): Promise<boolean>;
+createGatewayServer(path: string, register?: any): Promise<boolean>;
 ```
 
 ## Parameters
@@ -32,6 +32,22 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+path
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Unix socket path. Gateway identifier. Must be unique per server worker.
+
+
+</td></tr>
+<tr><td>
+
 register
 
 
@@ -43,22 +59,6 @@ any
 </td><td>
 
 _(Optional)_ Object with value function to expose. Called by gateway clients. Defaults to `this`<!-- -->.
-
-
-</td></tr>
-<tr><td>
-
-path
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-_(Optional)_ Unix socket path. Gateway identifier. Defaults to `this.constructor.gatewayServerPath`<!-- -->.
 
 
 </td></tr>
@@ -74,13 +74,13 @@ Promise that resolves to `true` when gateway is ready.
 
 
 ```typescript
-// Recommended - uses default `this` and static gatewayServerPath
-await this.createGatewayServer();
-
 // Custom object and path
 await this.createGatewayServer(
-  { ping: () => "pong" },
-  "/tmp/my-worker.sock"
+  "/tmp/my-worker.sock",
+  { ping: () => "pong" }
 );
+
+// Expose `this` at the given path
+await this.createGatewayServer("/tmp/my-worker.sock");
 ```
 

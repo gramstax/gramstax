@@ -118,34 +118,6 @@ properties:
       content: 'gatewayServer?: WorkerThreadGatewayServer;'
       return:
         type: <xref uid="@gramstax/worker-thread!WorkerThreadGatewayServer:class" />
-  - name: gatewayServerPath
-    uid: '@gramstax/worker-thread!WorkerThreadInit#gatewayServerPath:member'
-    package: '@gramstax/worker-thread!'
-    fullName: gatewayServerPath
-    summary: Instance accessor for gateway server path from static property.
-    remarks: Reads from `this.constructor.gatewayServerPath`<!-- -->.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: 'gatewayServerPath: any;'
-      return:
-        type: any
-  - name: gatewayServerPath
-    uid: '@gramstax/worker-thread!WorkerThreadInit.gatewayServerPath:member'
-    package: '@gramstax/worker-thread!'
-    fullName: gatewayServerPath
-    summary: Path for gateway server. Override in subclass if needed.
-    remarks: Used by [WorkerThreadGatewayServer](xref:@gramstax/worker-thread!WorkerThreadGatewayServer:class) when binding.
-    example: []
-    isPreview: false
-    isDeprecated: false
-    syntax:
-      content: |-
-        /** @virtual */
-        static gatewayServerPath?: string;
-      return:
-        type: string
   - name: id
     uid: '@gramstax/worker-thread!WorkerThreadInit#id:member'
     package: '@gramstax/worker-thread!'
@@ -235,35 +207,35 @@ methods:
       return:
         type: Promise&lt;<xref uid="@gramstax/worker-thread!WorkerThreadGatewayClient:class" />&gt;
         description: Promise resolving with connected client.
-  - name: createGatewayServer(register, path)
+  - name: createGatewayServer(path, register)
     uid: '@gramstax/worker-thread!WorkerThreadInit#createGatewayServer:member(1)'
     package: '@gramstax/worker-thread!'
-    fullName: createGatewayServer(register, path)
+    fullName: createGatewayServer(path, register)
     summary: Create a gateway server for inter-worker communication.
     remarks: ''
     example:
       - |-
         ```typescript
-        // Recommended - uses default `this` and static gatewayServerPath
-        await this.createGatewayServer();
-
         // Custom object and path
         await this.createGatewayServer(
-          { ping: () => "pong" },
-          "/tmp/my-worker.sock"
+          "/tmp/my-worker.sock",
+          { ping: () => "pong" }
         );
+
+        // Expose `this` at the given path
+        await this.createGatewayServer("/tmp/my-worker.sock");
         ```
     isPreview: false
     isDeprecated: false
     syntax:
-      content: 'createGatewayServer(register?: any, path?: string): Promise<boolean>;'
+      content: 'createGatewayServer(path: string, register?: any): Promise<boolean>;'
       parameters:
+        - id: path
+          description: Unix socket path. Gateway identifier. Must be unique per server worker.
+          type: string
         - id: register
           description: Object with value function to expose. Called by gateway clients. Defaults to `this`<!-- -->.
           type: any
-        - id: path
-          description: Unix socket path. Gateway identifier. Defaults to `this.constructor.gatewayServerPath`<!-- -->.
-          type: string
       return:
         type: Promise&lt;boolean&gt;
         description: Promise that resolves to `true` when gateway is ready.

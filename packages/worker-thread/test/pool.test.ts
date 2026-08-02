@@ -4,9 +4,9 @@
  * Tests the pool's add/get/kill/broadcast logic without spawning real worker
  * threads. Uses fake worker objects that satisfy the WorkerThreadLaunch shape.
  */
-import {describe, it, expect, beforeEach} from "bun:test"
-import {WorkerThreadPool} from "../src/pool"
+import {beforeEach, describe, expect, it } from "bun:test"
 import type {WorkerThreadLaunch} from "../src/launch"
+import {WorkerThreadPool} from "../src/pool"
 
 /**
  * Build a fake WorkerThreadLaunch object.
@@ -15,17 +15,27 @@ import type {WorkerThreadLaunch} from "../src/launch"
 function makeMockWorker(id: number) {
   const killCalls = {count: 0}
   const requestCalls: Array<{method: string; params: any; wait: boolean}> = []
+  const timeoutCalls: Array<number | undefined> = []
+  const exitHandlers: Array<() => void> = []
   const worker = {
     threadId: id,
     kill() {
       killCalls.count += 1
     },
-    async request(method: string, params: any, wait = true) {
+    async request(method: string, params: any, wait = true, _others?: any, timeoutMs?: number) {
       requestCalls.push({method, params, wait})
+      timeoutCalls.push(timeoutMs)
       return `${id}:${method}`
+    },
+    on(event: string, cb: () => void) {
+      if (event === `exit`) exitHandlers.push(cb)
+      return worker
+    },
+    emitExit() {
+      for (const cb of exitHandlers) cb()
     }
-  } as unknown as WorkerThreadLaunch
-  return {worker, killCalls, requestCalls}
+  } as unknown as WorkerThreadLaunch & {emitExit: () => void}
+  return {worker, killCalls, requestCalls, timeoutCalls, emitExit: () => worker.emitExit()}
 }
 
 describe(`WorkerThreadPool`, () => {
@@ -169,6 +179,71 @@ describe(`WorkerThreadPool`, () => {
       const results = await pool.broadcastRequest(`echo`, [`hi`])
       // Map preserves insertion order
       expect(results).toEqual([`303:echo`, `101:echo`, `202:echo`])
+    })
+  })
+
+  describe(`execute (P0-3)`, () => {
+    it(`dispatches round-robin across all workers`, async () => {
+      const pool = new WorkerThreadPool([w1.worker, w2.worker, w3.worker])
+      await pool.execute(`process`, [1])
+      await pool.execute(`process`, [2])
+      await pool.execute(`process`, [3])
+      expect(w1.requestCalls).toEqual([{method: `process`, params: [1], wait: true}])
+      expect(w2.requestCalls).toEqual([{method: `process`, params: [2], wait: true}])
+      expect(w3.requestCalls).toEqual([{method: `process`, params: [3], wait: true}])
+    })
+
+    it(`wraps around to the first worker`, async () => {
+      const pool = new WorkerThreadPool([w1.worker, w2.worker])
+      await pool.execute(`process`, [1])
+      await pool.execute(`process`, [2])
+      await pool.execute(`process`, [3])
+      expect(w1.requestCalls).toHaveLength(2)
+      expect(w2.requestCalls).toHaveLength(1)
+    })
+
+    it(`throws when the pool is empty`, () => {
+      const pool = new WorkerThreadPool([])
+      expect(() => pool.execute(`process`, [])).toThrow(/empty/)
+    })
+
+    it(`forwards the timeoutMs`, async () => {
+      const pool = new WorkerThreadPool([w1.worker])
+      await pool.execute(`process`, [], 1234)
+      expect(w1.timeoutCalls).toEqual([1234])
+    })
+  })
+
+  describe(`worker exit removal (P0-3)`, () => {
+    it(`removes a worker when its exit event fires`, () => {
+      const pool = new WorkerThreadPool([w1.worker, w2.worker])
+      expect(pool.threadCount).toBe(2)
+      w1.emitExit()
+      expect(pool.threadCount).toBe(1)
+      expect(pool.getInstance(101)).toBeUndefined()
+      expect(pool.getInstance(202)).toBeDefined()
+    })
+
+    it(`does not decrement twice when the same worker exits again`, () => {
+      const pool = new WorkerThreadPool([w1.worker])
+      w1.emitExit()
+      w1.emitExit()
+      expect(pool.threadCount).toBe(0)
+    })
+  })
+
+  describe(`timeout passthrough (P0-1)`, () => {
+    it(`forwards timeoutMs from request()`, async () => {
+      const pool = new WorkerThreadPool([w1.worker])
+      await pool.request(101, `process`, [], true, undefined, 999)
+      expect(w1.timeoutCalls).toEqual([999])
+    })
+
+    it(`forwards timeoutMs from broadcastRequest()`, async () => {
+      const pool = new WorkerThreadPool([w1.worker, w2.worker])
+      await pool.broadcastRequest(`ping`, [], 555)
+      expect(w1.timeoutCalls).toEqual([555])
+      expect(w2.timeoutCalls).toEqual([555])
     })
   })
 })

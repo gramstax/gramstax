@@ -5,9 +5,9 @@
  * spawning any actual worker threads. Uses a stub `send` function to
  * capture outgoing messages and feeds back canned responses.
  */
-import {describe, it, expect, beforeEach} from "bun:test"
-import {WorkerThreadRpc} from "../src/rpc"
+import {beforeEach, describe, expect, it } from "bun:test"
 import type {ITMapRpc} from "../src/rpc"
+import {WorkerThreadRpc} from "../src/rpc"
 
 describe(`WorkerThreadRpc`, () => {
   let sentMessages: any[]
@@ -169,6 +169,103 @@ describe(`WorkerThreadRpc`, () => {
       await rpc.make({id: req.id, result: 3})
       expect(internalMap.has(req.id)).toBe(false)
       expect(await promise).toBe(3)
+    })
+  })
+
+  describe(`timeout (P0-1)`, () => {
+    it(`rejects a pending request after timeoutMs`, async () => {
+      const promise = rpc.makeRequest(`add`, [1, 2], true, undefined, 30)
+      await expect(promise).rejects.toThrow(/timeout after 30ms/)
+    })
+
+    it(`removes the timed-out entry from the pending map`, async () => {
+      const promise = rpc.makeRequest(`add`, [1, 2], true, undefined, 30)
+      await expect(promise).rejects.toThrow()
+      expect(rpc.map.size).toBe(0)
+    })
+
+    it(`does not time out when a result arrives first`, async () => {
+      const promise = rpc.makeRequest(`add`, [1, 2], true, undefined, 200)
+      const req = sentMessages[0]
+      await rpc.make({id: req.id, result: 3})
+      expect(await promise).toBe(3)
+      expect(rpc.map.size).toBe(0)
+    })
+  })
+
+  describe(`rejectAllPending (P0-1)`, () => {
+    it(`rejects every pending request and empties the map`, async () => {
+      const p1 = rpc.makeRequest(`add`, [1, 2])
+      const p2 = rpc.makeRequest(`add`, [3, 4])
+      expect(rpc.map.size).toBe(2)
+      rpc.rejectAllPending(new Error(`worker died`))
+      await expect(p1).rejects.toThrow(/worker died/)
+      await expect(p2).rejects.toThrow(/worker died/)
+      expect(rpc.map.size).toBe(0)
+    })
+
+    it(`wraps non-Error values into an Error`, async () => {
+      const p1 = rpc.makeRequest(`add`, [1, 2])
+      rpc.rejectAllPending(`boom`)
+      await expect(p1).rejects.toThrow(/boom/)
+    })
+  })
+
+  describe(`middleware (P1-7)`, () => {
+    it(`can mutate params before dispatch`, async () => {
+      rpc.use(async (ctx, next) => {
+        ctx.params = [Number(ctx.params[0]) + 1, Number(ctx.params[1])]
+        await next()
+      })
+      await rpc.make({id: 10, method: `add`, params: [1, 2]})
+      expect(sentMessages[0]).toMatchObject({id: 10, result: 4})
+    })
+
+    it(`can short-circuit by setting result without calling next`, async () => {
+      rpc.use(async (ctx) => {
+        ctx.result = `short-circuited`
+      })
+      await rpc.make({id: 11, method: `add`, params: [1, 2]})
+      expect(sentMessages[0]).toMatchObject({id: 11, result: `short-circuited`})
+    })
+
+    it(`propagates middleware throws as error responses`, async () => {
+      rpc.use(async () => {
+        throw new Error(`blocked by middleware`)
+      })
+      await rpc.make({id: 12, method: `add`, params: [1, 2]})
+      expect(sentMessages[0].id).toBe(12)
+      expect(sentMessages[0].error.message).toBe(`blocked by middleware`)
+    })
+
+    it(`runs middlewares in registration order`, async () => {
+      const order: string[] = []
+      rpc.use(async (_ctx, next) => {
+        order.push(`first-before`)
+        await next()
+        order.push(`first-after`)
+      })
+      rpc.use(async (_ctx, next) => {
+        order.push(`second-before`)
+        await next()
+        order.push(`second-after`)
+      })
+      await rpc.make({id: 13, method: `add`, params: [1, 2]})
+      expect(order).toEqual([`first-before`, `second-before`, `second-after`, `first-after`])
+    })
+  })
+
+  describe(`context merge (P1-7)`, () => {
+    it(`merges rpc.context into every outgoing payload`, () => {
+      rpc.context = {traceId: `trace-123`}
+      rpc.makeRequest(`add`, [1, 2])
+      expect(sentMessages[0]).toMatchObject({traceId: `trace-123`})
+    })
+
+    it(`lets per-call _others override context`, () => {
+      rpc.context = {traceId: `trace-123`}
+      rpc.makeRequest(`add`, [1, 2], true, {traceId: `override`})
+      expect(sentMessages[0]).toMatchObject({traceId: `override`})
     })
   })
 })

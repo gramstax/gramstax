@@ -5,7 +5,7 @@
  * main-thread path of `init()`. We never call `launchWorker()` here, so no
  * real worker threads are spawned.
  */
-import {describe, it, expect} from "bun:test"
+import {describe, expect, it } from "bun:test"
 import {WorkerThreadExport} from "../src/export"
 import {WorkerThreadInit} from "../src/init"
 
@@ -57,6 +57,12 @@ describe(`WorkerThreadExport.launchGatewayClient`, () => {
     const instance = new (Gateway as any)(owner)
     expect(typeof instance).toBe(`object`)
     expect(typeof instance.mtdAdd).toBe(`function`)
+  })
+
+  it(`accepts connection options (token/messagepack) and still returns a proxy`, () => {
+    const Gateway = WorkerThreadExport.launchGatewayClient<StubWorker>(path, {token: `s3cret`, messagepack: true})
+    expect(typeof Gateway).toBe(`function`)
+    expect(typeof (Gateway as any).mtdAdd).toBe(`function`)
   })
 })
 
@@ -121,5 +127,13 @@ describe(`WorkerThreadExport.init (main-thread path)`, () => {
     const Gateway = (Job as any).launchGatewayClient(`/tmp/some-server-${Date.now()}.sock`)
     expect(typeof Gateway).toBe(`function`)
     expect(typeof Gateway.mtdAdd).toBe(`function`)
+  })
+
+  it(`launchGatewayClient throws when no path is provided (DX guard)`, () => {
+    const Job = WorkerThreadExport.init({
+      path: fakePath,
+      WTInit: StubWorker
+    })
+    expect(() => (Job as any).launchGatewayClient()).toThrow(/requires a gateway server path/)
   })
 })

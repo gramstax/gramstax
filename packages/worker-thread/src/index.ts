@@ -10,8 +10,10 @@
  * @public
  */
 
+export * from "./error-handler"
 export * from "./export"
 export * from "./gateway-client"
+export * from "./gateway-path"
 export * from "./gateway-server"
 export * from "./init"
 export * from "./launch"

@@ -5,9 +5,9 @@
  * net-ipc transport. Verifies the start() parameter bug fix (default
  * `register: any = {}` would have overridden any pre-set register).
  */
-import {describe, it, expect} from "bun:test"
-import {WorkerThreadGatewayServer} from "../src/gateway-server"
+import {describe, expect, it } from "bun:test"
 import {WorkerThreadGatewayClient} from "../src/gateway-client"
+import {WorkerThreadGatewayServer} from "../src/gateway-server"
 import {WorkerThreadRpc} from "../src/rpc"
 
 describe(`WorkerThreadGatewayServer`, () => {
@@ -31,7 +31,7 @@ describe(`WorkerThreadGatewayServer`, () => {
   it(`register can be assigned directly before start()`, () => {
     const server = new WorkerThreadGatewayServer()
     server.register = {ping: () => `pong`}
-    expect(server.register.ping()).toBe(`pong`)
+    expect(server.register.ping!()).toBe(`pong`)
   })
 
   it(`start is a function (signature)`, () => {

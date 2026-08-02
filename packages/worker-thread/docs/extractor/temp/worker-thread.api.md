@@ -69,14 +69,11 @@ export class WorkerThreadInit {
     constructor();
     argv: string[];
     createGatewayClient(serverPath: string): Promise<WorkerThreadGatewayClient>;
-    createGatewayServer(register?: any, path?: string): Promise<boolean>;
+    createGatewayServer(path: string, register?: any): Promise<boolean>;
     get gatewayClient(): WorkerThreadGatewayClient | undefined;
     gatewayClientLatest?: WorkerThreadGatewayClient;
     gatewayClients: Map<string, WorkerThreadGatewayClient>;
     gatewayServer?: WorkerThreadGatewayServer;
-    // @virtual
-    static gatewayServerPath?: string;
-    gatewayServerPath: any;
     handleOnMessage(data: any): void;
     id: number;
     init(): void;

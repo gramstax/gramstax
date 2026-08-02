@@ -53,14 +53,12 @@ Inter-Worker Communication with launchGatewayClient
 ```typescript
 // ./worker/server.ts
 class ServerWorker extends WorkerThreadInit {
-  static gatewayServerPath = "/tmp/server.sock";
-
   mtdHello(from: string) {
     return `Hello ${from}!`;
   }
 
   async mtdStartServer() {
-    return await this.createGatewayServer();
+    return await this.createGatewayServer("/tmp/server.sock");
   }
 }
 
@@ -68,7 +66,7 @@ export const WorkerServer = WorkerThreadExport.init({
   path: __filename,
   WTInit: ServerWorker,
 });
-export const WorkerServerGateway = WorkerServer.launchGatewayClient();
+export const WorkerServerGateway = WorkerServer.launchGatewayClient("/tmp/server.sock");
 
 // ./worker/client.ts
 import { WorkerServerGateway } from "./server";

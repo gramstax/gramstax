@@ -1,5 +1,5 @@
-import {WorkerThreadInit} from "../src/init"
 import {WorkerThreadExport} from "../src/export"
+import {WorkerThreadInit} from "../src/init"
 import {ServerMainGateway} from "./test-final-server-main"
 
 class Worker extends WorkerThreadInit {
@@ -14,8 +14,8 @@ class Worker extends WorkerThreadInit {
       console.log(`[Worker-B] Connecting to gateway-final...`)
       const res = await ServerMainGateway.mtdHello(this, `Worker-B`)
       console.log(`[Worker-B] Server response: ${res}`)
-    } catch (err: any) {
-      console.error(`[Worker-B] Error:`, err.message || err)
+    } catch (err: unknown) {
+      console.error(`[Worker-B] Error:`, err instanceof Error ? err.message : err)
     }
   }
 }

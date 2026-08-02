@@ -5,8 +5,8 @@
  * (because we run on the main thread). This makes the base class safe to
  * instantiate: the `?.` short-circuits both `init()` and `send()` paths.
  */
-import {describe, it, expect, beforeEach} from "bun:test"
-import {parentPort, isMainThread} from "node:worker_threads"
+import {beforeEach, describe, expect, it } from "bun:test"
+import {isMainThread, parentPort } from "node:worker_threads"
 import {WorkerThreadInit} from "../src/init"
 import {WorkerThreadRpc} from "../src/rpc"
 
@@ -23,12 +23,6 @@ class MinimalWorker extends WorkerThreadInit {
     return this.id
   }
 }
-
-class WorkerWithServerPath extends WorkerThreadInit {
-  static gatewayServerPath = `/tmp/worker-${Math.random()}.sock`
-}
-
-class WorkerWithoutServerPath extends WorkerThreadInit {}
 
 describe(`WorkerThreadInit`, () => {
   describe(`environment (sanity)`, () => {
@@ -82,15 +76,10 @@ describe(`WorkerThreadInit`, () => {
     })
   })
 
-  describe(`gatewayServerPath`, () => {
-    it(`reads the static gatewayServerPath declared on the subclass`, () => {
-      const worker = new WorkerWithServerPath()
-      expect(worker.gatewayServerPath).toBe((WorkerWithServerPath as any).gatewayServerPath)
-    })
-
-    it(`is undefined when the subclass does not declare it`, () => {
-      const worker = new WorkerWithoutServerPath()
-      expect(worker.gatewayServerPath).toBeUndefined()
+  describe(`createGatewayServer`, () => {
+    it(`is a function (signature) — path is required, no static fallback`, () => {
+      const worker = new MinimalWorker()
+      expect(typeof worker.createGatewayServer).toBe(`function`)
     })
   })
 
@@ -104,7 +93,7 @@ describe(`WorkerThreadInit`, () => {
   describe(`request`, () => {
     it(`forwards method/params to rpc.makeRequest (pending entry in rpc.map)`, () => {
       const worker = new MinimalWorker()
-      const promise = worker.request(`mtdAdd`, [1, 2])
+      const promise = worker.request(`mtdAdd`, [1, 2]) as Promise<unknown>
       expect(worker.rpc.map.size).toBeGreaterThanOrEqual(1)
       promise.catch(() => {})
       worker.rpc.map.clear()
@@ -119,7 +108,7 @@ describe(`WorkerThreadInit`, () => {
 
     it(`merges _others into the payload (still tracked as pending entry)`, () => {
       const worker = new MinimalWorker()
-      const promise = worker.request(`mtdAdd`, [1, 2], true, {traceId: `xyz`})
+      const promise = worker.request(`mtdAdd`, [1, 2], true, {traceId: `xyz`}) as Promise<unknown>
       expect(worker.rpc.map.size).toBeGreaterThanOrEqual(1)
       promise.catch(() => {})
       worker.rpc.map.clear()

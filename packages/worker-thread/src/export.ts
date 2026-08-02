@@ -12,8 +12,9 @@
  * @public
  */
 
+import type {GatewayClientOptions} from "./gateway-client"
+import type {WorkerThreadInit} from "./init"
 import {WorkerThreadLaunch} from "./launch"
-import {WorkerThreadInit} from "./init"
 
 /**
  * Options for initializing a worker thread export.
@@ -30,7 +31,7 @@ export type WorkerThreadExportOpt<TWorker extends WorkerThreadInit, TMain extend
   /** Worker thread init class. Extends {@link WorkerThreadInit}. */
   WTInit: new () => TWorker
   /** Main thread launch class. Extends {@link WorkerThreadLaunch}. Defaults to `WorkerThreadLaunch`. */
-  WTLaunch?: new (path: string, argv?: any[]) => TMain
+  WTLaunch?: new (path: string, argv?: unknown[]) => TMain
   /** Custom wrapper function. Adds custom methods to returned object. */
   wrap?: (main: TMain) => TWrap
 }
@@ -43,7 +44,7 @@ export type WorkerThreadExportOpt<TWorker extends WorkerThreadInit, TMain extend
  * @public
  */
 export type WorkerThreadGatewayProxy<T> = {
-  [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: any[]) => any ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (owner: WorkerThreadInit, ...args: A) => Promise<Awaited<R>> : never
+  [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: never[]) => unknown ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (owner: WorkerThreadInit, ...args: A) => Promise<Awaited<R>> : never
 }
 
 /**
@@ -54,7 +55,43 @@ export type WorkerThreadGatewayProxy<T> = {
  * @public
  */
 export type WorkerThreadAsyncMethods<T> = {
-  [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: any[]) => any ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<Awaited<R>> : never
+  [K in keyof T as K extends keyof WorkerThreadInit ? never : K extends string ? (T[K] extends (...args: never[]) => unknown ? K : never) : never]: T[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<Awaited<R>> : never
+}
+
+/**
+ * Factory type for `launchGatewayClient` returned by {@link WorkerThreadExport.init}.
+ *
+ * @typeParam TWorker - The worker thread init class type.
+ * @public
+ */
+export type WorkerThreadGatewayClientFactory<TWorker extends WorkerThreadInit> = (serverPath: string, options?: GatewayClientOptions) => WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>}
+
+/**
+ * Result type of {@link WorkerThreadExport.init}.
+ *
+ * @typeParam TWorker - The worker thread init class type.
+ * @typeParam TMain - The main thread launch class type.
+ * @typeParam TWrap - The custom wrapper type.
+ * @public
+ */
+export type WorkerThreadExportResult<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap> = TWrap & WorkerThreadAsyncMethods<TWorker> & {
+  launchWorker: (argv?: unknown[]) => Promise<TMain>
+  launchGatewayClient: WorkerThreadGatewayClientFactory<TWorker>
+  shutdown: (timeoutMs?: number) => Promise<void>
+}
+
+/**
+ * Validate a gateway server path is provided.
+ *
+ * @param serverPath - Path to the gateway server socket.
+ * @returns The validated path.
+ * @throws When the path is missing or empty.
+ */
+function requireGatewayPath(serverPath?: string): string {
+  if (!serverPath || typeof serverPath !== `string`) {
+    throw new Error(`launchGatewayClient requires a gateway server path — pass the same path used in createGatewayServer()`)
+  }
+  return serverPath
 }
 
 /**
@@ -91,26 +128,24 @@ export type WorkerThreadAsyncMethods<T> = {
  * await CounterJob.mtdGetCount(); // 1
  * ```
  *
- * @example Inter-Worker Communication with launchGatewayClient
- * ```typescript
- * // ./worker/server.ts
- * class ServerWorker extends WorkerThreadInit {
- *   static gatewayServerPath = "/tmp/server.sock";
- *
- *   mtdHello(from: string) {
- *     return `Hello ${from}!`;
- *   }
- *
- *   async mtdStartServer() {
- *     return await this.createGatewayServer();
- *   }
- * }
- *
- * export const WorkerServer = WorkerThreadExport.init({
- *   path: __filename,
- *   WTInit: ServerWorker,
- * });
- * export const WorkerServerGateway = WorkerServer.launchGatewayClient();
+  * @example Inter-Worker Communication with launchGatewayClient
+  * ```typescript
+  * // ./worker/server.ts
+  * class ServerWorker extends WorkerThreadInit {
+  *   mtdHello(from: string) {
+  *     return `Hello ${from}!`;
+  *   }
+  *
+  *   async mtdStartServer() {
+  *     return await this.createGatewayServer("/tmp/server.sock");
+  *   }
+  * }
+  *
+  * export const WorkerServer = WorkerThreadExport.init({
+  *   path: __filename,
+  *   WTInit: ServerWorker,
+  * });
+  * export const WorkerServerGateway = WorkerServer.launchGatewayClient("/tmp/server.sock");
  *
  * // ./worker/client.ts
  * import { WorkerServerGateway } from "./server";
@@ -137,12 +172,13 @@ export class WorkerThreadExport {
    *
    * @typeParam TWorker - The worker thread init class type.
    * @param path - Path to the target worker file. Must match target init `path`.
+   * @param options - Gateway connection options (auth token, reconnect tuning, encoding).
    * @returns Proxy that can be used as static methods or as constructor.
    *
    * @example
    * ```typescript
    * // Static usage
-   * const OtherWorkerGateway = WorkerThreadExport.launchGatewayClient<OtherWorkerClass>("/path/to/other.ts");
+   * const OtherWorkerGateway = WorkerThreadExport.launchGatewayClient<OtherWorkerClass>("/path/to/other.ts", {token: "shared-secret"});
    * await OtherWorkerGateway.someMethod(this, arg1, arg2);
    *
    * // Constructor usage
@@ -151,14 +187,14 @@ export class WorkerThreadExport {
    * ```
    * @public
    */
-  static launchGatewayClient<TWorker extends WorkerThreadInit>(path: string): WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>} {
-    const proxy: any = new Proxy({} as any, {
+  static launchGatewayClient<TWorker extends WorkerThreadInit>(path: string, options?: GatewayClientOptions): WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>} {
+    const proxy: Record<string, (...args: never[]) => unknown> = new Proxy({} as Record<string, (...args: never[]) => unknown>, {
       get(_, prop) {
         if (typeof prop !== `string` || prop === `then`) return undefined
-        return async (owner: WorkerThreadInit, ...args: any[]) => {
+        return async (owner: WorkerThreadInit, ...args: unknown[]) => {
           let client = owner.gatewayClients.get(path)
-          if (!client) {
-            client = await owner.createGatewayClient(path)
+          if (!client || client.isClosed()) {
+            client = await owner.createGatewayClient(path, options)
           }
           return client.request(prop, args)
         }
@@ -166,23 +202,23 @@ export class WorkerThreadExport {
     })
 
     // Add constructor support
-    const ctor: any = function (this: any, owner: WorkerThreadInit) {
-      return new Proxy({} as any, {
+    const ctor = function (this: WorkerThreadInit, owner: WorkerThreadInit) {
+      return new Proxy({} as Record<string, (...args: never[]) => unknown>, {
         get(_, prop) {
           if (typeof prop !== `string` || prop === `then`) return undefined
-          return async (...args: any[]) => {
+          return async (...args: unknown[]) => {
             let client = owner.gatewayClients.get(path)
-            if (!client) {
-              client = await owner.createGatewayClient(path)
+            if (!client || client.isClosed()) {
+              client = await owner.createGatewayClient(path, options)
             }
             return client.request(prop, args)
           }
         }
       })
-    }
+    } as unknown as WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>}
 
     Object.setPrototypeOf(ctor, proxy)
-    return ctor as any
+    return ctor
   }
 
   /**
@@ -224,16 +260,16 @@ export class WorkerThreadExport {
    * ```
    * @public
    */
-  static init<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap = Record<any, any>>(
+  static init<TWorker extends WorkerThreadInit, TMain extends WorkerThreadLaunch, TWrap = Record<string, unknown>>(
     options: WorkerThreadExportOpt<TWorker, TMain, TWrap>
-  ): TWrap & WorkerThreadAsyncMethods<TWorker> & {launchWorker: (argv?: any[]) => Promise<TMain>; launchGatewayClient: (serverPath?: string) => WorkerThreadGatewayProxy<TWorker> & {new (owner: WorkerThreadInit): WorkerThreadAsyncMethods<TWorker>}} {
-    const {WTInit, WTLaunch = WorkerThreadLaunch as any, path, wrap} = options
+  ): WorkerThreadExportResult<TWorker, TMain, TWrap> {
+    const {WTInit, WTLaunch = WorkerThreadLaunch as unknown as new (path: string, argv?: unknown[]) => TMain, path, wrap} = options
     const uniqueArg = `for-${path}`
 
     // check if we are in worker thread
     if (process.argv[2] === uniqueArg) {
       new WTInit()
-      return {launchGatewayClient: (sp?: string) => WorkerThreadExport.launchGatewayClient<TWorker>(sp || (WTInit as any).gatewayServerPath)} as any
+      return {launchGatewayClient: (sp?: string, options?: GatewayClientOptions) => WorkerThreadExport.launchGatewayClient<TWorker>(requireGatewayPath(sp), options)} as unknown as WorkerThreadExportResult<TWorker, TMain, TWrap>
     }
 
     // below is area main thread
@@ -243,29 +279,35 @@ export class WorkerThreadExport {
     const mainProxy = new Proxy({} as TMain, {
       get(_, prop) {
         if (prop === `then`) return undefined
-        if (prop === `sendRequest` || prop === `request` || prop === `kill` || prop === `send`) {
-          return (...args: any[]) => {
+        if (prop === `request` || prop === `kill` || prop === `send` || prop === `shutdown`) {
+          return (...args: unknown[]) => {
             if (!instance) throw new Error(`Thread at ${path} not launched yet.`)
-            return (instance as any)[prop](...args)
+            return (instance as unknown as Record<string, (...args: unknown[]) => unknown>)[prop as string]!(...args)
           }
         }
-        return (...args: any[]) => {
+        return (...args: unknown[]) => {
           if (!instance) throw new Error(`Thread at ${path} not launched yet.`)
           return instance.request(prop as string, args)
         }
       }
     })
 
-    const custom = wrap ? wrap(mainProxy as TMain & Record<string, any>) : ({} as TWrap)
-    const result: any = {
+    const custom = wrap ? wrap(mainProxy as TMain & Record<string, (...args: never[]) => unknown>) : ({} as TWrap)
+    const result = {
       ...custom,
-      launchWorker: async (argv: any[] = []) => {
+      launchWorker: async (argv: unknown[] = []) => {
+        // each call spawns an independent worker — callers own the returned
+        // launch instances (launching the same Job multiple times is valid)
         instance = new WTLaunch(path, [uniqueArg, ...argv])
         await instance.ready()
         return instance
       },
-      launchGatewayClient: (serverPath?: string) => {
-        return WorkerThreadExport.launchGatewayClient<TWorker>(serverPath || (WTInit as any).gatewayServerPath)
+      launchGatewayClient: (serverPath?: string, options?: GatewayClientOptions) => {
+        return WorkerThreadExport.launchGatewayClient<TWorker>(requireGatewayPath(serverPath), options)
+      },
+      shutdown: (timeoutMs?: number) => {
+        if (!instance) throw new Error(`Thread at ${path} not launched yet.`)
+        return instance.shutdown(timeoutMs)
       }
     }
 
@@ -274,15 +316,15 @@ export class WorkerThreadExport {
         if (prop === `then`) return undefined
         if (prop === `launchGatewayClient`) return target.launchGatewayClient
         if (prop === `launchWorker`) return target.launchWorker
-        if (prop in target) return target[prop as any]
+        if (prop in target) return (target as Record<string, unknown>)[prop as unknown as string]
         if (typeof prop === `string`) {
-          return (...args: any[]) => {
+          return (...args: unknown[]) => {
             if (!instance) throw new Error(`Thread at ${path} not launched yet.`)
             return instance.request(prop, args)
           }
         }
-        return target[prop as any]
+        return (target as Record<string, unknown>)[prop as unknown as string]
       }
-    })
+    }) as unknown as WorkerThreadExportResult<TWorker, TMain, TWrap>
   }
 }

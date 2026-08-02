@@ -12,10 +12,10 @@
  * @public
  */
 
-import {parentPort, threadId, isMainThread} from "node:worker_threads"
+import {isMainThread, parentPort, threadId } from "node:worker_threads"
+import {type GatewayClientOptions, WorkerThreadGatewayClient} from "./gateway-client"
+import {type GatewayServerOptions, WorkerThreadGatewayServer} from "./gateway-server"
 import {WorkerThreadRpc} from "./rpc"
-import {WorkerThreadGatewayServer} from "./gateway-server"
-import {WorkerThreadGatewayClient} from "./gateway-client"
 
 /**
  * Base class for worker thread implementations.
@@ -81,7 +81,7 @@ export class WorkerThreadInit {
    * @remarks
    * Uses {@link WorkerThreadRpc} for dispatching requests.
    */
-  rpc: WorkerThreadRpc = {} as any
+  rpc: WorkerThreadRpc = {} as unknown as WorkerThreadRpc
 
   /**
    * Reference to the parent port for messaging from `node:worker_threads`.
@@ -116,21 +116,23 @@ export class WorkerThreadInit {
   gatewayClientLatest?: WorkerThreadGatewayClient
 
   /**
-   * Path for gateway server. Override in subclass if needed.
+   * Hook called before the worker is shut down gracefully.
    *
    * @remarks
-   * Used by {@link WorkerThreadGatewayServer} when binding.
-   * @virtual
+   * Invoked by {@link WorkerThreadInit.shutdown} (called via RPC from
+   * `WorkerThreadLaunch.shutdown`). Override to flush state, close
+   * connections, or persist data. The worker is terminated by the main
+   * thread after this hook completes.
    */
-  static gatewayServerPath?: string
+  onBeforeExit(): void | Promise<void> {}
 
   /**
-   * Instance accessor for gateway server path from static property.
+   * Hook called when an unhandled error occurs inside the worker's RPC handling.
    *
    * @remarks
-   * Reads from `this.constructor.gatewayServerPath`.
+   * Receives the error object. Override to log or report.
    */
-  gatewayServerPath = (this.constructor as any).gatewayServerPath
+  onError(_err: unknown): void {}
 
   /**
    * Get the most recently created gateway client.
@@ -157,7 +159,7 @@ export class WorkerThreadInit {
    */
   constructor() {
     this.init()
-    this.rpc = new WorkerThreadRpc(this.send.bind(this), this)
+    this.rpc = new WorkerThreadRpc(this.send.bind(this), this as unknown as Record<string, (...args: never[]) => unknown>)
     this.send({method: `readyResolve`})
   }
 
@@ -175,8 +177,10 @@ export class WorkerThreadInit {
    * @param data - Message data from main thread.
    * @public
    */
-  handleOnMessage(data: any) {
-    this.rpc.make(data)
+  handleOnMessage(data: Parameters<WorkerThreadRpc[`make`]>[0]) {
+    this.rpc.make(data).catch((err: unknown) => {
+      this.onError(err)
+    })
   }
 
   /**
@@ -190,7 +194,7 @@ export class WorkerThreadInit {
    * ```
    * @public
    */
-  send(payload: any) {
+  send(payload: Record<string, unknown>) {
     this.parentPort?.postMessage(payload)
   }
 
@@ -201,6 +205,8 @@ export class WorkerThreadInit {
    * @param params - Method parameters. Sent as positional array.
    * @param _wait - Wait for response. If false, fire-and-forget. Defaults to `true`.
    * @param _others - Additional RPC data. Merged into RPC payload.
+   * @param timeoutMs - Optional timeout in milliseconds. Rejects the request
+   *   when the main thread does not respond in time.
    * @returns Promise resolving with main-thread response.
    *
    * @example
@@ -209,40 +215,39 @@ export class WorkerThreadInit {
    * ```
    * @public
    */
-  request(method: string, params: any, _wait = true, _others?: any) {
-    return this.rpc.makeRequest(method, params, _wait, _others)
+  request(method: string, params: unknown[], _wait = true, _others?: Record<string, unknown>, timeoutMs?: number) {
+    return this.rpc.makeRequest(method, params, _wait, _others, timeoutMs)
   }
 
   /**
    * Create a gateway server for inter-worker communication.
    *
+   * @param path - Unix socket path. Gateway identifier. Must be unique per server worker.
    * @param register - Object with value function to expose. Called by gateway clients. Defaults to `this`.
-   * @param path - Unix socket path. Gateway identifier. Defaults to `this.constructor.gatewayServerPath`.
+   * @param options - Gateway server options (auth token, method allow-list, connection cap).
    * @returns Promise that resolves to `true` when gateway is ready.
    *
    * @example
    * ```typescript
-   * // Recommended - uses default `this` and static gatewayServerPath
-   * await this.createGatewayServer();
-   *
    * // Custom object and path
    * await this.createGatewayServer(
-   *   { ping: () => "pong" },
-   *   "/tmp/my-worker.sock"
+   *   "/tmp/my-worker.sock",
+   *   { ping: () => "pong" }
    * );
+   *
+   * // Expose `this` at the given path
+   * await this.createGatewayServer("/tmp/my-worker.sock");
    * ```
    * @public
    */
-  async createGatewayServer(register?: any, path?: string) {
-    if (!register) {
-      ;(register as any) = this
+  async createGatewayServer(path: string, register?: Record<string, (...args: never[]) => unknown>, options?: GatewayServerOptions) {
+    if (this.gatewayServer) {
+      // replace (and close) any previous server so its socket is never leaked
+      await this.gatewayServer.close()
     }
-    if (!path) {
-      path = (this.constructor as any).gatewayServerPath
-    }
+    const reg = register ?? (this as unknown as Record<string, (...args: never[]) => unknown>)
     this.gatewayServer = new WorkerThreadGatewayServer()
-    await this.gatewayServer.start(path!, register)
-    ;(this.constructor as any).gatewayServerPath = path
+    await this.gatewayServer.start(path, reg, options)
     return true
   }
 
@@ -253,6 +258,7 @@ export class WorkerThreadInit {
    * Low-level API. Use `launchGatewayClient` from `WorkerThreadExport` instead.
    *
    * @param serverPath - Unix socket path to connect. Matches server gateway.
+   * @param options - Connection options (auth token, reconnect tuning, encoding).
    * @returns Promise resolving with connected client.
    *
    * @example
@@ -262,11 +268,39 @@ export class WorkerThreadInit {
    * ```
    * @public
    */
-  async createGatewayClient(serverPath: string) {
+  async createGatewayClient(serverPath: string, options?: GatewayClientOptions) {
+    // replace (and close) any previous client for the same path so sockets
+    // are never leaked
+    const existing = this.gatewayClients.get(serverPath)
+    if (existing && !existing.isClosed()) {
+      await existing.close()
+    }
     const client = new WorkerThreadGatewayClient()
-    await client.connect(serverPath)
+    await client.connect(serverPath, options)
     this.gatewayClients.set(serverPath, client)
     this.gatewayClientLatest = client
     return client
+  }
+
+  /**
+   * Graceful shutdown handler, callable via RPC from the main thread.
+   *
+   * @remarks
+   * Runs the {@link WorkerThreadInit.onBeforeExit} hook (flush state, close
+   * connections, persist data), then closes gateway resources so no socket
+   * or reconnect timer keeps the worker alive. The main thread terminates
+   * the worker after this resolves. Override to customize, or just set
+   * `onBeforeExit`.
+   *
+   * @returns Promise resolving to `true` when shutdown is complete.
+   * @public
+   */
+  async shutdown() {
+    await this.onBeforeExit()
+    await this.gatewayServer?.close()
+    for (const client of this.gatewayClients.values()) {
+      await client.close()
+    }
+    return true
   }
 }
