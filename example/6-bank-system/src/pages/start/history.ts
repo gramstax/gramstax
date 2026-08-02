@@ -37,6 +37,7 @@ class Helper {
 // Shows recent transaction history.
 export class StartHistoryPage extends PageBase {
   static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.bdefault.show()
   }

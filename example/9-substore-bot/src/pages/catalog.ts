@@ -37,7 +37,7 @@ export class CatalogPage extends PageBase {
           k.text(l[1]!, this.data.callbackQueryData(`page`, `${productPage.pageNo + 1}`))
         }
 
-        return k.row().text(l[2]!, CartPage.data.callbackQueryData()).text(l[3]!, HelpPage.data.callbackQueryData()).row().text(l[4]!, StartPage.data.callbackQueryData())
+        return k.row().text(l[2]!, CartPage).text(l[3]!, HelpPage).row().text(l[4]!, StartPage)
       })
       const da = {
         pageNo: productPage.pageNo + 1,

@@ -3,6 +3,7 @@ import {StartPage} from "~/pages/start"
 
 export class StartTestContactPage extends PageBase {
   static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.bdefault.show()
   }

@@ -16,6 +16,7 @@ class Helper {
 // Deposits funds into the user's balance.
 export class StartDepositPage extends PageBase {
   static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.bindex.show()
   }

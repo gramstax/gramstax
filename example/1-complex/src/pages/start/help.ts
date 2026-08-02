@@ -3,6 +3,7 @@ import {StartPage} from "~/pages/start"
 
 export class StartHelpPage extends PageBase {
   static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.bdefault.show()
   }

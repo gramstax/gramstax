@@ -2,6 +2,7 @@ import {PageBase} from "~/base/page"
 
 export class StartTestErrorPage extends PageBase {
   static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.bdefault.show()
   }

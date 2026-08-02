@@ -42,11 +42,12 @@ export class CartPage extends PageBase {
             k.row()
           })
 
-          k.text(l[3]!, CheckoutPage.data.callbackQueryData())
+          k.text(l[3]!, CheckoutPage)
           k.text(l[4]!, this.data.callbackQueryData(bi, `clear`))
           k.row()
-
-          return k.text(l[5]!, CatalogPage.data.callbackQueryData()).text(l[6]!, StartPage.data.callbackQueryData())
+          k.text(l[5]!, CatalogPage)
+          k.text(l[6]!, StartPage)
+          return k
         },
         {AGBaseId: bi}
       )

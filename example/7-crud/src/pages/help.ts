@@ -4,11 +4,12 @@ import {StartPage} from "./start"
 // Help page for CRUD usage.
 export class HelpPage extends PageBase {
   static data = this.buildData()
+
   async handleCallbackQueryData() {
-    await this.gdefault.show()
+    await this.bdefault.show()
   }
 
-  gdefault = {
+  bdefault = {
     show: async () => {
       const kb = this.inlineKeyboardT([StartPage])
       await this.renderEdit(kb)

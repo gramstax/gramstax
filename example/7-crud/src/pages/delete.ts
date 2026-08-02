@@ -23,7 +23,7 @@ class Helper {
             k.row()
           }
         })
-        return k.row().text(l[0]!, StartPage.data.callbackQueryData())
+        return k.row().text(l[0]!, StartPage)
       },
       {AGBaseId: bi}
     )

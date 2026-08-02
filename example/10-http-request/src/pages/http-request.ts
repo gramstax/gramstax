@@ -42,22 +42,29 @@ class Helper {
 
   static buildMethodKeyboard(ctx: HttpRequestPage) {
     return ctx.inlineKeyboardT(
-      [HttpRequestPage.data.callbackQueryData(`GET`), HttpRequestPage.data.callbackQueryData(`POST`), HttpRequestPage.data.callbackQueryData(`PUT`), HttpRequestPage.data.callbackQueryData(`DELETE`), HttpRequestPage.data.callbackQueryData(`PATCH`), StartPage.data.callbackQueryData()],
+      [
+        HttpRequestPage.data.callbackQueryData(`GET`), //
+        HttpRequestPage.data.callbackQueryData(`POST`),
+        HttpRequestPage.data.callbackQueryData(`PUT`),
+        HttpRequestPage.data.callbackQueryData(`DELETE`),
+        HttpRequestPage.data.callbackQueryData(`PATCH`),
+        StartPage
+      ],
       `3`,
       Base.method
     )
   }
 
   static buildUrlKeyboard(ctx: HttpRequestPage) {
-    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`_back`), StartPage.data.callbackQueryData()], `2`, Base.url)
+    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`_back`), StartPage], `2`, Base.url)
   }
 
   static buildBodyKeyboard(ctx: HttpRequestPage) {
-    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`_back`), StartPage.data.callbackQueryData()], `2`, Base.body)
+    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`_back`), StartPage], `2`, Base.body)
   }
 
   static buildTokenKeyboard(ctx: HttpRequestPage) {
-    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`skip_token`), StartPage.data.callbackQueryData()], `2`, Base.token)
+    return ctx.inlineKeyboardT([HttpRequestPage.data.callbackQueryData(`skip_token`), StartPage], `2`, Base.token)
   }
 
   static buildHomeKeyboard(ctx: HttpRequestPage) {

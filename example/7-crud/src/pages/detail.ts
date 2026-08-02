@@ -19,6 +19,7 @@ class Helper {
 // Shows a single item by ID.
 export class DetailPage extends PageBase {
   static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.bindex.show()
   }

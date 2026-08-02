@@ -15,7 +15,7 @@ export class StartHelpPage extends PageBase {
 
   bdefault = {
     show: async (isEdit = true) => {
-      const kb = this.inlineKeyboardT([StartPage], `1`)
+      const kb = this.inlineKeyboardT([StartPage])
       await this.renderAuto(kb, null, null, null, isEdit)
     }
   }

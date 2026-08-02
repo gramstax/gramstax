@@ -32,7 +32,7 @@ export class StartCategoryPage extends PageBase {
             k.row()
           }
         })
-        return k.row().text(l[0]!, StartPage.data.callbackQueryData())
+        return k.row().text(l[0]!, StartPage)
       })
       await this.renderAuto(kb, null, null, null, isEdit)
     },

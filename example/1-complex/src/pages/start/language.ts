@@ -23,7 +23,7 @@ class Helper {
       }
 
       // Add back button
-      return k.text(backButton, StartPage.data.callbackQueryData())
+      return k.text(backButton, StartPage)
     })
   }
 }

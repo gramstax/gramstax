@@ -5,6 +5,7 @@ import {StartPage} from "./start"
 
 export class HelpPage extends PageBase {
   static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }

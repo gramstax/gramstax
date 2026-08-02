@@ -5,6 +5,7 @@ import {HttpRequestPage} from "./http-request"
 // Main menu page for HTTP Request example.
 export class StartPage extends PageBase {
   static data = this.buildData()
+
   async handleCommandText() {
     await this.bdefault.show(false)
   }
@@ -14,14 +15,10 @@ export class StartPage extends PageBase {
   }
 
   bdefault = {
-    show: async (edit = true) => {
-      await this.clearSession()
+    show: async (isEdit = true) => {
       const kb = this.inlineKeyboardT([HttpRequestPage, HelpPage], `1`)
-      if (edit) {
-        await this.renderEdit(kb, {})
-      } else {
-        await this.render(kb, {})
-      }
+      await this.clearSession()
+      await this.renderAuto(kb, null, null, null, isEdit)
     }
   }
 

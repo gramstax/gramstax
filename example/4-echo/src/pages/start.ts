@@ -5,6 +5,7 @@ import {HelpPage} from "./help"
 // Start page with welcome message and navigation.
 export class StartPage extends PageBase {
   static data = this.buildData()
+
   async handleCommandText() {
     await this.bdefault.show(false)
   }

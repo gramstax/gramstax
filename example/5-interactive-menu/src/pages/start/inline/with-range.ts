@@ -21,11 +21,11 @@ class Helper {
       if (safePage > 0) {
         k.text(l[0]!, ctx.data.callbackQueryData(`page`, String(safePage - 1)))
       }
-      k.text(`${l[2]} ${safePage + 1}/${totalPages}`, BlankPage.data.callbackQueryData())
+      k.text(`${l[2]} ${safePage + 1}/${totalPages}`, BlankPage)
       if (safePage < totalPages - 1) {
         k.text(l[1]!, ctx.data.callbackQueryData(`page`, String(safePage + 1)))
       }
-      return k.row().text(l[3]!, StartPage.data.callbackQueryData())
+      return k.row().text(l[3]!, StartPage)
     })
     return kb
   }

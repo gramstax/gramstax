@@ -4,6 +4,7 @@ import {StartPage} from "./start"
 // Help page lists available commands.
 export class HelpPage extends PageBase {
   static data = this.buildData()
+
   async handleCommandText() {
     await this.bdefault.show(false)
   }

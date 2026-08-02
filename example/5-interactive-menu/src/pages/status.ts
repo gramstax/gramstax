@@ -3,13 +3,15 @@ import {LogHe} from "~/helpers/log"
 import {StartPage} from "./start"
 
 class Base {
+  static error = `e`
   static notFound = `nf`
 }
 
 class Helper {
   static async built(ctx: StatusPage, isEdit = true) {
-    const kb = ctx.inlineKeyboardT([StartPage])
-    await ctx.renderAuto(kb, null, null, null, isEdit)
+    const bi = Base.error
+    const kb = ctx.inlineKeyboardT([StartPage], `1`, bi)
+    await ctx.renderAuto(kb, null, bi, null, isEdit)
   }
 }
 
@@ -37,7 +39,7 @@ export class StatusPage extends PageBase {
   }
 
   static template = `
-    <g-base>
+    <g-base id="${Base.error}">
       ${this.kbk.home()}
       <g-message>
         ❌ Something went wrong

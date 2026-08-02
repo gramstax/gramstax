@@ -25,6 +25,7 @@ class Helper {
 // Creates a new item in cache.
 export class CreatePage extends PageBase {
   static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.btitle.show()
   }
@@ -88,6 +89,7 @@ export class CreatePage extends PageBase {
         Contoh: Biji Kopi
       </g-message>
     </g-base>
+
     <g-base id="${Base.notes}">
       ${this.kbk.cancel()}
       <g-message>
@@ -103,6 +105,7 @@ export class CreatePage extends PageBase {
         Contoh: Medium roast, 250g
       </g-message>
     </g-base>
+    
     <g-base id="${Base.success}">
       ${this.kbk.home()}
       <g-message>

@@ -24,7 +24,7 @@ class Helper {
         if (safePage < totalPages - 1) {
           k.text(l[1]!, ctx.data.callbackQueryData(`${safePage + 1}`))
         }
-        return k.row().text(l[2]!, StartPage.data.callbackQueryData())
+        return k.row().text(l[2]!, StartPage)
       },
       {AGBaseId: Base.index}
     )

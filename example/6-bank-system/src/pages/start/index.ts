@@ -8,6 +8,7 @@ import {StartWithdrawPage} from "./withdraw"
 // Main menu page for the bank system bot.
 export class StartPage extends PageBase {
   static data = this.buildData()
+
   async handleCommandText() {
     await this.bdefault.show(false)
   }
