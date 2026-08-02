@@ -1,9 +1,9 @@
-import {describe, it, expect, beforeEach, afterEach} from "bun:test"
+import {afterEach, beforeEach, describe, expect, it} from "bun:test"
+import {existsSync} from "node:fs"
 import {mkdir, rm, writeFile} from "node:fs/promises"
+import {join} from "node:path"
 import {TemplateEngine} from "~/template/engine"
 import {TemplateManager} from "~/template/manager"
-import {existsSync} from "node:fs"
-import {join} from "node:path"
 
 // Use a directory inside the test folder as requested
 const TEST_DIR = join(import.meta.dir, `views`)
@@ -193,6 +193,23 @@ describe(`TemplateManager`, () => {
       // Test 2: Explicit HTML extension works
       const explicitHtml = manager._readTemplateFile(`component.html`)
       expect(explicitHtml).toBe(`<g-base><g-message>HTML Content</g-message></g-base>`)
+    })
+
+    it(`should resolve extensionless file to .js when only a .js page exists`, async () => {
+      // Regression for G1: the .js branch of _readTemplateFile used to call
+      // PageManager.getFileSync(tsPath) instead of jsPath, so a .js template
+      // page was never loadable through the extensionless path.
+      const manager = new TemplateManager({path: [TEST_DIR]})
+
+      // Write the page AFTER construction: _loadAllFiles consumes and clears
+      // Page.template, which would mask the jsPath regression under test.
+      await writeFile(join(TEST_DIR, `js_page.js`), [`export class JsPage {}`, `JsPage.template = \`<g-base><g-message>JS Content</g-message></g-base>\``].join(`\n`))
+
+      const jsContent = manager._readTemplateFile(`js_page`)
+      expect(jsContent).toBe(`<g-base><g-message>JS Content</g-message></g-base>`)
+
+      const explicitJs = manager._readTemplateFile(`js_page.js`)
+      expect(explicitJs).toBe(`<g-base><g-message>JS Content</g-message></g-base>`)
     })
 
     it(`should throw error when imported template content contains unsupported block`, async () => {

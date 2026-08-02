@@ -69,10 +69,13 @@ export class LabelKeyboard {
    * @public
    */
   static _reverse(input: string) {
+    const esc = `\u0000`
     return input
-      .split(/(?<!\\), */)
+      .replace(/(?<!\\)\\,/g, esc)
+      .split(/, */)
       .reverse()
       .join(`, `)
+      .replace(new RegExp(esc, `g`), `\\,`)
   }
 
   /**
@@ -91,10 +94,11 @@ export class LabelKeyboard {
    * ```
    * @public
    */
-  static _reverseObj<T extends Record<any, any>>(input: T): T {
-    return Object.keys(input).reduce((acc: any, key: string) => {
-      acc[key] = this._reverse(input[key])
+  static _reverseObj<T extends Record<string, string>>(input: T): T {
+    return Object.keys(input).reduce((acc, key: string) => {
+      const typedKey = key as keyof T
+      acc[typedKey] = this._reverse(input[typedKey]!) as T[typeof typedKey]
       return acc
-    }, {})
+    }, {} as T)
   }
 }

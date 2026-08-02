@@ -9,12 +9,12 @@
  * @public
  */
 
-import {basename, join, extname} from "node:path"
-import {readdirSync, readFileSync, existsSync, statSync, writeFileSync} from "node:fs"
-import {watch, FSWatcher} from "chokidar"
+import {existsSync, readdirSync, readFileSync, statSync, writeFileSync} from "node:fs"
+import {basename, extname, join} from "node:path"
+import {type FSWatcher, watch} from "chokidar"
 import {PageManager} from "~/page/manager"
-import {TemplateEngine} from "./engine"
 import type {ITCompiledTemplate, ITTemplateOptions} from "~/types/t.template"
+import {TemplateEngine} from "./engine"
 
 /**
  * Manages template loading, compilation, caching, and hot-reloading from page files.
@@ -206,7 +206,7 @@ export class TemplateManager {
    *
    * @public
    */
-  _initializeWatcher(options?: any): void {
+  _initializeWatcher(options?: Parameters<typeof watch>[1]): void {
     if (!this._isWatchEnabled) return
 
     if (this._watcher.length > 0) {
@@ -318,7 +318,7 @@ export class TemplateManager {
    * @public
    * @virtual
    */
-  _handleWatchError(error: any): void {
+  _handleWatchError(error: unknown): void {
     if (error) {
       // you can overrides
     }
@@ -343,7 +343,7 @@ export class TemplateManager {
   _loadAllFiles(): void {
     const rawTemplates = new Map<string, string>()
     const rawFilenames = new Map<string, string>()
-    const pagesToCleanup: any[] = []
+    const pagesToCleanup: Array<{template?: string}> = []
 
     // 1. Collect all raw templates (from all paths)
     for (let index = 0; index < this._path.length; index++) {
@@ -420,10 +420,10 @@ export class TemplateManager {
       const ext = this._getExtension(filename)
       const key = this._getKey(filename)
 
-      if (ext == `.html`) {
+      if (ext === `.html`) {
         const raw = readFileSync(path, `utf8`)
         this._compile(key, raw, undefined, undefined, undefined, filename)
-      } else if (ext == `.ts` || ext == `.js`) {
+      } else if (ext === `.ts` || ext === `.js`) {
         const Page = PageManager.getFileSync(path)
         if (Page?.template !== undefined) {
           this._compile(key, Page.template, undefined, undefined, undefined, filename)
@@ -505,7 +505,7 @@ export class TemplateManager {
         }
       } else if (existsSync(jsPath) && statSync(jsPath).isFile()) {
         try {
-          const Page = PageManager.getFileSync(tsPath)
+          const Page = PageManager.getFileSync(jsPath)
           return Page?.template ?? null
         } catch {
           // If failed to load JS, continue to check HTML
@@ -741,10 +741,10 @@ export class TemplateManager {
    *
    * @public
    */
-  getGMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, any>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]> {
+  getGMedia(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): ReturnType<ITCompiledTemplate[`media`][`default`][`default`]> {
     const map = this._map.get(key)
     const one = map?.media?.[AGBaseId]
-    const func = one?.[ALang] || one?.[`default`]
+    const func = one?.[ALang] || one?.default
 
     try {
       if (!func) {
@@ -753,7 +753,7 @@ export class TemplateManager {
 
       return func(data)
     } catch {
-      return {} as any
+      return {} as unknown as ReturnType<ITCompiledTemplate[`media`][`default`][`default`]>
     }
   }
 
@@ -778,11 +778,11 @@ export class TemplateManager {
    *
    * @public
    */
-  getGMessage(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, any>): string {
+  getGMessage(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): string {
     try {
       const map = this._map.get(key)
       const one = map?.message?.[AGBaseId]
-      const func = one?.[ALang] || one?.[`default`]
+      const func = one?.[ALang] || one?.default
       if (!func) {
         throw ``
       }
@@ -815,11 +815,11 @@ export class TemplateManager {
    *
    * @public
    */
-  getGDescription(key: string, AGBaseId = `default`, ALang = `default`, AScope = `default`, data?: Record<string, any>): string {
+  getGDescription(key: string, AGBaseId = `default`, ALang = `default`, AScope = `default`, data?: Record<string, unknown>): string {
     try {
       const map = this._map.get(key)
       const one = map?.description?.[AGBaseId]?.[AScope]
-      const func = one?.[ALang] || one?.[`default`]
+      const func = one?.[ALang] || one?.default
       if (!func) {
         throw ``
       }
@@ -917,11 +917,11 @@ export class TemplateManager {
    *
    * @public
    */
-  getGKeyboard(key: string, AGBaseId = `default`, ALang = `default`, AType: `inline` | `bottom` = `inline`, data?: Record<string, any>): string[] {
+  getGKeyboard(key: string, AGBaseId = `default`, ALang = `default`, AType: `inline` | `bottom` = `inline`, data?: Record<string, unknown>): string[] {
     try {
       const map = this._map.get(key)
       const one = map?.keyboard?.[AGBaseId]
-      const func = one?.[ALang]?.[AType] || one?.[`default`]?.[AType]
+      const func = one?.[ALang]?.[AType] || one?.default?.[AType]
       if (!func) {
         throw []
       }
@@ -955,7 +955,7 @@ export class TemplateManager {
    * @public
    */
   async write(filename: string, template: string): Promise<boolean | null> {
-    if (this._getExtension(filename) != `.html`) {
+    if (this._getExtension(filename) !== `.html`) {
       return null
     }
 

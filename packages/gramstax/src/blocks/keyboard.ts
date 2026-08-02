@@ -9,7 +9,7 @@
  * @public
  */
 
-import {LabelKeyboard} from "~/labels/keyboard"
+import type {LabelKeyboard} from "~/labels/keyboard"
 
 /**
  * Provides static methods for generating keyboard template blocks from `LabelKeyboard` definitions.
@@ -107,15 +107,19 @@ export class BlockKeyboard {
       type = `inline`
     }
 
-    const obj = (this.label as any)[key]
-    if (!obj) {
+    if (!Object.hasOwn(this.label, key)) {
       throw new Error(`Object value ${key} not found`)
     }
+    const obj = this.label[key as keyof typeof LabelKeyboard] as Record<string, string>
+    if (lang !== undefined && !Object.hasOwn(obj, lang)) {
+      throw new Error(`Language "${lang}" not found in label "${key}"`)
+    }
     const pro = (v: string, lang: string) => `<g-keyboard type="${type}" lang="${lang}">${reverse ? this.label._reverse(v) : v}</g-keyboard>`
+
     return lang
-      ? pro(obj[lang], lang)
+      ? pro(obj[lang]!, lang)
       : Object.keys(obj)
-          .map((lang) => pro(obj[lang], lang))
+          .map((lang) => pro(obj[lang]!, lang))
           .join(` `)
   }
 }
