@@ -1,5 +1,5 @@
-import {describe, it, expect, beforeEach} from "bun:test"
-import {e2e, resetEnv, bot} from "./setup"
+import {beforeEach, describe, expect, it} from "bun:test"
+import {bot, e2e, resetEnv} from "./setup"
 
 const intent = `checkout`
 const asUser = {user: {id: 961}, chat: {id: 961}}
@@ -30,7 +30,7 @@ describe(`E2E: CheckoutPage`, () => {
     await e2e.sendText(`@testuser\nPay later`, asUser)
     e2e.clearCalls()
     const res = await e2e.sendCallbackQuery(`${intent}:confirm`, asUser)
-    const photo = res.find((r: any) => r.method === `editMessageMedia`)
+    const photo = res.find((r: {method: string}) => r.method === `editMessageMedia`)
     expect(photo).toBeDefined()
     expect(String(photo!.body?.media?.caption ?? ``)).toContain(`Order Created`)
   })

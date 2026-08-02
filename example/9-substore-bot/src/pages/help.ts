@@ -1,7 +1,7 @@
-import {Env} from "~/env"
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
+import {Env} from "~/env"
 import {CatalogPage} from "./catalog"
+import {StartPage} from "./start"
 
 export class HelpPage extends PageBase {
   static data = this.buildData()

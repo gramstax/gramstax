@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "~/pages/start"
 import {IncrementJob} from "~/jobs/increment"
+import {StartPage} from "~/pages/start"
 
 export class StartCounterThreadPage extends PageBase {
   static data = this.buildData((exe?: string) => [exe])
@@ -20,7 +20,7 @@ export class StartCounterThreadPage extends PageBase {
     show: async () => {
       const count = await IncrementJob.mtdGetCount() // difference thread
       const kb = this.inlineKeyboardT([this.data.callbackQueryData(`1`), StartPage])
-      const da = {count, timestamp: new Date().getTime()}
+      const da = {count, timestamp: Date.now()}
       await this.renderEdit(kb, da)
     },
     process: async () => {

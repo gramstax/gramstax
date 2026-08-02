@@ -1,27 +1,27 @@
 import {PageBase} from "~/base/page"
-import {StartHelpPage} from "./help"
-import {StartCounterPage} from "./counter"
-import {StartLanguagePage} from "./language"
+import {StartBlockImportPage} from "./block/import"
 import {StartBlockMapPage} from "./block/map"
-import {StartTestErrorPage} from "./test/error"
-import {StartTestVoicePage} from "./test/voice"
-import {StartTestPhotoPage} from "./test/photo"
-import {StartTestVideoPage} from "./test/video"
-import {StartTestAudioPage} from "./test/audio"
+import {StartBlockSwitchPage} from "./block/switch"
+import {StartCounterPage} from "./counter"
+import {StartCounterThreadPage} from "./counter/thread"
+import {StartHelpPage} from "./help"
 import {StartInputTextPage} from "./input/text"
 import {StartInputText2Page} from "./input/text/2"
-import {StartBlockSwitchPage} from "./block/switch"
-import {StartBlockImportPage} from "./block/import"
-import {StartTestContactPage} from "./test/contact"
-import {StartTestStickerPage} from "./test/sticker"
-import {StartTestLocationPage} from "./test/location"
-import {StartTestDocumentPage} from "./test/document"
-import {StartCounterThreadPage} from "./counter/thread"
-import {StartTestAnimationPage} from "./test/animation"
-import {StartTestVideoNotePage} from "./test/video-note"
 import {StartKeyboardBottomPage} from "./keyboard/bottom"
-import {StartTestMediaGroupPage} from "./test/media-group"
+import {StartLanguagePage} from "./language"
 import {StartStreamPage} from "./stream"
+import {StartTestAnimationPage} from "./test/animation"
+import {StartTestAudioPage} from "./test/audio"
+import {StartTestContactPage} from "./test/contact"
+import {StartTestDocumentPage} from "./test/document"
+import {StartTestErrorPage} from "./test/error"
+import {StartTestLocationPage} from "./test/location"
+import {StartTestMediaGroupPage} from "./test/media-group"
+import {StartTestPhotoPage} from "./test/photo"
+import {StartTestStickerPage} from "./test/sticker"
+import {StartTestVideoPage} from "./test/video"
+import {StartTestVideoNotePage} from "./test/video-note"
+import {StartTestVoicePage} from "./test/voice"
 
 class Base {
   static index = `i`
@@ -114,11 +114,11 @@ export class StartPage extends PageBase {
       }
 
       await this.clearSession()
-      if (condition == 1) {
+      if (condition === 1) {
         await this.renderRich(kb, da, bi)
-      } else if (condition == 2) {
+      } else if (condition === 2) {
         await this.renderEditRich(kb, da, bi)
-      } else if (condition == 3) {
+      } else if (condition === 3) {
         await this.deleteMessage()
         await this.renderRich(kb, da, bi)
       }

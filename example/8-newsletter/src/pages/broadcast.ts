@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
 import {AdminGuard} from "~/guards/admin"
+import {StartPage} from "./start"
 
 type IBroadcastSession = {
   draftText?: string
@@ -117,8 +117,8 @@ export class BroadcastPage extends PageBase {
           return
         }
 
-        const ids = subscribers.map((item: any) => item.id)
-        const langs = subscribers.map((item: any) => item.language || `default`)
+        const ids = subscribers.map((item) => item.id)
+        const langs = subscribers.map((item) => item.language || `default`)
         let res: Awaited<ReturnType<typeof this.renderBroadcast>>
         if (mediaType && fileId) {
           if (mediaType === `photo`) {

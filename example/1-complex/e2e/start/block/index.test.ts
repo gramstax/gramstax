@@ -1,4 +1,4 @@
-import {describe, it, expect} from "bun:test"
+import {describe, expect, it } from "bun:test"
 import {bot, e2e} from "../../setup"
 
 describe(`E2E: StartBlockPage`, () => {

@@ -1,9 +1,13 @@
-import {describe, it, expect, beforeEach} from "bun:test"
+import {afterEach, beforeEach, describe, expect, it } from "bun:test"
 import {e2e} from "../../setup"
 
 const intent = `start/block/import`
+const originalRandom = Math.random
 beforeEach(() => {
   e2e.clearCalls()
+})
+afterEach(() => {
+  Math.random = originalRandom
 })
 describe(`E2E: BlockImportPage`, () => {
   it(`show block import demo with random value`, async () => {

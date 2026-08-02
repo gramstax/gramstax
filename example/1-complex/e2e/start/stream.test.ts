@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach} from "bun:test"
+import {beforeEach, describe, expect, it } from "bun:test"
 import {e2e} from "../setup"
 
 const intent = `start/stream`
@@ -12,13 +12,13 @@ describe(`E2E: StartStreamPage`, () => {
 
     // replyWithStream awaits the full async generator, so all stream chunks
     // are captured synchronously within handleUpdate (~2.5s total sleep)
-    // Stream plugin uses sendMessageDraft for the first chunk and sendMessage/editMessageText for progress
+    // Stream plugin uses sendMessageDraft for chunks and sendMessage for the final message
     const responses = await e2e.sendCallbackQuery(intent)
     const firstCalls = responses.filter((r) => r.method === `sendMessageDraft` || r.method === `sendMessage`)
-    const editCalls = responses.filter((r) => r.method === `editMessageText`)
+    const finalCall = responses.find((r) => r.method === `sendMessage`)
 
     expect(firstCalls.length).toBeGreaterThan(0)
     expect(firstCalls[0]!.body?.text).toContain(`Generating`)
-    expect(editCalls.length).toBeGreaterThan(0)
+    expect(finalCall).toBeDefined()
   })
 })

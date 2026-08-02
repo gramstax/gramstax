@@ -1,5 +1,5 @@
-import {PageBase} from "~/base/page"
 import {setTimeout as sleep} from "node:timers/promises"
+import {PageBase} from "~/base/page"
 
 export class StartStreamPage extends PageBase {
   static data = this.buildData()

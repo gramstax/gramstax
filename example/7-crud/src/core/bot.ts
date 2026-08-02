@@ -1,9 +1,9 @@
-import {Env} from "~/env"
-import {Db} from "~/db/db"
-import {CtxCore} from "./ctx"
 import {Gramstax} from "gramstax"
+import {Db} from "~/db/db"
+import {Env} from "~/env"
 import {CrudGuard} from "~/guards/crud"
 import {StatusPage} from "~/pages/status"
+import {CtxCore} from "./ctx"
 
 // BotCore wires hooks and shared stores.
 export class BotCore extends Gramstax {
@@ -33,7 +33,7 @@ export class BotCore extends Gramstax {
     await new StatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
   }
 
-  async hookErrorInputNotFoundPage(ctx: CtxCore) {
-    await new StatusPage(ctx).berrorInputNotFound.show()
+  async hookNotFoundPage(ctx: CtxCore) {
+    await new StatusPage(ctx).bnotFound.show()
   }
 }

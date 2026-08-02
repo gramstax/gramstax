@@ -1,7 +1,7 @@
 import {PageBase} from "~/base/page"
 import {CartPage} from "./cart"
-import {HelpPage} from "./help"
 import {CatalogPage} from "./catalog"
+import {HelpPage} from "./help"
 import {HistoryPage} from "./history"
 
 export class StartPage extends PageBase {

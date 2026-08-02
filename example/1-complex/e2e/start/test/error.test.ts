@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach} from "bun:test"
+import {beforeEach, describe, expect, it } from "bun:test"
 import {e2e} from "../../setup"
 
 const intent = `start/test/error`
@@ -19,7 +19,7 @@ describe(`E2E: TestErrorPage`, () => {
     const replyId = responsesId[0]!
     expect(reply).toBeDefined()
     expect(replyId).toBeDefined()
-    expect(reply.body?.text).toBe(e2e.gmsg(`status`, `default`, {isNotFound: false}))
-    expect(replyId.body?.text).toBe(e2e.gmsg(`status`, `default`, {isNotFound: false}, `id`))
+    expect(reply.body?.text).toBe(e2e.gmsg(`status`, `default`))
+    expect(replyId.body?.text).toBe(e2e.gmsg(`status`, `default`, {}, `id`))
   })
 })

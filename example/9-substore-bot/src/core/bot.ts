@@ -1,6 +1,6 @@
 import {CacheExternal, Gramstax} from "gramstax"
-import {CtxCore} from "./ctx"
 import {StatusPage} from "~/pages/status"
+import {CtxCore} from "./ctx"
 
 export class BotCore extends Gramstax {
   cacheState = new CacheExternal(`memory`)
@@ -24,7 +24,7 @@ export class BotCore extends Gramstax {
     await new StatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
   }
 
-  async hookErrorInputNotFoundPage(ctx: CtxCore) {
+  async hookNotFoundPage(ctx: CtxCore) {
     await new StatusPage(ctx).bnotFound.show()
   }
 }

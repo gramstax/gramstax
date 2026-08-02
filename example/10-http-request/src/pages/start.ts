@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
-import {HttpRequestPage} from "./http-request"
 import {HelpPage} from "./help"
+import {HttpRequestPage} from "./http-request"
 
 // Main menu page for HTTP Request example.
 export class StartPage extends PageBase {

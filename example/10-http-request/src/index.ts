@@ -1,6 +1,6 @@
+import {BotCore} from "./core/bot"
 import {Env} from "./env"
 import {LogHe} from "./helpers/log"
-import {BotCore} from "./core/bot"
 
 // Entry point for the HTTP Request bot.
 class Index {

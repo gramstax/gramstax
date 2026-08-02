@@ -1,6 +1,6 @@
 import {join} from "node:path"
-import {BotCore} from "../src/core/bot"
 import {TemplateManager} from "gramstax"
+import {BotCore} from "../src/core/bot"
 
 export const bot = new BotCore({
   deploy: `test`,

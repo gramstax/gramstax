@@ -1,6 +1,7 @@
 import {LmdbEnv} from "@gramstax/lmdb"
 import {ItemRepository} from "./repositories/item"
 import {SequenceRepository} from "./repositories/sequence"
+
 export type {IVItem} from "./repositories/item"
 
 export class Db extends LmdbEnv {

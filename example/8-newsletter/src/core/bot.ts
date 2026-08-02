@@ -1,11 +1,11 @@
-import {Env} from "~/env"
-import {Db} from "~/db/db"
-import {CtxCore} from "./ctx"
 import {Gramstax} from "gramstax"
+import {Db} from "~/db/db"
+import {Env} from "~/env"
 import {StatusPage} from "~/pages/status"
+import {CtxCore} from "./ctx"
 
 export class BotCore extends Gramstax {
-  db = new Db(Env.DB_PATH)
+  declare db: Db
 
   createCtx(ct: Parameters<Gramstax[`createCtx`]>[0]) {
     return new CtxCore({
@@ -22,11 +22,16 @@ export class BotCore extends Gramstax {
     })
   }
 
+  async hookAfterStart() {
+    this.db = new Db(Env.DB_PATH)
+    await this.db.init()
+  }
+
   async hookErrorPage(ctx: CtxCore, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {
     await new StatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
   }
 
-  async hookErrorInputNotFoundPage(ctx: CtxCore) {
-    await new StatusPage(ctx).berrorInputNotFound.show()
+  async hookNotFoundPage(ctx: CtxCore) {
+    await new StatusPage(ctx).bnotFound.show()
   }
 }

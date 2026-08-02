@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach} from "bun:test"
+import {beforeEach, describe, expect, it } from "bun:test"
 import {e2e} from "./setup"
 
 beforeEach(() => {
@@ -18,8 +18,8 @@ describe(`E2E: StartPage`, () => {
     expect(reply.body?.text).toContain(`Time now:`)
     expect(replyId.body?.text).toContain(`Halo Dunia!`)
     expect(replyId.body?.text).toContain(`Waktu:`)
-    expect(e2e.extractButtonLabels(reply)).toEqual(e2e.gkb(`start`, `s1`, `inline`, {}))
-    expect(e2e.extractButtonLabels(replyId)).toEqual(e2e.gkb(`start`, `s1`, `inline`, {}, `id`))
+    expect(e2e.extractButtonLabels(reply)).toEqual(e2e.gkb(`start`, `default`, `inline`, {}))
+    expect(e2e.extractButtonLabels(replyId)).toEqual(e2e.gkb(`start`, `default`, `inline`, {}, `id`))
   })
 
   it(`respond to callback query with edited message`, async () => {
@@ -55,7 +55,7 @@ describe(`E2E: StartPage`, () => {
     e2e.clearCalls()
 
     const res3 = await e2e.sendText(`gibberish`)
-    expect(res3[0]?.body?.text).toBe(e2e.gmsg(`status`, `default`, {isNotFound: true}))
+    expect(res3[0]?.body?.text).toBe(e2e.gmsg(`status`, `nf`))
   })
 
   it(`support custom user and chat options`, async () => {

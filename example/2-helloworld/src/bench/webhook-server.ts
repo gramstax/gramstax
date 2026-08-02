@@ -1,7 +1,7 @@
+import {MockTelegramServer} from "gramstax"
+import {BotCore} from "../core/bot"
 import {Env} from "../env"
 import {LogHe} from "../helpers/log"
-import {BotCore} from "../core/bot"
-import {MockTelegramServer} from "gramstax"
 
 const queueEnabled = process.env.WEBHOOK_QUEUE === `1` || process.env.WEBHOOK_QUEUE === `true`
 const maxQueueSize = Number(process.env.WEBHOOK_QUEUE_SIZE ?? `5000`)

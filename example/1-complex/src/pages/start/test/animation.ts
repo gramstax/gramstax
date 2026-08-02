@@ -41,9 +41,9 @@ export class StartTestAnimationPage extends PageBase {
   bdynamic = {
     show: async () => {
       const swc = this.callbackQueryDataArg
-      if (swc == `static`) {
+      if (swc === `static`) {
         await this.handleCallbackQueryData()
-      } else if (swc == `dynamic`) {
+      } else if (swc === `dynamic`) {
         const bi = Base.dynamic
         const kb = Helper.kb(this, true)
         const da = {

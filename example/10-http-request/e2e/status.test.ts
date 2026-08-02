@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach} from "bun:test"
+import {beforeEach, describe, expect, it } from "bun:test"
 import {e2e} from "./setup"
 
 const intent = `status`
@@ -17,7 +17,7 @@ describe(`E2E: StatusPage`, () => {
 
     expect(res.length).toBeGreaterThan(0)
     expect(resId.length).toBeGreaterThan(0)
-    expect(res[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, {isNotFound: true}))
-    expect(resId[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, {isNotFound: true}, `id`))
+    expect(res[0]!.body?.text).toBe(e2e.gmsg(intent, `nf`))
+    expect(resId[0]!.body?.text).toBe(e2e.gmsg(intent, `nf`, {}, `id`))
   })
 })

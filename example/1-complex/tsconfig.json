@@ -4,12 +4,6 @@
     "paths": {
       "~/*": [
         "./src/*"
-      ],
-      "gramstax": [
-        "../../packages/gramstax/src/index.ts"
-      ],
-      "@gramstax/worker-thread": [
-        "../../packages/worker-thread/src/index.ts"
       ]
     },
     "composite": true,
@@ -17,10 +11,8 @@
     "allowImportingTsExtensions": false
   },
   "include": [
-    "src",
+    "./src",
     "./test",
-    "./e2e",
-    "../../packages/gramstax/src/index.ts",
-    "../../packages/worker-thread/src/index.ts",
+    "./e2e"
   ]
 }

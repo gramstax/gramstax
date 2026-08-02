@@ -1,6 +1,5 @@
-import {describe, it, expect, beforeEach} from "bun:test"
-import {e2e} from "./setup"
-import {resetDb} from "./setup"
+import {beforeEach, describe, expect, it } from "bun:test"
+import {e2e, resetDb} from "./setup"
 
 const intent = `detail`
 const asUser = {user: {id: 731}, chat: {id: 731}}
@@ -13,6 +12,6 @@ describe(`E2E: DetailPage`, () => {
     await e2e.sendText(`/start`, asUser)
     e2e.clearCalls()
     const res = await e2e.sendCallbackQuery(intent, asUser)
-    expect(res[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
+    expect(res[0]!.body?.text).toBe(e2e.gmsg(intent, `i`, {}))
   })
 })

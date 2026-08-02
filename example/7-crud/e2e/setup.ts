@@ -1,6 +1,7 @@
 import {join} from "node:path"
-import {BotCore} from "../src/core/bot"
 import {TemplateManager} from "gramstax"
+import {BotCore} from "../src/core/bot"
+
 export type {ITE2eApiCall, ITE2eUpdateOptions} from "gramstax"
 
 export const bot = new BotCore({
@@ -17,3 +18,4 @@ export async function resetDb(userId: number) {
   await bot.db.init()
   await bot.db.items.purge(userId)
 }
+

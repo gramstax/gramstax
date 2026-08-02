@@ -4,12 +4,6 @@
     "paths": {
       "~/*": [
         "./src/*"
-      ],
-      "@gramstax/lmdb": [
-        "../../packages/lmdb/src/index.ts"
-      ],
-      "gramstax": [
-        "../../packages/gramstax/src/index.ts"
       ]
     },
     "composite": true,
@@ -19,8 +13,6 @@
   "include": [
     "./src",
     "./test",
-    "./e2e",
-    "../../packages/gramstax/src/index.ts",
-    "../../packages/lmdb/src/index.ts"
+    "./e2e"
   ]
 }

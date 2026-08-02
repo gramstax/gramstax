@@ -1,7 +1,7 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "~/pages/start"
-import {BlankPage} from "~/pages/blank"
 import {CatalogData} from "~/data/catalog"
+import {BlankPage} from "~/pages/blank"
+import {StartPage} from "~/pages/start"
 
 const ITEMS_PER_PAGE = 4
 
@@ -19,11 +19,11 @@ class Helper {
 
       k.row()
       if (safePage > 0) {
-        k.text(l[0]!, ctx.data.callbackQueryData(`page`, safePage - 1))
+        k.text(l[0]!, ctx.data.callbackQueryData(`page`, String(safePage - 1)))
       }
       k.text(`${l[2]} ${safePage + 1}/${totalPages}`, BlankPage.data.callbackQueryData())
       if (safePage < totalPages - 1) {
-        k.text(l[1]!, ctx.data.callbackQueryData(`page`, safePage + 1))
+        k.text(l[1]!, ctx.data.callbackQueryData(`page`, String(safePage + 1)))
       }
       return k.row().text(l[3]!, StartPage.data.callbackQueryData())
     })
@@ -60,7 +60,7 @@ export class StartInlineWithRangePage extends PageBase {
     process: async (action: string, value: string) => {
       if (action === `page`) {
         const nextPage = Number(value)
-        if (!isNaN(nextPage)) {
+        if (!Number.isNaN(nextPage)) {
           await this.bdefault.show(nextPage, true)
         }
       } else if (action === `item` && value) {

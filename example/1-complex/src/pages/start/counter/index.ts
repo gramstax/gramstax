@@ -32,10 +32,10 @@ export class StartCounterPage extends PageBase {
       const getCache = (await this.cacheData.get(key)) as string
       const data = getCache || `0`
 
-      let count
-      if (exe == `I`) {
+      let count: string = ``
+      if (exe === `I`) {
         count = `${parseInt(data) + 1}`
-      } else if (exe == `D`) {
+      } else if (exe === `D`) {
         count = `${parseInt(data) - 1}`
       }
 

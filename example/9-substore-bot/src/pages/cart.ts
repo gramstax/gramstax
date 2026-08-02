@@ -1,8 +1,8 @@
 import {PageBase} from "~/base/page"
-import {CartStore, type CartState, OrderStore, ProductCatalog} from "~/data/store"
-import {StartPage} from "./start"
+import {type CartState, CartStore, OrderStore, ProductCatalog} from "~/data/store"
 import {CatalogPage} from "./catalog"
 import {CheckoutPage} from "./checkout"
+import {StartPage} from "./start"
 
 class Base {
   static index = `i`

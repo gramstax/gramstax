@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach} from "bun:test"
+import {beforeEach, describe, expect, it } from "bun:test"
 import {e2e} from "./setup"
 
 beforeEach(() => {
@@ -12,14 +12,14 @@ describe(`E2E: StatusPage`, () => {
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)
-    expect(responses[0].body?.text).toBe(e2e.gmsg(`status`, `default`, {isNotFound: true}))
-    expect(responsesId[0].body?.text).toBe(e2e.gmsg(`status`, `default`, {isNotFound: true}, `id`))
+    expect(responses[0].body?.text).toBe(e2e.gmsg(`status`, `nf`))
+    expect(responsesId[0].body?.text).toBe(e2e.gmsg(`status`, `nf`, {}, `id`))
   })
 
   it(`sendPhoto trigger route not found response`, async () => {
     const responses = await e2e.sendPhoto({caption: `test photo`})
 
     expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0]?.body?.text).toBe(e2e.gmsg(`status`, `default`, {isNotFound: true}))
+    expect(responses[0]?.body?.text).toBe(e2e.gmsg(`status`, `nf`))
   })
 })

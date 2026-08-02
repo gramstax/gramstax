@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
 import type {IVItem} from "~/db/db"
+import {StartPage} from "./start"
 
 class Base {
   static index = `i`
@@ -56,7 +56,7 @@ export class DeletePage extends PageBase {
   }
 
   async handleSessionFreeText() {
-    const {step} = this.temp.session.params
+    const {step} = this.temp.session.params ?? {}
     const input = this.msg!.text!.trim()
     if (step === Base.index) {
       await this.bindex.process(input, false)

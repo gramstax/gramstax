@@ -1,7 +1,6 @@
 import {PageBase} from "~/base/page"
+import {HttpService, type IHttpResponse} from "~/services/http"
 import {StartPage} from "./start"
-import {HttpService} from "~/services/http"
-import type {IHttpResponse} from "~/services/http"
 
 class Base {
   static method = `s-method`
@@ -29,7 +28,7 @@ class Helper {
   }
 
   static formatBody(body: string): string {
-    const truncated = body.length > 200 ? body.slice(0, 200) + `\n... [${body.length} total chars]` : body
+    const truncated = body.length > 200 ? `${body.slice(0, 200)}\n... [${body.length} total chars]` : body
     return Helper.escapeHtml(truncated)
   }
 
@@ -101,7 +100,7 @@ export class HttpRequestPage extends PageBase {
     if (!step || step === `method` || step === `done`) {
       await this.burl.process(input, `GET`)
     } else if (step === `url`) {
-      await this.burl.process(input, session.params?.httpMethod as string, true)
+      await this.burl.process(input, session?.params?.httpMethod as string, true)
     } else if (step === `token`) {
       await this.btoken.process(input)
     } else if (step === `body`) {
@@ -169,7 +168,7 @@ export class HttpRequestPage extends PageBase {
       } else {
         const headers: Record<string, string> = {}
         if (token) {
-          headers[`Authorization`] = `Bearer ${token}`
+          headers.Authorization = `Bearer ${token}`
         }
         try {
           const result = await HttpService.request(method, url, undefined, headers)
@@ -201,7 +200,9 @@ export class HttpRequestPage extends PageBase {
       }
 
       const headers: Record<string, string> = {}
-      if (token) headers[`Authorization`] = `Bearer ${token}`
+      if (token) {
+        headers.Authorization = `Bearer ${token}`
+      }
       try {
         const result = await HttpService.request(method, url, body, headers)
         await this.setSessionFreeText({httpStep: `done`, httpResult: result, httpViewMode: `formatted`})

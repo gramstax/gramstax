@@ -1,4 +1,4 @@
-import {Ctx, type CacheExternal} from "gramstax"
+import {type CacheExternal, Ctx} from "gramstax"
 
 // Shared context for interactive menu pages.
 export class CtxCore extends Ctx {
@@ -6,6 +6,6 @@ export class CtxCore extends Ctx {
 
   constructor(params: ConstructorParameters<typeof Ctx>[0] & {cacheState: CacheExternal}) {
     super({...params})
-    this.cacheState = params.cacheState ?? (params as any).ct?.cacheState
+    this.cacheState = params.cacheState
   }
 }

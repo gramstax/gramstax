@@ -1,7 +1,7 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
+import {OrderHistoryStore, type OrderRecord } from "~/data/store"
 import {CatalogPage} from "./catalog"
-import {type OrderRecord, OrderHistoryStore} from "~/data/store"
+import {StartPage} from "./start"
 
 export class HistoryPage extends PageBase {
   static data = this.buildData()

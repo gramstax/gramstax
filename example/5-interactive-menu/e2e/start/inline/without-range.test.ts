@@ -1,5 +1,5 @@
-import {describe, it, expect, beforeEach} from "bun:test"
-import {e2e} from "../../setup"
+import {beforeEach, describe, expect, it } from "bun:test"
+import {bot, e2e} from "../../setup"
 
 const intent = `start/inline/without-range`
 
@@ -9,6 +9,6 @@ beforeEach(() => {
 
 describe(`E2E: StartInlineWithoutRangePage`, () => {
   it(`load as a registered page`, () => {
-    expect(e2e.bot.pages.all[intent]).toBeDefined()
+    expect(bot.pages.all[intent]).toBeDefined()
   })
 })

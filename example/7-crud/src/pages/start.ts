@@ -1,10 +1,10 @@
 import {PageBase} from "~/base/page"
-import {ListPage} from "./list"
-import {HelpPage} from "./help"
 import {CreatePage} from "./create"
-import {DetailPage} from "./detail"
-import {UpdatePage} from "./update"
 import {DeletePage} from "./delete"
+import {DetailPage} from "./detail"
+import {HelpPage} from "./help"
+import {ListPage} from "./list"
+import {UpdatePage} from "./update"
 
 // Main menu page for CRUD example.
 export class StartPage extends PageBase {

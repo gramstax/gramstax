@@ -1,6 +1,6 @@
 import {Gramstax} from "gramstax"
-import {CtxCore} from "./ctx"
 import {StatusPage} from "~/pages/status"
+import type {CtxCore} from "./ctx"
 
 // BotCore configures Gramstax hooks for this project.
 export class BotCore extends Gramstax {
@@ -10,7 +10,7 @@ export class BotCore extends Gramstax {
   }
 
   // Fallback when no route matches.
-  async hookErrorInputNotFoundPage(ctx: CtxCore) {
-    await new StatusPage(ctx).berrorInputNotFound.show()
+  async hookNotFoundPage(ctx: CtxCore) {
+    await new StatusPage(ctx).bnotFound.show()
   }
 }

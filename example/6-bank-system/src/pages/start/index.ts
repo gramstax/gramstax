@@ -1,9 +1,9 @@
 import {PageBase} from "~/base/page"
-import {StartHistoryPage} from "./history"
 import {StartBalancePage} from "./balance"
 import {StartDepositPage} from "./deposit"
-import {StartWithdrawPage} from "./withdraw"
+import {StartHistoryPage} from "./history"
 import {StartTransferPage} from "./transfer"
+import {StartWithdrawPage} from "./withdraw"
 
 // Main menu page for the bank system bot.
 export class StartPage extends PageBase {

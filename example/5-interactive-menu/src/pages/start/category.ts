@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "~/pages/start"
 import {CatalogData} from "~/data/catalog"
+import {StartPage} from "~/pages/start"
 import {StartItemListPage} from "./item/list"
 
 // Category list page with dynamic inline buttons.

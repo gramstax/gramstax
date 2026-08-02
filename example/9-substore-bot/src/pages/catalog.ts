@@ -2,8 +2,8 @@ import {PageBase} from "~/base/page"
 import {ProductCatalog} from "~/data/store"
 import {CartPage} from "./cart"
 import {HelpPage} from "./help"
-import {StartPage} from "./start"
 import {ProductPage} from "./product"
+import {StartPage} from "./start"
 
 export class CatalogPage extends PageBase {
   static data = this.buildData((action?: string, value?: string) => [action, value])

@@ -1,7 +1,8 @@
 import {join} from "node:path"
+import {TemplateManager} from "gramstax"
 import {BotCore} from "../src/core/bot"
 import {StartTransferPage} from "../src/pages/start/transfer"
-import {TemplateManager} from "gramstax"
+
 export type {ITE2eApiCall, ITE2eUpdateOptions} from "gramstax"
 
 // Monkey-patch TransferPage to call setSessionFreeText on callback,

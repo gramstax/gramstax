@@ -1,31 +1,33 @@
-import {LogHe} from "~/helpers/log"
 import {PageBase} from "~/base/page"
+import {LogHe} from "~/helpers/log"
 import {StartPage} from "./start"
+
+class Base {
+  static notFound = `nf`
+}
 
 export class StatusPage extends PageBase {
   static data = this.buildData()
   constructorName?: string
 
-  constructor(p: any) {
+  constructor(p: ConstructorParameters<typeof PageBase>[0]) {
     super(p)
     this.constructorName = p?.constructor?.name
   }
 
   berror = {
-    show: async (funcName: string, error: any, isEdit = true) => {
+    show: async (funcName: string, error: Error | unknown, isEdit = true) => {
       LogHe.errorMake(error, this.constructorName, funcName)
 
       await this.clearSession()
       const kb = this.inlineKeyboardT([StartPage])
-      const da = {isNotFound: false}
-      await this.renderAuto(kb, da, null, null, isEdit)
+      await this.renderAuto(kb, null, null, null, isEdit)
     }
   }
-  berrorInputNotFound = {
+  bnotFound = {
     show: async () => {
-      const kb = this.inlineKeyboardT([StartPage])
-      const da = {isNotFound: true}
-      await this.render(kb, da)
+      const kb = this.inlineKeyboardT([StartPage], `1`, Base.notFound)
+      await this.render(kb, {}, Base.notFound)
     }
   }
 
@@ -33,9 +35,17 @@ export class StatusPage extends PageBase {
     <g-base>
       ${this.kbk.home()}
       <g-message>
-        {~isNotFound ? "🔎 Route not found" : "❌ Something went wrong"~}
+        ❌ Something went wrong
 
-        {~isNotFound ? "Use Home to return to the main menu and try a different action." : "Please try again in a moment, or return Home if the issue persists."~}
+        Please try again in a moment, or return Home if the issue persists.
+      </g-message>
+    </g-base>
+    <g-base id="${Base.notFound}">
+      ${this.kbk.home()}
+      <g-message>
+        🔎 Route not found
+
+        Use Home to return to the main menu and try a different action.
       </g-message>
     </g-base>
   `

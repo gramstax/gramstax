@@ -60,7 +60,7 @@ export class StartItemListPage extends PageBase {
       if (!categoryId) {
         await new StartCategoryPage(this).bdefault.show(true)
       } else {
-        await this.bdefault.show(categoryId, Number(pageNo), true)
+        await this.bdefault.show(categoryId as string, Number(pageNo), true)
       }
     }
   }

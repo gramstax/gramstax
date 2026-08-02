@@ -24,7 +24,7 @@ export class StartInputTextPage extends PageBase {
   }
 
   async handleSessionFreeText() {
-    const {step} = this.temp.session.params
+    const {step} = this.temp.session.params ?? {}
     if (step === Base.index) {
       await this.bindex.process()
     }

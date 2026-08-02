@@ -53,7 +53,7 @@ export class HttpService {
       reqHeaders[`Content-Type`] = `application/json`
     }
 
-    const fetchOptions: any = {
+    const fetchOptions: Record<string, unknown> = {
       signal: AbortSignal.timeout(15_000),
       headers: Object.keys(reqHeaders).length > 0 ? reqHeaders : undefined
     }
@@ -84,7 +84,7 @@ export class HttpService {
       prettyBody = this.formatJson(rawText)
     }
 
-    const displayBody = prettyBody.length > this.MAX_BODY_LENGTH ? prettyBody.slice(0, this.MAX_BODY_LENGTH) + `\n\n... [truncated, ${prettyBody.length} total chars]` : prettyBody
+    const displayBody = prettyBody.length > this.MAX_BODY_LENGTH ? `${prettyBody.slice(0, this.MAX_BODY_LENGTH)}\n\n... [truncated, ${prettyBody.length} total chars]` : prettyBody
 
     return {
       status: response.status,

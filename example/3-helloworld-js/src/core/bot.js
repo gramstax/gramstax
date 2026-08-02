@@ -9,7 +9,7 @@ export class BotCore extends Gramstax {
   }
 
   // Fallback when no route matches.
-  async hookErrorInputNotFoundPage(ctx) {
-    await new StatusPage(ctx).berrorInputNotFound.show()
+  async hookNotFoundPage(ctx) {
+    await new StatusPage(ctx).bnotFound.show()
   }
 }

@@ -1,6 +1,6 @@
 import {PageBase} from "~/base/page"
-import {StartPage} from "./start"
 import type {IVItem} from "~/db/db"
+import {StartPage} from "./start"
 
 class Base {
   static selectItem = `si`
@@ -114,7 +114,7 @@ export class UpdatePage extends PageBase {
         return await this.gselectItem.show(0, true)
       }
 
-      const updated = await this.db.items.renderEdit(this.from!.id, id, item.title, item.description, status)
+      const updated = await this.db.items.edit(this.from!.id, id, item.title, item.description, status)
       if (updated) {
         await this.gsuccess.show(id, status)
       } else {

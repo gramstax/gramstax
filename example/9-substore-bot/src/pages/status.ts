@@ -10,7 +10,7 @@ export class StatusPage extends PageBase {
   static data = this.buildData()
   constructorName?: string
 
-  constructor(p: any) {
+  constructor(p: ConstructorParameters<typeof PageBase>[0]) {
     super(p)
     this.constructorName = p?.constructor?.name
   }

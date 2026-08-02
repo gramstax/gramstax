@@ -1,5 +1,5 @@
-import {TimeUt} from "~/utils/time"
 import {PageBase} from "~/base/page"
+import {TimeUt} from "~/utils/time"
 import {StartPage} from "./start"
 
 class Base {

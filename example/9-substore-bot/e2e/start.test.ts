@@ -1,5 +1,6 @@
-import {describe, it, expect, beforeEach} from "bun:test"
+import {beforeEach, describe, expect, it } from "bun:test"
 import {e2e} from "./setup"
+
 beforeEach(() => e2e.clearCalls())
 describe(`E2E: StartPage`, () => {
   it(`respond to /start with store menu`, async () => {

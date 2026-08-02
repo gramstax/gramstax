@@ -1,9 +1,8 @@
-import {CtxCore} from "./ctx"
-import {Gramstax} from "gramstax"
+import {CacheExternal, Gramstax} from "gramstax"
 import {UserGuard} from "~/guards/user"
 import {IncrementJob} from "~/jobs/increment"
-import {CacheExternal} from "gramstax"
 import {StatusPage} from "~/pages/status"
+import {CtxCore} from "./ctx"
 
 export class BotCore extends Gramstax {
   cacheData = new CacheExternal(`memory`)
@@ -39,7 +38,7 @@ export class BotCore extends Gramstax {
     await new StatusPage(ctx).berror.show(`${data.listenerName}:hookErrorPage`, data.error, data.isEdit)
   }
 
-  async hookErrorInputNotFoundPage(ctx: CtxCore) {
-    await new StatusPage(ctx).berrorInputNotFound.show()
+  async hookNotFoundPage(ctx: CtxCore) {
+    await new StatusPage(ctx).bnotFound.show()
   }
 }

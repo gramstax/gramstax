@@ -1,8 +1,25 @@
 import {PageBase} from "~/base/page"
 import {StartPage} from "./start"
 
+class MantapPage extends PageBase {
+  static data = this.buildData()
+
+  async handleCallbackQueryData() {}
+
+  ada() {
+    this.inlineKeyboardT([MantapPage])
+    this.inlineKeyboard((k) => k.text(MantapPage))
+    this.inlineKeyboard((k) => k.text({text: MantapPage, style: `danger`}))
+  }
+
+  static template = ``
+}
+
+void MantapPage
+
 export class HelpPage extends PageBase {
   static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.bdefault.show()
   }

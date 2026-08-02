@@ -1,6 +1,6 @@
 import {join} from "node:path"
-import {BotCore} from "../src/core/bot.js"
 import {TemplateManager} from "gramstax"
+import {BotCore} from "../src/core/bot.js"
 
 const templateManager = new TemplateManager({path: [join(import.meta.dir, `../src/pages`)]})
 export const bot = new BotCore({

@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach} from "bun:test"
+import {beforeEach, describe, expect, it } from "bun:test"
 import {e2e} from "./setup"
 
 const intent = `help`
@@ -11,6 +11,6 @@ describe(`E2E: HelpPage`, () => {
     await e2e.sendText(`/start`, asUser)
     e2e.clearCalls()
     const res = await e2e.sendCallbackQuery(intent, asUser)
-    expect(res[0]!.body?.text).toBe(e2e.gmsg(intent, `s1`, {}))
+    expect(res[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, {}))
   })
 })

@@ -1,10 +1,10 @@
-import {Env} from "~/env"
 import {PageBase} from "~/base/page"
+import {type CartState, CartStore, OrderHistoryStore, type OrderRecord, OrderStore, ProductCatalog} from "~/data/store"
+import {Env} from "~/env"
 import {CartPage} from "./cart"
-import {StartPage} from "./start"
 import {CatalogPage} from "./catalog"
 import {HistoryPage} from "./history"
-import {CartStore, type CartState, type OrderRecord, OrderHistoryStore, OrderStore, ProductCatalog} from "~/data/store"
+import {StartPage} from "./start"
 
 type ICheckoutSession = {
   position?: `contact` | `confirm`

@@ -1,5 +1,5 @@
-import {describe, it, expect, beforeEach} from "bun:test"
-import {e2e, resetEnv, ADMIN_USER, ADMIN_CHAT} from "./setup"
+import {beforeEach, describe, expect, it} from "bun:test"
+import {ADMIN_CHAT, ADMIN_USER, e2e, resetEnv} from "./setup"
 
 const intent = `broadcast`
 const regularUser = {user: {id: 1001, language_code: `en`}, chat: {id: 1001}}
@@ -23,18 +23,18 @@ describe(`E2E: BroadcastPage`, () => {
     const textRes = await e2e.sendText(`Hello subscribers!`, adminUser)
     expect(textRes[0]!.body?.text).toContain(`Confirm broadcast`)
     const kb = textRes[0]?.body?.reply_markup?.inline_keyboard
-    const sendBtn = kb?.flat().find((b: any) => b.text?.includes(`Send`))
+    const sendBtn = kb?.flat().find((b: {text: string}) => b.text?.includes(`Send`))
     expect(sendBtn?.callback_data).toBeDefined()
     e2e.clearCalls()
     const confirmRes = await e2e.sendCallbackQuery(sendBtn!.callback_data!, adminUser)
-    expect(confirmRes.find((r: any) => r.method === `editMessageText`)).toBeDefined()
+    expect(confirmRes.find((r: {method: string}) => r.method === `editMessageText`)).toBeDefined()
   })
   it(`admin cancels broadcast`, async () => {
     await e2e.sendCallbackQuery(intent, adminUser)
     e2e.clearCalls()
     await e2e.sendText(`Draft`, adminUser)
     e2e.clearCalls()
-    const res = await e2e.sendCallbackQuery(`${intent}:s1:cancel`, adminUser)
+    const res = await e2e.sendCallbackQuery(`${intent}:i:cancel`, adminUser)
     expect(res[0]!.body?.text).toStartWith(`✖️ Broadcast cancelled.`)
   })
 })
