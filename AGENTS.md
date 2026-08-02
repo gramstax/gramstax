@@ -21,7 +21,7 @@
 - `rules/`: rule sets for generated Gramstax projects (`main`, `ctx-pages`, `ctx-db`, `ctx-e2e`).
 - `docs/`: documentation and API reference.
 - `docs/AGENTS.md`: API reference; not repo-wide agent guidance.
-- `eslint.config.ts`, `.prettierrc`, `tsconfig.json`, `nx.json`: global tooling config.
+- `biome.json`, `tsconfig.json`, `nx.json`: global tooling config.
 - `bunfig.toml`: Bun runtime config.
 - `security-poc/`: standalone numbered security PoC scripts.
 - `skill/`: custom tooling scripts (some deprecated).
@@ -32,8 +32,7 @@
 - Build orchestrator: `nx`.
 - Bundler: `tsup` (invoked via `nx build` targets).
 - Tests: `bun:test`.
-- Linting: `eslint` + `typescript-eslint`.
-- Formatting: Prettier config in `.prettierrc` (no script provided).
+- Linting + Formatting: **Biome** (see `biome.json` + `biome search` for backtick enforcement).
 - Type checking: `tsc --noEmit` via `bun run ci:check`.
 
 ## Install
@@ -42,25 +41,28 @@
 
 ## Build Commands
 
-- `bun run build:all`
+- `bun run build`
 - `bun run build:gramstax`
 - `bun run build:create-gramstax`
 - `nx build gramstax`
 - `nx build create-gramstax`
 - `nx build worker-thread`
 
-## Lint Commands
+## Lint & Format Commands
 
-- `bun run lint`
-- `bun run lint:fix`
+- `bun run lint` (`biome lint`)
+- `bun run lint:fix` (`biome lint --write --unsafe`)
 - `bun run lint:packages` (lint only `./packages`)
 - `bun run lint:example` (lint only `./example`)
+- `bun run lint:quotes` (check for non-backtick strings via `biome search`)
+- `bun run format` (`biome format --write`)
+- `bun run format:packages` (format only `./packages`)
 
 ## Typecheck + Lint Commands (ci:check)
 
-- `bun run ci:check` (tsc + eslint for all projects)
-- `bun run ci:check:packages` (tsc + eslint focused on `./packages`)
-- `bun run ci:check:example` (eslint for `./example`)
+- `bun run ci:check` (tsc + biome lint + format + quotes check)
+- `bun run ci:check:packages` (tsc + biome lint/format for `./packages` + quotes check)
+- `bun run ci:check:example` (biome lint + format for `./example`)
 
 ## Test Commands
 
@@ -90,18 +92,17 @@
 - `bun run dry-run`
 - `bun run publish:all`
 
-## Formatting Rules
+## Formatting & Linting Rules
 
-- Use Prettier settings from `.prettierrc`.
+- **Formatter**: Biome (see `biome.json`).
 - 2-space indentation; `useTabs: false`.
-- No semicolons (`semi: false`).
-- `printWidth`: 300 for TS/JS, 200 for JSON.
+- No semicolons (`semicolons: asNeeded`).
+- `lineWidth`: 300 for TS/JS, 200 for JSON.
 - `trailingComma: none`.
 - `bracketSameLine: false`.
 - `bracketSpacing: false` (no spaces inside `{}`).
-- `object-curly-spacing: never` (eslint rule).
 - `arrowParens: always`.
-- Prefer backticks for all strings (eslint `quotes: backtick`).
+- Prefer backticks for all strings (enforced via `biome-backtick.grit` GritQL plugin).
 
 ## Lint Rules (highlights)
 
@@ -264,9 +265,9 @@ The repo has a broader scope than a typical 2-package Bun/Nx monorepo:
 ## CI Notes
 
 - Single workflow: `.github/workflows/release.yml`, triggered on push to `main`.
-- Release job runs `ci:test:packages` + `build:all`, then `nx release`.
+- Release job runs `ci:test:packages` + `build`, then `nx release`.
 - Failure handler is unusual: checks npm for existing version, may delete tag/release and force-push.
-- Root `prepush` script does `ci:test` + `build:all` + a manual safety echo.
+- Root `prepush` script does `ci:test` + `build` + a manual safety echo.
 
 ## Anti-Patterns (THIS PROJECT)
 

@@ -35,7 +35,7 @@ jobs:
       - name: Verify Code
         run: |
           bun run ci:test:packages
-          bun run build:all
+          bun run build
 
       - name: Initialize Git User
         run: |
