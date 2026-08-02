@@ -1,8 +1,8 @@
-import {defineConfig} from "tsup"
 import {cpSync, readFileSync, rmSync, writeFileSync} from "node:fs"
+import {defineConfig} from "tsup"
 
 const read = (path: string) => readFileSync(path, `utf-8`)
-const readJson = (path: string) => JSON.parse(read(path)) as Record<any, any>
+const readJson = (path: string) => JSON.parse(read(path)) as {dependencies: Record<string, unknown>} & Record<string, unknown>
 const thisPackageJson = readJson(`./package.json`)
 
 export default defineConfig({
@@ -20,7 +20,7 @@ export default defineConfig({
   target: `esnext`,
   external: [`bun`, `src/templates`],
   tsconfig: `./tsconfig.build.json`,
-  onSuccess() {
+  async onSuccess() {
     // copy templates to dist/templates
     rmSync(`./dist/src/templates`, {recursive: true, force: true})
     cpSync(`./src/templates`, `./dist/src/templates`, {recursive: true})
@@ -46,12 +46,10 @@ export default defineConfig({
     distTsconfigJson = distTsconfigJson.replace(/,?\s*\n\s*"(gramstax|@gramstax\/lmdb)":\s*\[[\s\S]*?\]/g, ``)
 
     // update package.json dist/templates
-    writeFileSync(pathDistPackageJson, JSON.stringify(distPackageJson, null, 2), `utf8`)
+    writeFileSync(pathDistPackageJson, `${JSON.stringify(distPackageJson, null, 2)}\n`, `utf8`)
 
     // update tsconfig.json dist/templates
     writeFileSync(pathDistTsconfigJson, distTsconfigJson, `utf8`)
-
-    return undefined as any
   },
   define: {}
 })

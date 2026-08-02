@@ -14,7 +14,15 @@ export type IVUser = {
 export class UserRepo extends LmdbRepository<IVUser, IKUser> {
   static dbName = `user`
 
-  async findOrCreate(tgId: number, data: {username: string; firstName: string; lastName: string; languageCode: string}): Promise<{user: IVUser; created: boolean}> {
+  async findOrCreate(
+    tgId: number,
+    data: {
+      username: string
+      firstName: string
+      lastName: string
+      languageCode: string
+    }
+  ): Promise<{user: IVUser; created: boolean}> {
     return this.env.transaction(() => {
       const existing = this.get(tgId)
       if (existing) {

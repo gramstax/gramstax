@@ -33,8 +33,8 @@
  * Exit code: 0 if OK, 1 if any errors.
  */
 
-import {existsSync, readdirSync, mkdirSync, writeFileSync} from "node:fs"
-import {join, dirname} from "node:path"
+import {existsSync, mkdirSync, readdirSync, writeFileSync} from "node:fs"
+import {dirname, join} from "node:path"
 
 // ── Parse CLI ─────────────────────────────────────────────────────────
 
@@ -56,7 +56,7 @@ function walkFiles(dir: string, prefix = ``): string[] {
     const full = join(dir, entry.name)
     if (entry.isDirectory()) {
       results.push(...walkFiles(full, prefix ? `${prefix}/${entry.name}` : entry.name))
-    } else if (entry.isFile() && /\.(ts|js)$/.test(entry.name) && !entry.name.endsWith(`.test`)) {
+    } else if (entry.isFile() && /\.(ts|js)$/.test(entry.name) && !/\.test\.(ts|js)$/.test(entry.name)) {
       results.push(prefix ? `${prefix}/${entry.name}` : entry.name)
     }
   }
@@ -87,12 +87,17 @@ function toClassName(name: string): string {
     .replace(/\s+/g, ``)
 }
 
+/** Build page key access: dotted for identifier-like keys, computed otherwise (useLiteralKeys-safe) */
+function pageKeyAccess(baseName: string): string {
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(baseName) ? `.${baseName}` : `[\`${baseName}\`]`
+}
+
 /** Generate the content for an e2e test file */
 function generateTestContent(pageRel: string): string {
   const baseName = pageRel.replace(/\.(ts|js)$/, ``)
   const parts = baseName.split(`/`)
   const fileName = parts[parts.length - 1] || `index`
-  const className = toClassName(fileName) + `Page`
+  const className = `${toClassName(fileName)}Page`
   const importPath = setupImport(baseName + testExt(pageRel))
 
   return [
@@ -102,7 +107,7 @@ function generateTestContent(pageRel: string): string {
     `describe(\`E2E: ${className}\`, () => {`,
     `  it(\`load as a registered page in the bot\`, () => {`,
     `    const allPages = bot.pages.all`,
-    `    expect(allPages[\`${baseName}\`]).toBeDefined()`,
+    `    expect(allPages${pageKeyAccess(baseName)}).toBeDefined()`,
     `  })`,
     `})`,
     ``
@@ -111,11 +116,7 @@ function generateTestContent(pageRel: string): string {
 
 // ── Process one project ───────────────────────────────────────────────
 
-function processProject(
-  label: string,
-  pagesDir: string,
-  e2eDir: string
-): {created: number; skipped: number; errors: number} {
+function processProject(label: string, pagesDir: string, e2eDir: string): {created: number; skipped: number; errors: number} {
   const result = {created: 0, skipped: 0, errors: 0}
 
   if (!existsSync(pagesDir)) {
@@ -159,7 +160,12 @@ function processProject(
 
     if (DRY_RUN) {
       console.log(`  📝 ${label}: would create e2e/${expectedE2E}`)
-      console.log(content.split(`\n`).map((l) => `     | ${l}`).join(`\n`))
+      console.log(
+        content
+          .split(`\n`)
+          .map((l) => `     | ${l}`)
+          .join(`\n`)
+      )
       console.log(``)
       result.created++
       continue
@@ -200,7 +206,7 @@ if (customPath) {
 } else {
   // Default: generate for this project's own pages → e2e
   const pagesDir = join(import.meta.dir, `../src/pages`)
-  const e2eDir = join(import.meta.dir, `..`)
+  const e2eDir = join(import.meta.dir, `../e2e`)
   const r = processProject(`this project`, pagesDir, e2eDir)
   totalCreated += r.created
   totalSkipped += r.skipped

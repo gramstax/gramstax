@@ -1,10 +1,11 @@
-import {HelpPage} from "../help"
 import {PageBase} from "~/base/page"
+import {HelpPage} from "../help"
 import {SumNumberPage} from "../sum-number"
 import {StartRandomPage} from "./random"
 
 export class StartPage extends PageBase {
   static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.bdefault.show(true)
   }

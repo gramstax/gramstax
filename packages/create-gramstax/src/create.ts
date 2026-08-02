@@ -1,23 +1,36 @@
+import {spawn} from "node:child_process"
 import * as fs from "node:fs"
 import * as path from "node:path"
 import {fileURLToPath} from "node:url"
-import {log} from "./utils/log"
-import {FsUt} from "./utils/fs"
-import {spawn} from "node:child_process"
 import enquirer from "enquirer"
+import {FsUt} from "./utils/fs"
+import {log} from "./utils/log"
+import {
+  appendEnvDbPath,
+  appendGitignoreEntries,
+  isValidProjectName,
+  removeDependency,
+  removeTsconfigPathMappings,
+  replaceTemplateVariables,
+  resolveRuntimeScripts,
+  resolveWorkspaceDeps,
+  sanitizeProjectName,
+  SetupCancelledError,
+  stripBiomeScripts,
+  validateCliOptions,
+  type PackageManager,
+  type Runtime
+} from "./utils/project"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-
-type Runtime = `bun` | `node`
-type PackageManager = `bun` | `npm` | `pnpm` | `yarn`
 
 export type CliOptions = {
   packageManager?: PackageManager
   runtime?: Runtime
   lmdb?: boolean
   workerThread?: boolean
-  eslint?: boolean
+  biome?: boolean
 }
 
 type ProjectConfig = {
@@ -25,7 +38,7 @@ type ProjectConfig = {
   projectPath: string
   packageManager: PackageManager
   runtime: Runtime
-  setupEslint: boolean
+  setupBiome: boolean
   useLmdb: boolean
   useWorkerThread: boolean
 }
@@ -81,18 +94,10 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         this.copyDirectorySync(sourcePath, destPath, variables)
       } else if (item.isFile()) {
         let content = fs.readFileSync(sourcePath, `utf-8`)
-        content = this.replaceTemplateVariables(content, variables)
+        content = replaceTemplateVariables(content, variables)
         fs.writeFileSync(destPath, content)
       }
     }
-  }
-
-  private replaceTemplateVariables(content: string, variables: Record<string, string>): string {
-    let result = content
-    for (const [key, value] of Object.entries(variables)) {
-      result = result.replace(new RegExp(`{{${key}}}`, `g`), value)
-    }
-    return result
   }
 
   // ── Prompts (only used in interactive mode) ──────────────────────
@@ -105,20 +110,26 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       initial: ``,
       validate: (value: string) => {
         if (value === ``) return true
-        if (!/^[a-z0-9-_]+$/i.test(value)) return `Project name can only contain letters, numbers, hyphens, and underscores`
+        if (!/^[a-z0-9-_]{1,100}$/i.test(value)) return `Project name can only contain letters, numbers, hyphens, and underscores (max 100 characters)`
         return true
       }
     })
     return response.projectName
   }
 
-  private async promptForConfiguration(): Promise<{packageManager: PackageManager; runtime: Runtime; eslint: boolean; lmdb: boolean; workerThread: boolean}> {
+  private async promptForConfiguration(): Promise<{
+    packageManager: PackageManager
+    runtime: Runtime
+    biome: boolean
+    lmdb: boolean
+    workerThread: boolean
+  }> {
     const answers = await enquirer.prompt<{
       packageManager?: PackageManager
       runtime: Runtime
       lmdb?: boolean
       workerThread?: boolean
-      eslint?: boolean
+      biome?: boolean
     }>([
       {
         type: `select`,
@@ -156,17 +167,20 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       },
       {
         type: `confirm`,
-        name: `eslint`,
-        message: `Would you like to use ESLint?`,
+        name: `biome`,
+        message: `Would you like to use Biome for linting & formatting? (recommended)`,
         initial: true
       }
     ])
+    if (!answers?.packageManager) {
+      throw new SetupCancelledError()
+    }
     return {
-      packageManager: answers.packageManager as any,
+      packageManager: answers.packageManager,
       runtime: answers.runtime,
       lmdb: answers.lmdb as boolean,
       workerThread: answers.workerThread as boolean,
-      eslint: answers.eslint as boolean
+      biome: answers.biome as boolean
     }
   }
 
@@ -175,7 +189,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       const installProcess = spawn(FsUt.resolvePackageManagerCommand(packageManager), [`install`], {
         cwd: projectPath,
         stdio: `inherit`,
-        shell: false
+        shell: FsUt.resolveSpawnShell(packageManager)
       })
       installProcess.on(`close`, (code) => (code === 0 ? resolve(true) : (log.fail(`Dependencies installation failed`), resolve(false))))
       installProcess.on(`error`, (error) => (log.fail(`Dependencies installation failed: ${error.message}`), resolve(false)))
@@ -194,6 +208,10 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     let projectPath: string
     let useCurrentDir = false
 
+    if (projectName && !isValidProjectName(projectName)) {
+      throw new Error(`Invalid project name "${projectName}". Use only letters, numbers, hyphens, and underscores (max 100 characters).`)
+    }
+
     if (!projectName) {
       if (cli && this._hasAnyCliFlag()) {
         log.error(`Project name is required when using CLI flags`)
@@ -201,7 +219,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       }
       projectName = await this.promptForProjectName()
       if (projectName === ``) {
-        projectName = path.basename(baseWorkingDir)
+        projectName = sanitizeProjectName(path.basename(baseWorkingDir))
         projectPath = baseWorkingDir
         useCurrentDir = true
       } else {
@@ -213,9 +231,27 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
     // Gather config — skip prompts if CLI options provided
     const hasCli = cli && this._hasAnyCliFlag()
-    const config = hasCli ? {packageManager: cli!.packageManager ?? (`bun` as PackageManager), runtime: cli!.runtime ?? (`bun` as Runtime), lmdb: cli!.lmdb ?? true, workerThread: cli!.workerThread ?? true, eslint: cli!.eslint ?? true} : await this.promptForConfiguration()
+    let config: {
+      packageManager: PackageManager
+      runtime: Runtime
+      lmdb: boolean
+      workerThread: boolean
+      biome: boolean
+    }
+    if (hasCli) {
+      validateCliOptions(cli!.packageManager, cli!.runtime)
+      config = {
+        packageManager: cli!.packageManager ?? `bun`,
+        runtime: cli!.runtime ?? `bun`,
+        lmdb: cli!.lmdb ?? true,
+        workerThread: cli!.workerThread ?? true,
+        biome: cli!.biome ?? true
+      }
+    } else {
+      config = await this.promptForConfiguration()
+    }
 
-    const {packageManager, runtime, lmdb, workerThread, eslint} = config
+    const {packageManager, runtime, lmdb, workerThread, biome} = config
 
     // Summary
     log.info(`Project: ${projectName}`)
@@ -224,7 +260,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     log.info(`Runtime: ${runtime}`)
     log.info(`LMDB Storage: ${lmdb ? `Yes` : `No`}`)
     log.info(`Worker Thread: ${workerThread ? `Yes` : `No`}`)
-    log.info(`ESLint: ${eslint ? `Yes` : `No`}`)
+    log.info(`Biome: ${biome ? `Yes` : `No`}`)
 
     // Validation
     if (useCurrentDir) {
@@ -233,20 +269,33 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       if (fs.existsSync(projectPath)) throw new Error(`Directory "${projectName}" already exists`)
     }
 
-    return {projectName, projectPath, packageManager, runtime, setupEslint: eslint, useLmdb: lmdb, useWorkerThread: workerThread}
+    return {
+      projectName,
+      projectPath,
+      packageManager,
+      runtime,
+      setupBiome: biome,
+      useLmdb: lmdb,
+      useWorkerThread: workerThread
+    }
   }
 
   private _hasAnyCliFlag(): boolean {
     const c = this.cliOptions
-    return !!(c && (c.packageManager !== undefined || c.runtime !== undefined || c.lmdb !== undefined || c.workerThread !== undefined || c.eslint !== undefined))
+    return !!(c && (c.packageManager !== undefined || c.runtime !== undefined || c.lmdb !== undefined || c.workerThread !== undefined || c.biome !== undefined))
   }
 
   // ── Project generation ──────────────────────────────────────────
 
   private async executeProjectGeneration(config: ProjectConfig): Promise<void> {
-    const {projectName, projectPath, packageManager, runtime, setupEslint, useLmdb, useWorkerThread} = config
+    const {projectName, projectPath, packageManager, runtime, setupBiome, useLmdb, useWorkerThread} = config
     const commands = this.getPackageManagerCommands(packageManager)
-    const variables = {projectName, installCmd: commands.install, runDevCmd: commands.dev, runStartCmd: commands.start}
+    const variables = {
+      projectName,
+      installCmd: commands.install,
+      runDevCmd: commands.dev,
+      runStartCmd: commands.start
+    }
 
     // Task 1: Directory
     log.info(`Creating project directory..`)
@@ -269,21 +318,53 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       fs.renameSync(envExamplePath, envPath)
     }
 
-    // Task 5: Remove bunfig if Node
+    // Task 4b: .gitignore (shipped as `gitignore` because npm never publishes .gitignore files)
+    FsUt.normalizeGitignoreFile(projectPath)
+
+    // Task 5: Adjust scripts for Node runtime (the template defaults to bun commands)
+    const packageJsonPath = path.join(projectPath, `package.json`)
     if (runtime !== `bun`) {
-      const bunfigPath = path.join(projectPath, `bunfig.toml`)
-      if (fs.existsSync(bunfigPath)) fs.unlinkSync(bunfigPath)
+      if (fs.existsSync(packageJsonPath)) {
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {scripts?: Record<string, string>}
+        if (pkg.scripts) {
+          pkg.scripts = resolveRuntimeScripts(runtime, pkg.scripts)
+          fs.writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`, `utf8`)
+        }
+      }
+    }
+
+    // Task 5b: Resolve workspace:* deps to concrete versions (scaffolded
+    // projects are standalone — workspace:* only works inside the monorepo)
+    if (this.version !== undefined && fs.existsSync(packageJsonPath)) {
+      const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>}
+      resolveWorkspaceDeps(pkg, this.version)
+      fs.writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`, `utf8`)
     }
 
     // Task 6: LMDB
     const dbPath = path.join(projectPath, `src`, `db`)
     if (useLmdb) {
       log.info(`Keeping @gramstax/lmdb files..`)
-      const envContent = fs.readFileSync(envPath, `utf-8`)
-      fs.writeFileSync(envPath, envContent + `\n\nDB_PATH="./data"\n`)
+      if (fs.existsSync(envPath)) {
+        fs.writeFileSync(envPath, appendEnvDbPath(fs.readFileSync(envPath, `utf-8`)))
+      }
+      const gitignorePath = path.join(projectPath, `.gitignore`)
+      if (fs.existsSync(gitignorePath)) {
+        fs.writeFileSync(gitignorePath, appendGitignoreEntries(fs.readFileSync(gitignorePath, `utf-8`), [`data/`]))
+      }
     } else {
       log.info(`Removing @gramstax/lmdb files..`)
       if (fs.existsSync(dbPath)) fs.rmSync(dbPath, {recursive: true, force: true})
+      if (fs.existsSync(packageJsonPath)) {
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>}
+        removeDependency(pkg, `@gramstax/lmdb`)
+        fs.writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`, `utf8`)
+      }
+      const tsconfigPath = path.join(projectPath, `tsconfig.json`)
+      if (fs.existsSync(tsconfigPath)) {
+        const tsconfig = removeTsconfigPathMappings(fs.readFileSync(tsconfigPath, `utf-8`), [`@gramstax/lmdb`])
+        fs.writeFileSync(tsconfigPath, tsconfig, `utf8`)
+      }
     }
 
     // Task 7: Worker Thread
@@ -299,29 +380,39 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     log.info(`Installing dependencies..`)
     if (!(await this.installDependencies(projectPath, packageManager))) throw new Error(`Dependencies installation failed`)
 
-    // Task 9: ESLint
-    const befEslint = path.join(projectPath, `eslint.config.ts.template`)
-    const aftEslint = path.join(projectPath, `eslint.config.ts`)
-    if (setupEslint) {
-      log.info(`Installing ESLint dependencies..`)
+    // Task 9: Biome
+    const biomeJsonPath = path.join(projectPath, `biome.json`)
+    if (setupBiome) {
+      log.info(`Installing Biome dependencies..`)
       const installCmd = FsUt.resolvePackageManagerCommand(packageManager)
       const installArgs = packageManager === `yarn` ? [`add`, `-D`] : [`install`, `-D`]
-      installArgs.push(`eslint`, `@eslint/js`, `globals`, `typescript-eslint`)
-      await new Promise<void>((resolve) => {
-        const p = spawn(installCmd, installArgs, {cwd: projectPath, stdio: `inherit`, shell: false})
-        p.on(`close`, () => resolve())
+      installArgs.push(`@biomejs/biome`)
+      const installResult = await new Promise<boolean>((resolve) => {
+        const p = spawn(installCmd, installArgs, {
+          cwd: projectPath,
+          stdio: `inherit`,
+          shell: FsUt.resolveSpawnShell(packageManager)
+        })
+        p.on(`close`, (code) => resolve(code === 0))
         p.on(`error`, (err) => {
-          log.fail(`Failed to install ESLint: ${err.message}`)
-          resolve()
+          log.fail(`Failed to install Biome: ${err.message}`)
+          resolve(false)
         })
       })
-      if (fs.existsSync(befEslint)) fs.renameSync(befEslint, aftEslint)
+      if (!installResult) {
+        log.fail(`Biome installation failed — run "${packageManager} ${installArgs.join(` `)}" manually`)
+      }
     } else {
-      if (fs.existsSync(befEslint)) fs.unlinkSync(befEslint)
+      if (fs.existsSync(biomeJsonPath)) fs.unlinkSync(biomeJsonPath)
+      if (fs.existsSync(packageJsonPath)) {
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {scripts?: Record<string, string>}
+        stripBiomeScripts(pkg)
+        fs.writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`, `utf8`)
+      }
     }
 
     log.info(`Project created successfully!`)
-    log.info(`Next steps: ${config.projectPath !== process.cwd() ? `cd ${projectName} && ` : ``}${commands.install} && ${commands.dev}`)
+    log.info(`Next steps: ${config.projectPath !== process.cwd() ? `cd ${path.basename(config.projectPath)} && ` : ``}${commands.install} && ${commands.dev}`)
     log.info(`Done..`)
   }
 

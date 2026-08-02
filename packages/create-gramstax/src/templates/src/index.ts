@@ -1,7 +1,7 @@
+import {CacheExternal} from "gramstax"
+import {BotCore} from "./core/bot"
 import {Env} from "./env"
 import {LogHe} from "./helpers/log"
-import {BotCore} from "./core/bot"
-import {CacheExternal} from "gramstax"
 
 class Index {
   static async run() {

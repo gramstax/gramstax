@@ -12,13 +12,19 @@ A Telegram bot built with Gramstax framework.
 
 2. Set up your environment variables:
 
-Copy `.env.example` to `.env` and add your Telegram bot token:
+Edit `.env` and add your Telegram bot token:
 
 ```bash
 TELEGRAM_BOT_TOKEN="<...your_bot_token_here...>"
 ```
 
 3. Run the development server:
+
+```bash
+{{runDevCmd}}
+```
+
+4. Run the bot in production:
 
 ```bash
 {{runStartCmd}}
@@ -32,7 +38,7 @@ TELEGRAM_BOT_TOKEN="<...your_bot_token_here...>"
 - `src/guards/` - Route guards and middleware
 - `src/helpers/` - Helper function
 - `src/pages/` - Bot pages/screens
-- `src/utils/` - Utility functions for raw like array
+- `src/utils/` - Utility functions (e.g., array helpers)
 - `logs/` - Application logs (created automatically)
 
 ## Configuration

@@ -1,8 +1,8 @@
-import {describe, it, expect, beforeEach} from "bun:test"
+import {beforeEach, describe, expect, it} from "bun:test"
 import {e2e} from "../setup"
 
 const intent = `start`
-const asUser = {user: {id: 2001, username: `testuser`}, chat: {id: 2001}}
+const asUser = {user: {id: 2001, username: `testuser`}}
 
 beforeEach(() => {
   e2e.clearCalls()
@@ -11,7 +11,9 @@ beforeEach(() => {
 describe(`E2E: StartPage`, () => {
   it(`respond to /start command with welcome message and full keyboard`, async () => {
     const responses = await e2e.sendText(`/start`, asUser)
-    const responsesId = await e2e.sendText(`/start`, {user: {id: 5001, username: `pengguna`, language_code: `id`}, chat: {id: 5001}})
+    const responsesId = await e2e.sendText(`/start`, {
+      user: {id: 5001, username: `pengguna`, language_code: `id`}
+    })
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)

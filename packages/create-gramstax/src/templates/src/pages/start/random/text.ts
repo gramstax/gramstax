@@ -75,7 +75,9 @@ export class StartRandomTextPage extends PageBase {
       const kb = this.inlineKeyboardT([this, StartRandomPage], `2`)
       const count = Math.floor(Math.random() * 3) + 2 // 2–4 words
       const lang = this.from.language_code
-      const da = {res: lang === `en` ? Helper.pickRandom(_WORDS, count).join(` `) : lang === `id` ? Helper.pickRandom(_ID_WORDS, count).join(` `) : Helper.pickRandom(_WORDS, count).join(` `)}
+      const da = {
+        res: lang === `en` ? Helper.pickRandom(_WORDS, count).join(` `) : lang === `id` ? Helper.pickRandom(_ID_WORDS, count).join(` `) : Helper.pickRandom(_WORDS, count).join(` `)
+      }
       await this.renderAuto(kb, da, null, null, isEdit)
     }
   }

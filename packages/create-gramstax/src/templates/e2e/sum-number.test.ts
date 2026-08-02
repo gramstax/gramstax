@@ -1,8 +1,8 @@
-import {describe, it, expect, beforeEach} from "bun:test"
+import {beforeEach, describe, expect, it} from "bun:test"
 import {e2e} from "./setup"
 
 const intent = `sum-number`
-const asUser = {user: {id: 2004, username: `testuser`}, chat: {id: 2004}}
+const asUser = {user: {id: 2004, username: `testuser`}}
 
 beforeEach(() => {
   e2e.clearCalls()

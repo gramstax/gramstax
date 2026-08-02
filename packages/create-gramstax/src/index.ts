@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-import {log} from "./utils/log"
-import {Create, type CliOptions} from "./create"
-import {Command} from "commander"
-import {readFileSync, existsSync} from "node:fs"
-import {join, dirname} from "node:path"
+import {existsSync, readFileSync} from "node:fs"
+import {dirname, join} from "node:path"
 import {fileURLToPath} from "node:url"
+import {Command} from "commander"
+import {type CliOptions, Create} from "./create"
+import {log} from "./utils/log"
+import {validateCliOptions} from "./utils/project"
 
 function findPackageJson(startDir: string): string {
   let dir = startDir
@@ -33,18 +34,22 @@ program
   .option(`--no-lmdb`, `Skip @gramstax/lmdb`)
   .option(`--worker-thread`, `Include @gramstax/worker-thread (default: true)`)
   .option(`--no-worker-thread`, `Skip @gramstax/worker-thread`)
-  .option(`--eslint`, `Include ESLint (default: true)`)
-  .option(`--no-eslint`, `Skip ESLint`)
-  .action(async (projectDirectory?: string, opts?: Record<string, any>) => {
+  .option(`--biome`, `Include Biome for linting & formatting (default: true)`)
+  .option(`--no-biome`, `Skip Biome`)
+  .action(async (projectDirectory?: string, opts?: {pm: CliOptions["packageManager"]} & Omit<CliOptions, "packageManager">) => {
     try {
+      validateCliOptions(opts?.pm, opts?.runtime)
       const cliOptions: CliOptions = {}
       if (opts?.pm) cliOptions.packageManager = opts.pm
       if (opts?.runtime) cliOptions.runtime = opts.runtime
       if (opts?.lmdb !== undefined) cliOptions.lmdb = opts.lmdb
       if (opts?.workerThread !== undefined) cliOptions.workerThread = opts.workerThread
-      if (opts?.eslint !== undefined) cliOptions.eslint = opts.eslint
+      if (opts?.biome !== undefined) cliOptions.biome = opts.biome
 
-      await new Create(projectDirectory, {version: packageVersion, cliOptions}).createProject()
+      await new Create(projectDirectory, {
+        version: packageVersion,
+        cliOptions
+      }).createProject()
     } catch (error) {
       log.error(`Failed to create project: ${String(error)}`)
       process.exit(1)

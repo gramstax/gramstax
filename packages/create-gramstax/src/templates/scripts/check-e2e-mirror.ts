@@ -21,8 +21,8 @@
  * Exit code: 0 if all OK, 1 if any mismatch.
  */
 
-import {existsSync, readdirSync, mkdirSync, writeFileSync} from "node:fs"
-import {join, dirname} from "node:path"
+import {existsSync, mkdirSync, readdirSync, writeFileSync} from "node:fs"
+import {dirname, join} from "node:path"
 
 // ── Parse CLI ─────────────────────────────────────────────────────────
 
@@ -41,7 +41,7 @@ function walkPages(dir: string, prefix = ``): Array<{rel: string}> {
     const full = join(dir, entry.name)
     if (entry.isDirectory()) {
       results.push(...walkPages(full, prefix ? `${prefix}/${entry.name}` : entry.name))
-    } else if (entry.isFile() && /\.(ts|js)$/.test(entry.name) && !entry.name.endsWith(`.test`)) {
+    } else if (entry.isFile() && /\.(ts|js)$/.test(entry.name) && !/\.test\.(ts|js)$/.test(entry.name)) {
       results.push({rel: prefix ? `${prefix}/${entry.name}` : entry.name})
     }
   }
@@ -60,14 +60,19 @@ function getSetupImportPrefix(rel: string): string {
   return prefix
 }
 
+/** Build page key access: dotted for identifier-like keys, computed otherwise (useLiteralKeys-safe) */
+function pageKeyAccess(baseName: string): string {
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(baseName) ? `.${baseName}` : `[\`${baseName}\`]`
+}
+
 function generateTestContent(pageRel: string): string {
   const baseName = pageRel.replace(/\.(ts|js)$/, ``)
   const parts = baseName.split(`/`)
   const pageName = parts[parts.length - 1] || parts[parts.length - 2] || `Page`
-  const className = pageName
+  const className = `${pageName
     .split(/[-_]/)
     .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-    .join(``) + `Page`
+    .join(``)}Page`
 
   return [
     `import {describe, it, expect} from "bun:test"`,
@@ -76,7 +81,7 @@ function generateTestContent(pageRel: string): string {
     `describe(\`E2E: ${className}\`, () => {`,
     `  it(\`load as a registered page in the bot\`, () => {`,
     `    const allPages = bot.pages.all`,
-    `    expect(allPages[\`${baseName}\`]).toBeDefined()`,
+    `    expect(allPages${pageKeyAccess(baseName)}).toBeDefined()`,
     `  })`,
     `})`,
     ``
@@ -106,8 +111,7 @@ function checkProject(label: string, pagesDir: string, e2eDir: string): boolean 
       ok = false
 
       if (FIX_MODE) {
-        const content = generateTestContent(page.rel)
-          .replace(`"./setup"`, `"${getSetupImportPrefix(expectedE2E)}setup"`)
+        const content = generateTestContent(page.rel).replace(`"./setup"`, `"${getSetupImportPrefix(expectedE2E)}setup"`)
         mkdirSync(dirname(e2ePath), {recursive: true})
         writeFileSync(e2ePath, content)
         console.log(`     ✅ Created e2e/${expectedE2E}`)
@@ -134,7 +138,7 @@ if (customPath) {
 } else {
   // Default: check this project's own pages and e2e
   const pagesDir = join(import.meta.dir, `../src/pages`)
-  const e2eDir = join(import.meta.dir, `..`)
+  const e2eDir = join(import.meta.dir, `../e2e`)
   const ok = checkProject(`this project`, pagesDir, e2eDir)
   if (!ok) allOk = false
 }

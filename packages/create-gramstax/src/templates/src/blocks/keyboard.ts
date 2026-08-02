@@ -5,7 +5,10 @@ export class KeyboardBlock extends BlockKeyboard {
     static home = {default: `🏠 Home`, id: `🏠 Beranda`}
     static back = {default: `⬅️ Back`, id: `⬅️ Kembali`}
     static cancel = {default: `✖️ Cancel`, id: `✖️ Batal`}
-    static backHome = {default: `${this.back.default}, ${this.home.default}`, id: `${this.back.id}, ${this.home.id}`}
+    static backHome = {
+      default: `${this.back.default}, ${this.home.default}`,
+      id: `${this.back.id}, ${this.home.id}`
+    }
   }
   static home = (lang?: string, type?: string) => this._build(`home`, lang, type)
   static back = (lang?: string, type?: string) => this._build(`back`, lang, type)

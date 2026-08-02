@@ -1,8 +1,8 @@
-import {describe, it, expect, beforeEach} from "bun:test"
+import {beforeEach, describe, expect, it} from "bun:test"
 import {e2e} from "../../setup"
 
 const intent = `start/random/number`
-const asUser = {user: {id: 8001, username: `testuser`}, chat: {id: 8001}}
+const asUser = {user: {id: 8002, username: `testuser`}}
 
 beforeEach(() => {
   e2e.clearCalls()
@@ -17,7 +17,9 @@ describe(`E2E: StartRandomNumberPage`, () => {
     e2e.clearCalls()
 
     const responses = await e2e.sendCallbackQuery(intent, asUser)
-    const responsesId = await e2e.sendCallbackQuery(intent, {user: {id: 8002, username: `pengguna`, language_code: `id`}, chat: {id: 8002}})
+    const responsesId = await e2e.sendCallbackQuery(intent, {
+      user: {id: 8002, username: `pengguna`, language_code: `id`}
+    })
 
     expect(responses.length).toBeGreaterThan(0)
     expect(responsesId.length).toBeGreaterThan(0)

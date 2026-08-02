@@ -25,7 +25,6 @@
   "license": "PROPRIETARY",
   "type": "module",
   "main": "./dist/src/index.js",
-  "module": "./dist/src/index.mjs",
   "types": "./dist/src/index.d.ts",
   "bin": {
     "create-gramstax": "dist/src/index.js"
@@ -43,9 +42,6 @@
   "devDependencies": {
     "@types/bun": "latest",
     "tsup": "^8.5.1"
-  },
-  "peerDependencies": {
-    "typescript": "^6.0.3"
   },
   "dependencies": {
     "commander": "^14.0.2",

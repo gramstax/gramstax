@@ -1,0 +1,3 @@
+# npm pack exclusion is governed by "files" in package.json.
+# An explicit .npmignore prevents npm from falling back to the repo root
+# .gitignore (patterns like `dist` there would strip the whole package).

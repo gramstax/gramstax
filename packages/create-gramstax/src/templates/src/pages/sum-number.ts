@@ -19,6 +19,7 @@ class Helper {
 
 export class SumNumberPage extends PageBase {
   static data = this.buildData()
+
   async handleCallbackQueryData() {
     await this.bleft.show(true)
   }
@@ -39,14 +40,11 @@ export class SumNumberPage extends PageBase {
   }
 
   bleft = {
-    show: async (edit: boolean) => {
-      const kb = Helper.kb(this, Base.left)
-      await this.setSessionFreeText({step: Base.left})
-      if (edit) {
-        await this.renderEdit(kb, {}, Base.left)
-      } else {
-        await this.render(kb, {}, Base.left)
-      }
+    show: async (isEdit: boolean) => {
+      const bi = Base.left
+      const kb = Helper.kb(this, bi)
+      await this.setSessionFreeText({step: bi})
+      await this.renderAuto(kb, null, bi, null, isEdit)
     },
     process: async (left: number) => {
       if (!Number.isFinite(left)) {
@@ -59,9 +57,10 @@ export class SumNumberPage extends PageBase {
 
   bright = {
     show: async (left: number) => {
-      const kb = Helper.kb(this, Base.right)
-      await this.setSessionFreeText({step: Base.right, left})
-      await this.render(kb, {}, Base.right)
+      const bi = Base.right
+      const kb = Helper.kb(this, bi)
+      await this.setSessionFreeText({step: bi, left})
+      await this.render(kb, null, bi)
     },
     process: async (value: number, left: number) => {
       if (!Number.isFinite(value)) {
@@ -75,9 +74,10 @@ export class SumNumberPage extends PageBase {
 
   bsuccess = {
     show: async (left: number, right: number) => {
-      const kb = Helper.kb(this, Base.success)
+      const bi = Base.success
+      const kb = Helper.kb(this, bi)
       const da = {result: left + right}
-      await this.render(kb, da, Base.success)
+      await this.render(kb, da, bi)
     }
   }
 
@@ -95,6 +95,7 @@ export class SumNumberPage extends PageBase {
         Contoh: 23
       </g-message>
     </g-base>
+    
     <g-base id="${Base.right}">
       ${this.kbk.cancel()}
       <g-message>
@@ -108,6 +109,7 @@ export class SumNumberPage extends PageBase {
         Contoh: 10
       </g-message>
     </g-base>
+
     <g-base id="${Base.success}">
       ${this.kbk.home()}
       <g-message>

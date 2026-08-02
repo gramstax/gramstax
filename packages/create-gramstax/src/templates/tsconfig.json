@@ -1,27 +1,16 @@
 {
   "compilerOptions": {
     "paths": {
-      "~/*": [
-        "./src/*"
-      ],
-      "gramstax": [
-        "../../../gramstax/src/index.ts"
-      ],
-      "@gramstax/lmdb": [
-        "../../../lmdb/src/index.ts"
-      ]
+      "~/*": ["./src/*"],
+      "gramstax": ["../../../gramstax/src/index.ts"],
+      "@gramstax/lmdb": ["../../../lmdb/src/index.ts"]
     },
     // Environment setup & latest features
-    "lib": [
-      "ESNext"
-    ],
+    "lib": ["ESNext"],
     "target": "ESNext",
     "module": "Preserve",
     "moduleDetection": "force",
-    "types": [
-      "node",
-      "bun"
-    ],
+    "types": ["node", "bun"],
     "jsx": "react-jsx",
     "allowJs": true,
     // Bundler mode
@@ -38,6 +27,6 @@
     "noImplicitOverride": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
+    "noPropertyAccessFromIndexSignature": false
   }
 }
