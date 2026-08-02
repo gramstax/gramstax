@@ -8,15 +8,13 @@
  * - `env.readTransaction(fn)` wraps `rootDb.useReadTransaction()`. The raw
  *   LMDB read transaction is released when the wrapper finalizes.
  */
-import {describe, it, expect, beforeEach, afterEach} from "bun:test"
-import {mkdtempSync} from "node:fs"
-import {tmpdir} from "node:os"
-import {join} from "node:path"
+import {afterEach, beforeEach, describe, expect, it} from "bun:test"
+import {createTestDir} from "./test-helpers"
 
 import {LmdbEnv} from "../src/env"
+import {LmdbTransactionDoneError, LmdbTransactionError} from "../src/errors"
 import {LmdbRepository} from "../src/repository"
 import {LmdbTransaction} from "../src/transaction"
-import {LmdbTransactionDoneError, LmdbTransactionError} from "../src/errors"
 import {rmWithRetry} from "./test-helpers"
 
 interface User {
@@ -43,7 +41,7 @@ let userRepo: UserRepository
 let sessionRepo: SessionRepository
 
 beforeEach(async () => {
-  tmpDir = mkdtempSync(join(tmpdir(), `lmdb-tx-test-`))
+  tmpDir = createTestDir(`lmdb-tx-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
   userRepo = env.register(UserRepository)
   sessionRepo = env.register(SessionRepository)
@@ -169,6 +167,53 @@ describe(`LmdbTransaction.done flag`, () => {
   })
 })
 
+describe(`env.transaction with async callbacks`, () => {
+  it(`commits async callback writes atomically and returns the value`, async () => {
+    const result = await env.transaction(async () => {
+      await userRepo.set(`u1`, {id: `u1`, name: `Async`})
+      await sessionRepo.set(`s1`, {id: `s1`, userId: `u1`})
+      return {ok: true}
+    })
+    expect(result).toEqual({ok: true})
+    expect(await userRepo.get(`u1`)).toEqual({id: `u1`, name: `Async`})
+    expect(await sessionRepo.get(`s1`)).toEqual({id: `s1`, userId: `u1`})
+  })
+
+  it(`tx.abort() after an await rolls back all writes`, async () => {
+    await userRepo.set(`existing`, {id: `existing`, name: `Pre`})
+    await env.transaction(async (tx) => {
+      await userRepo.set(`existing`, {id: `existing`, name: `Ghost`})
+      await sessionRepo.set(`s1`, {id: `s1`, userId: `existing`})
+      tx.abort()
+    })
+    expect((await userRepo.get(`existing`))?.name).toBe(`Pre`)
+    expect(await sessionRepo.get(`s1`)).toBeUndefined()
+  })
+
+  it(`tx.abort() before the first await rolls back`, async () => {
+    await env.transaction(async (tx) => {
+      tx.abort()
+      await userRepo.set(`u3`, {id: `u3`, name: `Aborted`})
+    })
+    expect(await userRepo.get(`u3`)).toBeUndefined()
+  })
+
+  it(`async throw after an await rolls back and wraps in LmdbTransactionError`, async () => {
+    try {
+      await env.transaction(async () => {
+        await userRepo.set(`u2`, {id: `u2`, name: `Partial`})
+        throw new Error(`async boom`)
+      })
+      expect.unreachable()
+    } catch (e) {
+      expect(e).toBeInstanceOf(LmdbTransactionError)
+      expect((e as LmdbTransactionError).cause).toBeInstanceOf(Error)
+      expect(((e as LmdbTransactionError).cause as Error).message).toBe(`async boom`)
+    }
+    expect(await userRepo.get(`u2`)).toBeUndefined()
+  })
+})
+
 describe(`env.readTransaction`, () => {
   it(`reads committed data via snapshot`, async () => {
     await userRepo.set(`u1`, {id: `u1`, name: `Carol`})
@@ -212,9 +257,35 @@ describe(`env.readTransaction`, () => {
   })
 })
 
+describe(`env.readTransaction raw txn release`, () => {
+  it(`releases raw read txn even when user calls tx.commit() inside`, async () => {
+    await userRepo.set(`u1`, {id: `u1`, name: `A`})
+    const before = env.readerList().split(`\n`).filter(Boolean).length
+    await env.readTransaction(async (tx) => {
+      await userRepo.get(`u1`, tx)
+      tx.commit()
+    })
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    const after = env.readerList().split(`\n`).filter(Boolean).length
+    expect(after).toBe(before)
+  })
+
+  it(`tx.abort() inside readTransaction still releases exactly once`, async () => {
+    await userRepo.set(`u1`, {id: `u1`, name: `A`})
+    const before = env.readerList().split(`\n`).filter(Boolean).length
+    await env.readTransaction(async (tx) => {
+      await userRepo.get(`u1`, tx)
+      tx.abort()
+      tx.abort()
+    })
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    expect(env.readerList().split(`\n`).filter(Boolean).length).toBe(before)
+  })
+})
+
 describe(`read-only env transactions`, () => {
   it(`readTransaction works on read-only envs`, async () => {
-    const dir = mkdtempSync(join(tmpdir(), `lmdb-readonly-tx-`))
+    const dir = createTestDir(`lmdb-readonly-tx-`)
     const writeEnv = new LmdbEnv({path: dir, maxDbs: 5})
     const writeUsers = writeEnv.register(UserRepository)
     await writeUsers.set(`u1`, {id: `u1`, name: `Initial`})

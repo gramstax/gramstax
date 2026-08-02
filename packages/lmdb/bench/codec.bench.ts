@@ -6,7 +6,7 @@
  * @internal
  */
 
-import {mkdtempSync, statSync, rmSync, readdirSync} from "node:fs"
+import {mkdtempSync, readdirSync, rmSync, statSync } from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {LmdbEnv, LmdbRepository} from "../src"

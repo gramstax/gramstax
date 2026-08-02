@@ -5,15 +5,12 @@
  * clear, count, range queries, iteration, custom codec, and transactional
  * access through {@link LmdbTransaction}.
  */
-import {describe, it, expect, beforeEach, afterEach} from "bun:test"
-import {mkdtempSync} from "node:fs"
-import {tmpdir} from "node:os"
-import {join} from "node:path"
-
-import {LmdbEnv} from "../src/env"
-import {LmdbRepository} from "../src/repository"
+import {afterEach, beforeEach, describe, expect, it} from "bun:test"
+import {createTestDir} from "./test-helpers"
 import {LmdbCodec} from "../src/codec"
-import {LmdbReadOnlyError} from "../src/errors"
+import {LmdbEnv} from "../src/env"
+import {LmdbKeyNotFoundError, LmdbReadOnlyError} from "../src/errors"
+import {LmdbRepository} from "../src/repository"
 import {rmWithRetry} from "./test-helpers"
 
 interface User {
@@ -44,7 +41,10 @@ class NoCodecRepo extends LmdbRepository<string, string> {
 
 class DateRepo extends LmdbRepository<Date, string> {
   static dbName = `date-repo-test`
-  static codec = LmdbCodec.create<Date, number>((d: Date) => d.getTime(), (n: number) => new Date(n))
+  static codec = LmdbCodec.create<Date, number>(
+    (d: Date) => d.getTime(),
+    (n: number) => new Date(n)
+  )
 }
 
 let tmpDir: string
@@ -55,7 +55,7 @@ let noCodec: NoCodecRepo
 let dates: DateRepo
 
 beforeEach(async () => {
-  tmpDir = mkdtempSync(join(tmpdir(), `lmdb-repo-test-`))
+  tmpDir = createTestDir(`lmdb-repo-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 10})
   users = env.register(UserRepo)
   counters = env.register(CounterRepo)
@@ -100,6 +100,34 @@ describe(`LmdbRepository.has`, () => {
 
   it(`returns false for missing key`, async () => {
     expect(await users.has(`missing`)).toBe(false)
+  })
+})
+
+describe(`LmdbRepository.has with transaction`, () => {
+  it(`returns true for existing key inside readTransaction`, async () => {
+    await users.set(`u1`, {id: `u1`, name: `A`, age: 1})
+    const got = await env.readTransaction(async (tx) => users.has(`u1`, tx))
+    expect(got).toBe(true)
+  })
+
+  it(`returns false for missing key inside readTransaction`, async () => {
+    const got = await env.readTransaction(async (tx) => users.has(`nope`, tx))
+    expect(got).toBe(false)
+  })
+
+  it(`works inside a write transaction callback`, async () => {
+    await env.transaction(() => {
+      users.set(`u1`, {id: `u1`, name: `A`, age: 1})
+      expect(users.has(`u1`)).toBe(true)
+      expect(users.has(`u1`)).toBe(true)
+    })
+    expect(await users.has(`u1`)).toBe(true)
+  })
+
+  it(`has without tx is unchanged`, async () => {
+    await users.set(`u1`, {id: `u1`, name: `A`, age: 1})
+    expect(users.has(`u1`)).toBe(true)
+    expect(users.has(`nope`)).toBe(false)
   })
 })
 
@@ -376,6 +404,34 @@ describe(`LmdbRepository.like (LIKE-style pattern matching)`, () => {
   })
 })
 
+describe(`LmdbRepository.like with numeric keys`, () => {
+  beforeEach(async () => {
+    await counters.set(1, {n: 1})
+    await counters.set(10, {n: 10})
+    await counters.set(21, {n: 21})
+  })
+
+  it(`prefix pattern matches numeric keys by String() semantics`, async () => {
+    const matched = await counters.like(`1*`)
+    expect(matched.map(([k]) => k).sort((a, b) => a - b)).toEqual([1, 10])
+  })
+
+  it(`prefix pattern with no matches returns []`, async () => {
+    const matched = await counters.like(`9*`)
+    expect(matched).toEqual([])
+  })
+
+  it(`infix pattern matches numeric keys`, async () => {
+    const matched = await counters.like(`*1`)
+    expect(matched.map(([k]) => k).sort((a, b) => a - b)).toEqual([1, 21])
+  })
+
+  it(`empty repo like() returns []`, async () => {
+    await counters.clear()
+    expect(await counters.like(`1*`)).toEqual([])
+  })
+})
+
 describe(`LmdbRepository.findByPrefix (efficient range scan)`, () => {
   beforeEach(async () => {
     await users.set(`user:1`, {id: `u1`, name: `Alice`, age: 30})
@@ -403,6 +459,20 @@ describe(`LmdbRepository.findByPrefix (efficient range scan)`, () => {
     await users.set(`exact`, {id: `e1`, name: `Exact`, age: 1})
     const matched = await users.findByPrefix(`exact`)
     expect(matched.map(([k]) => k)).toEqual([`exact`])
+  })
+
+  it(`prefix bounds are authoritative over user start`, async () => {
+    await users.set(`user;`, {id: `u2b`, name: `Boundary`, age: 1})
+    const matched = await users.findByPrefix(`user:`, {start: `a`})
+    expect(matched.map(([k]) => k).sort()).toEqual([`user:1`, `user:2`])
+  })
+
+  it(`prefix bounds are authoritative over user end`, async () => {
+    // 'user;' sorts AFTER 'user:\uffff' (0x3B > 0x3A) but BEFORE 'zzzz' —
+    // a user-supplied end would wrongly include it without authoritative bounds.
+    await users.set(`user;`, {id: `u2b`, name: `Boundary`, age: 1})
+    const matched = await users.findByPrefix(`user:`, {end: `zzzz`})
+    expect(matched.map(([k]) => k).sort()).toEqual([`user:1`, `user:2`])
   })
 })
 
@@ -484,6 +554,24 @@ describe(`LmdbRepository.first / last (ordering)`, () => {
   })
 })
 
+describe(`LmdbRepository.getStrict`, () => {
+  it(`returns the value when the key exists`, async () => {
+    await users.set(`u1`, {id: `u1`, name: `A`, age: 1})
+    expect(users.getStrict(`u1`).name).toBe(`A`)
+  })
+
+  it(`throws LmdbKeyNotFoundError when the key is absent`, () => {
+    expect(() => users.getStrict(`missing`)).toThrow(LmdbKeyNotFoundError)
+  })
+
+  it(`supports a read transaction`, async () => {
+    await users.set(`u1`, {id: `u1`, name: `A`, age: 1})
+    await env.readTransaction(async (tx) => {
+      expect(users.getStrict(`u1`, tx).name).toBe(`A`)
+    })
+  })
+})
+
 describe(`LmdbRepository.update (read-modify-write)`, () => {
   it(`updates existing value via updater`, async () => {
     await users.set(`u1`, {id: `u1`, name: `Alice`, age: 30})
@@ -562,7 +650,7 @@ describe(`LmdbRepository.prefetch (page pre-fault)`, () => {
 
 describe(`LmdbRepository.drop (sub-DB removal)`, () => {
   it(`removes the sub-database and all entries`, async () => {
-    const freshDir = mkdtempSync(join(tmpdir(), `lmdb-drop-test-`))
+    const freshDir = createTestDir(`lmdb-drop-test-`)
     const freshEnv = new LmdbEnv({path: freshDir, maxDbs: 5})
     const freshUsers = freshEnv.register(UserRepo)
     await freshUsers.set(`u1`, {id: `u1`, name: `A`, age: 1})

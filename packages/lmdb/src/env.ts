@@ -17,12 +17,16 @@
  * @public
  */
 
-import {open, ABORT} from "lmdb"
-import type {RootDatabaseOptionsWithPath, RootDatabase, Database, DatabaseOptions, Key, GetOptions, RangeOptions, RangeIterable, PutOptions, TransactionFlags, Transaction} from "lmdb"
+import type {Database, DatabaseOptions, GetOptions, Key, PutOptions, RangeIterable, RangeOptions, RootDatabase, RootDatabaseOptionsWithPath, Transaction, TransactionFlags} from "lmdb"
+import {ABORT, open} from "lmdb"
+import {LmdbDuplicateDbNameError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbRepositoryAlreadyRegisteredError, LmdbRepositoryNotRegisteredError, LmdbTransactionError} from "./errors"
+import type {LmdbRepository} from "./repository"
 import {LmdbTransaction} from "./transaction"
-import {LmdbRepository} from "./repository"
-import {LmdbEnvNotOpenError, LmdbDuplicateDbNameError, LmdbRepositoryNotRegisteredError, LmdbRepositoryAlreadyRegisteredError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbTransactionError} from "./errors"
-import type {ILmdbEnvOptions, ILmdbEnvState, ILmdbEncoding} from "./types"
+import type {ILmdbEncoding, ILmdbEnvOptions, ILmdbEnvState, ILmdbKey} from "./types"
+
+type LmdbRepositoryInstance = LmdbRepository<unknown, ILmdbKey>
+type LmdbRepositoryClass<T extends LmdbRepositoryInstance = LmdbRepositoryInstance> = new (rootEnv: IEnvForRepo, dbName?: string) => T
+type LmdbRepositoryClassWithDbName<T extends LmdbRepositoryInstance = LmdbRepositoryInstance> = LmdbRepositoryClass<T> & {dbName?: string}
 
 /**
  * Per-instance root store type.
@@ -34,8 +38,8 @@ import type {ILmdbEnvOptions, ILmdbEnvState, ILmdbEncoding} from "./types"
  *
  * @internal
  */
-interface LmdbRootStore extends RootDatabase<any, Key> {
-  sync(callback?: (error: any) => void): Promise<void>
+interface LmdbRootStore extends RootDatabase<unknown, Key> {
+  sync(callback?: (error: unknown) => void): Promise<void>
   isOperational(): boolean
 }
 
@@ -58,13 +62,10 @@ export class LmdbEnv {
   private readonly _root: LmdbRootStore
 
   /** @internal */
-  private readonly _repoInstances = new Map<string, LmdbRepository<any, any>>()
+  private readonly _repoInstances = new Map<string, LmdbRepositoryInstance>()
 
   /** @internal */
-  private readonly _repoByClass = new Map<new (...args: any[]) => LmdbRepository<any, any>, LmdbRepository<any, any>>()
-
-  /** @internal Full LMDB options — stored for reference. */
-  private readonly _opts: ILmdbEnvOptions
+  private readonly _repoByClass = new Map<LmdbRepositoryClass, LmdbRepositoryInstance>()
 
   /** Path where LMDB stores its data files. */
   readonly path: string
@@ -123,8 +124,7 @@ export class LmdbEnv {
     }
     // Per-instance root store. Each env calls open() independently so
     // sub-database handle caches are naturally isolated across envs.
-    this._root = open(opts) as any as LmdbRootStore
-    this._opts = options
+    this._root = open(opts) as unknown as LmdbRootStore
     this.path = options.path
     this.maxDbs = options.maxDbs ?? 10
     this.readOnly = options.readOnly ?? false
@@ -160,6 +160,19 @@ export class LmdbEnv {
     return this._state
   }
 
+  /**
+   * Guard: require the env to be open before an operation.
+   *
+   * @remarks
+   * Throws {@link LmdbEnvClosedError} when the env was closed (permanent),
+   * or {@link LmdbEnvNotOpenError} for any other non-open state.
+   *
+   * @internal
+   */
+  private _assertOpen(): void {
+    if (this._state === `closed`) throw new LmdbEnvClosedError()
+    if (this._state !== `open`) throw new LmdbEnvNotOpenError()
+  }
 
   /**
    * Close the underlying LMDB environment and release all resources.
@@ -198,7 +211,8 @@ export class LmdbEnv {
    *
    * @internal
    */
-  getDb(name: string, overrideEncoding?: ILmdbEncoding): Database<any, any> {
+  getDb(name: string, overrideEncoding?: ILmdbEncoding): Database<unknown, Key> {
+    this._assertOpen()
     // Forward all env-level sub-DB options. lmdb does NOT inherit
     // compression/cache/encoding/etc. from the root env — each openDB()
     // must receive them explicitly for production correctness.
@@ -233,18 +247,19 @@ export class LmdbEnv {
    *
    * @public
    */
-  register<T extends LmdbRepository<any, any>>(repoClass: new (...args: any[]) => T): T {
+  register<T extends LmdbRepositoryInstance>(repoClass: LmdbRepositoryClassWithDbName<T>): T {
+    this._assertOpen()
     if (this._repoByClass.has(repoClass)) {
       throw new LmdbRepositoryAlreadyRegisteredError(repoClass.name)
     }
-    const dbName = (repoClass as any).dbName as string | undefined
+    const dbName = repoClass.dbName
     if (!dbName) {
       throw new LmdbMissingDbNameError(repoClass.name)
     }
     if (this._repoInstances.has(dbName)) {
       throw new LmdbDuplicateDbNameError(dbName)
     }
-    const instance = new repoClass(this as any, dbName)
+    const instance = new repoClass(this as unknown as IEnvForRepo, dbName)
     this._repoInstances.set(dbName, instance)
     this._repoByClass.set(repoClass, instance)
     return instance
@@ -265,7 +280,7 @@ export class LmdbEnv {
    *
    * @public
    */
-  get<T extends LmdbRepository<any, any>>(repoClass: new (...args: any[]) => T): T
+  get<T extends LmdbRepositoryInstance>(repoClass: LmdbRepositoryClass<T>): T
   /**
    * Retrieve a value from the root database by key.
    *
@@ -279,8 +294,8 @@ export class LmdbEnv {
    *
    * @public
    */
-  get(key: Key, options?: GetOptions): any
-  get(arg: any, options?: any): any {
+  get(key: Key, options?: GetOptions): unknown
+  get(arg: LmdbRepositoryClass | Key, options?: GetOptions): unknown {
     if (typeof arg === `function`) {
       const instance = this._repoByClass.get(arg)
       if (!instance) {
@@ -294,7 +309,7 @@ export class LmdbEnv {
   /**
    * @internal
    */
-  getRepository<T extends LmdbRepository<any, any>>(repoClass: new (...args: any[]) => T): T {
+  getRepository<T extends LmdbRepositoryInstance>(repoClass: LmdbRepositoryClass<T>): T {
     return this.get(repoClass)
   }
 
@@ -306,7 +321,7 @@ export class LmdbEnv {
    *
    * @public
    */
-  has(repoClass: new (...args: any[]) => LmdbRepository<any, any>): boolean {
+  has(repoClass: LmdbRepositoryClass): boolean {
     return this._repoByClass.has(repoClass)
   }
 
@@ -366,23 +381,36 @@ export class LmdbEnv {
    *
    * @public
    */
-  async transaction<T>(fn: (tx: LmdbTransaction) => T): Promise<T> {
+  async transaction<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T> {
     if (this.readOnly) throw new LmdbReadOnlyError(`transaction`)
-    if (this._state !== `open`) throw new LmdbEnvNotOpenError()
+    this._assertOpen()
 
     const tx = new LmdbTransaction()
-    let userResult: T | undefined
+    let syncResult: T | undefined
 
     try {
-      this._root.transactionSync(() => {
-        userResult = fn(tx)
+      const result = this._root.transactionSync(() => {
+        const userResult = fn(tx)
+        if (userResult && typeof (userResult as Promise<T>).then === `function`) {
+          // Async callback: lmdb-js `when()` holds the native write txn open
+          // until this promise settles, then commits — or aborts when it
+          // resolves to the ABORT sentinel. Detect abort AFTER resolution so
+          // `tx.abort()` following an `await` rolls back instead of silently
+          // committing the writes queued so far.
+          return (userResult as Promise<T>).then((value) => (tx.isAborted ? ABORT : value))
+        }
+        syncResult = userResult as T
         if (tx.isAborted) throw ABORT
         return userResult
       })
-      return userResult as T
+      if (result && typeof (result as Promise<T>).then === `function`) {
+        const final = (await result) as T | typeof ABORT
+        return final === ABORT ? (undefined as T) : (final as T)
+      }
+      return result as T
     } catch (err) {
       if (err === ABORT) {
-        return userResult as T
+        return syncResult as T
       }
       throw new LmdbTransactionError(`Transaction failed`, err)
     }
@@ -416,7 +444,7 @@ export class LmdbEnv {
    * @public
    */
   async readTransaction<T>(fn: (tx: LmdbTransaction) => Promise<T>): Promise<T> {
-    if (this._state !== `open`) throw new LmdbEnvNotOpenError()
+    this._assertOpen()
 
     const rawTxn = this._root.useReadTransaction()
     const tx = new LmdbTransaction(rawTxn)
@@ -490,8 +518,8 @@ export class LmdbEnv {
    * @public
    */
   async backup(destPath: string): Promise<void> {
-    if (this._state !== `open`) throw new LmdbEnvNotOpenError()
-    await (this._root as any).backup(destPath)
+    this._assertOpen()
+    await (this._root as unknown as {backup(destPath: string): Promise<void>}).backup(destPath)
   }
 
   // ──────────────────────────────────────────────────────────────────
@@ -505,7 +533,7 @@ export class LmdbEnv {
    * @returns The entry with value and optional version, or `undefined`.
    * @public
    */
-  getEntry(key: Key, options?: GetOptions): {value: any; version?: number} | undefined {
+  getEntry(key: Key, options?: GetOptions): {value: unknown; version?: number} | undefined {
     return this._root.getEntry(key, options)
   }
 
@@ -536,7 +564,7 @@ export class LmdbEnv {
    * @param data - Data previously returned by {@link getBinaryFast}.
    * @public
    */
-  retain(data: any): any {
+  retain(data: unknown): unknown {
     return this._root.retain(data)
   }
 
@@ -546,7 +574,7 @@ export class LmdbEnv {
    * @param callback - Optional completion callback.
    * @public
    */
-  prefetch(ids: Key[], callback?: (...args: any[]) => any): Promise<void> {
+  prefetch(ids: Key[], callback?: (...args: unknown[]) => unknown): Promise<void> {
     return this._root.prefetch(ids, callback)
   }
 
@@ -557,7 +585,7 @@ export class LmdbEnv {
    * @returns Array of values (or `undefined` for missing keys) in input order.
    * @public
    */
-  getMany(ids: Key[], callback?: (error: any, values: any[]) => void): Promise<(any | undefined)[]> {
+  getMany(ids: Key[], callback?: (error: unknown, values: unknown[]) => void): Promise<(unknown | undefined)[]> {
     return this._root.getMany(ids, callback)
   }
 
@@ -570,9 +598,9 @@ export class LmdbEnv {
    * @returns `true` if written, `false` if conditional check failed.
    * @public
    */
-  put(id: Key, value: any): Promise<boolean>
-  put(id: Key, value: any, version: number, ifVersion?: number): Promise<boolean>
-  put(id: Key, value: any, version?: number, ifVersion?: number): Promise<boolean> {
+  put(id: Key, value: unknown): Promise<boolean>
+  put(id: Key, value: unknown, version: number, ifVersion?: number): Promise<boolean>
+  put(id: Key, value: unknown, version?: number, ifVersion?: number): Promise<boolean> {
     return this._root.put(id, value, version!, ifVersion)
   }
 
@@ -584,7 +612,7 @@ export class LmdbEnv {
    */
   remove(id: Key): Promise<boolean>
   remove(id: Key, ifVersion: number): Promise<boolean>
-  remove(id: Key, valueOrIfVersion?: any): Promise<boolean> {
+  remove(id: Key, valueOrIfVersion?: unknown): Promise<boolean> {
     return this._root.remove(id, valueOrIfVersion)
   }
 
@@ -595,10 +623,10 @@ export class LmdbEnv {
    * @param versionOrOptions - Optional version number or {@link PutOptions}.
    * @public
    */
-  putSync(id: Key, value: any): void
-  putSync(id: Key, value: any, version: number): void
-  putSync(id: Key, value: any, options: PutOptions): void
-  putSync(id: Key, value: any, versionOrOptions?: number | PutOptions): void {
+  putSync(id: Key, value: unknown): void
+  putSync(id: Key, value: unknown, version: number): void
+  putSync(id: Key, value: unknown, options: PutOptions): void
+  putSync(id: Key, value: unknown, versionOrOptions?: number | PutOptions): void {
     this._root.putSync(id, value, versionOrOptions as number)
   }
 
@@ -610,8 +638,8 @@ export class LmdbEnv {
    * @public
    */
   removeSync(id: Key): boolean
-  removeSync(id: Key, valueToRemove: any): boolean
-  removeSync(id: Key, valueToRemove?: any): boolean {
+  removeSync(id: Key, valueToRemove: unknown): boolean
+  removeSync(id: Key, valueToRemove?: unknown): boolean {
     return this._root.removeSync(id, valueToRemove)
   }
 
@@ -621,7 +649,7 @@ export class LmdbEnv {
    * @returns A lazy {@link RangeIterable}.
    * @public
    */
-  getRange(options?: RangeOptions): RangeIterable<{key: Key; value: any; version?: number}> {
+  getRange(options?: RangeOptions): RangeIterable<{key: Key; value: unknown; version?: number}> {
     return this._root.getRange(options)
   }
 
@@ -631,7 +659,7 @@ export class LmdbEnv {
    * @param options - Optional range bounds for the values.
    * @public
    */
-  getValues(key: Key, options?: RangeOptions): RangeIterable<any> {
+  getValues(key: Key, options?: RangeOptions): RangeIterable<unknown> {
     return this._root.getValues(key, options)
   }
 
@@ -680,9 +708,9 @@ export class LmdbEnv {
    * @public
    */
   doesExist(key: Key): boolean
-  doesExist(key: Key, value: any, options?: GetOptions): boolean
+  doesExist(key: Key, value: unknown, options?: GetOptions): boolean
   doesExist(key: Key, version: number): boolean
-  doesExist(key: Key, valueOrVersion?: any, options?: GetOptions): boolean {
+  doesExist(key: Key, valueOrVersion?: unknown, options?: GetOptions): boolean {
     return this._root.doesExist(key, valueOrVersion, options)
   }
 
@@ -711,7 +739,7 @@ export class LmdbEnv {
    * @param action - Callback performing writes.
    * @public
    */
-  batch(action: () => any): Promise<boolean> {
+  batch(action: () => unknown): Promise<boolean> {
     return this._root.batch(action)
   }
 
@@ -722,7 +750,7 @@ export class LmdbEnv {
    * @param action - Callback performing conditional writes.
    * @public
    */
-  ifVersion(id: Key, version: number, action: () => any): Promise<boolean> {
+  ifVersion(id: Key, version: number, action: () => unknown): Promise<boolean> {
     return this._root.ifVersion(id, version, action)
   }
 
@@ -732,7 +760,7 @@ export class LmdbEnv {
    * @param action - Callback performing conditional writes.
    * @public
    */
-  ifNoExists(id: Key, action: () => any): Promise<boolean> {
+  ifNoExists(id: Key, action: () => unknown): Promise<boolean> {
     return this._root.ifNoExists(id, action)
   }
 
@@ -800,7 +828,7 @@ export class LmdbEnv {
    * @returns The sub-database handle.
    * @public
    */
-  openDB(dbName: string, dbOptions?: DatabaseOptions): Database<any, Key> {
+  openDB(dbName: string, dbOptions?: DatabaseOptions): Database<unknown, Key> {
     return this._root.openDB(dbName, dbOptions ?? {})
   }
 
@@ -819,7 +847,7 @@ export class LmdbEnv {
    * @param callback - Event handler.
    * @public
    */
-  on(event: `beforecommit` | `aftercommit`, callback: (event: any) => void): void {
+  on(event: `beforecommit` | `aftercommit`, callback: (event: unknown) => void): void {
     this._root.on(event, callback)
   }
 
@@ -836,7 +864,7 @@ export class LmdbEnv {
    * @param callback - Optional completion callback.
    * @public
    */
-  sync(callback?: (error: any) => void): Promise<void> {
+  sync(callback?: (error: unknown) => void): Promise<void> {
     return this._root.sync(callback)
   }
 

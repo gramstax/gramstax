@@ -28,7 +28,7 @@ import type {ICodec} from "./types"
  *
  * @public
  */
-export abstract class LmdbCodec<T = any> implements ICodec<T> {
+export abstract class LmdbCodec<T = unknown> implements ICodec<T> {
   /**
    * Convert a typed value into a form LMDB will encode.
    *
@@ -134,8 +134,14 @@ export class LmdbCodecConfigurable<T> extends LmdbCodec<T> {
  *
  * @internal
  */
-export function resolveCodec(repoClass: any): ICodec<any> | undefined {
-  const statics = repoClass
+type CodecStatics<T = unknown> = {
+  codec?: ICodec<T>
+  serialize?: (value: T) => unknown
+  deserialize?: (raw: unknown) => T
+}
+
+export function resolveCodec<T = unknown>(repoClass: unknown): ICodec<T> | undefined {
+  const statics = repoClass as CodecStatics<T>
 
   if (statics.codec) {
     return statics.codec
@@ -144,7 +150,7 @@ export function resolveCodec(repoClass: any): ICodec<any> | undefined {
   if (typeof statics.serialize === `function` || typeof statics.deserialize === `function`) {
     return {
       serialize: typeof statics.serialize === `function` ? statics.serialize : (v: unknown) => v,
-      deserialize: typeof statics.deserialize === `function` ? statics.deserialize : (r: unknown) => r
+      deserialize: typeof statics.deserialize === `function` ? statics.deserialize : (r: unknown) => r as T
     }
   }
 

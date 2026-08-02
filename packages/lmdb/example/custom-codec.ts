@@ -11,9 +11,16 @@
 import {mkdtempSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
+import {LmdbCodec} from "../src/codec"
 import {LmdbEnv} from "../src/env"
 import {LmdbRepository} from "../src/repository"
-import {LmdbCodec} from "../src/codec"
+
+type SerializedSession = {
+  sid: string
+  createdAt: number
+  expiresAt: number
+  dataB64: string
+}
 
 type IVSession = {
   sid: string
@@ -43,8 +50,8 @@ class SessionRepo extends LmdbRepository<IVSession, string> {
       dataB64: value.data.toString(`base64`)
     })
   }
-  static deserialize(raw: any): IVSession {
-    const obj = typeof raw === `string` ? JSON.parse(raw) : raw
+  static deserialize(raw: unknown): IVSession {
+    const obj = (typeof raw === `string` ? JSON.parse(raw) : raw) as SerializedSession
     return {
       sid: obj.sid,
       createdAt: new Date(obj.createdAt),
@@ -75,7 +82,7 @@ async function main() {
     console.log(`get('now'):`, gotNow?.toISOString())
     console.log(`type preserved:`, gotNow instanceof Date)
 
-    const rawDate = await (env as any).getDb(`cached-date`).get(`now`)
+    const rawDate = await env.getDb(`cached-date`).get(`now`)
     console.log(`raw stored:`, rawDate, `(number ms)`)
 
     console.log(`\n--- Session repository (inline codec) ---\n`)

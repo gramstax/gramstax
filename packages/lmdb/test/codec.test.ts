@@ -6,10 +6,10 @@
  * repository.test.ts. The codec itself only matters when a LmdbRepository
  * defines `static codec` for custom transforms (e.g. `Date → number`).
  */
-import {describe, it, expect} from "bun:test"
+import {describe, expect, it } from "bun:test"
 import {LmdbCodec, resolveCodec} from "../src/codec"
 import {LmdbRepository} from "../src/repository"
-import {type ICodec} from "../src/types"
+import type {ICodec} from "../src/types"
 
 describe(`LmdbCodec (abstract base)`, () => {
   it(`create() returns a working codec from a serialize/deserialize pair`, () => {

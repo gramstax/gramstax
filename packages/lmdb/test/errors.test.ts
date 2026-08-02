@@ -4,19 +4,19 @@
  * Pure logic — no LMDB required. Validates the `instanceof` chain, error
  * names, and contextual messages for every exported error class.
  */
-import {describe, it, expect} from "bun:test"
+import {describe, expect, it } from "bun:test"
 import {
-  LmdbError,
-  LmdbEnvNotOpenError,
-  LmdbEnvClosedError,
-  LmdbMissingDbNameError,
   LmdbDuplicateDbNameError,
-  LmdbRepositoryNotRegisteredError,
-  LmdbRepositoryAlreadyRegisteredError,
+  LmdbEnvClosedError,
+  LmdbEnvNotOpenError,
+  LmdbError,
   LmdbKeyNotFoundError,
-  LmdbTransactionError,
+  LmdbMissingDbNameError,
+  LmdbReadOnlyError, 
+  LmdbRepositoryAlreadyRegisteredError,
+  LmdbRepositoryNotRegisteredError,
   LmdbTransactionDoneError,
-  LmdbReadOnlyError
+  LmdbTransactionError
 } from "../src/errors"
 
 describe(`error hierarchy`, () => {

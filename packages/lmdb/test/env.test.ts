@@ -5,20 +5,14 @@
  * state transitions, repository registration, duplicate detection, and the
  * read-only code path.
  */
-import {describe, it, expect, beforeEach, afterEach} from "bun:test"
-import {existsSync, mkdtempSync} from "node:fs"
-import {tmpdir} from "node:os"
+import {afterEach, beforeEach, describe, expect, it} from "bun:test"
+import {existsSync} from "node:fs"
 import {join} from "node:path"
+import {createTestDir} from "./test-helpers"
 
 import {LmdbEnv} from "../src/env"
+import {LmdbDuplicateDbNameError, LmdbEnvClosedError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbRepositoryAlreadyRegisteredError, LmdbRepositoryNotRegisteredError} from "../src/errors"
 import {LmdbRepository} from "../src/repository"
-import {
-  LmdbDuplicateDbNameError,
-  LmdbMissingDbNameError,
-  LmdbReadOnlyError,
-  LmdbRepositoryAlreadyRegisteredError,
-  LmdbRepositoryNotRegisteredError
-} from "../src/errors"
 import {rmWithRetry} from "./test-helpers"
 
 interface User {
@@ -48,7 +42,7 @@ let tmpDir: string
 let env: LmdbEnv
 
 beforeEach(async () => {
-  tmpDir = mkdtempSync(join(tmpdir(), `lmdb-env-test-`))
+  tmpDir = createTestDir(`lmdb-env-test-`)
   env = new LmdbEnv({path: tmpDir, maxDbs: 5})
   // env opens on construction
 })
@@ -69,7 +63,7 @@ describe(`LmdbEnv constructor`, () => {
   })
 
   it(`applies default values when options are omitted`, async () => {
-    const dir = mkdtempSync(join(tmpdir(), `lmdb-env-defaults-`))
+    const dir = createTestDir(`lmdb-env-defaults-`)
     const e = new LmdbEnv({path: dir})
     try {
       expect(e.maxDbs).toBe(10)
@@ -160,7 +154,7 @@ describe(`LmdbEnv.register / get / has`, () => {
 
 describe(`LmdbEnv read-only mode`, () => {
   it(`readOnly option is stored and enforced`, async () => {
-    const dir = mkdtempSync(join(tmpdir(), `lmdb-env-readonly-`))
+    const dir = createTestDir(`lmdb-env-readonly-`)
     const writeEnv = new LmdbEnv({path: dir})
     const users = writeEnv.register(UserRepo)
     await users.set(`u1`, {id: `u1`, name: `A`})
@@ -181,7 +175,7 @@ describe(`LmdbEnv read-only mode`, () => {
   })
 
   it(`env.transaction rejects read-only envs`, async () => {
-    const dir = mkdtempSync(join(tmpdir(), `lmdb-env-readonly-tx-`))
+    const dir = createTestDir(`lmdb-env-readonly-tx-`)
     const writeEnv = new LmdbEnv({path: dir})
     await writeEnv.close()
 
@@ -213,6 +207,32 @@ describe(`LmdbEnv state after close`, () => {
     await r.set(`reopened`, 42)
     expect(await r.get(`reopened`)).toBe(42)
     await reopen.close()
+  })
+})
+
+describe(`LmdbEnv operations after close`, () => {
+  beforeEach(async () => {
+    await env.close()
+  })
+
+  it(`register throws LmdbEnvClosedError`, () => {
+    expect(() => env.register(UserRepo)).toThrow(LmdbEnvClosedError)
+  })
+
+  it(`getDb throws LmdbEnvClosedError`, () => {
+    expect(() => env.getDb(`x`)).toThrow(LmdbEnvClosedError)
+  })
+
+  it(`transaction throws LmdbEnvClosedError`, async () => {
+    await expect(env.transaction(() => {})).rejects.toThrow(LmdbEnvClosedError)
+  })
+
+  it(`readTransaction throws LmdbEnvClosedError`, async () => {
+    await expect(env.readTransaction(async () => {})).rejects.toThrow(LmdbEnvClosedError)
+  })
+
+  it(`backup throws LmdbEnvClosedError`, async () => {
+    await expect(env.backup(`somewhere`)).rejects.toThrow(LmdbEnvClosedError)
   })
 })
 
@@ -254,7 +274,7 @@ describe(`LmdbEnv snapshot / durability`, () => {
     await r.set(`bk1`, 100)
     await r.set(`bk2`, 200)
 
-    const backupBase = mkdtempSync(join(tmpdir(), `lmdb-backup-test-`))
+    const backupBase = createTestDir(`lmdb-backup-test-`)
     const destDir = join(backupBase, `snapshot`) // must not already exist
     try {
       await env.backup(destDir)

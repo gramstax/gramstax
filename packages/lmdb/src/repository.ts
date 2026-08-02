@@ -25,12 +25,12 @@
  * @public
  */
 
-import {LmdbTransaction} from "./transaction"
+import type {GetOptions, Key, RangeOptions} from "lmdb"
 import {resolveCodec} from "./codec"
-import {LmdbMissingDbNameError, LmdbReadOnlyError} from "./errors"
-import type {ICodec, IRangeOptions, ILmdbKey} from "./types"
-import type {Key} from "lmdb"
 import type {IEnvForRepo} from "./env"
+import {LmdbKeyNotFoundError, LmdbMissingDbNameError, LmdbReadOnlyError} from "./errors"
+import type {LmdbTransaction} from "./transaction"
+import type {ICodec, ILmdbKey, IRangeOptions} from "./types"
 
 /**
  * Base class for typed repositories over LMDB.
@@ -64,19 +64,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @virtual
    * @public
    */
-  static codec?: ICodec<any>
-
-  /**
-   * LMDB native value encoding for the sub-database.
-   *
-   * @remarks
-   * Passed to LMDB's `openDB(name, {encoding})`. Default `msgpack` (fastest,
-   * supports `Date`/`Map`/`Set`/BigInt). Use `json` for human-readable
-   * storage, `binary` for raw Buffers, `string` for UTF-8 strings.
-   *
-   * @virtual
-   * @public
-   */
+  static codec?: ICodec<unknown>
 
   /**
    * Optional custom serializer. Use with {@link deserialize}.
@@ -84,7 +72,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @virtual
    * @public
    */
-  static serialize?(value: any): unknown
+  static serialize?(value: unknown): unknown
 
   /**
    * Optional custom deserializer. Use with {@link serialize}.
@@ -92,7 +80,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @virtual
    * @public
    */
-  static deserialize?(raw: unknown): any
+  static deserialize?(raw: unknown): unknown
 
   /**
    * The sub-database handle, augmented with root-env methods.
@@ -124,7 +112,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @internal
    */
   constructor(rootEnv: IEnvForRepo, dbName?: string) {
-    const resolved = dbName ?? (this.constructor as any).dbName
+    const resolved = dbName ?? (this.constructor as typeof LmdbRepository).dbName
     if (!resolved) {
       throw new LmdbMissingDbNameError(this.constructor.name)
     }
@@ -146,14 +134,14 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * @internal
    */
-  private _readOpts(tx?: LmdbTransaction): {transaction: any} | undefined {
+  private _readOpts(tx?: LmdbTransaction): GetOptions | undefined {
     if (tx?.raw) {
       return {transaction: tx.raw}
     }
     return undefined
   }
 
-  private _rangeOpts(options: IRangeOptions | undefined, tx?: LmdbTransaction): any {
+  private _rangeOpts(options: IRangeOptions | undefined, tx?: LmdbTransaction): RangeOptions | undefined {
     return tx?.raw ? {...options, transaction: tx.raw} : options
   }
 
@@ -183,7 +171,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   set(key: K, value: T, _tx?: LmdbTransaction): Promise<void> {
     if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`set`))
     const encoded = this._codec ? this._codec.serialize(value) : value
-    return this.env.put(key, encoded).then(() => undefined as void)
+    return this.env.put(key, encoded).then(() => undefined as undefined)
   }
 
   /**
@@ -211,6 +199,32 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   }
 
   /**
+   * Retrieve a value by key, throwing when the key is absent.
+   *
+   * @remarks
+   * **SQL equivalent**: `SELECT value FROM {prefix} WHERE key = ?` with an
+   * explicit not-found check — same semantics as {@link get} except a
+   * missing key throws {@link LmdbKeyNotFoundError} instead of returning
+   * `undefined`. A stored `undefined` value is indistinguishable from a
+   * missing key (LMDB has no NULL distinction) and also throws.
+   *
+   * @param key - Key to look up.
+   * @param tx - Optional read transaction for snapshot consistency.
+   * @returns The deserialized value.
+   *
+   * @throws {@link LmdbKeyNotFoundError} if the key is absent.
+   *
+   * @public
+   */
+  getStrict(key: K, _tx?: LmdbTransaction): T {
+    const value = this.get(key, _tx)
+    if (value === undefined) {
+      throw new LmdbKeyNotFoundError((this.constructor as typeof LmdbRepository).dbName, key)
+    }
+    return value
+  }
+
+  /**
    * Check whether a key exists.
    *
    * @remarks
@@ -226,7 +240,10 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    */
   has(key: K, _tx?: LmdbTransaction): boolean {
     const opts = this._readOpts(_tx)
-    return Boolean(opts ? this.env.doesExist(key, opts) : this.env.doesExist(key))
+    // doesExist(key, undefined, options) — `undefined` keeps it a plain
+    // existence check; a GetOptions object as the 2nd arg would be treated
+    // as a dupSort value (encoder-encoded) and throw MDB_INCOMPATIBLE.
+    return Boolean(opts ? this.env.doesExist(key, undefined, opts) : this.env.doesExist(key))
   }
 
   /**
@@ -304,7 +321,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   prefetch(keys: K[]): Promise<void> {
-    return this.env.prefetch(keys).then(() => undefined as void)
+    return this.env.prefetch(keys).then(() => undefined as undefined)
   }
 
   /**
@@ -386,9 +403,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   values(options?: IRangeOptions, tx?: LmdbTransaction): Promise<T[]> {
-    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then(
-      (arr) => (arr as Array<{key: K; value: unknown}>).map((e) => this._decodeValue(e.value))
-    )
+    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => this._decodeValue(e.value)))
   }
 
   /**
@@ -406,9 +421,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   entries(options?: IRangeOptions, tx?: LmdbTransaction): Promise<Array<[K, T]>> {
-    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then(
-      (arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)])
-    )
+    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)]))
   }
 
   /**
@@ -467,7 +480,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
       } else if (ch === `?`) {
         body += `.`
       } else if (specials.has(ch)) {
-        body += `\\` + ch
+        body += `\\${ch}`
       } else {
         body += ch
       }
@@ -514,7 +527,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    */
   private _prefixEnd(prefix: K): K | undefined {
     if (typeof prefix === `string`) {
-      return (prefix + `￿`) as K
+      return `${prefix}￿` as K
     }
     if (Buffer.isBuffer(prefix)) {
       return Buffer.concat([prefix, Buffer.from([0xff])]) as unknown as K
@@ -560,6 +573,27 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   }
 
   /**
+   * Probe whether the repository's keys are strings.
+   *
+   * @remarks
+   * String range bounds are only meaningful for string-keyed sub-DBs —
+   * ordered-binary encodes numbers/Buffers differently, so `[prefix,
+   * prefixEnd)` bounds can silently skip (or include) the wrong entries.
+   * Drains the first key synchronously (one cursor seek); empty repos
+   * default to `true` since a bounded scan over an empty DB is trivially
+   * correct. Called per-`like()` so a repo that changes key type over its
+   * lifetime is always probed fresh.
+   *
+   * @internal
+   */
+  private _keysAreStrings(): boolean {
+    for (const k of this.env.getKeys({limit: 1})) {
+      return typeof k === `string`
+    }
+    return true
+  }
+
+  /**
    * Find entries whose key matches a LIKE-style glob pattern.
    *
    * @remarks
@@ -578,6 +612,11 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * **O(N) full scan** to **O(log N + M) range scan** where M is the
    * number of matches.
    *
+   * The bounded-scan paths apply only to string-keyed repositories —
+   * ordered-binary encodes numbers and Buffers differently than strings,
+   * so string bounds would silently skip matching keys. Non-string-keyed
+   * repos always use the lazy full scan with regex filtering.
+   *
    * Non-prefix patterns (infix, suffix, mixed `?`/`*`) fall back to a
    * lazy full scan with regex filtering — values are deserialized only
    * for matching keys (LMDB's `RangeIterable.filter` is lazy).
@@ -590,7 +629,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   like(pattern: string, options?: IRangeOptions): Promise<Array<[K, T]>> {
-    const prefix = this._extractPrefixLikePattern(pattern)
+    const stringsOnly = this._keysAreStrings()
+    const prefix = stringsOnly ? this._extractPrefixLikePattern(pattern) : null
     if (prefix !== null) {
       const endKey = this._prefixEnd(prefix as K)
       if (endKey !== undefined) {
@@ -610,7 +650,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
     const regex = this._patternToRegex(pattern)
     // Bound the scan by a literal prefix anchor so we don't full-scan the
     // sub-DB; the regex still filters on top, so results are unchanged.
-    const inferred = this._inferRangeFromPrefix(pattern)
+    const inferred = stringsOnly ? this._inferRangeFromPrefix(pattern) : null
     const rangeOpts: IRangeOptions = {...options}
     if (inferred) {
       rangeOpts.start = (options?.start as K) ?? inferred.start
@@ -631,6 +671,9 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * keys. For numeric or other unsupported key types, falls back to a
    * lazy full scan with `String(...).startsWith(prefix)` filter.
    *
+   * `options.start`/`options.end` are overridden by the prefix bounds —
+   * only `limit`/`offset`/`reverse` are honored.
+   *
    * @param prefix - Key prefix to match.
    * @param options - Range bounds (`limit`/`offset`/`reverse`).
    * @returns Array of matching `[key, value]` tuples. Empty if no matches.
@@ -640,18 +683,14 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   findByPrefix(prefix: K, options?: IRangeOptions): Promise<Array<[K, T]>> {
     const endKey = this._prefixEnd(prefix)
     if (endKey !== undefined) {
-      return Promise.resolve(this.env.getRange({start: prefix, end: endKey, ...options}).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)]))
+      return Promise.resolve(this.env.getRange({...options, start: prefix, end: endKey}).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)]))
     }
     // Unsupported key type (e.g. numeric): no prefix bounds possible, so we
     // must scan. To avoid materializing every value, collect only the keys
     // (cheap, no decode), filter by prefix, then fetch the matched values.
     return Promise.resolve(this.env.getKeys(options).asArray)
       .then((keys) => (keys as K[]).filter((k) => String(k).startsWith(String(prefix))))
-      .then((matchedKeys) =>
-        this.env.getMany(matchedKeys).then((raws) =>
-          (raws as Array<unknown>).map((raw, i) => [matchedKeys[i] as K, this._decodeValue(raw)] as [K, T])
-        )
-      )
+      .then((matchedKeys) => this.env.getMany(matchedKeys).then((raws) => (raws as Array<unknown>).map((raw, i) => [matchedKeys[i] as K, this._decodeValue(raw)] as [K, T])))
   }
 
   /**

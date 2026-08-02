@@ -46,6 +46,7 @@ class Db extends LmdbEnv {
 | Method                          | Return type              | Sync/Async |
 | ------------------------------- | ------------------------ | ---------- |
 | `get(key, tx?)`                 | `T \| undefined`         | sync       |
+| `getStrict(key, tx?)`           | `T` (throws if absent)   | sync       |
 | `has(key)`                      | `boolean`                | sync       |
 | `count()`                       | `number`                 | sync       |
 | `set(key, value, tx?)`          | `Promise<void>`          | async      |

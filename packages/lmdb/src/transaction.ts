@@ -19,7 +19,13 @@
  * @public
  */
 
+import type {Transaction} from "lmdb"
 import {LmdbTransactionDoneError} from "./errors"
+
+type RawReadTransaction = Transaction & {
+  done?: () => void
+  abort?: () => void
+}
 
 /**
  * Lifecycle of a {@link LmdbTransaction}.
@@ -42,14 +48,17 @@ export class LmdbTransaction {
   private _lifecycle: TransactionLifecycle = `active`
 
   /** @internal */
-  private readonly _rawReadTxn: any | undefined
+  private readonly _rawReadTxn: RawReadTransaction | undefined
+
+  /** @internal Guard so the raw read txn is released at most once. */
+  private _rawReleased = false
 
   /**
    * @param rawReadTxn - The raw LMDB read transaction (from
    * `db.useReadTransaction()`), or `undefined` for write transactions.
    * @internal
    */
-  constructor(rawReadTxn?: any) {
+  constructor(rawReadTxn?: RawReadTransaction) {
     this._rawReadTxn = rawReadTxn
   }
 
@@ -101,7 +110,7 @@ export class LmdbTransaction {
    *
    * @public
    */
-  get raw(): any | undefined {
+  get raw(): RawReadTransaction | undefined {
     return this._rawReadTxn
   }
 
@@ -172,11 +181,29 @@ export class LmdbTransaction {
    */
   abort(): void {
     if (this.done) {
+      // Already committed or aborted — still release the raw read txn if
+      // one is held (e.g. the user called commit() inside readTransaction).
+      this._releaseReadTxn()
       return
     }
     this._lifecycle = `aborted`
-    if (this._rawReadTxn && typeof this._rawReadTxn.done === `function`) {
-      this._rawReadTxn.done()
+    this._releaseReadTxn()
+  }
+
+  /**
+   * Release the underlying LMDB read transaction, at most once.
+   *
+   * @remarks
+   * Calls the raw txn's `abort()` — `done()` only decrements the cursor
+   * refcount and leaves the reader slot occupied until env close.
+   *
+   * @internal
+   */
+  _releaseReadTxn(): void {
+    if (this._rawReleased) return
+    this._rawReleased = true
+    if (this._rawReadTxn && typeof this._rawReadTxn.abort === `function`) {
+      this._rawReadTxn.abort()
     }
   }
 }

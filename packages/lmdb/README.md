@@ -120,7 +120,7 @@ flowchart TB
 
 Every LMDB write transaction has exclusive writer lock semantics — a single writer is active at any time. Multiple writes queued in the same event turn are batched into one native transaction by lmdb-js before the next microtask boundary.
 
-`env.transaction()` wraps the native callback-based transaction. **Use a sync callback whenever possible** — an async callback yields to the event loop between each `await`, creating microtask boundaries that may cause lmdb-js to flush writes before the callback completes. A sync callback keeps all writes in the same event turn, so lmdb-js coalesces them into a single native write transaction. Repository methods are non-async, making sync callbacks natural:
+`env.transaction()` wraps the native callback-based transaction. **Use a sync callback whenever possible** — both sync and async callbacks are atomic (the native write transaction stays open until the callback settles), but a sync callback commits in the same event turn and avoids promise overhead. Repository methods are non-async, making sync callbacks natural:
 
 ```typescript
 // ✅ Recommended: sync callback — all writes batched atomically
@@ -130,10 +130,11 @@ const result = await env.transaction(() => {
   return { ok: true };
 });
 
-// ⚠️  Works but not recommended: async callback creates microtask boundaries
+// ⚠️  Works atomically too, but slower: async callback
 await env.transaction(async (tx) => {
   await userRepo.set(`u1`, user);
   await sessionRepo.set(`s1`, session);
+  tx.abort(); // also rolls back correctly after an await
 });
 ```
 
@@ -186,6 +187,7 @@ Repository methods dispatch to one of two LMDB code paths depending on whether t
 
 ```
 repo.get(key)          → T | undefined       // mdb_get, sync
+repo.getStrict(key, tx?) → T                  // like get, throws LmdbKeyNotFoundError
 repo.has(key)          → boolean             // mdb_get existence probe, sync
 repo.count()           → number              // mdb_env_stat entry count, sync
 ```

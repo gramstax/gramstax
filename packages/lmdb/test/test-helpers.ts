@@ -6,7 +6,19 @@
  * This helper retries with backoff, but on final failure just logs the warning
  * instead of throwing — temp directories are cleaned by the OS on reboot.
  */
-import {rmSync} from "node:fs"
+import {mkdirSync, mkdtempSync, rmSync} from "node:fs"
+import {join} from "node:path"
+
+const TEST_TMP_BASE = join(import.meta.dir, `.tmp`)
+
+/**
+ * Create a unique temp dir INSIDE this package (not OS tmpdir) so test
+ * LMDB data never collides with other projects or system temp.
+ */
+export function createTestDir(prefix: string): string {
+  mkdirSync(TEST_TMP_BASE, {recursive: true})
+  return mkdtempSync(join(TEST_TMP_BASE, prefix))
+}
 
 /**
  * Remove a directory with best-effort retries.

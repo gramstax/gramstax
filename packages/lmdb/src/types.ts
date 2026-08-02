@@ -9,6 +9,8 @@
  * @public
  */
 
+import type {Transaction} from "lmdb"
+
 /**
  * Anything that can be used as a key in LMDB.
  *
@@ -343,7 +345,7 @@ export interface IRangeOptions {
    *
    * @internal
    */
-  transaction?: any
+  transaction?: Transaction
 }
 
 /**
