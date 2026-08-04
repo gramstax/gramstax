@@ -124,6 +124,23 @@ describe(`TemplateManager`, () => {
     // Helper to wait for watcher events
     const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
+    it(`should call onReload after a file is (re)loaded`, async () => {
+      await writeFile(join(TEST_DIR, `reload_hook.html`), `<g-base><g-message>Hi</g-message></g-base>`)
+      let reloads = 0
+      const manager = new TemplateManager({
+        path: [TEST_DIR],
+        onReload: () => {
+          reloads += 1
+        }
+      })
+      expect(reloads).toBe(0)
+
+      await writeFile(join(TEST_DIR, `reload_hook.html`), `<g-base><g-message>Bye</g-message></g-base>`)
+      manager._loadFile(`reload_hook.html`)
+      expect(reloads).toBe(1)
+      await manager.destroy()
+    })
+
     it(`should update template on file change`, async () => {
       await writeFile(join(TEST_DIR, `watch_test.html`), `<g-base><g-message>Initial</g-message></g-base>`)
       const manager = new TemplateManager({

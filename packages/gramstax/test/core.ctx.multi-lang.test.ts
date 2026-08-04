@@ -34,7 +34,7 @@ describe(`GramstaxInlineKeyboard.text() — page class as data`, () => {
   })
 })
 
-describe(`Multi-language intentText`, () => {
+describe(`Ctx multi-language intentText`, () => {
   it(`should resolve default language intent for string intentText`, () => {
     const Page = makePage(`balance`)
     expect(Page.data!.intentText).toBe(`balance`)
@@ -113,7 +113,7 @@ describe(`GramstaxKeyboard.text() — page class as label`, () => {
   })
 })
 
-describe(`ITKbDest type constraint — handleCallbackQueryData`, () => {
+describe(`Ctx ITKbDest type constraint — handleCallbackQueryData`, () => {
   it(`should accept page with handleCallbackQueryData`, () => {
     const Page = makePage(`settings`)
     const hasCallback = typeof (Page.prototype as any).handleCallbackQueryData === `function`

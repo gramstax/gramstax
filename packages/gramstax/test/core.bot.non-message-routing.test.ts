@@ -1,0 +1,516 @@
+import {afterAll, beforeAll, beforeEach, describe, expect, it } from "bun:test"
+import {existsSync} from "node:fs"
+import {mkdir, rm} from "node:fs/promises"
+import {join} from "node:path"
+import {Gramstax} from "~/core/bot"
+import {Ctx} from "~/core/ctx"
+import {TemplateManager} from "~/template/manager"
+
+const TEST_PAGES_DIR = join(import.meta.dir, `non-message-routing-test-pages`)
+
+beforeAll(async () => {
+  if (!existsSync(TEST_PAGES_DIR)) {
+    await mkdir(TEST_PAGES_DIR, {recursive: true})
+  }
+})
+
+afterAll(async () => {
+  if (existsSync(TEST_PAGES_DIR)) {
+    await rm(TEST_PAGES_DIR, {recursive: true, force: true})
+  }
+})
+
+// ── Page classes with non-message free handlers ──────────────────
+
+let channelPostCalled = false
+let businessMessageCalled = false
+let successfulPaymentCalled = false
+let chatBoostCalled = false
+let reactionCountCalled = false
+let giveawayCalled = false
+let webAppDataCalled = false
+let userSharedCalled = false
+let pinMessageCalled = false
+
+beforeEach(() => {
+  channelPostCalled = false
+  businessMessageCalled = false
+  successfulPaymentCalled = false
+  chatBoostCalled = false
+  reactionCountCalled = false
+  giveawayCalled = false
+  webAppDataCalled = false
+  userSharedCalled = false
+  pinMessageCalled = false
+})
+
+class ChannelPage extends Ctx {
+  static data = {name: `channelHandler`} as any
+
+  async handleFreeChannelPost() {
+    channelPostCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class InlinePage extends Ctx {
+  static data = {name: `inlineHandler`} as any
+
+  async handleFreeInlineQuery() {
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class PollPage extends Ctx {
+  static data = {name: `pollHandler`} as any
+
+  async handleFreePoll() {
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class JoinRequestPage extends Ctx {
+  static data = {name: `joinHandler`} as any
+
+  async handleFreeChatJoinRequest() {
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class BusinessPage extends Ctx {
+  static data = {name: `businessHandler`} as any
+
+  async handleFreeBusinessMessage() {
+    businessMessageCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class PaymentPage extends Ctx {
+  static data = {name: `paymentHandler`} as any
+
+  async handleFreeSuccessfulPayment() {
+    successfulPaymentCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class BoostPage extends Ctx {
+  static data = {name: `boostHandler`} as any
+
+  async handleFreeChatBoost() {
+    chatBoostCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class ReactionCountPage extends Ctx {
+  static data = {name: `reactionCountHandler`} as any
+
+  async handleFreeMessageReactionCount() {
+    reactionCountCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class GiveawayPage extends Ctx {
+  static data = {name: `giveawayHandler`} as any
+
+  async handleFreeGiveaway() {
+    giveawayCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class WebAppPage extends Ctx {
+  static data = {name: `webAppHandler`} as any
+
+  async handleFreeWebAppData() {
+    webAppDataCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class UserSharedPage extends Ctx {
+  static data = {name: `userSharedHandler`} as any
+
+  async handleFreeUserShared() {
+    userSharedCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class PinMessagePage extends Ctx {
+  static data = {name: `pinMessageHandler`} as any
+
+  async handleFreePinMessage() {
+    pinMessageCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+// ── Test subclass ──────────────────────────────────────────────────
+
+class TestBot extends Gramstax {
+  exposeBuildEmptyPages() {
+    return this._buildEmptyPages()
+  }
+
+  exposePageSorts(page: typeof Ctx, pages: any, index: number) {
+    this._pageSorts(page, pages, index)
+  }
+
+  override _pageLoads() {
+    const pages = this._buildEmptyPages()
+    return pages
+  }
+}
+
+// ── help: create bot with custom pages ────────────────────────────
+
+function createBot(pagesList: Array<{name: string; page: typeof Ctx}>): TestBot {
+  const tm = new TemplateManager({path: [TEST_PAGES_DIR]})
+
+  const bot = new TestBot({
+    token: `test`,
+    deploy: `test`,
+    templateManager: tm,
+    log: false,
+    botConfig: {
+      botInfo: {
+        id: 123456789,
+        is_bot: true,
+        first_name: `Bot`,
+        username: `test_bot`
+      }
+    } as any
+  })
+
+  // Build mock pages structure
+  const pages = bot.exposeBuildEmptyPages()
+
+  // Override pageLoads output to include our test pages
+  for (const {name, page} of pagesList) {
+    page.data =
+      page.data ||
+      ({
+        name,
+        intentText: name,
+        intentCommandText: name,
+        intentCallbackQueryData: name,
+        _positionArgText: 1,
+        callbackQueryData: () => name
+      } as any)
+    pages.all[name] = page
+    bot.exposePageSorts(page, pages, 0)
+  }
+
+  bot.pages = pages as any
+  return bot
+}
+
+// ── help: build dummy updates ────────────────────────────────────
+
+function buildChannelPost(text: string): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    channel_post: {
+      message_id: 1,
+      chat: {id: -1001234567890, type: `channel`, title: `Test Channel`},
+      date: Math.floor(Date.now() / 1000),
+      text
+    }
+  }
+}
+
+function buildBusinessMessage(text: string): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    business_message: {
+      message_id: 1,
+      chat: {id: -1001234567890, type: `channel`, title: `Business Channel`},
+      date: Math.floor(Date.now() / 1000),
+      text
+    }
+  }
+}
+
+function buildSuccessfulPayment(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    message: {
+      message_id: 1,
+      chat: {id: 123456789, type: `private`},
+      date: Math.floor(Date.now() / 1000),
+      from: {id: 123456789, is_bot: false, first_name: `Payer`},
+      successful_payment: {
+        currency: `USD`,
+        total_amount: 100,
+        invoice_payload: `payload-1`,
+        telegram_payment_charge_id: `charge-1`,
+        provider_payment_charge_id: `provider-1`
+      }
+    }
+  }
+}
+
+function buildChatBoost(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    chat_boost: {
+      chat: {id: -1001234567890, type: `channel`, title: `Boosted Channel`},
+      boost_added_date: Math.floor(Date.now() / 1000),
+      boost: {
+        boost_id: `boost-1`,
+        add_unix_time: Math.floor(Date.now() / 1000),
+        expiration_unix_time: Math.floor(Date.now() / 1000) + 86400,
+        source: {source: `premium`, user: {id: 123456789, is_bot: false, first_name: `Booster`}}
+      }
+    }
+  }
+}
+
+function buildMessageReactionCount(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    message_reaction_count: {
+      chat: {id: -1001234567890, type: `channel`, title: `Reaction Channel`},
+      message_id: 1,
+      date: Math.floor(Date.now() / 1000),
+      reactions: []
+    }
+  }
+}
+
+function buildGiveaway(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    message: {
+      message_id: 1,
+      chat: {id: -1001234567890, type: `channel`, title: `Giveaway Channel`},
+      date: Math.floor(Date.now() / 1000),
+      giveaway: {
+        chats: [{id: -1001234567890, type: `channel`, title: `Giveaway Channel`}],
+        winners_selection_date: Math.floor(Date.now() / 1000) + 86400,
+        winner_count: 1
+      }
+    }
+  }
+}
+
+function buildWebAppData(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    message: {
+      message_id: 1,
+      chat: {id: 123456789, type: `private`},
+      date: Math.floor(Date.now() / 1000),
+      from: {id: 123456789, is_bot: false, first_name: `WebApp User`},
+      web_app_data: {button_text: `Open App`, data: `app-data`}
+    }
+  }
+}
+
+function buildUsersShared(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    message: {
+      message_id: 1,
+      chat: {id: 123456789, type: `private`},
+      date: Math.floor(Date.now() / 1000),
+      from: {id: 123456789, is_bot: false, first_name: `Sharer`},
+      users_shared: {request_id: 1, user_ids: [987654321]}
+    }
+  }
+}
+
+function buildPinMessage(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    message: {
+      message_id: 1,
+      chat: {id: -1001234567890, type: `channel`, title: `Pinned Channel`},
+      date: Math.floor(Date.now() / 1000),
+      pinned_message: {
+        message_id: 2,
+        chat: {id: -1001234567890, type: `channel`, title: `Pinned Channel`},
+        date: Math.floor(Date.now() / 1000),
+        text: `pinned content`
+      }
+    }
+  }
+}
+
+// ── tests ──────────────────────────────────────────────────────────
+
+describe(`Gramstax non-message free routing`, () => {
+  it(`should register handleFreeChannelPost in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `channelHandler`, page: ChannelPage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).channelpost
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+    expect(dyn[0]!.name).toBe(`channelHandler`)
+    expect(dyn[0]!.routeName).toBe(`handleFreeChannelPost`)
+  })
+
+  it(`should register handleFreeInlineQuery in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `inlineHandler`, page: InlinePage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).inlinequery
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+    expect(dyn[0]!.name).toBe(`inlineHandler`)
+  })
+
+  it(`should register handleFreePoll in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `pollHandler`, page: PollPage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).poll
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+  })
+
+  it(`should register handleFreeChatJoinRequest in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `joinHandler`, page: JoinRequestPage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).chatjoinrequest
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+  })
+
+  it(`should dispatch handleFreeChannelPost on channel_post`, async () => {
+    const bot = createBot([{name: `channelHandler`, page: ChannelPage}])
+    const update = buildChannelPost(`test message`)
+    await bot.bot.handleUpdate(update as any)
+    expect(channelPostCalled).toBe(true)
+  })
+
+  it(`should have handleFreeInlineQuery registered in listRouteDynamicSpesific`, () => {
+    const bot = createBot([{name: `inlineHandler`, page: InlinePage}])
+    const hasRoute = (bot.pages.listRouteDynamicSpesific as readonly string[]).includes(`handleFreeInlineQuery`)
+    expect(hasRoute).toBe(true)
+  })
+
+  it(`should have handleFreePoll registered in listRouteDynamicSpesific`, () => {
+    const bot = createBot([{name: `pollHandler`, page: PollPage}])
+    const hasRoute = (bot.pages.listRouteDynamicSpesific as readonly string[]).includes(`handleFreePoll`)
+    expect(hasRoute).toBe(true)
+  })
+
+  it(`should have handleFreeChatJoinRequest registered in listRouteDynamicSpesific`, () => {
+    const bot = createBot([{name: `joinHandler`, page: JoinRequestPage}])
+    const hasRoute = (bot.pages.listRouteDynamicSpesific as readonly string[]).includes(`handleFreeChatJoinRequest`)
+    expect(hasRoute).toBe(true)
+  })
+
+  it(`should register handleFreeBusinessMessage in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `businessHandler`, page: BusinessPage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).businessmessage
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+    expect(dyn[0]!.name).toBe(`businessHandler`)
+    expect(dyn[0]!.routeName).toBe(`handleFreeBusinessMessage`)
+  })
+
+  it(`should dispatch handleFreeBusinessMessage on business_message`, async () => {
+    const bot = createBot([{name: `businessHandler`, page: BusinessPage}])
+    const update = buildBusinessMessage(`hello business`)
+    await bot.bot.handleUpdate(update as any)
+    expect(businessMessageCalled).toBe(true)
+  })
+
+  it(`should register handleFreeSuccessfulPayment in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `paymentHandler`, page: PaymentPage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).successfulpayment
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+  })
+
+  it(`should dispatch handleFreeSuccessfulPayment on successful_payment`, async () => {
+    const bot = createBot([{name: `paymentHandler`, page: PaymentPage}])
+    const update = buildSuccessfulPayment()
+    await bot.bot.handleUpdate(update as any)
+    expect(successfulPaymentCalled).toBe(true)
+  })
+
+  it(`should register handleFreeChatBoost in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `boostHandler`, page: BoostPage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).chatboost
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+  })
+
+  it(`should dispatch handleFreeChatBoost on chat_boost`, async () => {
+    const bot = createBot([{name: `boostHandler`, page: BoostPage}])
+    const update = buildChatBoost()
+    await bot.bot.handleUpdate(update as any)
+    expect(chatBoostCalled).toBe(true)
+  })
+
+  it(`should register handleFreeMessageReactionCount in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `reactionCountHandler`, page: ReactionCountPage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).messagereactioncount
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+  })
+
+  it(`should dispatch handleFreeMessageReactionCount on message_reaction_count`, async () => {
+    const bot = createBot([{name: `reactionCountHandler`, page: ReactionCountPage}])
+    const update = buildMessageReactionCount()
+    await bot.bot.handleUpdate(update as any)
+    expect(reactionCountCalled).toBe(true)
+  })
+
+  it(`should register handleFreeGiveaway in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `giveawayHandler`, page: GiveawayPage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).giveaway
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+  })
+
+  it(`should dispatch handleFreeGiveaway on giveaway message`, async () => {
+    const bot = createBot([{name: `giveawayHandler`, page: GiveawayPage}])
+    const update = buildGiveaway()
+    await bot.bot.handleUpdate(update as any)
+    expect(giveawayCalled).toBe(true)
+  })
+
+  it(`should register handleFreeWebAppData in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `webAppHandler`, page: WebAppPage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).webappdata
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+  })
+
+  it(`should dispatch handleFreeWebAppData on web_app_data`, async () => {
+    const bot = createBot([{name: `webAppHandler`, page: WebAppPage}])
+    const update = buildWebAppData()
+    await bot.bot.handleUpdate(update as any)
+    expect(webAppDataCalled).toBe(true)
+  })
+
+  it(`should register handleFreeUserShared in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `userSharedHandler`, page: UserSharedPage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).usershared
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+  })
+
+  it(`should dispatch handleFreeUserShared on users_shared`, async () => {
+    const bot = createBot([{name: `userSharedHandler`, page: UserSharedPage}])
+    const update = buildUsersShared()
+    await bot.bot.handleUpdate(update as any)
+    expect(userSharedCalled).toBe(true)
+  })
+
+  it(`should register handleFreePinMessage in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `pinMessageHandler`, page: PinMessagePage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).pinmessage
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+  })
+
+  it(`should dispatch handleFreePinMessage on pinned message`, async () => {
+    const bot = createBot([{name: `pinMessageHandler`, page: PinMessagePage}])
+    const update = buildPinMessage()
+    await bot.bot.handleUpdate(update as any)
+    expect(pinMessageCalled).toBe(true)
+  })
+})

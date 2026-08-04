@@ -119,7 +119,7 @@ class TestGramstax extends Gramstax {
 
 // ── Tests ─────────────────────────────────────────────────────────────
 
-describe(`_pageSorts multi-language`, () => {
+describe(`Gramstax._pageSorts multi-language`, () => {
   it(`registers language-prefixed keys in routeStatic.handleText when intentTextMap is set`, () => {
     const data = makePageData({
       name: `balance`,
@@ -218,7 +218,7 @@ describe(`_pageSorts multi-language`, () => {
   })
 })
 
-describe(`_pageSorts callback query data`, () => {
+describe(`Gramstax._pageSorts callback query data`, () => {
   it(`registers callbackQueryData when shortCallbackQueryData is false`, () => {
     const data = makePageData({
       name: `settings`,
@@ -236,7 +236,7 @@ describe(`_pageSorts callback query data`, () => {
   })
 })
 
-describe(`_pageLoads duplicate detection`, () => {
+describe(`Gramstax._pageLoads duplicate detection`, () => {
   it(`detects duplicate intentText variants across pages`, () => {
     const data1 = makePageData({
       name: `page1`,

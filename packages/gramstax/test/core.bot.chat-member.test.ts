@@ -172,7 +172,7 @@ function createBot(
 
 // ── tests ────────────────────────────────────────────────────────
 
-describe(`chat member routing`, () => {
+describe(`Gramstax chat member routing`, () => {
   it(`should parse handleChatMemberOutIn route`, () => {
     const bot = createBot([{name: `welcome`, page: WelcomePage}])
     const route = bot.pages.routeChatMember[0]
