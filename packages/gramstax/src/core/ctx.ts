@@ -4250,6 +4250,215 @@ export class Ctx extends Context {
     return this.setSession(this.methodSessionMyChatMemberAdminRegular(), params)
   }
 
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeChannelPost(this: Ctx & {handleSessionFreeChannelPost: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeChannelPost(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeEditChannelPost(this: Ctx & {handleSessionFreeEditChannelPost: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeEditChannelPost(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeEdit(this: Ctx & {handleSessionFreeEdit: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeEdit(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeReaction(this: Ctx & {handleSessionFreeReaction: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeReaction(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeInlineQuery(this: Ctx & {handleSessionFreeInlineQuery: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeInlineQuery(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeChosenInlineResult(this: Ctx & {handleSessionFreeChosenInlineResult: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeChosenInlineResult(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreePreCheckoutQuery(this: Ctx & {handleSessionFreePreCheckoutQuery: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreePreCheckoutQuery(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeShippingQuery(this: Ctx & {handleSessionFreeShippingQuery: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeShippingQuery(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeChatJoinRequest(this: Ctx & {handleSessionFreeChatJoinRequest: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeChatJoinRequest(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreePoll(this: Ctx & {handleSessionFreePoll: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreePoll(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreePollAnswer(this: Ctx & {handleSessionFreePollAnswer: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreePollAnswer(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeNewChatMembers(this: Ctx & {handleSessionFreeNewChatMembers: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeNewChatMembers(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeLeftChatMember(this: Ctx & {handleSessionFreeLeftChatMember: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeLeftChatMember(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeBusinessConnection(this: Ctx & {handleSessionFreeBusinessConnection: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeBusinessConnection(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeBusinessMessage(this: Ctx & {handleSessionFreeBusinessMessage: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeBusinessMessage(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeEditedBusinessMessage(this: Ctx & {handleSessionFreeEditedBusinessMessage: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeEditedBusinessMessage(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeDeletedBusinessMessages(this: Ctx & {handleSessionFreeDeletedBusinessMessages: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeDeletedBusinessMessages(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeMessageReactionCount(this: Ctx & {handleSessionFreeMessageReactionCount: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeMessageReactionCount(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeChatBoost(this: Ctx & {handleSessionFreeChatBoost: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeChatBoost(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeRemovedChatBoost(this: Ctx & {handleSessionFreeRemovedChatBoost: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeRemovedChatBoost(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeSuccessfulPayment(this: Ctx & {handleSessionFreeSuccessfulPayment: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeSuccessfulPayment(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeRefundedPayment(this: Ctx & {handleSessionFreeRefundedPayment: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeRefundedPayment(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeGroupChatCreated(this: Ctx & {handleSessionFreeGroupChatCreated: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeGroupChatCreated(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeSupergroupChatCreated(this: Ctx & {handleSessionFreeSupergroupChatCreated: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeSupergroupChatCreated(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeChannelChatCreated(this: Ctx & {handleSessionFreeChannelChatCreated: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeChannelChatCreated(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeVideoChatStarted(this: Ctx & {handleSessionFreeVideoChatStarted: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeVideoChatStarted(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeVideoChatScheduled(this: Ctx & {handleSessionFreeVideoChatScheduled: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeVideoChatScheduled(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeVideoChatEnded(this: Ctx & {handleSessionFreeVideoChatEnded: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeVideoChatEnded(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeVideoChatParticipantsInvited(this: Ctx & {handleSessionFreeVideoChatParticipantsInvited: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeVideoChatParticipantsInvited(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeUserShared(this: Ctx & {handleSessionFreeUserShared: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeUserShared(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeChatShared(this: Ctx & {handleSessionFreeChatShared: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeChatShared(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeWebAppData(this: Ctx & {handleSessionFreeWebAppData: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeWebAppData(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeGiveaway(this: Ctx & {handleSessionFreeGiveaway: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeGiveaway(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeGiveawayCreated(this: Ctx & {handleSessionFreeGiveawayCreated: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeGiveawayCreated(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeGiveawayWinners(this: Ctx & {handleSessionFreeGiveawayWinners: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeGiveawayWinners(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeGiveawayCompleted(this: Ctx & {handleSessionFreeGiveawayCompleted: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeGiveawayCompleted(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreePinMessage(this: Ctx & {handleSessionFreePinMessage: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreePinMessage(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeForumTopicCreated(this: Ctx & {handleSessionFreeForumTopicCreated: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeForumTopicCreated(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeForumTopicEdited(this: Ctx & {handleSessionFreeForumTopicEdited: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeForumTopicEdited(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeForumTopicClosed(this: Ctx & {handleSessionFreeForumTopicClosed: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeForumTopicClosed(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeForumTopicReopened(this: Ctx & {handleSessionFreeForumTopicReopened: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeForumTopicReopened(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeGeneralForumTopicHidden(this: Ctx & {handleSessionFreeGeneralForumTopicHidden: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeGeneralForumTopicHidden(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeGeneralForumTopicUnhidden(this: Ctx & {handleSessionFreeGeneralForumTopicUnhidden: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeGeneralForumTopicUnhidden(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeProximityAlertTriggered(this: Ctx & {handleSessionFreeProximityAlertTriggered: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeProximityAlertTriggered(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeConnectedWebsite(this: Ctx & {handleSessionFreeConnectedWebsite: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeConnectedWebsite(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreePassportData(this: Ctx & {handleSessionFreePassportData: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreePassportData(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeMessageAutoDeleteTimerChanged(this: Ctx & {handleSessionFreeMessageAutoDeleteTimerChanged: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeMessageAutoDeleteTimerChanged(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeChatBackgroundSet(this: Ctx & {handleSessionFreeChatBackgroundSet: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeChatBackgroundSet(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeNewChatTitle(this: Ctx & {handleSessionFreeNewChatTitle: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeNewChatTitle(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeNewChatPhoto(this: Ctx & {handleSessionFreeNewChatPhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeNewChatPhoto(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeDeleteChatPhoto(this: Ctx & {handleSessionFreeDeleteChatPhoto: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeDeleteChatPhoto(), params)
+  }
+  /** {@inheritDoc Ctx.setSessionCallbackQueryData} */
+  setSessionFreeWriteAccessAllowed(this: Ctx & {handleSessionFreeWriteAccessAllowed: (...args: unknown[]) => unknown}, params?: Record<string, unknown>) {
+    return this.setSession(this.methodSessionFreeWriteAccessAllowed(), params)
+  }
+
   /**
    * [LOW-LEVEL] Session method name builders.
    *
@@ -4474,5 +4683,214 @@ export class Ctx extends Context {
   /** {@inheritDoc Ctx.methodSession} */
   methodSessionMyChatMemberAdminRegular(name?: string) {
     return this.methodSession(`46`, name)
+  }
+
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeChannelPost(name?: string) {
+    return this.methodSession(`47`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeEditChannelPost(name?: string) {
+    return this.methodSession(`48`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeEdit(name?: string) {
+    return this.methodSession(`49`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeReaction(name?: string) {
+    return this.methodSession(`50`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeInlineQuery(name?: string) {
+    return this.methodSession(`51`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeChosenInlineResult(name?: string) {
+    return this.methodSession(`52`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreePreCheckoutQuery(name?: string) {
+    return this.methodSession(`53`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeShippingQuery(name?: string) {
+    return this.methodSession(`54`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeChatJoinRequest(name?: string) {
+    return this.methodSession(`55`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreePoll(name?: string) {
+    return this.methodSession(`56`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreePollAnswer(name?: string) {
+    return this.methodSession(`57`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeNewChatMembers(name?: string) {
+    return this.methodSession(`58`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeLeftChatMember(name?: string) {
+    return this.methodSession(`59`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeBusinessConnection(name?: string) {
+    return this.methodSession(`60`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeBusinessMessage(name?: string) {
+    return this.methodSession(`61`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeEditedBusinessMessage(name?: string) {
+    return this.methodSession(`62`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeDeletedBusinessMessages(name?: string) {
+    return this.methodSession(`63`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeMessageReactionCount(name?: string) {
+    return this.methodSession(`64`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeChatBoost(name?: string) {
+    return this.methodSession(`65`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeRemovedChatBoost(name?: string) {
+    return this.methodSession(`66`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeSuccessfulPayment(name?: string) {
+    return this.methodSession(`67`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeRefundedPayment(name?: string) {
+    return this.methodSession(`68`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeGroupChatCreated(name?: string) {
+    return this.methodSession(`69`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeSupergroupChatCreated(name?: string) {
+    return this.methodSession(`70`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeChannelChatCreated(name?: string) {
+    return this.methodSession(`71`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeVideoChatStarted(name?: string) {
+    return this.methodSession(`72`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeVideoChatScheduled(name?: string) {
+    return this.methodSession(`73`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeVideoChatEnded(name?: string) {
+    return this.methodSession(`74`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeVideoChatParticipantsInvited(name?: string) {
+    return this.methodSession(`75`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeUserShared(name?: string) {
+    return this.methodSession(`76`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeChatShared(name?: string) {
+    return this.methodSession(`77`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeWebAppData(name?: string) {
+    return this.methodSession(`78`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeGiveaway(name?: string) {
+    return this.methodSession(`79`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeGiveawayCreated(name?: string) {
+    return this.methodSession(`80`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeGiveawayWinners(name?: string) {
+    return this.methodSession(`81`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeGiveawayCompleted(name?: string) {
+    return this.methodSession(`82`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreePinMessage(name?: string) {
+    return this.methodSession(`83`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeForumTopicCreated(name?: string) {
+    return this.methodSession(`84`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeForumTopicEdited(name?: string) {
+    return this.methodSession(`85`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeForumTopicClosed(name?: string) {
+    return this.methodSession(`86`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeForumTopicReopened(name?: string) {
+    return this.methodSession(`87`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeGeneralForumTopicHidden(name?: string) {
+    return this.methodSession(`88`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeGeneralForumTopicUnhidden(name?: string) {
+    return this.methodSession(`89`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeProximityAlertTriggered(name?: string) {
+    return this.methodSession(`90`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeConnectedWebsite(name?: string) {
+    return this.methodSession(`91`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreePassportData(name?: string) {
+    return this.methodSession(`92`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeMessageAutoDeleteTimerChanged(name?: string) {
+    return this.methodSession(`93`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeChatBackgroundSet(name?: string) {
+    return this.methodSession(`94`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeNewChatTitle(name?: string) {
+    return this.methodSession(`95`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeNewChatPhoto(name?: string) {
+    return this.methodSession(`96`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeDeleteChatPhoto(name?: string) {
+    return this.methodSession(`97`, name)
+  }
+  /** {@inheritDoc Ctx.methodSession} */
+  methodSessionFreeWriteAccessAllowed(name?: string) {
+    return this.methodSession(`98`, name)
   }
 }
