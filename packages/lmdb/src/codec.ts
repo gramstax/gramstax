@@ -71,14 +71,8 @@ export abstract class LmdbCodec<T = unknown> implements ICodec<T> {
    *
    * @public
    */
-  static create<T, R = unknown>(
-    serialize: (value: T) => R,
-    deserialize: (raw: R) => T
-  ): ICodec<T> {
-    return new LmdbCodecConfigurable<T>(
-      serialize as (value: T) => unknown,
-      deserialize as (raw: unknown) => T
-    )
+  static create<T, R = unknown>(serialize: (value: T) => R, deserialize: (raw: R) => T): ICodec<T> {
+    return new LmdbCodecConfigurable<T>(serialize as (value: T) => unknown, deserialize as (raw: unknown) => T)
   }
 }
 
@@ -148,11 +142,21 @@ export function resolveCodec<T = unknown>(repoClass: unknown): ICodec<T> | undef
   }
 
   if (typeof statics.serialize === `function` || typeof statics.deserialize === `function`) {
-    return {
-      serialize: typeof statics.serialize === `function` ? statics.serialize : (v: unknown) => v,
-      deserialize: typeof statics.deserialize === `function` ? statics.deserialize : (r: unknown) => r as T
+    // Memoize per repo class: resolveCodec previously allocated a fresh
+    // wrapper object on every register() call (plan 007 L6).
+    let codec = codecMemo.get(repoClass as object)
+    if (!codec) {
+      codec = {
+        serialize: typeof statics.serialize === `function` ? statics.serialize : (v: unknown) => v,
+        deserialize: typeof statics.deserialize === `function` ? statics.deserialize : (r: unknown) => r as T
+      }
+      codecMemo.set(repoClass as object, codec)
     }
+    return codec as ICodec<T>
   }
 
   return undefined
 }
+
+/** @internal Memoized codec wrappers keyed by repo class (plan 007 L6). */
+const codecMemo = new WeakMap<object, ICodec<unknown>>()

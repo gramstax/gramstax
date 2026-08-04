@@ -132,7 +132,10 @@ export class LmdbTransactionError extends LmdbError {
    * @param message - Error description.
    * @param cause - The original error thrown by the transaction callback.
    */
-  constructor(message: string, public readonly cause?: unknown) {
+  constructor(
+    message: string,
+    public readonly cause?: unknown
+  ) {
     super(message, cause instanceof Error ? {cause} : undefined)
     this.name = `LmdbTransactionError`
   }
@@ -159,5 +162,19 @@ export class LmdbReadOnlyError extends LmdbError {
   constructor(operation: string) {
     super(`Cannot perform '${operation}' on a read-only env.`)
     this.name = `LmdbReadOnlyError`
+  }
+}
+
+/**
+ * Thrown when a destructive prefix operation is called with an empty prefix
+ * (e.g. `deleteByPrefix('')`), which would otherwise wipe the entire
+ * repository silently. Use {@link LmdbRepository.clear} instead.
+ *
+ * @public
+ */
+export class LmdbEmptyPrefixError extends LmdbError {
+  constructor() {
+    super(`Prefix must not be empty. Use clear() to delete every entry.`)
+    this.name = `LmdbEmptyPrefixError`
   }
 }

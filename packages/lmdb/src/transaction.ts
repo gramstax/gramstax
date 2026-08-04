@@ -30,9 +30,14 @@ type RawReadTransaction = Transaction & {
 /**
  * Lifecycle of a {@link LmdbTransaction}.
  *
+ * @remarks
+ * `released` is used for read transactions that finished normally — the raw
+ * LMDB read transaction is freed but the wrapper was NOT aborted by user
+ * code. Distinguishing it from `aborted` matters for `isAborted` consumers.
+ *
  * @public
  */
-export type TransactionLifecycle = `active` | `committed` | `aborted`
+export type TransactionLifecycle = `active` | `committed` | `aborted` | `released`
 
 /**
  * Wraps the underlying `lmdb` transaction lifecycle with a stable API.
@@ -194,16 +199,44 @@ export class LmdbTransaction {
    * Release the underlying LMDB read transaction, at most once.
    *
    * @remarks
-   * Calls the raw txn's `abort()` — `done()` only decrements the cursor
-   * refcount and leaves the reader slot occupied until env close.
+   * Calls the raw txn's `done()` — the lmdb-js-documented release for a
+   * transaction acquired via `useReadTransaction()`. Calling `abort()`
+   * directly would kill the env's SHARED read transaction (used by every
+   * subsequent `get`/range in the same event turn), leaving it dead until
+   * the next macrotask reset — EINVAL "No transaction to renew" on the next
+   * read. `done()` only decrements the reader refcount and lets lmdb-js
+   * renew the shared snapshot normally.
    *
    * @internal
    */
   _releaseReadTxn(): void {
     if (this._rawReleased) return
     this._rawReleased = true
-    if (this._rawReadTxn && typeof this._rawReadTxn.abort === `function`) {
-      this._rawReadTxn.abort()
+    if (this._rawReadTxn && typeof this._rawReadTxn.done === `function`) {
+      this._rawReadTxn.done()
     }
+  }
+
+  /**
+   * Mark a read transaction as finished successfully (release the raw txn
+   * without reporting an abort).
+   *
+   * @remarks
+   * Used by {@link LmdbEnv.readTransaction} on normal completion — the
+   * wrapper lifecycle becomes `released` (not `aborted`), so `isAborted`
+   * stays `false` for transactions that simply ran to completion.
+   * Safe to call multiple times; the raw read txn is released at most once.
+   *
+   * @public
+   */
+  release(): void {
+    if (this.done) {
+      // Already committed/aborted/released — still release the raw read txn
+      // if one is held (e.g. the user called commit() inside readTransaction).
+      this._releaseReadTxn()
+      return
+    }
+    this._lifecycle = `released`
+    this._releaseReadTxn()
   }
 }

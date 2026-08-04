@@ -28,7 +28,7 @@
 import type {GetOptions, Key, RangeOptions} from "lmdb"
 import {resolveCodec} from "./codec"
 import type {IEnvForRepo} from "./env"
-import {LmdbKeyNotFoundError, LmdbMissingDbNameError, LmdbReadOnlyError} from "./errors"
+import {LmdbEmptyPrefixError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbKeyNotFoundError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbTransactionDoneError, LmdbTransactionError} from "./errors"
 import type {LmdbTransaction} from "./transaction"
 import type {ICodec, ILmdbKey, IRangeOptions} from "./types"
 
@@ -89,7 +89,9 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * The repository delegates all data operations (`get`, `put`, `remove`,
    * etc.) to the env — which routes them to the correct LMDB sub-database
    * handle. Root-env capabilities (`transaction`, `getRepository`, `readOnly`)
-   * are also accessible here.
+   * are also accessible here. Note: a repository retains its env (bound
+   * references) — keep the repo short-lived alongside the env, and drop both
+   * to let the env be garbage-collected after {@link LmdbEnv.close}.
    *
    * @public
    */
@@ -98,8 +100,17 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   /** @internal */
   protected readonly _codec: ICodec<T> | undefined
 
+  /** @internal Pre-resolved decode closure (plan 007 P4). */
+  protected readonly _decode: (raw: unknown) => T
+
   /** @internal Cache of compiled LIKE regexes — avoids O(N) recompile per call. */
   protected readonly _patternCache = new Map<string, RegExp>()
+
+  /** @internal FIFO cap for {@link _patternCache} (plan 007 L4). */
+  private static readonly _PATTERN_CACHE_MAX = 250
+
+  /** @internal Cached key-type probe result — set after the first non-empty probe (plan 007 P1). */
+  private _keyType: `string` | `buffer` | `number` | `empty` | undefined
 
   /**
    * Construct a LmdbRepository bound to an env.
@@ -125,8 +136,107 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
     combined.getRepository = rootEnv.getRepository.bind(rootEnv) as IEnvForRepo[`getRepository`]
     Object.defineProperty(combined, `readOnly`, {value: rootEnv.readOnly})
     combined.getDb = rootEnv.getDb.bind(rootEnv) as IEnvForRepo[`getDb`]
+    combined.assertOpen = rootEnv.assertOpen.bind(rootEnv) as IEnvForRepo[`assertOpen`]
+    combined.getWriteTxnId = rootEnv.getWriteTxnId.bind(rootEnv) as IEnvForRepo[`getWriteTxnId`]
     this.env = combined
     this._codec = resolveCodec(this.constructor)
+    // Pre-resolved decode closure: the `_codec ? ... : ...` branch is
+    // decided once here instead of once per array entry in range queries
+    // (plan 007 P4).
+    this._decode = this._codec ? (raw: unknown) => this._codec!.deserialize(raw) : (raw: unknown) => raw as T
+  }
+
+  /**
+   * Guard: require the env to be open before an operation (plan 007 B2/B3).
+   *
+   * @throws {@link LmdbEnvClosedError} when the env is closed.
+   * @throws {@link LmdbEnvNotOpenError} for any other non-open state.
+   * @internal
+   */
+  private _assertOpen(): void {
+    this.env.assertOpen()
+  }
+
+  /**
+   * Guard for async methods: reject with the closed-state error instead of
+   * throwing synchronously, so `await repo.set(...)` after close rejects
+   * cleanly instead of crashing the caller.
+   *
+   * @internal
+   */
+  private _rejectClosed<T>(): Promise<T> | null {
+    try {
+      this._assertOpen()
+      return null
+    } catch (err) {
+      return Promise.reject(err)
+    }
+  }
+
+  /**
+   * Guard for write ops receiving an explicit transaction: a tx argument is
+   * only legal inside an active `env.transaction()` callback (plan 007 B3).
+   *
+   * @internal
+   */
+  private _rejectBadTx<T>(tx: LmdbTransaction | undefined): Promise<T> | null {
+    if (!tx) return null
+    if (tx.done) {
+      return Promise.reject(new LmdbTransactionDoneError())
+    }
+    // Outside an active write transaction, `tx` would be silently ignored —
+    // reject loudly so false atomicity guarantees are impossible.
+    // getWriteTxnId() throws when no write txn is active; treat that as the
+    // same "tx used outside a transaction" condition.
+    let txnId: number
+    try {
+      txnId = this.env.getWriteTxnId()
+    } catch {
+      txnId = 0
+    }
+    if (!txnId) {
+      return Promise.reject(new LmdbTransactionError(`A transaction was passed to a write operation but no write transaction is active. Wrap the write in env.transaction() and pass the same tx.`))
+    }
+    return null
+  }
+
+  /**
+   * Probe the repository's key type once and cache it (plan 007 P1).
+   *
+   * @remarks
+   * String range bounds are only meaningful for string-keyed sub-DBs —
+   * ordered-binary encodes numbers/Buffers differently. Empty repos return
+   * `empty` (a bounded scan over an empty DB is trivially correct). The
+   * result is cached because a repo's key type is fixed by its keyEncoding.
+   *
+   * @internal
+   */
+  private _probeKeyType(): `string` | `buffer` | `number` | `empty` {
+    if (this._keyType) return this._keyType
+    for (const k of this.env.getKeys({limit: 1})) {
+      this._keyType = Buffer.isBuffer(k) ? `buffer` : typeof k === `string` ? `string` : `number`
+      return this._keyType
+    }
+    this._keyType = `empty`
+    return this._keyType
+  }
+
+  /**
+   * Whether string prefix bounds are valid for this repo (plan 007 B5).
+   *
+   * @internal
+   */
+  private _stringBoundsValid(prefix: K): boolean {
+    const type = this._probeKeyType()
+    if (type === `empty`) return true
+    if (typeof prefix === `string`) return type === `string`
+    if (Buffer.isBuffer(prefix)) return type === `buffer`
+    return false
+  }
+
+  /** @internal True when the prefix is empty (string `''` or zero-length Buffer). */
+  private _isEmptyPrefix(prefix: K): boolean {
+    return (typeof prefix === `string` && prefix.length === 0) || (Buffer.isBuffer(prefix) && prefix.length === 0)
   }
 
   /**
@@ -146,7 +256,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   }
 
   private _decodeValue(raw: unknown): T {
-    return this._codec ? this._codec.deserialize(raw) : (raw as T)
+    return this._decode(raw)
   }
 
   // ──────────────────────────────────────────────────────────────────
@@ -168,10 +278,14 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * @public
    */
-  set(key: K, value: T, _tx?: LmdbTransaction): Promise<void> {
+  set(key: K, value: T, tx?: LmdbTransaction): Promise<void> {
+    const closed = this._rejectClosed<void>()
+    if (closed) return closed
     if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`set`))
+    const txErr = this._rejectBadTx<void>(tx)
+    if (txErr) return txErr
     const encoded = this._codec ? this._codec.serialize(value) : value
-    return this.env.put(key, encoded).then(() => undefined as undefined)
+    return this.env.put(key, encoded) as unknown as Promise<void>
   }
 
   /**
@@ -192,6 +306,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   get(key: K, _tx?: LmdbTransaction): T | undefined {
+    this._assertOpen()
     const opts = this._readOpts(_tx)
     const raw = opts ? this.env.get(key, opts) : this.env.get(key)
     if (raw === undefined) return undefined
@@ -239,6 +354,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   has(key: K, _tx?: LmdbTransaction): boolean {
+    this._assertOpen()
     const opts = this._readOpts(_tx)
     // doesExist(key, undefined, options) — `undefined` keeps it a plain
     // existence check; a GetOptions object as the 2nd arg would be treated
@@ -264,12 +380,20 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * @public
    */
-  delete(key: K, _tx?: LmdbTransaction): Promise<boolean> {
+  delete(key: K, tx?: LmdbTransaction): Promise<boolean> {
+    const closed = this._rejectClosed<boolean>()
+    if (closed) return closed
     if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`delete`))
-    if (this.env.doesExist(key)) {
-      return this.env.remove(key).then(() => true)
-    }
-    return Promise.resolve(false)
+    const txErr = this._rejectBadTx<boolean>(tx)
+    if (txErr) return txErr
+    // lmdb's async remove() resolves true unconditionally (even for absent
+    // keys — probe-verified), so the synchronous doesExist is the only way to
+    // report accurate existence. Both calls stay in the same event turn, so
+    // the pair batches into the same queued commit; the sync existence check
+    // is a few microseconds. (removeSync-in-txn would be atomic but costs a
+    // full synchronous commit per delete — ~5ms vs ~1ms — too slow.)
+    if (!this.env.doesExist(key)) return Promise.resolve(false)
+    return this.env.remove(key).then(() => true)
   }
 
   /**
@@ -285,8 +409,12 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * @public
    */
-  clear(_tx?: LmdbTransaction): Promise<void> {
+  clear(tx?: LmdbTransaction): Promise<void> {
+    const closed = this._rejectClosed<void>()
+    if (closed) return closed
     if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`clear`))
+    const txErr = this._rejectBadTx<void>(tx)
+    if (txErr) return txErr
     return this.env.clearAsync()
   }
 
@@ -303,6 +431,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   drop(): Promise<void> {
+    const closed = this._rejectClosed<void>()
+    if (closed) return closed
     if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`drop`))
     return this.env.drop()
   }
@@ -321,6 +451,13 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   prefetch(keys: K[]): Promise<void> {
+    const closed = this._rejectClosed<void>()
+    if (closed) return closed
+    // Normalize to undefined: lmdb's native prefetch resolves null, and the
+    // documented Promise<void> contract (tested) promises undefined. Prefetch
+    // is a pre-burst page-fault helper, not a per-write hot path, so the
+    // single normalization promise is acceptable (plan 007 P3 applies to
+    // set/delete).
     return this.env.prefetch(keys).then(() => undefined as undefined)
   }
 
@@ -343,7 +480,9 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   getMany(keys: K[]): Promise<Array<T | undefined>> {
-    return (this.env.getMany(keys) as Promise<Array<unknown>>).then((raws) => raws.map((raw) => (raw === undefined ? undefined : this._decodeValue(raw))))
+    const closed = this._rejectClosed<Array<T | undefined>>()
+    if (closed) return closed
+    return (this.env.getMany(keys) as Promise<Array<unknown>>).then((raws) => raws.map((raw) => (raw === undefined ? undefined : this._decode(raw))))
   }
 
   /**
@@ -361,6 +500,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   count(_tx?: LmdbTransaction): number {
+    this._assertOpen()
     const opts = this._readOpts(_tx)
     return (opts ? this.env.getCount(opts) : this.env.getCount()) as number
   }
@@ -385,6 +525,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   keys(options?: IRangeOptions, tx?: LmdbTransaction): Promise<K[]> {
+    const closed = this._rejectClosed<K[]>()
+    if (closed) return closed
     return Promise.resolve(this.env.getKeys(this._rangeOpts(options, tx)).asArray) as Promise<K[]>
   }
 
@@ -403,7 +545,9 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   values(options?: IRangeOptions, tx?: LmdbTransaction): Promise<T[]> {
-    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => this._decodeValue(e.value)))
+    const closed = this._rejectClosed<T[]>()
+    if (closed) return closed
+    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => this._decode(e.value)))
   }
 
   /**
@@ -421,7 +565,9 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   entries(options?: IRangeOptions, tx?: LmdbTransaction): Promise<Array<[K, T]>> {
-    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)]))
+    const closed = this._rejectClosed<Array<[K, T]>>()
+    if (closed) return closed
+    return Promise.resolve(this.env.getRange(this._rangeOpts(options, tx)).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decode(e.value)]))
   }
 
   /**
@@ -446,9 +592,10 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   async *iterate(options?: IRangeOptions, tx?: LmdbTransaction): AsyncIterableIterator<[K, T]> {
+    this._assertOpen()
     const iter = this.env.getRange(this._rangeOpts(options, tx)) as Iterable<{key: K; value: unknown}>
     for (const entry of iter) {
-      yield [entry.key as K, this._decodeValue(entry.value)]
+      yield [entry.key as K, this._decode(entry.value)]
     }
   }
 
@@ -487,6 +634,12 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
     }
     body += `$`
     const regex = new RegExp(body)
+    // FIFO eviction: cap the cache so a long-lived repo fed many distinct
+    // user-supplied patterns cannot grow the Map without bound (plan 007 L4).
+    if (this._patternCache.size >= LmdbRepository._PATTERN_CACHE_MAX) {
+      const oldest = this._patternCache.keys().next().value
+      if (oldest !== undefined) this._patternCache.delete(oldest)
+    }
     this._patternCache.set(pattern, regex)
     return regex
   }
@@ -573,24 +726,20 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
   }
 
   /**
-   * Probe whether the repository's keys are strings.
+   * Whether the repository's keys are strings (cached probe).
    *
    * @remarks
    * String range bounds are only meaningful for string-keyed sub-DBs —
    * ordered-binary encodes numbers/Buffers differently, so `[prefix,
    * prefixEnd)` bounds can silently skip (or include) the wrong entries.
-   * Drains the first key synchronously (one cursor seek); empty repos
-   * default to `true` since a bounded scan over an empty DB is trivially
-   * correct. Called per-`like()` so a repo that changes key type over its
-   * lifetime is always probed fresh.
+   * Delegates to the cached {@link _probeKeyType} (plan 007 P1) — the
+   * per-call native cursor seek this method used to do is gone.
    *
    * @internal
    */
   private _keysAreStrings(): boolean {
-    for (const k of this.env.getKeys({limit: 1})) {
-      return typeof k === `string`
-    }
-    return true
+    const type = this._probeKeyType()
+    return type === `string` || type === `empty`
   }
 
   /**
@@ -629,6 +778,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   like(pattern: string, options?: IRangeOptions): Promise<Array<[K, T]>> {
+    const closed = this._rejectClosed<Array<[K, T]>>()
+    if (closed) return closed
     const stringsOnly = this._keysAreStrings()
     const prefix = stringsOnly ? this._extractPrefixLikePattern(pattern) : null
     if (prefix !== null) {
@@ -644,7 +795,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
             inclusiveEnd: options?.inclusiveEnd,
             exclusiveStart: options?.exclusiveStart
           }).asArray
-        ).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)]))
+        ).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decode(e.value)]))
       }
     }
     const regex = this._patternToRegex(pattern)
@@ -658,7 +809,7 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
         rangeOpts.end = inferred.end
       }
     }
-    return Promise.resolve(this.env.getRange(rangeOpts).filter(({key}: {key: Key}) => regex.test(String(key))).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)]))
+    return Promise.resolve(this.env.getRange(rangeOpts).filter(({key}: {key: Key}) => regex.test(String(key))).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decode(e.value)]))
   }
 
   /**
@@ -681,16 +832,19 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   findByPrefix(prefix: K, options?: IRangeOptions): Promise<Array<[K, T]>> {
+    const closed = this._rejectClosed<Array<[K, T]>>()
+    if (closed) return closed
     const endKey = this._prefixEnd(prefix)
-    if (endKey !== undefined) {
-      return Promise.resolve(this.env.getRange({...options, start: prefix, end: endKey}).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decodeValue(e.value)]))
+    if (endKey !== undefined && this._stringBoundsValid(prefix)) {
+      return Promise.resolve(this.env.getRange({...options, start: prefix, end: endKey}).asArray).then((arr) => (arr as Array<{key: K; value: unknown}>).map((e) => [e.key as K, this._decode(e.value)]))
     }
-    // Unsupported key type (e.g. numeric): no prefix bounds possible, so we
-    // must scan. To avoid materializing every value, collect only the keys
-    // (cheap, no decode), filter by prefix, then fetch the matched values.
+    // Unsupported key type (e.g. numeric), or a string prefix on a non-string
+    // keyed repo: no valid prefix bounds, so we must scan. To avoid
+    // materializing every value, collect only the keys (cheap, no decode),
+    // filter by prefix, then fetch the matched values.
     return Promise.resolve(this.env.getKeys(options).asArray)
       .then((keys) => (keys as K[]).filter((k) => String(k).startsWith(String(prefix))))
-      .then((matchedKeys) => this.env.getMany(matchedKeys).then((raws) => (raws as Array<unknown>).map((raw, i) => [matchedKeys[i] as K, this._decodeValue(raw)] as [K, T])))
+      .then((matchedKeys) => this.env.getMany(matchedKeys).then((raws) => (raws as Array<unknown>).map((raw, i) => [matchedKeys[i] as K, this._decode(raw)] as [K, T])))
   }
 
   /**
@@ -711,10 +865,13 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    *
    * @public
    */
-  countByPrefix(prefix: K): number | Promise<number> {
+  countByPrefix(prefix: K): Promise<number> {
+    const closed = this._rejectClosed<number>()
+    if (closed) return closed
     const endKey = this._prefixEnd(prefix)
-    if (endKey !== undefined) {
-      return this.env.getKeysCount({start: prefix, end: endKey})
+    if (endKey !== undefined && this._stringBoundsValid(prefix)) {
+      // Native getKeysCount is O(log N + M) — no array allocation.
+      return Promise.resolve(this.env.getKeysCount({start: prefix, end: endKey}))
     }
     // Unsupported key type (e.g. numeric): no prefix bounds possible, so we
     // must scan. Use the native key-array drain (fast path) and count inline
@@ -745,13 +902,19 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   deleteByPrefix(prefix: K): Promise<number> {
+    const closed = this._rejectClosed<number>()
+    if (closed) return closed
     if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`deleteByPrefix`))
+    // Empty prefix would wipe the entire repo — reject loudly (plan 007 B11).
+    if (this._isEmptyPrefix(prefix)) {
+      return Promise.reject(new LmdbEmptyPrefixError())
+    }
     const endKey = this._prefixEnd(prefix)
-    // Bounded range scan for string/Buffer keys. For unsupported key types
-    // (e.g. numeric) there is no prefix bound, so we drain the native key
-    // array once and filter inline.
+    // Bounded range scan for matching key types. For unsupported key types
+    // (e.g. numeric) or a string prefix on a Buffer-keyed repo there is no
+    // valid prefix bound, so we drain the native key array once and filter.
     const keysPromise: Promise<K[]> =
-      endKey !== undefined
+      endKey !== undefined && this._stringBoundsValid(prefix)
         ? (Promise.resolve(this.env.getKeys({start: prefix, end: endKey}).asArray) as Promise<K[]>)
         : Promise.resolve(this.env.getKeys().asArray).then((keys) => {
             const matched: K[] = []
@@ -787,9 +950,11 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   first(): Promise<[K, T] | undefined> {
+    const closed = this._rejectClosed<[K, T] | undefined>()
+    if (closed) return closed
     return Promise.resolve(this.env.getRange({limit: 1}).asArray).then((arr) => {
       const entry = (arr as Array<{key: K; value: unknown}>)[0]
-      return entry ? ([entry.key as K, this._decodeValue(entry.value)] as [K, T]) : undefined
+      return entry ? ([entry.key as K, this._decode(entry.value)] as [K, T]) : undefined
     })
   }
 
@@ -807,9 +972,11 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   last(): Promise<[K, T] | undefined> {
+    const closed = this._rejectClosed<[K, T] | undefined>()
+    if (closed) return closed
     return Promise.resolve(this.env.getRange({reverse: true, limit: 1}).asArray).then((arr) => {
       const entry = (arr as Array<{key: K; value: unknown}>)[0]
-      return entry ? ([entry.key as K, this._decodeValue(entry.value)] as [K, T]) : undefined
+      return entry ? ([entry.key as K, this._decode(entry.value)] as [K, T]) : undefined
     })
   }
 
@@ -836,6 +1003,8 @@ export abstract class LmdbRepository<T = unknown, K extends ILmdbKey = string> {
    * @public
    */
   update(key: K, updater: (current: T | undefined) => T): Promise<T> {
+    const closed = this._rejectClosed<T>()
+    if (closed) return closed
     if (this.env.readOnly) return Promise.reject(new LmdbReadOnlyError(`update`))
     return this.env.transaction(() => {
       const current = this.get(key)

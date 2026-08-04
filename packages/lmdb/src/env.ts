@@ -19,10 +19,17 @@
 
 import type {Database, DatabaseOptions, GetOptions, Key, PutOptions, RangeIterable, RangeOptions, RootDatabase, RootDatabaseOptionsWithPath, Transaction, TransactionFlags} from "lmdb"
 import {ABORT, open} from "lmdb"
+import * as lmdbModule from "lmdb"
+import {basename, extname} from "node:path"
 import {LmdbDuplicateDbNameError, LmdbEnvClosedError, LmdbEnvNotOpenError, LmdbMissingDbNameError, LmdbReadOnlyError, LmdbRepositoryAlreadyRegisteredError, LmdbRepositoryNotRegisteredError, LmdbTransactionError} from "./errors"
 import type {LmdbRepository} from "./repository"
 import {LmdbTransaction} from "./transaction"
 import type {ILmdbEncoding, ILmdbEnvOptions, ILmdbEnvState, ILmdbKey} from "./types"
+
+// lmdb-js tracks every opened store in a module-level Map (runtime export,
+// absent from its d.ts). It never deletes entries — this wrapper purges its
+// own keys on close (plan 007 L2).
+const allDbsFromLmdb = (lmdbModule as unknown as {allDbs?: Map<string, unknown>}).allDbs ?? new Map<string, unknown>()
 
 type LmdbRepositoryInstance = LmdbRepository<unknown, ILmdbKey>
 type LmdbRepositoryClass<T extends LmdbRepositoryInstance = LmdbRepositoryInstance> = new (rootEnv: IEnvForRepo, dbName?: string) => T
@@ -41,6 +48,7 @@ type LmdbRepositoryClassWithDbName<T extends LmdbRepositoryInstance = LmdbReposi
 interface LmdbRootStore extends RootDatabase<unknown, Key> {
   sync(callback?: (error: unknown) => void): Promise<void>
   isOperational(): boolean
+  off(event: `beforecommit` | `aftercommit`, callback: (event: unknown) => void): void
 }
 
 /**
@@ -60,6 +68,12 @@ export class LmdbEnv {
 
   /** @internal Per-instance lmdb root store */
   private readonly _root: LmdbRootStore
+
+  /** @internal Serializes concurrent write transactions (B1 fix — prevents lmdb-js child-txn nesting). */
+  private _txQueue: Promise<unknown> = Promise.resolve()
+
+  /** @internal True while a transaction callback is executing (nesting detection). */
+  private _txInProgress = false
 
   /** @internal */
   private readonly _repoInstances = new Map<string, LmdbRepositoryInstance>()
@@ -81,6 +95,15 @@ export class LmdbEnv {
 
   /** @internal Sub-DB options extracted from env options — forwarded to every openDB call. */
   private readonly _dbOpts: DatabaseOptions
+
+  /** @internal Sub-DB handle cache (L3 fix — one LMDBStore wrapper per name+encoding). */
+  private readonly _subDbCache = new Map<string, Database<unknown, Key>>()
+
+  /** @internal Sub-DB names opened via this env — used to purge lmdb-js `allDbs` on close. */
+  private readonly _subDbNames = new Set<string>()
+
+  /** @internal Commit-event listeners: user callback → registered wrapper (plan 007 L5). */
+  private readonly _commitListeners = new Map<`beforecommit` | `aftercommit`, Map<(event: unknown) => void, (event: unknown) => void>>()
 
   /**
    * Construct a new LmdbEnv and open the underlying LMDB environment.
@@ -175,22 +198,64 @@ export class LmdbEnv {
   }
 
   /**
+   * Public guard: require the env to be open before an operation.
+   *
+   * @remarks
+   * Behaves like the internal {@link _assertOpen} but is part of the public
+   * surface so {@link LmdbRepository} instances (which receive a subset of
+   * this class via `IEnvForRepo`) can enforce the closed-state contract.
+   *
+   * @throws {@link LmdbEnvClosedError} when the env is closed.
+   * @throws {@link LmdbEnvNotOpenError} for any other non-open state.
+   *
+   * @public
+   */
+  assertOpen(): void {
+    this._assertOpen()
+  }
+
+  /**
    * Close the underlying LMDB environment and release all resources.
    *
    * @remarks
    * Delegates to the inherited lmdb root store `close()` (awaitable), then
-   * clears the repository registry. Repositories obtained via {@link get}
-   * become unusable after close.
+   * clears the repository registry and purges this env's handles from
+   * lmdb-js's module-level `allDbs` map so repeated open/close cycles do
+   * not accumulate JS store wrappers for the process lifetime. Repositories
+   * obtained via {@link get} become unusable after close.
    *
    * @public
    */
   async close(): Promise<void> {
     if (this._state === `closed`) return
     this._state = `closing`
-    this._repoInstances.clear()
-    this._repoByClass.clear()
-    await this._root.close()
-    this._state = `closed`
+    try {
+      await this._root.close()
+    } finally {
+      // Always land on a terminal state — even if the native close rejects,
+      // subsequent calls must no-op instead of getting stuck in `closing`.
+      this._state = `closed`
+      this._repoInstances.clear()
+      this._repoByClass.clear()
+      this._subDbCache.clear()
+      this._removeAllCommitListeners()
+      this._purgeAllDbs()
+    }
+  }
+
+  /** @internal Remove handles for this env from lmdb-js's module-level `allDbs` map. */
+  private _purgeAllDbs(): void {
+    const key = this._lmdbKeyName()
+    allDbsFromLmdb.delete(key)
+    for (const dbName of this._subDbNames) {
+      allDbsFromLmdb.delete(`${key}-${dbName}`)
+    }
+  }
+
+  /** @internal lmdb-js computes `name = basename(path, extname(path))` for its allDbs key. */
+  private _lmdbKeyName(): string {
+    const ext = extname(this.path)
+    return basename(this.path, ext)
   }
 
   // ──────────────────────────────────────────────────────────────────
@@ -213,13 +278,22 @@ export class LmdbEnv {
    */
   getDb(name: string, overrideEncoding?: ILmdbEncoding): Database<unknown, Key> {
     this._assertOpen()
+    // Cache per (name, encoding): repeated openDB() calls would otherwise
+    // create a fresh LMDBStore wrapper each time, accumulating entries in
+    // lmdb-js's module-level allDbs map (plan 007 L3).
+    const cacheKey = `${name}\u0000${overrideEncoding ?? this.encoding ?? ``}`
+    const cached = this._subDbCache.get(cacheKey)
+    if (cached) return cached
     // Forward all env-level sub-DB options. lmdb does NOT inherit
     // compression/cache/encoding/etc. from the root env — each openDB()
     // must receive them explicitly for production correctness.
     const encoding = overrideEncoding ?? this.encoding
     const openOpts: DatabaseOptions = {...this._dbOpts}
     if (encoding) openOpts.encoding = encoding
-    return this._root.openDB(name, openOpts)
+    const db = this._root.openDB(name, openOpts)
+    this._subDbCache.set(cacheKey, db)
+    this._subDbNames.add(name)
+    return db
   }
 
   // ──────────────────────────────────────────────────────────────────
@@ -296,6 +370,7 @@ export class LmdbEnv {
    */
   get(key: Key, options?: GetOptions): unknown
   get(arg: LmdbRepositoryClass | Key, options?: GetOptions): unknown {
+    this._assertOpen()
     if (typeof arg === `function`) {
       const instance = this._repoByClass.get(arg)
       if (!instance) {
@@ -355,6 +430,10 @@ export class LmdbEnv {
    * coalesces them into a single native LMDB write transaction. Repository
    * methods are non-async, making sync callbacks natural.
    *
+   * The callback promise MUST settle: the native write transaction (and the
+   * single writer lock) stays open until it does — a never-resolving promise
+   * blocks all subsequent writes process-wide.
+   *
    * @param fn - Callback receiving the {@link LmdbTransaction} wrapper.
    * @returns The callback's resolved value.
    *
@@ -382,12 +461,27 @@ export class LmdbEnv {
    * @public
    */
   async transaction<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T> {
-    if (this.readOnly) throw new LmdbReadOnlyError(`transaction`)
     this._assertOpen()
+    if (this.readOnly) throw new LmdbReadOnlyError(`transaction`)
+    // Nesting (called from inside another transaction callback): run directly.
+    // lmdb-js treats this as a child txn of the active write transaction.
+    if (this._txInProgress) {
+      return this._runTransaction(fn)
+    }
+    // Concurrent transactions are serialized: without this, lmdb-js nests the
+    // second transactionSync inside the first via childTransaction(), so an
+    // outer abort rolls back the inner txn's already-"committed" writes.
+    const run = this._txQueue.then(() => this._runTransaction(fn))
+    this._txQueue = run.catch(() => undefined)
+    return run
+  }
 
+  private async _runTransaction<T>(fn: (tx: LmdbTransaction) => T | Promise<T>): Promise<T> {
     const tx = new LmdbTransaction()
     let syncResult: T | undefined
+    let abortedValue: T | undefined
 
+    this._txInProgress = true
     try {
       const result = this._root.transactionSync(() => {
         const userResult = fn(tx)
@@ -397,7 +491,10 @@ export class LmdbEnv {
           // resolves to the ABORT sentinel. Detect abort AFTER resolution so
           // `tx.abort()` following an `await` rolls back instead of silently
           // committing the writes queued so far.
-          return (userResult as Promise<T>).then((value) => (tx.isAborted ? ABORT : value))
+          return (userResult as Promise<T>).then((value) => {
+            abortedValue = value as T
+            return tx.isAborted ? ABORT : value
+          })
         }
         syncResult = userResult as T
         if (tx.isAborted) throw ABORT
@@ -405,7 +502,7 @@ export class LmdbEnv {
       })
       if (result && typeof (result as Promise<T>).then === `function`) {
         const final = (await result) as T | typeof ABORT
-        return final === ABORT ? (undefined as T) : (final as T)
+        return final === ABORT ? (abortedValue as T) : (final as T)
       }
       return result as T
     } catch (err) {
@@ -413,6 +510,8 @@ export class LmdbEnv {
         return syncResult as T
       }
       throw new LmdbTransactionError(`Transaction failed`, err)
+    } finally {
+      this._txInProgress = false
     }
   }
 
@@ -430,6 +529,10 @@ export class LmdbEnv {
    * `useReadTransaction()` and wraps it in a {@link LmdbTransaction} that
    * auto-releases when the callback returns. All reads inside the callback
    * see a consistent snapshot.
+   *
+   * The callback MUST settle: the raw read transaction (and one of the env's
+   * limited reader slots, default 126) stays pinned until it does — a
+   * never-resolving promise can exhaust readers for the whole env.
    *
    * @param fn - Callback receiving the read-only {@link LmdbTransaction}.
    * @returns The callback's resolved value.
@@ -451,7 +554,7 @@ export class LmdbEnv {
 
     try {
       const result = await fn(tx)
-      tx.abort() // releases the raw read txn via rawTxn.done()
+      tx.release() // mark released + rawTxn.done()
       return result
     } catch (err) {
       try {
@@ -477,10 +580,12 @@ export class LmdbEnv {
    * @public
    */
   get committed(): Promise<boolean> {
+    this._assertOpen()
     return this._root.committed
   }
 
   get flushed(): Promise<boolean> {
+    this._assertOpen()
     return this._root.flushed
   }
 
@@ -497,6 +602,9 @@ export class LmdbEnv {
    * @public
    */
   resetReadTxn(): void {
+    // Intentional no-op after close: lmdb-js tolerates it, and the documented
+    // contract (tested) treats it as safe to call on a closed env.
+    if (this._state !== `open`) return
     this._root.resetReadTxn()
   }
 
@@ -534,6 +642,7 @@ export class LmdbEnv {
    * @public
    */
   getEntry(key: Key, options?: GetOptions): {value: unknown; version?: number} | undefined {
+    this._assertOpen()
     return this._root.getEntry(key, options)
   }
 
@@ -544,6 +653,7 @@ export class LmdbEnv {
    * @public
    */
   getBinary(key: Key): Buffer | undefined {
+    this._assertOpen()
     return this._root.getBinary(key)
   }
 
@@ -556,6 +666,7 @@ export class LmdbEnv {
    * @public
    */
   getBinaryFast(key: Key): Buffer | undefined {
+    this._assertOpen()
     return this._root.getBinaryFast(key)
   }
 
@@ -565,6 +676,7 @@ export class LmdbEnv {
    * @public
    */
   retain(data: unknown): unknown {
+    this._assertOpen()
     return this._root.retain(data)
   }
 
@@ -575,6 +687,7 @@ export class LmdbEnv {
    * @public
    */
   prefetch(ids: Key[], callback?: (...args: unknown[]) => unknown): Promise<void> {
+    this._assertOpen()
     return this._root.prefetch(ids, callback)
   }
 
@@ -586,6 +699,7 @@ export class LmdbEnv {
    * @public
    */
   getMany(ids: Key[], callback?: (error: unknown, values: unknown[]) => void): Promise<(unknown | undefined)[]> {
+    this._assertOpen()
     return this._root.getMany(ids, callback)
   }
 
@@ -600,8 +714,10 @@ export class LmdbEnv {
    */
   put(id: Key, value: unknown): Promise<boolean>
   put(id: Key, value: unknown, version: number, ifVersion?: number): Promise<boolean>
-  put(id: Key, value: unknown, version?: number, ifVersion?: number): Promise<boolean> {
-    return this._root.put(id, value, version!, ifVersion)
+  put(id: Key, value: unknown, options: PutOptions): Promise<boolean>
+  put(id: Key, value: unknown, versionOrOptions?: number | PutOptions, ifVersion?: number): Promise<boolean> {
+    this._assertOpen()
+    return this._root.put(id, value, versionOrOptions as number, ifVersion)
   }
 
   /**
@@ -613,6 +729,7 @@ export class LmdbEnv {
   remove(id: Key): Promise<boolean>
   remove(id: Key, ifVersion: number): Promise<boolean>
   remove(id: Key, valueOrIfVersion?: unknown): Promise<boolean> {
+    this._assertOpen()
     return this._root.remove(id, valueOrIfVersion)
   }
 
@@ -627,6 +744,7 @@ export class LmdbEnv {
   putSync(id: Key, value: unknown, version: number): void
   putSync(id: Key, value: unknown, options: PutOptions): void
   putSync(id: Key, value: unknown, versionOrOptions?: number | PutOptions): void {
+    this._assertOpen()
     this._root.putSync(id, value, versionOrOptions as number)
   }
 
@@ -640,6 +758,7 @@ export class LmdbEnv {
   removeSync(id: Key): boolean
   removeSync(id: Key, valueToRemove: unknown): boolean
   removeSync(id: Key, valueToRemove?: unknown): boolean {
+    this._assertOpen()
     return this._root.removeSync(id, valueToRemove)
   }
 
@@ -650,6 +769,7 @@ export class LmdbEnv {
    * @public
    */
   getRange(options?: RangeOptions): RangeIterable<{key: Key; value: unknown; version?: number}> {
+    this._assertOpen()
     return this._root.getRange(options)
   }
 
@@ -660,6 +780,7 @@ export class LmdbEnv {
    * @public
    */
   getValues(key: Key, options?: RangeOptions): RangeIterable<unknown> {
+    this._assertOpen()
     return this._root.getValues(key, options)
   }
 
@@ -670,6 +791,7 @@ export class LmdbEnv {
    * @public
    */
   getValuesCount(key: Key, options?: RangeOptions): number {
+    this._assertOpen()
     return this._root.getValuesCount(key, options)
   }
 
@@ -679,6 +801,7 @@ export class LmdbEnv {
    * @public
    */
   getKeys(options?: RangeOptions): RangeIterable<Key> {
+    this._assertOpen()
     return this._root.getKeys(options)
   }
 
@@ -688,6 +811,7 @@ export class LmdbEnv {
    * @public
    */
   getKeysCount(options?: RangeOptions): number {
+    this._assertOpen()
     return this._root.getKeysCount(options)
   }
 
@@ -697,6 +821,7 @@ export class LmdbEnv {
    * @public
    */
   getCount(options?: RangeOptions): number {
+    this._assertOpen()
     return this._root.getCount(options)
   }
 
@@ -711,6 +836,7 @@ export class LmdbEnv {
   doesExist(key: Key, value: unknown, options?: GetOptions): boolean
   doesExist(key: Key, version: number): boolean
   doesExist(key: Key, valueOrVersion?: unknown, options?: GetOptions): boolean {
+    this._assertOpen()
     return this._root.doesExist(key, valueOrVersion, options)
   }
 
@@ -722,6 +848,7 @@ export class LmdbEnv {
    * @public
    */
   transactionSync<T>(action: () => T, flags?: TransactionFlags): T {
+    this._assertOpen()
     return this._root.transactionSync(action, flags)
   }
 
@@ -731,6 +858,7 @@ export class LmdbEnv {
    * @public
    */
   childTransaction<T>(action: () => T): Promise<T> {
+    this._assertOpen()
     return this._root.childTransaction(action)
   }
 
@@ -740,6 +868,7 @@ export class LmdbEnv {
    * @public
    */
   batch(action: () => unknown): Promise<boolean> {
+    this._assertOpen()
     return this._root.batch(action)
   }
 
@@ -751,6 +880,7 @@ export class LmdbEnv {
    * @public
    */
   ifVersion(id: Key, version: number, action: () => unknown): Promise<boolean> {
+    this._assertOpen()
     return this._root.ifVersion(id, version, action)
   }
 
@@ -761,6 +891,7 @@ export class LmdbEnv {
    * @public
    */
   ifNoExists(id: Key, action: () => unknown): Promise<boolean> {
+    this._assertOpen()
     return this._root.ifNoExists(id, action)
   }
 
@@ -769,6 +900,7 @@ export class LmdbEnv {
    * @public
    */
   clearAsync(): Promise<void> {
+    this._assertOpen()
     return this._root.clearAsync()
   }
 
@@ -777,6 +909,7 @@ export class LmdbEnv {
    * @public
    */
   clearSync(): void {
+    this._assertOpen()
     this._root.clearSync()
   }
 
@@ -785,6 +918,7 @@ export class LmdbEnv {
    * @public
    */
   drop(): Promise<void> {
+    this._assertOpen()
     return this._root.drop()
   }
 
@@ -793,6 +927,7 @@ export class LmdbEnv {
    * @public
    */
   dropSync(): void {
+    this._assertOpen()
     this._root.dropSync()
   }
 
@@ -802,6 +937,7 @@ export class LmdbEnv {
    * @public
    */
   readerCheck(): number {
+    this._assertOpen()
     return this._root.readerCheck()
   }
 
@@ -810,6 +946,7 @@ export class LmdbEnv {
    * @public
    */
   readerList(): string {
+    this._assertOpen()
     return this._root.readerList()
   }
 
@@ -818,6 +955,7 @@ export class LmdbEnv {
    * @public
    */
   getStats(): Record<string, unknown> {
+    this._assertOpen()
     return this._root.getStats()
   }
 
@@ -829,6 +967,7 @@ export class LmdbEnv {
    * @public
    */
   openDB(dbName: string, dbOptions?: DatabaseOptions): Database<unknown, Key> {
+    this._assertOpen()
     return this._root.openDB(dbName, dbOptions ?? {})
   }
 
@@ -838,6 +977,7 @@ export class LmdbEnv {
    * @public
    */
   useReadTransaction(): Transaction {
+    this._assertOpen()
     return this._root.useReadTransaction()
   }
 
@@ -848,7 +988,44 @@ export class LmdbEnv {
    * @public
    */
   on(event: `beforecommit` | `aftercommit`, callback: (event: unknown) => void): void {
-    this._root.on(event, callback)
+    this._assertOpen()
+    // lmdb-js stores beforecommit/aftercommit callbacks in module-level
+    // arrays with NO removal API (its `on` override bypasses EventEmitter).
+    // We register a wrapper that consults this env's listener registry, so
+    // `off()`/close() can stop invocation and let user callbacks be GC'd
+    // without holding a reference to them here.
+    let registry = this._commitListeners.get(event)
+    if (!registry) {
+      registry = new Map()
+      this._commitListeners.set(event, registry)
+    }
+    if (!registry.has(callback)) {
+      const wrapper = (e: unknown) => {
+        if (registry!.has(callback)) callback(e)
+      }
+      registry.set(callback, wrapper)
+      this._root.on(event, wrapper as (event: unknown) => void)
+    }
+  }
+
+  /**
+   * Remove a previously attached commit-event listener.
+   *
+   * @param event - `'beforecommit'` or `'aftercommit'`.
+   * @param callback - The exact handler previously passed to {@link on}.
+   * @public
+   */
+  off(event: `beforecommit` | `aftercommit`, callback: (event: unknown) => void): void {
+    const registry = this._commitListeners.get(event)
+    if (!registry) return
+    // lmdb-js has no way to unregister its module-level arrays — dropping the
+    // wrapper from our registry stops invocation and frees the callback.
+    registry.delete(callback)
+  }
+
+  /** @internal Detach all tracked commit listeners (called from {@link close}). */
+  private _removeAllCommitListeners(): void {
+    this._commitListeners.clear()
   }
 
   /**
@@ -856,6 +1033,7 @@ export class LmdbEnv {
    * @public
    */
   getWriteTxnId(): number {
+    this._assertOpen()
     return this._root.getWriteTxnId()
   }
 
@@ -865,6 +1043,7 @@ export class LmdbEnv {
    * @public
    */
   sync(callback?: (error: unknown) => void): Promise<void> {
+    this._assertOpen()
     return this._root.sync(callback)
   }
 
@@ -873,6 +1052,7 @@ export class LmdbEnv {
    * @public
    */
   isOperational(): boolean {
+    this._assertOpen()
     return this._root.isOperational()
   }
 }
@@ -889,5 +1069,26 @@ export class LmdbEnv {
  */
 export type IEnvForRepo = Pick<
   LmdbEnv,
-  `get` | `put` | `putSync` | `remove` | `removeSync` | `doesExist` | `clearAsync` | `drop` | `prefetch` | `getMany` | `getCount` | `getKeys` | `getKeysCount` | `getRange` | `transactionSync` | `getDb` | `readOnly` | `transaction` | `readTransaction` | `getRepository`
+  | `get`
+  | `put`
+  | `putSync`
+  | `remove`
+  | `removeSync`
+  | `doesExist`
+  | `clearAsync`
+  | `drop`
+  | `prefetch`
+  | `getMany`
+  | `getCount`
+  | `getKeys`
+  | `getKeysCount`
+  | `getRange`
+  | `transactionSync`
+  | `getDb`
+  | `readOnly`
+  | `transaction`
+  | `readTransaction`
+  | `getRepository`
+  | `assertOpen`
+  | `getWriteTxnId`
 >
