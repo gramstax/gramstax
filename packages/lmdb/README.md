@@ -77,7 +77,7 @@ await db.close();
 
 ## Lifecycle
 
-The native LMDB environment opens during construction — the `open()` system call happens synchronously inside `new LmdbEnv(...)`. No explicit `await env.open()` is needed. Closing flushes pending writes and releases the memory-mapped region.
+The native LMDB environment opens during construction — the `open()` system call happens synchronously inside `new LmdbEnv(...)`. No explicit `await env.open()` is needed. Closing flushes pending writes and releases the memory-mapped region, and also purges this env's handles from lmdb-js's internal `allDbs` registry so repeated open/close cycles do not accumulate process-lifetime references.
 
 ```typescript
 // 1. Construct — LMDB env opens synchronously
@@ -90,6 +90,8 @@ const user = db.users.get(1); // synchronous read
 // 3. Close — flush + release mmap
 await db.close();
 ```
+
+After `close()` every entry point throws `LmdbEnvClosedError` (repository reads/writes, env-level data ops, transactions) instead of surfacing raw lmdb native errors.
 
 ## Sub-Database Isolation
 
@@ -210,8 +212,8 @@ await repo.getMany(keys)         → (T | undefined)[]
 
 await repo.like(pattern)         → [K, T][]
 await repo.findByPrefix(prefix)  → [K, T][]
-await repo.countByPrefix(prefix) → number
-await repo.deleteByPrefix(prefix)→ number
+await repo.countByPrefix(prefix) → Promise<number>
+await repo.deleteByPrefix(prefix)→ number     // rejects LmdbEmptyPrefixError on empty prefix
 
 for await (const [k, v] of repo.iterate(options))  // lazy async generator
 ```
@@ -227,10 +229,10 @@ this.env.readOnly
 ### `LmdbTransaction` Lifecycle
 
 ```
-tx.lifecycle      → 'active' | 'committed' | 'aborted'
+tx.lifecycle      → 'active' | 'committed' | 'aborted' | 'released'
 tx.done           → boolean (true when lifecycle !== 'active')
 tx.isCommitted    → boolean
-tx.isAborted      → boolean
+tx.isAborted      → boolean  // read txns that finished normally report false
 tx.raw            → underlying LMDB Transaction (read-tx only)
 tx.commit()       → marks wrapper committed (auto-commits on callback return)
 tx.abort()        → rolls back the native transaction

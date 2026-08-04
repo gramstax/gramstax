@@ -58,8 +58,12 @@ class Db extends LmdbEnv {
 | `first()`, `last()`             | `Promise<tuple\|undefined>` | async   |
 | `findByPrefix(prefix)`          | `Promise<array>`         | async      |
 | `like(pattern)`                 | `Promise<array>`         | async      |
+| `countByPrefix(prefix)`         | `Promise<number>`        | async      |
+| `deleteByPrefix(prefix)`        | `Promise<number>`        | async      |
 | `prefetch(keys)`                | `Promise<void>`          | async      |
 | `getMany(keys)`                 | `Promise<array>`         | async      |
+
+Transaction lifecycle: `'active' | 'committed' | 'aborted' | 'released'` — read transactions that finish normally report `'released'` (not `aborted`). `env.on('beforecommit'|'aftercommit', cb)` / `env.off(...)` attach commit listeners; `close()` detaches them and purges the env from lmdb-js's `allDbs` registry. `deleteByPrefix('')` rejects with `LmdbEmptyPrefixError` (use `clear()`). After `close()`, all ops throw `LmdbEnvClosedError`.
 
 Constructor options: `path`, `maxDbs`, `compression`, `encoding`, `readOnly`, `mapSize`, `cache`, `useVersions`, `keyEncoding`, `dupSort`, `noSync`, `encryptionKey`, `commitDelay`, `pageSize`, and all other `lmdb` `open()` options.
 
