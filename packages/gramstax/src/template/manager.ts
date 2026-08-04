@@ -105,6 +105,12 @@ export class TemplateManager {
   readonly _isWatchEnabled: ITTemplateOptions[`enableWatch`]
 
   /**
+   * Hook invoked after a template file is (re)compiled.
+   * @internal
+   */
+  readonly _onReload?: () => void
+
+  /**
    * Creates a new TemplateManager instance.
    *
    * @param options - Configuration options for the template manager
@@ -129,9 +135,10 @@ export class TemplateManager {
    * @throws Error if any path does not exist or is not a directory
    */
   constructor(options: ITTemplateOptions) {
-    const {path, enableWatch = false} = options
+    const {path, enableWatch = false, onReload} = options
 
     this._path = path
+    this._onReload = onReload
     this._isWatchEnabled = enableWatch
 
     this._validatePath()
@@ -433,6 +440,7 @@ export class TemplateManager {
         throw new Error(`File ${filename} is not support`)
       }
     }
+    this._onReload?.()
   }
 
   /**
@@ -746,15 +754,11 @@ export class TemplateManager {
     const one = map?.media?.[AGBaseId]
     const func = one?.[ALang] || one?.default
 
-    try {
-      if (!func) {
-        throw new Error(`Media function not found, please check your template`)
-      }
-
-      return func(data)
-    } catch {
-      return {} as unknown as ReturnType<ITCompiledTemplate[`media`][`default`][`default`]>
+    if (!func) {
+      throw new Error(`Media function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
     }
+
+    return func(data)
   }
 
   /**
@@ -1013,8 +1017,10 @@ export class TemplateManager {
   async destroy(): Promise<void> {
     if (this._watcher) {
       for (const wt of this._watcher) {
+        wt.removeAllListeners()
         await wt.close()
       }
+      this._watcher = []
     }
     this._map.clear()
   }

@@ -1062,6 +1062,13 @@ export class Ctx extends Context {
   temp: ITTemp
 
   /**
+   * Per-request session fetch cache (memoization for getSession).
+   * @internal
+   */
+  private _sessionLoaded = false
+  private _sessionValue: ITCacheRpc | null = null
+
+  /**
    * Creates a new Ctx instance.
    *
    * **note:**
@@ -1211,31 +1218,43 @@ export class Ctx extends Context {
    *
    * @public
    */
-  async renderBroadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null, throwError: boolean | null = false) {
-    const res = {successCount: 0, failedCount: 0, totalCount: 0}
+  async renderBroadcast(ids: number[], languageCode: string[], keyboard?: ITInBoKb | null, data?: ITData | null, AGBaseId?: string | null, options?: ITOptReply | null, throwError: boolean | null = false, chunkSize: number | null = null, chunkDelayMs: number | null = null, excludeIds: number[] | null = null) {
+    const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0}
     res.totalCount = ids.length
-    try {
-      const limitFree = 30
-      const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
-      for (let index = 0; index < ids.length; index++) {
-        const id = ids[index]
-        const msg = msgs[index]
-        await this.api.sendMessage(id!, msg!, {
+    const limitFree = 30
+    const excluded = excludeIds !== null && excludeIds.length > 0 ? new Set(excludeIds) : null
+    const msgs = languageCode.map((it) => this.templateManager.getGMessage(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
+    let firstError: unknown
+    for (let index = 0; index < ids.length; index++) {
+      const id = ids[index]
+      if (excluded?.has(id!)) {
+        res.skippedCount += 1
+        continue
+      }
+      const msg = msgs[index] ?? msgs[msgs.length - 1]
+      if (msg === undefined || msg === ``) {
+        res.failedCount += 1
+        continue
+      }
+      try {
+        await this.api.sendMessage(id!, msg, {
           parse_mode: `HTML`,
           reply_markup: keyboard ?? undefined,
           ...(options ?? {})
         })
-
         res.successCount += 1
-        if (index + 1 === limitFree) {
-          await setTimeout(1200)
-        }
+      } catch (error) {
+        res.failedCount += 1
+        firstError ??= error
       }
-    } catch (err) {
-      res.failedCount += 1
-      if (throwError) {
-        throw {...res, err}
+      if ((index + 1) % limitFree === 0) {
+        await setTimeout(1200)
+      } else if (chunkSize !== null && chunkSize > 0 && (index + 1) % chunkSize === 0 && index + 1 < ids.length) {
+        await setTimeout(chunkDelayMs ?? 500)
       }
+    }
+    if (throwError && res.failedCount > 0) {
+      throw {...res, err: firstError}
     }
     return res
   }
@@ -1277,61 +1296,59 @@ export class Ctx extends Context {
     data?: ITData | null,
     AGBaseId?: string | null,
     options?: ITOptReplyPhoto | ITOptReplyVideo | ITOptReplyAudio | ITOptReplyDocument | ITOptReplyAnimation | ITOptReplyVoice | ITOptReplyVideoNote | ITOptReplySticker | ITOptReplyLocation | ITOptReplyContact | null,
-    throwError: boolean | null = false
+    throwError: boolean | null = false,
+    chunkSize: number | null = null,
+    chunkDelayMs: number | null = null,
+    excludeIds: number[] | null = null
   ) {
-    const res = {successCount: 0, failedCount: 0, totalCount: 0}
+    const res = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0}
     res.totalCount = ids.length
-    try {
-      const limitFree = 30
-      const medias = languageCode.map((it) => this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
-
-      for (let index = 0; index < ids.length; index++) {
-        const id = ids[index]
-        const med = medias[index]
+    const limitFree = 30
+    const excluded = excludeIds !== null && excludeIds.length > 0 ? new Set(excludeIds) : null
+    const medias = languageCode.map((it) => this.templateManager.getGMedia(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
+    let firstError: unknown
+    for (let index = 0; index < ids.length; index++) {
+      const id = ids[index]
+      if (excluded?.has(id!)) {
+        res.skippedCount += 1
+        continue
+      }
+      const med = medias[index] ?? medias[medias.length - 1]
+      try {
         if (!med) {
-          continue
+          throw new Error(`Media not found for template "${this.data.name}"`)
         }
         const opt = {parse_mode: `HTML`, reply_markup: keyboard ?? undefined, ...(options ?? {})} as Record<string, unknown>
 
         if (med.type === `group` && med.mediaGroup && med.mediaGroup.length > 0) {
           await this.api.sendMediaGroup(id!, Helper.buildMediaGroupFromItems(med.mediaGroup, med.caption), Helper.buildMediaGroupOptions(opt))
-          res.successCount += 1
-          if (index + 1 === limitFree) {
-            await setTimeout(1200)
-          }
-          continue
-        }
-
-        if (Helper.isMediaGroupType(med.type) && med.srcList && med.srcList.length > 1) {
+        } else if (Helper.isMediaGroupType(med.type) && med.srcList && med.srcList.length > 1) {
           await this.api.sendMediaGroup(id!, Helper.buildMediaGroup(med.type, med.srcList, med.caption), Helper.buildMediaGroupOptions(opt))
-          res.successCount += 1
-          if (index + 1 === limitFree) {
-            await setTimeout(1200)
-          }
-          continue
-        }
-
-        if (med.type === `photo`) await this.api.sendPhoto(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type === `video`) await this.api.sendVideo(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type === `audio`) await this.api.sendAudio(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type === `document`) await this.api.sendDocument(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type === `animation`) await this.api.sendAnimation(id!, med.src!, {caption: med.caption!, ...opt})
-        if (med.type === `voice`) await this.api.sendVoice(id!, med.src!, opt)
-        if (med.type === `video_note`) await this.api.sendVideoNote(id!, med.src!, opt)
-        if (med.type === `sticker`) await this.api.sendSticker(id!, med.src!, opt)
-        if (med.type === `location`) await this.api.sendLocation(id!, parseInt(med.latitude!), parseInt(med.longitude!), opt)
-        if (med.type === `contact`) await this.api.sendContact(id!, med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
+        } else if (med.type === `photo`) await this.api.sendPhoto(id!, med.src!, {caption: med.caption!, ...opt})
+        else if (med.type === `video`) await this.api.sendVideo(id!, med.src!, {caption: med.caption!, ...opt})
+        else if (med.type === `audio`) await this.api.sendAudio(id!, med.src!, {caption: med.caption!, ...opt})
+        else if (med.type === `document`) await this.api.sendDocument(id!, med.src!, {caption: med.caption!, ...opt})
+        else if (med.type === `animation`) await this.api.sendAnimation(id!, med.src!, {caption: med.caption!, ...opt})
+        else if (med.type === `voice`) await this.api.sendVoice(id!, med.src!, opt)
+        else if (med.type === `video_note`) await this.api.sendVideoNote(id!, med.src!, opt)
+        else if (med.type === `sticker`) await this.api.sendSticker(id!, med.src!, opt)
+        else if (med.type === `location`) await this.api.sendLocation(id!, parseInt(med.latitude!), parseInt(med.longitude!), opt)
+        else if (med.type === `contact`) await this.api.sendContact(id!, med.phone!, med.first_name!, {vcard: med.vcard!, ...opt})
+        else throw new Error(`Unknown media type "${med.type}"`)
 
         res.successCount += 1
-        if (index + 1 === limitFree) {
-          await setTimeout(1200)
-        }
+      } catch (error) {
+        res.failedCount += 1
+        firstError ??= error
       }
-    } catch (err) {
-      res.failedCount += 1
-      if (throwError) {
-        throw {...res, err}
+      if ((index + 1) % limitFree === 0) {
+        await setTimeout(1200)
+      } else if (chunkSize !== null && chunkSize > 0 && (index + 1) % chunkSize === 0 && index + 1 < ids.length) {
+        await setTimeout(chunkDelayMs ?? 500)
       }
+    }
+    if (throwError && res.failedCount > 0) {
+      throw {...res, err: firstError}
     }
     return res
   }
@@ -2079,25 +2096,26 @@ export class Ctx extends Context {
         await this.deleteMessage()
         return await this.renderMediaGroup(type, data, AGBaseId)
       }
+      const commonOpt = {reply_markup: keyboardInline ?? undefined, ...(options1 ?? {})} as Record<string, unknown>
       if (type === `voice`) {
         await this.deleteMessage()
-        return await this.renderVoice(keyboardInline, data, AGBaseId, options1)
+        return await this.api.sendVoice(this.chat?.id as number, src!, commonOpt)
       }
       if (type === `video_note`) {
         await this.deleteMessage()
-        return await this.renderVoice(keyboardInline, data, AGBaseId, options1)
+        return await this.api.sendVideoNote(this.chat?.id as number, src!, commonOpt)
       }
       if (type === `sticker`) {
         await this.deleteMessage()
-        return await this.renderSticker(keyboardInline, data, AGBaseId, options1 as Record<string, unknown>)
+        return await this.api.sendSticker(this.chat?.id as number, src!, commonOpt)
       }
       if (type === `location`) {
         await this.deleteMessage()
-        return await this.renderLocation(keyboardInline, data, AGBaseId, options1 as Record<string, unknown>)
+        return await this.api.sendLocation(this.chat?.id as number, parseInt(med.latitude!), parseInt(med.longitude!), commonOpt)
       }
       if (type === `contact`) {
         await this.deleteMessage()
-        return await this.renderContact(keyboardInline, data, AGBaseId, options1 as Record<string, unknown>)
+        return await this.api.sendContact(this.chat?.id as number, med.phone!, med.first_name!, {vcard: med.vcard!, ...commonOpt})
       }
 
       return await this.editMessageMedia(
@@ -2493,10 +2511,14 @@ export class Ctx extends Context {
    */
   async setSession(method: string | string[], params?: Record<string, unknown>, moreRoot?: Record<string, unknown>) {
     try {
+      const id = this.from?.id ?? this.chat?.id
+      if (id === undefined || id === null) return null
       const value = {method, params, ...moreRoot}
-      const result = await this.cacheSession.set(`${this.from?.id}`, value)
+      const result = await this.cacheSession.set(`${id}`, value)
       if (result) {
         this.temp.session = value
+        this._sessionLoaded = true
+        this._sessionValue = value as ITCacheRpc
       }
       return result
     } catch {
@@ -2523,10 +2545,15 @@ export class Ctx extends Context {
    * @public
    */
   async getSession(): Promise<ITCacheRpc | null> {
+    if (this._sessionLoaded) return this._sessionValue
+    this._sessionLoaded = true
     try {
-      const result = await this.cacheSession.get(`${this.from?.id}`)
+      const id = this.from?.id ?? this.chat?.id
+      if (id === undefined || id === null) return null
+      const result = await this.cacheSession.get(`${id}`)
+      this._sessionValue = result || null
       if (result) this.temp.session = result
-      return result || null
+      return this._sessionValue
     } catch {
       return null
     }
@@ -2552,8 +2579,12 @@ export class Ctx extends Context {
    */
   async clearSession() {
     try {
-      const result = await this.cacheSession.delete(`${this.from?.id}`)
+      const id = this.from?.id ?? this.chat?.id
+      if (id === undefined || id === null) return null
+      const result = await this.cacheSession.delete(`${id}`)
       if (result) this.temp.session = {}
+      this._sessionLoaded = false
+      this._sessionValue = null
       return result
     } catch {
       return null
@@ -2861,8 +2892,8 @@ export class Ctx extends Context {
    */
   inlineKeyboard(callback: (k: ITInlineKb, l: string[]) => ITInlineKb, params?: ITInlineKbParams | null): ITInlineKb {
     const tkey = this.data.name
-    if (params?.cache === true) {
-      const key = `${tkey}:${this.from?.language_code}:i`
+    if (params?.cache === true && !params?.data) {
+      const key = `${tkey}:${params?.AGBaseId ?? `default`}:${this.from?.language_code ?? `default`}:i`
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const ikb = new GramstaxInlineKeyboard()
@@ -2905,8 +2936,8 @@ export class Ctx extends Context {
    */
   bottomKeyboard(callback: (k: ITBottomKb, l: string[]) => ITBottomKb, params?: ITBottomKbParams | null): ITBottomKb {
     const tkey = this.data.name
-    if (params?.cache === true) {
-      const key = `${tkey}:${this.from?.language_code}:b`
+    if (params?.cache === true && !params?.data) {
+      const key = `${tkey}:${params?.AGBaseId ?? `default`}:${this.from?.language_code ?? `default`}:b`
       const ckb = this.cacheKeyboard.get(key)
       if (!ckb) {
         const kb = new GramstaxKeyboard()

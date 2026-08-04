@@ -813,13 +813,18 @@ export class TemplateEngine {
         processed = processed.replace(/\{\{([\w.]+)\}\}/g, (_m: string, inner: string) => {
           const eMatch = inner.match(/^(e(\d*))(?:\.(.+))?$/)
           if (eMatch) {
-            const varSuffix = eMatch[2] || suffix
+            const requested = eMatch[2] === `` ? depth : Number(eMatch[2])
+            const clamped = Number.isNaN(requested) ? depth : Math.min(requested, depth)
+            const varSuffix = clamped === 1 ? `` : String(clamped)
             const prop = eMatch[3]
             return prop ? `\${e${varSuffix}.${prop}}` : `\${e${varSuffix}}`
           }
           const iMatch = inner.match(/^i(\d*)$/)
           if (iMatch) {
-            return `\${i${iMatch[1] || suffix}}`
+            const requestedI = iMatch[1] === `` ? depth : Number(iMatch[1])
+            const clampedI = Number.isNaN(requestedI) ? depth : Math.min(requestedI, depth)
+            const varSuffixI = clampedI === 1 ? `` : String(clampedI)
+            return `\${i${varSuffixI}}`
           }
           return _m
         })

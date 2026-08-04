@@ -294,6 +294,8 @@ export class MockTelegramServer {
   server?: {port?: number; stop: () => void}
   private _nextUpdateId = 1
   private _nextMessageId = 1
+  private _onSigint?: () => void
+  private _onSigterm?: () => void
 
   /**
    * Create a new mock server instance.
@@ -339,8 +341,10 @@ export class MockTelegramServer {
 
     this.server = server
     this.apiRoot = `http://${this.hostname}:${server.port ?? this.port}`
-    process.once(`SIGINT`, () => this.stop())
-    process.once(`SIGTERM`, () => this.stop())
+    this._onSigint = () => { void this.stop() }
+    this._onSigterm = () => { void this.stop() }
+    process.once(`SIGINT`, this._onSigint)
+    process.once(`SIGTERM`, this._onSigterm)
     this.log?.info?.(`Mock Telegram server started: ${this.apiRoot}`)
     return this.apiRoot
   }
@@ -357,6 +361,12 @@ export class MockTelegramServer {
   async stop() {
     this.server?.stop()
     this.server = undefined
+    if (this._onSigint) {
+      process.removeListener(`SIGINT`, this._onSigint)
+    }
+    if (this._onSigterm) {
+      process.removeListener(`SIGTERM`, this._onSigterm)
+    }
     this.log?.info?.(`Mock Telegram server stopped`)
   }
 
@@ -403,6 +413,19 @@ export class MockTelegramServer {
    */
   clearRequests() {
     this.requests.length = 0
+  }
+
+  /**
+   * Clear the captured inbound update log.
+   *
+   * @remarks
+   * Useful between test cases to isolate update assertions.
+   * Does not affect the `requests` log.
+   *
+   * @public
+   */
+  clearUpdates() {
+    this.updates.length = 0
   }
 
   private _defaultResponse(method: string, body?: unknown): ITMockTelegramJson {

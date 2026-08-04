@@ -10,7 +10,6 @@
  * @public
  */
 
-/** @public */
 export type ITE2eUser = {
   id?: number
   username?: string
@@ -20,7 +19,11 @@ export type ITE2eUser = {
   is_bot?: boolean
 }
 
-/** @public */
+/**
+ * Simulated chat object for E2E updates.
+ *
+ * @public
+ */
 export type ITE2eChat = {
   id?: number
   type?: `private` | `group` | `supergroup` | `channel`
@@ -30,7 +33,11 @@ export type ITE2eChat = {
   title?: string
 }
 
-/** @public */
+/**
+ * Base update options for E2E updates.
+ *
+ * @public
+ */
 export type ITE2eUpdateOptions = {
   user?: ITE2eUser
   chat?: ITE2eChat
@@ -38,18 +45,30 @@ export type ITE2eUpdateOptions = {
   message_id?: number
 }
 
-/** @public */
+/**
+ * E2E options for media messages (caption support).
+ *
+ * @public
+ */
 export type ITE2eMediaOptions = ITE2eUpdateOptions & {
   caption?: string
 }
 
-/** @public */
+/**
+ * E2E options for location messages.
+ *
+ * @public
+ */
 export type ITE2eLocationOptions = ITE2eUpdateOptions & {
   latitude?: number
   longitude?: number
 }
 
-/** @public */
+/**
+ * E2E options for contact messages.
+ *
+ * @public
+ */
 export type ITE2eContactOptions = ITE2eUpdateOptions & {
   phone_number?: string
   first_name?: string
@@ -57,13 +76,21 @@ export type ITE2eContactOptions = ITE2eUpdateOptions & {
   user_id?: number
 }
 
-/** @public */
+/**
+ * E2E options for callback query updates.
+ *
+ * @public
+ */
 export type ITE2eCallbackQueryOptions = ITE2eUpdateOptions & {
   id?: string
   messageText?: string
 }
 
-/** @public */
+/**
+ * E2E options for dice messages.
+ *
+ * @public
+ */
 export type ITE2eDiceOptions = ITE2eUpdateOptions & {
   emoji?: `🎲` | `🎯` | `🏀` | `⚽` | `🎰` | `🎳`
 }

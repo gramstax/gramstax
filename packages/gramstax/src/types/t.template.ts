@@ -46,4 +46,12 @@ export type ITTemplateOptions = {
   enableWatch?: boolean
   /** {@link https://github.com/paulmillr/chokidar#persistence | Chokidar WatchOptions} passed to the file watcher */
   watchOptions?: ChokidarOptions
+  /**
+   * Hook invoked after a template file is (re)compiled.
+   *
+   * @remarks
+   * Fires on initial load and on watch reloads. Users typically clear
+   * dependent caches here (e.g. the bot's keyboard cache).
+   */
+  onReload?: () => void
 }
