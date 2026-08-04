@@ -336,7 +336,149 @@
             {
               "kind": "MethodSignature",
               "canonicalReference": "gramstax!_InlineKbWithCtx#text:member(1)",
-              "docComment": "/**\n * Add a callback button. `text` and/or `data` can be a page (class/instance) or string. A page passed as `text` resolves to its `intentText` label; a page passed as `data` resolves to its `callbackQueryData()`.\n *\n * @param text - string, grammY button object (or with page text), or class Page (resolves to intentText)\n *\n * @param data - string callback_data, grammY button object, or class Page\n */\n",
+              "docComment": "/**\n * Add a callback button. `text` and/or `data` can be a page (class/instance) or string. A page passed as `text` resolves to its `intentText` label; a page passed as `data` resolves to its `callbackQueryData()`.\n *\n * When `data` is a callback data object (`Page.data.callbackQueryData(...)`), the destination page must define `handleCallbackQueryData` (no args) or `handleArgsCallbackQueryData` (with args) — enforced at compile time.\n *\n * @param text - string, grammY button object (or with page text), or class Page (resolves to intentText)\n *\n * @param data - string callback_data, grammY button object, class Page, or callback data object from `page.data.callbackQueryData(...)`\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "text<D extends "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "_KbCallbackData",
+                  "canonicalReference": "gramstax!_KbCallbackData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<typeof "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string | undefined>>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">(text: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Parameters",
+                  "canonicalReference": "!Parameters:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "InlineKeyboard",
+                  "canonicalReference": "grammy!InlineKeyboard:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[`text`]>[0] | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "_KbPageLike",
+                  "canonicalReference": "gramstax!_KbPageLike:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "_KbButtonWithPageText",
+                  "canonicalReference": "gramstax!_KbButtonWithPageText:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "D & "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "_KbCallbackDataCheck",
+                  "canonicalReference": "gramstax!_KbCallbackDataCheck:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<D>"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "this"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "returnTypeTokenRange": {
+                "startIndex": 20,
+                "endIndex": 21
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "text",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 8,
+                    "endIndex": 15
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 16,
+                    "endIndex": 19
+                  },
+                  "isOptional": false
+                }
+              ],
+              "typeParameters": [
+                {
+                  "typeParameterName": "D",
+                  "constraintTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 7
+                  },
+                  "defaultTypeTokenRange": {
+                    "startIndex": 0,
+                    "endIndex": 0
+                  }
+                }
+              ],
+              "name": "text"
+            },
+            {
+              "kind": "MethodSignature",
+              "canonicalReference": "gramstax!_InlineKbWithCtx#text:member(2)",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -420,7 +562,7 @@
                 "endIndex": 16
               },
               "releaseTag": "Public",
-              "overloadIndex": 1,
+              "overloadIndex": 2,
               "parameters": [
                 {
                   "parameterName": "text",
@@ -514,6 +656,103 @@
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 11
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!_KbCallbackData:type",
+          "docComment": "/**\n * Callback data produced by `Page.data.callbackQueryData(...)`.\n *\n * @remarks\n *\n * Object format `{result, page, args}`: `result` is the string sent to Telegram, `page` is the destination page class, `args` is the arg tuple passed at call time.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type _KbCallbackData<P extends "
+            },
+            {
+              "kind": "Content",
+              "text": "typeof "
+            },
+            {
+              "kind": "Reference",
+              "text": "Ctx",
+              "canonicalReference": "gramstax!Ctx:class"
+            },
+            {
+              "kind": "Content",
+              "text": " = "
+            },
+            {
+              "kind": "Content",
+              "text": "typeof "
+            },
+            {
+              "kind": "Reference",
+              "text": "Ctx",
+              "canonicalReference": "gramstax!Ctx:class"
+            },
+            {
+              "kind": "Content",
+              "text": ", A extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "Array",
+              "canonicalReference": "!Array:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<string | undefined>"
+            },
+            {
+              "kind": "Content",
+              "text": " = "
+            },
+            {
+              "kind": "Content",
+              "text": "[]"
+            },
+            {
+              "kind": "Content",
+              "text": "> = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    result: string;\n    page: P;\n    args: A;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "_KbCallbackData",
+          "typeParameters": [
+            {
+              "typeParameterName": "P",
+              "constraintTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 4,
+                "endIndex": 6
+              }
+            },
+            {
+              "typeParameterName": "A",
+              "constraintTokenRange": {
+                "startIndex": 7,
+                "endIndex": 9
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 10,
+                "endIndex": 11
+              }
+            }
+          ],
+          "typeTokenRange": {
+            "startIndex": 12,
+            "endIndex": 13
           }
         },
         {
@@ -1418,7 +1657,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx.buildData:member(1)",
-              "docComment": "/**\n * Creates page routing data configuration.\n *\n * @remarks\n *\n * This method has multiple overloads: - `buildData()` - Returns default page data with no args. - `buildData(callbackQueryData)` - Returns intentCallbackQueryData + args. - `buildData(options)` - Returns page data with custom options.\n *\n * The callback must return an array of arg values that will be joined with the intent using colon separators.\n *\n * @param callbackQueryData - A function that returns arg values as an array.\n *\n * @typeParam C - The callback function type.\n *\n * @returns The page data configuration object.\n *\n * @example\n * ```typescript\n * class MyPage extends Ctx {\n *   // Simple callback arg\n *   static data = this.buildData((id: string) => [id])\n *\n *   // With custom intents\n *   static data = this.buildData({\n *     callbackQueryData: (action: string) => [action],\n *     intentText: \"my_page\",\n *     intentCommandText: \"mycommand\"\n *   })\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Creates page routing data configuration with a callback function.\n *\n * @param callbackQueryData - A function that returns arg values as an array.\n *\n * @returns The page data configuration object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1607,7 +1846,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx.buildData:member(3)",
-              "docComment": "/**\n * Creates page routing data configuration with options (no type inference).\n *\n * @param options - Configuration options (or null to use defaults). See {@link ITBuildDataOptions} for details.\n *\n * @returns The page data configuration object.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Creates page routing data configuration without a callback arg.\n *\n * @param options - Configuration options without `callbackQueryData` (or null to use defaults). See {@link ITBuildDataOptions} for details.\n *\n * @returns The page data configuration object.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -11423,6 +11662,30 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", chunkSize?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", chunkDelayMs?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", excludeIds?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number[] | null"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -11432,7 +11695,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<{\n        successCount: number;\n        failedCount: number;\n        totalCount: number;\n    }>"
+                  "text": "<{\n        successCount: number;\n        failedCount: number;\n        totalCount: number;\n        skippedCount: number;\n    }>"
                 },
                 {
                   "kind": "Content",
@@ -11441,8 +11704,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 18,
-                "endIndex": 20
+                "startIndex": 24,
+                "endIndex": 26
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -11501,6 +11764,30 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 16,
                     "endIndex": 17
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "chunkSize",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 18,
+                    "endIndex": 19
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "chunkDelayMs",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 20,
+                    "endIndex": 21
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "excludeIds",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 22,
+                    "endIndex": 23
                   },
                   "isOptional": true
                 }
@@ -11668,6 +11955,30 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", chunkSize?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", chunkDelayMs?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", excludeIds?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number[] | null"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -11677,7 +11988,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<{\n        successCount: number;\n        failedCount: number;\n        totalCount: number;\n    }>"
+                  "text": "<{\n        successCount: number;\n        failedCount: number;\n        totalCount: number;\n        skippedCount: number;\n    }>"
                 },
                 {
                   "kind": "Content",
@@ -11686,8 +11997,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 36,
-                "endIndex": 38
+                "startIndex": 42,
+                "endIndex": 44
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -11746,6 +12057,30 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 34,
                     "endIndex": 35
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "chunkSize",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 36,
+                    "endIndex": 37
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "chunkDelayMs",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 38,
+                    "endIndex": 39
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "excludeIds",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 40,
+                    "endIndex": 41
                   },
                   "isOptional": true
                 }
@@ -12581,42 +12916,6 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "grammy_types.Message.PhotoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.VideoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.AudioMessage",
-                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.DocumentMessage",
-                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
                   "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
@@ -12713,7 +13012,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 15,
-                "endIndex": 49
+                "endIndex": 41
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -12862,42 +13161,6 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "grammy_types.Message.PhotoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.VideoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.AudioMessage",
-                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.DocumentMessage",
-                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
                   "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
@@ -12994,7 +13257,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 15,
-                "endIndex": 49
+                "endIndex": 41
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -13270,42 +13533,6 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "grammy_types.Message.PhotoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.VideoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.AudioMessage",
-                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.DocumentMessage",
-                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
                   "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
@@ -13402,7 +13629,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 12,
-                "endIndex": 46
+                "endIndex": 38
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -13543,42 +13770,6 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "grammy_types.Message.PhotoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.VideoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.AudioMessage",
-                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.DocumentMessage",
-                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
                   "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
@@ -13675,7 +13866,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 15,
-                "endIndex": 49
+                "endIndex": 41
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -13951,42 +14142,6 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "grammy_types.Message.PhotoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.VideoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.AudioMessage",
-                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.DocumentMessage",
-                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
                   "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
@@ -14083,7 +14238,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 12,
-                "endIndex": 46
+                "endIndex": 38
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -14311,42 +14466,6 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "grammy_types.Message.PhotoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.VideoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.AudioMessage",
-                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.DocumentMessage",
-                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
                   "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
@@ -14456,7 +14575,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 35,
-                "endIndex": 69
+                "endIndex": 61
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -14809,42 +14928,6 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "grammy_types.Message.PhotoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.VideoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.AudioMessage",
-                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.DocumentMessage",
-                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
                   "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
@@ -14941,7 +15024,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 15,
-                "endIndex": 49
+                "endIndex": 41
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15433,42 +15516,6 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "grammy_types.Message.PhotoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.VideoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.AudioMessage",
-                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.DocumentMessage",
-                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
                   "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
@@ -15565,7 +15612,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 12,
-                "endIndex": 46
+                "endIndex": 38
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -15706,42 +15753,6 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "grammy_types.Message.PhotoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.VideoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.AudioMessage",
-                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.DocumentMessage",
-                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
                   "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
@@ -15838,7 +15849,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 15,
-                "endIndex": 49
+                "endIndex": 41
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16114,42 +16125,6 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "grammy_types.Message.PhotoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.VideoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.AudioMessage",
-                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.DocumentMessage",
-                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
                   "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
@@ -16246,7 +16221,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 12,
-                "endIndex": 46
+                "endIndex": 38
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -16374,42 +16349,6 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "grammy_types.Message.PhotoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.PhotoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.VideoMessage",
-                  "canonicalReference": "@grammyjs/types!Message.VideoMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.AudioMessage",
-                  "canonicalReference": "@grammyjs/types!Message.AudioMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Message.DocumentMessage",
-                  "canonicalReference": "@grammyjs/types!Message.DocumentMessage:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | "
-                },
-                {
-                  "kind": "Reference",
                   "text": "grammy_types.Message.VoiceMessage",
                   "canonicalReference": "@grammyjs/types!Message.VoiceMessage:type"
                 },
@@ -16506,7 +16445,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 12,
-                "endIndex": 46
+                "endIndex": 38
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -25710,7 +25649,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ">;\n        routeDynamic: string[];\n        routeDynamicSpesific: {\n            text: {\n                name: string;\n                routeName: string;\n            }[];\n            photo: {\n                name: string;\n                routeName: string;\n            }[];\n            video: {\n                name: string;\n                routeName: string;\n            }[];\n            audio: {\n                name: string;\n                routeName: string;\n            }[];\n            document: {\n                name: string;\n                routeName: string;\n            }[];\n            animation: {\n                name: string;\n                routeName: string;\n            }[];\n            voice: {\n                name: string;\n                routeName: string;\n            }[];\n            videonote: {\n                name: string;\n                routeName: string;\n            }[];\n            sticker: {\n                name: string;\n                routeName: string;\n            }[];\n            location: {\n                name: string;\n                routeName: string;\n            }[];\n            contact: {\n                name: string;\n                routeName: string;\n            }[];\n            channelpost: {\n                name: string;\n                routeName: string;\n            }[];\n            editchannelpost: {\n                name: string;\n                routeName: string;\n            }[];\n            edit: {\n                name: string;\n                routeName: string;\n            }[];\n            reaction: {\n                name: string;\n                routeName: string;\n            }[];\n            inlinequery: {\n                name: string;\n                routeName: string;\n            }[];\n            choseninlineresult: {\n                name: string;\n                routeName: string;\n            }[];\n            precheckoutquery: {\n                name: string;\n                routeName: string;\n            }[];\n            shippingquery: {\n                name: string;\n                routeName: string;\n            }[];\n            chatjoinrequest: {\n                name: string;\n                routeName: string;\n            }[];\n            poll: {\n                name: string;\n                routeName: string;\n            }[];\n            pollanswer: {\n                name: string;\n                routeName: string;\n            }[];\n            newchatmembers: {\n                name: string;\n                routeName: string;\n            }[];\n            leftchatmember: {\n                name: string;\n                routeName: string;\n            }[];\n        };\n        routeStatic: {\n            handleCallbackQueryData: "
+                  "text": ">;\n        routeDynamic: string[];\n        routeDynamicSpesific: {\n            text: {\n                name: string;\n                routeName: string;\n            }[];\n            photo: {\n                name: string;\n                routeName: string;\n            }[];\n            video: {\n                name: string;\n                routeName: string;\n            }[];\n            audio: {\n                name: string;\n                routeName: string;\n            }[];\n            document: {\n                name: string;\n                routeName: string;\n            }[];\n            animation: {\n                name: string;\n                routeName: string;\n            }[];\n            voice: {\n                name: string;\n                routeName: string;\n            }[];\n            videonote: {\n                name: string;\n                routeName: string;\n            }[];\n            sticker: {\n                name: string;\n                routeName: string;\n            }[];\n            location: {\n                name: string;\n                routeName: string;\n            }[];\n            contact: {\n                name: string;\n                routeName: string;\n            }[];\n            channelpost: {\n                name: string;\n                routeName: string;\n            }[];\n            editchannelpost: {\n                name: string;\n                routeName: string;\n            }[];\n            edit: {\n                name: string;\n                routeName: string;\n            }[];\n            reaction: {\n                name: string;\n                routeName: string;\n            }[];\n            inlinequery: {\n                name: string;\n                routeName: string;\n            }[];\n            choseninlineresult: {\n                name: string;\n                routeName: string;\n            }[];\n            precheckoutquery: {\n                name: string;\n                routeName: string;\n            }[];\n            shippingquery: {\n                name: string;\n                routeName: string;\n            }[];\n            chatjoinrequest: {\n                name: string;\n                routeName: string;\n            }[];\n            poll: {\n                name: string;\n                routeName: string;\n            }[];\n            pollanswer: {\n                name: string;\n                routeName: string;\n            }[];\n            newchatmembers: {\n                name: string;\n                routeName: string;\n            }[];\n            leftchatmember: {\n                name: string;\n                routeName: string;\n            }[];\n            businessconnection: {\n                name: string;\n                routeName: string;\n            }[];\n            businessmessage: {\n                name: string;\n                routeName: string;\n            }[];\n            editedbusinessmessage: {\n                name: string;\n                routeName: string;\n            }[];\n            deletedbusinessmessages: {\n                name: string;\n                routeName: string;\n            }[];\n            messagereactioncount: {\n                name: string;\n                routeName: string;\n            }[];\n            chatboost: {\n                name: string;\n                routeName: string;\n            }[];\n            removedchatboost: {\n                name: string;\n                routeName: string;\n            }[];\n            successfulpayment: {\n                name: string;\n                routeName: string;\n            }[];\n            refundedpayment: {\n                name: string;\n                routeName: string;\n            }[];\n            groupchatcreated: {\n                name: string;\n                routeName: string;\n            }[];\n            supergroupchatcreated: {\n                name: string;\n                routeName: string;\n            }[];\n            channelchatcreated: {\n                name: string;\n                routeName: string;\n            }[];\n            videochatstarted: {\n                name: string;\n                routeName: string;\n            }[];\n            videochatscheduled: {\n                name: string;\n                routeName: string;\n            }[];\n            videochatended: {\n                name: string;\n                routeName: string;\n            }[];\n            videochatparticipantsinvited: {\n                name: string;\n                routeName: string;\n            }[];\n            usershared: {\n                name: string;\n                routeName: string;\n            }[];\n            chatshared: {\n                name: string;\n                routeName: string;\n            }[];\n            webappdata: {\n                name: string;\n                routeName: string;\n            }[];\n            giveaway: {\n                name: string;\n                routeName: string;\n            }[];\n            giveawaycreated: {\n                name: string;\n                routeName: string;\n            }[];\n            giveawaywinners: {\n                name: string;\n                routeName: string;\n            }[];\n            giveawaycompleted: {\n                name: string;\n                routeName: string;\n            }[];\n            pinmessage: {\n                name: string;\n                routeName: string;\n            }[];\n        };\n        routeStatic: {\n            handleCallbackQueryData: "
                 },
                 {
                   "kind": "Reference",
@@ -26466,6 +26405,222 @@
                 },
                 {
                   "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeBusinessConnection: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeBusinessMessage: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeEditedBusinessMessage: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeDeletedBusinessMessages: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeMessageReactionCount: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChatBoost: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeRemovedChatBoost: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeSuccessfulPayment: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeRefundedPayment: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGroupChatCreated: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeSupergroupChatCreated: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChannelChatCreated: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoChatStarted: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoChatScheduled: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoChatEnded: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeVideoChatParticipantsInvited: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeUserShared: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeChatShared: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeWebAppData: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGiveaway: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGiveawayCreated: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGiveawayWinners: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreeGiveawayCompleted: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n            handleSessionFreePinMessage: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
                   "text": "<string, {\n                name: string;\n                routeName: string;\n            }>;\n        };\n        routeChatMember: "
                 },
                 {
@@ -26502,7 +26657,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "[];\n        listRouteStatic: readonly [\"handleCallbackQueryData\", \"handleText\", \"handleCommandText\", \"handleCaptionPhoto\", \"handleCommandCaptionPhoto\", \"handleCaptionVideo\", \"handleCommandCaptionVideo\", \"handleCaptionAudio\", \"handleCommandCaptionAudio\", \"handleCaptionDocument\", \"handleCommandCaptionDocument\", \"handleCaptionAnimation\", \"handleCommandCaptionAnimation\", \"handleCaptionVoice\", \"handleCommandCaptionVoice\"];\n        listRouteStaticIntent: readonly [\"handleArgsCallbackQueryData\", \"handleArgsText\", \"handleCommandArgsText\", \"handleCaptionArgsPhoto\", \"handleCommandCaptionArgsPhoto\", \"handleCaptionArgsVideo\", \"handleCommandCaptionArgsVideo\", \"handleCaptionArgsAudio\", \"handleCommandCaptionArgsAudio\", \"handleCaptionArgsDocument\", \"handleCommandCaptionArgsDocument\", \"handleCaptionArgsAnimation\", \"handleCommandCaptionArgsAnimation\", \"handleCaptionArgsVoice\", \"handleCommandCaptionArgsVoice\"];\n        listRouteStaticSession: readonly [...(\"handleSessionCallbackQueryData\" | \"handleSessionText\" | \"handleSessionCommandText\" | \"handleSessionCaptionPhoto\" | \"handleSessionCommandCaptionPhoto\" | \"handleSessionCaptionVideo\" | \"handleSessionCommandCaptionVideo\" | \"handleSessionCaptionAudio\" | \"handleSessionCommandCaptionAudio\" | \"handleSessionCaptionDocument\" | \"handleSessionCommandCaptionDocument\" | \"handleSessionCaptionAnimation\" | \"handleSessionCommandCaptionAnimation\" | \"handleSessionCaptionVoice\" | \"handleSessionCommandCaptionVoice\" | \"handleSessionArgsCallbackQueryData\" | \"handleSessionArgsText\" | \"handleSessionCommandArgsText\" | \"handleSessionCaptionArgsPhoto\" | \"handleSessionCommandCaptionArgsPhoto\" | \"handleSessionCaptionArgsVideo\" | \"handleSessionCommandCaptionArgsVideo\" | \"handleSessionCaptionArgsAudio\" | \"handleSessionCommandCaptionArgsAudio\" | \"handleSessionCaptionArgsDocument\" | \"handleSessionCommandCaptionArgsDocument\" | \"handleSessionCaptionArgsAnimation\" | \"handleSessionCommandCaptionArgsAnimation\" | \"handleSessionCaptionArgsVoice\" | \"handleSessionCommandCaptionArgsVoice\")[], \"handleSessionFreeText\", \"handleSessionFreePhoto\", \"handleSessionFreeVideo\", \"handleSessionFreeAudio\", \"handleSessionFreeDocument\", \"handleSessionFreeAnimation\", \"handleSessionFreeVoice\", \"handleSessionFreeVideoNote\", \"handleSessionFreeSticker\", \"handleSessionFreeLocation\", \"handleSessionFreeContact\", \"handleSessionFreeChannelPost\", \"handleSessionFreeEditChannelPost\", \"handleSessionFreeEdit\", \"handleSessionFreeReaction\", \"handleSessionFreeInlineQuery\", \"handleSessionFreeChosenInlineResult\", \"handleSessionFreePreCheckoutQuery\", \"handleSessionFreeShippingQuery\", \"handleSessionFreeChatJoinRequest\", \"handleSessionFreePoll\", \"handleSessionFreePollAnswer\", \"handleSessionFreeNewChatMembers\", \"handleSessionFreeLeftChatMember\"];\n        listRouteDynamicSpesific: readonly [\"handleFreeText\", \"handleFreePhoto\", \"handleFreeVideo\", \"handleFreeAudio\", \"handleFreeDocument\", \"handleFreeAnimation\", \"handleFreeVoice\", \"handleFreeVideoNote\", \"handleFreeSticker\", \"handleFreeLocation\", \"handleFreeContact\", \"handleFreeChannelPost\", \"handleFreeEditChannelPost\", \"handleFreeEdit\", \"handleFreeReaction\", \"handleFreeInlineQuery\", \"handleFreeChosenInlineResult\", \"handleFreePreCheckoutQuery\", \"handleFreeShippingQuery\", \"handleFreeChatJoinRequest\", \"handleFreePoll\", \"handleFreePollAnswer\", \"handleFreeNewChatMembers\", \"handleFreeLeftChatMember\"];\n        listRouteStaticLC: string[];\n        listRouteStaticIntentLC: string[];\n        listRouteStaticSessionLC: string[];\n        lenListRouteStatic: 15;\n        lenListRouteStaticIntent: 15;\n        lenListRouteStaticSession: number;\n        lenListRouteDynamicSpesific: 24;\n    }"
+                  "text": "[];\n        listRouteStatic: readonly [\"handleCallbackQueryData\", \"handleText\", \"handleCommandText\", \"handleCaptionPhoto\", \"handleCommandCaptionPhoto\", \"handleCaptionVideo\", \"handleCommandCaptionVideo\", \"handleCaptionAudio\", \"handleCommandCaptionAudio\", \"handleCaptionDocument\", \"handleCommandCaptionDocument\", \"handleCaptionAnimation\", \"handleCommandCaptionAnimation\", \"handleCaptionVoice\", \"handleCommandCaptionVoice\"];\n        listRouteStaticIntent: readonly [\"handleArgsCallbackQueryData\", \"handleArgsText\", \"handleCommandArgsText\", \"handleCaptionArgsPhoto\", \"handleCommandCaptionArgsPhoto\", \"handleCaptionArgsVideo\", \"handleCommandCaptionArgsVideo\", \"handleCaptionArgsAudio\", \"handleCommandCaptionArgsAudio\", \"handleCaptionArgsDocument\", \"handleCommandCaptionArgsDocument\", \"handleCaptionArgsAnimation\", \"handleCommandCaptionArgsAnimation\", \"handleCaptionArgsVoice\", \"handleCommandCaptionArgsVoice\"];\n        listRouteStaticSession: readonly [...(\"handleSessionCallbackQueryData\" | \"handleSessionText\" | \"handleSessionCommandText\" | \"handleSessionCaptionPhoto\" | \"handleSessionCommandCaptionPhoto\" | \"handleSessionCaptionVideo\" | \"handleSessionCommandCaptionVideo\" | \"handleSessionCaptionAudio\" | \"handleSessionCommandCaptionAudio\" | \"handleSessionCaptionDocument\" | \"handleSessionCommandCaptionDocument\" | \"handleSessionCaptionAnimation\" | \"handleSessionCommandCaptionAnimation\" | \"handleSessionCaptionVoice\" | \"handleSessionCommandCaptionVoice\" | \"handleSessionArgsCallbackQueryData\" | \"handleSessionArgsText\" | \"handleSessionCommandArgsText\" | \"handleSessionCaptionArgsPhoto\" | \"handleSessionCommandCaptionArgsPhoto\" | \"handleSessionCaptionArgsVideo\" | \"handleSessionCommandCaptionArgsVideo\" | \"handleSessionCaptionArgsAudio\" | \"handleSessionCommandCaptionArgsAudio\" | \"handleSessionCaptionArgsDocument\" | \"handleSessionCommandCaptionArgsDocument\" | \"handleSessionCaptionArgsAnimation\" | \"handleSessionCommandCaptionArgsAnimation\" | \"handleSessionCaptionArgsVoice\" | \"handleSessionCommandCaptionArgsVoice\")[], \"handleSessionFreeText\", \"handleSessionFreePhoto\", \"handleSessionFreeVideo\", \"handleSessionFreeAudio\", \"handleSessionFreeDocument\", \"handleSessionFreeAnimation\", \"handleSessionFreeVoice\", \"handleSessionFreeVideoNote\", \"handleSessionFreeSticker\", \"handleSessionFreeLocation\", \"handleSessionFreeContact\", \"handleSessionFreeChannelPost\", \"handleSessionFreeEditChannelPost\", \"handleSessionFreeEdit\", \"handleSessionFreeReaction\", \"handleSessionFreeInlineQuery\", \"handleSessionFreeChosenInlineResult\", \"handleSessionFreePreCheckoutQuery\", \"handleSessionFreeShippingQuery\", \"handleSessionFreeChatJoinRequest\", \"handleSessionFreePoll\", \"handleSessionFreePollAnswer\", \"handleSessionFreeNewChatMembers\", \"handleSessionFreeLeftChatMember\", \"handleSessionFreeBusinessConnection\", \"handleSessionFreeBusinessMessage\", \"handleSessionFreeEditedBusinessMessage\", \"handleSessionFreeDeletedBusinessMessages\", \"handleSessionFreeMessageReactionCount\", \"handleSessionFreeChatBoost\", \"handleSessionFreeRemovedChatBoost\", \"handleSessionFreeSuccessfulPayment\", \"handleSessionFreeRefundedPayment\", \"handleSessionFreeGroupChatCreated\", \"handleSessionFreeSupergroupChatCreated\", \"handleSessionFreeChannelChatCreated\", \"handleSessionFreeVideoChatStarted\", \"handleSessionFreeVideoChatScheduled\", \"handleSessionFreeVideoChatEnded\", \"handleSessionFreeVideoChatParticipantsInvited\", \"handleSessionFreeUserShared\", \"handleSessionFreeChatShared\", \"handleSessionFreeWebAppData\", \"handleSessionFreeGiveaway\", \"handleSessionFreeGiveawayCreated\", \"handleSessionFreeGiveawayWinners\", \"handleSessionFreeGiveawayCompleted\", \"handleSessionFreePinMessage\"];\n        listRouteDynamicSpesific: readonly [\"handleFreeText\", \"handleFreePhoto\", \"handleFreeVideo\", \"handleFreeAudio\", \"handleFreeDocument\", \"handleFreeAnimation\", \"handleFreeVoice\", \"handleFreeVideoNote\", \"handleFreeSticker\", \"handleFreeLocation\", \"handleFreeContact\", \"handleFreeChannelPost\", \"handleFreeEditChannelPost\", \"handleFreeEdit\", \"handleFreeReaction\", \"handleFreeInlineQuery\", \"handleFreeChosenInlineResult\", \"handleFreePreCheckoutQuery\", \"handleFreeShippingQuery\", \"handleFreeChatJoinRequest\", \"handleFreePoll\", \"handleFreePollAnswer\", \"handleFreeNewChatMembers\", \"handleFreeLeftChatMember\", \"handleFreeBusinessConnection\", \"handleFreeBusinessMessage\", \"handleFreeEditedBusinessMessage\", \"handleFreeDeletedBusinessMessages\", \"handleFreeMessageReactionCount\", \"handleFreeChatBoost\", \"handleFreeRemovedChatBoost\", \"handleFreeSuccessfulPayment\", \"handleFreeRefundedPayment\", \"handleFreeGroupChatCreated\", \"handleFreeSupergroupChatCreated\", \"handleFreeChannelChatCreated\", \"handleFreeVideoChatStarted\", \"handleFreeVideoChatScheduled\", \"handleFreeVideoChatEnded\", \"handleFreeVideoChatParticipantsInvited\", \"handleFreeUserShared\", \"handleFreeChatShared\", \"handleFreeWebAppData\", \"handleFreeGiveaway\", \"handleFreeGiveawayCreated\", \"handleFreeGiveawayWinners\", \"handleFreeGiveawayCompleted\", \"handleFreePinMessage\"];\n        listRouteStaticLC: string[];\n        listRouteStaticIntentLC: string[];\n        listRouteStaticSessionLC: string[];\n        routesByListener: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, {\n            static: string[];\n            staticIntent: string[];\n            staticSession: string[];\n        }>;\n        lenListRouteStatic: 15;\n        lenListRouteStaticIntent: 15;\n        lenListRouteStaticSession: number;\n        lenListRouteDynamicSpesific: 48;\n    }"
                 },
                 {
                   "kind": "Content",
@@ -26512,7 +26676,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 3,
-                "endIndex": 184
+                "endIndex": 234
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -27346,7 +27510,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "{\n        listenerName: string;\n        state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `notfound`;\n        isEdit: boolean;\n    }"
+                  "text": "{\n        listenerName: string;\n        state: `matched` | `no-match` | `no-handler` | `blocked` | `error` | `timeout` | `notfound`;\n        isEdit: boolean;\n    }"
                 },
                 {
                   "kind": "Content",
@@ -27705,6 +27869,37 @@
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Gramstax#metrics:member",
+              "docComment": "/**\n * Runtime metrics snapshot source (observability).\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly metrics: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "MetricsStore",
+                  "canonicalReference": "gramstax!MetricsStore:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "metrics",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
               },
               "isStatic": false,
               "isProtected": false,
@@ -28547,7 +28742,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITE2eCallbackQueryOptions:type",
-          "docComment": "/**\n * @public\n */\n",
+          "docComment": "/**\n * E2E options for callback query updates.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -28578,7 +28773,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITE2eChat:type",
-          "docComment": "/**\n * @public\n */\n",
+          "docComment": "/**\n * Simulated chat object for E2E updates.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -28635,7 +28830,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITE2eContactOptions:type",
-          "docComment": "/**\n * @public\n */\n",
+          "docComment": "/**\n * E2E options for contact messages.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -28666,7 +28861,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITE2eDiceOptions:type",
-          "docComment": "/**\n * @public\n */\n",
+          "docComment": "/**\n * E2E options for dice messages.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -28697,7 +28892,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITE2eLocationOptions:type",
-          "docComment": "/**\n * @public\n */\n",
+          "docComment": "/**\n * E2E options for location messages.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -28728,7 +28923,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITE2eMediaOptions:type",
-          "docComment": "/**\n * @public\n */\n",
+          "docComment": "/**\n * E2E options for media messages (caption support).\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -28759,7 +28954,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITE2eUpdateOptions:type",
-          "docComment": "/**\n * @public\n */\n",
+          "docComment": "/**\n * Base update options for E2E updates.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -28803,7 +28998,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITE2eUser:type",
-          "docComment": "/**\n * @public\n */\n",
+          "docComment": "/**\n * E2E testing helper types for Gramstax bots.\n *\n * @remarks\n *\n * Types for the in-process E2E test helper that simulates Telegram updates without an HTTP server. Mirrors the relevant subset of the Telegram Bot API Update object for constructing mock messages, callback queries, and other update types in tests.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -28900,7 +29095,25 @@
             },
             {
               "kind": "Content",
-              "text": ";\n    autoRetry?: boolean;\n    optionsPage?: {\n        shortCallbackQueryData?: boolean;\n    };\n}"
+              "text": ";\n    autoRetry?: boolean;\n    autoRetryOptions?: {\n        maxRetryAttempts?: number;\n        retryOnInternalServerErrors?: boolean;\n    };\n    updateTimeoutMs?: number;\n    skipDuplicateUpdate?: boolean;\n    webhookSecretToken?: string;\n    maxTextLength?: number;\n    onUpdateError?: (event: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITUpdateErrorEvent",
+              "canonicalReference": "gramstax!ITUpdateErrorEvent:type"
+            },
+            {
+              "kind": "Content",
+              "text": ") => void;\n    statusServerPort?: number;\n    statusServerHostname?: string;\n    pollingMaxRetries?: number;\n    onUpdate?: (event: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITUpdateSuccessEvent",
+              "canonicalReference": "gramstax!ITUpdateSuccessEvent:type"
+            },
+            {
+              "kind": "Content",
+              "text": ") => void;\n    optionsPage?: {\n        shortCallbackQueryData?: boolean;\n    };\n}"
             },
             {
               "kind": "Content",
@@ -28912,7 +29125,7 @@
           "name": "ITGramstaxParams",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 16
+            "endIndex": 20
           }
         },
         {
@@ -29086,7 +29299,34 @@
             },
             {
               "kind": "Content",
-              "text": "[`prototype`]) | string"
+              "text": "[`prototype`]) | string | "
+            },
+            {
+              "kind": "Reference",
+              "text": "_KbCallbackData",
+              "canonicalReference": "gramstax!_KbCallbackData:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<typeof "
+            },
+            {
+              "kind": "Reference",
+              "text": "Ctx",
+              "canonicalReference": "gramstax!Ctx:class"
+            },
+            {
+              "kind": "Content",
+              "text": ", "
+            },
+            {
+              "kind": "Reference",
+              "text": "Array",
+              "canonicalReference": "!Array:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<string | undefined>>"
             },
             {
               "kind": "Content",
@@ -29098,7 +29338,7 @@
           "name": "ITKbDest",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 10
+            "endIndex": 16
           }
         },
         {
@@ -30140,7 +30380,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITPageData:type",
-          "docComment": "/**\n * Page routing data configuration.\n *\n * @remarks\n *\n * Full page data with typed `callbackQueryData` according to the args configured via `buildData`. Every page SHOULD define `static data` via `buildData(...)` to enable callback query routing.\n *\n * - `buildData()` (no args) → `callbackQueryData(): string` — 0 args only - `buildData((a: string, b: string) => ...)` → `callbackQueryData(a, b): string` - `buildData((a?: string) => ...)` → `callbackQueryData(a?): string`\n *\n * @typeParam T - Tuple type representing the callback arg parameters.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Page routing data configuration.\n *\n * @remarks\n *\n * Full page data with typed `callbackQueryData` according to the args configured via `buildData`. Every page SHOULD define `static data` via `buildData(...)` to enable callback query routing.\n *\n * - `buildData()` (no args) → `callbackQueryData(): {result, page, args: []}` — 0 args only - `buildData((a: string, b: string) => ...)` → `callbackQueryData(a, b): {result, page, args: [a, b]}` - `buildData((a?: string) => ...)` → `callbackQueryData(a?): {result, page, args}` (optional still supported)\n *\n * The page class is NOT carried by `static data` (TS cannot infer it without a circular annotation) — pass it explicitly when you want route validation: `Page.data.callbackQueryData<Page>(\"42\")` is compile-error checked against `handleArgsCallbackQueryData`; without the type argument the object is accepted as-is and the route is only resolved at runtime.\n *\n * @typeParam T - Tuple type representing the callback arg parameters.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -30174,7 +30414,43 @@
             },
             {
               "kind": "Content",
-              "text": " & {\n    callbackQueryData(...args: T): string;\n}"
+              "text": " & {\n    callbackQueryData<P extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "Ctx",
+              "canonicalReference": "gramstax!Ctx:class"
+            },
+            {
+              "kind": "Content",
+              "text": " = "
+            },
+            {
+              "kind": "Reference",
+              "text": "Ctx",
+              "canonicalReference": "gramstax!Ctx:class"
+            },
+            {
+              "kind": "Content",
+              "text": ">(...args: T): "
+            },
+            {
+              "kind": "Reference",
+              "text": "_KbCallbackData",
+              "canonicalReference": "gramstax!_KbCallbackData:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "_CtorOf",
+              "canonicalReference": "gramstax!_CtorOf:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<P>, T>;\n}"
             },
             {
               "kind": "Content",
@@ -30199,7 +30475,7 @@
           ],
           "typeTokenRange": {
             "startIndex": 6,
-            "endIndex": 8
+            "endIndex": 16
           }
         },
         {
@@ -30368,7 +30644,7 @@
             },
             {
               "kind": "Content",
-              "text": ";\n}"
+              "text": ";\n    onReload?: () => void;\n}"
             },
             {
               "kind": "Content",
@@ -30385,6 +30661,58 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITUpdateErrorEvent:type",
+          "docComment": "/**\n * Structured error event emitted by `onUpdateError`.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITUpdateErrorEvent = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    traceId: string;\n    listenerName: string;\n    state: `error` | `timeout` | `blocked` | `no-handler` | `validation`;\n    error: unknown;\n    durationMs: number;\n    isEdit: boolean;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITUpdateErrorEvent",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!ITUpdateSuccessEvent:type",
+          "docComment": "/**\n * Structured success event emitted by `onUpdate`.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type ITUpdateSuccessEvent = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    traceId: string;\n    listenerName: string;\n    state: `matched` | `no-match` | `no-handler` | `blocked`;\n    durationMs: number;\n    isEdit: boolean;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "ITUpdateSuccessEvent",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!ITWebhookQueueConfig:type",
           "docComment": "/**\n * Webhook queue configuration for backpressure and worker pooling.\n *\n * @remarks\n *\n * Enable this only for webhook deployments. The queue buffers incoming updates and dispatches them to a worker pool, decoupling HTTP latency from handler work.\n *\n * @example\n * ```typescript\n * webhookQueue: {\n *   enabled: true,\n *   maxQueueSize: 5000,\n *   workerCount: 8,\n *   perChatConcurrency: 1,\n *   blockWhenFull: true\n * }\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -30394,7 +30722,7 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    enabled?: boolean;\n    maxQueueSize?: number;\n    workerCount?: number;\n    perChatConcurrency?: number;\n    blockWhenFull?: boolean;\n}"
+              "text": "{\n    enabled?: boolean;\n    maxQueueSize?: number;\n    workerCount?: number;\n    perChatConcurrency?: number;\n    blockWhenFull?: boolean;\n    enqueueTimeoutMs?: number;\n}"
             },
             {
               "kind": "Content",
@@ -31032,6 +31360,215 @@
         },
         {
           "kind": "Class",
+          "canonicalReference": "gramstax!MetricsStore:class",
+          "docComment": "/**\n * Lightweight in-process metrics store for runtime observability.\n *\n * @remarks\n *\n * Tracks update-level counters, per-listener hits, and latency percentiles in a plain object (no dependencies). Consumed by the `GET /stats` endpoint and by `onUpdateError`/log hooks. Not intended as a permanent telemetry backend — export the snapshot to your favorite metrics system instead.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare class MetricsStore "
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "isAbstract": false,
+          "name": "MetricsStore",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MetricsStore#byListener:member",
+              "docComment": "/**\n * Total update count per listener name (e.g. text, callbackquerydata).\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly byListener: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, number>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "byListener",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MetricsStore#counts:member",
+              "docComment": "/**\n * Lifetime counters for every update outcome.\n *\n * @remarks\n *\n * Includes: `updatesTotal`, `updatesFailed`, `matched`, `noMatch`, `noHandler`, `blocked`, `timeouts`, `skippedDuplicate`, `skippedValidation`.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly counts: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        updatesTotal: number;\n        updatesFailed: number;\n        matched: number;\n        noMatch: number;\n        noHandler: number;\n        blocked: number;\n        timeouts: number;\n        skippedDuplicate: number;\n        skippedValidation: number;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "counts",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MetricsStore#recordUpdate:member(1)",
+              "docComment": "/**\n * Record one routed update.\n *\n * @param listenerName - Listener that triggered the update.\n *\n * @param durationMs - Handler wall time in milliseconds.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "recordUpdate(listenerName: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", durationMs: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "listenerName",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "durationMs",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "recordUpdate"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MetricsStore#snapshot:member(1)",
+              "docComment": "/**\n * Create a frozen snapshot of the current counters.\n *\n * @returns A plain JSON-serializable object.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "snapshot(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        uptimeSeconds: number;\n        counts: {\n            updatesTotal: number;\n            updatesFailed: number;\n            matched: number;\n            noMatch: number;\n            noHandler: number;\n            blocked: number;\n            timeouts: number;\n            skippedDuplicate: number;\n            skippedValidation: number;\n        };\n        byListener: {\n            [x: string]: number;\n        };\n        latency: {\n            count: number;\n            avgMs: number;\n            maxMs: number;\n        };\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "snapshot"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!MetricsStore#startedAt:member",
+              "docComment": "/**\n * Epoch milliseconds when this store was created (uptime reference).\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly startedAt: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "startedAt",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            }
+          ],
+          "implementsTokenRanges": []
+        },
+        {
+          "kind": "Class",
           "canonicalReference": "gramstax!MockTelegramServer:class",
           "docComment": "/**\n * In-process mock Telegram API server for local testing.\n *\n * @remarks\n *\n * Provides a minimal subset of the Telegram Bot API for local development. It does not emulate network delays, rate limits, or full Telegram behavior.\n *\n * @example\n * ```typescript\n * const server = new MockTelegramServer()\n * await server.start()\n * console.log(server.apiRoot)\n * await server.stop()\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -31169,6 +31706,37 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "clearRequests"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!MockTelegramServer#clearUpdates:member(1)",
+              "docComment": "/**\n * Clear the captured inbound update log.\n *\n * @remarks\n *\n * Useful between test cases to isolate update assertions. Does not affect the `requests` log.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "clearUpdates(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "clearUpdates"
             },
             {
               "kind": "Property",
@@ -38271,8 +38839,39 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!WebhookQueue#close:member(1)",
+              "docComment": "/**\n * Close the queue and release all waiting consumers and producers.\n *\n * @remarks\n *\n * Workers waiting on `dequeue()` resolve with `undefined` (sentinel). Enqueueing after close throws.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "close(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "close"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!WebhookQueue#dequeue:member(1)",
-              "docComment": "/**\n * Dequeue a value, blocking when the queue is empty.\n *\n * @returns Promise resolved with the next value.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Dequeue a value, blocking when the queue is empty.\n *\n * @returns Promise resolved with the next value, or `undefined` when closed and empty.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -38308,7 +38907,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!WebhookQueue#enqueue:member(1)",
-              "docComment": "/**\n * Enqueue a value, blocking when the queue is full.\n *\n * @param value - Value to enqueue.\n *\n * @returns Promise resolved when enqueued.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Enqueue a value, blocking when the queue is full.\n *\n * @param value - Value to enqueue.\n *\n * @param signal - Optional AbortSignal to cancel a blocked enqueue.\n *\n * @returns Promise resolved when enqueued.\n *\n * @throws\n *\n * Error if the queue is closed or enqueue is aborted.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -38317,6 +38916,15 @@
                 {
                   "kind": "Content",
                   "text": "T"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", signal?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AbortSignal",
+                  "canonicalReference": "!AbortSignal:interface"
                 },
                 {
                   "kind": "Content",
@@ -38338,8 +38946,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
+                "startIndex": 5,
+                "endIndex": 7
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -38352,6 +38960,14 @@
                     "endIndex": 2
                   },
                   "isOptional": false
+                },
+                {
+                  "parameterName": "signal",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
                 }
               ],
               "isOptional": false,
@@ -38388,6 +39004,36 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "getStats"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!WebhookQueue#isClosed:member",
+              "docComment": "/**\n * Whether the queue has been closed.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "get isClosed(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "isClosed",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
             },
             {
               "kind": "Property",
